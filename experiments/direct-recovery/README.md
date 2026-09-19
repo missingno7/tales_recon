@@ -43,6 +43,12 @@ ends exactly at the next discovered function entry. Its receipt proves the
 two PC-relative references, eight resident calls, the record-table A4 identity,
 and the matched `.divs` runtime contribution.
 
+`ov11_F_3926` is a second `FUNCTION_WITH_DATA_MATCH`: a 230-byte parser for
+an `F` header and 32-byte indexed records. Its three contiguous format strings
+add 24 exact CODE bytes. The exact source declares the observed field offsets,
+including the intentionally non-source-order scan arguments needed to match the
+historical ABI.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
