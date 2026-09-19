@@ -13,6 +13,7 @@ from local_http import LocalHTTP
 import local_model_proposer as proposer
 from grinder import eligible,canonical_promotion,blocker_next_action
 from grinder_report import summarize,blocker_class
+from fingerprint import CORPUS
 
 
 def facts():
@@ -103,6 +104,10 @@ class LocalCacheTests(unittest.TestCase):
 
 
 class ReportTests(unittest.TestCase):
+    def test_fingerprint_retains_the_byte_return_abi_matrix(self):
+        self.assertTrue({'char_return','unsigned_char_return','int_from_char_return',
+                         'unsigned_int_from_char_return','long_from_char_return'} <= set(CORPUS))
+
     def test_byte_return_blocker_does_not_recommend_more_candidate_retries(self):
         self.assertIn('do not retry ordinary candidate C',
                       blocker_next_action('BYTE_RETURN_ABI_MISMATCH: return convention differs'))

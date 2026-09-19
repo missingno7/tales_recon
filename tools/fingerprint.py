@@ -10,6 +10,10 @@ from recovery_state import evidence
 
 CORPUS={
  'char_return':'char recovered(a) char a; { char value; value=a; return value; }',
+ 'unsigned_char_return':'unsigned char recovered(a) char a; { char value; value=a; return value; }',
+ 'int_from_char_return':'int recovered(a) char a; { char value; value=a; return value; }',
+ 'unsigned_int_from_char_return':'unsigned int recovered(a) char a; { char value; value=a; return value; }',
+ 'long_from_char_return':'long recovered(a) char a; { char value; value=a; return value; }',
  'char_expression_fallthrough':'recovered(a) char a; { char value; value=a; value; }',
  'int_expression_fallthrough':'recovered(a) int a; { int value; value=a; value; }',
  'literal_string':'char *recovered() { return "oracle"; }',
