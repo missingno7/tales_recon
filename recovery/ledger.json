@@ -2354,6 +2354,19 @@
         "source_sha256": "80ba0cdfdfa157eb8e29f61f1fd860f26cb4d18fbd7ca1604a6d5d504cf9afcd",
         "state": "CODEGEN_SIMILAR",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 54,
+        "cache_key": "724880549a9c013d06edc2509dfb6f0af838d0cf1175a4895653ccf79bcf3ed1",
+        "comparison_identity": "d9686e853da9235fb61f5e0c8e8231fd4f5cf678d108d8bd36ab8a6e1daf202d",
+        "expected_length": 54,
+        "first_difference": null,
+        "mnemonic_similarity": 1.0,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_4848/ecce6898c9f1ba0a74c810553b6d33a3d7b8fa4f332da0b01f94e9fb7d487079-aztec36-724880549a9c-d9686e853da9.json",
+        "source_sha256": "ecce6898c9f1ba0a74c810553b6d33a3d7b8fa4f332da0b01f94e9fb7d487079",
+        "state": "FUNCTION_CODE_MATCH",
+        "verdict": "EQUAL"
       }
     ],
     "ov11_F_49CE": [
@@ -4243,27 +4256,6 @@
       "reason": "PERSISTENT_CODEGEN_MISMATCH: five bounded historical-C candidates leave an eight-byte Aztec switch block-layout delta",
       "state": "BLOCKED"
     },
-    "ov11_F_4848": {
-      "attempts": [
-        {
-          "actual_length": null,
-          "cache_key": "211fc2dc962d30304bb4b44ff6661a5185d82e041a66cc6480a73e875a2fb526",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 54,
-          "first_difference": null,
-          "mnemonic_similarity": null,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov11_F_4848/b75f2aeff52318ddff50f59e362feca486097d4b3955f58d1a98f040a9f8795f-aztec36-211fc2dc962d-e962cd232c05.json",
-          "source_sha256": "b75f2aeff52318ddff50f59e362feca486097d4b3955f58d1a98f040a9f8795f",
-          "state": "CANDIDATE_C",
-          "verdict": "BLOCKED"
-        }
-      ],
-      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
-      "ownership_unchanged": true,
-      "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
-      "state": "BLOCKED"
-    },
     "ov11_F_6FFE": {
       "attempts": [
         {
@@ -5306,6 +5298,22 @@
       "proof_sha256": "553c3d751cfbf56c734fa0b288fe9a3ebdeac0016980e5ab84edcfe2da8dc279",
       "source": "src/recovered/ov11/ov11_F_4790.c",
       "source_sha256": "3d6d5c011a9d165d0df4055eeda68de8509285cc662e820db56b5df0b9d91783",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_4848": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 18558,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "6a6228922b02f7aad75901e548dab1b95a50ebf82db7ce82c3ffa58cccb1660c",
+        "size": 54,
+        "start": 18504
+      },
+      "proof": "recovery/proofs/ov11_F_4848.json",
+      "proof_sha256": "b76c3268d3d52c2fa0e82d1b10031d808edb5ad18dc9935bb4a212f4ef6d3dd6",
+      "source": "src/recovered/ov11/ov11_F_4848.c",
+      "source_sha256": "ecce6898c9f1ba0a74c810553b6d33a3d7b8fa4f332da0b01f94e9fb7d487079",
       "state": "FUNCTION_CODE_MATCH"
     },
     "ov11_F_49CE": {
