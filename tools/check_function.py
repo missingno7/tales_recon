@@ -7,7 +7,7 @@ import sys
 from common import require,sha256,write_json,FormatError
 from analysis_support import ROOT,game
 from recovery_state import evidence,recovery,LEDGER,save_rank
-from compiler_oracle import compile_many,PROFILES
+from compiler_oracle import compile_many,PROFILES,identity
 from function_compare import compare_function
 
 
@@ -62,16 +62,46 @@ def check_many(requests,promote_equal=True):
     prepared=[];trials=[]
     for req in requests:
         f,l=validated_function(req['id']);source=Path(req['source']).read_text()
+        source_hash=sha256(source.encode())
+        retained=ROOT/'recovery/candidates'/f['id']/(source_hash+'.c')
+        retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
+        unit=None;unit_blocker=None;compile_source=source
+        if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] for c in f.get('direct_callees',[])):
+            from check_unit import prepare_unit
+            try:
+                members,names,compile_source,_=prepare_unit(f['id'],source);unit=(members,names,compile_source)
+            except FormatError as exc:unit_blocker=str(exc)
         profiles=req.get('profiles',['aztec36','aztec50-short'])
         for profile in profiles:
             require(profile in PROFILES,'unsupported compiler profile')
-            prepared.append((req,f,l,source,profile));trials.append(dict(source=source,profile=profile))
+            try:
+                identity(compile_source,profile)
+                slot=len(trials);trials.append(dict(source=compile_source,profile=profile))
+            except FormatError as exc:
+                slot=dict(status='SOURCE_REJECTED',identity=dict(profile=profile,flags=PROFILES[profile]['flags']),
+                          cache_key=sha256((source_hash+profile+str(exc)).encode()),cache_hit=False,
+                          guest_returncodes=[],directory=str(ROOT/'build/source-rejections'),error=str(exc))
+            prepared.append((req,f,l,source,profile,slot,unit,unit_blocker))
     results=compile_many(trials);reports=[]
-    for (req,f,l,source,profile),compiled in zip(prepared,results):
-        report=compare_function(f,compiled,l['a4']['bias']);report['id']=f['id'];report['source_sha256']=sha256(source.encode('ascii'))
-        report['comparison_identity']=sha256(Path(__file__).with_name('function_compare.py').read_bytes())
+    for req,f,l,source,profile,slot,unit,unit_blocker in prepared:
+        compiled=results[slot] if isinstance(slot,int) else slot
+        if unit and compiled['status']=='COMPILED':
+            from check_unit import retain_unit
+            members,names,combined=unit
+            _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'])
+        else:report=compare_function(f,compiled,l['a4']['bias'])
+        report['id']=f['id'];report['source_sha256']=sha256(source.encode())
+        if unit_blocker:report['unit_blocker']=unit_blocker
+        verification_files=('check_function.py','function_compare.py','check_unit.py')
+        report['comparison_identity']=sha256(b''.join(Path(__file__).with_name(p).read_bytes() for p in verification_files))
+        if req.get('proposer_receipt'):
+            proposal_path=(ROOT/req['proposer_receipt']).resolve()
+            require(proposal_path.is_relative_to(ROOT/'recovery/proposals'),'proposer receipt escapes ledger')
+            proposal=json.loads(proposal_path.read_text())
+            require(proposal['id']==f['id'] and proposal['source_sha256']==report['source_sha256'],'proposer source identity differs')
+            report['proposer']=dict(receipt=req['proposer_receipt'],receipt_sha256=sha256(proposal_path.read_bytes()),model=proposal['identity']['model'])
         if report['verdict']=='BLOCKED' and compiled['status']!='COMPILED':
-            logs=[]
+            logs=[dict(file='harness-validation',text=compiled['error'])] if compiled.get('error') else []
             for p in sorted(Path(compiled['directory']).glob('*.log')):
                 text=p.read_text(errors='replace')
                 if text:logs.append(dict(file=p.name,text=text[:1800]))

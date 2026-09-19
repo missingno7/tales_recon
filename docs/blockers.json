@@ -231,18 +231,19 @@
     },
     {
       "current_evidence": [
-        "Four game leaves promoted as FUNCTION_CODE_MATCH, 164 bytes",
-        "Owned candidate data/BSS and PC-relative data deliberately BLOCKED",
-        "Unproven inter-object PC-relative direct-call identity prevents promotion"
+        "17 functions promoted as FUNCTION_CODE_MATCH, 858 bytes",
+        "A complete natural 88-byte callee/caller unit matches, including both short PC-relative call identities",
+        "Owned candidate data/BSS and PC-relative data remain blocked; nonadjacent dependency units with gaps are rejected"
       ],
       "experiments_tried": [
         "Independent complete-object extraction and relocation/A4 identity normalization",
-        "End-to-end fixture proposer: four promotions, one retained repeated mismatch, zero worker boots on repeat"
+        "End-to-end fixture proposer: four promotions, one retained repeated mismatch, zero worker boots on repeat",
+        "Ordinary check_function automatically bundles adjacent recovered dependencies; all bytes and all members pass before promoting the caller"
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
-      "missing_artifact": "Owned-data extent model and independently bound inter-object call proof",
-      "next_experiment": "Extend typed data/object ownership and call-target binding without relaxing whole-contribution equality",
+      "missing_artifact": "Owned-data extent model and natural layouts for larger dependency units",
+      "next_experiment": "Extend data ownership and recover ranked same-node dependencies without omitting gaps or weakening complete-contribution proof",
       "status": "OPEN",
       "target": "stronger data and call contribution proofs"
     }

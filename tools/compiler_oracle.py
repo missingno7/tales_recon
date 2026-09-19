@@ -80,14 +80,16 @@ def extract(directory,prefix):
     entries=[(h,v) for (h,n),v in sym.items() if n=='_recovered']
     require(len(entries)==1,'expected one recovered symbol')
     hnum,start=entries[0];h=next(h for h in model['hunks'] if h['number']==hnum)
-    require(h['node']!='resident' and start==0,'candidate must start its natural overlay contribution')
+    require(h['node']!='resident' and 0<=start<code_size,'candidate symbol must lie inside its natural overlay contribution')
     require(h['initialized_size']==(code_size+3)//4*4,'object/HUNK size mismatch')
     raw=blob[h['content_offset']:h['content_offset']+code_size]
     require(blob[h['content_offset']+code_size:h['content_offset']+h['initialized_size']]==bytes((-code_size)%4),'nonzero HUNK padding')
-    return dict(code_hex=raw.hex(),code_size=code_size,data_size=data_size,bss_size=bss_size,hunk=hnum,
+    result=dict(code_hex=raw.hex(),code_size=code_size,data_size=data_size,bss_size=bss_size,hunk=hnum,
         object_sha256=sha256(obj),executable_sha256=sha256(blob),hunks=model['hunks'],
         relocations=[dict(r,relative_offset=r['source_offset']) for r in model['relocations'] if r['source_hunk']==hnum],
         all_relocations=model['relocations'],symbols=[dict(hunk=h,name=n,offset=v) for (h,n),v in sym.items()])
+    if start:result['entry_offset']=start
+    return result
 
 
 def compile_many(trials):

@@ -1,0 +1,1 @@
+recovered(p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,v0,v1,v2,v3,v4,v5,v6,v7,v8,v9) char *p0,*p1,*p2,*p3,*p4,*p5,*p6,*p7,*p8,*p9; char v0,v1,v2,v3,v4,v5,v6,v7,v8,v9; { *p0=v0; *p1=v1; *p2=v2; *p3=v3; *p4=v4; *p5=v5; *p6=v6; *p7=v7; *p8=v8; *p9=v9; }

@@ -48,6 +48,8 @@ def compare_function(f,compiled,a4_bias):
     if compiled['status']!='COMPILED':
         report.update(reason=compiled['status'],compile_returncodes=compiled['guest_returncodes']);return report
     c=compiled['contribution'];expected=bytes.fromhex(f['raw_bytes']);actual=bytes.fromhex(c['code_hex'])
+    if c.get('entry_offset',0):
+        report.update(actual_length=len(actual),reason='MULTI_FUNCTION_OBJECT_REQUIRES_COMPLETE_UNIT_PROOF');return report
     # Manx symbol maps label folded COMMON as logical H2, while storage is in
     # the tail of root H1. Verify that convention from this linked artifact.
     symbol_map=[dict(s) for s in c['symbols']]
@@ -132,11 +134,24 @@ def compare_function(f,compiled,a4_bias):
                     at=a.address+site;norm[at:at+2]=(eo.mem.disp&65535).to_bytes(2,'big')
                     proof.append(dict(kind='A4_D16_SYMBOL',offset=at,identity=identity,expected=expected_identity))
             if e.mnemonic.split('.')[0] in ('bsr','jsr') and e.operands[-1].address_mode != K.M68K_AM_REGI_ADDR_DISP:
-                # Until a complete inter-object PC-relative symbol proof is
-                # available, do not promote even coincidentally equal bytes.
                 call=next((x for x in f['direct_callees'] if x['site']-f['start']==e.address),None)
                 if call:
-                    issues.append(dict(kind='DIRECT_CALL_BINDING_UNPROVEN',offset=e.address,target=call['id']))
+                    ao=a.operands[-1];disp=None;field=None;width=None
+                    if ao.type==K.M68K_OP_BR_DISP:
+                        disp=ao.br_disp.disp;width=1 if a.size==2 else 2 if a.size==4 else None
+                        field=1 if width==1 else 2
+                    elif ao.type==K.M68K_OP_MEM and ao.address_mode==K.M68K_AM_PCI_DISP and a.size==4:
+                        disp=ao.mem.disp;field=2;width=2
+                    identity=None
+                    if disp is not None and width:
+                        target=c.get('code_offset',0)+a.address+2+disp
+                        identity=target_identity(c['hunk'],target,symbol_map)
+                    if identity and (identity['hunk'],identity['offset'])==(call['hunk'],call['offset']):
+                        at=a.address+field
+                        norm[at:at+width]=bytes(e.bytes)[field:field+width]
+                        proof.append(dict(kind='PC_RELATIVE_CALL_SYMBOL',offset=at,width=width,identity=identity))
+                    else:
+                        issues.append(dict(kind='DIRECT_CALL_BINDING_UNPROVEN',offset=e.address,target=call['id']))
     else:
         if any(r for r in f['referenced_data'] if r['kind']=='A4_RELATIVE'):issues.append(dict(kind='INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF'))
     report.update(relocation_equal=not issues,relocation_proof=proof,relocation_issues=issues,

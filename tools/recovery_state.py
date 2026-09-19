@@ -45,11 +45,15 @@ def facts(fid,max_instructions=160):
     previous=[];previous_sources={}
     for attempt in r['attempts'].get(fid,[])[-5:]:
         receipt=json.loads((ROOT/attempt['receipt']).read_text())
-        previous.append({k:receipt[k] for k in ('source_sha256','compiler','flags','verdict','reason','expected_length','actual_length','first_differing_instruction','relocation_issues','mnemonic_similarity','compiler_feedback') if k in receipt})
+        previous.append({k:receipt[k] for k in ('source_sha256','compiler','flags','verdict','reason','expected_length','actual_length','first_differing_instruction','relocation_issues','mnemonic_similarity','compiler_feedback','unit_feedback','unit_blocker') if k in receipt})
         cache=ROOT/'build/compile-cache'/receipt['cache_key'];manifest=cache/'receipt.json'
-        if manifest.exists():
+        candidate=ROOT/'recovery/candidates'/fid/(receipt['source_sha256']+'.c')
+        source=None
+        if candidate.exists():source=candidate.read_text()
+        elif manifest.exists():
             retained=json.loads(manifest.read_text());source=(cache/(retained['prefix']+'.c')).read_text()
-            require(sha256(source.encode('ascii'))==receipt['source_sha256'],'previous candidate source hash changed')
+        if source is not None:
+            require(sha256(source.encode())==receipt['source_sha256'],'previous candidate source hash changed')
             previous_sources[receipt['source_sha256']]=dict(source=source[:4096],truncated=len(source)>4096)
     fingerprints=[];index=ROOT/'evidence/fingerprints/index.json'
     if index.exists():
@@ -61,10 +65,10 @@ def facts(fid,max_instructions=160):
     dependencies=[]
     for call in f['direct_callees'][:12]:
         dep=r['functions'].get(call['id'])
-        if dep:dependencies.append(dict(id=call['id'],state=dep['state'],source=(ROOT/dep['source']).read_text()[:3000]))
+        if dep:dependencies.append(dict(id=call['id'],name='F_h%02d_%04X'%(call['hunk'],call['offset']),state=dep['state'],source=(ROOT/dep['source']).read_text()[:3000]))
     packages=dict(schema_version=1,id=fid,extent={k:f[k] for k in ('node','hunk','start','end','size','sha256','extent_status','confidence')},
         entry_evidence=f['entry_evidence'],instructions=f['instructions'],cfg=f['cfg'],
-        calls=[dict(c,current_state=r['functions'].get(c['id'],{}).get('state','DISCOVERED')) for c in f['direct_callees']],
+        calls=[dict(c,name='F_h%02d_%04X'%(c['hunk'],c['offset']),current_state=r['functions'].get(c['id'],{}).get('state','DISCOVERED')) for c in f['direct_callees']],
         indirect=f['indirect_control_flow'],data=[dict(hunk=h,offset=o,name='G_h%02d_%04X'%(h,o),type_status='INFER_FROM_ACCESSES') for h,o in refs],
         strings=f['referenced_strings'],relocations=f['relocations'],stack_frames=f['stack_frames'],argument_accesses=f['likely_argument_accesses'],
         abi=dict(a4_bias=ledger['a4']['bias'],profiles=['aztec36','aztec36-long','aztec50','aztec50-short'],historical_selection='AMBIGUOUS',fingerprints='evidence/fingerprints/index.json'),

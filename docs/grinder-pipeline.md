@@ -23,11 +23,18 @@ semantic whole-overlay pilot.
 | ov04_F_00C4 | 34 bytes | aztec36 |
 | ov04_F_00E6 | 30 bytes | aztec36 |
 
-All four passed the exact verifier. Their 164 bytes are FUNCTION_CODE_MATCH,
+All four initial bootstrap functions passed the exact verifier. Their 164 bytes are FUNCTION_CODE_MATCH,
 with external data identities resolved independently; no global-data layout is
 claimed. Other tested profiles differ on these game functions. This is useful
 release/ABI discrimination, not proof of a uniquely selected historical release.
 The 470 matching runtime bytes and cross-release segload ambiguity remain intact.
+
+The next ranked batches recovered 12 additional leaves (640 bytes), with failures
+retained and revised from exact feedback. The ordinary verifier then automatically
+included a recovered callee and verified the entire naturally compiled 88-byte
+unit `ov11_F_25D6` + `ov11_F_25F8`. Both short BSR targets resolve to the verified
+callee symbol. Promoting its 54-byte caller brings the total to **17 functions,
+858 bytes**. This remains function-level proof, not an ov11 module match.
 
 The end-to-end test uses `experiments/grinder-bootstrap/fixture_proposer.py`, a
 deterministic replay of independently authored C, **not an LLM**. It promotes the
@@ -77,7 +84,17 @@ invocation receives one JSON fact package on stdin, and must emit exactly:
 ```
 
 The adapter may call the user's chosen model service. No model provider, account,
-or API key is embedded in this repository. Packages are limited to 160 decoded
+or API key is embedded in this repository. The optional `tools/model_proposer.py`
+adapter uses the installed CLI and existing login with an explicitly selected
+model (default `gpt-5.6-luna`, low reasoning). It requests read-only, ephemeral,
+structured output, disables project tool features, caches model proposals, and
+rejects tool events or incomplete responses. Offline contract tests pass; live
+model calls have **not** been validated. Automatic approval review rejected the
+first bounded data transfer, so recovery continued in the current task using the
+local compiler pipeline. Do not count the fixture proposer as model convergence.
+The interface follows the [official non-interactive documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
+
+Packages are limited to 160 decoded
 instructions and 64 KiB, and contain extent, disassembly/CFG, ABI, nearest measured
 compiler examples, calls, data/string references, relocations, recovered
 dependencies, retained prior candidate C, and up to five compact mismatches. Mechanical `G_hNN_OFFSET`
@@ -89,7 +106,10 @@ overlay leaves, and penalizes uncertain boundaries, indirect flow, relocations,
 unknown calls, and data references. Resident work ranks last. Recovered entries
 are skipped on restart. Proposer errors and bounded non-convergence produce
 `recovery/blockers/*.json`; `python tools/grinder.py retry ID` explicitly requeues
-one. The loop processes other eligible candidates. Use one grinder writer per
+one. The loop processes other eligible candidates. Infrastructure failures pause
+the run without marking the selected functions blocked. A first cache hit still
+provides a revision opportunity; only a repeated failure for that function ends
+its attempt. Each completed round saves a checkpoint. Use one grinder writer per
 checkout. The worker has an exclusive compilation lock; a stale lock requires
 checking that its worker has stopped before removing that one file.
 
@@ -112,8 +132,23 @@ Feedback includes lengths, relocation profiles/proofs, raw and normalized first
 differences, first differing instruction, mnemonic similarity, prologue/epilogue,
 owned data/BSS sizes, compiler/flags, cache key, and compiler-error logs.
 
+For a caller with adjacent recovered same-node dependencies, `check_function.py`
+automatically creates one source unit in natural function order. Existing C is
+renamed to mechanical dependency symbols; no original bytes enter compilation.
+Every function symbol must occur at its expected contribution boundary, all
+object bytes must be accounted for, and every member must match before the caller
+can promote. Wrong callee identities, calls into a function's interior, changed
+dependency code, extra trailing code, padding gaps, and owned data reject the unit.
+Unit sources, dependency hashes, whole-object hashes and receipts are retained in
+`recovery/units`; generated coverage validates the linked receipt. `check_unit.py`
+exposes the same complete-unit comparison for diagnostics. No MODULE_MATCH is
+granted for a partial historical module.
+
+Unsupported source/harness declarations are recorded per trial. They no longer
+cancel other valid candidates in the same compilation batch.
+
 Current conservative blockers include candidate-owned data/BSS, PC-relative data
-ownership, and inter-object PC-relative call bindings. These require additional
+ownership, and call bindings outside completely verified units. These require additional
 proof support before promotion. Unknown indexed jumps stop descent; no jump table
 is guessed. Explicit A4 writes/restores prevent a closed ABI-based proof.
 Indirect calls can be recorded and compiled, but are deprioritized. The harness
