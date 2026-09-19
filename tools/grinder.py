@@ -32,6 +32,11 @@ def exhausted(reports,before,after,max_attempts):
     return count>=max_attempts or (already_seen and all(x['cache_hit'] or x.get('reason')=='SOURCE_REJECTED' for x in reports))
 
 
+def canonical_promotion(reports):
+    """True only when the verifier emitted a canonical promotion receipt."""
+    return any(report.get('promotion') for report in reports)
+
+
 def checkpoint(totals):
     totals['elapsed_seconds']=time.time()-totals['started_unix']
     write_json(ROOT/'recovery/runs'/(totals['run_id']+'.json'),totals)
@@ -135,7 +140,12 @@ def run(args):
                 totals['trials'].append({k:report[k] for k in ('id','verdict','proof_level','reason','compiler','expected_length','actual_length','cache_hit','source_sha256','unit_blocker','relocation_issues','data_contributions','promotion','proposer','compiler_feedback') if k in report})
             for req in requests:
                 fid=req['id'];matching=[x for x in reports if x['id']==fid]
-                if any(x['verdict']=='EQUAL' for x in matching):totals['promoted'].append(fid)
+                # Some exact checks are intentionally intermediate proofs
+                # (for example FUNCTION_WITH_DATA_MATCH).  Only the checker
+                # can attach a canonical promotion receipt after its
+                # regression gate, so the run report must follow that receipt
+                # rather than equating every EQUAL verdict with promotion.
+                if canonical_promotion(matching):totals['promoted'].append(fid)
                 else:
                     r=recovery();attempts=r['attempts'].get(fid,[])
                     # A cache hit from a different function is still fresh feedback

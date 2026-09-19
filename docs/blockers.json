@@ -15,7 +15,7 @@
         "Inspected sibling toolchain top levels; these provide DOS/Win32 tools, not evidence of an Amiga compiler",
         "WinUAE unattended smoke-003/004: compile, assemble, explicit c.lib link and execution all return 0; output identical across runs. Older adump rejects CJ object.",
         "96-trial matrix: 24 sources across four 3.6a/5.0a profiles compiled; four complete game leaves match aztec36 and differ under tested alternatives. Shared runtime is not a discriminator.",
-        "120-trial matrix: 30 independent sources across four profiles compiled. Hosted gpt-5.6-luna grinder ran four rounds, promoted two complete functions through exact comparisons, and retained a third blocker; source recovery totals 23 functions / 1158 bytes."
+        "120-trial matrix: 30 independent sources across four profiles compiled. Hosted gpt-5.6-luna grinder ran four rounds, promoted two complete functions through exact comparisons, and retained a third blocker; this historical experiment remains valid, while current recovery totals are tracked separately."
       ],
       "first_mismatch": null,
       "hypotheses": [
@@ -232,9 +232,9 @@
     },
     {
       "current_evidence": [
-        "17 functions promoted as FUNCTION_CODE_MATCH, 858 bytes",
+        "55 functions promoted as FUNCTION_CODE_MATCH, 5748 bytes",
         "A complete natural 88-byte callee/caller unit matches, including both short PC-relative call identities",
-        "Owned candidate data/BSS and PC-relative data remain blocked; nonadjacent dependency units with gaps are rejected"
+        "Adjacent compiler-owned PC-relative data has strict proof; initialized static DATA has a manifest-gated verifier but no game initializer is claimed; nonadjacent dependency units with gaps are rejected"
       ],
       "experiments_tried": [
         "Independent complete-object extraction and relocation/A4 identity normalization",
@@ -243,8 +243,8 @@
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
-      "missing_artifact": "Owned-data extent model and natural layouts for larger dependency units",
-      "next_experiment": "Extend data ownership and recover ranked same-node dependencies without omitting gaps or weakening complete-contribution proof",
+      "missing_artifact": "Independently reconstructed initialized-data source and natural layouts for larger dependency units",
+      "next_experiment": "Derive candidate-owned table initializers independently before creating bounded ownership manifests; recover ranked same-node dependencies without omitting gaps or weakening complete-contribution proof",
       "status": "OPEN",
       "target": "stronger data and call contribution proofs"
     },

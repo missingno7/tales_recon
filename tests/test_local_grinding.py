@@ -11,7 +11,7 @@ from common import FormatError,write_json,sha256
 from local_fact_pack import fit,messages_for,BudgetError
 from local_http import LocalHTTP
 import local_model_proposer as proposer
-from grinder import eligible
+from grinder import eligible,canonical_promotion
 from grinder_report import summarize,blocker_class
 
 
@@ -48,6 +48,10 @@ class FactBudgetTests(unittest.TestCase):
 
 
 class TransportAndQueueTests(unittest.TestCase):
+    def test_intermediate_exact_proof_is_not_a_promotion(self):
+        self.assertFalse(canonical_promotion([dict(verdict='EQUAL',proof_level='FUNCTION_WITH_DATA_MATCH')]))
+        self.assertTrue(canonical_promotion([dict(verdict='EQUAL',proof_level='FUNCTION_CODE_MATCH',promotion=dict(proof='recovery/proofs/x.json'))]))
+
     def test_only_loopback_endpoints(self):
         for endpoint in ('http://example.com','http://127.0.0.1.evil','http://127.0.0.1@evil','http://0.0.0.0','http://192.168.1.2','https://localhost'):
             with self.assertRaises(FormatError):LocalHTTP(endpoint)
