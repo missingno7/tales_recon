@@ -21,6 +21,13 @@ class RuntimeGuidanceTests(unittest.TestCase):
             self.assertIn('Do not declare a C function',call['runtime']['source_contract'])
         self.assertEqual(package['abi']['historical_selection'],'AMBIGUOUS')
 
+    def test_signed_division_helper_has_a_complete_runtime_identity(self):
+        package=facts('ov11_F_4790')
+        call=next(c for c in package['calls'] if c['offset']==0x7F9C)
+        self.assertEqual(call['current_state'],'MATCHED_RUNTIME_CONTRIBUTION')
+        self.assertEqual(call['runtime']['symbol'],'.divs')
+        self.assertEqual(set(call['runtime']['profiles']),{'aztec36','aztec50-short'})
+
     def test_wrong_executable_rejected(self):
         with self.assertRaises(FormatError):runtime_dependencies(dict(game_sha256='wrong'))
 

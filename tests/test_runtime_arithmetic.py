@@ -1,5 +1,6 @@
 import unittest
 from runtime_arithmetic import aliases
+from function_compare import runtime_symbol_names
 from common import sha256, FormatError
 
 
@@ -47,6 +48,10 @@ class RuntimeAliasTests(unittest.TestCase):
     def test_partial_match_rejected(self):
         self.compiled['contribution']['hunks']=[dict(self.h,initialized_size=2)]
         self.assertEqual(self.resolve()[0],[])
+
+    def test_runtime_symbol_names_are_not_limited_to_multiply(self):
+        self.evidence['contributions'][0]['entries'].append(dict(name='.divs',offset=0))
+        self.assertEqual(runtime_symbol_names(self.evidence),{'.helper','.divs'})
 
 
 if __name__=='__main__':unittest.main()

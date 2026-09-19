@@ -50,7 +50,9 @@ def analyze(job):
     results = []
     for prefix, profile, library in (
         ('mul36', 'aztec36', 'aztec-3.6a/SYS1/lib/c.lib'),
-        ('mul50', 'aztec50-short', 'aztec-5.0a/Aztec2/lib/c16.lib')):
+        ('div36', 'aztec36', 'aztec-3.6a/SYS1/lib/c.lib'),
+        ('mul50', 'aztec50-short', 'aztec-5.0a/Aztec2/lib/c16.lib'),
+        ('div50', 'aztec50-short', 'aztec-5.0a/Aztec2/lib/c16.lib')):
         obj = (work/(prefix+'.o')).read_bytes()
         require(obj[:2] in (b'AJ', b'CJ'), 'unsupported object')
         size = int.from_bytes(obj[10:14], 'big')

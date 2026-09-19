@@ -42,6 +42,12 @@ def unique_word_site(ins,value):
     return sites[0] if len(sites)==1 else None
 
 
+def runtime_symbol_names(evidence):
+    """Names eligible for a separately proven runtime contribution alias."""
+    return {entry['name'] for contribution in evidence['contributions']
+            for entry in contribution['entries']}
+
+
 def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
     report=dict(expected_length=f['size'],actual_length=None,compiler=compiled['identity']['profile'],flags=compiled['identity']['flags'],
                 cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],verdict='BLOCKED',relocation_equal=False,proof_level=None)
@@ -102,13 +108,16 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
     # from the naturally linked startup's LEA relocation in the actual binary.
     from pathlib import Path
     blob=(Path(compiled['directory'])/(compiled['prefix']+'.exe')).read_bytes()
-    if any(s['name']=='.mulu' for s in c['symbols']):
+    runtime_evidence_path=ROOT/'evidence/experiments/runtime-arithmetic.json'
+    runtime_evidence=None
+    if runtime_evidence_path.exists():
         import json
         from analysis_support import game
         from runtime_arithmetic import aliases
+        runtime_evidence=json.loads(runtime_evidence_path.read_text())
+    if runtime_evidence and any(s['name'] in runtime_symbol_names(runtime_evidence) for s in c['symbols']):
         original,original_model,_=game()
-        runtime_evidence_path=ROOT/'evidence/experiments/runtime-arithmetic.json'
-        runtime_symbols,runtime_proof=aliases(compiled,blob,original,original_model,json.loads(runtime_evidence_path.read_text()))
+        runtime_symbols,runtime_proof=aliases(compiled,blob,original,original_model,runtime_evidence)
         symbol_map.extend(runtime_symbols)
         report['runtime_contributions']=runtime_proof
         report['runtime_evidence_sha256']=sha256(runtime_evidence_path.read_bytes())
