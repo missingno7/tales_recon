@@ -1,0 +1,771 @@
+{
+  "blocker": {
+    "attempts": [
+      {
+        "actual_length": null,
+        "cache_key": "ceefbbd3aacd7388e4f6991a1994218d67e18b348567c7780b320292688e2fe1",
+        "comparison_identity": "373d8575789d7228f9e9767287efff5e87f82e88db6463c5a1efe9cb8092e3dc",
+        "expected_length": 206,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_5FB2/2555713430645dc61d3ccfa7977e4564e054b3932f3e1831c42c45aea55a198c-aztec36-ceefbbd3aacd-373d8575789d.json",
+        "source_sha256": "2555713430645dc61d3ccfa7977e4564e054b3932f3e1831c42c45aea55a198c",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "cache_key": "e52e1ba012e5c2c73b2d3124257ea532765af3293382fd9339ec1817dbd9163c",
+        "comparison_identity": "373d8575789d7228f9e9767287efff5e87f82e88db6463c5a1efe9cb8092e3dc",
+        "expected_length": 206,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_5FB2/2555713430645dc61d3ccfa7977e4564e054b3932f3e1831c42c45aea55a198c-aztec36-e52e1ba012e5-373d8575789d.json",
+        "source_sha256": "2555713430645dc61d3ccfa7977e4564e054b3932f3e1831c42c45aea55a198c",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "cache_key": "03cb38683161194ec58a4a26914968d407962256337bba12f8ba35bfad8bf021",
+        "comparison_identity": "373d8575789d7228f9e9767287efff5e87f82e88db6463c5a1efe9cb8092e3dc",
+        "expected_length": 206,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_5FB2/092de8e0061c20c4e1f074d1c7172e0443ae434872164bb1bd5cba465bac4eec-aztec36-03cb38683161-373d8575789d.json",
+        "source_sha256": "092de8e0061c20c4e1f074d1c7172e0443ae434872164bb1bd5cba465bac4eec",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      }
+    ],
+    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "ownership_unchanged": true,
+    "reason": "UNSUPPORTED_REGISTER_CALL_ABI: resident F_8Dxx vector wrappers require D-register arguments. Aztec 3.6a rejects #pragma regcall before compilation; ordinary stack calls cannot express the observed D0/D1 sequence. Retain three bounded trial receipts; add a historically supported 3.6a register-call mechanism before retrying.",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [
+      {
+        "frame_offset": 8,
+        "instruction_offset": 24502,
+        "width": "w"
+      }
+    ],
+    "calls": [
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_8D1E",
+        "name": "F_h00_8D1E",
+        "offset": 36126,
+        "site": 24526
+      },
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_8D1E",
+        "name": "F_h00_8D1E",
+        "offset": 36126,
+        "site": 24544
+      },
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_8D0A",
+        "name": "F_h00_8D0A",
+        "offset": 36106,
+        "site": 24552
+      },
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_8D1E",
+        "name": "F_h00_8D1E",
+        "offset": 36126,
+        "site": 24574
+      },
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_8D28",
+        "name": "F_h00_8D28",
+        "offset": 36136,
+        "site": 24582
+      },
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_8D14",
+        "name": "F_h00_8D14",
+        "offset": 36116,
+        "site": 24592
+      },
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_8D00",
+        "name": "F_h00_8D00",
+        "offset": 36096,
+        "site": 24596
+      }
+    ],
+    "cfg": [
+      {
+        "kind": "CONDITIONAL",
+        "source": 24622,
+        "target": 24664
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 24622,
+        "target": 24624
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 24652,
+        "target": 24664
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 24652,
+        "target": 24654
+      }
+    ],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.7\n.6\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d1\n\tadd.w\td1,-4(a5)\n.4\n\tadd.w\t#1,-2(a5)\n.7\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tblt\t.6\n.5\n\tmove.w\t-4(a5),d0\n.8\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "local_loop",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tasl.l\t#1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "array_index",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tadd.l\td1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "array_index",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.10002\n.10001\n\tadd.w\t#1,-2(a5)\n.10002\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tbge\t.10003\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tadd.w\td0,-4(a5)\n\tbra\t.10001\n.10003\n\tmove.w\t-4(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "local_loop",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_0228",
+        "offset": 552,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_022E",
+        "offset": 558,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_0234",
+        "offset": 564,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_023A",
+        "offset": 570,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_0240",
+        "offset": 576,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_37EE",
+        "offset": 14318,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_37F0",
+        "offset": 14320,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_8BEC",
+        "offset": 35820,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_94B0",
+        "offset": 38064,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_94BE",
+        "offset": 38078,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_94C0",
+        "offset": 38080,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_0B4C",
+        "kind": "DIRECT_CALL",
+        "site": 2910
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 24704,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 11,
+      "node": "ov11",
+      "sha256": "7d48b9716409f67ecd8f019f0f43ca14b52e37985ad423b398420ef0cb031578",
+      "size": 206,
+      "start": 24498
+    },
+    "id": "ov11_F_5FB2",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 24498,
+        "operands": "a5, #$fff8",
+        "raw": "4e55fff8",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24502,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 24506,
+        "operands": "#$34, d0",
+        "raw": "c1fc0034",
+        "size": 4
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 24510,
+        "operands": "$bee(a4), a0",
+        "raw": "41ec0bee",
+        "size": 4
+      },
+      {
+        "mnemonic": "add.l",
+        "offset": 24514,
+        "operands": "a0, d0",
+        "raw": "d088",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24516,
+        "operands": "d0, -$4(a5)",
+        "raw": "2b40fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24520,
+        "operands": "$14c0(a4), d0",
+        "raw": "302c14c0",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 24524,
+        "operands": "d0",
+        "raw": "48c0",
+        "size": 2
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 24526,
+        "operands": "-$7dc4(a4)",
+        "raw": "4eac823c",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 24530,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24534,
+        "operands": "$2c(a0), d1",
+        "raw": "3228002c",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 24538,
+        "operands": "d1",
+        "raw": "48c1",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24540,
+        "operands": "d0, -(a7)",
+        "raw": "2f00",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24542,
+        "operands": "d1, d0",
+        "raw": "2001",
+        "size": 2
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 24544,
+        "operands": "-$7dc4(a4)",
+        "raw": "4eac823c",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24548,
+        "operands": "d0, d1",
+        "raw": "2200",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24550,
+        "operands": "(a7)+, d0",
+        "raw": "201f",
+        "size": 2
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 24552,
+        "operands": "-$7dd0(a4)",
+        "raw": "4eac8230",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 24556,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 24560,
+        "operands": "$22(a0), a1",
+        "raw": "22680022",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24564,
+        "operands": "$8(a1), d1",
+        "raw": "32290008",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 24568,
+        "operands": "d1",
+        "raw": "48c1",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24570,
+        "operands": "d0, -(a7)",
+        "raw": "2f00",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24572,
+        "operands": "d1, d0",
+        "raw": "2001",
+        "size": 2
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 24574,
+        "operands": "-$7dc4(a4)",
+        "raw": "4eac823c",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24578,
+        "operands": "d0, d1",
+        "raw": "2200",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24580,
+        "operands": "(a7)+, d0",
+        "raw": "201f",
+        "size": 2
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 24582,
+        "operands": "-$7dbe(a4)",
+        "raw": "4eac8242",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 24586,
+        "operands": "#$d0000047, d1",
+        "raw": "223cd0000047",
+        "size": 6
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 24592,
+        "operands": "-$7dca(a4)",
+        "raw": "4eac8236",
+        "size": 4
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 24596,
+        "operands": "-$7dd6(a4)",
+        "raw": "4eac822a",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24600,
+        "operands": "d0, -$6(a5)",
+        "raw": "3b40fffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 24604,
+        "operands": "-$8(a5)",
+        "raw": "426dfff8",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 24608,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 24612,
+        "operands": "$22(a0), a1",
+        "raw": "22680022",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 24616,
+        "operands": "#$2, $4(a1)",
+        "raw": "0c6900020004",
+        "size": 6
+      },
+      {
+        "mnemonic": "bne.b",
+        "offset": 24622,
+        "operands": "$6058",
+        "raw": "6628",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 24624,
+        "operands": "#$8, d0",
+        "raw": "7008",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24626,
+        "operands": "$14b2(a4), d1",
+        "raw": "322c14b2",
+        "size": 4
+      },
+      {
+        "mnemonic": "asr.w",
+        "offset": 24630,
+        "operands": "d1, d0",
+        "raw": "e260",
+        "size": 2
+      },
+      {
+        "mnemonic": "add.w",
+        "offset": 24632,
+        "operands": "$14c0(a4), d0",
+        "raw": "d06c14c0",
+        "size": 4
+      },
+      {
+        "mnemonic": "sub.w",
+        "offset": 24636,
+        "operands": "-$480e(a4), d0",
+        "raw": "906cb7f2",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 24640,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "sub.w",
+        "offset": 24644,
+        "operands": "$2c(a0), d0",
+        "raw": "9068002c",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmp.w",
+        "offset": 24648,
+        "operands": "#$2d, d0",
+        "raw": "b07c002d",
+        "size": 4
+      },
+      {
+        "mnemonic": "ble.b",
+        "offset": 24652,
+        "operands": "$6058",
+        "raw": "6f0a",
+        "size": 2
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 24654,
+        "operands": "#$5, -$6(a5)",
+        "raw": "5a6dfffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24658,
+        "operands": "#$fffb, -$8(a5)",
+        "raw": "3b7cfffbfff8",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24664,
+        "operands": "-$6(a5), d0",
+        "raw": "302dfffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "sub.w",
+        "offset": 24668,
+        "operands": "-$4810(a4), d0",
+        "raw": "906cb7f0",
+        "size": 4
+      },
+      {
+        "mnemonic": "add.w",
+        "offset": 24672,
+        "operands": "d0, $14c2(a4)",
+        "raw": "d16c14c2",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24676,
+        "operands": "-$8(a5), d0",
+        "raw": "302dfff8",
+        "size": 4
+      },
+      {
+        "mnemonic": "sub.w",
+        "offset": 24680,
+        "operands": "-$480e(a4), d0",
+        "raw": "906cb7f2",
+        "size": 4
+      },
+      {
+        "mnemonic": "add.w",
+        "offset": 24684,
+        "operands": "d0, $14c0(a4)",
+        "raw": "d16c14c0",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24688,
+        "operands": "-$6(a5), -$4810(a4)",
+        "raw": "396dfffab7f0",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 24694,
+        "operands": "-$8(a5), -$480e(a4)",
+        "raw": "396dfff8b7f2",
+        "size": 6
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 24700,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 24702,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "harness-validation",
+            "text": "candidate must be self-contained C; includes/pragmas need a pinned harness extension"
+          }
+        ],
+        "expected_length": 206,
+        "flags": [],
+        "reason": "SOURCE_REJECTED",
+        "source_sha256": "2555713430645dc61d3ccfa7977e4564e054b3932f3e1831c42c45aea55a198c",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "harness-validation",
+            "text": "unsupported extern declaration; use scalar/pointer/positive-bound array facts"
+          }
+        ],
+        "expected_length": 206,
+        "flags": [],
+        "reason": "SOURCE_REJECTED",
+        "source_sha256": "2555713430645dc61d3ccfa7977e4564e054b3932f3e1831c42c45aea55a198c",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "h000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "h000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+          },
+          {
+            "file": "t000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "t000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n#pragma regcall(F_h00_8D1E(d0))\n       ^\nt000.c:25: ERROR 58: illegal # encountered: \n#pragma regcall(F_h00_8D0A(d0,d1))\n       ^\nt000.c:26: ERROR 58: illegal # encountered: \n#pragma regcall(F_h00_8D28(d0,d1))\n       ^\nt000.c:27: ERROR 58: illegal # encountered: \n#pragma regcall(F_h00_8D14(d1))\n       ^\nt000.c:28: ERROR 58: illegal # encountered: \n#pragma regcall(F_h00_8D00())\n       ^\nt000.c:29: ERROR 58: illegal # encountered: \n5 errors\n"
+          },
+          {
+            "file": "t000-ln.log",
+            "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 00091c  Data: 000044  Udata: 00008c  Total: 0009ec\n"
+          }
+        ],
+        "expected_length": 206,
+        "flags": [],
+        "reason": "COMPILE_ERROR",
+        "source_sha256": "092de8e0061c20c4e1f074d1c7172e0443ae434872164bb1bd5cba465bac4eec",
+        "verdict": "BLOCKED"
+      }
+    ],
+    "previous_sources": {
+      "092de8e0061c20c4e1f074d1c7172e0443ae434872164bb1bd5cba465bac4eec": {
+        "source": "struct Child {\n    char pad0[4];\n    int kind;\n    char pad1[2];\n    int value;\n};\nstruct State {\n    char pad0[34];\n    struct Child *child;\n    char pad1[6];\n    int value;\n    char pad2[6];\n};\nextern struct State G_h01_8BEC[1];\nextern int G_h01_94B0;\nextern int G_h01_94BE;\nextern int G_h01_94C0;\nextern int G_h01_37EE;\nextern int G_h01_37F0;\nextern long F_h00_8D1E();\nextern long F_h00_8D0A();\nextern long F_h00_8D28();\nextern long F_h00_8D14();\nextern int F_h00_8D00();\n#pragma regcall(F_h00_8D1E(d0))\n#pragma regcall(F_h00_8D0A(d0,d1))\n#pragma regcall(F_h00_8D28(d0,d1))\n#pragma regcall(F_h00_8D14(d1))\n#pragma regcall(F_h00_8D00())\n\nrecovered(a)\nint a;\n{\n    struct State *p;\n    int x,y;\n\n    p=G_h01_8BEC+a;\n    F_h00_8D0A(F_h00_8D1E(G_h01_94C0),F_h00_8D1E(p->value));\n    F_h00_8D28(F_h00_8D1E(G_h01_94C0),F_h00_8D1E(p->child->value));\n    F_h00_8D14(0xd0000047L);\n    x=F_h00_8D00();\n    y=0;\n    if (p->child->kind==2)\n        if ((8 >> G_h01_94B0)+G_h01_94BE-G_h01_37F0-p->value>45) {\n            x+=5;\n            y=-5;\n        }\n    G_h01_94C0+=x-G_h01_37EE;\n    G_h01_94BE+=y-G_h01_37F0;\n    G_h01_37EE=x;\n    G_h01_37F0=y;\n}\n\n",
+        "truncated": false
+      },
+      "2555713430645dc61d3ccfa7977e4564e054b3932f3e1831c42c45aea55a198c": {
+        "source": "struct Child {\n    char pad0[4];\n    int kind;\n    char pad1[2];\n    int value;\n};\nstruct State {\n    char pad0[34];\n    struct Child *child;\n    char pad1[6];\n    int value;\n    char pad2[6];\n};\nextern struct State G_h01_8BEC[];\nextern int G_h01_94B0;\nextern int G_h01_94BE;\nextern int G_h01_94C0;\nextern int G_h01_37EE;\nextern int G_h01_37F0;\nextern long F_h00_8D1E();\nextern long F_h00_8D0A();\nextern long F_h00_8D28();\nextern long F_h00_8D14();\nextern int F_h00_8D00();\n#pragma regcall(F_h00_8D1E(d0))\n#pragma regcall(F_h00_8D0A(d0,d1))\n#pragma regcall(F_h00_8D28(d0,d1))\n#pragma regcall(F_h00_8D14(d1))\n#pragma regcall(F_h00_8D00())\n\nrecovered(a)\nint a;\n{\n    struct State *p;\n    int x,y;\n\n    p=G_h01_8BEC+a;\n    F_h00_8D0A(F_h00_8D1E(G_h01_94C0),F_h00_8D1E(p->value));\n    F_h00_8D28(F_h00_8D1E(G_h01_94C0),F_h00_8D1E(p->child->value));\n    F_h00_8D14(0xd0000047L);\n    x=F_h00_8D00();\n    y=0;\n    if (p->child->kind==2)\n        if ((8 >> G_h01_94B0)+G_h01_94BE-G_h01_37F0-p->value>45) {\n            x+=5;\n            y=-5;\n        }\n    G_h01_94C0+=x-G_h01_37EE;\n    G_h01_94BE+=y-G_h01_37F0;\n    G_h01_37EE=x;\n    G_h01_37F0=y;\n}\n",
+        "truncated": false
+      }
+    },
+    "recovered_dependencies": [],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 8,
+        "offset": 24498,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  }
+}
