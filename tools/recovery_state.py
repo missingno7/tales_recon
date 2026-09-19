@@ -58,8 +58,15 @@ def ranked(node=None):
         if f['hunk']==14:score-=100
         unknown={c['id'] for c in f['direct_callees'] if c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}
         local_dependencies=sorted({c['id'] for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id'] not in r['functions']})
+        same_node_calls=[c for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk']]
+        # A recovered local callee is only usable for the complete-unit verifier
+        # when it immediately follows this function.  A gap would require code
+        # outside the claimed contribution, so do not present that caller as a
+        # cheap standalone grinder target.
+        unit_ready=not same_node_calls or all(c['offset']==f['end'] for c in same_node_calls)
         result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(f['indirect_control_flow']),state=state,
-                           confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies))
+                           confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies,
+                           same_node_unit_ready=unit_ready))
     return sorted(result,key=lambda x:(x['score'],x['id']))
 
 

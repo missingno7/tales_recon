@@ -45,7 +45,7 @@ def eligible(item,args,limit):
             and item.get('confidence','HIGH')=='HIGH' and item.get('indirect',0)==0
             and item.get('unknown_calls',0)<=getattr(args,'max_unknown_calls',1)
             and item.get('data_references',0)<=getattr(args,'max_data_references',8)
-            and not item.get('pending_local_dependencies'))
+            and not item.get('pending_local_dependencies') and item.get('same_node_unit_ready',True))
 
 
 def run(args):
