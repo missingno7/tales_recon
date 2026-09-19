@@ -77,7 +77,7 @@ def harness(source,target_node=1):
         decl=m[1].strip()
         require('\n#' not in decl,'bad extern declaration')
         if '(' in decl:
-            match=re.fullmatch(r'(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)',decl)
+            match=re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)',decl)
             require(match is not None,'extern function must use old-style empty parameter list')
             # Cross-overlay mechanical functions are supplied by a separate
             # proxy object in their own Manx node.  Keeping them out of the

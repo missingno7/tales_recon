@@ -86,6 +86,10 @@ class VerifierContractTests(unittest.TestCase):
         h=harness('extern int F_h00_1234(); extern int F_h00_1234(); recovered(){F_h00_1234();}')
         self.assertEqual(h.count('int F_h00_1234() { return 0; }'),1)
 
+    def test_unsigned_function_return_is_a_valid_historical_extern(self):
+        h=harness('extern unsigned long F_h00_463E(); recovered(){return F_h00_463E();}')
+        self.assertIn('unsigned long F_h00_463E() { return 0; }',h)
+
     def test_cross_overlay_extern_uses_a_separate_proxy(self):
         source='extern char F_h03_154E(); recovered() { return F_h03_154E(); }'
         self.assertNotIn('F_h03_154E() { return 0; }',harness(source,12))
