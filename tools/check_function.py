@@ -28,7 +28,7 @@ def validated_function(fid):
     return f,ledger
 
 
-def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH'):
+def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_canonical=False):
     for other,item in recovery()['functions'].items():
         e=item['evidence_extent']
         require(other==fid or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
@@ -38,7 +38,10 @@ def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH'):
     require(tests.returncode==0,'promotion regression tests failed: '+tests.stdout+tests.stderr)
     r=recovery();prior=r['functions'].get(fid)
     source_hash=sha256(source.encode('ascii'))
-    require(not prior or prior['source_sha256']==source_hash,'already promoted with another source; preserve canonical source')
+    require(not prior or prior['source_sha256']==source_hash or replace_canonical,
+            'already promoted with another source; preserve canonical source')
+    require(not prior or prior['state']!='FUNCTION_WITH_DATA_MATCH' or state=='FUNCTION_WITH_DATA_MATCH',
+            'replacement may not discard an existing owned CODE-data proof')
     path=ROOT/'src/recovered'/f['node']/(fid+'.c');path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(source,encoding='ascii',newline='\n')
     receipt_path=ROOT/'recovery/proofs'/(fid+'.json')
@@ -153,8 +156,8 @@ def check_many(requests,promote_equal=True):
             if proof_level=='FUNCTION_WITH_DATA_MATCH':
                 owned_code_data_boundary(f,l,report)
             canonical=recovery()['functions'].get(f['id'])
-            if not canonical or canonical['source_sha256']==report['source_sha256']:
-                report['promotion']=promote(f['id'],source,report,compiled,f,proof_level)
+            if not canonical or canonical['source_sha256']==report['source_sha256'] or req.get('replace_canonical'):
+                report['promotion']=promote(f['id'],source,report,compiled,f,proof_level,req.get('replace_canonical',False))
         reports.append(report)
     save_rank()
     return reports
@@ -167,8 +170,10 @@ def main():
     ap.add_argument('--batch',type=Path,help='JSON array of {id,source,profiles}; one boot for all cache misses')
     ap.add_argument('--owned-code-data',action='store_true',help='strictly verify an adjacent compiler-owned PC-relative string tail; promotes only at a proved next-entry boundary')
     ap.add_argument('--owned-static-data',action='store_true',help='strictly verify a manifest-declared initialized static DATA contribution; never promotes alone')
-    ap.add_argument('--no-promote',action='store_true');ap.add_argument('--json',action='store_true');args=ap.parse_args()
-    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or ['aztec36','aztec50-short'],owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data)]
+    ap.add_argument('--no-promote',action='store_true');ap.add_argument('--replace-canonical',action='store_true',
+        help='replace an already promoted source only after this exact proof succeeds')
+    ap.add_argument('--json',action='store_true');args=ap.parse_args()
+    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or ['aztec36','aztec50-short'],owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical)]
     reports=check_many(req,not args.no_promote)
     for r in reports:
         if args.json:print(json.dumps(r))

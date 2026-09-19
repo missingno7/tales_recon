@@ -58,13 +58,42 @@ def load_promotions(root,blob,model,analysis):
             require(unit['object_sha256']==proof['object_hash'] and unit['source_sha256']==proof['source_sha256'],'unit object/source identity differs')
             require(unit['verdict']=='EQUAL' and unit['unclaimed_bytes']==0,'unit is not completely proven')
             # A complete unit normally contains only closed function CODE.
-            # Its final promoted member may additionally own the independently
-            # proved contiguous literal tail above; no other excess byte is
-            # permitted in the natural object.
-            tail_size=owned_end-end if item['state']=='FUNCTION_WITH_DATA_MATCH' else 0
+            # It can also carry literal tails already proved for internal
+            # canonical members.  Every such byte is revalidated below; no
+            # other excess byte is permitted in the natural object.
+            tails=unit.get('owned_code_tails')
+            if tails is None:
+                # Receipts predating internal-tail support could only own the
+                # target's final tail.
+                tail_size=owned_end-end if item['state']=='FUNCTION_WITH_DATA_MATCH' else 0
+            else:
+                require(isinstance(tails,list),'unit owned CODE tails are malformed')
+                tail_size=0;seen_tail_ids=set()
+                for owned_tail in tails:
+                    tail_id=owned_tail.get('id')
+                    require(isinstance(tail_id,str) and tail_id not in seen_tail_ids,'duplicate unit owned CODE tail')
+                    seen_tail_ids.add(tail_id)
+                    tf=next((v for v in analysis.get('functions',[]) if v['id']==tail_id),None)
+                    require(tf is not None and tf['hunk']==extent['hunk'],'unit owned CODE tail has unknown function')
+                    tail_start,tail_end=owned_tail.get('start'),owned_tail.get('end')
+                    strings=owned_tail.get('strings');padding=owned_tail.get('alignment_padding')
+                    require(tail_start==tf['end'] and isinstance(tail_end,int) and isinstance(strings,list) and padding in (0,1),
+                            'invalid unit owned CODE-data bounds')
+                    literal=b''.join(s['text'].encode('ascii')+b'\0' for s in strings)
+                    payload=literal+(b'\0' if padding else b'')
+                    require(tail_end==tail_start+len(payload) and sha256(payload)==owned_tail.get('expected_tail_sha256'),
+                            'unit owned CODE-data payload disagrees')
+                    require(blob[h['content_offset']+tail_start:h['content_offset']+tail_end]==payload,
+                            'unit owned CODE-data is not immutable game bytes')
+                    mr=next((v for v in unit['members'] if v['id']==tail_id),None)
+                    require(mr and all(mr.get('owned_code_data',{}).get(k)==v for k,v in owned_tail.items() if k!='id'),
+                            'unit member tail proof differs')
+                    tail_size+=len(payload)
+                if item['state']=='FUNCTION_WITH_DATA_MATCH':
+                    require(fid in seen_tail_ids,'unit omitted promoted target CODE-data tail')
             require(unit['actual_length']==unit['expected_length']+tail_size,
                     'unit has unproven bytes beyond its complete contribution')
-            if tail_size:
+            if item['state']=='FUNCTION_WITH_DATA_MATCH' and tails is None and tail_size:
                 require(unit['ordered_members'][-1]['id']==fid,
                         'owned CODE-data target is not the final unit member')
             require(unit['expected_sha256']==unit['normalized_sha256'],'unit normalized bytes differ')

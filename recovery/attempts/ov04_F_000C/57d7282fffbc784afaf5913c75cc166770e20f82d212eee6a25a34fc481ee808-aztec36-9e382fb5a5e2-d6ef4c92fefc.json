@@ -1,0 +1,44 @@
+{
+  "actual_length": null,
+  "cache_hit": false,
+  "cache_key": "9e382fb5a5e200ca90a54b90363414918877858f4102a39a04e99400afb85470",
+  "comparison_identity": "d6ef4c92fefc8ea884005c2fde9cfb5a8dd6ea694f23bb0331f7aa1541ad8941",
+  "compile_returncodes": [
+    4,
+    0,
+    4,
+    1,
+    10
+  ],
+  "compiler": "aztec36",
+  "compiler_feedback": [
+    {
+      "file": "h000-as.log",
+      "text": "Aztec 68000 Assembler 3.6a  12-18-87\n_F_h00_463E:\n            ^\nFile h000.asm; Line 141 # Multiply defined symbol.\n1 errors\n"
+    },
+    {
+      "file": "h000-cc.log",
+      "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\nstruct Loot G_h01_470A[36];\n                           ^\nh000.c:57: ERROR 49: multiply defined symbol: G_h01_470A\nstruct Slot G_h01_4C82[36];\n                           ^\nh000.c:59: ERROR 49: multiply defined symbol: G_h01_4C82\nlong F_h00_463E() { return 0; }\n                   ^\nh000.c:60: ERROR 90: symbol redeclared: F_h00_463E\n3 errors\n"
+    },
+    {
+      "file": "t000-as.log",
+      "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+    },
+    {
+      "file": "t000-cc.log",
+      "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\nextern struct Loot G_h01_470A[36];\n                                  ^\nt000.c:162: ERROR 49: multiply defined symbol: G_h01_470A\nextern struct Slot G_h01_4C82[36];\n                                  ^\nt000.c:164: ERROR 49: multiply defined symbol: G_h01_4C82\nextern long F_h00_463E();\n                         ^\nt000.c:169: ERROR 49: multiply defined symbol: F_h00_463E\n    slot = G_h01_4C82;\n                      ^\nt000.c:195: ERROR 92: illegal type conversion: \n        loot = G_h01_470A + i;\n                              ^\nt000.c:198: WARNING 121: ptr/int conversion: \n                loot = G_h01_470A + i;\n                                      ^\nt000.c:213: WARNING 121: ptr/int conversion: \n        slot = G_h01_4C82 + i;\n                              ^\nt000.c:224: WARNING 121: ptr/int conversion: \n4 errors\n"
+    },
+    {
+      "file": "t000-ln.log",
+      "text": "Aztec C68K Linker 3.6a  12-18-87\nfile: <h000.o> Can't open.\n"
+    }
+  ],
+  "expected_length": 124,
+  "flags": [],
+  "id": "ov04_F_000C",
+  "proof_level": null,
+  "reason": "COMPILE_ERROR",
+  "relocation_equal": false,
+  "source_sha256": "57d7282fffbc784afaf5913c75cc166770e20f82d212eee6a25a34fc481ee808",
+  "verdict": "BLOCKED"
+}

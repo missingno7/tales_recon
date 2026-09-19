@@ -17,6 +17,19 @@ from compiler_oracle import compile_many,PROFILES
 from function_compare import compare_function
 
 
+def proven_tail(f,ledger):
+    """Return a canonical member's separately proven adjacent CODE tail."""
+    item=ledger['functions'].get(f['id'])
+    if not item or item['state']!='FUNCTION_WITH_DATA_MATCH':return b'',None
+    from owned_code_data import expected_string_tail
+    tail,ownership=expected_string_tail(f)
+    proof=json.loads((ROOT/item['proof']).read_text())
+    claimed=proof.get('data_ownership',{})
+    require(claimed.get('start')==ownership['start'] and claimed.get('end')==ownership['end'] and
+            claimed.get('expected_tail_sha256')==sha256(tail),'canonical owned CODE-data proof changed')
+    return tail,ownership
+
+
 def prepare_unit(fid,source):
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
     def add_recovered(dep_id):
@@ -40,7 +53,13 @@ def prepare_unit(fid,source):
             if candidate['id'] not in members: add_recovered(candidate['id'])
     ordered=sorted(members.values(),key=lambda x:x['start'])
     require(len(ordered)>1,'unit requires a recovered same-node dependency')
-    require(all(a['end']==b['start'] for a,b in zip(ordered,ordered[1:])),'unit has unowned gaps; do not fill or copy original bytes')
+    # A canonical predecessor can own only its separately proved literal tail.
+    # This permits source units to span that real compiler output, without
+    # treating arbitrary bytes between recovered functions as source-owned.
+    def contribution_end(member):
+        tail,_=proven_tail(member,r);return member['end']+len(tail)
+    require(all(contribution_end(a)==b['start'] for a,b in zip(ordered,ordered[1:])),
+            'unit has unowned gaps; do not fill or copy original bytes')
     # A bridge source may retain an old ``extern`` declaration for another
     # recovered member that now precedes it in this same translation unit.
     # Manx treats that later declaration as external linkage and can omit the
@@ -61,14 +80,21 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
     result=dict(verdict='BLOCKED',expected_length=len(expected),actual_length=len(raw),members=[],object_sha256=c['object_sha256'])
     if c['data_size'] or c['bss_size']:
         result['reason']='UNIT_DATA_OWNERSHIP_UNPROVEN';return result
-    tail=b''
-    if owned_code_data:
-        from owned_code_data import expected_string_tail
-        try:
-            tail,_=expected_string_tail(members[-1])
-        except FormatError as exc:
-            return dict(verdict='BLOCKED',reason='UNIT_OWNED_CODE_DATA_UNPROVEN: '+str(exc),members=[])
-    if len(raw)!=len(expected)+len(tail):
+    ledger=recovery();tails={};tail_receipts=[]
+    try:
+        for f in members:
+            tail,ownership=proven_tail(f,ledger)
+            if owned_code_data and f is members[-1] and not tail:
+                from owned_code_data import expected_string_tail
+                tail,ownership=expected_string_tail(f)
+            tails[f['id']]=tail
+            if tail:tail_receipts.append(dict(id=f['id'],**ownership,expected_tail_sha256=sha256(tail)))
+    except FormatError as exc:
+        return dict(verdict='BLOCKED',reason='UNIT_OWNED_CODE_DATA_UNPROVEN: '+str(exc),members=[])
+    expected_compiled_length=len(expected)+sum(len(t) for t in tails.values())
+    result['expected_compiled_length']=expected_compiled_length
+    if tail_receipts:result['owned_code_tails']=tail_receipts
+    if len(raw)!=expected_compiled_length:
         result.update(verdict='DIFFER',reason='COMPLETE_UNIT_SIZE_DIFFERS');return result
     cursor=0
     # The standalone oracle has only one emitted overlay CODE hunk.  Its
@@ -84,7 +110,7 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
         symbol=next((s for s in c['symbols'] if s['hunk']==c['hunk'] and s['name']=='_'+names[f['id']]),None)
         require(symbol is not None and symbol['offset']==cursor,'natural function ordering/extent differs; no slice accepted')
         stop=cursor+f['size'];piece=copy.deepcopy(compiled);pc=piece['contribution']
-        owned_tail=tail if owned_code_data and f is members[-1] else b''
+        owned_tail=tails[f['id']]
         pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=original_base+cursor,entry_offset=0)
         pc['hunk']=original_hunk
         pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
@@ -101,8 +127,8 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
         else:
             report=compare_function(f,piece,a4_bias)
         report['id']=f['id'];result['members'].append(report)
-        cursor=stop
-    require(cursor+len(tail)==len(raw),'unclaimed code bytes in unit')
+        cursor=stop+len(owned_tail)
+    require(cursor==len(raw),'unclaimed code bytes in unit')
     equal=all(m['verdict']=='EQUAL' for m in result['members'])
     result.update(verdict='EQUAL' if equal else 'DIFFER',reason='ENTIRE_OBJECT_AND_ALL_MEMBER_CONTRIBUTIONS' if equal else 'MEMBER_DIFFERS',
                   expected_sha256=sha256(expected),actual_sha256=sha256(raw),
