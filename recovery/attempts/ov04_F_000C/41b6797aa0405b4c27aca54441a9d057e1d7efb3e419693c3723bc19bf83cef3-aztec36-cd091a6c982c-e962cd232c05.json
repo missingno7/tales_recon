@@ -1,0 +1,253 @@
+{
+  "actual_length": 124,
+  "actual_sha256": "2cc0fa8de532da457067676aa19286c7e99119ea7fd28941e2935e3fa6da1c12",
+  "cache_hit": false,
+  "cache_key": "cd091a6c982c35c8116d96f4f023c945af61a46561d42c4cecaf755e2b07a3d4",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "jsr",
+        "offset": 116,
+        "operands": "-$7ff8(a4)",
+        "raw": "4eac8008",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 120,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 122,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "jsr",
+        "offset": 116,
+        "operands": "$372(pc)",
+        "raw": "4eba02fc",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 120,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 122,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 124,
+  "expected_sha256": "563b0b4b898968f1827c993a4a64efb7d657432eb5d9677eb7977f47695b5375",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "muls.w",
+      "offset": 24,
+      "operands": "#$c, d1",
+      "raw": "c3fc000c",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "muls.w",
+      "offset": 24,
+      "operands": "#$28, d1",
+      "raw": "c3fc0028",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov04_F_000C",
+  "mnemonic_similarity": 1.0,
+  "normalized_first_difference": {
+    "actual": "0c43ec81dad28921810800302dfffec1",
+    "actual_size": 124,
+    "expected": "2843ecc70cd28921810800302dfffec1",
+    "expected_size": 124,
+    "offset": 27
+  },
+  "normalized_sha256": "526fb399782e45af4e9a161d143cd5a5c07c669863378562c58a20f2e08986ff",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 8,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 8,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "8036322dfffec3fc000c43ec81dad289",
+    "actual_size": 124,
+    "expected": "c526322dfffec3fc002843ecc70cd289",
+    "expected_size": 124,
+    "offset": 18
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "actual": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 17704,
+        "symbol": "_G_h01_4528"
+      },
+      "expected": [
+        1,
+        18186
+      ],
+      "kind": "A4_IDENTITY",
+      "offset": 28
+    },
+    {
+      "kind": "DIRECT_CALL_BINDING_UNPROVEN",
+      "offset": 112,
+      "target": "ov04_F_0104"
+    },
+    {
+      "kind": "DIRECT_CALL_BINDING_UNPROVEN",
+      "offset": 116,
+      "target": "ov04_F_037E"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        17700
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 17700,
+        "symbol": "_G_h01_4524"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 18
+    },
+    {
+      "expected": [
+        1,
+        17704
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 17704,
+        "symbol": "_G_h01_4528"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 48
+    },
+    {
+      "expected": [
+        1,
+        19586
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 19586,
+        "symbol": "_G_h01_4C82"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 60
+    },
+    {
+      "expected": [
+        1,
+        17710
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 17710,
+        "symbol": "_G_h01_452E"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 78
+    },
+    {
+      "expected": [
+        1,
+        17711
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 17711,
+        "symbol": "_G_h01_452F"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 94
+    }
+  ],
+  "source_sha256": "41b6797aa0405b4c27aca54441a9d057e1d7efb3e419693c3723bc19bf83cef3",
+  "unit_blocker": "unrecovered same-node dependency: ov04_F_0104",
+  "verdict": "DIFFER"
+}
