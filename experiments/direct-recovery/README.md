@@ -17,7 +17,7 @@ and resident reference identity.
 draw origin, then performs four normal C rendering passes through verified
 resident helpers. Its receipt proves all 35 global/reference identities.
 
-Fifteen functions match completely under aztec36, adding 2,540 FUNCTION_CODE_MATCH
+Sixteen functions match completely under aztec36, adding 2,926 FUNCTION_CODE_MATCH
 bytes: ov09_F_18D0 (84), ov08_F_3FC0 (88), ov08_F_4018 (96), ov10_F_2BCA
 (136), ov11_F_69A4 (160), ov07_F_0EC0 (112), ov11_F_5A12 (80), ov11_F_5BC4
 (86), ov09_F_1956 (126), ov07_F_0E7C (68), and ov07_F_0E06 (118). Canonical
@@ -30,6 +30,10 @@ storage, not a proof of the original objects' complete sizes.
 uses a normal long pointer expression to retain the historical `MULS`/address-add
 sequence, and its receipt proves all thirteen A4 global and resident-call
 identities.
+
+`ov10_F_1FDE` adds 386 exact bytes: a 3x3 rendering helper with four
+flag-controlled edge calls. Its normal C loop and bitfield test retain every
+resident/global reference identity through the historical compiler.
 
 The later direct `ov03_F_154E` distance-ranking recovery adds 498 exact bytes.
 It uses the independently resolved `G_h01_4524` table, six natural resident
