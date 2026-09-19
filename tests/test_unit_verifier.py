@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
 from compiler_oracle import identity,cached
@@ -79,6 +80,28 @@ class CompleteUnitTests(unittest.TestCase):
             report=compare_unit([first,caller],{first['id']:'F_h09_0064',caller['id']:'recovered'},compiled,32766)
         self.assertEqual(report['verdict'],'EQUAL')
         self.assertIn('PC_RELATIVE_CALL_SYMBOL',[p['kind'] for p in report['members'][1]['relocation_proof']])
+
+    def test_target_owned_tail_precedes_a_separately_linked_callee(self):
+        """A compact gap proof keeps a target's literal bundle in its object."""
+        target=dict(id='ov09_F_0064',hunk=9,start=100,end=102,size=2,raw_bytes='4e75',
+                    extent_status='CLOSED_CFG',referenced_data=[],referenced_strings=[],relocations=[],direct_callees=[])
+        callee=dict(id='ov09_F_00C8',hunk=9,start=200,end=202,size=2,raw_bytes='4e75',
+                    extent_status='CLOSED_CFG',referenced_data=[],referenced_strings=[],relocations=[],direct_callees=[])
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'candidate.c').write_text('recovered() {}\n')
+            (root/'candidate.exe').write_bytes(b'\0'*64)
+            compiled=dict(status='COMPILED',identity=dict(profile='aztec36',flags=[]),cache_key='unit-tail',cache_hit=True,
+                directory=str(root),prefix='candidate',contribution=dict(entry_offset=0,code_hex='4e7558004e75',
+                code_size=6,code_offset=0,hunk=3,data_size=0,bss_size=0,relocations=[],all_relocations=[],object_sha256='test',
+                symbols=[dict(hunk=3,name='_recovered',offset=0),dict(hunk=3,name='_F_h09_00C8',offset=4)],
+                hunks=[dict(number=0,content_offset=0),dict(number=1,initialized_size=0,allocated_size=0),dict(number=2,allocated_size=0)]))
+            ownership=dict(start=102,end=104,strings=[dict(offset=102,text='X')],alignment_padding=0)
+            with patch('owned_code_data.expected_string_tail',return_value=(b'X\0',ownership)):
+                report=compare_unit([target,callee],{target['id']:'recovered',callee['id']:'F_h09_00C8'},
+                                    compiled,32766,owned_code_data=True,allow_gaps=True)
+        self.assertEqual(report['verdict'],'EQUAL')
+        self.assertEqual(report['expected_compiled_length'],6)
+        self.assertEqual(report['members'][0]['proof_level'],'FUNCTION_WITH_DATA_MATCH')
 
     def test_recovered_bridge_joins_a_contiguous_local_unit(self):
         source=ROOT/'experiments/direct-recovery/ov13_F_0190-v1.c'

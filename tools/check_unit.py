@@ -90,7 +90,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     return (ordered,names,parts,combined,l) if with_parts else (ordered,names,combined,l)
 
 
-def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False):
+def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None):
     if compiled['status']!='COMPILED':return dict(verdict='BLOCKED',reason=compiled['status'],members=[])
     c=compiled['contribution'];raw=bytes.fromhex(c['code_hex']);expected=b''.join(bytes.fromhex(f['raw_bytes']) for f in members)
     result=dict(verdict='BLOCKED',expected_length=len(expected),actual_length=len(raw),members=[],object_sha256=c['object_sha256'])
@@ -98,16 +98,23 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
         result['reason']='UNIT_DATA_OWNERSHIP_UNPROVEN';return result
     ledger=recovery();tails={};tail_receipts=[]
     try:
+        target_id=next(fid for fid,name in names.items() if name=='recovered')
         for f in members:
             tail,ownership=proven_tail(f,ledger)
-            if owned_code_data and f is members[-1] and not tail:
+            # A source object's literal bundle is emitted directly after its
+            # own function, even when a separately linked local callee follows
+            # it in this compact proof.  The requested tail always belongs to
+            # the target, not to whichever member happens to be last by
+            # original address.
+            if owned_code_data and f['id']==target_id and not tail:
                 from owned_code_data import expected_string_tail
                 tail,ownership=expected_string_tail(f)
             tails[f['id']]=tail
             if tail:tail_receipts.append(dict(id=f['id'],**ownership,expected_tail_sha256=sha256(tail)))
     except FormatError as exc:
         return dict(verdict='BLOCKED',reason='UNIT_OWNED_CODE_DATA_UNPROVEN: '+str(exc),members=[])
-    expected_compiled_length=len(expected)+sum(len(t) for t in tails.values())
+    expected_compiled=b''.join(bytes.fromhex(f['raw_bytes'])+tails[f['id']] for f in members)
+    expected_compiled_length=len(expected_compiled)
     result['expected_compiled_length']=expected_compiled_length
     if tail_receipts:result['owned_code_tails']=tail_receipts
     if len(raw)!=expected_compiled_length:
@@ -140,21 +147,25 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
             pc['relocations'].append(dict(relocation,relative_offset=at-cursor))
         if owned_tail:
             from owned_code_data import compare_owned_code_data
-            report=compare_owned_code_data(f,piece,a4_bias)
+            report=compare_owned_code_data(f,piece,a4_bias,source_text)
         else:
-            report=compare_function(f,piece,a4_bias)
+            report=compare_function(f,piece,a4_bias,source_text=source_text)
         report['id']=f['id'];result['members'].append(report)
         cursor=stop+len(owned_tail)
     require(cursor==len(raw),'unclaimed code bytes in unit')
     equal=all(m['verdict']=='EQUAL' for m in result['members'])
     result.update(verdict='EQUAL' if equal else 'DIFFER',reason='ENTIRE_OBJECT_AND_ALL_MEMBER_CONTRIBUTIONS' if equal else 'MEMBER_DIFFERS',
-                  expected_sha256=sha256(expected),actual_sha256=sha256(raw),
+                  # Keep the historical function-extent hash stable for
+                  # generated coverage.  The explicit compiled hash includes
+                  # any independently proved literal bundles in physical
+                  # source-object order.
+                  expected_sha256=sha256(expected),expected_compiled_sha256=sha256(expected_compiled),actual_sha256=sha256(raw),
                   normalized_sha256=sha256(expected) if equal else None,unclaimed_bytes=0)
     return result
 
 
 def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False):
-    report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps)
+    report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined)
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
                       compiler=compiled['identity'],
                       combined_source_sha256=sha256(combined.encode()),source_sha256=sha256(source.encode()),

@@ -81,7 +81,7 @@ def runtime_symbol_names(evidence):
             for entry in contribution['entries']}
 
 
-def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
+def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text=None):
     report=dict(expected_length=f['size'],actual_length=None,compiler=compiled['identity']['profile'],flags=compiled['identity']['flags'],
                 cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],verdict='BLOCKED',relocation_equal=False,proof_level=None)
     if compiled['status']!='COMPILED':
@@ -100,7 +100,12 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
             if s['hunk']==2 and org<=s['offset']<data_hunk['allocated_size']:
                 s['hunk']=1
     from pathlib import Path
-    source=(Path(compiled['directory'])/(compiled['prefix']+'.c')).read_text()
+    # A complete-unit proof can link several ordinary source objects.  The
+    # target object's file alone then omits declarations that bound a
+    # dependency's global addends, even though those declarations were part of
+    # the exact compilation.  Accept the pinned aggregate source from that
+    # verifier; standalone comparisons continue to read their candidate file.
+    source=source_text if source_text is not None else (Path(compiled['directory'])/(compiled['prefix']+'.c')).read_text()
     int_size=2 if compiled['identity']['profile'] in ('aztec36','aztec36-x3','aztec36-large-data','aztec50-short') else 4
     bounds={}
     for m in re.finditer(r'extern\s+(?:(?:signed|unsigned)\s+)?(char|short|int|long|float|double)\s+(\**)(\w+)(?:\[(\d+)\])?\s*;',source):

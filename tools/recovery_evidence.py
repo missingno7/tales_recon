@@ -66,9 +66,10 @@ def load_promotions(root,blob,model,analysis):
                 # Receipts predating internal-tail support could only own the
                 # target's final tail.
                 tail_size=owned_end-end if item['state']=='FUNCTION_WITH_DATA_MATCH' else 0
+                tail_payloads={fid:tail} if tail_size else {}
             else:
                 require(isinstance(tails,list),'unit owned CODE tails are malformed')
-                tail_size=0;seen_tail_ids=set()
+                tail_size=0;seen_tail_ids=set();tail_payloads={}
                 for owned_tail in tails:
                     tail_id=owned_tail.get('id')
                     require(isinstance(tail_id,str) and tail_id not in seen_tail_ids,'duplicate unit owned CODE tail')
@@ -88,6 +89,7 @@ def load_promotions(root,blob,model,analysis):
                     mr=next((v for v in unit['members'] if v['id']==tail_id),None)
                     require(mr and all(mr.get('owned_code_data',{}).get(k)==v for k,v in owned_tail.items() if k!='id'),
                             'unit member tail proof differs')
+                    tail_payloads[tail_id]=payload
                     tail_size+=len(payload)
                 if item['state']=='FUNCTION_WITH_DATA_MATCH':
                     require(fid in seen_tail_ids,'unit omitted promoted target CODE-data tail')
@@ -98,7 +100,7 @@ def load_promotions(root,blob,model,analysis):
                         'owned CODE-data target is not the final unit member')
             require(unit['expected_sha256']==unit['normalized_sha256'],'unit normalized bytes differ')
             require(any(m['id']==fid for m in unit['ordered_members']),'promoted function missing from unit')
-            unit_raw=[]
+            unit_raw=[];unit_compiled_raw=[]
             for m in unit['ordered_members']:
                 mf=next((v for v in analysis.get('functions',[]) if v['id']==m['id']),None)
                 require(mf and all(mf[k]==m[k] for k in ('hunk','start','end','size','sha256')),'unit member evidence changed')
@@ -111,8 +113,29 @@ def load_promotions(root,blob,model,analysis):
                 if normalized is None and mr:
                     normalized=mr.get('code_comparison',{}).get('normalized_sha256')
                 require(mr and mr['verdict']=='EQUAL' and normalized==m['sha256'],'unmatched member in unit')
-                unit_raw.append(bytes.fromhex(mf['raw_bytes']))
-            require(sha256(b''.join(unit_raw))==unit['expected_sha256'],'complete unit original bytes disagree')
+                # The linker's CODE contribution places a member's compiler-
+                # owned literal bundle immediately after that member, before
+                # the following separately linked source object.  It is
+                # immutable and already checked above, but must participate in
+                # the complete-object hash in that physical order.
+                member_raw=bytes.fromhex(mf['raw_bytes'])
+                unit_raw.append(member_raw)
+                unit_compiled_raw.append(member_raw+tail_payloads.get(m['id'],b''))
+            body_hash=sha256(b''.join(unit_raw));compiled_hash=sha256(b''.join(unit_compiled_raw))
+            # Older receipts name the closed function extents as their expected
+            # bytes.  New receipts retain that stable coverage hash and add an
+            # explicit complete-contribution hash for literal bundles.  Accept
+            # the brief transitional format created before the latter field
+            # existed, but still require it to be one of the two immutable
+            # constructions rather than an arbitrary digest.
+            require(unit['expected_sha256'] in (body_hash,compiled_hash),'complete unit original bytes disagree')
+            if 'expected_compiled_sha256' in unit:
+                # Address fields in the actual linked object are normalized
+                # only by the member comparisons above.  The immutable
+                # complete-contribution digest therefore proves the expected
+                # code-plus-tail sequence, not raw link-time displacements.
+                require(unit['expected_sha256']==body_hash and unit['expected_compiled_sha256']==compiled_hash,
+                        'complete unit compiled bytes disagree')
             for dep,digest in unit['dependency_sources'].items():
                 require(ledger['functions'].get(dep,{}).get('source_sha256')==digest,'unit dependency source changed')
         locations={(extent['hunk'],offset) for offset in range(start,owned_end)}

@@ -94,7 +94,7 @@ def pc_relative_tail_proof(f,prefix,tail_start):
     return proof
 
 
-def compare_owned_code_data(f,compiled,a4_bias):
+def compare_owned_code_data(f,compiled,a4_bias,source_text=None):
     """Compare a closed function plus a separately proven compiler CODE tail.
 
     The returned verdict is intentionally an intermediate proof level.  It is
@@ -125,7 +125,7 @@ def compare_owned_code_data(f,compiled,a4_bias):
     # base so same-overlay PC calls can be proved against the full natural
     # unit.  A standalone candidate still has the ordinary zero default.
     pc.update(code_hex=actual[:f['size']].hex(),code_size=f['size'],code_offset=pc.get('code_offset',0))
-    code_report=compare_function(f,piece,a4_bias,allow_pc_relative_data=True)
+    code_report=compare_function(f,piece,a4_bias,allow_pc_relative_data=True,source_text=source_text)
     report.update(code_comparison=code_report,owned_code_data=dict(**ownership,expected_tail_sha256=sha256(tail),
         actual_tail_sha256=sha256(actual[f['size']:]),actual_tail_length=len(tail),pc_relative_proof=pc_proof))
     for key in ('mnemonic_similarity','prologue','epilogue','relocation_equal','relocation_proof',
