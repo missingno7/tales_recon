@@ -1768,6 +1768,19 @@
         "source_sha256": "74199647ad34b46b2d69191f980781dbd66fc2caf6e2bd9d0386dfdb7cc7137b",
         "state": "CANDIDATE_C",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 116,
+        "cache_key": "27ef3c6dafe48d8bb776d98204c0df3f3869daba84669080646c477897f5f291",
+        "comparison_identity": "2943f0cd70267013fe88cd65d72beb2ef5b698d0960c76d03f9cc470ad6594aa",
+        "expected_length": 116,
+        "first_difference": null,
+        "mnemonic_similarity": 1.0,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_2562/d2a54e38869bb14222dc16572220d2a8cca754ab77b56d8108c980acb05999f9-aztec36-27ef3c6dafe4-2943f0cd7026.json",
+        "source_sha256": "d2a54e38869bb14222dc16572220d2a8cca754ab77b56d8108c980acb05999f9",
+        "state": "FUNCTION_CODE_MATCH",
+        "verdict": "EQUAL"
       }
     ],
     "ov11_F_25D6": [
@@ -4092,33 +4105,6 @@
       "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
       "state": "BLOCKED"
     },
-    "ov11_F_2562": {
-      "attempts": [
-        {
-          "actual_length": 100,
-          "cache_key": "da3c5a0bf73a10155ac83c5bb2fec4bccff678058e453d5aaf53158cac0c624d",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 116,
-          "first_difference": {
-            "actual": "fc302d0008b06d000a630a302d000890",
-            "actual_size": 100,
-            "expected": "f8302d0008906d000c4a406c0c302d00",
-            "expected_size": 116,
-            "offset": 3
-          },
-          "mnemonic_similarity": 0.4242,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov11_F_2562/74199647ad34b46b2d69191f980781dbd66fc2caf6e2bd9d0386dfdb7cc7137b-aztec36-da3c5a0bf73a-e962cd232c05.json",
-          "source_sha256": "74199647ad34b46b2d69191f980781dbd66fc2caf6e2bd9d0386dfdb7cc7137b",
-          "state": "CANDIDATE_C",
-          "verdict": "DIFFER"
-        }
-      ],
-      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
-      "ownership_unchanged": true,
-      "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
-      "state": "BLOCKED"
-    },
     "ov11_F_3F90": {
       "attempts": [
         {
@@ -5138,6 +5124,22 @@
       "proof_sha256": "ebebd2a50a3c823efc6db822909035b7bf5fbf98facd13952c105e6748baaa94",
       "source": "src/recovered/ov11/ov11_F_21F8.c",
       "source_sha256": "06e9a9b4dda38979c20606e7b2126181938ac4afd2e54de016d906c802800a2d",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_2562": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 9686,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "03f6565aac14f006c13309ce0a468d83251967c8a00f8cab99a7709377a74401",
+        "size": 116,
+        "start": 9570
+      },
+      "proof": "recovery/proofs/ov11_F_2562.json",
+      "proof_sha256": "785295aefbcc20f9585c7dd1bf9924c132e231531ab8149ea60f4c9f57c34676",
+      "source": "src/recovered/ov11/ov11_F_2562.c",
+      "source_sha256": "d2a54e38869bb14222dc16572220d2a8cca754ab77b56d8108c980acb05999f9",
       "state": "FUNCTION_CODE_MATCH"
     },
     "ov11_F_25D6": {
