@@ -1,0 +1,93 @@
+{
+  "analysis_tools": [
+    {
+      "classification": "ANALYSIS_ONLY",
+      "dependencies": "Python >=3.10 standard library",
+      "fingerprint": "evidence/analysis-tools.json",
+      "name": "project Python census tools"
+    }
+  ],
+  "assembler": null,
+  "candidates": [
+    {
+      "acquisition_blocker": "ACQUIRE-001",
+      "archive_sha256": null,
+      "archive_url": "https://www.aztecmuseum.ca/aztecc50a.zip",
+      "historical_selection_proven": false,
+      "name": "Manx Aztec C Amiga 5.0a",
+      "provenance_class": "ANALYSIS_ONLY",
+      "source_url": "https://www.aztecmuseum.ca/compilers.htm",
+      "status": "NOT_ACQUIRED",
+      "version_basis": "archive catalog label, not executed banner"
+    }
+  ],
+  "compiler_flags": null,
+  "compiler_version": null,
+  "fingerprint_experiment": {
+    "probes": [
+      "prologues/epilogues",
+      "stack arguments",
+      "register allocation and movem",
+      "switch lowering",
+      "loops",
+      "signed/unsigned comparisons",
+      "struct access",
+      "pointer arithmetic",
+      "global addressing",
+      "static data",
+      "function pointers/callbacks",
+      "varargs",
+      "floating point",
+      "library calls"
+    ],
+    "required_receipt_fields": [
+      "source",
+      "source_sha256",
+      "compiler_version",
+      "compiler_sha256",
+      "compiler_flags",
+      "assembler",
+      "assembler_sha256",
+      "linker",
+      "linker_sha256",
+      "runtime_hashes",
+      "worker_identity",
+      "generated_assembly",
+      "object_hunks",
+      "link_log",
+      "comparison_report"
+    ],
+    "status": "NOT_RUN"
+  },
+  "linker": null,
+  "observations": [
+    {
+      "file_offset": 30462,
+      "hunk": 0,
+      "kind": "marker",
+      "meaning": "MANX marker, not a version string",
+      "offset": 30422,
+      "raw_hex": "4d414e58"
+    },
+    {
+      "evidence": "evidence/executable/overlay-tree.json",
+      "kind": "overlay_abi",
+      "limitations": "ABI identification does not select compiler release or individual library objects",
+      "status": "OBSERVED"
+    }
+  ],
+  "provenance_classes": [
+    "PROVEN_HISTORICAL",
+    "LIKELY_HISTORICAL",
+    "COMPATIBLE_TOOL",
+    "ANALYSIS_ONLY"
+  ],
+  "runtime_libraries": [],
+  "runtime_worker": {
+    "discovery_scope": "command lookup on PATH only; not a claim that no emulator exists elsewhere on this workstation",
+    "policy": "Windows orchestration; WinUAE only as oracle or historical tool worker",
+    "status": "NOT_CONFIGURED"
+  },
+  "schema_version": 1,
+  "selected_historical_toolchain": null
+}

@@ -1,0 +1,153 @@
+{
+  "blockers": [
+    {
+      "current_evidence": [
+        "MANX bytes at h00+0x76d6",
+        "14-slot flat overlay table with 26 validated trampolines",
+        "Aztec C Museum lists Amiga 5.0a"
+      ],
+      "experiments_tried": [
+        "Checked named toolchain commands on PATH; no Amiga toolchain or WinUAE returned",
+        "Inspected sibling toolchain top levels; these provide DOS/Win32 tools, not evidence of an Amiga compiler"
+      ],
+      "first_mismatch": null,
+      "hypotheses": [
+        "Manx Aztec C with matching overlay runtime; exact release unproven"
+      ],
+      "id": "TOOLCHAIN-001",
+      "missing_artifact": "Pinned candidate Amiga compiler, assembler, linker and runtime distribution; configured execution worker",
+      "next_experiment": "Acquire candidate distribution and provenance; inventory runtime objects before source recovery",
+      "status": "OPEN",
+      "target": "historical compiler/assembler/linker selection"
+    },
+    {
+      "current_evidence": [
+        "https://www.aztecmuseum.ca/compilers.htm links https://www.aztecmuseum.ca/aztecc50a.zip"
+      ],
+      "experiments_tried": [
+        {
+          "method": "web open",
+          "result": "Cache miss"
+        },
+        {
+          "method": "sandbox Python urllib",
+          "result": "WinError 10013 network restriction"
+        },
+        {
+          "method": "approved escalated Python urllib",
+          "result": "HTTP 465; no archive or lock written"
+        }
+      ],
+      "first_mismatch": {
+        "error": "HTTP Error 465",
+        "stage": "authorized network retrieval"
+      },
+      "hypotheses": [
+        "Archive host or network intermediary prevents this URL retrieval"
+      ],
+      "id": "ACQUIRE-001",
+      "missing_artifact": "aztecc50a.zip candidate bytes",
+      "next_experiment": "Retry tools/acquire_candidate.py if host access changes, or acquire an independently documented mirror and record its URL and hashes",
+      "status": "OPEN",
+      "target": "Aztec C Amiga 5.0a candidate"
+    },
+    {
+      "current_evidence": [
+        "26 dispatch trampolines and a JMP bridge are structurally identified; 214 bytes have runtime ABI ownership",
+        "Manager entry h00+0x798a is observed; full runtime extent is unknown",
+        "HUNK_SYMBOL, HUNK_DEBUG and HUNK_EXT absent"
+      ],
+      "experiments_tried": [],
+      "first_mismatch": null,
+      "hypotheses": [
+        "Linked Manx library/startup objects may match available distributions"
+      ],
+      "id": "OWNERSHIP-001",
+      "missing_artifact": "Candidate runtime object/library inventory and relocation-aware matching",
+      "next_experiment": "Compare complete historical library contributions and retain exact first mismatches; do not decompile known runtime",
+      "status": "OPEN",
+      "target": "resident game/runtime ownership"
+    },
+    {
+      "current_evidence": [
+        "8352 initialized bytes",
+        "Entry points h07+0 and h07+0x1a02",
+        "invart.arc, invest.arc, and STOCK PORTFOLIO anchors"
+      ],
+      "experiments_tried": [
+        "Selected whole historical overlay, recovered two exported entries, and linked asset anchors"
+      ],
+      "first_mismatch": null,
+      "hypotheses": [
+        "Investment/stock-market semantic module; original source filename unknown"
+      ],
+      "id": "PILOT-001",
+      "missing_artifact": "Complete control-flow/data/reference map, pinned codegen toolchain, natural overlay link path",
+      "next_experiment": "After runtime/toolchain identification, trace relocation-aware reachable code and data for the entire node",
+      "status": "OPEN",
+      "target": "ov07 complete reconstruction"
+    },
+    {
+      "current_evidence": [
+        "All .arc/.as files hashed and their leading bytes inventoried",
+        "Exact disk-qualified filename anchors resolve to census files"
+      ],
+      "experiments_tried": [],
+      "first_mismatch": null,
+      "hypotheses": [
+        "Extensions alone do not establish codec/container"
+      ],
+      "id": "FORMAT-001",
+      "missing_artifact": "Validated archive/record/compression specification",
+      "next_experiment": "Study complete loader ownership and compare multiple asset headers independently of source reconstruction",
+      "status": "OPEN",
+      "target": "asset formats"
+    },
+    {
+      "current_evidence": [
+        "Upper-bound field is 54; payload is 55 longwords; next HEADER at file 0xd158"
+      ],
+      "experiments_tried": [
+        "n-longword scan failed at 0xd154; n+1 scan parsed to exact EOF"
+      ],
+      "first_mismatch": {
+        "cause": "interpreting the field as a count stopped four bytes early",
+        "expected_record": "HUNK_HEADER",
+        "file_offset": 53588,
+        "observed_record_id": 0
+      },
+      "hypotheses": [
+        "Length is upper bound, not count"
+      ],
+      "id": "RESOLVED-OVERLAY-LENGTH",
+      "missing_artifact": null,
+      "next_experiment": "Retain regression coverage for exact offsets and EOF",
+      "status": "RESOLVED",
+      "target": "HUNK_OVERLAY length convention"
+    },
+    {
+      "current_evidence": [
+        "First trampoline at h01+0x248 encodes node 1",
+        "Slot index 3 empty; IDs 1-14 omit 4"
+      ],
+      "experiments_tried": [
+        "Zero-based crosscheck rejected first trampoline; one-based crosscheck validates all 26 symbols and 13 nodes"
+      ],
+      "first_mismatch": {
+        "actual_node_id": 1,
+        "expected_node_id": 0,
+        "hunk": 1,
+        "offset": 588
+      },
+      "hypotheses": [
+        "This historical dialect uses one-based node IDs, unlike modern reference description"
+      ],
+      "id": "RESOLVED-MANX-INDEX",
+      "missing_artifact": null,
+      "next_experiment": "Retain raw slot index and encoded node ID separately",
+      "status": "RESOLVED",
+      "target": "Manx trampoline numbering"
+    }
+  ],
+  "schema_version": 1
+}
