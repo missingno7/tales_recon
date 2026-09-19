@@ -2,6 +2,7 @@ import copy
 import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
@@ -59,6 +60,25 @@ class CompleteUnitTests(unittest.TestCase):
     def test_owned_data_requires_stronger_proof(self):
         c=copy.deepcopy(self.compiled);c['contribution']['data_size']=2
         self.assertEqual(self.compare(c)['verdict'],'BLOCKED')
+
+    def test_same_overlay_pc_call_uses_proven_original_unit_coordinates(self):
+        """Temporary link hunk numbers cannot hide a verified local call."""
+        first=dict(id='ov09_F_0064',hunk=9,start=100,end=102,size=2,raw_bytes='4e75',
+                   extent_status='CLOSED_CFG',referenced_data=[],relocations=[],direct_callees=[])
+        caller=dict(id='ov09_F_0066',hunk=9,start=102,end=108,size=6,raw_bytes='4ebafffc4e75',
+                    extent_status='CLOSED_CFG',referenced_data=[],relocations=[],
+                    direct_callees=[dict(id='ov09_F_0064',hunk=9,offset=100,site=102)])
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'candidate.c').write_text('recovered() {}\n')
+            (root/'candidate.exe').write_bytes(b'\0'*64)
+            compiled=dict(status='COMPILED',identity=dict(profile='aztec36',flags=[]),cache_key='unit-map',cache_hit=True,
+                directory=str(root),prefix='candidate',contribution=dict(entry_offset=0,code_hex='4e754ebafffc4e75',
+                code_size=8,code_offset=0,hunk=3,data_size=0,bss_size=0,relocations=[],all_relocations=[],object_sha256='test',
+                symbols=[dict(hunk=3,name='_F_h09_0064',offset=0),dict(hunk=3,name='_recovered',offset=2)],
+                hunks=[dict(number=0,content_offset=0),dict(number=1,initialized_size=0,allocated_size=0),dict(number=2,allocated_size=0)]))
+            report=compare_unit([first,caller],{first['id']:'F_h09_0064',caller['id']:'recovered'},compiled,32766)
+        self.assertEqual(report['verdict'],'EQUAL')
+        self.assertIn('PC_RELATIVE_CALL_SYMBOL',[p['kind'] for p in report['members'][1]['relocation_proof']])
 
     def test_recovered_bridge_joins_a_contiguous_local_unit(self):
         source=ROOT/'experiments/direct-recovery/ov13_F_0190-v1.c'

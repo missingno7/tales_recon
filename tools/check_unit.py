@@ -71,12 +71,24 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
     if len(raw)!=len(expected)+len(tail):
         result.update(verdict='DIFFER',reason='COMPLETE_UNIT_SIZE_DIFFERS');return result
     cursor=0
+    # The standalone oracle has only one emitted overlay CODE hunk.  Its
+    # physical number is determined by the temporary link topology, while
+    # every member in this closed, contiguous source unit belongs to one
+    # original overlay hunk.  Map that one proven contribution hunk to the
+    # original identity before proving PC-relative calls.  No other hunk or
+    # symbol is remapped, and the symbol/partition checks below still require
+    # exact ordered extents for the complete object.
+    require(len({f['hunk'] for f in members})==1,'unit members cross original CODE hunks')
+    source_hunk=c['hunk'];original_hunk=members[0]['hunk'];original_base=members[0]['start']
     for f in members:
         symbol=next((s for s in c['symbols'] if s['hunk']==c['hunk'] and s['name']=='_'+names[f['id']]),None)
         require(symbol is not None and symbol['offset']==cursor,'natural function ordering/extent differs; no slice accepted')
         stop=cursor+f['size'];piece=copy.deepcopy(compiled);pc=piece['contribution']
         owned_tail=tail if owned_code_data and f is members[-1] else b''
-        pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=cursor,entry_offset=0)
+        pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=original_base+cursor,entry_offset=0)
+        pc['hunk']=original_hunk
+        pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
+                       for s in c['symbols']]
         pc['relocations']=[]
         for relocation in c['relocations']:
             at=relocation['relative_offset'];end=at+relocation['width']

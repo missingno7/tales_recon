@@ -56,7 +56,17 @@ def load_promotions(root,blob,model,analysis):
             unit=json.loads(unit_path.read_text());unit_source=unit_path.parent/'unit.c'
             require(sha256(unit_source.read_bytes())==unit['combined_source_sha256']==proof['compiler']['source_sha256'],'combined source hash differs')
             require(unit['object_sha256']==proof['object_hash'] and unit['source_sha256']==proof['source_sha256'],'unit object/source identity differs')
-            require(unit['verdict']=='EQUAL' and unit['unclaimed_bytes']==0 and unit['expected_length']==unit['actual_length'],'unit is not completely proven')
+            require(unit['verdict']=='EQUAL' and unit['unclaimed_bytes']==0,'unit is not completely proven')
+            # A complete unit normally contains only closed function CODE.
+            # Its final promoted member may additionally own the independently
+            # proved contiguous literal tail above; no other excess byte is
+            # permitted in the natural object.
+            tail_size=owned_end-end if item['state']=='FUNCTION_WITH_DATA_MATCH' else 0
+            require(unit['actual_length']==unit['expected_length']+tail_size,
+                    'unit has unproven bytes beyond its complete contribution')
+            if tail_size:
+                require(unit['ordered_members'][-1]['id']==fid,
+                        'owned CODE-data target is not the final unit member')
             require(unit['expected_sha256']==unit['normalized_sha256'],'unit normalized bytes differ')
             require(any(m['id']==fid for m in unit['ordered_members']),'promoted function missing from unit')
             unit_raw=[]
@@ -64,7 +74,14 @@ def load_promotions(root,blob,model,analysis):
                 mf=next((v for v in analysis.get('functions',[]) if v['id']==m['id']),None)
                 require(mf and all(mf[k]==m[k] for k in ('hunk','start','end','size','sha256')),'unit member evidence changed')
                 mr=next((v for v in unit['members'] if v['id']==m['id']),None)
-                require(mr and mr['verdict']=='EQUAL' and mr['normalized_sha256']==m['sha256'],'unmatched member in unit')
+                # The final owned-literal member carries its code comparison
+                # beneath the distinct tail proof; ordinary members expose it
+                # directly.  In either case only the closed function bytes
+                # may equal the immutable function extent hash.
+                normalized=mr.get('normalized_sha256') if mr else None
+                if normalized is None and mr:
+                    normalized=mr.get('code_comparison',{}).get('normalized_sha256')
+                require(mr and mr['verdict']=='EQUAL' and normalized==m['sha256'],'unmatched member in unit')
                 unit_raw.append(bytes.fromhex(mf['raw_bytes']))
             require(sha256(b''.join(unit_raw))==unit['expected_sha256'],'complete unit original bytes disagree')
             for dep,digest in unit['dependency_sources'].items():

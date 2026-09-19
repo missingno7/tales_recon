@@ -121,7 +121,10 @@ def compare_owned_code_data(f,compiled,a4_bias):
                                                             actual_tail_length=max(0,len(actual)-f['size'])))
         return report
     piece=copy.deepcopy(compiled);pc=piece['contribution']
-    pc.update(code_hex=actual[:f['size']].hex(),code_size=f['size'],code_offset=0)
+    # A complete-unit verifier supplies the member's original hunk-relative
+    # base so same-overlay PC calls can be proved against the full natural
+    # unit.  A standalone candidate still has the ordinary zero default.
+    pc.update(code_hex=actual[:f['size']].hex(),code_size=f['size'],code_offset=pc.get('code_offset',0))
     code_report=compare_function(f,piece,a4_bias,allow_pc_relative_data=True)
     report.update(code_comparison=code_report,owned_code_data=dict(**ownership,expected_tail_sha256=sha256(tail),
         actual_tail_sha256=sha256(actual[f['size']:]),actual_tail_length=len(tail),pc_relative_proof=pc_proof))
