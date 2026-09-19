@@ -49,6 +49,12 @@ add 24 exact CODE bytes. The exact source declares the observed field offsets,
 including the intentionally non-source-order scan arguments needed to match the
 historical ABI.
 
+`ov11_F_506A` and `ov11_F_67B0` extend the same strict proof to 40-byte `P`
+and `S` record parsers. They contribute respectively 266 code bytes plus a
+40-byte literal tail, and 228 code bytes plus a 28-byte literal/padding tail.
+Both tails end exactly at the next discovered entry; each receipt proves all
+PC-relative literal and A4 reference identities.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
