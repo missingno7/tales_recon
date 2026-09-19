@@ -13,6 +13,12 @@ Descriptive local/field names are interpretation; original identifiers and full
 global allocations are not claimed. Extern bounds supply independent harness
 storage, not a proof of the original objects' complete sizes.
 
+The later direct `ov03_F_154E` distance-ranking recovery adds 498 exact bytes.
+It uses the independently resolved `G_h01_4524` table, six natural resident
+helper calls, and the proved compiler-emitted signed division helper. Two
+unreferenced stack-frame words remain explicitly unknown rather than given
+semantic names. Its canonical receipt records all eleven reference identities.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
