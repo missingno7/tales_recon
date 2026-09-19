@@ -1,0 +1,181 @@
+{
+  "actual_length": 134,
+  "actual_sha256": "a6ba9327d2e3c726b47ade7971f522b05e1dc9f86797075d883431a8cbc3e925",
+  "cache_hit": false,
+  "cache_key": "c33a66c6bade577ab22868d3b1871f20708557757548835579d143fb891290b6",
+  "comparison_identity": "9cacdfe4e40a5df198f60b636dd53ab210cfa55cc1a6c38771f405bb5049e6a1",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "rts",
+        "offset": 128,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 130,
+        "operands": "#$0, d0",
+        "raw": "7000",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 132,
+        "operands": "$7e",
+        "raw": "60f8",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "moveq",
+        "offset": 128,
+        "operands": "#$0, d0",
+        "raw": "7000",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 130,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 132,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 134,
+  "expected_sha256": "6a6d2d8817e27c70264aced14da7cabf235b3bf15b2b7e199c88f2b2e0d24ead",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "lea.l",
+      "offset": 12,
+      "operands": "-$7fd0(a4), a0",
+      "raw": "41ec8030",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "lea.l",
+      "offset": 12,
+      "operands": "$2556(a4), a0",
+      "raw": "41ec2556",
+      "size": 4
+    }
+  },
+  "first_structural_instruction_difference": {
+    "actual": [],
+    "expected": [
+      {
+        "mnemonic": "bra.b",
+        "offset": 126,
+        "operands": "$82",
+        "raw": "6002",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 128,
+        "operands": "#$0, d0",
+        "raw": "7000",
+        "size": 2
+      }
+    ],
+    "kind": "delete"
+  },
+  "flags": [],
+  "id": "ov11_F_6F78",
+  "mnemonic_similarity": 0.9565,
+  "normalized_first_difference": {
+    "actual": "8030d0882b40fffc102c802e488048c0",
+    "actual_size": 134,
+    "expected": "2556d0882b40fffc102cc6e2488048c0",
+    "expected_size": 134,
+    "offset": 14
+  },
+  "normalized_sha256": "a6ba9327d2e3c726b47ade7971f522b05e1dc9f86797075d883431a8cbc3e925",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$22, d0",
+        "raw": "c1fc0022",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$22, d0",
+        "raw": "c1fc0022",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "8030d0882b40fffc102c802e488048c0",
+    "actual_size": 134,
+    "expected": "2556d0882b40fffc102cc6e2488048c0",
+    "expected_size": 134,
+    "offset": 14
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "0ec1c646f7f1936806b299940169bb7a3653b5a96368ba28e32c3772030ad6b2",
+  "unit_blocker": "unrecovered same-node dependency: ov11_F_27CC",
+  "verdict": "DIFFER"
+}
