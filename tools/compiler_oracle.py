@@ -15,6 +15,7 @@ from overlay_experiment import symbols
 
 PROFILES={
  'aztec36':dict(version='3.6a',base='toolchain/installed/aztec-3.6a/SYS1',guest='Old1:',flags=[]),
+ 'aztec36-x3':dict(version='3.6a',base='toolchain/installed/aztec-3.6a/SYS1',guest='Old1:',flags=['+X3']),
  'aztec36-long':dict(version='3.6a',base='toolchain/installed/aztec-3.6a/SYS1',guest='Old1:',flags=['+L']),
  'aztec50':dict(version='5.0a',base='toolchain/installed/aztec-5.0a/Aztec2',guest='Tools2:',flags=[]),
  'aztec50-short':dict(version='5.0a',base='toolchain/installed/aztec-5.0a/Aztec2',guest='Tools2:',flags=['-ps'])}

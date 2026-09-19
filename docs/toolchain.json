@@ -195,19 +195,27 @@
     }
   ],
   "compiler_fingerprint_matrix": {
-    "compiled_trials": 96,
+    "compiled_trials": 170,
     "evidence": "evidence/fingerprints/index.json",
     "game_discrimination": "17 game functions match the tested aztec36 profile, including a complete 88-byte two-function unit; tested aztec50-short alternatives differ. Unique historical release remains unresolved.",
     "profiles": [
       "aztec36",
+      "aztec36-x3",
       "aztec36-long",
       "aztec50",
       "aztec50-short"
     ],
-    "programs": 24,
+    "programs": 34,
     "status": "EXECUTED"
   },
-  "compiler_flags": null,
+  "compiler_flags": {
+    "aztec36-x3": {
+      "flags": [
+        "+X3"
+      ],
+      "meaning": "Documented 3.6-era code-generator mode that delays stack cleanup across adjacent calls; the adjacent_calls fingerprint emits one four-byte cleanup instead of two two-byte cleanups, so it is retained as an alternate rather than the default recovery profile."
+    }
+  },
   "compiler_version": null,
   "fingerprint_experiment": {
     "probes": [

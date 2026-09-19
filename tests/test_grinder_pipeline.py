@@ -128,7 +128,8 @@ class VerifierContractTests(unittest.TestCase):
         a=identity('int recovered(a) int a; { return a; }','aztec36')[0]
         b=identity('int recovered(a) int a; { return a+1; }','aztec36')[0]
         c=identity('int recovered(a) int a; { return a; }','aztec36-long')[0]
-        self.assertEqual(len({a,b,c}),3)
+        d=identity('int recovered(a) int a; { return a; }','aztec36-x3')[0]
+        self.assertEqual(len({a,b,c,d}),4)
 
 
 class CachedVerifierRegressionTests(unittest.TestCase):
