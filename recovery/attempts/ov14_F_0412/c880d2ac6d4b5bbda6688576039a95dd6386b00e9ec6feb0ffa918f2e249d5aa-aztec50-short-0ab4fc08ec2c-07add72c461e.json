@@ -1,0 +1,175 @@
+{
+  "actual_length": 150,
+  "actual_sha256": "1260f3a2698203ed80f42576db94f0909ac9436320bc9b9163c5f73dd6a7d8fd",
+  "cache_hit": true,
+  "cache_key": "0ab4fc08ec2cce25afbbce393a6b6d3bcb23580f5e870dec0713286e4a9575fb",
+  "comparison_identity": "07add72c461e39f7e23c4cee5ff594ce7116f522e264099e4cfe2a72f8b0ae4f",
+  "compiler": "aztec50-short",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "movem.l",
+        "offset": 142,
+        "operands": "(a7)+, #$0",
+        "raw": "4cdf0000",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 146,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 148,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.b",
+        "offset": 142,
+        "operands": "-$2(a5), d0",
+        "raw": "102dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 146,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 148,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 150,
+  "expected_sha256": "6b748df1fcafe9b5c429a4d095b53cd5c02ad18e5a9c9ed507b0b1cc934da18b",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "movem.l",
+      "offset": 4,
+      "operands": "#$0, -(a7)",
+      "raw": "48e70000",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "clr.w",
+      "offset": 4,
+      "operands": "-$4(a5)",
+      "raw": "426dfffc",
+      "size": 4
+    }
+  },
+  "first_structural_instruction_difference": {
+    "actual": [
+      {
+        "mnemonic": "movem.l",
+        "offset": 4,
+        "operands": "#$0, -(a7)",
+        "raw": "48e70000",
+        "size": 4
+      }
+    ],
+    "expected": [],
+    "kind": "insert"
+  },
+  "flags": [
+    "-ps"
+  ],
+  "id": "ov14_F_0412",
+  "mnemonic_similarity": 0.7381,
+  "normalized_first_difference": {
+    "actual": "48e70000426dfffc1b7c0023fffe1b7c",
+    "actual_size": 150,
+    "expected": "426dfffc1b7c0023fffe1b7c0001ffff",
+    "expected_size": 150,
+    "offset": 4
+  },
+  "normalized_sha256": "1260f3a2698203ed80f42576db94f0909ac9436320bc9b9163c5f73dd6a7d8fd",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffa",
+        "raw": "4e55fffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "movem.l",
+        "offset": 4,
+        "operands": "#$0, -(a7)",
+        "raw": "48e70000",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 8,
+        "operands": "-$4(a5)",
+        "raw": "426dfffc",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffa",
+        "raw": "4e55fffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$4(a5)",
+        "raw": "426dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 8,
+        "operands": "#$23, -$2(a5)",
+        "raw": "1b7c0023fffe",
+        "size": 6
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "48e70000426dfffc1b7c0023fffe1b7c",
+    "actual_size": 150,
+    "expected": "426dfffc1b7c0023fffe1b7c0001ffff",
+    "expected_size": 150,
+    "offset": 4
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "c880d2ac6d4b5bbda6688576039a95dd6386b00e9ec6feb0ffa918f2e249d5aa",
+  "verdict": "DIFFER"
+}
