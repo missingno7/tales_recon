@@ -13,6 +13,8 @@ Consulted 2026-09-19. These are research inputs, not executable dependencies.
 - [Aztec C Museum distribution index](https://www.aztecmuseum.ca/compilers.htm):
   candidate Amiga 5.0a distribution, not proof of use by DuckTales.
   The linked `aztecc50a.zip` download returned HTTP 465 during acquisition.
+  The user subsequently supplied a local ZIP, pinned separately in
+  `toolchain/candidate-lock.json`; its delivery does not authenticate the catalog URL.
 - `D:/Prog/empires_reconstruction/README.md` and `docs/build-reconstruction.md`:
   natural-layout proof and isolation of original fixtures. Its fixed-placement
   and raw-fallback bootstrap techniques are not adopted here.

@@ -69,14 +69,22 @@ and [format scope](docs/formats.md) for validation boundaries.
 - [Pilot evidence](evidence/executable/pilot.json), [proof rules](docs/proof-levels.md),
   [research sources](docs/references.md).
 
-The next dependency is a pinned candidate Manx compiler/assembler/linker and
-runtime distribution, followed by object-level runtime matching and compiler
-fingerprinting. The museum's 5.0a download was identified but retrieval failed
-with HTTP 465; no historical tools have been acquired or executed. The command
-`python tools/acquire_candidate.py` can retry this explicit research acquisition
-and pins any successful archive and every ZIP member by SHA-256.
+The supplied Aztec 5.0a archive is now pinned. Three disks validate, providing
+339 files including the compiler, assembler, linker and 17 libraries; disk 3
+fails strict OFS validation and remains quarantined. No historical tools have
+been executed or selected as a match. Object-level runtime matching and compiler
+fingerprinting remain next. The earlier HTTP 465 failure is retained in the ledger.
+See [Windows tools and archive findings](docs/windows-tools.md) for native
+analysis/build options and the distinction between native execution and vamos.
+
+```powershell
+python tools/acquire_candidate.py --from toolchain/aztecc50a.zip
+python tools/inventory_candidate.py --check
+```
 
 `src/resident` and `src/overlays/ov03` through `ov15` retain container identities;
 their README files are placeholders, not reconstructed sources. The census is
 an analysis pipeline, not the future normal build. No original code fallback,
 patching, fixed function placement, or source-port implementation is present.
+
+The unattended historical tool worker is operational; see [build-worker instructions](docs/build-worker.md) for repeatable commands and evidence.

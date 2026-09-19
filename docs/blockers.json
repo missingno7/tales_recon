@@ -4,25 +4,29 @@
       "current_evidence": [
         "MANX bytes at h00+0x76d6",
         "14-slot flat overlay table with 26 validated trampolines",
-        "Aztec C Museum lists Amiga 5.0a"
+        "Aztec C Museum lists Amiga 5.0a",
+        "Pinned 5.0a cc/as/ln and 17 libraries available; these tools require Amiga/m68k execution",
+        "Embedded banners dated Jan 9 1990 differ from read.me date; release notes document ABI/default-int changes"
       ],
       "experiments_tried": [
         "Checked named toolchain commands on PATH; no Amiga toolchain or WinUAE returned",
-        "Inspected sibling toolchain top levels; these provide DOS/Win32 tools, not evidence of an Amiga compiler"
+        "Inspected sibling toolchain top levels; these provide DOS/Win32 tools, not evidence of an Amiga compiler",
+        "WinUAE unattended smoke-003/004: compile, assemble, explicit c.lib link and execution all return 0; output identical across runs. Older adump rejects CJ object."
       ],
       "first_mismatch": null,
       "hypotheses": [
         "Manx Aztec C with matching overlay runtime; exact release unproven"
       ],
       "id": "TOOLCHAIN-001",
-      "missing_artifact": "Pinned candidate Amiga compiler, assembler, linker and runtime distribution; configured execution worker",
-      "next_experiment": "Acquire candidate distribution and provenance; inventory runtime objects before source recovery",
+      "missing_artifact": "Evidence selecting exact compiler release/flags and runtime objects; candidate worker now operational",
+      "next_experiment": "Compare 5.0a runtime objects against resident evidence; investigate 3.6-era toolchain before accepting a compiler match",
       "status": "OPEN",
       "target": "historical compiler/assembler/linker selection"
     },
     {
       "current_evidence": [
-        "https://www.aztecmuseum.ca/compilers.htm links https://www.aztecmuseum.ca/aztecc50a.zip"
+        "https://www.aztecmuseum.ca/compilers.htm links https://www.aztecmuseum.ca/aztecc50a.zip",
+        "User supplied toolchain/aztecc50a.zip; SHA-256 983d0e6db077fce59aa74f7b1c608ec400da101c8ca56fafe95e72de1e5dfeb7"
       ],
       "experiments_tried": [
         {
@@ -36,6 +40,10 @@
         {
           "method": "approved escalated Python urllib",
           "result": "HTTP 465; no archive or lock written"
+        },
+        {
+          "method": "local import and strict inventory",
+          "result": "Archive and five members pinned; disks 1/2/4 validated; disk 3 rejected separately under MEDIA-001"
         }
       ],
       "first_mismatch": {
@@ -46,16 +54,17 @@
         "Archive host or network intermediary prevents this URL retrieval"
       ],
       "id": "ACQUIRE-001",
-      "missing_artifact": "aztecc50a.zip candidate bytes",
-      "next_experiment": "Retry tools/acquire_candidate.py if host access changes, or acquire an independently documented mirror and record its URL and hashes",
-      "status": "OPEN",
+      "missing_artifact": null,
+      "next_experiment": "Acquisition complete; use the pinned candidate inventory and address MEDIA-001 before using disk 3",
+      "status": "RESOLVED",
       "target": "Aztec C Amiga 5.0a candidate"
     },
     {
       "current_evidence": [
         "26 dispatch trampolines and a JMP bridge are structurally identified; 214 bytes have runtime ABI ownership",
         "Manager entry h00+0x798a is observed; full runtime extent is unknown",
-        "HUNK_SYMBOL, HUNK_DEBUG and HUNK_EXT absent"
+        "HUNK_SYMBOL, HUNK_DEBUG and HUNK_EXT absent",
+        "Seventeen candidate 5.0a libraries pinned from validated disks; cj prefix is not generic HUNK object format"
       ],
       "experiments_tried": [],
       "first_mismatch": null,
@@ -63,8 +72,8 @@
         "Linked Manx library/startup objects may match available distributions"
       ],
       "id": "OWNERSHIP-001",
-      "missing_artifact": "Candidate runtime object/library inventory and relocation-aware matching",
-      "next_experiment": "Compare complete historical library contributions and retain exact first mismatches; do not decompile known runtime",
+      "missing_artifact": "Validated Manx archive/object parser and relocation-aware matching; exact historical library identity remains unproven",
+      "next_experiment": "Recover candidate library/object container boundaries and compare complete contributions before assigning ownership",
       "status": "OPEN",
       "target": "resident game/runtime ownership"
     },
@@ -147,6 +156,31 @@
       "next_experiment": "Retain raw slot index and encoded node ID separately",
       "status": "RESOLVED",
       "target": "Manx trampoline numbering"
+    },
+    {
+      "current_evidence": [
+        "Pinned supplied disk fails strict OFS parsing on asm/exec/exec_lib.i",
+        "Header block 409; chain reaches block 945 with all-zero data header",
+        "Disks 1,2,4 validate; no partial extraction from disk 3"
+      ],
+      "experiments_tried": [
+        "Strict parser on original archive member; independently inspected file header and failing block header"
+      ],
+      "first_mismatch": {
+        "block": 945,
+        "expected_primary_type": 8,
+        "file": "asm/exec/exec_lib.i",
+        "file_offset": 483840,
+        "observed_primary_type": 0
+      },
+      "hypotheses": [
+        "Damaged or modified archival disk; no repair inferred"
+      ],
+      "id": "MEDIA-001",
+      "missing_artifact": "Validated replacement/corroborating copy of candidate disk 3 before its files become dependencies",
+      "next_experiment": "Find independently sourced distribution and compare hashes/chains; preserve this failed candidate unchanged",
+      "status": "OPEN",
+      "target": "AztecCv50a3.adf"
     }
   ],
   "schema_version": 1

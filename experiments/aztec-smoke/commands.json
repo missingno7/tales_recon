@@ -1,0 +1,7 @@
+[
+  "Tools2:bin/cc >compile-assembly.log -a probe.c",
+  "Tools2:bin/as >assemble.log -o probe.o probe.asm",
+  "Tools2:bin/ln >link.log -o probe probe.o Tools2:lib/c.lib",
+  "probe >run.log",
+  "Tools2:bin/lb >c-library-list.log Tools2:lib/c.lib -t"
+]
