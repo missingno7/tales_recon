@@ -124,8 +124,8 @@ and `F_hNN_OFFSET` extern names identify evidence targets; the harness allocates
 their definitions normally. They are not address-placement directives.
 
 The default queue allows high-confidence closed overlay functions up to 256 bytes,
-excludes indirect flow and unrecovered same-node dependencies, and bounds unknown
-calls and data references. It retains the existing ranking and defaults to aztec36
+excludes indirect flow, unowned PC-relative CODE data, and unrecovered same-node
+dependencies, and bounds unknown calls and data references. It retains the existing ranking and defaults to aztec36
 alone; alternate profiles require an explicit request. Recovered entries
 are skipped on restart. Proposer errors and bounded non-convergence produce
 `recovery/blockers/*.json`; `python tools/grinder.py retry ID` explicitly requeues

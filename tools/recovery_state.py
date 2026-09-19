@@ -71,7 +71,7 @@ def ranked(node=None):
         unit_ready=not same_node_calls or all(c['offset']==f['end'] for c in same_node_calls)
         result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(f['indirect_control_flow']),state=state,
                            confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies,
-                           same_node_unit_ready=unit_ready))
+                           pc_relative_data=sum(x['kind']=='PC_RELATIVE_DATA' for x in f['referenced_data']),same_node_unit_ready=unit_ready))
     return sorted(result,key=lambda x:(x['score'],x['id']))
 
 

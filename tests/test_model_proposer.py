@@ -48,6 +48,13 @@ class GrinderContinuationTests(unittest.TestCase):
         candidate['same_node_unit_ready']=False
         self.assertFalse(grinder.eligible(candidate,args,256))
 
+    def test_eligibility_excludes_pc_relative_data_without_owned_data_proof(self):
+        args=SimpleNamespace(max_unknown_calls=1,max_data_references=8)
+        candidate=dict(extent='CLOSED_CFG',size=36,node='ov11',confidence='HIGH',indirect=0,
+                       unknown_calls=0,data_references=1,pc_relative_data=1,pending_local_dependencies=[],same_node_unit_ready=True)
+        self.assertFalse(grinder.eligible(candidate,args,256))
+        self.assertEqual(grinder.deferral_reason(candidate,args,256),'PC_RELATIVE_DATA_OWNERSHIP')
+
     def test_deferral_reports_the_dependency_gap(self):
         args=SimpleNamespace(max_unknown_calls=1,max_data_references=8)
         candidate=dict(extent='CLOSED_CFG',size=36,node='ov11',confidence='HIGH',indirect=0,

@@ -49,6 +49,7 @@ def eligible(item,args,limit):
     return (item['extent']=='CLOSED_CFG' and item['size']<=limit and item.get('node')!='resident'
             and item.get('confidence','HIGH')=='HIGH' and item.get('indirect',0)==0
             and item.get('unknown_calls',0)<=getattr(args,'max_unknown_calls',1)
+            and item.get('pc_relative_data',0)==0
             and item.get('data_references',0)<=getattr(args,'max_data_references',8)
             and not item.get('pending_local_dependencies') and item.get('same_node_unit_ready',True))
 
@@ -61,6 +62,7 @@ def deferral_reason(item,args,limit):
     if item.get('confidence','HIGH')!='HIGH':return 'LOW_CONFIDENCE'
     if item.get('indirect',0):return 'INDIRECT_CONTROL_FLOW'
     if item.get('unknown_calls',0)>getattr(args,'max_unknown_calls',1):return 'UNKNOWN_CALL_LIMIT'
+    if item.get('pc_relative_data',0):return 'PC_RELATIVE_DATA_OWNERSHIP'
     if item.get('data_references',0)>getattr(args,'max_data_references',8):return 'DATA_REFERENCE_LIMIT'
     if item.get('pending_local_dependencies'):return 'UNRECOVERED_LOCAL_DEPENDENCY'
     if not item.get('same_node_unit_ready',True):return 'NONCONTIGUOUS_LOCAL_UNIT'

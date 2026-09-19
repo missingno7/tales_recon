@@ -67,7 +67,7 @@ class TransportAndQueueTests(unittest.TestCase):
         f=dict(extent='CLOSED_CFG',size=64,node='ov14',confidence='HIGH',indirect=0,unknown_calls=0,data_references=1,pending_local_dependencies=[])
         args=SimpleNamespace(max_unknown_calls=1,max_data_references=8)
         self.assertTrue(eligible(f,args,256))
-        for change in (dict(node='resident'),dict(indirect=1),dict(size=258),dict(extent='UNCERTAIN'),dict(pending_local_dependencies=['callee']),dict(unknown_calls=2),dict(same_node_unit_ready=False)):
+        for change in (dict(node='resident'),dict(indirect=1),dict(size=258),dict(extent='UNCERTAIN'),dict(pending_local_dependencies=['callee']),dict(unknown_calls=2),dict(pc_relative_data=1),dict(same_node_unit_ready=False)):
             self.assertFalse(eligible(dict(f,**change),args,256))
 
 
