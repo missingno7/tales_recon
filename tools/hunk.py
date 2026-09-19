@@ -33,6 +33,17 @@ class Reader:
         return self.take(n * 4).rstrip(b'\0').decode('latin-1')
 
 
+def overlay_shape(model, tree):
+    """Container cardinalities only; explicitly excludes content and placement."""
+    return dict(hunk_types=[h['type'] for h in model['hunks']],
+        node_hunk_counts=[len(n['hunks']) for n in model['nodes']],
+        entry_counts=[len(s['symbols']) for s in tree['slots']],
+        slot_count=tree['slot_count'], physical_overlay_count=tree['physical_overlay_count'],
+        break_count=len(tree['breaks']), node_id_base=tree['node_id_base'],
+        overlay_upper_bound_longs=model['overlay']['upper_bound_longs'],
+        overlay_payload_bytes=model['overlay']['payload_size'])
+
+
 def parse(data):
     r = Reader(data)
     records, hunks, nodes, relocations = [], [], [], []

@@ -7,7 +7,7 @@ import sys
 
 from common import FormatError, json_bytes, require, sha256
 from ofs import OFSDisk
-from hunk import parse, manx_overlay
+from hunk import parse, manx_overlay, overlay_shape
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -53,11 +53,12 @@ def derive(root):
     exe = files['DT1:DuckTales']
     model = parse(exe)
     runtime_candidate_bytes = 0
+    occupied = set()
+    natural_overlay_shape_reproduced = False
     runtime_path = root/'evidence/experiments/runtime-matches.json'
     if runtime_path.exists():
         runtime = json.loads(runtime_path.read_text())
         require(runtime['game_sha256'] == sha256(exe), 'runtime comparison belongs to another game fixture')
-        occupied = set()
         for obj in runtime['objects']:
             if len(obj['matches']) != 1:
                 continue
@@ -72,6 +73,28 @@ def derive(root):
             occupied.update(locations)
         runtime_candidate_bytes = len(occupied)
         require(runtime_candidate_bytes == runtime['matched_candidate_bytes'], 'runtime match total inconsistent')
+    overlay_path = root/'evidence/experiments/overlay-topology.json'
+    if overlay_path.exists():
+        overlay_report = json.loads(overlay_path.read_text())
+        require(overlay_report['game_sha256'] == sha256(exe), 'overlay experiment belongs to another fixture')
+        require(overlay_report['shape'] == overlay_shape(model, manx_overlay(model, exe)), 'overlay experiment shape differs from game')
+        obj = overlay_report['runtime']
+        h = next(h for h in model['hunks'] if h['number'] == obj['game_hunk'])
+        start, size = obj['game_offset'], obj['size']
+        require(h['type'] == 'CODE' and start >= 0 and start+size <= h['initialized_size'], 'invalid overlay runtime extent')
+        require(sha256(exe[h['content_offset']+start:h['content_offset']+start+size]) == obj['code_sha256'], 'overlay runtime bytes changed')
+        profile = []
+        for r in model['relocations']:
+            if r['source_hunk'] != h['number'] or r['source_offset']+r['width'] <= start or r['source_offset'] >= start+size:
+                continue
+            require(r['source_offset'] >= start and r['source_offset']+r['width'] <= start+size, 'runtime boundary splits relocation')
+            profile.append(dict(offset=r['source_offset']-start, type=r['type'], width=r['width'], target_hunk=r['target_hunk'], addend=r['addend_raw']))
+        require(sorted(profile, key=lambda r:(r['offset'],r['type'])) == obj['relocations'], 'overlay runtime relocation profile differs')
+        locations = {(h['number'], offset) for offset in range(start, start+size)}
+        require(not occupied.intersection(locations), 'overlapping runtime contributions')
+        occupied.update(locations)
+        runtime_candidate_bytes = len(occupied)
+        natural_overlay_shape_reproduced = True
     tree = manx_overlay(model, exe)
     outputs['evidence/executable/hunks.json'] = {k:v for k,v in model.items() if k != 'relocations'}
     outputs['evidence/executable/relocations.json'] = dict(schema_version=1, count=len(model['relocations']),
@@ -191,10 +214,11 @@ def derive(root):
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
         reconstructed_functions=0, matched_source_bytes=0, current_proof_level=None,
         runtime_candidate_matching_bytes=runtime_candidate_bytes,
+        natural_overlay_shape_reproduced=natural_overlay_shape_reproduced,
         phases={'0':'CENSUS_COMPLETE','1':'CENSUS_COMPLETE','2':'CENSUS_COMPLETE',
                 '3':'STATIC_TOPOLOGY_VALIDATED_RUNTIME_NOT_TRACED','4':'PARTIAL_CONSERVATIVE_MAP',
                 '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'CANDIDATE_OBJECT_MATCHES' if runtime_candidate_bytes else 'OVERLAY_GLUE_ONLY','7':'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
-        pilot='ov07', next_action='Extend 3.6a runtime matching, fingerprint compiler variants, and establish natural overlay linking before pilot reconstruction.')
+        pilot='ov07', next_action='Fingerprint compiler variants and recover pilot control flow using the validated natural overlay link path.')
     outputs['evidence/executable/pilot.json'] = dict(schema_version=1, node='ov07', hunk=7,
         selection_reason='invest.arc and invart.arc anchors plus investment text; coherent candidate, not the smallest overlay',
         initialized_size=next(h['initialized_size'] for h in model['hunks'] if h['number']==7),

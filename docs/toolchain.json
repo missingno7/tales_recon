@@ -255,6 +255,13 @@
       "source": "Aztec1:read.me"
     }
   ],
+  "overlay_link_experiment": {
+    "command_recipe": "ln -m -t -o output root.o +o1 node01.o ... +o14 node14.o +o0 c.lib (omit +o4 inputs)",
+    "evidence": "evidence/experiments/overlay-topology.json",
+    "placement_policy": "No fixed placement or post-link edits",
+    "shared_runtime_counterexample": "3.6a and 5.0a segload contributions both match 244 bytes and two relocations",
+    "status": "NATURAL_SHAPE_AND_EXECUTION_VERIFIED"
+  },
   "provenance_classes": [
     "PROVEN_HISTORICAL",
     "LIKELY_HISTORICAL",

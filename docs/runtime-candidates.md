@@ -57,5 +57,7 @@ exclude a compiler. The initial broader 3.6a experiment also produced unmatched
 rindex, setmem and toupper code. The final repeatable experiment limits itself
 to the seven corroborated contributions; earlier receipts preserve failures.
 
-The exact compiler flags, overlay-link command, overlay manager ownership and
+A subsequent [overlay experiment](overlay-linking.md) verifies natural overlay
+linking and the complete 244-byte segload contribution, including two relocations.
+Together the candidate matches cover 470 bytes. Exact compiler flags and the
 complete investment module reconstruction remain open.

@@ -1,0 +1,12 @@
+[
+  "Old1:bin/cc >root-compile.log -a root.c",
+  "Old1:bin/as >root-assemble.log -o root.o root.asm",
+  "Old1:bin/cc >one-compile.log -a one.c",
+  "Old1:bin/as >one-assemble.log -o one.o one.asm",
+  "Old1:bin/cc >two-compile.log -a two.c",
+  "Old1:bin/as >two-assemble.log -o two.o two.asm",
+  "Old1:bin/ln >link.log -o overlay root.o +o1 one.o +o2 two.o +o0 Old1:lib/c.lib",
+  "overlay >run.log",
+  "Old1:bin/ln >sparse-link.log -m -t -o sparse root.o +o1 one.o +o3 two.o +o0 Old1:lib/c.lib",
+  "sparse >sparse-run.log"
+]

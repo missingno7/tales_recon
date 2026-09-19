@@ -7,7 +7,8 @@
         "Aztec C Museum lists Amiga 5.0a",
         "Pinned 5.0a cc/as/ln and 17 libraries available; these tools require Amiga/m68k execution",
         "Embedded banners dated Jan 9 1990 differ from read.me date; release notes document ABI/default-int changes",
-        "3.6a cc/as/ln compile and run independent C; seven c.lib contributions match 226 resident code bytes; exact compiler release still unproven"
+        "3.6a cc/as/ln compile and run independent C; seven c.lib contributions match 226 resident code bytes; exact compiler release still unproven",
+        "Natural 3.6a link reproduces all overlay cardinalities; 244-byte segload matches both 3.6a and 5.0a, so it cannot select a release"
       ],
       "experiments_tried": [
         "Checked named toolchain commands on PATH; no Amiga toolchain or WinUAE returned",
@@ -20,7 +21,7 @@
       ],
       "id": "TOOLCHAIN-001",
       "missing_artifact": "Evidence selecting exact compiler release/flags and runtime objects; candidate worker now operational",
-      "next_experiment": "Expand C compiler fingerprint corpus across 3.6a/5.0a integer and register conventions; validate natural overlay linking",
+      "next_experiment": "Compare compiler-generated game function conventions across 3.6a and 5.0a; preserve cross-release runtime ambiguity",
       "status": "OPEN",
       "target": "historical compiler/assembler/linker selection"
     },
@@ -66,12 +67,14 @@
         "Manager entry h00+0x798a is observed; full runtime extent is unknown",
         "HUNK_SYMBOL, HUNK_DEBUG and HUNK_EXT absent",
         "Seventeen candidate 5.0a libraries pinned from validated disks; cj prefix is not generic HUNK object format",
-        "evidence/experiments/runtime-matches.json: index, movmem, strcat, strcmp, strcpy, strlen, strncpy candidate objects"
+        "evidence/experiments/runtime-matches.json: index, movmem, strcat, strcmp, strcpy, strlen, strncpy candidate objects",
+        "Complete segload contribution h00+0x7978..0x7a6c matches 244 bytes and both relocations; eight total candidate contributions cover 470 bytes"
       ],
       "experiments_tried": [
         "5.0a c.lib/c16.lib isolated strlen/strcmp/memcpy: no exact resident matches",
         "3.6a seven relocation-free objects: unique complete code matches, header lengths corroborated by natural combined link; 226 bytes",
-        "Missing members and unresolved standalone dependencies retained in aztec36-001/002/003 receipts; final aztec36-004 all 14 steps return zero"
+        "Missing members and unresolved standalone dependencies retained in aztec36-001/002/003 receipts; final aztec36-004 all 14 steps return zero",
+        "Compared naturally linked 3.6a and 5.0a segload against game; complete code and relocation profiles equal in both releases"
       ],
       "first_mismatch": null,
       "hypotheses": [
@@ -79,7 +82,7 @@
       ],
       "id": "OWNERSHIP-001",
       "missing_artifact": "Validated Manx archive/object parser and relocation-aware matching; exact historical library identity remains unproven",
-      "next_experiment": "Resolve remaining runtime object dependencies and recover overlay manager contribution; distinguish shared runtime code from exact release identity",
+      "next_experiment": "Extend relocation-aware startup/runtime matching and map game references to candidate entry points",
       "status": "OPEN",
       "target": "resident game/runtime ownership"
     },
@@ -97,8 +100,8 @@
         "Investment/stock-market semantic module; original source filename unknown"
       ],
       "id": "PILOT-001",
-      "missing_artifact": "Complete control-flow/data/reference map, pinned codegen toolchain, natural overlay link path",
-      "next_experiment": "After runtime/toolchain identification, trace relocation-aware reachable code and data for the entire node",
+      "missing_artifact": "Complete control-flow/data/reference map and compiler code-generation identification; natural overlay link path is verified",
+      "next_experiment": "Trace pilot code and references with established runtime targets; compare compiler fingerprints for its functions",
       "status": "OPEN",
       "target": "ov07 complete reconstruction"
     },
@@ -205,6 +208,24 @@
       "next_experiment": "Seek independent media when a dependency requires rejected disk 3; do not repair this fixture",
       "status": "OPEN",
       "target": "Aztec 3.6a archival disk 3"
+    },
+    {
+      "current_evidence": [
+        "+oN selects explicit node; +o0 resumes resident input",
+        "Independent C reproduces 16 hunks, 14 slots, empty slot 4, 13 physical overlays, 26 entries with matching per-slot counts, 14 BREAKs and 220-byte overlay table",
+        "topology-002 executes all entries and revisits the first overlay; all 31 worker steps return zero"
+      ],
+      "experiments_tried": [
+        "Two-node link and execution",
+        "Sparse IDs 1/3: empty slot 2 and extra BREAK",
+        "14-slot probe with two entries per nonempty slot",
+        "Final probe with exact per-slot cardinalities from game topology"
+      ],
+      "id": "RESOLVED-NATURAL-OVERLAY-LINK",
+      "missing_artifact": null,
+      "next_experiment": "Use this normal link mechanism for independently reconstructed game modules; no full layout/content match claimed",
+      "status": "RESOLVED",
+      "target": "historical natural overlay link recipe"
     }
   ],
   "schema_version": 1

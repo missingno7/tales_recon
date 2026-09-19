@@ -43,3 +43,5 @@ uses WinUAE; disassembly and binary parsing do not need guest execution.
 
 Next: identify candidate runtime object contributions and compare compiler ABI
 fingerprints before selecting a toolchain for the complete investment overlay.
+
+Natural overlay linking is now verified; see [overlay experiments](overlay-linking.md).
