@@ -1,0 +1,178 @@
+{
+  "actual_length": 36,
+  "actual_sha256": "9d7625b20240164b2820b8bb302b30ecfd4c75ce8ef449697b962bf0d489f8b3",
+  "cache_hit": false,
+  "cache_key": "f0859c5398fb95d01bec6b2f7ef78aabe30d518e5cbb1a4860af9bbc6687e995",
+  "comparison_identity": "759e41fc0e97a91e6df3a31bf7d4d385179e75176a8588e24b8a84eea0ce3827",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 30,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 32,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 34,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 30,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 32,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 34,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 36,
+  "expected_sha256": "a2fd26fcecd4280145b4d9703189f730ed730cc3db362f10bf938963b511a705",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "jsr",
+      "offset": 26,
+      "operands": "-$7ffe(a4)",
+      "raw": "4eac8002",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "jsr",
+      "offset": 26,
+      "operands": "$fffff474(pc)",
+      "raw": "4ebaf458",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov11_F_519C",
+  "mnemonic_similarity": 1.0,
+  "normalized_first_difference": {
+    "actual": "ac8002584f4e5d4e75",
+    "actual_size": 36,
+    "expected": "baf458584f4e5d4e75",
+    "expected_size": 36,
+    "offset": 27
+  },
+  "normalized_sha256": "69f5a7e00c9170ca8ccdfb3d5d0e316e5651ba2fb0f24c7b1cef0f5e5a2554fb",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$28, d0",
+        "raw": "c1fc0028",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$28, d0",
+        "raw": "c1fc0028",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "802ed0882b40fffc2f2dfffc4eac8002",
+    "actual_size": 36,
+    "expected": "b726d0882b40fffc2f2dfffc4ebaf458",
+    "expected_size": 36,
+    "offset": 14
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "DIRECT_CALL_BINDING_UNPROVEN",
+      "offset": 26,
+      "target": "ov11_F_4610"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        14116
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 14116,
+        "symbol": "_G_h01_3724"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 14
+    }
+  ],
+  "source_sha256": "8f2206d9f1e0f37893dc717b3fe38141e24e82469793dde25bb232e7c6fe3e4e",
+  "unit_blocker": "unit has unowned gaps; do not fill or copy original bytes",
+  "verdict": "DIFFER"
+}
