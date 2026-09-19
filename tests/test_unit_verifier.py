@@ -104,6 +104,11 @@ class CompleteUnitTests(unittest.TestCase):
         _,_,combined,_=prepare_unit('ov10_F_22E6','recovered() {}')
         self.assertNotIn('extern int F_h10_1FDE();',combined)
 
+    def test_separate_source_parts_retain_direct_callee_return_declarations(self):
+        source='extern long F_h11_4610(); recovered() { return F_h11_4610(); }'
+        _,_,parts,_,_=prepare_unit('ov11_F_23F4',source,True,True,False)
+        self.assertIn('extern long F_h11_4610();',parts['ov11_F_23F4'])
+
     def test_persisted_receipt_has_no_nested_cache_observations(self):
         receipt=stable_receipt(dict(cache_hit=True,members=[dict(cache_hit=False,
             owned_code_data=dict(code_comparison=dict(cache_hit=True,verdict='EQUAL')))]))

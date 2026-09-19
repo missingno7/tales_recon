@@ -38,7 +38,7 @@ def proven_tail(f,ledger):
     return tail,ownership
 
 
-def prepare_unit(fid,source,with_parts=False,allow_gaps=False):
+def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True):
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
     def add_recovered(dep_id):
         if dep_id in members:return
@@ -80,11 +80,12 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False):
     # Manx treats that later declaration as external linkage and can omit the
     # earlier definition from the linked symbol map.  Remove these stale
     # declarations from every unit member, not only the target candidate.
-    for dep_id,name in names.items():
-        if dep_id==fid:continue
-        pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
-        for part_id in parts:
-            parts[part_id]=re.sub(pattern,'',parts[part_id])
+    if remove_stale_externs:
+        for dep_id,name in names.items():
+            if dep_id==fid:continue
+            pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
+            for part_id in parts:
+                parts[part_id]=re.sub(pattern,'',parts[part_id])
     combined='\n'.join(parts[m['id']] for m in ordered)+'\n'
     return (ordered,names,parts,combined,l) if with_parts else (ordered,names,combined,l)
 
@@ -205,7 +206,8 @@ def joined_source(parts,members):
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False):
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
     require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
-    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(fid,source,True,allow_gaps)
+    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(
+        fid,source,True,allow_gaps,remove_stale_externs=not separate_objects)
     reports=[]
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
