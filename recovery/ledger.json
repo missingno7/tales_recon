@@ -1331,6 +1331,32 @@
         "source_sha256": "4ecd40b321ad3f1351efcd8111460e3bf369ac72ba2cba0c35f466dd9ec94532",
         "state": "CODEGEN_SIMILAR",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": null,
+        "cache_key": "34e16391deb912e42131fa71e5329309d4df26d59196393e5ef4939208117faf",
+        "comparison_identity": "2943f0cd70267013fe88cd65d72beb2ef5b698d0960c76d03f9cc470ad6594aa",
+        "expected_length": 78,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov10_F_1F90/5bac68b9817b77df184416845c285f29891bddae1e29489cd22ae55a9e401711-aztec36-34e16391deb9-2943f0cd7026.json",
+        "source_sha256": "5bac68b9817b77df184416845c285f29891bddae1e29489cd22ae55a9e401711",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": 78,
+        "cache_key": "0006ebe73428a09d6d5300afe65f8946ede46723ce1087d02a95729f6cb980a2",
+        "comparison_identity": "2943f0cd70267013fe88cd65d72beb2ef5b698d0960c76d03f9cc470ad6594aa",
+        "expected_length": 78,
+        "first_difference": null,
+        "mnemonic_similarity": 1.0,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov10_F_1F90/6fb4d6b05e7c991483916f7f551f8ff682d6326be9c26a2bf3a1c64b8d233cd6-aztec36-0006ebe73428-2943f0cd7026.json",
+        "source_sha256": "6fb4d6b05e7c991483916f7f551f8ff682d6326be9c26a2bf3a1c64b8d233cd6",
+        "state": "FUNCTION_CODE_MATCH",
+        "verdict": "EQUAL"
       }
     ],
     "ov10_F_25A2": [
@@ -4059,52 +4085,6 @@
       "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
       "state": "BLOCKED"
     },
-    "ov10_F_1F90": {
-      "attempts": [
-        {
-          "actual_length": 64,
-          "cache_key": "c8a974f7f9d8ee97b5f45c32a5ced233e9541e52e4f47ab9d4e4316e23cdbd87",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 78,
-          "first_difference": {
-            "actual": "6d280c6d000400086d180c6d00060008",
-            "actual_size": 64,
-            "expected": "6c0c3f3c00514eac80ce544f60320c6d",
-            "expected_size": 78,
-            "offset": 10
-          },
-          "mnemonic_similarity": 0.3415,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov10_F_1F90/da13933b2212bad719157588225e9df400634b8b7a572b7a9e8ce6a8924ffcd7-aztec36-c8a974f7f9d8-e962cd232c05.json",
-          "source_sha256": "da13933b2212bad719157588225e9df400634b8b7a572b7a9e8ce6a8924ffcd7",
-          "state": "CANDIDATE_C",
-          "verdict": "DIFFER"
-        },
-        {
-          "actual_length": 64,
-          "cache_key": "e27aee3232f0e9e11478dd2d9e5921916206ba6f0fa82ab8a4bf55eca145ee3b",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 78,
-          "first_difference": {
-            "actual": "08397c0051802a60260c6d000400086c",
-            "actual_size": 64,
-            "expected": "0c3f3c00514eac80ce544f60320c6d00",
-            "expected_size": 78,
-            "offset": 11
-          },
-          "mnemonic_similarity": 0.7805,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov10_F_1F90/4ecd40b321ad3f1351efcd8111460e3bf369ac72ba2cba0c35f466dd9ec94532-aztec36-e27aee3232f0-e962cd232c05.json",
-          "source_sha256": "4ecd40b321ad3f1351efcd8111460e3bf369ac72ba2cba0c35f466dd9ec94532",
-          "state": "CODEGEN_SIMILAR",
-          "verdict": "DIFFER"
-        }
-      ],
-      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
-      "ownership_unchanged": true,
-      "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
-      "state": "BLOCKED"
-    },
     "ov11_F_3F90": {
       "attempts": [
         {
@@ -4996,6 +4976,22 @@
       "proof_sha256": "26b1bdd89d371fa401909aa08682ab5952c5bd13b2f220646c26b51cfeffcf79",
       "source": "src/recovered/ov09/ov09_F_1956.c",
       "source_sha256": "8cee9f24ca0a7813e2462ef322f9446009b4354eb63a9a96ff099d60cef7773d",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov10_F_1F90": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 8158,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 10,
+        "sha256": "38eb24976a44811c795eb14bfff63bac7d12e67e433ebeec05c66e1d3bc75e28",
+        "size": 78,
+        "start": 8080
+      },
+      "proof": "recovery/proofs/ov10_F_1F90.json",
+      "proof_sha256": "8238a59f3cdbebf5f92b7202baf1cb45d871470069540f80c82996d0dc7de0c7",
+      "source": "src/recovered/ov10/ov10_F_1F90.c",
+      "source_sha256": "6fb4d6b05e7c991483916f7f551f8ff682d6326be9c26a2bf3a1c64b8d233cd6",
       "state": "FUNCTION_CODE_MATCH"
     },
     "ov10_F_25A2": {
