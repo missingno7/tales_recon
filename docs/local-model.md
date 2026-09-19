@@ -15,8 +15,9 @@ Generation measured 199–209 tokens/sec. Temperature was 0.3.
 The runs attempted **19 unrecovered functions with 47 local model calls and zero
 new promotions**. Verified new bytes/functions per GPU-hour and new matches per
 100 calls are therefore zero. The backend works, but productive sustained
-convergence has not been demonstrated. Canonical coverage remains **23 functions /
-1,158 bytes**; no complete overlay matches. Declaration errors, unresolved call
+convergence has not been demonstrated. At the end of that trial canonical coverage
+was **23 functions / 1,158 bytes**; later direct recovery is tracked separately in
+docs/progress.json. No complete overlay matches. Declaration errors, unresolved call
 units, malformed output and persistent code-generation differences are retained.
 
 A separate live calibration withheld existing source and previous attempts from

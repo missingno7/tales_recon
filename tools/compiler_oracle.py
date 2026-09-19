@@ -46,7 +46,7 @@ def harness(source):
             require(match is not None,'extern function must use old-style empty parameter list')
             declarations.append(decl+' { return 0; }')
         else:
-            require(re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(?:char|short|int|long|float|double|struct\s+\w+)\s+\**\s*\w+(?:\s*\[\s*\d+\s*\])?',decl) is not None,'unsupported extern declaration; use scalar/pointer/array facts')
+            require(re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(?:char|short|int|long|float|double|struct\s+\w+)\s+\**\s*\w+(?:\s*\[\s*[1-9]\d*\s*\])*',decl) is not None,'unsupported extern declaration; use scalar/pointer/positive-bound array facts')
             declarations.append(decl+';')
     return '/* Independent naturally allocated link harness. */\nextern int recovered();\nint (*candidate_reference)() = recovered;\nmain() { return 0; }\n'+'\n'.join(declarations)+'\n'
 

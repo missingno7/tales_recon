@@ -71,6 +71,12 @@ class VerifierContractTests(unittest.TestCase):
         self.assertEqual(target_identity(1,9,symbols,{'_G_h01_1424':12})['offset'],0x1425)
         self.assertIsNone(target_identity(1,20,symbols,{'_G_h01_1424':12}))
 
+    def test_multidimensional_external_array_uses_natural_c_layout(self):
+        source='extern unsigned char G_h01_5014[16][31]; recovered() { return G_h01_5014[1][2]; }'
+        self.assertIn('unsigned char G_h01_5014[16][31];',harness(source))
+        for bounds in ('[]','[0]','[2][0]','[-1]'):
+            with self.assertRaises(FormatError):harness('extern char table'+bounds+'; recovered() { return 0; }')
+
     def test_call_target_may_not_absorb_addend(self):
         self.assertIsNone(target_identity(0,2,[{'hunk':0,'offset':0,'name':'_F_h00_1234'}]))
 

@@ -19,11 +19,49 @@
         "source_sha256": "ea2f2290869256dcb5df88187b22f0c97145de26d6e39a66ff917fc465021987",
         "state": "CANDIDATE_C",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 200,
+        "cache_key": "871137f8826a09ebc363c31cb73151792192b288a18fd3c522959f4247877e19",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 198,
+        "first_difference": {
+          "actual": "0e41ec80364a3008006674102dffff48",
+          "actual_size": 200,
+          "expected": "f841ecc5304a3008006674102dffff48",
+          "expected_size": 198,
+          "offset": 49
+        },
+        "mnemonic_similarity": 0.9913,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov14_F_0540/e7e7de5b9d5a6c26a0cd4b31a3d230743cca33925594c76e4e945a7d7c3f8c4d-aztec36-871137f8826a-e962cd232c05.json",
+        "source_sha256": "e7e7de5b9d5a6c26a0cd4b31a3d230743cca33925594c76e4e945a7d7c3f8c4d",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 196,
+        "cache_key": "b8dc82b902dea87d2981d4c741181343dffced345660d8e743115d1aafb904a6",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 198,
+        "first_difference": {
+          "actual": "48e700001b7c0023fffe426dfffc1b7c",
+          "actual_size": 196,
+          "expected": "1b7c0023fffe426dfffc1b7c0001ffff",
+          "expected_size": 198,
+          "offset": 4
+        },
+        "mnemonic_similarity": 0.7679,
+        "profile": "aztec50-short",
+        "receipt": "recovery/attempts/ov14_F_0540/e7e7de5b9d5a6c26a0cd4b31a3d230743cca33925594c76e4e945a7d7c3f8c4d-aztec50-short-b8dc82b902de-e962cd232c05.json",
+        "source_sha256": "e7e7de5b9d5a6c26a0cd4b31a3d230743cca33925594c76e4e945a7d7c3f8c4d",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
       }
     ],
     "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
     "ownership_unchanged": true,
-    "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
+    "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
     "state": "BLOCKED"
   },
   "facts": {
@@ -700,9 +738,77 @@
         ],
         "source_sha256": "ea2f2290869256dcb5df88187b22f0c97145de26d6e39a66ff917fc465021987",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 200,
+        "compiler": "aztec36",
+        "expected_length": 198,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 46,
+            "operands": "-$7ff2(a4)",
+            "raw": "4eac800e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 46,
+            "operands": "-$7f08(a4)",
+            "raw": "4eac80f8",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.9913,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "e7e7de5b9d5a6c26a0cd4b31a3d230743cca33925594c76e4e945a7d7c3f8c4d",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 196,
+        "compiler": "aztec50-short",
+        "expected_length": 198,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "movem.l",
+            "offset": 4,
+            "operands": "#$0, -(a7)",
+            "raw": "48e70000",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "move.b",
+            "offset": 4,
+            "operands": "#$23, -$2(a5)",
+            "raw": "1b7c0023fffe",
+            "size": 6
+          }
+        },
+        "flags": [
+          "-ps"
+        ],
+        "mnemonic_similarity": 0.7679,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "e7e7de5b9d5a6c26a0cd4b31a3d230743cca33925594c76e4e945a7d7c3f8c4d",
+        "verdict": "DIFFER"
       }
     ],
     "previous_sources": {
+      "e7e7de5b9d5a6c26a0cd4b31a3d230743cca33925594c76e4e945a7d7c3f8c4d": {
+        "source": "struct Record { char first, second; char reserved[10]; };\nextern struct Record G_h01_452E[36];\nextern char F_h03_154E();\nstruct Value { int unused; int amount; };\nstruct Owner { struct Value *value; char reserved[8]; };\nextern struct Owner G_h01_4528[36];\nchar recovered(a) char a;\n{\n    char i, best;\n    int score, ratio, distance, amount;\n    best = 35;\n    score = 0;\n    for (i=1; i<35; ++i) {\n        if (i == a || G_h01_452E[i].first || G_h01_452E[i].second) continue;\n        distance = F_h03_154E(a,i);\n        amount = G_h01_4528[i].value->amount;\n        ratio = amount / distance;\n        if (ratio > score) {\n            score = ratio;\n            best = i;\n        }\n    }\n    return best;\n}\n",
+        "truncated": false
+      },
       "ea2f2290869256dcb5df88187b22f0c97145de26d6e39a66ff917fc465021987": {
         "source": "recovered(a, b) char a, b; { char c; int d, e; char *f; c = a; if (c == b) return 0; d = c; e = d; f = (char *) 0x4528; if (*f) return 1; f++; if (*f) return 2; f++; if (*f) return 3; f += 2; d = *f; e = d; if (e < 0) return 4; if (e > 12) return 5; return 6; }",
         "truncated": false

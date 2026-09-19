@@ -42,6 +42,14 @@ reaching **23 functions / 1,158 bytes**. The latter converged through 74, 74, an
 mismatch. This remains function-level proof, not an ov11 module match. The full
 run receipt is `recovery/runs/a7a55000b4954d8995468d316a1dbd8c.json`.
 
+A subsequent direct reconstruction pass recovered six more functions (676 bytes),
+reaching **29 functions / 1,834 bytes**. This includes the 112-byte ov07 table-based
+percentage calculation. Positive-bound multidimensional extern arrays now pass
+through the normal harness, preserving Aztec's 31-byte byte-array row stride.
+Two ov14 char-return selectors remain near-matches and are not counted. See
+`evidence/experiments/direct-recovery.json`; no local-model success is credited
+for this direct pass.
+
 The end-to-end test uses `experiments/grinder-bootstrap/fixture_proposer.py`, a
 deterministic replay of independently authored C, **not an LLM**. It promotes the
 four leaves and deliberately emits a wrong ov11 candidate. The repeat is cached,
