@@ -158,6 +158,10 @@ Feedback includes lengths, relocation profiles/proofs, raw and normalized first
 differences, first differing instruction, mnemonic similarity, prologue/epilogue,
 owned data/BSS sizes, compiler/flags, cache key, and compiler-error logs.
 
+An A4 `PEA` that points to a parsed Manx trampoline is recorded as a
+`FUNCTION_POINTER` reference rather than ordinary DATA. Its target hunk/offset
+is proved by the same table-and-symbol path as an invoked overlay call.
+
 For a caller with adjacent recovered same-node dependencies, `check_function.py`
 automatically creates one source unit in natural function order. Existing C is
 renamed to mechanical dependency symbols; no original bytes enter compilation.

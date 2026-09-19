@@ -159,7 +159,7 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
                         if rr:identity=target_identity(rr['target_hunk'],rr['addend_raw'],symbol_map,bounds)
                         if identity is None:identity=overlay_trampoline_identity(c,stub,symbol_map,bounds)
                     expected_identity=eo_target
-                    if e.mnemonic.startswith(('jsr','jmp')):
+                    if e.mnemonic.startswith(('jsr','jmp','pea')):
                         call=next((x for x in f['direct_callees'] if x['site']-f['start']==e.address),None)
                         if call:expected_identity=(call['hunk'],call['offset'])
                     site=unique_word_site(a,ao.mem.disp);es=unique_word_site(e,eo.mem.disp)

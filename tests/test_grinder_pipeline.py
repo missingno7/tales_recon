@@ -51,6 +51,14 @@ class FunctionCensusTests(unittest.TestCase):
         c=self.census('4e55000028404e5d4e75')
         self.assertEqual(c.run()['functions'][0]['extent_status'],'UNCERTAIN')
 
+    def test_overlay_trampoline_callback_is_a_function_reference(self):
+        c=self.census('4e550000486c00004e5d4e754e5500004e5d4e75')
+        c.a4_bias=0;c.trampolines[0]=(0,12)
+        f=next(x for x in c.run()['functions'] if x['start']==0)
+        self.assertEqual(f['direct_callees'][0]['id'],'resident_F_000C')
+        self.assertEqual(f['direct_callees'][0]['reference_kind'],'FUNCTION_POINTER')
+        self.assertEqual(f['referenced_data'],[])
+
 class VerifierContractTests(unittest.TestCase):
     def test_source_escape_hatches_rejected(self):
         for src in ('int recovered(){asm("rts");}','#include "x.h"\nint recovered(){return 0;}'):

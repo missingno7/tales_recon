@@ -95,12 +95,21 @@ class Census:
                     stops.append(dict(offset=pc,reason='A4_BASE_DATAFLOW_UNPROVEN'))
                 if mn=='link':frames.append(dict(offset=pc,register=ins.reg_name(ins.operands[0].reg),local_bytes=-signed16(ins.operands[1].imm & 65535)))
                 if mn in ('movem','unlk'):saves.append(row)
+                # A verified Manx trampoline is executable linkage even when
+                # its address is passed as a callback rather than invoked at
+                # this site.  Keep it out of generic DATA references so later
+                # proof can require its code identity.
+                pointer_target=self.target(h,ins) if mn=='pea' else None
+                if pointer_target and pointer_target[2]=='A4_OVERLAY_TRAMPOLINE' and self.valid(pointer_target[0],pointer_target[1]):
+                    th,to,basis=pointer_target
+                    calls.append(dict(site=pc,hunk=th,offset=to,id=function_id(th,to),basis=basis,reference_kind='FUNCTION_POINTER'))
+                    self.seed(th,to,dict(kind='FUNCTION_REFERENCE',caller=function_id(h,start),site=pc,basis=basis))
                 for oi,o in enumerate(ins.operands):
                     if o.type==K.M68K_OP_MEM:
                         ref=None
                         if o.address_mode==K.M68K_AM_PCI_DISP and mn not in ('jsr','jmp'):
                             ref=dict(hunk=h,offset=pc+2+o.mem.disp,kind='PC_RELATIVE_DATA')
-                        elif o.mem.base_reg==K.M68K_REG_A4 and o.address_mode==K.M68K_AM_REGI_ADDR_DISP and self.a4_bias is not None:
+                        elif o.mem.base_reg==K.M68K_REG_A4 and o.address_mode==K.M68K_AM_REGI_ADDR_DISP and self.a4_bias is not None and pointer_target is None:
                             ref=dict(hunk=1,offset=self.a4_bias+o.mem.disp,kind='A4_RELATIVE')
                         if ref:
                             ref['instruction_offset']=pc;refs.append(ref)
@@ -162,7 +171,7 @@ class Census:
         by_id={f['id']:f for f in functions};coverage=defaultdict(set)
         for f in functions:
             for c in f['direct_callees']:
-                if c['id'] in by_id:by_id[c['id']]['callers'].append(dict(id=f['id'],site=c['site'],basis=c['basis']))
+                if c['id'] in by_id:by_id[c['id']]['callers'].append(dict(id=f['id'],site=c['site'],basis=c['basis'],reference_kind=c.get('reference_kind','CALL')))
             for i in f['instructions']:coverage[f['hunk']].update(range(i['offset'],i['offset']+i['size']))
             for r in f['referenced_data']:
                 data=self.data.get(r['hunk'],b'');off=r['offset']
