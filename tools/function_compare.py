@@ -15,6 +15,25 @@ def decode_all(raw):
     return out,None
 
 
+def first_structural_instruction_difference(expected,actual):
+    """Return the first mnemonic/width divergence without masking references.
+
+    Exact comparison still owns the verdict.  This auxiliary receipt avoids
+    letting the first naturally different A4 displacement hide the code-shape
+    mismatch that a candidate author can actually revise.
+    """
+    ei,ebad=decode_all(expected);ai,abad=decode_all(actual)
+    if ebad is not None or abad is not None:return None
+    expected_shape=[(i.mnemonic,i.size) for i in ei]
+    actual_shape=[(i.mnemonic,i.size) for i in ai]
+    for tag,i1,i2,j1,j2 in SequenceMatcher(None,expected_shape,actual_shape).get_opcodes():
+        if tag=='equal':continue
+        return dict(kind=tag,
+                    expected=[basic(i) for i in ei[i1:min(i2,i1+3)]],
+                    actual=[basic(i) for i in ai[j1:min(j2,j1+3)]])
+    return None
+
+
 def mechanical(name):
     m=re.fullmatch(r'_?([GF])_h(\d+)_(?:0x)?([0-9A-Fa-f]+)',name)
     return None if m is None else (int(m[2]),int(m[3],16),m[1])
@@ -100,6 +119,7 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
     report['epilogue']={'expected':[basic(i) for i in ei[-3:]],'actual':[basic(i) for i in ai[-3:]]}
     report['data_contributions']=dict(candidate_data=c['data_size'],candidate_bss=c['bss_size'],expected_owned_data='NOT_CLAIMED')
     report['raw_first_difference']=first_bytes(expected,actual)
+    report['first_structural_instruction_difference']=first_structural_instruction_difference(expected,actual)
     if f['extent_status']!='CLOSED_CFG':report['reason']='UNCERTAIN_EVIDENCE_EXTENT';return report
     if c['data_size'] or c['bss_size'] or ebad is not None or abad is not None:
         report['reason']='DATA_OR_UNDECODED_CONTRIBUTION_REQUIRES_OWNERSHIP_PROOF';return report

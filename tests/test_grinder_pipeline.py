@@ -8,7 +8,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
 from function_census import Census
 from compiler_oracle import identity,validate_source,harness,overlay_proxies,cached
-from function_compare import target_identity,overlay_trampoline_identity,unique_word_site,decode_all
+from function_compare import target_identity,overlay_trampoline_identity,unique_word_site,decode_all,first_structural_instruction_difference
 from function_compare import compare_function
 from recovery_state import evidence,ROOT
 from compiler_oracle import CACHE
@@ -69,6 +69,15 @@ class FunctionCensusTests(unittest.TestCase):
             dict(hunk=0,offset=10,text='%d ',confidence='REFERENCED_PRINTABLE_CANDIDATE')])
 
 class VerifierContractTests(unittest.TestCase):
+    def test_structural_difference_skips_matching_reference_forms(self):
+        # The exact byte diff can be an A4 displacement even when a later
+        # inserted instruction is the actionable compiler-codegen difference.
+        diff=first_structural_instruction_difference(bytes.fromhex('4e754e71'),bytes.fromhex('4e714e754e71'))
+        self.assertEqual(diff['kind'],'insert')
+        self.assertEqual(diff['expected'],[])
+        self.assertEqual(diff['actual'][0]['mnemonic'],'nop')
+        self.assertEqual(diff['actual'][0]['offset'],0)
+
     def test_source_escape_hatches_rejected(self):
         for src in ('int recovered(){asm("rts");}','#include "x.h"\nint recovered(){return 0;}'):
             with self.assertRaises(FormatError):validate_source(src)
