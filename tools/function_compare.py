@@ -42,7 +42,7 @@ def unique_word_site(ins,value):
     return sites[0] if len(sites)==1 else None
 
 
-def compare_function(f,compiled,a4_bias):
+def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
     report=dict(expected_length=f['size'],actual_length=None,compiler=compiled['identity']['profile'],flags=compiled['identity']['flags'],
                 cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],verdict='BLOCKED',relocation_equal=False,proof_level=None)
     if compiled['status']!='COMPILED':
@@ -120,7 +120,7 @@ def compare_function(f,compiled,a4_bias):
     same_layout=len(ei)==len(ai) and all(x.address==y.address and x.size==y.size and x.mnemonic==y.mnemonic for x,y in zip(ei,ai))
     # PC-relative data requires a separately owned data extent; code equality
     # alone cannot establish the target object's identity or bounds.
-    if any(r['kind']=='PC_RELATIVE_DATA' for r in f['referenced_data']):
+    if not allow_pc_relative_data and any(r['kind']=='PC_RELATIVE_DATA' for r in f['referenced_data']):
         issues.append(dict(kind='PC_RELATIVE_DATA_OWNERSHIP_UNPROVEN'))
     if same_layout:
         for e,a in zip(ei,ai):

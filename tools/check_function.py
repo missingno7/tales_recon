@@ -89,14 +89,17 @@ def check_many(requests,promote_equal=True):
     results=compile_many(trials);reports=[]
     for req,f,l,source,profile,slot,unit,unit_blocker in prepared:
         compiled=results[slot] if isinstance(slot,int) else slot
-        if unit and compiled['status']=='COMPILED':
+        if req.get('owned_code_data'):
+            from owned_code_data import compare_owned_code_data
+            report=compare_owned_code_data(f,compiled,l['a4']['bias'])
+        elif unit and compiled['status']=='COMPILED':
             from check_unit import retain_unit
             members,names,combined=unit
             _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'])
         else:report=compare_function(f,compiled,l['a4']['bias'])
         report['id']=f['id'];report['source_sha256']=sha256(source.encode())
         if unit_blocker:report['unit_blocker']=unit_blocker
-        verification_files=('check_function.py','function_compare.py','check_unit.py','runtime_arithmetic.py')
+        verification_files=('check_function.py','function_compare.py','check_unit.py','runtime_arithmetic.py','owned_code_data.py')
         report['comparison_identity']=sha256(b''.join(Path(__file__).with_name(p).read_bytes() for p in verification_files))
         if req.get('proposer_receipt'):
             proposal_path=(ROOT/req['proposer_receipt']).resolve()
@@ -119,7 +122,10 @@ def check_many(requests,promote_equal=True):
         short.update(cache_key=report['cache_key'],comparison_identity=report['comparison_identity'])
         if not any(a.get('cache_key')==short['cache_key'] and a.get('comparison_identity')==short['comparison_identity'] for a in attempts):attempts.append(short)
         write_json(LEDGER,r)
-        if report['verdict']=='EQUAL' and promote_equal:
+        # Compiler-owned CODE data is a useful bounded result, but it remains
+        # separate from ordinary function promotion until a full natural unit
+        # owns the adjacent data without gaps.
+        if report['verdict']=='EQUAL' and report.get('proof_level')=='FUNCTION_CODE_MATCH' and promote_equal:
             canonical=recovery()['functions'].get(f['id'])
             if not canonical or canonical['source_sha256']==report['source_sha256']:
                 report['promotion']=promote(f['id'],source,report,compiled,f)
@@ -133,8 +139,9 @@ def main():
     ap.add_argument('id',nargs='?');ap.add_argument('source',type=Path,nargs='?')
     ap.add_argument('--profile',action='append',choices=sorted(PROFILES))
     ap.add_argument('--batch',type=Path,help='JSON array of {id,source,profiles}; one boot for all cache misses')
+    ap.add_argument('--owned-code-data',action='store_true',help='strictly verify an adjacent compiler-owned PC-relative string tail; never promotes alone')
     ap.add_argument('--no-promote',action='store_true');ap.add_argument('--json',action='store_true');args=ap.parse_args()
-    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or ['aztec36','aztec50-short'])]
+    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or ['aztec36','aztec50-short'],owned_code_data=args.owned_code_data)]
     reports=check_many(req,not args.no_promote)
     for r in reports:
         if args.json:print(json.dumps(r))

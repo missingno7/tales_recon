@@ -167,20 +167,27 @@ granted for a partial historical module.
 Unsupported source/harness declarations are recorded per trial. They no longer
 cancel other valid candidates in the same compilation batch.
 
-Current conservative blockers include candidate-owned data/BSS, PC-relative data
-ownership, and call bindings outside completely verified units. These require additional
-proof support before promotion. Unknown indexed jumps stop descent; no jump table
-is guessed. Explicit A4 writes/restores prevent a closed ABI-based proof.
+Current conservative blockers include candidate-owned data/BSS and call bindings
+outside completely verified units. `tools/check_function.py --owned-code-data`
+adds one deliberately narrow intermediate proof: a closed function may be followed
+by compiler-owned, NUL-terminated printable strings in the same CODE contribution
+only when every byte is independently reconstructed from ledger string evidence,
+the tail begins immediately after the function, and every PC-relative target is
+proved to address its expected tail offset. It never promotes a function alone;
+normal complete-unit proof must still own code and adjacent data without gaps.
+Unknown indexed jumps stop descent; no jump table is guessed. Explicit A4
+writes/restores prevent a closed ABI-based proof.
 Indirect calls can be recorded and compiled, but are deprioritized. The harness
 currently supports self-contained C with simple extern scalars, pointers, arrays,
 structs, and old-style function declarations; unsupported declarations return a
 blocker. Inline assembly and external includes are outside this candidate-C API.
 
-FUNCTION_WITH_DATA_MATCH, MODULE_MATCH and OVERLAY_NODE_MATCH are reserved stronger
-states, not currently granted by the function verifier. They require complete
+`FUNCTION_WITH_DATA_MATCH`, `MODULE_MATCH` and `OVERLAY_NODE_MATCH` remain
+stronger states. The owned-tail checker can issue the first as a noncanonical
+intermediate receipt, but canonical promotion still requires complete
 data/layout/dependency contributions and a normal whole-module `+oN` link. The
-next expansion is call/data proof support and more ranked leaves, then ov07 and
-the remaining overlays, with resident reconstruction later.
+next expansion is complete-unit data ownership and more ranked leaves, then ov07
+and the remaining overlays, with resident reconstruction later.
 
 ## Cache, fingerprints and ledgers
 
