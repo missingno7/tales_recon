@@ -1,0 +1,416 @@
+{
+  "actual_length": 136,
+  "actual_sha256": "d9ae45b01d018e5fe828d2f07aa63b78b806c4587ccabc9825dbe1d1b1368f30",
+  "cache_key": "8874095b36786e4e44d2492060758b6af28c6a53585970b84454464600a370b5",
+  "combined_source_sha256": "e1a85c95c9b286e5dfbdd8c1a2bc729196f5bf8970cbd511bb356f4694a3bd09",
+  "compiler": {
+    "candidate_overlay_node": 9,
+    "compiler_version": "3.6a",
+    "flags": [],
+    "harness_sha256": "50eea8bd82359a7034260e0fa6de4b211104278f3664b1526de72bfac875b224",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o +o9 candidate.o part001.o +o0 c.lib; -m -t",
+    "local_functions": [
+      "F_h11_717A"
+    ],
+    "object_labels": [
+      "candidate",
+      "part001"
+    ],
+    "partitioned_object_sources": [
+      {
+        "label": "candidate",
+        "source_sha256": "639103ee6ee9d04492e73f6d4a5b42ef5eef978e460d8d2356c9a3cd30ab59ee"
+      },
+      {
+        "label": "part001",
+        "source_sha256": "4abb2907cd0fc4b1acf1edfe2b48ce87f07d007ec2d42a9a69022b129110e055"
+      }
+    ],
+    "profile": "aztec36",
+    "service_version": 1,
+    "source_sha256": "e1a85c95c9b286e5dfbdd8c1a2bc729196f5bf8970cbd511bb356f4694a3bd09",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+  },
+  "dependency_sources": {
+    "ov11_F_717A": "1e0d61ce1dc044c7e68b396884dc2d400fd2c8e8cc5b8b919dcf05ae74780eff"
+  },
+  "expected_compiled_length": 136,
+  "expected_length": 136,
+  "expected_sha256": "411bb53f3ad06b0aa0a298b86f92559783762cb7c168dc5641175a8f49ddfe33",
+  "id": "ov11_F_6FFE",
+  "members": [
+    {
+      "actual_length": 110,
+      "actual_sha256": "5d2e5b255b239ab1b3224e4cb41ed5a0470bfb7cc0cbf1f49c51f86fd963c47c",
+      "cache_key": "8874095b36786e4e44d2492060758b6af28c6a53585970b84454464600a370b5",
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "clr.b",
+            "offset": 102,
+            "operands": "$34(a0)",
+            "raw": "42280034",
+            "size": 4
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 106,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 108,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "clr.b",
+            "offset": 102,
+            "operands": "$34(a0)",
+            "raw": "42280034",
+            "size": 4
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 106,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 108,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 110,
+      "expected_sha256": "4b7e950d01589686864b88bcddd080ab22f466b1803ae738a892172dae5f86ec",
+      "first_differing_instruction": {
+        "actual": {
+          "mnemonic": "move.w",
+          "offset": 4,
+          "operands": "#$1, -$2(a5)",
+          "raw": "3b7c0001fffe",
+          "size": 6
+        },
+        "expected": {
+          "mnemonic": "move.w",
+          "offset": 4,
+          "operands": "#$1, -$6(a5)",
+          "raw": "3b7c0001fffa",
+          "size": 6
+        }
+      },
+      "first_structural_instruction_difference": {
+        "actual": [
+          {
+            "mnemonic": "cmpi.w",
+            "offset": 18,
+            "operands": "#$3, -$2(a5)",
+            "raw": "0c6d0003fffe",
+            "size": 6
+          },
+          {
+            "mnemonic": "bge.b",
+            "offset": 24,
+            "operands": "$62",
+            "raw": "6c48",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "bra.b",
+            "offset": 18,
+            "operands": "$5a",
+            "raw": "6046",
+            "size": 2
+          }
+        ],
+        "kind": "replace"
+      },
+      "flags": [],
+      "id": "ov11_F_6FFE",
+      "mnemonic_similarity": 0.8966,
+      "normalized_first_difference": {
+        "actual": "fe41ec802a2b48fffa0c6d0003fffe6c",
+        "actual_size": 110,
+        "expected": "fa41ec26aa2b48fffc6046206dfffc22",
+        "expected_size": 110,
+        "offset": 9
+      },
+      "normalized_sha256": "5d2e5b255b239ab1b3224e4cb41ed5a0470bfb7cc0cbf1f49c51f86fd963c47c",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffa",
+            "raw": "4e55fffa",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "#$1, -$2(a5)",
+            "raw": "3b7c0001fffe",
+            "size": 6
+          },
+          {
+            "mnemonic": "lea.l",
+            "offset": 10,
+            "operands": "-$7fd6(a4), a0",
+            "raw": "41ec802a",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffa",
+            "raw": "4e55fffa",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "#$1, -$6(a5)",
+            "raw": "3b7c0001fffa",
+            "size": 6
+          },
+          {
+            "mnemonic": "lea.l",
+            "offset": 10,
+            "operands": "$26aa(a4), a0",
+            "raw": "41ec26aa",
+            "size": 4
+          }
+        ]
+      },
+      "proof_level": null,
+      "raw_first_difference": {
+        "actual": "fe41ec802a2b48fffa0c6d0003fffe6c",
+        "actual_size": 110,
+        "expected": "fa41ec26aa2b48fffc6046206dfffc22",
+        "expected_size": 110,
+        "offset": 9
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_equal": false,
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [],
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": 26,
+      "actual_sha256": "9eefb8d898f200d3f78282f0a82fcbea883e1ae24e216ecd5a61b157a9f1b4c7",
+      "cache_key": "8874095b36786e4e44d2492060758b6af28c6a53585970b84454464600a370b5",
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "move.w",
+            "offset": 16,
+            "operands": "#$2, (a0, d0.l)",
+            "raw": "31bc00020800",
+            "size": 6
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 22,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 24,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "move.w",
+            "offset": 16,
+            "operands": "#$2, (a0, d0.l)",
+            "raw": "31bc00020800",
+            "size": 6
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 22,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 24,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 26,
+      "expected_sha256": "f40f395a6b6498452d34ee77fe8e2e67d00a1ec0801ef05e1af0d34e91f2d5a0",
+      "first_structural_instruction_difference": null,
+      "flags": [],
+      "id": "ov11_F_717A",
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "f40f395a6b6498452d34ee77fe8e2e67d00a1ec0801ef05e1af0d34e91f2d5a0",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$0",
+            "raw": "4e550000",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$a, d0",
+            "raw": "c1fc000a",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$0",
+            "raw": "4e550000",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$a, d0",
+            "raw": "c1fc000a",
+            "size": 4
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "803831bc000208004e5d4e75",
+        "actual_size": 26,
+        "expected": "26b231bc000208004e5d4e75",
+        "expected_size": 26,
+        "offset": 14
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [
+        {
+          "expected": [
+            1,
+            42672
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 42672,
+            "symbol": "_G_h01_A6B0"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 14
+        }
+      ],
+      "verdict": "EQUAL"
+    }
+  ],
+  "normalized_sha256": null,
+  "object_sha256": "35ce908a8f5f0be876a9159ed6f4625dc69590de17b95575211039a5762fe0d1",
+  "ordered_members": [
+    {
+      "end": 28780,
+      "hunk": 11,
+      "id": "ov11_F_6FFE",
+      "sha256": "4b7e950d01589686864b88bcddd080ab22f466b1803ae738a892172dae5f86ec",
+      "size": 110,
+      "start": 28670
+    },
+    {
+      "end": 29076,
+      "hunk": 11,
+      "id": "ov11_F_717A",
+      "sha256": "f40f395a6b6498452d34ee77fe8e2e67d00a1ec0801ef05e1af0d34e91f2d5a0",
+      "size": 26,
+      "start": 29050
+    }
+  ],
+  "profile": "aztec36",
+  "reason": "MEMBER_DIFFERS",
+  "source_sha256": "639103ee6ee9d04492e73f6d4a5b42ef5eef978e460d8d2356c9a3cd30ab59ee",
+  "unclaimed_bytes": 0,
+  "verdict": "DIFFER",
+  "verification_policy": "Every compact linked byte belongs to a recovered source object; original gaps remain unclaimed",
+  "verifier_identity": {
+    "check_unit.py": "a14a7fc045040846e4b63d99fc7cc42a205bac63e92e1538b80f5dbf4e1a7089",
+    "compiler_oracle.py": "7b1cc03a187ed30609b26c9c2d7b9ec9a15321a60bb17acaea52063c5285bc8b",
+    "function_compare.py": "948eb84ff86adae17b198fdcd44c5f10294094b0c9b01e104325788b536ae8bb",
+    "runtime_arithmetic.py": "ac504401940c27a97ab314de6f711f7bdb0dd861dc1937ec988681fc11043d68"
+  }
+}
