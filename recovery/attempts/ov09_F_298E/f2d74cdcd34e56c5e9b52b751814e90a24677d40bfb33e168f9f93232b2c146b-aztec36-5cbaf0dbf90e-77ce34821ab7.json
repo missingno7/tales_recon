@@ -1,0 +1,44 @@
+{
+  "actual_length": null,
+  "cache_hit": false,
+  "cache_key": "5cbaf0dbf90e03cae12552e2ff8d3568b164cb88d84481f614e655fe835e5bca",
+  "comparison_identity": "77ce34821ab7a329553752439d24fef4735d3d6e88e21ef9b734e384f954b8e3",
+  "compile_returncodes": [
+    4,
+    1,
+    0,
+    0,
+    10
+  ],
+  "compiler": "aztec36",
+  "compiler_feedback": [
+    {
+      "file": "h000-as.log",
+      "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+    },
+    {
+      "file": "h000-cc.log",
+      "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+    },
+    {
+      "file": "t000-as.log",
+      "text": "Aztec 68000 Assembler 3.6a  12-18-87\n_event:\n       ^\nFile t000.asm; Line 107 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 112 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 118 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 124 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 130 # Multiply defined symbol.\n_value:\n       ^\nFile t000.asm; Line 136 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 141 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 147 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 152 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 158 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 164 # Multiply defined symbol.\n_event:\n       ^\nFile t000.asm; Line 170 # Multiply defined symbol.\nUndefined local symbol: .8\n13 errors\n"
+    },
+    {
+      "file": "t000-cc.log",
+      "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    }\n     ^\nt000.c:53: ERROR 63: undefined label: done\n    if (mode==1) {\n      ^\nt000.c:54: ERROR 45: bad declaration syntax: \n        value=(int)F_h00_463E()&3;\n                                  ^\nt000.c:55: ERROR 41: initializer not a constant: \n        if (!((unsigned char)G_h01_4272[((unsigned)(row-14))*6]\n          ^\nt000.c:56: ERROR 45: bad declaration syntax: \n            goto done;\n                ^\nt000.c:57: ERROR 45: bad declaration syntax: \n            event=&G_h01_433E;\n                              ^\nt000.c:58: WARNING 121: ptr/int conversion: \n                              ^\nt000.c:58: WARNING 92: illegal type conversion: \n            event[0]=value+5;\n                    ^\nt000.c:59: ERROR 10: array size must be positive integer: \n                     ^\nt000.c:59: ERROR 49: multiply defined symbol: event\n                             ^\nt000.c:59: ERROR 41: initializer not a constant: \n            *(int *)(event+2)=row;\n             ^\nt000.c:60: ERROR 45: bad declaration syntax: \n            event[4]=0;\n                     ^\nt000.c:61: ERROR 49: multiply defined symbol: event\n            event[5]=1;\n                     ^\nt000.c:62: ERROR 49: multiply defined symbol: event\n            if (!G_h01_46E0 && G_h01_4188!=1)\n              ^\nt000.c:63: ERROR 45: bad declaration syntax: \n                event[6]=2;\n                         ^\nt000.c:64: ERROR 49: multiply defined symbol: event\n            else\n                ^\nt000.c:65: ERROR 45: bad declaration syntax: \n                event[6]=1;\n                         ^\nt000.c:66: ERROR 49: multiply defined symbol: event\n            *(int *)(event+8)=G_h01_4274[(unsigned)(row-14)].fi\n             ^\nt000.c:67: ERROR 45: bad declaration "
+    },
+    {
+      "file": "t000-ln.log",
+      "text": "Aztec C68K Linker 3.6a  12-18-87\nfile: <t000.o> Can't open.\n"
+    }
+  ],
+  "expected_length": 660,
+  "flags": [],
+  "id": "ov09_F_298E",
+  "proof_level": null,
+  "reason": "COMPILE_ERROR",
+  "relocation_equal": false,
+  "source_sha256": "f2d74cdcd34e56c5e9b52b751814e90a24677d40bfb33e168f9f93232b2c146b",
+  "verdict": "BLOCKED"
+}
