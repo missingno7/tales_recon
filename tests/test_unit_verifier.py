@@ -67,3 +67,11 @@ class CompleteUnitTests(unittest.TestCase):
         self.assertEqual([m['id'] for m in members],['ov13_F_0000','ov13_F_012E','ov13_F_0190'])
         self.assertIn('F_h13_012E()',combined)
         self.assertEqual(names['ov13_F_0000'],'F_h13_0000')
+
+    def test_bridge_extern_for_an_earlier_member_is_removed(self):
+        # ov10_F_2160 calls the earlier ov10_F_1FDE and its canonical source
+        # still carries the old external declaration.  It must not survive in
+        # a larger natural unit, where it would hide the first definition from
+        # Manx's linked symbol map.
+        _,_,combined,_=prepare_unit('ov10_F_22E6','recovered() {}')
+        self.assertNotIn('extern int F_h10_1FDE();',combined)

@@ -41,8 +41,16 @@ def prepare_unit(fid,source):
     ordered=sorted(members.values(),key=lambda x:x['start'])
     require(len(ordered)>1,'unit requires a recovered same-node dependency')
     require(all(a['end']==b['start'] for a,b in zip(ordered,ordered[1:])),'unit has unowned gaps; do not fill or copy original bytes')
+    # A bridge source may retain an old ``extern`` declaration for another
+    # recovered member that now precedes it in this same translation unit.
+    # Manx treats that later declaration as external linkage and can omit the
+    # earlier definition from the linked symbol map.  Remove these stale
+    # declarations from every unit member, not only the target candidate.
     for dep_id,name in names.items():
-        if dep_id!=fid:parts[fid]=re.sub(r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;','',parts[fid])
+        if dep_id==fid:continue
+        pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
+        for part_id in parts:
+            parts[part_id]=re.sub(pattern,'',parts[part_id])
     combined='\n'.join(parts[m['id']] for m in ordered)+'\n'
     return ordered,names,combined,l
 
