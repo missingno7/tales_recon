@@ -1,0 +1,165 @@
+{
+  "actual_length": 100,
+  "actual_sha256": "c4a9a1b779625eb692622caeeb81b0242e8740191c323de8ef18a9707e955309",
+  "cache_hit": true,
+  "cache_key": "da3c5a0bf73a10155ac83c5bb2fec4bccff678058e453d5aaf53158cac0c624d",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "add.w",
+        "offset": 92,
+        "operands": "-$4(a5), d0",
+        "raw": "d06dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 96,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 98,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "add.l",
+        "offset": 110,
+        "operands": "d1, d0",
+        "raw": "d081",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 112,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 114,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 116,
+  "expected_sha256": "03f6565aac14f006c13309ce0a468d83251967c8a00f8cab99a7709377a74401",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "link.w",
+      "offset": 0,
+      "operands": "a5, #$fffc",
+      "raw": "4e55fffc",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "link.w",
+      "offset": 0,
+      "operands": "a5, #$fff8",
+      "raw": "4e55fff8",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov11_F_2562",
+  "mnemonic_similarity": 0.4242,
+  "normalized_first_difference": {
+    "actual": "fc302d0008b06d000a630a302d000890",
+    "actual_size": 100,
+    "expected": "f8302d0008906d000c4a406c0c302d00",
+    "expected_size": 116,
+    "offset": 3
+  },
+  "normalized_sha256": "c4a9a1b779625eb692622caeeb81b0242e8740191c323de8ef18a9707e955309",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmp.w",
+        "offset": 8,
+        "operands": "$a(a5), d0",
+        "raw": "b06d000a",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fff8",
+        "raw": "4e55fff8",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "sub.w",
+        "offset": 8,
+        "operands": "$c(a5), d0",
+        "raw": "906d000c",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov11_F_2562/5a87bbd935e67af084d9165c3e23a398ae116983f46098f014b1c6fbdcc68742.json",
+    "receipt_sha256": "4ba324c4601ce25757cb23b01e086f0e1338706d1218c74ed3793cf1e8aba249"
+  },
+  "raw_first_difference": {
+    "actual": "fc302d0008b06d000a630a302d000890",
+    "actual_size": 100,
+    "expected": "f8302d0008906d000c4a406c0c302d00",
+    "expected_size": 116,
+    "offset": 3
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "74199647ad34b46b2d69191f980781dbd66fc2caf6e2bd9d0386dfdb7cc7137b",
+  "verdict": "DIFFER"
+}

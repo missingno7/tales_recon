@@ -1,0 +1,217 @@
+{
+  "attempts_per_promoted_function": {},
+  "blocked_this_run_by_class": {
+    "REFERENCE_IDENTITY": [
+      "ov11_F_729C"
+    ],
+    "UNSUPPORTED_DECLARATION": [
+      "ov11_F_4848"
+    ]
+  },
+  "compiler_cache_hit_rate": 0.5,
+  "function_code_match_rate": 0.0,
+  "functions_attempted": 2,
+  "functions_promoted": 0,
+  "generation_tokens_per_second": 208.6111332200146,
+  "gpu": {
+    "before_server_load": {
+      "free_mib": 21073,
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 4090",
+      "observed_unix": 1789829026.8729582,
+      "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+      "total_mib": 24564,
+      "used_mib": 3066,
+      "utilization_percent": 30
+    },
+    "minimum_observed_free_mib": 2311,
+    "peak_observed_used_mib": 21828,
+    "server_pids": [
+      44612
+    ],
+    "start": {
+      "free_mib": 2311,
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 4090",
+      "observed_unix": 1789829832.0118206,
+      "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+      "total_mib": 24564,
+      "used_mib": 21828,
+      "utilization_percent": 0
+    }
+  },
+  "gpu_hour_definition": "Single resident GPU reserved during measured run wall time; includes desktop use and compiler waits; excludes initial model loading.",
+  "gpu_hours": 0.0027961362070507475,
+  "historical_compiler_jobs": 1,
+  "historical_compiler_jobs_per_match": null,
+  "limitations": [
+    "Only new canonical promotions with local-model provenance count; no fixture or hosted-model matches are included.",
+    "VRAM peak is sampled across the whole GPU, including Windows/desktop allocations.",
+    "A small bounded run measures this candidate set; it does not prove whole-overlay convergence."
+  ],
+  "matches_per_100_model_calls": 0.0,
+  "model_cache_hit_rate": 0.0,
+  "model_calls": 4,
+  "model_calls_per_match": null,
+  "model_identities": [
+    {
+      "context_size": 8192,
+      "generation": {
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": 1,
+        "temperature": 0.3,
+        "top_k": 40,
+        "top_p": 0.95
+      },
+      "kv_cpu": false,
+      "model": "Qwen3-Coder-30B-A3B-Instruct",
+      "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+      "quantization": "Q4_K_M",
+      "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31"
+    }
+  ],
+  "per_call_tokens_per_second": [
+    207.86065585321515,
+    212.35752400481968,
+    200.68300248982982,
+    203.6680157032566
+  ],
+  "promoted_functions": {},
+  "prompt_budget_measurements": [
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 11,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 5736,
+          "prompt_tokens": 1939,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 5736,
+      "prompt_tokens": 1939,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 16,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 4309,
+          "prompt_tokens": 1434,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 4309,
+      "prompt_tokens": 1434,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 11,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 6008,
+          "prompt_tokens": 2032,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 6008,
+      "prompt_tokens": 2032,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 16,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7354,
+          "prompt_tokens": 2682,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7354,
+      "prompt_tokens": 2682,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    }
+  ],
+  "recommendations": [
+    "Keep one GPU generation at a time; no concurrency increase is automatic.",
+    "Supervisor should address shared mechanisms once: PERSISTENT_CODEGEN_MISMATCH, UNRESOLVED_INTER_OBJECT_CALL, UNSUPPORTED_DECLARATION"
+  ],
+  "run_id": "c2bd9cff395444588d60f6dac87ba099",
+  "schema_version": 1,
+  "status": "NO_ELIGIBLE_WORK",
+  "supervisor_blocker_groups": {
+    "MODEL_RESPONSE": [
+      "ov11_F_4610"
+    ],
+    "PERSISTENT_CODEGEN_MISMATCH": [
+      "ov07_F_0EC0",
+      "ov08_F_3FC0",
+      "ov08_F_4018",
+      "ov10_F_1F90",
+      "ov10_F_2BCA",
+      "ov11_F_2562",
+      "ov11_F_4696",
+      "ov11_F_5A12",
+      "ov11_F_5BC4",
+      "ov11_F_706C",
+      "ov14_F_0412",
+      "ov14_F_04A8",
+      "ov14_F_0540"
+    ],
+    "REFERENCE_IDENTITY": [
+      "ov11_F_727A",
+      "ov11_F_729C"
+    ],
+    "UNRESOLVED_INTER_OBJECT_CALL": [
+      "ov11_F_3F90",
+      "ov11_F_6FFE",
+      "ov11_F_70DC"
+    ],
+    "UNSUPPORTED_DECLARATION": [
+      "ov08_F_3F70",
+      "ov09_F_18D0",
+      "ov09_F_1956",
+      "ov11_F_4848",
+      "ov11_F_69A4"
+    ]
+  },
+  "token_usage": {
+    "cached_prompt_tokens": 2951,
+    "generated_tokens": 574,
+    "prompt_tokens": 8087
+  },
+  "verified_bytes_per_gpu_hour": 0.0,
+  "verified_functions_per_gpu_hour": 0.0,
+  "verified_game_bytes": 0,
+  "wall_clock_seconds": {
+    "historical_compilation": 2.376861199969426,
+    "model_inference": 4.704791299940553,
+    "orchestration_and_prompt_packing": 1.859480545448605,
+    "total": 10.06609034538269,
+    "verification_including_regressions": 1.124957300024107
+  }
+}

@@ -1,0 +1,1 @@
+recovered(a, b) char a, b; { char c; int d, e; char *f; c = a; if (c == b) return 0; d = c; e = d; f = (char *) 0x4528; if (*f) return 1; f++; if (*f) return 2; f++; if (*f) return 3; f += 2; d = *f; e = d; if (e < 0) return 4; if (e > 12) return 5; return 6; }

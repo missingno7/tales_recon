@@ -1,9 +1,11 @@
 """Download hash-pinned public runtime/weights; never upload project data."""
 import hashlib
+import argparse
 import json
 from pathlib import Path
 import urllib.request
 import zipfile
+import shutil
 from common import require, write_json
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -16,8 +18,12 @@ def file_hash(path):
     return h.hexdigest()
 
 
-def install():
-    lock=json.loads((ROOT/'toolchain/local-model.lock.json').read_text())
+def install(lock_path=None,quantization=None):
+    lock_path=lock_path or ROOT/'toolchain/qwen3-coder.lock.json'
+    lock=json.loads(lock_path.read_text())
+    if quantization and quantization!=lock.get('quantization'):
+        require(quantization==lock.get('fallback',{}).get('quantization'),'quantization not pinned')
+        lock['files']=[x for x in lock['files'] if x['kind']!='model']+[dict(lock['fallback'],kind='model')]
     downloads=ROOT/'toolchain/downloads/local-model';downloads.mkdir(parents=True,exist_ok=True)
     dest=ROOT/'toolchain/installed/local-model';dest.mkdir(parents=True,exist_ok=True)
     installed=[]
@@ -25,8 +31,12 @@ def install():
         path=(dest if item['kind']=='model' else downloads)/item['name']
         if not path.exists():
             partial=path.with_suffix(path.suffix+'.part')
+            offset=partial.stat().st_size if partial.exists() else 0
+            require(shutil.disk_usage(dest).free>=item['size']-offset+1024**3,'insufficient disk space for pinned model plus 1 GiB reserve')
             print('Downloading '+item['name'],flush=True)
-            with urllib.request.urlopen(item['url'],timeout=60) as response,partial.open('wb') as out:
+            req=urllib.request.Request(item['url'],headers={'Range':'bytes=%d-'%offset} if offset else {})
+            with urllib.request.urlopen(req,timeout=60) as response,partial.open('ab' if offset and response.status==206 else 'wb') as out:
+                if offset and response.status==206:require(response.headers.get('Content-Range','').startswith('bytes %d-'%offset),'resume offset mismatch')
                 while True:
                     block=response.read(8*1024*1024)
                     if not block:break
@@ -47,4 +57,6 @@ def install():
     write_json(dest/'installed.json',dict(inputs=installed,files=[dict(path=p.relative_to(ROOT).as_posix(),sha256=file_hash(p)) for p in sorted(executables)]))
 
 
-if __name__=='__main__':install()
+if __name__=='__main__':
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--lock',type=Path);ap.add_argument('--quantization',choices=['Q4_K_M','Q4_K_S']);a=ap.parse_args()
+    install(a.lock,a.quantization)

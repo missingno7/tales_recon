@@ -1,0 +1,165 @@
+{
+  "actual_length": 110,
+  "actual_sha256": "eca8b325fde874c4ead81192432821026450637f4e867099b82240fc84aba0ae",
+  "cache_hit": true,
+  "cache_key": "27f1772651640383631e265dec84999b1e99e9276a69eca79aebdc48c8e03066",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "bra.b",
+        "offset": 104,
+        "operands": "$34",
+        "raw": "60ca",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 106,
+        "operands": "#$1, d0",
+        "raw": "7001",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 108,
+        "operands": "$34",
+        "raw": "60c6",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.b",
+        "offset": 144,
+        "operands": "-$2(a5), d0",
+        "raw": "102dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 148,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 150,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 152,
+  "expected_sha256": "283bb85525224cae26f42b7d8f835f23088a892a8dd8fc6c7770a83d6cebb412",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "link.w",
+      "offset": 0,
+      "operands": "a5, #$fff8",
+      "raw": "4e55fff8",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "link.w",
+      "offset": 0,
+      "operands": "a5, #$fffa",
+      "raw": "4e55fffa",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov14_F_04A8",
+  "mnemonic_similarity": 0.321,
+  "normalized_first_difference": {
+    "actual": "f82b7cffff78d0fffc102d0009488048",
+    "actual_size": 110,
+    "expected": "fa1b7c0023fffe3b7c3e80fffc1b7c00",
+    "expected_size": 152,
+    "offset": 3
+  },
+  "normalized_sha256": "eca8b325fde874c4ead81192432821026450637f4e867099b82240fc84aba0ae",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fff8",
+        "raw": "4e55fff8",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 4,
+        "operands": "#$ffff78d0, -$4(a5)",
+        "raw": "2b7cffff78d0fffc",
+        "size": 8
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 12,
+        "operands": "$9(a5), d0",
+        "raw": "102d0009",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffa",
+        "raw": "4e55fffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "#$23, -$2(a5)",
+        "raw": "1b7c0023fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 10,
+        "operands": "#$3e80, -$4(a5)",
+        "raw": "3b7c3e80fffc",
+        "size": 6
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov14_F_04A8/11efa9f8fa577c447f7d02ab8ce39d2830ca0b4c18293200c450c950c278f123.json",
+    "receipt_sha256": "74ddbbfcdd3c8ad0e06392528dfbffe305f6d4e7169a6874f7347d542b1adca3"
+  },
+  "raw_first_difference": {
+    "actual": "f82b7cffff78d0fffc102d0009488048",
+    "actual_size": 110,
+    "expected": "fa1b7c0023fffe3b7c3e80fffc1b7c00",
+    "expected_size": 152,
+    "offset": 3
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "8d112e8e641ae3ac84959131c1b659b9fba9aecabf529c808f72e3d120c69277",
+  "verdict": "DIFFER"
+}

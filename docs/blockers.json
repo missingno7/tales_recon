@@ -247,6 +247,24 @@
       "next_experiment": "Extend data ownership and recover ranked same-node dependencies without omitting gaps or weakening complete-contribution proof",
       "status": "OPEN",
       "target": "stronger data and call contribution proofs"
+    },
+    {
+      "current_evidence": [
+        "Q4_K_M resident at 8192 context; 199-209 generated tokens/sec; at least 2262 MiB free sampled VRAM",
+        "19 unrecovered functions, 47 local model calls, zero new promotions",
+        "One exact 20-byte live calibration match on an already owned function; no new coverage"
+      ],
+      "experiments_tried": [
+        "Three bounded ranked frontier runs through existing aztec36 verifier",
+        "Source-withheld live calibration and model/compiler cache replay",
+        "Clean grinder restart with zero inference and compiler jobs"
+      ],
+      "first_mismatch": null,
+      "id": "LOCAL-GRINDER-QUALITY-001",
+      "missing_artifact": "Evidence of sustained new-function convergence",
+      "next_experiment": "Address shared declaration/call/data blockers and improve compact exact feedback; requeue only with a changed hypothesis. See evidence/experiments/local-grinder-acceptance.json",
+      "status": "OPEN",
+      "target": "Qwen3-Coder frontier convergence"
     }
   ],
   "schema_version": 1

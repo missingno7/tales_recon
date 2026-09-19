@@ -1,0 +1,298 @@
+{
+  "blocker": {
+    "attempts": [
+      {
+        "actual_length": null,
+        "cache_key": "211fc2dc962d30304bb4b44ff6661a5185d82e041a66cc6480a73e875a2fb526",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 54,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_4848/b75f2aeff52318ddff50f59e362feca486097d4b3955f58d1a98f040a9f8795f-aztec36-211fc2dc962d-e962cd232c05.json",
+        "source_sha256": "b75f2aeff52318ddff50f59e362feca486097d4b3955f58d1a98f040a9f8795f",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      }
+    ],
+    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "ownership_unchanged": true,
+    "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [],
+    "calls": [
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_7F9C",
+        "name": "F_h00_7F9C",
+        "offset": 32668,
+        "site": 18544
+      }
+    ],
+    "cfg": [
+      {
+        "kind": "UNCONDITIONAL",
+        "source": 18516,
+        "target": 18532
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 18552,
+        "target": 18518
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 18552,
+        "target": 18554
+      }
+    ],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),d0\n\tsub.l\t12(a5),d0\n\tmove.l\t#3,d1\n\tjsr\t.mulu#\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "long_arithmetic",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: long_arithmetic */\nlong recovered(a,b) long a,b; { return (a-b)*3; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_strlen\n\tadd.w\t#4,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_strlen\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "library_strlen",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: library_strlen */\nrecovered(p) char *p; { return strlen(p); }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_strlen\n\tadd.w\t#4,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t_strlen\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "library_strlen",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: library_strlen */\nrecovered(p) char *p; { return strlen(p); }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),-(sp)\n\tmove.l\t8(a5),a0\n\tjsr\t(a0)\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "function_pointer",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: function_pointer */\nrecovered(fn,n) int (*fn)(); int n; { return (*fn)(n); }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_00FC",
+        "offset": 252,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_34EC",
+        "offset": 13548,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_0000",
+        "kind": "DIRECT_CALL",
+        "site": 712
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 18558,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 11,
+      "node": "ov11",
+      "sha256": "6a6228922b02f7aad75901e548dab1b95a50ebf82db7ce82c3ffa58cccb1660c",
+      "size": 54,
+      "start": 18504
+    },
+    "id": "ov11_F_4848",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 18504,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 18508,
+        "operands": "-$4b12(a4), a0",
+        "raw": "41ecb4ee",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 18512,
+        "operands": "a0, -$4(a5)",
+        "raw": "2b48fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 18516,
+        "operands": "$4864",
+        "raw": "600e",
+        "size": 2
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 18518,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 18522,
+        "operands": "(a0)",
+        "raw": "4250",
+        "size": 2
+      },
+      {
+        "mnemonic": "addi.l",
+        "offset": 18524,
+        "operands": "#$e, -$4(a5)",
+        "raw": "06ad0000000efffc",
+        "size": 8
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 18532,
+        "operands": "-$4(a5), d0",
+        "raw": "202dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 18536,
+        "operands": "-$4b12(a4), a0",
+        "raw": "41ecb4ee",
+        "size": 4
+      },
+      {
+        "mnemonic": "sub.l",
+        "offset": 18540,
+        "operands": "a0, d0",
+        "raw": "9088",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 18542,
+        "operands": "#$e, d1",
+        "raw": "720e",
+        "size": 2
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 18544,
+        "operands": "-$7f02(a4)",
+        "raw": "4eac80fe",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmp.w",
+        "offset": 18548,
+        "operands": "#$28, d0",
+        "raw": "b07c0028",
+        "size": 4
+      },
+      {
+        "mnemonic": "blt.b",
+        "offset": 18552,
+        "operands": "$4856",
+        "raw": "6ddc",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 18554,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 18556,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "h001-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "h001-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+          },
+          {
+            "file": "t001-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "t001-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n  a0 = (char *)-19218(a4);\n                         ^\nt001.c:7: ERROR 34: undefined symbol: a4\n                         ^\nt001.c:7: WARNING 125: too many subscripts or indirection on integer: \n                         ^\nt001.c:7: ERROR 31: call of non-function: \n  *(char **)(-4(a5)) = a0;\n                   ^\nt001.c:8: ERROR 34: undefined symbol: a5\n                   ^\nt001.c:8: WARNING 125: too many subscripts or indirection on integer: \n                   ^\nt001.c:8: ERROR 31: call of non-function: \n  (-4(a5)) += 14;\n         ^\nt001.c:12: ERROR 34: undefined symbol: a5\n         ^\nt001.c:12: WARNING 125: too many subscripts or indirection on integer: \n         ^\nt001.c:12: ERROR 31: call of non-function: \n                 ^\nt001.c:12: ERROR 51: lvalue required: \n  d0 = (-4(a5));\n              ^\nt001.c:14: ERROR 34: undefined symbol: a5\n              ^\nt001.c:14: WARNING 125: too many subscripts or indirection on integer: \n              ^\nt001.c:14: ERROR 31: call of non-function: \n  a0 = (char *)-19218(a4);\n                         ^\nt001.c:15: ERROR 34: undefined symbol: a4\n                         ^\nt001.c:15: WARNING 125: too many subscripts or indirection on integer: \n                         ^\nt001.c:15: ERROR 31: call of non-function: \n  jsr -32514(a4);\n       ^\nt001.c:18: ERROR 34: undefined symbol: jsr\n       ^\nt001.c:18: ERROR 69: missing semicolon: \n  unlk a5;\n         ^\nt001.c:20: ERROR 34: undefined symbol: a5\n         ^\nt001.c:20: ERROR 69: missing semicolon: \n  rts;\n      ^\nt001.c:21: ERROR 34: undefined symbol: rts\n16 errors\n"
+          },
+          {
+            "file": "t001-ln.log",
+            "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 00087c  Data: 000028  Udata: 000050  Total: 0008f4\n"
+          }
+        ],
+        "expected_length": 54,
+        "flags": [],
+        "reason": "COMPILE_ERROR",
+        "source_sha256": "b75f2aeff52318ddff50f59e362feca486097d4b3955f58d1a98f040a9f8795f",
+        "verdict": "BLOCKED"
+      }
+    ],
+    "previous_sources": {
+      "b75f2aeff52318ddff50f59e362feca486097d4b3955f58d1a98f040a9f8795f": {
+        "source": "extern unsigned int G_h01_00FC;\nextern unsigned int G_h01_34EC;\nrecovered() {\n  char *a0;\n  int d0;\n  int d1;\n  a0 = (char *)-19218(a4);\n  *(char **)(-4(a5)) = a0;\n  goto L4864;\nL4856:\n  *(char *)(a0) = 0;\n  (-4(a5)) += 14;\nL4864:\n  d0 = (-4(a5));\n  a0 = (char *)-19218(a4);\n  d0 -= (long)a0;\n  d1 = 14;\n  jsr -32514(a4);\n  if (d0 < 28) goto L4856;\n  unlk a5;\n  rts;\n}",
+        "truncated": false
+      }
+    },
+    "recovered_dependencies": [],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 4,
+        "offset": 18504,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  }
+}

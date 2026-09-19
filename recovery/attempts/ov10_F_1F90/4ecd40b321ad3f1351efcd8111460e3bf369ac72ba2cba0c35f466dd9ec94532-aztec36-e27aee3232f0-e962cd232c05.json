@@ -1,0 +1,165 @@
+{
+  "actual_length": 64,
+  "actual_sha256": "0856f9c5f665d44f3f0694c03e81e753258a2a91f38dcd4bf4641e4cf240d13a",
+  "cache_hit": true,
+  "cache_key": "e27aee3232f0e9e11478dd2d9e5921916206ba6f0fa82ab8a4bf55eca145ee3b",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "moveq",
+        "offset": 58,
+        "operands": "#$0, d0",
+        "raw": "7000",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 60,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 62,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 72,
+        "operands": "#$2, a7",
+        "raw": "544f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 74,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 76,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 78,
+  "expected_sha256": "38eb24976a44811c795eb14bfff63bac7d12e67e433ebeec05c66e1d3bc75e28",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "bge.b",
+      "offset": 10,
+      "operands": "$14",
+      "raw": "6c08",
+      "size": 2
+    },
+    "expected": {
+      "mnemonic": "bge.b",
+      "offset": 10,
+      "operands": "$18",
+      "raw": "6c0c",
+      "size": 2
+    }
+  },
+  "flags": [],
+  "id": "ov10_F_1F90",
+  "mnemonic_similarity": 0.7805,
+  "normalized_first_difference": {
+    "actual": "08397c0051802a60260c6d000400086c",
+    "actual_size": 64,
+    "expected": "0c3f3c00514eac80ce544f60320c6d00",
+    "expected_size": 78,
+    "offset": 11
+  },
+  "normalized_sha256": "0856f9c5f665d44f3f0694c03e81e753258a2a91f38dcd4bf4641e4cf240d13a",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 4,
+        "operands": "#$2, $8(a5)",
+        "raw": "0c6d00020008",
+        "size": 6
+      },
+      {
+        "mnemonic": "bge.b",
+        "offset": 10,
+        "operands": "$14",
+        "raw": "6c08",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 4,
+        "operands": "#$2, $8(a5)",
+        "raw": "0c6d00020008",
+        "size": 6
+      },
+      {
+        "mnemonic": "bge.b",
+        "offset": 10,
+        "operands": "$18",
+        "raw": "6c0c",
+        "size": 2
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov10_F_1F90/e832ae10551d9e259f881002fb551b6850be445d863146c36843b88aa5be82ce.json",
+    "receipt_sha256": "9a0bebaf2ae304ab155970c97a7c84b8a0b31c5b3f5cb11f78a339b510af2c01"
+  },
+  "raw_first_difference": {
+    "actual": "08397c0051802a60260c6d000400086c",
+    "actual_size": 64,
+    "expected": "0c3f3c00514eac80ce544f60320c6d00",
+    "expected_size": 78,
+    "offset": 11
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "4ecd40b321ad3f1351efcd8111460e3bf369ac72ba2cba0c35f466dd9ec94532",
+  "verdict": "DIFFER"
+}

@@ -1,0 +1,165 @@
+{
+  "actual_length": 44,
+  "actual_sha256": "1718857e557df6ff18a81f82ef88b8b1bd8acd8ec03dd002ca8f1669548342be",
+  "cache_hit": true,
+  "cache_key": "9a9e1d1f277285f7dc42c71a64dbbe8309472af77b57f0259e644ec1c23e1a3d",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "blt.b",
+        "offset": 38,
+        "operands": "$a",
+        "raw": "6de2",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 40,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 42,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "clr.b",
+        "offset": 80,
+        "operands": "-$6d43(a4)",
+        "raw": "422c92bd",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 84,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 86,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 88,
+  "expected_sha256": "ecefd222923900ba64dbc09d44f52df9f101b64134fcdd07d6e3839444f63431",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "link.w",
+      "offset": 0,
+      "operands": "a5, #$fffe",
+      "raw": "4e55fffe",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "link.w",
+      "offset": 0,
+      "operands": "a5, #$fffc",
+      "raw": "4e55fffc",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov08_F_3FC0",
+  "mnemonic_similarity": 0.4211,
+  "normalized_first_difference": {
+    "actual": "fe426dfffe6014302dfffe48c0e38020",
+    "actual_size": 44,
+    "expected": "fc426dfffe302dfffec1fc0006206cef",
+    "expected_size": 88,
+    "offset": 3
+  },
+  "normalized_sha256": "1718857e557df6ff18a81f82ef88b8b1bd8acd8ec03dd002ca8f1669548342be",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 8,
+        "operands": "$1e",
+        "raw": "6014",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 8,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov08_F_3FC0/f42639ff4a31a43deed32ffb74a1bfaaabfdab8f7eca2a4b0f1b8600ed6c23eb.json",
+    "receipt_sha256": "ad47fc5b47f9a0d34842ef37b145cdbbecf45842c7ba04b32e9bab44c9de1633"
+  },
+  "raw_first_difference": {
+    "actual": "fe426dfffe6014302dfffe48c0e38020",
+    "actual_size": 44,
+    "expected": "fc426dfffe302dfffec1fc0006206cef",
+    "expected_size": 88,
+    "offset": 3
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "5b441519aa18c808db3df007bd7acbcdf3794233ed42cdd48fe950aee034b234",
+  "verdict": "DIFFER"
+}

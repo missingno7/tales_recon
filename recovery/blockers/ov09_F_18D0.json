@@ -1,0 +1,454 @@
+{
+  "blocker": {
+    "attempts": [
+      {
+        "actual_length": null,
+        "cache_key": "5ceb36934064f916d7337cd2cc72309e2fcf9bd9e0817cf600f6ed29cebaa592",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 84,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov09_F_18D0/f2de30eb97c20964c34b6714c8077f8ccb2528d1934a9d8f2979b301eeea9a3e-aztec36-5ceb36934064-e962cd232c05.json",
+        "source_sha256": "f2de30eb97c20964c34b6714c8077f8ccb2528d1934a9d8f2979b301eeea9a3e",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "cache_key": "69735e36ae498bc0fcf9ec5bb52ea77173a65398a4f6065bbd326b4b94c04bab",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 84,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov09_F_18D0/8c4e47dde90b8070649163f2522e04f4d19a290fb3eacd16409d0289e74892a5-aztec36-69735e36ae49-e962cd232c05.json",
+        "source_sha256": "8c4e47dde90b8070649163f2522e04f4d19a290fb3eacd16409d0289e74892a5",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "cache_key": "dde9a63340578f469fc051545f95ee51abcd3ea593e9f3dbb18d7110c16b4bc1",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 84,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov09_F_18D0/56edeb3e77b93d15aefa721feb5cf73c0fedfef41af1d9bffaaf61f915501a51-aztec36-dde9a6334057-e962cd232c05.json",
+        "source_sha256": "56edeb3e77b93d15aefa721feb5cf73c0fedfef41af1d9bffaaf61f915501a51",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      }
+    ],
+    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "ownership_unchanged": true,
+    "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [
+      {
+        "frame_offset": 8,
+        "instruction_offset": 6374,
+        "width": "w"
+      }
+    ],
+    "calls": [],
+    "cfg": [
+      {
+        "kind": "CONDITIONAL",
+        "source": 6430,
+        "target": 6374
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 6430,
+        "target": 6432
+      }
+    ],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tdseg\n\tds\t0\n.4\n\tdc.w\t3\n\tdc.w\t7\n\tdc.w\t11\n\tcseg\n\tmove.w\t8(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tlea\t.4,a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n.5\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "static_data",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: static_data */\nrecovered(n) int n; { static int values[3]={3,7,11}; return values[n]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#2,d0\n\tadd.l\t8(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "pointer_arithmetic",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: pointer_arithmetic */\nlong *recovered(p,n) long *p; int n; { return p+n; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tdseg\n\tds\t0\n.4\n\tdc.w\t3\n\tdc.w\t7\n\tdc.w\t11\n\tcseg\n\tmove.w\t8(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tlea\t.4,a0\n\tmove.w\t(a0,d0.l),d0\n.5\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "static_data",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: static_data */\nrecovered(n) int n; { static int values[3]={3,7,11}; return values[n]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#2,d0\n\tadd.l\t8(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "pointer_arithmetic",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: pointer_arithmetic */\nlong *recovered(p,n) long *p; int n; { return p+n; }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_12C0",
+        "offset": 4800,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_4262",
+        "offset": 16994,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_4264",
+        "offset": 16996,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov09_F_0000",
+        "kind": "DIRECT_CALL",
+        "site": 1194
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 6436,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 9,
+      "node": "ov09",
+      "sha256": "4c09cdadeae6e7a917b63d59773692315f0332a9e1249550c4cfd784a61de845",
+      "size": 84,
+      "start": 6352
+    },
+    "id": "ov09_F_18D0",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 6352,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6356,
+        "operands": "-$3d9c(a4), d0",
+        "raw": "302cc264",
+        "size": 4
+      },
+      {
+        "mnemonic": "sub.w",
+        "offset": 6360,
+        "operands": "#$10, d0",
+        "raw": "907c0010",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6364,
+        "operands": "d0, -$3d9a(a4)",
+        "raw": "3940c266",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6368,
+        "operands": "#$1, -$2(a5)",
+        "raw": "3b7c0001fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6374,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "subq.w",
+        "offset": 6378,
+        "operands": "#$1, d0",
+        "raw": "5340",
+        "size": 2
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 6380,
+        "operands": "#$a, d0",
+        "raw": "c1fc000a",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6384,
+        "operands": "-$2(a5), d1",
+        "raw": "322dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "subq.w",
+        "offset": 6388,
+        "operands": "#$1, d1",
+        "raw": "5341",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 6390,
+        "operands": "#$0, d2",
+        "raw": "7400",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6392,
+        "operands": "d1, d2",
+        "raw": "3401",
+        "size": 2
+      },
+      {
+        "mnemonic": "asl.l",
+        "offset": 6394,
+        "operands": "#$1, d2",
+        "raw": "e382",
+        "size": 2
+      },
+      {
+        "mnemonic": "add.l",
+        "offset": 6396,
+        "operands": "d2, d0",
+        "raw": "d082",
+        "size": 2
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 6398,
+        "operands": "-$6d3e(a4), a0",
+        "raw": "41ec92c2",
+        "size": 4
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 6402,
+        "operands": "#$0, d1",
+        "raw": "7200",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6404,
+        "operands": "-$2(a5), d1",
+        "raw": "322dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "asl.l",
+        "offset": 6408,
+        "operands": "#$1, d1",
+        "raw": "e381",
+        "size": 2
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 6410,
+        "operands": "-$3d9a(a4), a1",
+        "raw": "43ecc266",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 6414,
+        "operands": "(a0, d0.l), (a1, d1.l)",
+        "raw": "33b008001800",
+        "size": 6
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 6420,
+        "operands": "#$1, -$2(a5)",
+        "raw": "526dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 6424,
+        "operands": "#$6, -$2(a5)",
+        "raw": "0c6d0006fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "bcs.b",
+        "offset": 6430,
+        "operands": "$18e6",
+        "raw": "65c6",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 6432,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 6434,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "h001-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "h001-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+          },
+          {
+            "file": "t001-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "t001-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    p = (short *)G_h01_4262;\n                            ^\nt001.c:4: ERROR 34: undefined symbol: G_h01_4262\n1 errors\n"
+          },
+          {
+            "file": "t001-ln.log",
+            "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 000830  Data: 000028  Udata: 00004c  Total: 0008a4\n"
+          }
+        ],
+        "expected_length": 84,
+        "flags": [],
+        "reason": "COMPILE_ERROR",
+        "source_sha256": "f2de30eb97c20964c34b6714c8077f8ccb2528d1934a9d8f2979b301eeea9a3e",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "h000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "h000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+          },
+          {
+            "file": "t000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "t000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    temp = *(short *)((char *)G_h01_4262 + (n << 1));\n                                          ^\nt000.c:3: ERROR 34: undefined symbol: G_h01_4262\n                                          ^\nt000.c:3: ERROR 50: missing bracket: )\n                                            ^\nt000.c:3: ERROR 69: missing semicolon: \n3 errors\n"
+          },
+          {
+            "file": "t000-ln.log",
+            "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 00081c  Data: 000028  Udata: 00004c  Total: 000890\n"
+          }
+        ],
+        "expected_length": 84,
+        "flags": [],
+        "reason": "COMPILE_ERROR",
+        "source_sha256": "8c4e47dde90b8070649163f2522e04f4d19a290fb3eacd16409d0289e74892a5",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "h000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "h000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+          },
+          {
+            "file": "t000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "t000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    temp = *(short *)((char *)G_h01_4264 + (n << 1));\n                                          ^\nt000.c:3: ERROR 34: undefined symbol: G_h01_4264\n                                          ^\nt000.c:3: ERROR 50: missing bracket: )\n                                            ^\nt000.c:3: ERROR 69: missing semicolon: \n3 errors\n"
+          },
+          {
+            "file": "t000-ln.log",
+            "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 00081c  Data: 000028  Udata: 00004c  Total: 000890\n"
+          }
+        ],
+        "expected_length": 84,
+        "flags": [],
+        "reason": "COMPILE_ERROR",
+        "source_sha256": "56edeb3e77b93d15aefa721feb5cf73c0fedfef41af1d9bffaaf61f915501a51",
+        "verdict": "BLOCKED"
+      }
+    ],
+    "previous_sources": {
+      "56edeb3e77b93d15aefa721feb5cf73c0fedfef41af1d9bffaaf61f915501a51": {
+        "source": "recovered(n) int n; {\n    short temp;\n    temp = *(short *)((char *)G_h01_4264 + (n << 1));\n    return temp;\n}\n",
+        "truncated": false
+      },
+      "8c4e47dde90b8070649163f2522e04f4d19a290fb3eacd16409d0289e74892a5": {
+        "source": "recovered(n) int n; {\n    short temp;\n    temp = *(short *)((char *)G_h01_4262 + (n << 1));\n    return temp;\n}\n",
+        "truncated": false
+      },
+      "f2de30eb97c20964c34b6714c8077f8ccb2528d1934a9d8f2979b301eeea9a3e": {
+        "source": "recovered(n) int n; {\n    short *p;\n    short temp;\n    p = (short *)G_h01_4262;\n    temp = *(p + n);\n    return temp;\n}\n",
+        "truncated": false
+      }
+    },
+    "recovered_dependencies": [],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 2,
+        "offset": 6352,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  }
+}

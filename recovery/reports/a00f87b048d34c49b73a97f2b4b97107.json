@@ -1,0 +1,731 @@
+{
+  "attempts_per_promoted_function": {},
+  "blocked_this_run_by_class": {
+    "MODEL_RESPONSE": [
+      "ov11_F_4610"
+    ],
+    "PERSISTENT_CODEGEN_MISMATCH": [
+      "ov08_F_4018",
+      "ov10_F_1F90",
+      "ov10_F_2BCA",
+      "ov11_F_2562",
+      "ov11_F_4696",
+      "ov11_F_706C"
+    ],
+    "UNRESOLVED_INTER_OBJECT_CALL": [
+      "ov11_F_3F90",
+      "ov11_F_6FFE",
+      "ov11_F_70DC"
+    ],
+    "UNSUPPORTED_DECLARATION": [
+      "ov08_F_3F70"
+    ]
+  },
+  "compiler_cache_hit_rate": 0.37037037037037035,
+  "function_code_match_rate": 0.0,
+  "functions_attempted": 11,
+  "functions_promoted": 0,
+  "generation_tokens_per_second": 199.1862240224233,
+  "gpu": {
+    "before_server_load": {
+      "free_mib": 21073,
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 4090",
+      "observed_unix": 1789829026.8729582,
+      "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+      "total_mib": 24564,
+      "used_mib": 3066,
+      "utilization_percent": 30
+    },
+    "minimum_observed_free_mib": 2262,
+    "peak_observed_used_mib": 21877,
+    "server_pids": [
+      44612
+    ],
+    "start": {
+      "free_mib": 2311,
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 4090",
+      "observed_unix": 1789829879.7118192,
+      "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+      "total_mib": 24564,
+      "used_mib": 21828,
+      "utilization_percent": 0
+    }
+  },
+  "gpu_hour_definition": "Single resident GPU reserved during measured run wall time; includes desktop use and compiler waits; excludes initial model loading.",
+  "gpu_hours": 0.03212624582979414,
+  "historical_compiler_jobs": 4,
+  "historical_compiler_jobs_per_match": null,
+  "limitations": [
+    "Only new canonical promotions with local-model provenance count; no fixture or hosted-model matches are included.",
+    "VRAM peak is sampled across the whole GPU, including Windows/desktop allocations.",
+    "A small bounded run measures this candidate set; it does not prove whole-overlay convergence."
+  ],
+  "matches_per_100_model_calls": 0.0,
+  "model_cache_hit_rate": 0.0,
+  "model_calls": 29,
+  "model_calls_per_match": null,
+  "model_identities": [
+    {
+      "context_size": 8192,
+      "generation": {
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": 1,
+        "temperature": 0.3,
+        "top_k": 40,
+        "top_p": 0.95
+      },
+      "kv_cpu": false,
+      "model": "Qwen3-Coder-30B-A3B-Instruct",
+      "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+      "quantization": "Q4_K_M",
+      "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31"
+    }
+  ],
+  "per_call_tokens_per_second": [
+    202.46173556174006,
+    209.7718730880168,
+    204.2053588775673,
+    206.91412760311323,
+    199.05770386938588,
+    201.22554313843634,
+    193.47901164798594,
+    205.2094152402838,
+    192.99459765903583,
+    196.24899636549972,
+    200.01523695275452,
+    200.34874498782705,
+    206.24160725244323,
+    186.7027422913967,
+    200.06902855582402,
+    204.5109766566956,
+    196.56381874358866,
+    203.13046618441987,
+    197.61136368089515,
+    196.5636445687158,
+    196.86224086601385,
+    196.927458547657,
+    204.94803103498757,
+    188.8225879020778,
+    187.91159350105067,
+    199.41838840511463,
+    202.43555989830722,
+    195.4739571986642,
+    198.03995760395992
+  ],
+  "promoted_functions": {},
+  "prompt_budget_measurements": [
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 45,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 6785,
+          "prompt_tokens": 2507,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 6785,
+      "prompt_tokens": 2507,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 26,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 5305,
+          "prompt_tokens": 1986,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 5305,
+      "prompt_tokens": 1986,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 29,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 5288,
+          "prompt_tokens": 2001,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 5288,
+      "prompt_tokens": 2001,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 36,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 5717,
+          "prompt_tokens": 2156,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 5717,
+      "prompt_tokens": 2156,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 37,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7283,
+          "prompt_tokens": 2671,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7283,
+      "prompt_tokens": 2671,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 22,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 4681,
+          "prompt_tokens": 1626,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 4681,
+      "prompt_tokens": 1626,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 69,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 10162,
+          "prompt_tokens": 4086,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 10162,
+      "prompt_tokens": 4086,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 33,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 5603,
+          "prompt_tokens": 2114,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 5603,
+      "prompt_tokens": 2114,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 45,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7007,
+          "prompt_tokens": 2602,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7007,
+      "prompt_tokens": 2602,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 26,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 6565,
+          "prompt_tokens": 2473,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 6565,
+      "prompt_tokens": 2473,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 29,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 8568,
+          "prompt_tokens": 3518,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 8568,
+      "prompt_tokens": 3518,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 37,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 8346,
+          "prompt_tokens": 3045,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 8346,
+      "prompt_tokens": 3045,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 22,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 6669,
+          "prompt_tokens": 2521,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 6669,
+      "prompt_tokens": 2521,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 69,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 13211,
+          "prompt_tokens": 5297,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 13211,
+      "prompt_tokens": 5297,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 33,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7307,
+          "prompt_tokens": 2771,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7307,
+      "prompt_tokens": 2771,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 61,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7015,
+          "prompt_tokens": 2874,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7015,
+      "prompt_tokens": 2874,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 45,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7760,
+          "prompt_tokens": 2995,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7760,
+      "prompt_tokens": 2995,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 26,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7031,
+          "prompt_tokens": 2644,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7031,
+      "prompt_tokens": 2644,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 29,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 8116,
+          "prompt_tokens": 3351,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 8116,
+      "prompt_tokens": 3351,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 22,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 8084,
+          "prompt_tokens": 2951,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 8084,
+      "prompt_tokens": 2951,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 61,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 9128,
+          "prompt_tokens": 3827,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 9128,
+      "prompt_tokens": 3827,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 50,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 6988,
+          "prompt_tokens": 2800,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 6988,
+      "prompt_tokens": 2800,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 24,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 5501,
+          "prompt_tokens": 1930,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 5501,
+      "prompt_tokens": 1930,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 45,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7372,
+          "prompt_tokens": 2770,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7372,
+      "prompt_tokens": 2770,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 61,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 9266,
+          "prompt_tokens": 3900,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 9266,
+      "prompt_tokens": 3900,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 50,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 8679,
+          "prompt_tokens": 3581,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 8679,
+      "prompt_tokens": 3581,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 24,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 6815,
+          "prompt_tokens": 2332,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 6815,
+      "prompt_tokens": 2332,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 50,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 8399,
+          "prompt_tokens": 3433,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 8399,
+      "prompt_tokens": 3433,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    },
+    {
+      "context_size": 8192,
+      "disassembly_instructions": 24,
+      "input_budget": 6912,
+      "max_output_tokens": 1024,
+      "measured_stages": [
+        {
+          "bytes": 7264,
+          "prompt_tokens": 2490,
+          "stage": 0
+        }
+      ],
+      "prompt_bytes": 7264,
+      "prompt_tokens": 2490,
+      "reduction_stage": 0,
+      "required_fields_preserved": true,
+      "reserve_tokens": 256,
+      "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+    }
+  ],
+  "recommendations": [
+    "Keep one GPU generation at a time; no concurrency increase is automatic.",
+    "Model inference dominates; retain single-request stability and prompt-prefix caching before testing parallelism.",
+    "Supervisor should address shared mechanisms once: PERSISTENT_CODEGEN_MISMATCH, UNRESOLVED_INTER_OBJECT_CALL, UNSUPPORTED_DECLARATION"
+  ],
+  "run_id": "a00f87b048d34c49b73a97f2b4b97107",
+  "schema_version": 1,
+  "status": "ROUND_LIMIT",
+  "supervisor_blocker_groups": {
+    "MODEL_RESPONSE": [
+      "ov11_F_4610"
+    ],
+    "PERSISTENT_CODEGEN_MISMATCH": [
+      "ov07_F_0EC0",
+      "ov08_F_3FC0",
+      "ov08_F_4018",
+      "ov10_F_1F90",
+      "ov10_F_2BCA",
+      "ov11_F_2562",
+      "ov11_F_4696",
+      "ov11_F_5A12",
+      "ov11_F_5BC4",
+      "ov11_F_706C",
+      "ov14_F_0412",
+      "ov14_F_04A8",
+      "ov14_F_0540"
+    ],
+    "REFERENCE_IDENTITY": [
+      "ov11_F_727A",
+      "ov11_F_729C"
+    ],
+    "UNRESOLVED_INTER_OBJECT_CALL": [
+      "ov11_F_3F90",
+      "ov11_F_6FFE",
+      "ov11_F_70DC"
+    ],
+    "UNSUPPORTED_DECLARATION": [
+      "ov08_F_3F70",
+      "ov09_F_18D0",
+      "ov09_F_1956",
+      "ov11_F_4848",
+      "ov11_F_69A4"
+    ]
+  },
+  "token_usage": {
+    "cached_prompt_tokens": 38002,
+    "generated_tokens": 11782,
+    "prompt_tokens": 83252
+  },
+  "verified_bytes_per_gpu_hour": 0.0,
+  "verified_functions_per_gpu_hour": 0.0,
+  "verified_game_bytes": 0,
+  "wall_clock_seconds": {
+    "historical_compilation": 11.438071299984585,
+    "model_inference": 75.58536660001846,
+    "orchestration_and_prompt_packing": 12.24574548722012,
+    "total": 115.65448498725891,
+    "verification_including_regressions": 16.385301600035746
+  }
+}

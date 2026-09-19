@@ -1,0 +1,2 @@
+extern unsigned int G_h01_00F6;
+recovered(a, b, c, d, e, f, g, h, i, j, k, l) unsigned int a, b, c, d, e, f, g, h, i, j, k, l; { unsigned int m, n; m = (a > b) ? (a - b) : -(a - b); n = (g > h) ? (g - h) : -(g - h); *(unsigned int*)(((char*)&G_h01_00F6) + m) = n; return m + n; }

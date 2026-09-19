@@ -1,0 +1,91 @@
+{
+  "attempts_per_promoted_function": {},
+  "blocked_this_run_by_class": {},
+  "compiler_cache_hit_rate": null,
+  "function_code_match_rate": null,
+  "functions_attempted": 0,
+  "functions_promoted": 0,
+  "generation_tokens_per_second": null,
+  "gpu": {
+    "before_server_load": null,
+    "minimum_observed_free_mib": null,
+    "peak_observed_used_mib": null,
+    "server_pids": [],
+    "start": null
+  },
+  "gpu_hour_definition": "Single resident GPU reserved during measured run wall time; includes desktop use and compiler waits; excludes initial model loading.",
+  "gpu_hours": null,
+  "historical_compiler_jobs": 0,
+  "historical_compiler_jobs_per_match": null,
+  "limitations": [
+    "Only new canonical promotions with local-model provenance count; no fixture or hosted-model matches are included.",
+    "VRAM peak is sampled across the whole GPU, including Windows/desktop allocations.",
+    "A small bounded run measures this candidate set; it does not prove whole-overlay convergence."
+  ],
+  "matches_per_100_model_calls": null,
+  "model_cache_hit_rate": null,
+  "model_calls": 0,
+  "model_calls_per_match": null,
+  "model_identities": [],
+  "per_call_tokens_per_second": [],
+  "promoted_functions": {},
+  "prompt_budget_measurements": [],
+  "recommendations": [
+    "Keep one GPU generation at a time; no concurrency increase is automatic.",
+    "Supervisor should address shared mechanisms once: PERSISTENT_CODEGEN_MISMATCH, UNRESOLVED_INTER_OBJECT_CALL, UNSUPPORTED_DECLARATION"
+  ],
+  "run_id": "8b07e457c8f54742b39bf5394bfb05fc",
+  "schema_version": 1,
+  "status": "NO_ELIGIBLE_WORK",
+  "supervisor_blocker_groups": {
+    "MODEL_RESPONSE": [
+      "ov11_F_4610"
+    ],
+    "PERSISTENT_CODEGEN_MISMATCH": [
+      "ov07_F_0EC0",
+      "ov08_F_3FC0",
+      "ov08_F_4018",
+      "ov10_F_1F90",
+      "ov10_F_2BCA",
+      "ov11_F_2562",
+      "ov11_F_4696",
+      "ov11_F_5A12",
+      "ov11_F_5BC4",
+      "ov11_F_706C",
+      "ov14_F_0412",
+      "ov14_F_04A8",
+      "ov14_F_0540"
+    ],
+    "REFERENCE_IDENTITY": [
+      "ov11_F_727A",
+      "ov11_F_729C"
+    ],
+    "UNRESOLVED_INTER_OBJECT_CALL": [
+      "ov11_F_3F90",
+      "ov11_F_6FFE",
+      "ov11_F_70DC"
+    ],
+    "UNSUPPORTED_DECLARATION": [
+      "ov08_F_3F70",
+      "ov09_F_18D0",
+      "ov09_F_1956",
+      "ov11_F_4848",
+      "ov11_F_69A4"
+    ]
+  },
+  "token_usage": {
+    "cached_prompt_tokens": 0,
+    "generated_tokens": 0,
+    "prompt_tokens": 0
+  },
+  "verified_bytes_per_gpu_hour": null,
+  "verified_functions_per_gpu_hour": null,
+  "verified_game_bytes": 0,
+  "wall_clock_seconds": {
+    "historical_compilation": 0,
+    "model_inference": 0,
+    "orchestration_and_prompt_packing": 0.10605430603027344,
+    "total": 0.10605430603027344,
+    "verification_including_regressions": 0
+  }
+}

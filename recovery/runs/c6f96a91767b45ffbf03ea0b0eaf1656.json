@@ -1,0 +1,2115 @@
+{
+  "blocked": [
+    "ov11_F_69A4",
+    "ov08_F_3FC0",
+    "ov07_F_0EC0",
+    "ov14_F_04A8",
+    "ov14_F_0540",
+    "ov09_F_18D0"
+  ],
+  "elapsed_seconds": 35.95714473724365,
+  "eligibility_limit": 256,
+  "max_bytes": 256,
+  "oracle_runs": [
+    {
+      "cache_misses": 6,
+      "elapsed_seconds": 3.025372299947776,
+      "requests": 6,
+      "unique": 6,
+      "worker_invocations": 1
+    },
+    {
+      "cache_misses": 1,
+      "elapsed_seconds": 2.260078099963721,
+      "requests": 6,
+      "unique": 6,
+      "worker_invocations": 1
+    },
+    {
+      "cache_misses": 1,
+      "elapsed_seconds": 2.2449235999956727,
+      "requests": 1,
+      "unique": 1,
+      "worker_invocations": 1
+    },
+    {
+      "cache_misses": 0,
+      "elapsed_seconds": 0.0035738999722525477,
+      "requests": 1,
+      "unique": 1,
+      "worker_invocations": 0
+    }
+  ],
+  "profile": [
+    "aztec36"
+  ],
+  "promoted": [],
+  "proposals": [
+    {
+      "elapsed_seconds": 3.6008661999949254,
+      "id": "ov11_F_69A4",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 37,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 5021,
+              "prompt_tokens": 2045,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 5021,
+          "prompt_tokens": 2045,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2313,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829426.7977626,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21826,
+            "utilization_percent": 89
+          },
+          "minimum_observed_free_mib": 2313,
+          "peak_observed_used_mib": 21826,
+          "sample_count": 8,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2349,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829423.4325426,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21790,
+            "utilization_percent": 1
+          }
+        },
+        "inference_seconds": 3.315920200024266,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "d6d845ff7ac891e028ac0d2d11145bcba2b8793bfbf0acc9c0b1b957b76090a5",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 0,
+          "predicted_ms": 2420.655,
+          "predicted_n": 508,
+          "predicted_per_second": 209.4474429441618,
+          "predicted_per_token_ms": 4.774467455621302,
+          "prompt_ms": 867.863,
+          "prompt_n": 2045,
+          "prompt_per_second": 2356.3626977990766,
+          "prompt_per_token_ms": 0.4243828850855746
+        },
+        "usage": {
+          "completion_tokens": 508,
+          "prompt_tokens": 2045,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "total_tokens": 2553
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov11_F_69A4/04e3fe89b3f73f01011208c4fa9d3fa448647f0400cf2cb59053c9cd7a7dca03.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 0.9902527999947779,
+      "id": "ov09_F_18D0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 25,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 4359,
+              "prompt_tokens": 1604,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 4359,
+          "prompt_tokens": 1604,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2313,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829427.8531096,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21826,
+            "utilization_percent": 91
+          },
+          "minimum_observed_free_mib": 2313,
+          "peak_observed_used_mib": 21826,
+          "sample_count": 3,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2313,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829427.108441,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21826,
+            "utilization_percent": 0
+          }
+        },
+        "inference_seconds": 0.7080122000188567,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "32cf3340f767126ccbc1a4c68345e84be11213234f82211e385b0e6dadd58bd0",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 266,
+          "predicted_ms": 293.719,
+          "predicted_n": 62,
+          "predicted_per_second": 207.6814914935704,
+          "predicted_per_token_ms": 4.815065573770491,
+          "prompt_ms": 376.865,
+          "prompt_n": 1338,
+          "prompt_per_second": 3550.342961007257,
+          "prompt_per_token_ms": 0.2816629297458894
+        },
+        "usage": {
+          "completion_tokens": 62,
+          "prompt_tokens": 1604,
+          "prompt_tokens_details": {
+            "cached_tokens": 266
+          },
+          "total_tokens": 1666
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov09_F_18D0/bf1595c078ded9eb37c493596dcdd43c0a4f4df41ba3b36a1fbcc9c8162da513.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 1.0276489999960177,
+      "id": "ov08_F_3FC0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 24,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 4790,
+              "prompt_tokens": 1790,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 4790,
+          "prompt_tokens": 1790,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2313,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829428.9382577,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21826,
+            "utilization_percent": 87
+          },
+          "minimum_observed_free_mib": 2313,
+          "peak_observed_used_mib": 21826,
+          "sample_count": 3,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2313,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829428.1633484,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21826,
+            "utilization_percent": 60
+          }
+        },
+        "inference_seconds": 0.7294745999970473,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "d7f0b3014268eb1a2dc43a58e715f0c1eed1e118a027daf593afe781e15e1e76",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 267,
+          "predicted_ms": 268.981,
+          "predicted_n": 54,
+          "predicted_per_second": 197.03993962398832,
+          "predicted_per_token_ms": 5.07511320754717,
+          "prompt_ms": 425.311,
+          "prompt_n": 1523,
+          "prompt_per_second": 3580.9090289223655,
+          "prompt_per_token_ms": 0.2792586999343401
+        },
+        "usage": {
+          "completion_tokens": 54,
+          "prompt_tokens": 1790,
+          "prompt_tokens_details": {
+            "cached_tokens": 267
+          },
+          "total_tokens": 1844
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov08_F_3FC0/ba4a9ef46defc185d5fc045cfa60606e82a0e097f0a72218cdf7ac8cf2ae39e1.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 2.4871906000189483,
+      "id": "ov07_F_0EC0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 32,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 5066,
+              "prompt_tokens": 1882,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 5066,
+          "prompt_tokens": 1882,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829431.4846632,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 87
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 5,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2313,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829429.2495356,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21826,
+            "utilization_percent": 87
+          }
+        },
+        "inference_seconds": 2.14094130002195,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "91412905cec6a147c8d0eb8c2911d0e0c184f5781bf936171f85a0de1266448c",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 267,
+          "predicted_ms": 1623.92,
+          "predicted_n": 334,
+          "predicted_per_second": 205.0593625301739,
+          "predicted_per_token_ms": 4.876636636636637,
+          "prompt_ms": 458.202,
+          "prompt_n": 1615,
+          "prompt_per_second": 3524.6463350225445,
+          "prompt_per_token_ms": 0.28371640866873066
+        },
+        "usage": {
+          "completion_tokens": 334,
+          "prompt_tokens": 1882,
+          "prompt_tokens_details": {
+            "cached_tokens": 267
+          },
+          "total_tokens": 2216
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov07_F_0EC0/4323fc2e1362eed133aaba9c9708ccd6c4361954ae6398201127d9ff1eb6f15f.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 1.5532969000050798,
+      "id": "ov14_F_04A8",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 45,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 7375,
+              "prompt_tokens": 2805,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 7375,
+          "prompt_tokens": 2805,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829433.0969605,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 86
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 4,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829431.7943923,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 87
+          }
+        },
+        "inference_seconds": 1.26541079999879,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "56fbfcc6099c27d41aa35314100818f25e6384d950483ad8beed042120b02940",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 266,
+          "predicted_ms": 471.642,
+          "predicted_n": 94,
+          "predicted_per_second": 197.18345694403806,
+          "predicted_per_token_ms": 5.071419354838709,
+          "prompt_ms": 724.44,
+          "prompt_n": 2539,
+          "prompt_per_second": 3504.7761029208764,
+          "prompt_per_token_ms": 0.2853249310752265
+        },
+        "usage": {
+          "completion_tokens": 94,
+          "prompt_tokens": 2805,
+          "prompt_tokens_details": {
+            "cached_tokens": 266
+          },
+          "total_tokens": 2899
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov14_F_04A8/8a7f544b4a16ea652e87e8ff7ef4fc5c8307acbc471a3b855394358f10a01fd0.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 1.9614425000036135,
+      "id": "ov14_F_0540",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 57,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 8513,
+              "prompt_tokens": 3301,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 8513,
+          "prompt_tokens": 3301,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829435.1157389,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 89
+          },
+          "minimum_observed_free_mib": 2294,
+          "peak_observed_used_mib": 21845,
+          "sample_count": 5,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829433.3920648,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 0
+          }
+        },
+        "inference_seconds": 1.634164499992039,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "003f3ca8aa1f40d8bb32bbd59e263e6757616d350e039052845950444bba6457",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 271,
+          "predicted_ms": 695.462,
+          "predicted_n": 138,
+          "predicted_per_second": 196.9913525109927,
+          "predicted_per_token_ms": 5.076364963503649,
+          "prompt_ms": 870.935,
+          "prompt_n": 3030,
+          "prompt_per_second": 3479.019674258125,
+          "prompt_per_token_ms": 0.28743729372937293
+        },
+        "usage": {
+          "completion_tokens": 138,
+          "prompt_tokens": 3301,
+          "prompt_tokens_details": {
+            "cached_tokens": 271
+          },
+          "total_tokens": 3439
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov14_F_0540/e78c9a594f7f5a3c62d2574e3afe41d47b61ff700ee364064576acd220438aa3.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 3.3530423999764025,
+      "id": "ov11_F_69A4",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 37,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 7319,
+              "prompt_tokens": 3004,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 7319,
+          "prompt_tokens": 3004,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829443.4396005,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 89
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 7,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829440.3511271,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 0
+          }
+        },
+        "inference_seconds": 3.0247719999752007,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "6cfd98e50434686e9284d838241375c4ceb8a336c108c0a481c4ce14f527b4f9",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 2045,
+          "predicted_ms": 2570.797,
+          "predicted_n": 505,
+          "predicted_per_second": 196.04815160434683,
+          "predicted_per_token_ms": 5.100787698412699,
+          "prompt_ms": 310.993,
+          "prompt_n": 959,
+          "prompt_per_second": 3083.670693552588,
+          "prompt_per_token_ms": 0.324288842544317
+        },
+        "usage": {
+          "completion_tokens": 505,
+          "prompt_tokens": 3004,
+          "prompt_tokens_details": {
+            "cached_tokens": 2045
+          },
+          "total_tokens": 3509
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov11_F_69A4/b86adb4356667e8aa90db86186dc1a3edfb1408c99f04d08609ba555e279f776.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 0.7560915999929421,
+      "id": "ov09_F_18D0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 25,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 5584,
+              "prompt_tokens": 2116,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 5584,
+          "prompt_tokens": 2116,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2262,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829444.2635689,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21877,
+            "utilization_percent": 58
+          },
+          "minimum_observed_free_mib": 2262,
+          "peak_observed_used_mib": 21877,
+          "sample_count": 2,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2304,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829443.7347548,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21835,
+            "utilization_percent": 89
+          }
+        },
+        "inference_seconds": 0.48218039999483153,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "f020a53ab30da7f88d5ea176fedc9f4c42af3ef5b659b6d216900486f154de47",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 1604,
+          "predicted_ms": 254.229,
+          "predicted_n": 53,
+          "predicted_per_second": 204.54000133737694,
+          "predicted_per_token_ms": 4.889019230769231,
+          "prompt_ms": 161.391,
+          "prompt_n": 512,
+          "prompt_per_second": 3172.4197755760856,
+          "prompt_per_token_ms": 0.315216796875
+        },
+        "usage": {
+          "completion_tokens": 53,
+          "prompt_tokens": 2116,
+          "prompt_tokens_details": {
+            "cached_tokens": 1604
+          },
+          "total_tokens": 2169
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov09_F_18D0/cac0106d19d02a09234c40710e5dfbdc0ae8dc1f8bc3784c5f12c313296e647c.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 0.7274450999684632,
+      "id": "ov08_F_3FC0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 24,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 5669,
+              "prompt_tokens": 2066,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 5669,
+          "prompt_tokens": 2066,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829445.0560842,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 81
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 2,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829444.5896442,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 1
+          }
+        },
+        "inference_seconds": 0.42124380002496764,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "96424d9c9a4a79213b7239d0795e7af873dcc130547b99abb578e655b29d66f3",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 1790,
+          "predicted_ms": 250.702,
+          "predicted_n": 52,
+          "predicted_per_second": 203.42877200820098,
+          "predicted_per_token_ms": 4.9157254901960785,
+          "prompt_ms": 93.333,
+          "prompt_n": 276,
+          "prompt_per_second": 2957.153418405066,
+          "prompt_per_token_ms": 0.33816304347826087
+        },
+        "usage": {
+          "completion_tokens": 52,
+          "prompt_tokens": 2066,
+          "prompt_tokens_details": {
+            "cached_tokens": 1790
+          },
+          "total_tokens": 2118
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov08_F_3FC0/f42639ff4a31a43deed32ffb74a1bfaaabfdab8f7eca2a4b0f1b8600ed6c23eb.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 2.1736967000178993,
+      "id": "ov07_F_0EC0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 32,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 6489,
+              "prompt_tokens": 2444,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 6489,
+          "prompt_tokens": 2444,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829447.2910984,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 87
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 5,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829445.3661091,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 81
+          }
+        },
+        "inference_seconds": 1.8746128000202589,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "1682140415cae713e4cb0514f86d8c286ae9372eba76bc1f79ca4c0a37055aed",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 1882,
+          "predicted_ms": 1635.396,
+          "predicted_n": 331,
+          "predicted_per_second": 201.7859894484272,
+          "predicted_per_token_ms": 4.955745454545454,
+          "prompt_ms": 179.198,
+          "prompt_n": 562,
+          "prompt_per_second": 3136.1957164700493,
+          "prompt_per_token_ms": 0.3188576512455516
+        },
+        "usage": {
+          "completion_tokens": 331,
+          "prompt_tokens": 2444,
+          "prompt_tokens_details": {
+            "cached_tokens": 1882
+          },
+          "total_tokens": 2775
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov07_F_0EC0/20f8e9d17afdb7b313918ce90b49f381723de941627cf3109fde086ae8354689.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 0.9302568000275642,
+      "id": "ov14_F_04A8",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 45,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 8330,
+              "prompt_tokens": 3126,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 8330,
+          "prompt_tokens": 3126,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829448.2852728,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 81
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 3,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829447.5706546,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 0
+          }
+        },
+        "inference_seconds": 0.6771123000071384,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "02c076b99fd1e80f8ce80fd69f709f14f6ec0ab458dbe0c88c00084d155be0b2",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 2805,
+          "predicted_ms": 462.351,
+          "predicted_n": 91,
+          "predicted_per_second": 194.657305813116,
+          "predicted_per_token_ms": 5.1372333333333335,
+          "prompt_ms": 114.983,
+          "prompt_n": 321,
+          "prompt_per_second": 2791.7170364314725,
+          "prompt_per_token_ms": 0.35820249221183803
+        },
+        "usage": {
+          "completion_tokens": 91,
+          "prompt_tokens": 3126,
+          "prompt_tokens_details": {
+            "cached_tokens": 2805
+          },
+          "total_tokens": 3217
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov14_F_04A8/11efa9f8fa577c447f7d02ab8ce39d2830ca0b4c18293200c450c950c278f123.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 1.2025389000191353,
+      "id": "ov14_F_0540",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 57,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 9572,
+              "prompt_tokens": 3679,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 9572,
+          "prompt_tokens": 3679,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829449.5565212,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 89
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 3,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829448.5798383,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 4
+          }
+        },
+        "inference_seconds": 0.9350196000305004,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "fc4e1183b48a9a94c11dcb764994a9a675967a3801278657aafffe1720e095ae",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 3301,
+          "predicted_ms": 683.32,
+          "predicted_n": 135,
+          "predicted_per_second": 196.1013873441433,
+          "predicted_per_token_ms": 5.099402985074628,
+          "prompt_ms": 120.907,
+          "prompt_n": 378,
+          "prompt_per_second": 3126.369854516281,
+          "prompt_per_token_ms": 0.31985978835978834
+        },
+        "usage": {
+          "completion_tokens": 135,
+          "prompt_tokens": 3679,
+          "prompt_tokens_details": {
+            "cached_tokens": 3301
+          },
+          "total_tokens": 3814
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov14_F_0540/3a41259b55172e9f07ecfbd10aebfb2bde124a934723c46cb35a7277836a1f3d.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 0.8578325000125915,
+      "id": "ov09_F_18D0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 25,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 5995,
+              "prompt_tokens": 2257,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 5995,
+          "prompt_tokens": 2257,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829454.9129207,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 84
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 3,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829454.2750359,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 0
+          }
+        },
+        "inference_seconds": 0.5962014000397176,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "1c39d3a2dc22470c9b74e25d361334532fd91b9d7f982f7c47de7d350b3403ae",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 1598,
+          "predicted_ms": 268.411,
+          "predicted_n": 53,
+          "predicted_per_second": 193.7327456773381,
+          "predicted_per_token_ms": 5.16175,
+          "prompt_ms": 226.596,
+          "prompt_n": 659,
+          "prompt_per_second": 2908.2596338858584,
+          "prompt_per_token_ms": 0.3438482549317147
+        },
+        "usage": {
+          "completion_tokens": 53,
+          "prompt_tokens": 2257,
+          "prompt_tokens_details": {
+            "cached_tokens": 1598
+          },
+          "total_tokens": 2310
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov09_F_18D0/bffa7b53bf445b6532f30365ec0ba9a7b02a8872ea4968abaefb242cb3edb19e.json",
+      "returncode": 0
+    },
+    {
+      "elapsed_seconds": 0.8342973999679089,
+      "id": "ov09_F_18D0",
+      "local_model_metrics": {
+        "blocker_class": null,
+        "budget": {
+          "context_size": 8192,
+          "disassembly_instructions": 25,
+          "input_budget": 6912,
+          "max_output_tokens": 1024,
+          "measured_stages": [
+            {
+              "bytes": 6183,
+              "prompt_tokens": 2336,
+              "stage": 0
+            }
+          ],
+          "prompt_bytes": 6183,
+          "prompt_tokens": 2336,
+          "reduction_stage": 0,
+          "required_fields_preserved": true,
+          "reserve_tokens": 256,
+          "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+        },
+        "cache_hit": false,
+        "gpu": {
+          "end": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829458.4729316,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 85
+          },
+          "minimum_observed_free_mib": 2311,
+          "peak_observed_used_mib": 21828,
+          "sample_count": 3,
+          "sample_interval_seconds": 0.5,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+          "start": {
+            "free_mib": 2311,
+            "index": 0,
+            "name": "NVIDIA GeForce RTX 4090",
+            "observed_unix": 1789829457.8808541,
+            "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+            "total_mib": 24564,
+            "used_mib": 21828,
+            "utilization_percent": 0
+          }
+        },
+        "inference_seconds": 0.521964899962768,
+        "model_call": true,
+        "model_identity": {
+          "context_size": 8192,
+          "facts_sha256": "83f71c7dc568ee37d7c5cbb02a5098e4540ffa0f0baf9136b289ca2003101a80",
+          "generation": {
+            "max_tokens": 1024,
+            "repeat_penalty": 1.05,
+            "seed": 1,
+            "temperature": 0.3,
+            "top_k": 40,
+            "top_p": 0.95
+          },
+          "implementation": {
+            "local_fact_pack.py": "5a60cecdca0bcfe44c1e1506db30491fd033d1b411922aab3ffbd15c254df050",
+            "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+            "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+          },
+          "kv_cpu": false,
+          "model": "Qwen3-Coder-30B-A3B-Instruct",
+          "model_alias": "tales-local-coder",
+          "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "quantization": "Q4_K_M",
+          "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+          "system_sha256": "18d6ffde4606aaecbec3b174c06c1aaf344cdbe6dd8bf007e999dbf34df1d1a0",
+          "transport": "LOCAL_LOOPBACK_ONLY"
+        },
+        "server_pid": 44612,
+        "service_gpu_at_start": {
+          "free_mib": 21073,
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "observed_unix": 1789829026.8729582,
+          "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+          "total_mib": 24564,
+          "used_mib": 3066,
+          "utilization_percent": 30
+        },
+        "status": "PROPOSED",
+        "timings": {
+          "cache_n": 1690,
+          "predicted_ms": 263.945,
+          "predicted_n": 53,
+          "predicted_per_second": 197.01074087404572,
+          "predicted_per_token_ms": 5.075865384615384,
+          "prompt_ms": 230.234,
+          "prompt_n": 646,
+          "prompt_per_second": 2805.841013924963,
+          "prompt_per_token_ms": 0.3563993808049536
+        },
+        "usage": {
+          "completion_tokens": 53,
+          "prompt_tokens": 2336,
+          "prompt_tokens_details": {
+            "cached_tokens": 1690
+          },
+          "total_tokens": 2389
+        }
+      },
+      "proposer_cache_hit": false,
+      "proposer_receipt": "recovery/proposals/ov09_F_18D0/a29f66c6ca740fbad0f6f3bd59e48d4714662c7733277a88ab64d8586acda49b.json",
+      "returncode": 0
+    }
+  ],
+  "proposer_command": [
+    "python",
+    "tools/local_model_proposer.py"
+  ],
+  "proposer_errors": [],
+  "requested_ids": [
+    "ov11_F_69A4",
+    "ov09_F_18D0",
+    "ov08_F_3FC0",
+    "ov07_F_0EC0",
+    "ov14_F_04A8",
+    "ov14_F_0540"
+  ],
+  "rounds": 4,
+  "run_id": "c6f96a91767b45ffbf03ea0b0eaf1656",
+  "started_unix": 1789829423.1014066,
+  "status": "NO_ELIGIBLE_WORK",
+  "trials": [
+    {
+      "actual_length": null,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "compiler_feedback": [
+        {
+          "file": "h000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "h000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+        },
+        {
+          "file": "t000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "t000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n        a4 = (long *)G_h01_A554;\n                                ^\nt000.c:8: ERROR 34: undefined symbol: G_h01_A554\n1 errors\n"
+        },
+        {
+          "file": "t000-ln.log",
+          "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 000918  Data: 000028  Udata: 00004c  Total: 00098c\n"
+        }
+      ],
+      "expected_length": 160,
+      "id": "ov11_F_69A4",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov11_F_69A4/04e3fe89b3f73f01011208c4fa9d3fa448647f0400cf2cb59053c9cd7a7dca03.json",
+        "receipt_sha256": "ee861410c1d59ab94155ab6f2eb3f54e975f042242cedf99bdff764005c0fc45"
+      },
+      "reason": "COMPILE_ERROR",
+      "source_sha256": "8fe8a0481a4e1dc0a390ccf62f846f4a9332e703de9214038b7e8776166cd985",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": null,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "compiler_feedback": [
+        {
+          "file": "h001-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "h001-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+        },
+        {
+          "file": "t001-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "t001-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    p = (short *)G_h01_4262;\n                            ^\nt001.c:4: ERROR 34: undefined symbol: G_h01_4262\n1 errors\n"
+        },
+        {
+          "file": "t001-ln.log",
+          "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 000830  Data: 000028  Udata: 00004c  Total: 0008a4\n"
+        }
+      ],
+      "expected_length": 84,
+      "id": "ov09_F_18D0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov09_F_18D0/bf1595c078ded9eb37c493596dcdd43c0a4f4df41ba3b36a1fbcc9c8162da513.json",
+        "receipt_sha256": "3a8d5e78b9652ef92da925351c0960bbb499a10e41adea24161bebd973c10d7c"
+      },
+      "reason": "COMPILE_ERROR",
+      "source_sha256": "f2de30eb97c20964c34b6714c8077f8ccb2528d1934a9d8f2979b301eeea9a3e",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": 44,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 88,
+      "id": "ov08_F_3FC0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov08_F_3FC0/ba4a9ef46defc185d5fc045cfa60606e82a0e097f0a72218cdf7ac8cf2ae39e1.json",
+        "receipt_sha256": "069c17046832e4dc5291efeadbb2a13ca012d694a248a132bbfabac30f63ebac"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "5b441519aa18c808db3df007bd7acbcdf3794233ed42cdd48fe950aee034b234",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": 154,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 112,
+      "id": "ov07_F_0EC0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov07_F_0EC0/4323fc2e1362eed133aaba9c9708ccd6c4361954ae6398201127d9ff1eb6f15f.json",
+        "receipt_sha256": "04741c62542512af6b1dfffc351a07f47e6c7cdd8a7f34a0aca20d79419a50b7"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "72bc6b109b972fae53b673ed6c8b76e983e2bf5108934b158512bea36060bc85",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": 110,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 152,
+      "id": "ov14_F_04A8",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov14_F_04A8/8a7f544b4a16ea652e87e8ff7ef4fc5c8307acbc471a3b855394358f10a01fd0.json",
+        "receipt_sha256": "776830ed3b6da1a15909f3a2261d53de18a0946e0a91fcb33699fe5ef13ab38b"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "8d112e8e641ae3ac84959131c1b659b9fba9aecabf529c808f72e3d120c69277",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": 142,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 198,
+      "id": "ov14_F_0540",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov14_F_0540/e78c9a594f7f5a3c62d2574e3afe41d47b61ff700ee364064576acd220438aa3.json",
+        "receipt_sha256": "d24fb532d95610e4d994b2bc3c172e88a5e38641f7b6c20fbfb2400afdcf2018"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "ea2f2290869256dcb5df88187b22f0c97145de26d6e39a66ff917fc465021987",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": null,
+      "cache_hit": true,
+      "compiler": "aztec36",
+      "compiler_feedback": [
+        {
+          "file": "h000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "h000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+        },
+        {
+          "file": "t000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "t000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n        a4 = (long *)G_h01_A554;\n                                ^\nt000.c:8: ERROR 34: undefined symbol: G_h01_A554\n1 errors\n"
+        },
+        {
+          "file": "t000-ln.log",
+          "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 000918  Data: 000028  Udata: 00004c  Total: 00098c\n"
+        }
+      ],
+      "expected_length": 160,
+      "id": "ov11_F_69A4",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov11_F_69A4/b86adb4356667e8aa90db86186dc1a3edfb1408c99f04d08609ba555e279f776.json",
+        "receipt_sha256": "df9e9743754e38896e1c28e44e7b4fbb8002d246f1f038e014b361800d21f7b3"
+      },
+      "reason": "COMPILE_ERROR",
+      "source_sha256": "8fe8a0481a4e1dc0a390ccf62f846f4a9332e703de9214038b7e8776166cd985",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": null,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "compiler_feedback": [
+        {
+          "file": "h000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "h000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+        },
+        {
+          "file": "t000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "t000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    temp = *(short *)((char *)G_h01_4262 + (n << 1));\n                                          ^\nt000.c:3: ERROR 34: undefined symbol: G_h01_4262\n                                          ^\nt000.c:3: ERROR 50: missing bracket: )\n                                            ^\nt000.c:3: ERROR 69: missing semicolon: \n3 errors\n"
+        },
+        {
+          "file": "t000-ln.log",
+          "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 00081c  Data: 000028  Udata: 00004c  Total: 000890\n"
+        }
+      ],
+      "expected_length": 84,
+      "id": "ov09_F_18D0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov09_F_18D0/cac0106d19d02a09234c40710e5dfbdc0ae8dc1f8bc3784c5f12c313296e647c.json",
+        "receipt_sha256": "08d8c9e5f4b4f62b2fcbdbfd5b2744bd1cf20e13f00363fd56a2eeafe55407fe"
+      },
+      "reason": "COMPILE_ERROR",
+      "source_sha256": "8c4e47dde90b8070649163f2522e04f4d19a290fb3eacd16409d0289e74892a5",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": 44,
+      "cache_hit": true,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 88,
+      "id": "ov08_F_3FC0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov08_F_3FC0/f42639ff4a31a43deed32ffb74a1bfaaabfdab8f7eca2a4b0f1b8600ed6c23eb.json",
+        "receipt_sha256": "ad47fc5b47f9a0d34842ef37b145cdbbecf45842c7ba04b32e9bab44c9de1633"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "5b441519aa18c808db3df007bd7acbcdf3794233ed42cdd48fe950aee034b234",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": 154,
+      "cache_hit": true,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 112,
+      "id": "ov07_F_0EC0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov07_F_0EC0/20f8e9d17afdb7b313918ce90b49f381723de941627cf3109fde086ae8354689.json",
+        "receipt_sha256": "28c99e72f748ec6741ef0adac591ef37b70c4056967172098ac20a278fb6a133"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "72bc6b109b972fae53b673ed6c8b76e983e2bf5108934b158512bea36060bc85",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": 110,
+      "cache_hit": true,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 152,
+      "id": "ov14_F_04A8",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov14_F_04A8/11efa9f8fa577c447f7d02ab8ce39d2830ca0b4c18293200c450c950c278f123.json",
+        "receipt_sha256": "74ddbbfcdd3c8ad0e06392528dfbffe305f6d4e7169a6874f7347d542b1adca3"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "8d112e8e641ae3ac84959131c1b659b9fba9aecabf529c808f72e3d120c69277",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": 142,
+      "cache_hit": true,
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "expected_length": 198,
+      "id": "ov14_F_0540",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov14_F_0540/3a41259b55172e9f07ecfbd10aebfb2bde124a934723c46cb35a7277836a1f3d.json",
+        "receipt_sha256": "2b1bb7ebac89e69e345475e0b4382a2aaba694dad9a5d85f4f942b9c0829b0fb"
+      },
+      "reason": "CODE_OR_REFERENCE_DIFFERS",
+      "relocation_issues": [
+        {
+          "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+        }
+      ],
+      "source_sha256": "ea2f2290869256dcb5df88187b22f0c97145de26d6e39a66ff917fc465021987",
+      "verdict": "DIFFER"
+    },
+    {
+      "actual_length": null,
+      "cache_hit": false,
+      "compiler": "aztec36",
+      "compiler_feedback": [
+        {
+          "file": "h000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "h000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+        },
+        {
+          "file": "t000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "t000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    temp = *(short *)((char *)G_h01_4264 + (n << 1));\n                                          ^\nt000.c:3: ERROR 34: undefined symbol: G_h01_4264\n                                          ^\nt000.c:3: ERROR 50: missing bracket: )\n                                            ^\nt000.c:3: ERROR 69: missing semicolon: \n3 errors\n"
+        },
+        {
+          "file": "t000-ln.log",
+          "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 00081c  Data: 000028  Udata: 00004c  Total: 000890\n"
+        }
+      ],
+      "expected_length": 84,
+      "id": "ov09_F_18D0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov09_F_18D0/bffa7b53bf445b6532f30365ec0ba9a7b02a8872ea4968abaefb242cb3edb19e.json",
+        "receipt_sha256": "b3b6940fc93eac4f8fae23124624d53167efda8b986304237d9ba4a1689ac016"
+      },
+      "reason": "COMPILE_ERROR",
+      "source_sha256": "56edeb3e77b93d15aefa721feb5cf73c0fedfef41af1d9bffaaf61f915501a51",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": null,
+      "cache_hit": true,
+      "compiler": "aztec36",
+      "compiler_feedback": [
+        {
+          "file": "h000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "h000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+        },
+        {
+          "file": "t000-as.log",
+          "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+        },
+        {
+          "file": "t000-cc.log",
+          "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n    temp = *(short *)((char *)G_h01_4262 + (n << 1));\n                                          ^\nt000.c:3: ERROR 34: undefined symbol: G_h01_4262\n                                          ^\nt000.c:3: ERROR 50: missing bracket: )\n                                            ^\nt000.c:3: ERROR 69: missing semicolon: \n3 errors\n"
+        },
+        {
+          "file": "t000-ln.log",
+          "text": "Aztec C68K Linker 3.6a  12-18-87\nBase: 000000   Code: 00081c  Data: 000028  Udata: 00004c  Total: 000890\n"
+        }
+      ],
+      "expected_length": 84,
+      "id": "ov09_F_18D0",
+      "proof_level": null,
+      "proposer": {
+        "model": "Qwen3-Coder-30B-A3B-Instruct",
+        "receipt": "recovery/proposals/ov09_F_18D0/a29f66c6ca740fbad0f6f3bd59e48d4714662c7733277a88ab64d8586acda49b.json",
+        "receipt_sha256": "53dbd112503f0b3fc7e3ec8253e786fb5dd08bb5daacf337a2db6e8cdf4f9d15"
+      },
+      "reason": "COMPILE_ERROR",
+      "source_sha256": "8c4e47dde90b8070649163f2522e04f4d19a290fb3eacd16409d0289e74892a5",
+      "verdict": "BLOCKED"
+    }
+  ],
+  "verification_seconds": 4.187616000068374
+}

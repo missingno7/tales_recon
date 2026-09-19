@@ -1,0 +1,165 @@
+{
+  "actual_length": 112,
+  "actual_sha256": "76b4b94fee5192f88ec0eb8cc41abfcb4ef1feb34dc80f935390cc808b4be237",
+  "cache_hit": false,
+  "cache_key": "b7cc57ed8bdbb5900bd98ad2ef3d23c782b1e07c0f97d9e2ee959b2b3c41e06a",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "clr.w",
+        "offset": 104,
+        "operands": "-$7fd4(a4)",
+        "raw": "426c802c",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 108,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 110,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "clr.b",
+        "offset": 88,
+        "operands": "-$6d43(a4)",
+        "raw": "422c92bd",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 92,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 94,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 96,
+  "expected_sha256": "92197d6d3a2a5a2645c787076aa9d18663dff9e381f7a7f69167c7a5fe44afc2",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "bra.b",
+      "offset": 8,
+      "operands": "$5a",
+      "raw": "6050",
+      "size": 2
+    },
+    "expected": {
+      "mnemonic": "move.w",
+      "offset": 8,
+      "operands": "-$2(a5), d0",
+      "raw": "302dfffe",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov08_F_4018",
+  "mnemonic_similarity": 0.5614,
+  "normalized_first_difference": {
+    "actual": "6050302dfffec1fc0006d06c802a3b40",
+    "actual_size": 112,
+    "expected": "302dfffec1fc0006206cef3e72001230",
+    "expected_size": 96,
+    "offset": 8
+  },
+  "normalized_sha256": "76b4b94fee5192f88ec0eb8cc41abfcb4ef1feb34dc80f935390cc808b4be237",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 8,
+        "operands": "$5a",
+        "raw": "6050",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 8,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov08_F_4018/0bee35ec6f8c8d2b01c4ebbc016201256f18adfe85a7328839ffddcc7fa60fab.json",
+    "receipt_sha256": "f85da1b39e398888172c17718fd9b45a32ec1257ad7d7c7ed97b98caff8abd5a"
+  },
+  "raw_first_difference": {
+    "actual": "6050302dfffec1fc0006d06c802a3b40",
+    "actual_size": 112,
+    "expected": "302dfffec1fc0006206cef3e72001230",
+    "expected_size": 96,
+    "offset": 8
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "3b1382c4afb601d2a59838a867b7f3cc07cab74016749badd11c3f74c59e0c1b",
+  "verdict": "DIFFER"
+}

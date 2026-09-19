@@ -1,0 +1,102 @@
+{
+  "budget": {
+    "context_size": 8192,
+    "disassembly_instructions": 33,
+    "input_budget": 6912,
+    "max_output_tokens": 1024,
+    "measured_stages": [
+      {
+        "bytes": 7307,
+        "prompt_tokens": 2771,
+        "stage": 0
+      }
+    ],
+    "prompt_bytes": 7307,
+    "prompt_tokens": 2771,
+    "reduction_stage": 0,
+    "required_fields_preserved": true,
+    "reserve_tokens": 256,
+    "tokenizer": "SERVING_MODEL_APPLY_TEMPLATE_AND_TOKENIZE"
+  },
+  "gpu": {
+    "end": {
+      "free_mib": 2311,
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 4090",
+      "observed_unix": 1789829936.1350882,
+      "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+      "total_mib": 24564,
+      "used_mib": 21828,
+      "utilization_percent": 89
+    },
+    "minimum_observed_free_mib": 2311,
+    "peak_observed_used_mib": 21828,
+    "sample_count": 6,
+    "sample_interval_seconds": 0.5,
+    "scope": "WHOLE_GPU_INCLUDING_DESKTOP; sampled peak, not allocation high-water mark",
+    "start": {
+      "free_mib": 2311,
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 4090",
+      "observed_unix": 1789829933.5924108,
+      "scope": "WHOLE_GPU_INCLUDING_DESKTOP",
+      "total_mib": 24564,
+      "used_mib": 21828,
+      "utilization_percent": 0
+    }
+  },
+  "id": "ov11_F_706C",
+  "identity": {
+    "context_size": 8192,
+    "facts_sha256": "2248562fd786d07faf388814d46e43ccf89ac3af2864ad5c69a85738b91126d3",
+    "generation": {
+      "max_tokens": 1024,
+      "repeat_penalty": 1.05,
+      "seed": 1,
+      "temperature": 0.3,
+      "top_k": 40,
+      "top_p": 0.95
+    },
+    "implementation": {
+      "local_fact_pack.py": "144454497efc2126d48a64f5990384f5186350c4032a4a943a42aa77c42bd7b6",
+      "local_http.py": "5818e58203695c789486f51ea59045148203b7df91e890aa65194f6d5bf52f2e",
+      "local_model_proposer.py": "dbadff510177e9a8a8b9b7182428fa341414757d9aa9e5f97f63823dc86cade9"
+    },
+    "kv_cpu": false,
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "model_alias": "tales-local-coder",
+    "model_sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+    "quantization": "Q4_K_M",
+    "runner_sha256": "4130e40d4130bb6ae02605b5746b9ddebdac9bba0a667fa5842f940008b27d31",
+    "system_sha256": "ca8abaddbea120671b5ba781a2f8267daefc7f828347f8cee66a3afe2048bbf3",
+    "transport": "LOCAL_LOOPBACK_ONLY"
+  },
+  "inference_seconds": 2.4999851000029594,
+  "packing_seconds": 0.031144000007770956,
+  "public_receipt": "recovery/proposals/ov11_F_706C/f9ef886f289cbfafdef0c74667dddc9be8ec7223dd3c95c392e062325dbffb6c.json",
+  "response_sha256": "3ef066f71c6d344499ac3201c42188565729c373153488ef9e8f4fadc5079ddc",
+  "retained_directory": "build/local-model-proposals/f9ef886f289cbfafdef0c74667dddc9be8ec7223dd3c95c392e062325dbffb6c",
+  "schema_version": 1,
+  "source_sha256": "a9eb73ea204c2d13725f6948e2616949c6937495d445154f98060be61e96d1a5",
+  "status": "PROPOSED",
+  "timings": {
+    "cache_n": 2114,
+    "predicted_ms": 2109.272,
+    "predicted_n": 423,
+    "predicted_per_second": 200.06902855582402,
+    "predicted_per_token_ms": 4.998274881516587,
+    "prompt_ms": 214.002,
+    "prompt_n": 657,
+    "prompt_per_second": 3070.0647657498525,
+    "prompt_per_token_ms": 0.3257260273972603
+  },
+  "tool_operations": 0,
+  "usage": {
+    "completion_tokens": 423,
+    "prompt_tokens": 2771,
+    "prompt_tokens_details": {
+      "cached_tokens": 2114
+    },
+    "total_tokens": 3194
+  }
+}

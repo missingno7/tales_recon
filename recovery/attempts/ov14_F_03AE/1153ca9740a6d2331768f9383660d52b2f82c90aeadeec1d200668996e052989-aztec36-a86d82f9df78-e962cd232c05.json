@@ -1,0 +1,168 @@
+{
+  "actual_length": 20,
+  "actual_sha256": "3a0139c85d27b9b14892051d023a919e0b8d7de5e2c4910e0ac35bc5e7ef23f6",
+  "cache_hit": true,
+  "cache_key": "a86d82f9df78c20e6828f4fa2e55bfe08315221f0c0b83297d7b3e2197a23c9e",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$b(a5), -$7fd5(a4)",
+        "raw": "196d000b802b",
+        "size": 6
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 16,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 18,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$b(a5), -$454c(a4)",
+        "raw": "196d000bbab4",
+        "size": 6
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 16,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 18,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 20,
+  "expected_sha256": "0803a73fa6966ac2ff4bca85e2a31b3da7458c78de42a21deef3c72893b35316",
+  "flags": [],
+  "id": "ov14_F_03AE",
+  "mnemonic_similarity": 1.0,
+  "normalized_first_difference": null,
+  "normalized_sha256": "0803a73fa6966ac2ff4bca85e2a31b3da7458c78de42a21deef3c72893b35316",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "$9(a5), -$7fd6(a4)",
+        "raw": "196d0009802a",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$b(a5), -$7fd5(a4)",
+        "raw": "196d000b802b",
+        "size": 6
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "$9(a5), -$6bda(a4)",
+        "raw": "196d00099426",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$b(a5), -$454c(a4)",
+        "raw": "196d000bbab4",
+        "size": 6
+      }
+    ]
+  },
+  "proof_level": "FUNCTION_CODE_MATCH",
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov14_F_03AE/40a48bc58550f9a899e9def60598aad9380c8d8b8c1d912d63622935f3724da0.json",
+    "receipt_sha256": "2cd5a4dab32e082f1485d293454ac3df4e75a05ebbd6f1992d1f2bd9027c7d90"
+  },
+  "raw_first_difference": {
+    "actual": "802a196d000b802b4e5d4e75",
+    "actual_size": 20,
+    "expected": "9426196d000bbab44e5d4e75",
+    "expected_size": 20,
+    "offset": 8
+  },
+  "reason": "COMPLETE_CONTRIBUTION",
+  "relocation_equal": true,
+  "relocation_issues": [],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        5156
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 5156,
+        "symbol": "_G_h01_1424"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 8
+    },
+    {
+      "expected": [
+        1,
+        15026
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 15026,
+        "symbol": "_G_h01_3AB2"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 14
+    }
+  ],
+  "source_sha256": "1153ca9740a6d2331768f9383660d52b2f82c90aeadeec1d200668996e052989",
+  "verdict": "EQUAL"
+}

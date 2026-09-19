@@ -56,7 +56,10 @@ def ranked(node=None):
         if f['hunk']==0:score+=20000
         if f['ownership']!='UNKNOWN':continue
         if f['hunk']==14:score-=100
-        result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(f['indirect_control_flow']),state=state))
+        unknown={c['id'] for c in f['direct_callees'] if c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}
+        local_dependencies=sorted({c['id'] for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id'] not in r['functions']})
+        result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(f['indirect_control_flow']),state=state,
+                           confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies))
     return sorted(result,key=lambda x:(x['score'],x['id']))
 
 

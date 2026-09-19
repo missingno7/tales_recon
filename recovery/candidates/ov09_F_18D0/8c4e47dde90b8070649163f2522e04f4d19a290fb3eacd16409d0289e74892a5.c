@@ -1,0 +1,5 @@
+recovered(n) int n; {
+    short temp;
+    temp = *(short *)((char *)G_h01_4262 + (n << 1));
+    return temp;
+}

@@ -78,7 +78,7 @@ Candidate code is not executed. No fixed placement or executable patching occurs
 ## Proposer contract and long runs
 
 ```powershell
-python tools/grinder.py run --batch-size 16 --max-rounds 1000 --max-attempts 5 --profile aztec36 --profile aztec50-short --proposer python path/to/model_adapter.py
+python tools/grinder.py run --batch-size 16 --max-rounds 1000 --max-attempts 5 --profile aztec36 --proposer python tools/local_model_proposer.py
 ```
 
 Put `--proposer` last: its remaining arguments are the adapter command. Each
@@ -96,9 +96,11 @@ structured output, disables project tool features, caches model proposals, and
 rejects tool events or incomplete responses. Live OpenAI calls are now running after explicit user approval to transmit bounded
 function evidence and candidate C. Proposals and comparisons retain independent
 receipts. Do not count fixture replay or a completed model request as convergence.
-An optional offline Qwen adapter was also tested; it produced no exact matches in
-its bounded trial. Its files remain installed for future experiments, with the
-server stopped. See [local inference](local-model.md).
+A persistent offline Qwen3-Coder 30B Q4_K_M backend now drives this contract,
+with measured prompt budgets, VRAM, throughput, caching and per-run reports.
+Its frontier trial found no new matches; live calibration reproduced an already
+recovered 20-byte function without adding coverage. See [local inference and
+measured limits](local-model.md).
 The interface follows the [official non-interactive documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
 
 Packages are limited to 160 decoded
@@ -108,9 +110,10 @@ dependencies, retained prior candidate C, and up to five compact mismatches. Mec
 and `F_hNN_OFFSET` extern names identify evidence targets; the harness allocates
 their definitions normally. They are not address-placement directives.
 
-The default queue allows closed functions up to 512 bytes, prioritizes small
-overlay leaves, and penalizes uncertain boundaries, indirect flow, relocations,
-unknown calls, and data references. Resident work ranks last. Recovered entries
+The default queue allows high-confidence closed overlay functions up to 256 bytes,
+excludes indirect flow and unrecovered same-node dependencies, and bounds unknown
+calls and data references. It retains the existing ranking and defaults to aztec36
+alone; alternate profiles require an explicit request. Recovered entries
 are skipped on restart. Proposer errors and bounded non-convergence produce
 `recovery/blockers/*.json`; `python tools/grinder.py retry ID` explicitly requeues
 one. The loop processes other eligible candidates. Infrastructure failures pause

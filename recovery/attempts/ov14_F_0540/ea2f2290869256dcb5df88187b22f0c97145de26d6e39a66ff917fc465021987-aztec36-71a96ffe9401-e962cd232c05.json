@@ -1,0 +1,165 @@
+{
+  "actual_length": 142,
+  "actual_sha256": "d8371a6ee1cf5ee29bfa236aadfdba830e38575d178879602133964ada399d2a",
+  "cache_hit": true,
+  "cache_key": "71a96ffe9401b3f5b8d73f5456d0465c75710af3ac4f1748777614f2fc9d0d4b",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "bra.b",
+        "offset": 136,
+        "operands": "$16",
+        "raw": "608c",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 138,
+        "operands": "#$6, d0",
+        "raw": "7006",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 140,
+        "operands": "$16",
+        "raw": "6088",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.b",
+        "offset": 190,
+        "operands": "-$2(a5), d0",
+        "raw": "102dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 194,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 196,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 198,
+  "expected_sha256": "3b3187152116ef45ced3f8df0453d98937307a42b784d276c6d2f32b88fefb59",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "move.b",
+      "offset": 4,
+      "operands": "$9(a5), -$1(a5)",
+      "raw": "1b6d0009ffff",
+      "size": 6
+    },
+    "expected": {
+      "mnemonic": "move.b",
+      "offset": 4,
+      "operands": "#$23, -$2(a5)",
+      "raw": "1b7c0023fffe",
+      "size": 6
+    }
+  },
+  "flags": [],
+  "id": "ov14_F_0540",
+  "mnemonic_similarity": 0.2718,
+  "normalized_first_difference": {
+    "actual": "6d0009ffff102dffffb02d000b660670",
+    "actual_size": 142,
+    "expected": "7c0023fffe426dfffc1b7c0001ffff60",
+    "expected_size": 198,
+    "offset": 5
+  },
+  "normalized_sha256": "d8371a6ee1cf5ee29bfa236aadfdba830e38575d178879602133964ada399d2a",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fff6",
+        "raw": "4e55fff6",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "$9(a5), -$1(a5)",
+        "raw": "1b6d0009ffff",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "-$1(a5), d0",
+        "raw": "102dffff",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fff6",
+        "raw": "4e55fff6",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "#$23, -$2(a5)",
+        "raw": "1b7c0023fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 10,
+        "operands": "-$4(a5)",
+        "raw": "426dfffc",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov14_F_0540/3a41259b55172e9f07ecfbd10aebfb2bde124a934723c46cb35a7277836a1f3d.json",
+    "receipt_sha256": "2b1bb7ebac89e69e345475e0b4382a2aaba694dad9a5d85f4f942b9c0829b0fb"
+  },
+  "raw_first_difference": {
+    "actual": "6d0009ffff102dffffb02d000b660670",
+    "actual_size": 142,
+    "expected": "7c0023fffe426dfffc1b7c0001ffff60",
+    "expected_size": 198,
+    "offset": 5
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "ea2f2290869256dcb5df88187b22f0c97145de26d6e39a66ff917fc465021987",
+  "verdict": "DIFFER"
+}

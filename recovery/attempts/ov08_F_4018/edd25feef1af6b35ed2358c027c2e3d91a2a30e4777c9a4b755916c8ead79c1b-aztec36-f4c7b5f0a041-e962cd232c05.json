@@ -1,0 +1,165 @@
+{
+  "actual_length": 110,
+  "actual_sha256": "0ccdf60e3d718018e5dc3c76f8d418925ffbcd5840997cb4c3c1eb2bbbe8857c",
+  "cache_hit": true,
+  "cache_key": "f4c7b5f0a0411b68f5090369833a4afd1f61a7806f79b2e4c3f04bd8640a6827",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "clr.w",
+        "offset": 102,
+        "operands": "-$7fd4(a4)",
+        "raw": "426c802c",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 106,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 108,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "clr.b",
+        "offset": 88,
+        "operands": "-$6d43(a4)",
+        "raw": "422c92bd",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 92,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 94,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 96,
+  "expected_sha256": "92197d6d3a2a5a2645c787076aa9d18663dff9e381f7a7f69167c7a5fe44afc2",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "add.w",
+      "offset": 16,
+      "operands": "-$7fd6(a4), d0",
+      "raw": "d06c802a",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "movea.l",
+      "offset": 16,
+      "operands": "-$10c2(a4), a0",
+      "raw": "206cef3e",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov08_F_4018",
+  "mnemonic_similarity": 0.5714,
+  "normalized_first_difference": {
+    "actual": "d06c802a3b40fffc0c6d0006fffc6710",
+    "actual_size": 110,
+    "expected": "206cef3e7200123008003b41fffc0c6d",
+    "expected_size": 96,
+    "offset": 16
+  },
+  "normalized_sha256": "0ccdf60e3d718018e5dc3c76f8d418925ffbcd5840997cb4c3c1eb2bbbe8857c",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 8,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 4,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 8,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "Qwen3-Coder-30B-A3B-Instruct",
+    "receipt": "recovery/proposals/ov08_F_4018/e55a8cfeeb2d0e25fffeea6223645e4787638eca33884cd1fa704b7aeddcce8b.json",
+    "receipt_sha256": "9957d8bfe5d2c33dbb30f54fe76c6f68c525280b14ba8ecd6adf1231d27f21b0"
+  },
+  "raw_first_difference": {
+    "actual": "d06c802a3b40fffc0c6d0006fffc6710",
+    "actual_size": 110,
+    "expected": "206cef3e7200123008003b41fffc0c6d",
+    "expected_size": 96,
+    "offset": 16
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "edd25feef1af6b35ed2358c027c2e3d91a2a30e4777c9a4b755916c8ead79c1b",
+  "verdict": "DIFFER"
+}
