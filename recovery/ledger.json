@@ -4230,6 +4230,71 @@
       "reason": "PERSISTENT_CODEGEN_MISMATCH: five bounded historical-C candidates leave an eight-byte Aztec switch block-layout delta",
       "state": "BLOCKED"
     },
+    "ov11_F_4790": {
+      "attempts": [
+        {
+          "actual_length": 158,
+          "cache_key": "99f4ab06e584e1b4e93a2f6d2f0e92147b7ef14314f1d92ebc79c67e5d8ef336",
+          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+          "expected_length": 184,
+          "first_difference": {
+            "actual": "80362b48fffc6074206dfffc4a506764",
+            "actual_size": 158,
+            "expected": "b4ee2b48fffc6000008e206dfffc4a50",
+            "expected_size": 184,
+            "offset": 6
+          },
+          "mnemonic_similarity": 0.68,
+          "profile": "aztec36",
+          "receipt": "recovery/attempts/ov11_F_4790/b3fb21bbcbdd4d03a2fcfd297d523b409b8ed6df11c6c0ee4e5fab609c773936-aztec36-99f4ab06e584-e962cd232c05.json",
+          "source_sha256": "b3fb21bbcbdd4d03a2fcfd297d523b409b8ed6df11c6c0ee4e5fab609c773936",
+          "state": "CANDIDATE_C",
+          "verdict": "DIFFER"
+        },
+        {
+          "actual_length": 184,
+          "cache_key": "d88b01258d8d71c949fb597ae69aff970a28ef2fa7cf8ef07af82caae03c8aef",
+          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+          "expected_length": 184,
+          "first_difference": {
+            "actual": "0eb07c00286d00ff5e4e5d4e75",
+            "actual_size": 184,
+            "expected": "feb07c00286d00ff5e4e5d4e75",
+            "expected_size": 184,
+            "offset": 171
+          },
+          "mnemonic_similarity": 1.0,
+          "profile": "aztec36",
+          "receipt": "recovery/attempts/ov11_F_4790/3d6d5c011a9d165d0df4055eeda68de8509285cc662e820db56b5df0b9d91783-aztec36-d88b01258d8d-e962cd232c05.json",
+          "source_sha256": "3d6d5c011a9d165d0df4055eeda68de8509285cc662e820db56b5df0b9d91783",
+          "state": "CODEGEN_SIMILAR",
+          "verdict": "DIFFER"
+        },
+        {
+          "actual_length": 186,
+          "cache_key": "1f3263a5471f5ab015f9f8d4f0c5074500ccc5241cc8734944686d640df6ff75",
+          "comparison_identity": "759e41fc0e97a91e6df3a31bf7d4d385179e75176a8588e24b8a84eea0ce3827",
+          "expected_length": 184,
+          "first_difference": {
+            "actual": "48e7000041ec803e2b48fffc600806ad",
+            "actual_size": 186,
+            "expected": "41ecb4ee2b48fffc6000008e206dfffc",
+            "expected_size": 184,
+            "offset": 4
+          },
+          "mnemonic_similarity": 0.6306,
+          "profile": "aztec50-short",
+          "receipt": "recovery/attempts/ov11_F_4790/3d6d5c011a9d165d0df4055eeda68de8509285cc662e820db56b5df0b9d91783-aztec50-short-1f3263a5471f-759e41fc0e97.json",
+          "source_sha256": "3d6d5c011a9d165d0df4055eeda68de8509285cc662e820db56b5df0b9d91783",
+          "state": "CANDIDATE_C",
+          "verdict": "DIFFER"
+        }
+      ],
+      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+      "ownership_unchanged": true,
+      "reason": "RUNTIME_HELPER_IDENTITY: aztec36 source matches all 184 function bytes except the signed-division helper alias; aztec50-short diverges at the prologue",
+      "state": "BLOCKED"
+    },
     "ov11_F_4848": {
       "attempts": [
         {
