@@ -232,19 +232,20 @@
     },
     {
       "current_evidence": [
-        "76 functions promoted as FUNCTION_CODE_MATCH (11614 code bytes), plus nine functions at FUNCTION_WITH_DATA_MATCH (2562 code bytes)",
-        "A complete natural 88-byte callee/caller unit matches, including both short PC-relative call identities",
-        "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC produces its exact 42-byte adjacent string tail and all external A4 identities, but its two direct same-overlay calls cross unowned gaps and are rejected; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 now matches with aztec36 +D, 25 HUNK_RELOC32-backed absolute resident-global operands, and a four-byte compiler-owned `OK` tail; ov04_F_18A6 reproduces its complete flow, loop addressing and four literal strings but retains a two-site call-cleanup codegen mismatch; ov04_F_1AA2 matches through the historical `(unsigned)long_return % 3` high-word idiom; nonadjacent dependency units with gaps are rejected"
+        "89 functions promoted as FUNCTION_CODE_MATCH (13584 code bytes), plus 11 functions at FUNCTION_WITH_DATA_MATCH (3468 code bytes)",
+        "A complete compact 738-byte ov11_F_3A24/ov11_F_40E0/ov11_F_4696 source unit matches with direct PC-relative local-call identity proof; intervening original bytes are explicitly unclaimed",
+        "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC produces its exact 42-byte adjacent string tail and all external A4 identities, but its two direct same-overlay calls cross unowned gaps and are rejected; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 now matches with aztec36 +D, 25 HUNK_RELOC32-backed absolute resident-global operands, and a four-byte compiler-owned `OK` tail; ov04_F_18A6 reproduces its complete flow, loop addressing and four literal strings but retains a two-site call-cleanup codegen mismatch; ov04_F_1AA2 matches through the historical `(unsigned)long_return % 3` high-word idiom; explicitly scoped compact source units may retain original gaps only when every linked byte belongs to a recovered object"
       ],
       "experiments_tried": [
         "Independent complete-object extraction and relocation/A4 identity normalization",
         "End-to-end fixture proposer: four promotions, one retained repeated mismatch, zero worker boots on repeat",
-        "Ordinary check_function automatically bundles adjacent recovered dependencies; all bytes and all members pass before promoting the caller"
+        "Ordinary check_function automatically bundles adjacent recovered dependencies; all bytes and all members pass before promoting the caller",
+        "Separate-object compact unit verification: ov11_F_3A24 plus recovered ov11_F_40E0 and ov11_F_4696 matches all 738 source-contribution bytes and relocation identities while leaving original gaps unclaimed"
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
       "missing_artifact": "Natural layouts for larger dependency units and evidence-backed initialized-DATA contributions",
-      "next_experiment": "Use the symbol-located static-DATA verifier for independently derived tables, recover contiguous same-node units that can bind direct PC-relative calls naturally, and apply the measured +D profile only where absolute relocation evidence requires it without omitting gaps or weakening complete-contribution proof",
+      "next_experiment": "Use the symbol-located static-DATA verifier for independently derived tables; recover direct-call dependency units through either contiguous natural layout or explicitly scoped compact source contributions with all original gaps unclaimed; apply the measured +D profile only where absolute relocation evidence requires it.",
       "status": "OPEN",
       "target": "stronger data and call contribution proofs"
     },
