@@ -88,6 +88,14 @@ class CompleteUnitTests(unittest.TestCase):
         self.assertIn('F_h13_012E()',combined)
         self.assertEqual(names['ov13_F_0000'],'F_h13_0000')
 
+    def test_transitive_local_calls_close_the_whole_source_unit(self):
+        source=ROOT/'experiments/direct-recovery/ov04_F_0000-v1.c'
+        if not source.exists():self.skipTest('ov04 wrapper candidate absent')
+        members,_,_,_=prepare_unit('ov04_F_0000',source.read_text())
+        self.assertEqual([m['id'] for m in members],[
+            'ov04_F_0000','ov04_F_000C','ov04_F_0088','ov04_F_00C4',
+            'ov04_F_00E6','ov04_F_0104','ov04_F_037E'])
+
     def test_bridge_extern_for_an_earlier_member_is_removed(self):
         # ov10_F_2160 calls the earlier ov10_F_1FDE and its canonical source
         # still carries the old external declaration.  It must not survive in

@@ -65,7 +65,7 @@ def overlay_proxies(source,target_node=1):
     return [unique[name] for name in sorted(unique)]
 
 
-def harness(source,target_node=1):
+def harness(source,target_node=1,local_functions=()):
     # Explicit extern declarations become ordinary naturally allocated harness
     # definitions. Mechanical names carry identities for comparison, never layout.
     declarations=re.findall(r'\bstruct\s+\w+\s*\{[^{}]*\}\s*;',source)
@@ -75,6 +75,7 @@ def harness(source,target_node=1):
         if declaration not in emitted:
             declarations.append(declaration);emitted.add(declaration)
     proxy_names={p['name'] for p in overlay_proxies(source,target_node)}
+    local_functions=set(local_functions)
     for m in re.finditer(r'\bextern\s+([^;{}]+);',source):
         decl=m[1].strip()
         require('\n#' not in decl,'bad extern declaration')
@@ -84,7 +85,7 @@ def harness(source,target_node=1):
             # Cross-overlay mechanical functions are supplied by a separate
             # proxy object in their own Manx node.  Keeping them out of the
             # resident harness is what makes the linker produce a trampoline.
-            if match[1] not in proxy_names:
+            if match[1] not in proxy_names and match[1] not in local_functions:
                 # Aztec 3.6a accepts a void function body with no return
                 # expression, but rejects ``return 0`` in one.  The harness
                 # must preserve a candidate's ordinary historical declaration
@@ -96,15 +97,31 @@ def harness(source,target_node=1):
     return '/* Independent naturally allocated link harness. */\nextern int recovered();\nint (*candidate_reference)() = recovered;\nmain() { return 0; }\n'+'\n'.join(declarations)+'\n'
 
 
-def identity(source,profile,target_node=1):
-    validate_source(source);p=PROFILES[profile];h=harness(source,target_node);proxies=overlay_proxies(source,target_node)
+def object_specs(trial):
+    """Normalize one candidate source or an ordered natural C-object partition."""
+    source=trial['source']
+    objects=trial.get('objects')
+    if objects is None:return [dict(label='candidate',source=source)]
+    require(isinstance(objects,list) and objects,'partitioned candidate needs source objects')
+    result=[]
+    for index,obj in enumerate(objects):
+        require(isinstance(obj,dict) and isinstance(obj.get('source'),str),'partitioned source object is malformed')
+        label='candidate' if index==0 else 'part%03d'%index
+        result.append(dict(label=label,source=obj['source']))
+    require('recovered(' in result[0]['source'],'first partitioned source object must define recovered')
+    return result
+
+
+def identity(source,profile,target_node=1,objects=None,local_functions=()):
+    validate_source(source);p=PROFILES[profile];h=harness(source,target_node,local_functions);proxies=overlay_proxies(source,target_node)
     require(target_node>=1,'candidate overlay node must be positive')
     versions={n:sha256((ROOT/p['base']/'bin'/n).read_bytes()) for n in ('cc','as','ln')}
     library='c32.lib' if profile=='aztec36-long' else 'c16.lib' if profile=='aztec50-short' else 'c.lib'
     libbase='toolchain/installed/aztec-3.6a/SYS2' if profile=='aztec36-long' else p['base']
     lib=ROOT/libbase/'lib'/library
     require(lib.is_file(),'missing profile library '+str(lib))
-    recipe='harness.o +o%d candidate.o'%target_node
+    object_labels=[x['label'] for x in objects] if objects is not None else ['candidate']
+    recipe='harness.o +o%d '%target_node+' '.join(label+'.o' for label in object_labels)
     if proxies:recipe+=' '+' '.join('+o%d %s.o'%(x['node'],x['name']) for x in proxies)
     recipe+=' +o0 c.lib; -m -t'
     keydata=dict(service_version=SERVICE_VERSION,source_sha256=sha256(source.encode('ascii')),
@@ -120,6 +137,10 @@ def identity(source,profile,target_node=1):
         # changes.  Ordinary no-proxy cache identities remain stable.
         keydata['overlay_proxy_extractor_sha256']=sha256((ROOT/'tools/compiler_oracle.py').read_bytes())
         keydata['overlay_proxies']=[dict(name=x['name'],hunk=x['hunk'],node=x['node'],source_sha256=sha256(x['source'].encode('ascii'))) for x in proxies]
+    if objects is not None:
+        keydata['object_labels']=object_labels
+        keydata['partitioned_object_sources']=[dict(label=x['label'],source_sha256=sha256(x['source'].encode('ascii'))) for x in objects]
+        keydata['local_functions']=sorted(local_functions)
     return sha256(json_bytes(keydata)),keydata,h
 
 
@@ -131,15 +152,22 @@ def cached(key):
     for a in r['artifacts']:
         require((dest/a['path']).is_file() and sha256((dest/a['path']).read_bytes())==a['sha256'],'cached artifact changed: '+a['path'])
     if r['status']=='COMPILED':
-        require(extract(dest,r['prefix'])==r['contribution'],'cached contribution metadata changed')
+        require(extract(dest,r['prefix'],r['identity'].get('object_labels'))==r['contribution'],'cached contribution metadata changed')
     return dict(r,cache_hit=True,directory=str(dest))
 
 
-def extract(directory,prefix):
+def extract(directory,prefix,object_labels=None):
     blob=(directory/(prefix+'.exe')).read_bytes();model=parse(blob)
     overlay=manx_overlay(model,blob) if model['overlay'] is not None else None
-    obj=(directory/(prefix+'.o')).read_bytes();require(obj[:2] in (b'AJ',b'CJ'),'unsupported object dialect')
-    code_size=int.from_bytes(obj[10:14],'big');data_size=int.from_bytes(obj[14:18],'big');bss_size=int.from_bytes(obj[18:22],'big')
+    labels=object_labels or ['candidate']
+    objects=[]
+    for label in labels:
+        name=prefix if label=='candidate' else prefix+'_'+label
+        obj=(directory/(name+'.o')).read_bytes();require(obj[:2] in (b'AJ',b'CJ'),'unsupported object dialect')
+        objects.append(obj)
+    code_size=sum(int.from_bytes(obj[10:14],'big') for obj in objects)
+    data_size=sum(int.from_bytes(obj[14:18],'big') for obj in objects)
+    bss_size=sum(int.from_bytes(obj[18:22],'big') for obj in objects)
     sym=symbols((directory/(prefix+'.sym')).read_text())
     entries=[(h,v) for (h,n),v in sym.items() if n=='_recovered']
     require(len(entries)==1,'expected one recovered symbol')
@@ -166,8 +194,13 @@ def compile_many(trials):
     requests=[];missing={}
     for trial in trials:
         target_node=trial.get('target_node',1)
-        key,meta,h=identity(trial['source'],trial['profile'],target_node);requests.append(key)
-        if cached(key) is None:missing.setdefault(key,dict(trial=trial,meta=meta,harness=h,proxies=overlay_proxies(trial['source'],target_node)))
+        objects=object_specs(trial);local_functions=trial.get('local_functions',())
+        key,meta,h=identity(trial['source'],trial['profile'],target_node,
+                            objects if trial.get('objects') is not None else None,local_functions)
+        requests.append(key)
+        if cached(key) is None:
+            missing.setdefault(key,dict(trial=trial,meta=meta,harness=h,
+                                        proxies=overlay_proxies(trial['source'],target_node),objects=objects))
     if not missing:
         result=[cached(k) for k in requests]
         write_json(ROOT/'build/compiler-last-run.json',dict(requests=len(requests),unique=len(set(requests)),worker_invocations=0,cache_misses=0,elapsed_seconds=time.perf_counter()-started))
@@ -194,10 +227,14 @@ def compile_many(trials):
         commands=['C:FailAt 1000000'];mapping=[]
         for idx,(key,item) in enumerate(missing.items()):
             prefix='t%03d'%idx;hp='h%03d'%idx;p=PROFILES[item['trial']['profile']];guest=p['guest'];flags=' '.join(p['flags'])
-            (source_dir/(prefix+'.c')).write_text(item['trial']['source'],encoding='ascii',newline='\n')
+            object_names=[]
+            for obj in item['objects']:
+                name=prefix if obj['label']=='candidate' else prefix+'_'+obj['label']
+                object_names.append(name)
+                (source_dir/(name+'.c')).write_text(obj['source'],encoding='ascii',newline='\n')
             (source_dir/(hp+'.c')).write_text(item['harness'],encoding='ascii',newline='\n')
             first=len(commands)
-            for name in (prefix,hp):
+            for name in object_names+[hp]:
                 commands += [f'{guest}bin/cc <compiler-input.txt >{name}-cc.log -a {flags} {name}.c',
                              f'{guest}bin/as <compiler-input.txt >{name}-as.log -o {name}.o {name}.asm']
             proxy_args=[]
@@ -208,8 +245,8 @@ def compile_many(trials):
                              f'{guest}bin/as <compiler-input.txt >{name}-as.log -o {name}.o {name}.asm']
                 proxy_args += [f'+o{proxy["node"]}',name+'.o']
             node=item['trial'].get('target_node',1)
-            commands += [f'{guest}bin/ln <compiler-input.txt >{prefix}-ln.log -m -t -o {prefix}.exe {hp}.o +o{node} {prefix}.o '+ ' '.join(proxy_args) +f' +o0 {item["meta"]["library_guest"]}lib/{item["meta"]["library"]}']
-            mapping.append((key,item,prefix,hp,first,2*(2+len(item['proxies']))+1,idx))
+            commands += [f'{guest}bin/ln <compiler-input.txt >{prefix}-ln.log -m -t -o {prefix}.exe {hp}.o +o{node} '+' '.join(name+'.o' for name in object_names)+' '+ ' '.join(proxy_args) +f' +o0 {item["meta"]["library_guest"]}lib/{item["meta"]["library"]}']
+            mapping.append((key,item,prefix,hp,first,2*(len(object_names)+1+len(item['proxies']))+1,idx))
         job=prepare(batch,source_dir,commands,Path('C:/Program Files/WinUAE/winuae64.exe'),aztec36=any(v['trial']['profile'].startswith('aztec36') for v in missing.values()))
         shell=shutil.which('pwsh') or shutil.which('powershell')
         require(shell,'PowerShell not found')
@@ -220,14 +257,14 @@ def compile_many(trials):
             dest=CACHE/key;dest.mkdir()
             statuses=[s['returncode'] for s in result['steps'][first:first+steps]]
             for f in work.iterdir():
-                if f.is_file() and (f.name=='compiler-input.txt' or f.name.startswith(prefix+'.') or f.name.startswith(prefix+'-') or f.name.startswith(hp+'.') or f.name.startswith(hp+'-') or f.name.startswith('p%03d_'%idx)):
+                if f.is_file() and (f.name=='compiler-input.txt' or f.name.startswith(prefix+'.') or f.name.startswith(prefix+'_') or f.name.startswith(prefix+'-') or f.name.startswith(hp+'.') or f.name.startswith(hp+'-') or f.name.startswith('p%03d_'%idx)):
                     shutil.copyfile(f,dest/f.name)
             receipt=dict(cache_key=key,identity=item['meta'],status='COMPILED' if statuses==[0]*steps else 'COMPILE_ERROR',
                 guest_returncodes=statuses,worker_job=batch,worker_receipt_sha256=sha256((job/'result.json').read_bytes()),prefix=prefix,
                 noninteractive_input_sha256=sha256(compiler_input.encode('ascii')))
             if receipt['status']=='COMPILED':
                 try:
-                    receipt['contribution']=extract(dest,prefix)
+                    receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
             write_json(dest/'receipt.json',receipt)

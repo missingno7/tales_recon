@@ -30,7 +30,7 @@ def proven_tail(f,ledger):
     return tail,ownership
 
 
-def prepare_unit(fid,source):
+def prepare_unit(fid,source,with_parts=False):
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
     def add_recovered(dep_id):
         if dep_id in members:return
@@ -40,6 +40,12 @@ def prepare_unit(fid,source):
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
         name='F_h%02d_%04X'%(df['hunk'],df['start']);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
+        # The routine's own local calls must stay in this translation unit as
+        # well.  Leaving them as externs can preserve a plausible instruction
+        # shape while changing the original PC-relative call identity.
+        for call in df['direct_callees']:
+            if call['hunk']==df['hunk'] and call['id']!=dep_id:
+                add_recovered(call['id'])
     for call in f['direct_callees']:
         if call['hunk']!=f['hunk'] or call['id']==fid:continue
         add_recovered(call['id'])
@@ -71,7 +77,7 @@ def prepare_unit(fid,source):
         for part_id in parts:
             parts[part_id]=re.sub(pattern,'',parts[part_id])
     combined='\n'.join(parts[m['id']] for m in ordered)+'\n'
-    return ordered,names,combined,l
+    return (ordered,names,parts,combined,l) if with_parts else (ordered,names,combined,l)
 
 
 def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
@@ -164,12 +170,21 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     return report,comparison
 
 
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False):
-    source=Path(path).read_text();members,names,combined,ledger=prepare_unit(fid,source)
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False):
+    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(fid,source,True)
     reports=[]
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
-    for compiled in compile_many([dict(source=combined,profile=p,target_node=node) for p in profiles]):
+    trials=[]
+    for p in profiles:
+        trial=dict(source=combined,profile=p,target_node=node)
+        if separate_objects:
+            # Preserve historical module boundaries when their ordinary link
+            # codegen matters (for example JSR instead of an intra-object BSR).
+            trial['objects']=[dict(source=parts[m['id']]) for m in members]
+            trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
+        trials.append(trial)
+    for compiled in compile_many(trials):
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data)
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
@@ -189,8 +204,9 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('id');ap.add_argument('source',type=Path)
     ap.add_argument('--profile',action='append',choices=sorted(PROFILES));ap.add_argument('--no-promote',action='store_true')
     ap.add_argument('--owned-code-data',action='store_true',help='prove only the target function\'s adjacent PC-relative CODE string tail')
+    ap.add_argument('--separate-objects',action='store_true',help='compile each proven unit member as an ordinary object before the normal overlay link')
     a=ap.parse_args()
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data)
+    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects)
     for r in reports:print(json.dumps(r))
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 
