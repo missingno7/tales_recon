@@ -55,29 +55,42 @@ def prepare_unit(fid,source):
     return ordered,names,combined,l
 
 
-def compare_unit(members,names,compiled,a4_bias):
+def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
     if compiled['status']!='COMPILED':return dict(verdict='BLOCKED',reason=compiled['status'],members=[])
     c=compiled['contribution'];raw=bytes.fromhex(c['code_hex']);expected=b''.join(bytes.fromhex(f['raw_bytes']) for f in members)
     result=dict(verdict='BLOCKED',expected_length=len(expected),actual_length=len(raw),members=[],object_sha256=c['object_sha256'])
     if c['data_size'] or c['bss_size']:
         result['reason']='UNIT_DATA_OWNERSHIP_UNPROVEN';return result
-    if len(raw)!=len(expected):
+    tail=b''
+    if owned_code_data:
+        from owned_code_data import expected_string_tail
+        try:
+            tail,_=expected_string_tail(members[-1])
+        except FormatError as exc:
+            return dict(verdict='BLOCKED',reason='UNIT_OWNED_CODE_DATA_UNPROVEN: '+str(exc),members=[])
+    if len(raw)!=len(expected)+len(tail):
         result.update(verdict='DIFFER',reason='COMPLETE_UNIT_SIZE_DIFFERS');return result
     cursor=0
     for f in members:
         symbol=next((s for s in c['symbols'] if s['hunk']==c['hunk'] and s['name']=='_'+names[f['id']]),None)
         require(symbol is not None and symbol['offset']==cursor,'natural function ordering/extent differs; no slice accepted')
         stop=cursor+f['size'];piece=copy.deepcopy(compiled);pc=piece['contribution']
-        pc.update(code_hex=raw[cursor:stop].hex(),code_size=f['size'],code_offset=cursor,entry_offset=0)
+        owned_tail=tail if owned_code_data and f is members[-1] else b''
+        pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=cursor,entry_offset=0)
         pc['relocations']=[]
         for relocation in c['relocations']:
             at=relocation['relative_offset'];end=at+relocation['width']
             if end<=cursor or at>=stop:continue
             require(cursor<=at<end<=stop,'unit boundary splits a relocation')
             pc['relocations'].append(dict(relocation,relative_offset=at-cursor))
-        report=compare_function(f,piece,a4_bias);report['id']=f['id'];result['members'].append(report)
+        if owned_tail:
+            from owned_code_data import compare_owned_code_data
+            report=compare_owned_code_data(f,piece,a4_bias)
+        else:
+            report=compare_function(f,piece,a4_bias)
+        report['id']=f['id'];result['members'].append(report)
         cursor=stop
-    require(cursor==len(raw),'unclaimed code bytes in unit')
+    require(cursor+len(tail)==len(raw),'unclaimed code bytes in unit')
     equal=all(m['verdict']=='EQUAL' for m in result['members'])
     result.update(verdict='EQUAL' if equal else 'DIFFER',reason='ENTIRE_OBJECT_AND_ALL_MEMBER_CONTRIBUTIONS' if equal else 'MEMBER_DIFFERS',
                   expected_sha256=sha256(expected),actual_sha256=sha256(raw),
@@ -85,8 +98,8 @@ def compare_unit(members,names,compiled,a4_bias):
     return result
 
 
-def retain_unit(fid,source,members,names,combined,compiled,a4_bias):
-    report=compare_unit(members,names,compiled,a4_bias)
+def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False):
+    report=compare_unit(members,names,compiled,a4_bias,owned_code_data)
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
                       compiler=compiled['identity'],
                       combined_source_sha256=sha256(combined.encode()),source_sha256=sha256(source.encode()),
@@ -113,24 +126,33 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias):
     return report,comparison
 
 
-def check(fid,path,profiles,promote_equal=True):
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False):
     source=Path(path).read_text();members,names,combined,ledger=prepare_unit(fid,source)
     reports=[]
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
     for compiled in compile_many([dict(source=combined,profile=p,target_node=node) for p in profiles]):
-        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'])
+        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data)
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
-            if not canonical or canonical['source_sha256']==report['source_sha256']:promote(fid,source,comparison,compiled,target)
+            if owned_code_data:
+                from check_function import owned_code_data_boundary
+                owned_code_data_boundary(target,ledger,comparison)
+                state='FUNCTION_WITH_DATA_MATCH'
+            else:
+                state='FUNCTION_CODE_MATCH'
+            if not canonical or canonical['source_sha256']==report['source_sha256']:
+                promote(fid,source,comparison,compiled,target,state=state)
         reports.append(report)
     save_rank();return reports
 
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('id');ap.add_argument('source',type=Path)
-    ap.add_argument('--profile',action='append',choices=sorted(PROFILES));ap.add_argument('--no-promote',action='store_true');a=ap.parse_args()
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote)
+    ap.add_argument('--profile',action='append',choices=sorted(PROFILES));ap.add_argument('--no-promote',action='store_true')
+    ap.add_argument('--owned-code-data',action='store_true',help='prove only the target function\'s adjacent PC-relative CODE string tail')
+    a=ap.parse_args()
+    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data)
     for r in reports:print(json.dumps(r))
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 
