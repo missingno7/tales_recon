@@ -66,6 +66,7 @@ def check_many(requests,promote_equal=True):
     prepared=[];trials=[]
     for req in requests:
         f,l=validated_function(req['id']);source=Path(req['source']).read_text()
+        target_node=f['hunk']-2 if f.get('node')!='resident' and f.get('hunk',0)>=3 else 1
         source_hash=sha256(source.encode())
         retained=ROOT/'recovery/candidates'/f['id']/(source_hash+'.c')
         retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
@@ -79,8 +80,8 @@ def check_many(requests,promote_equal=True):
         for profile in profiles:
             require(profile in PROFILES,'unsupported compiler profile')
             try:
-                identity(compile_source,profile)
-                slot=len(trials);trials.append(dict(source=compile_source,profile=profile))
+                identity(compile_source,profile,target_node)
+                slot=len(trials);trials.append(dict(source=compile_source,profile=profile,target_node=target_node))
             except FormatError as exc:
                 slot=dict(status='SOURCE_REJECTED',identity=dict(profile=profile,flags=PROFILES[profile]['flags']),
                           cache_key=sha256((source_hash+profile+str(exc)).encode()),cache_hit=False,

@@ -97,7 +97,9 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias):
 def check(fid,path,profiles,promote_equal=True):
     source=Path(path).read_text();members,names,combined,ledger=prepare_unit(fid,source)
     reports=[]
-    for compiled in compile_many([dict(source=combined,profile=p) for p in profiles]):
+    target,_=validated_function(fid)
+    node=target['hunk']-2 if target['node']!='resident' else 1
+    for compiled in compile_many([dict(source=combined,profile=p,target_node=node) for p in profiles]):
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'])
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)

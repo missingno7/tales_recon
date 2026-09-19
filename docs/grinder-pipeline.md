@@ -80,7 +80,12 @@ blocker; consumers of a multi-function batch must inspect each verdict.
 The host uses the existing native Capstone installation. Only historical
 compile/assemble/link operations run under the unattended WinUAE worker.
 `compiler_oracle.py` never reads the original game. It mounts independent source
-and pinned dependencies and links `harness.o +o1 candidate.o +o0 c.lib` naturally.
+and pinned dependencies and links the candidate in its measured overlay node
+naturally. An explicit mechanical cross-overlay extern receives a tiny proxy in
+the target node so the historical linker emits its normal table/trampoline path;
+the proxy's parsed table target and symbol must resolve back to the original
+hunk/offset. Same-overlay externs never use this proxy route and remain subject
+to complete-unit proof.
 Candidate code is not executed. No fixed placement or executable patching occurs.
 
 ## Proposer contract and long runs
@@ -142,7 +147,8 @@ HUNK padding. It cannot select a convenient matching instruction subset.
 
 HUNK relocation sites, types, widths, target identities, and addends must agree.
 A4-relative fields are resolved from the naturally linked startup's relocated
-LEA, the linker symbol map, and explicit external identities. The Manx logical H2
+LEA, the linker symbol map, parsed cross-overlay trampolines where applicable,
+and explicit external identities. The Manx logical H2
 COMMON-to-H1 convention is checked against actual allocation. Only proven address
 fields are normalized in comparison memory; instruction bytes, widths, branches,
 and constants must otherwise match exactly. Ambiguous displacement locations and

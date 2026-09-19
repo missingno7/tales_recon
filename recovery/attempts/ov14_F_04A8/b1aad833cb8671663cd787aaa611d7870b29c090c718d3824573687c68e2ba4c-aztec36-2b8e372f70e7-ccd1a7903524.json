@@ -1,0 +1,179 @@
+{
+  "actual_length": 154,
+  "actual_sha256": "0c19a371a64cfa23f0be115bfbedc356d86ac1bd00f553b2983ca98d4457c81b",
+  "cache_hit": false,
+  "cache_key": "2b8e372f70e71ad026a2e05a9632073b0ad82227c852c47472c726c11cda3a04",
+  "comparison_identity": "ccd1a7903524713cc527bbf4f65b76be4b991d93375a9045a45e2d101a1962a4",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "ext.w",
+        "offset": 148,
+        "operands": "d0",
+        "raw": "4880",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 150,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 152,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.b",
+        "offset": 144,
+        "operands": "-$2(a5), d0",
+        "raw": "102dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 148,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 150,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 152,
+  "expected_sha256": "283bb85525224cae26f42b7d8f835f23088a892a8dd8fc6c7770a83d6cebb412",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "jsr",
+      "offset": 44,
+      "operands": "-$7ff8(a4)",
+      "raw": "4eac8008",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "jsr",
+      "offset": 44,
+      "operands": "-$7f08(a4)",
+      "raw": "4eac80f8",
+      "size": 4
+    }
+  },
+  "flags": [],
+  "id": "ov14_F_04A8",
+  "mnemonic_similarity": 0.989,
+  "normalized_first_difference": {
+    "actual": "0841ec80364a300800664a102dffff48",
+    "actual_size": 154,
+    "expected": "f841ecc5304a300800664a102dffff48",
+    "expected_size": 152,
+    "offset": 47
+  },
+  "normalized_sha256": "0c19a371a64cfa23f0be115bfbedc356d86ac1bd00f553b2983ca98d4457c81b",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffa",
+        "raw": "4e55fffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "#$23, -$2(a5)",
+        "raw": "1b7c0023fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 10,
+        "operands": "#$3e80, -$4(a5)",
+        "raw": "3b7c3e80fffc",
+        "size": 6
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffa",
+        "raw": "4e55fffa",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "#$23, -$2(a5)",
+        "raw": "1b7c0023fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 10,
+        "operands": "#$3e80, -$4(a5)",
+        "raw": "3b7c3e80fffc",
+        "size": 6
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "0841ec80364a300800664a102dffff48",
+    "actual_size": 154,
+    "expected": "f841ecc5304a300800664a102dffff48",
+    "expected_size": 152,
+    "offset": 47
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "runtime_contributions": [
+    {
+      "code_sha256": "153fd8949289b566841c65c87e04601b51799177f715eb415a6e0ff9ec8c8927",
+      "identity": "F_h00_7B00",
+      "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+      "linked": {
+        "hunk": 0,
+        "offset": 1244,
+        "size": 36
+      },
+      "original": {
+        "hunk": 0,
+        "offset": 31488,
+        "size": 36
+      },
+      "symbol": ".mulu"
+    }
+  ],
+  "runtime_evidence_sha256": "01d126e7cf1f1c6b8233cbb565de0f60ede764b5132c73c5cae548a4eb8ac338",
+  "source_sha256": "b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c",
+  "verdict": "DIFFER"
+}

@@ -7,8 +7,8 @@ import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
 from function_census import Census
-from compiler_oracle import identity,validate_source,harness,cached
-from function_compare import target_identity,unique_word_site,decode_all
+from compiler_oracle import identity,validate_source,harness,overlay_proxies,cached
+from function_compare import target_identity,overlay_trampoline_identity,unique_word_site,decode_all
 from function_compare import compare_function
 from recovery_state import evidence,ROOT
 from compiler_oracle import CACHE
@@ -65,6 +65,14 @@ class VerifierContractTests(unittest.TestCase):
         h=harness('extern char G_h01_1424; int recovered(){G_h01_1424=1;}')
         self.assertIn('char G_h01_1424;',h);self.assertNotIn('0x1424',h)
 
+    def test_cross_overlay_extern_uses_a_separate_proxy(self):
+        source='extern char F_h03_154E(); recovered() { return F_h03_154E(); }'
+        self.assertNotIn('F_h03_154E() { return 0; }',harness(source,12))
+        self.assertEqual(overlay_proxies(source,12),[dict(name='F_h03_154E',hunk=3,node=1,source='int F_h03_154E() { return 0; }\n')])
+        self.assertEqual(overlay_proxies(source,1),[])
+        self.assertIn('F_h03_154E() { return 0; }',harness(source,1))
+        self.assertNotEqual(identity(source,'aztec36')[0],identity(source,'aztec36',12)[0])
+
     def test_target_identity_requires_bounded_data_addend(self):
         symbols=[{'hunk':1,'offset':8,'name':'_G_h01_1424'}]
         self.assertIsNone(target_identity(1,10,symbols))
@@ -79,6 +87,13 @@ class VerifierContractTests(unittest.TestCase):
 
     def test_call_target_may_not_absorb_addend(self):
         self.assertIsNone(target_identity(0,2,[{'hunk':0,'offset':0,'name':'_F_h00_1234'}]))
+
+    def test_overlay_trampoline_requires_the_proxy_symbol_identity(self):
+        contribution={'overlay_trampolines':[dict(trampoline_hunk=1,trampoline_offset=20,target_hunk=4,target_offset=0)]}
+        symbols=[dict(hunk=4,offset=0,name='_F_h03_154E')]
+        self.assertEqual(overlay_trampoline_identity(contribution,20,symbols)['hunk'],3)
+        self.assertEqual(overlay_trampoline_identity(contribution,20,symbols)['offset'],0x154e)
+        self.assertEqual(overlay_trampoline_identity(contribution,20,[dict(hunk=4,offset=0,name='_F_h03_154F')])['offset'],0x154f)
 
     def test_non_unique_displacement_is_not_masked(self):
         instructions,_=decode_all(bytes.fromhex('196d00090009'))

@@ -36,6 +36,20 @@ def target_identity(hunk,offset,symbols,bounds=None):
     return dict(hunk=identity[0],offset=identity[1]+delta,symbol=name,addend=delta)
 
 
+def overlay_trampoline_identity(contribution,stub,symbols,bounds=None):
+    """Resolve one parsed Manx trampoline without treating its bytes as data.
+
+    The overlay table is separately validated by ``manx_overlay`` when the
+    compiler artifact is extracted.  A candidate still passes only if the
+    table's physical target has a mechanical proxy symbol whose hunk/offset
+    identity equals the original call evidence.
+    """
+    entry=next((x for x in contribution.get('overlay_trampolines',[])
+                if x['trampoline_hunk']==1 and x['trampoline_offset']==stub),None)
+    if entry is None:return None
+    return target_identity(entry['target_hunk'],entry['target_offset'],symbols,bounds)
+
+
 def unique_word_site(ins,value):
     word=(value & 65535).to_bytes(2,'big');raw=bytes(ins.bytes)
     sites=[i for i in range(2,len(raw)-1,2) if raw[i:i+2]==word]
@@ -143,6 +157,7 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
                         stub=(candidate_a4 or 0)+ao.mem.disp
                         rr=next((r for r in c['all_relocations'] if r['source_hunk']==1 and r['source_offset']==stub+2),None)
                         if rr:identity=target_identity(rr['target_hunk'],rr['addend_raw'],symbol_map,bounds)
+                        if identity is None:identity=overlay_trampoline_identity(c,stub,symbol_map,bounds)
                     expected_identity=eo_target
                     if e.mnemonic.startswith(('jsr','jmp')):
                         call=next((x for x in f['direct_callees'] if x['site']-f['start']==e.address),None)
