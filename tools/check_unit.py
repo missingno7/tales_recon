@@ -74,7 +74,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias):
                       dependency_sources={f['id']:recovery()['functions'][f['id']]['source_sha256'] for f in members if f['id']!=fid},
                       ordered_members=[{k:f[k] for k in ('id','hunk','start','end','size','sha256')} for f in members],
                       verification_policy='Every byte and member of the complete naturally compiled object; no omitted padding or data')
-    verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_unit.py','function_compare.py','compiler_oracle.py')}
+    verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')}
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
     base=ROOT/'recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)

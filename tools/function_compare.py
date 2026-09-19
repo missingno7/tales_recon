@@ -102,6 +102,16 @@ def compare_function(f,compiled,a4_bias):
     # from the naturally linked startup's LEA relocation in the actual binary.
     from pathlib import Path
     blob=(Path(compiled['directory'])/(compiled['prefix']+'.exe')).read_bytes()
+    if any(s['name']=='.mulu' for s in c['symbols']):
+        import json
+        from analysis_support import game
+        from runtime_arithmetic import aliases
+        original,original_model,_=game()
+        runtime_evidence_path=ROOT/'evidence/experiments/runtime-arithmetic.json'
+        runtime_symbols,runtime_proof=aliases(compiled,blob,original,original_model,json.loads(runtime_evidence_path.read_text()))
+        symbol_map.extend(runtime_symbols)
+        report['runtime_contributions']=runtime_proof
+        report['runtime_evidence_sha256']=sha256(runtime_evidence_path.read_bytes())
     root=next(h for h in c['hunks'] if h['number']==0)
     for r in c['all_relocations']:
         p=root['content_offset']+r['source_offset']

@@ -61,3 +61,16 @@ A subsequent [overlay experiment](overlay-linking.md) verifies natural overlay
 linking and the complete 244-byte segload contribution, including two relocations.
 Together the candidate matches cover 470 bytes. Exact compiler flags and the
 complete investment module reconstruction remain open.
+
+The arithmetic runtime experiment now matches the complete 36-byte `lmul`
+contribution, exported as `.mulu`, at resident `0x7B00` under both 3.6a and
+5.0a (c16). This raises independently matched runtime contributions to 506 bytes;
+it adds no reconstructed game functions and does not select a compiler release.
+`tools/runtime_arithmetic.py` reproduces the evidence. The verifier accepts the
+alias only when the original and newly linked complete contribution hashes,
+entry location, library identity, CODE bounds, and absence of relocations agree.
+Partial or changed helper matches cannot authorize call normalization.
+
+The bounded `ov14_F_0412` experiment remains blocked: its 3.6a C candidate
+reproduces the loop and accesses but emits an additional `EXT.W` before return.
+All variants and compiler failures are retained; canonical ownership is unchanged.

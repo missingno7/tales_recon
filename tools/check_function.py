@@ -46,7 +46,7 @@ def promote(fid,source,report,compiled,f):
         evidence_extent={k:f[k] for k in ('hunk','start','end','size','sha256','extent_status')},
         compiler=compiled['identity'],object_hash=compiled['contribution']['object_sha256'],
         artifacts=compiled['artifacts'],cache_key=compiled['cache_key'],
-        verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_function.py','function_compare.py','compiler_oracle.py')},
+        verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')},
         comparison=report,relocation_proof=report['relocation_proof'],dependencies=f['direct_callees'],
         data_ownership='External references only; no candidate-owned data or padding omitted',
         compiler_selection='Matching candidate; historical release remains ambiguous',
@@ -92,7 +92,7 @@ def check_many(requests,promote_equal=True):
         else:report=compare_function(f,compiled,l['a4']['bias'])
         report['id']=f['id'];report['source_sha256']=sha256(source.encode())
         if unit_blocker:report['unit_blocker']=unit_blocker
-        verification_files=('check_function.py','function_compare.py','check_unit.py')
+        verification_files=('check_function.py','function_compare.py','check_unit.py','runtime_arithmetic.py')
         report['comparison_identity']=sha256(b''.join(Path(__file__).with_name(p).read_bytes() for p in verification_files))
         if req.get('proposer_receipt'):
             proposal_path=(ROOT/req['proposer_receipt']).resolve()
