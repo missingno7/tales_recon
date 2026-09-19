@@ -17,7 +17,7 @@ and resident reference identity.
 draw origin, then performs four normal C rendering passes through verified
 resident helpers. Its receipt proves all 35 global/reference identities.
 
-Eighteen functions match completely under aztec36, adding 3,792 FUNCTION_CODE_MATCH
+Nineteen functions match completely under aztec36, adding 4,120 FUNCTION_CODE_MATCH
 bytes: ov09_F_18D0 (84), ov08_F_3FC0 (88), ov08_F_4018 (96), ov10_F_2BCA
 (136), ov11_F_69A4 (160), ov07_F_0EC0 (112), ov11_F_5A12 (80), ov11_F_5BC4
 (86), ov09_F_1956 (126), ov07_F_0E7C (68), and ov07_F_0E06 (118). Canonical
