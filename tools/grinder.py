@@ -200,4 +200,8 @@ def main():
         print(json.dumps({k:result[k] for k in ('run_id','status','rounds','promoted','blocked','elapsed_seconds')},indent=2))
         print('Report: recovery/reports/'+result['run_id']+'.json')
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    try:main()
+    except (FormatError,OSError,ValueError) as exc:
+        print(json.dumps(dict(status='BLOCKED',reason=str(exc))))
+        sys.exit(2)
