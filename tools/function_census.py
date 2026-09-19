@@ -177,7 +177,14 @@ class Census:
                 data=self.data.get(r['hunk'],b'');off=r['offset']
                 if 0<=off<len(data):
                     end=data.find(b'\0',off,min(len(data),off+160));raw=data[off:end] if end>=0 else b''
-                    if len(raw)>=4 and all(32<=v<127 or v in (9,10,13) for v in raw):
+                    # A PC-relative reference is the evidence that this is a
+                    # literal candidate.  Do not impose the generic four-byte
+                    # string-search threshold here: short format fragments such
+                    # as "%d " are compiler-owned CODE data too.  They still
+                    # need a NUL terminator, printable payload, contiguous-tail
+                    # proof, and an exact candidate contribution before any
+                    # source promotion can use them.
+                    if raw and all(32<=v<127 or v in (9,10,13) for v in raw):
                         f['referenced_strings'].append(dict(hunk=r['hunk'],offset=off,text=raw.decode('ascii'),confidence='REFERENCED_PRINTABLE_CANDIDATE'))
         unreached=[]
         for h in self.hunks.values():

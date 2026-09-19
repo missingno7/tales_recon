@@ -59,6 +59,15 @@ class FunctionCensusTests(unittest.TestCase):
         self.assertEqual(f['direct_callees'][0]['reference_kind'],'FUNCTION_POINTER')
         self.assertEqual(f['referenced_data'],[])
 
+    def test_pc_relative_short_format_literal_is_evidenced(self):
+        # link; pea 4(pc); rts; "%d \\0".  The explicit PC-relative
+        # reference, not a generic string scan, makes the three-byte payload
+        # eligible for later contiguous CODE-tail proof.
+        c=self.census('4e550000487a00044e7525642000')
+        f=c.run()['functions'][0]
+        self.assertEqual(f['referenced_strings'],[
+            dict(hunk=0,offset=10,text='%d ',confidence='REFERENCED_PRINTABLE_CANDIDATE')])
+
 class VerifierContractTests(unittest.TestCase):
     def test_source_escape_hatches_rejected(self):
         for src in ('int recovered(){asm("rts");}','#include "x.h"\nint recovered(){return 0;}'):

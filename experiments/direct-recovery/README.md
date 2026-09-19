@@ -55,6 +55,12 @@ and `S` record parsers. They contribute respectively 266 code bytes plus a
 Both tails end exactly at the next discovered entry; each receipt proves all
 PC-relative literal and A4 reference identities.
 
+`ov11_F_2C96` adds a 260-byte `M` record parser and 32-byte literal tail. Its
+second literal is the short `"%d "` format. The function census now records a
+short literal only when an explicit PC-relative reference reaches an
+ASCII/NUL-terminated payload; the unchanged tail verifier still requires every
+reference, every tail byte, and the next entry boundary to match exactly.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
