@@ -95,6 +95,16 @@ class VerifierContractTests(unittest.TestCase):
         h=harness('extern int F_h00_1234(); extern int F_h00_1234(); recovered(){F_h00_1234();}')
         self.assertEqual(h.count('int F_h00_1234() { return 0; }'),1)
 
+    def test_harness_deduplicates_one_global_with_partial_record_views(self):
+        h=harness('struct A { int a; }; struct B { int b; }; '
+                  'extern struct A G_h01_0000[1]; extern struct B G_h01_0000[1]; '
+                  'recovered() { return 0; }')
+        self.assertEqual(h.count('G_h01_0000[1];'),1)
+
+    def test_harness_deduplicates_one_record_tag(self):
+        h=harness('struct A { int a; }; struct A { int b; }; recovered() { return 0; }')
+        self.assertEqual(h.count('struct A {'),1)
+
     def test_void_extern_gets_an_aztec_compatible_harness_definition(self):
         h=harness('extern void F_h00_1234(); recovered(){F_h00_1234();}')
         self.assertIn('void F_h00_1234() { }',h)

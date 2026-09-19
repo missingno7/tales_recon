@@ -181,8 +181,30 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     return report,comparison
 
 
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False):
+def joined_source(parts,members):
+    """Join source fragments while retaining one coherent record declaration.
+
+    A historical C source unit may use one complete record declaration while
+    separately recovered routines currently retain narrower views of it.  The
+    first fragment supplies the declaration; later duplicate tags and extern
+    globals are removed before Manx sees the one physical source object.
+    """
+    tags=set();globals=set();result=[]
+    for member in members:
+        text=parts[member['id']]
+        for tag in list(tags):
+            text=re.sub(r'\bstruct\s+'+re.escape(tag)+r'\s*\{[^{}]*\}\s*;\s*','',text)
+        for name in list(globals):
+            text=re.sub(r'\bextern\s+struct\s+\w+\s+'+re.escape(name)+r'\s*\[\s*[1-9]\d*\s*\]\s*;\s*','',text)
+        tags.update(re.findall(r'\bstruct\s+(\w+)\s*\{[^{}]*\}\s*;',text))
+        globals.update(re.findall(r'\bextern\s+struct\s+\w+\s+(\w+)\s*\[\s*[1-9]\d*\s*\]\s*;',text))
+        result.append(text)
+    return '\n'.join(result)
+
+
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False):
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
+    require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
     source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(fid,source,True,allow_gaps)
     reports=[]
     target,_=validated_function(fid)
@@ -193,7 +215,16 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         if separate_objects:
             # Preserve historical module boundaries when their ordinary link
             # codegen matters (for example JSR instead of an intra-object BSR).
-            trial['objects']=[dict(source=parts[m['id']]) for m in members]
+            if join_direct_callees:
+                direct={call['id'] for call in target['direct_callees'] if call['hunk']==target['hunk']}
+                joined=[m for m in members if m['id']==fid or m['id'] in direct]
+                require(joined and joined[0]['id']==fid,
+                        'joined direct callees must follow the target in original code order')
+                joined_ids={m['id'] for m in joined}
+                trial['objects']=[dict(source=joined_source(parts,joined))]
+                trial['objects'] += [dict(source=parts[m['id']]) for m in members if m['id'] not in joined_ids]
+            else:
+                trial['objects']=[dict(source=parts[m['id']]) for m in members]
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
         trials.append(trial)
     for compiled in compile_many(trials):
@@ -218,8 +249,9 @@ def main():
     ap.add_argument('--owned-code-data',action='store_true',help='prove only the target function\'s adjacent PC-relative CODE string tail')
     ap.add_argument('--separate-objects',action='store_true',help='compile each proven unit member as an ordinary object before the normal overlay link')
     ap.add_argument('--allow-original-gaps',action='store_true',help='with separate objects, prove compact linked source ownership across known but unreconstructed original gaps')
+    ap.add_argument('--join-direct-callees',action='store_true',help='compile the target and its following direct same-node callees as one ordinary source object')
     a=ap.parse_args()
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps)
+    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees)
     for r in reports:print(json.dumps(r))
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 

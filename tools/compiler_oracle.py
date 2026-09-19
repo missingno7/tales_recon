@@ -68,8 +68,15 @@ def overlay_proxies(source,target_node=1):
 def harness(source,target_node=1,local_functions=()):
     # Explicit extern declarations become ordinary naturally allocated harness
     # definitions. Mechanical names carry identities for comparison, never layout.
-    declarations=re.findall(r'\bstruct\s+\w+\s*\{[^{}]*\}\s*;',source)
+    declarations=[]
+    struct_tags=set()
+    for declaration in re.findall(r'\bstruct\s+\w+\s*\{[^{}]*\}\s*;',source):
+        tag=declaration.split('{',1)[0].split()[1]
+        if tag not in struct_tags:
+            declarations.append(declaration)
+            struct_tags.add(tag)
     emitted=set(declarations)
+    emitted_objects=set()
     def emit(declaration):
         """Keep repeated compatible externs from becoming duplicate harness definitions."""
         if declaration not in emitted:
@@ -93,7 +100,13 @@ def harness(source,target_node=1,local_functions=()):
                 emit(decl+(' { }' if decl.startswith('void ') else ' { return 0; }'))
         else:
             require(re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(?:char|short|int|long|float|double|struct\s+\w+)\s+\**\s*\w+(?:\s*\[\s*[1-9]\d*\s*\])*',decl) is not None,'unsupported extern declaration; use scalar/pointer/positive-bound array facts')
-            emit(decl+';')
+            # Separate recovered source units may use distinct partial C views
+            # of one historical A4 global.  The harness supplies one natural
+            # linker symbol, so deduplicate these definitions by its name.
+            name=re.search(r'(\w+)(?:\s*\[\s*[1-9]\d*\s*\])*\s*$',decl)[1]
+            if name not in emitted_objects:
+                emit(decl+';')
+                emitted_objects.add(name)
     return '/* Independent naturally allocated link harness. */\nextern int recovered();\nint (*candidate_reference)() = recovered;\nmain() { return 0; }\n'+'\n'.join(declarations)+'\n'
 
 
