@@ -1,0 +1,574 @@
+{
+  "blocker": {
+    "attempts": [],
+    "next_action": "Infer the historical module/link-order mechanism that permits mutual external PC-relative JSR calls without same-object branch relaxation.",
+    "ownership_unchanged": true,
+    "reason": "CYCLIC_INTER_OBJECT_PC_CALL: ordinary separate-object and joined-object Aztec links cannot both preserve the original reciprocal JSR encodings",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-x3",
+        "aztec36-large-data",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [
+      {
+        "frame_offset": 8,
+        "instruction_offset": 22886,
+        "width": "w"
+      },
+      {
+        "frame_offset": 10,
+        "instruction_offset": 22924,
+        "width": "w"
+      },
+      {
+        "frame_offset": 10,
+        "instruction_offset": 22936,
+        "width": "w"
+      },
+      {
+        "frame_offset": 10,
+        "instruction_offset": 22942,
+        "width": "w"
+      },
+      {
+        "frame_offset": 8,
+        "instruction_offset": 22964,
+        "width": "w"
+      },
+      {
+        "frame_offset": 10,
+        "instruction_offset": 22974,
+        "width": "w"
+      }
+    ],
+    "calls": [
+      {
+        "basis": "PC_RELATIVE",
+        "current_state": "DISCOVERED",
+        "hunk": 11,
+        "id": "ov11_F_5C42",
+        "name": "F_h11_5C42",
+        "offset": 23618,
+        "site": 22968
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "current_state": "FUNCTION_CODE_MATCH",
+        "hunk": 11,
+        "id": "ov11_F_66FE",
+        "name": "F_h11_66FE",
+        "offset": 26366,
+        "site": 23004
+      }
+    ],
+    "cfg": [
+      {
+        "kind": "CONDITIONAL",
+        "source": 22922,
+        "target": 22932
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 22922,
+        "target": 22924
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 22930,
+        "target": 22942
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 22930,
+        "target": 22932
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 22948,
+        "target": 22974
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 22948,
+        "target": 22950
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 22958,
+        "target": 22974
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 22958,
+        "target": 22960
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 22980,
+        "target": 23010
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 22980,
+        "target": 22982
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 22990,
+        "target": 23010
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 22990,
+        "target": 22992
+      }
+    ],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_first\n\tadd.w\t#2,sp\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_second\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_second\n\tpublic\t_first\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "adjacent_calls",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: adjacent_calls */\nextern int first(); extern int second(); recovered(a) int a; { first(a); return second(a); }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tasl.l\t#1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "array_index",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_first\n\tadd.w\t#2,sp\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_second\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t_second\n\txref\t_first\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "adjacent_calls",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: adjacent_calls */\nextern int first(); extern int second(); recovered(a) int a; { first(a); return second(a); }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tlea\t10(a5),a0\n\tmove.l\ta0,-4(a5)\n\tclr.w\t-6(a5)\n.10001\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,8(a5)\n\ttst.w\td0\n\tbeq\t.10002\n\tmove.l\t-4(a5),a0\n\tadd.l\t#2,-4(a5)\n\tmove.w\t(a0),d0\n\tadd.w\td0,-6(a5)\n\tbra\t.10001\n.10002\n\tmove.w\t-6(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-6\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "varargs_stack_walk",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: varargs_stack_walk */\nrecovered(n,a) int n,a; { int *p,s; p=&a; s=0; while(n--) s+=*p++; return s; }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_8BEC",
+        "offset": 35820,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_62B4",
+        "kind": "DIRECT_CALL",
+        "site": 25342
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_6CFE",
+        "kind": "DIRECT_CALL",
+        "site": 28336
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_6CFE",
+        "kind": "DIRECT_CALL",
+        "site": 28364
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_2E26",
+        "kind": "DIRECT_CALL",
+        "site": 11944
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_2E26",
+        "kind": "DIRECT_CALL",
+        "site": 11972
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_2E26",
+        "kind": "DIRECT_CALL",
+        "site": 12000
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_54F8",
+        "kind": "DIRECT_CALL",
+        "site": 21878
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_54F8",
+        "kind": "DIRECT_CALL",
+        "site": 21906
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_54F8",
+        "kind": "DIRECT_CALL",
+        "site": 21934
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_55B8",
+        "kind": "DIRECT_CALL",
+        "site": 22246
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_583A",
+        "kind": "DIRECT_CALL",
+        "site": 22846
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_5C42",
+        "kind": "DIRECT_CALL",
+        "site": 23748
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_5C42",
+        "kind": "DIRECT_CALL",
+        "site": 23776
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 23014,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 11,
+      "node": "ov11",
+      "sha256": "5c86a324eca9407ce958eea2a6ce0351d064baecd4d3223870d3d5a73d42e5ee",
+      "size": 132,
+      "start": 22882
+    },
+    "id": "ov11_F_5962",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 22882,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 22886,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 22890,
+        "operands": "#$34, d0",
+        "raw": "c1fc0034",
+        "size": 4
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 22894,
+        "operands": "$bee(a4), a0",
+        "raw": "41ec0bee",
+        "size": 4
+      },
+      {
+        "mnemonic": "add.l",
+        "offset": 22898,
+        "operands": "a0, d0",
+        "raw": "d088",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 22900,
+        "operands": "d0, -$4(a5)",
+        "raw": "2b40fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 22904,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 22908,
+        "operands": "#$2, $28(a0)",
+        "raw": "317c00020028",
+        "size": 6
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 22914,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 22918,
+        "operands": "$2a(a0)",
+        "raw": "4a68002a",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 22922,
+        "operands": "$5994",
+        "raw": "6708",
+        "size": 2
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 22924,
+        "operands": "#$2, $a(a5)",
+        "raw": "0c6d0002000a",
+        "size": 6
+      },
+      {
+        "mnemonic": "bne.b",
+        "offset": 22930,
+        "operands": "$599e",
+        "raw": "660a",
+        "size": 2
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 22932,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 22936,
+        "operands": "$a(a5), $2a(a0)",
+        "raw": "316d000a002a",
+        "size": 6
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 22942,
+        "operands": "#$3, $a(a5)",
+        "raw": "0c6d0003000a",
+        "size": 6
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 22948,
+        "operands": "$59be",
+        "raw": "6718",
+        "size": 2
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 22950,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 22954,
+        "operands": "$8(a0)",
+        "raw": "4a680008",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 22958,
+        "operands": "$59be",
+        "raw": "670e",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 22960,
+        "operands": "#$2, -(a7)",
+        "raw": "3f3c0002",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 22964,
+        "operands": "$8(a5), -(a7)",
+        "raw": "3f2d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 22968,
+        "operands": "$5c42(pc)",
+        "raw": "4eba0288",
+        "size": 4
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 22972,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 22974,
+        "operands": "#$8, $a(a5)",
+        "raw": "0c6d0008000a",
+        "size": 6
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 22980,
+        "operands": "$59e2",
+        "raw": "671c",
+        "size": 2
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 22982,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 22986,
+        "operands": "$a(a0)",
+        "raw": "4a68000a",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 22990,
+        "operands": "$59e2",
+        "raw": "6712",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 22992,
+        "operands": "#$2, -(a7)",
+        "raw": "3f3c0002",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 22996,
+        "operands": "-$4(a5), a0",
+        "raw": "206dfffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23000,
+        "operands": "$a(a0), -(a7)",
+        "raw": "3f28000a",
+        "size": 4
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 23004,
+        "operands": "$66fe(pc)",
+        "raw": "4eba0d20",
+        "size": 4
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 23008,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 23010,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 23012,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [],
+    "previous_sources": {},
+    "recovered_dependencies": [
+      {
+        "id": "ov11_F_66FE",
+        "name": "F_h11_66FE",
+        "source": "struct Record { int padding[11],state,value; char tail[14]; };\nextern struct Record G_h01_A464[36];\nrecovered(a,b) int a,b; { struct Record *p; p=&G_h01_A464[a]; p->state=2; if(!p->value || b==8)p->value=b; }\n",
+        "state": "FUNCTION_CODE_MATCH"
+      }
+    ],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 4,
+        "offset": 22882,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  },
+  "mechanism_detail": {
+    "candidates": [
+      {
+        "path": "experiments/direct-recovery/ov11_F_5962-v2.c",
+        "sha256": "9b977f0c277fe124a2da2b9162e06956570b0b08fd8911c292ba1bd1b24c8834"
+      },
+      {
+        "path": "experiments/direct-recovery/ov11_F_5C42-v3.c",
+        "sha256": "36bf10aec9049c435859371eb92a1b1901af96e6d57aa9e192f65c22717255fb"
+      }
+    ],
+    "evidence": {
+      "joined_pair_cache_key": "24a126276dd57be61a85226ed19482191eb5cf33355fb81071fe19fb54c72038",
+      "joined_pair_result": {
+        "ov11_F_5962": "130 actual bytes vs 132 expected: BSR.b replaces JSR.d16"
+      },
+      "profile": "aztec36",
+      "separate_object_cache_key": "db924ce1288d7e353784dffda3fc977937207015fab2cc4611d79765c5268639",
+      "separate_object_result": {
+        "ov11_F_5962": "EQUAL",
+        "ov11_F_5C42": "DIRECT_CALL_BINDING_UNPROVEN at offsets 130,158"
+      }
+    },
+    "finding": "Aztec 3.6a produces the original PC-relative JSR for the forward edge when the two candidates are separate objects, but emits an A4 dispatch for the backward edge. Joining the pair lets both edges bind locally, but its assembler relaxes the forward JSR to a short BSR, changing the required byte extent by two bytes.",
+    "mechanism": "CYCLIC_INTER_OBJECT_PC_CALL",
+    "next_action": "Recover or infer the historical module/link-order mechanism that permits mutual external PC-relative JSR calls without same-object branch relaxation."
+  }
+}

@@ -91,6 +91,13 @@ class VerifierContractTests(unittest.TestCase):
         h=harness('extern char G_h01_1424; int recovered(){G_h01_1424=1;}')
         self.assertIn('char G_h01_1424;',h);self.assertNotIn('0x1424',h)
 
+    def test_mechanical_entry_symbol_is_supported_for_cyclic_candidate_groups(self):
+        source='F_h11_1234(a) int a; { return a; }'
+        h=harness(source,entry_function='F_h11_1234')
+        self.assertIn('int (*candidate_reference)() = F_h11_1234;',h)
+        self.assertNotEqual(identity(source,'aztec36',entry_function='F_h11_1234')[0],
+                            identity('recovered(a) int a; { return a; }','aztec36')[0])
+
     def test_repeated_extern_has_one_harness_definition(self):
         h=harness('extern int F_h00_1234(); extern int F_h00_1234(); recovered(){F_h00_1234();}')
         self.assertEqual(h.count('int F_h00_1234() { return 0; }'),1)

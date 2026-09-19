@@ -24,11 +24,12 @@ CACHE=ROOT/'build/compile-cache'
 SERVICE_VERSION=1
 
 
-def validate_source(source):
+def validate_source(source,entry_function='recovered'):
     require(not re.search(r'\b(?:asm|__asm|__asm__)\b',source),'inline assembly is outside candidate-C contract')
     require(not re.search(r'^\s*#\s*(?:include|pragma|line)',source,re.M),'candidate must be self-contained C; includes/pragmas need a pinned harness extension')
-    require(bool(re.search(r'\brecovered\s*\(',source)),'candidate must define recovered(...)')
-    require(not re.search(r'\brecovered\s*\(\s*(?:signed|unsigned|short|long|char|int|void|float|double|struct)\b',source),
+    entry=re.escape(entry_function)
+    require(bool(re.search(r'\b'+entry+r'\s*\(',source)),'candidate must define '+entry_function+'(...)')
+    require(not re.search(r'\b'+entry+r'\s*\(\s*(?:signed|unsigned|short|long|char|int|void|float|double|struct)\b',source),
             'use K&R parameter names, then type declarations before the function body; typed ANSI parameters are unsupported')
     require(not re.search(r'\b[GF]_hNN_OFFSET\b',source),'replace placeholder symbols with exact mechanical names from function evidence')
     outside_strings=re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*','',source,flags=re.S)
@@ -65,7 +66,7 @@ def overlay_proxies(source,target_node=1):
     return [unique[name] for name in sorted(unique)]
 
 
-def harness(source,target_node=1,local_functions=()):
+def harness(source,target_node=1,local_functions=(),entry_function='recovered'):
     # Explicit extern declarations become ordinary naturally allocated harness
     # definitions. Mechanical names carry identities for comparison, never layout.
     declarations=[]
@@ -107,7 +108,9 @@ def harness(source,target_node=1,local_functions=()):
             if name not in emitted_objects:
                 emit(decl+';')
                 emitted_objects.add(name)
-    return '/* Independent naturally allocated link harness. */\nextern int recovered();\nint (*candidate_reference)() = recovered;\nmain() { return 0; }\n'+'\n'.join(declarations)+'\n'
+    return ('/* Independent naturally allocated link harness. */\nextern int '+entry_function+'();\n'
+            'int (*candidate_reference)() = '+entry_function+';\nmain() { return 0; }\n'+
+            '\n'.join(declarations)+'\n')
 
 
 def object_specs(trial):
@@ -121,13 +124,14 @@ def object_specs(trial):
         require(isinstance(obj,dict) and isinstance(obj.get('source'),str),'partitioned source object is malformed')
         label='candidate' if index==0 else 'part%03d'%index
         result.append(dict(label=label,source=obj['source']))
-    require(any('recovered(' in obj['source'] for obj in result),
-            'partitioned source objects must define recovered')
+    entry=trial.get('entry_function','recovered')
+    require(any(re.search(r'\b'+re.escape(entry)+r'\s*\(',obj['source']) for obj in result),
+            'partitioned source objects must define '+entry)
     return result
 
 
-def identity(source,profile,target_node=1,objects=None,local_functions=()):
-    validate_source(source);p=PROFILES[profile];h=harness(source,target_node,local_functions);proxies=overlay_proxies(source,target_node)
+def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered'):
+    validate_source(source,entry_function);p=PROFILES[profile];h=harness(source,target_node,local_functions,entry_function);proxies=overlay_proxies(source,target_node)
     require(target_node>=1,'candidate overlay node must be positive')
     versions={n:sha256((ROOT/p['base']/'bin'/n).read_bytes()) for n in ('cc','as','ln')}
     library='c32.lib' if profile=='aztec36-long' else 'c16.lib' if profile=='aztec50-short' else 'c.lib'
@@ -145,6 +149,13 @@ def identity(source,profile,target_node=1,objects=None,local_functions=()):
     # Preserve all previous default-node cache identities.  A non-default
     # candidate node is material only when a link must model overlay calls.
     if target_node!=1:keydata['candidate_overlay_node']=target_node
+    if entry_function!='recovered':
+        # Extraction follows the named entry rather than the conventional
+        # ``recovered`` symbol.  Bind that parser behavior into this distinct
+        # cache family, so a prior blocked extraction cannot mask a valid
+        # cyclic-source compilation after the extractor evolves.
+        keydata['entry_function']=entry_function
+        keydata['entry_symbol_extractor_sha256']=sha256((ROOT/'tools/compiler_oracle.py').read_bytes())
     if proxies:
         # Proxy extraction reads semantic HUNK_OVERLAY data, so an old cache
         # entry without that parsed table is never reused after this machinery
@@ -166,11 +177,13 @@ def cached(key):
     for a in r['artifacts']:
         require((dest/a['path']).is_file() and sha256((dest/a['path']).read_bytes())==a['sha256'],'cached artifact changed: '+a['path'])
     if r['status']=='COMPILED':
-        require(extract(dest,r['prefix'],r['identity'].get('object_labels'))==r['contribution'],'cached contribution metadata changed')
+        require(extract(dest,r['prefix'],r['identity'].get('object_labels'),
+                        r['identity'].get('entry_function','recovered'))==r['contribution'],
+                'cached contribution metadata changed')
     return dict(r,cache_hit=True,directory=str(dest))
 
 
-def extract(directory,prefix,object_labels=None):
+def extract(directory,prefix,object_labels=None,entry_function='recovered'):
     blob=(directory/(prefix+'.exe')).read_bytes();model=parse(blob)
     overlay=manx_overlay(model,blob) if model['overlay'] is not None else None
     labels=object_labels or ['candidate']
@@ -183,8 +196,9 @@ def extract(directory,prefix,object_labels=None):
     data_size=sum(int.from_bytes(obj[14:18],'big') for obj in objects)
     bss_size=sum(int.from_bytes(obj[18:22],'big') for obj in objects)
     sym=symbols((directory/(prefix+'.sym')).read_text())
-    entries=[(h,v) for (h,n),v in sym.items() if n=='_recovered']
-    require(len(entries)==1,'expected one recovered symbol')
+    symbol_name='_'+entry_function
+    entries=[(h,v) for (h,n),v in sym.items() if n==symbol_name]
+    require(len(entries)==1,'expected one '+symbol_name+' symbol')
     hnum,start=entries[0];h=next(h for h in model['hunks'] if h['number']==hnum)
     require(h['node']!='resident' and 0<=start<code_size,'candidate symbol must lie inside its natural overlay contribution')
     require(h['initialized_size']==(code_size+3)//4*4,'object/HUNK size mismatch')
@@ -208,9 +222,9 @@ def compile_many(trials):
     requests=[];missing={}
     for trial in trials:
         target_node=trial.get('target_node',1)
-        objects=object_specs(trial);local_functions=trial.get('local_functions',())
+        objects=object_specs(trial);local_functions=trial.get('local_functions',());entry_function=trial.get('entry_function','recovered')
         key,meta,h=identity(trial['source'],trial['profile'],target_node,
-                            objects if trial.get('objects') is not None else None,local_functions)
+                            objects if trial.get('objects') is not None else None,local_functions,entry_function)
         requests.append(key)
         if cached(key) is None:
             missing.setdefault(key,dict(trial=trial,meta=meta,harness=h,
@@ -278,7 +292,8 @@ def compile_many(trials):
                 noninteractive_input_sha256=sha256(compiler_input.encode('ascii')))
             if receipt['status']=='COMPILED':
                 try:
-                    receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'))
+                    receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
+                                                    item['trial'].get('entry_function','recovered'))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
             write_json(dest/'receipt.json',receipt)
