@@ -85,7 +85,11 @@ def harness(source,target_node=1):
             # proxy object in their own Manx node.  Keeping them out of the
             # resident harness is what makes the linker produce a trampoline.
             if match[1] not in proxy_names:
-                emit(decl+' { return 0; }')
+                # Aztec 3.6a accepts a void function body with no return
+                # expression, but rejects ``return 0`` in one.  The harness
+                # must preserve a candidate's ordinary historical declaration
+                # so a valid ignored-return call can reach the oracle.
+                emit(decl+(' { }' if decl.startswith('void ') else ' { return 0; }'))
         else:
             require(re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(?:char|short|int|long|float|double|struct\s+\w+)\s+\**\s*\w+(?:\s*\[\s*[1-9]\d*\s*\])*',decl) is not None,'unsupported extern declaration; use scalar/pointer/positive-bound array facts')
             emit(decl+';')

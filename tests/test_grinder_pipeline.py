@@ -95,6 +95,11 @@ class VerifierContractTests(unittest.TestCase):
         h=harness('extern int F_h00_1234(); extern int F_h00_1234(); recovered(){F_h00_1234();}')
         self.assertEqual(h.count('int F_h00_1234() { return 0; }'),1)
 
+    def test_void_extern_gets_an_aztec_compatible_harness_definition(self):
+        h=harness('extern void F_h00_1234(); recovered(){F_h00_1234();}')
+        self.assertIn('void F_h00_1234() { }',h)
+        self.assertNotIn('void F_h00_1234() { return 0; }',h)
+
     def test_unsigned_function_return_is_a_valid_historical_extern(self):
         h=harness('extern unsigned long F_h00_463E(); recovered(){return F_h00_463E();}')
         self.assertIn('unsigned long F_h00_463E() { return 0; }',h)
