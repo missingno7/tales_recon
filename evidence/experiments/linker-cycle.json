@@ -1,0 +1,140 @@
+{
+  "conclusion": "The supported node-selector and library ordering arrangements leave the reciprocal call encodings unchanged. They do not reproduce the original pair's two PC-relative JSRs, so this is retained as a linker/topology blocker rather than a source recovery.",
+  "guest_returncodes": [
+    {
+      "command": "Old1:bin/cc >a-cc.log -a a.c",
+      "index": 0,
+      "returncode": 0,
+      "returncode_file": "step-00.rc"
+    },
+    {
+      "command": "Old1:bin/as >a-as.log -o a.o a.asm",
+      "index": 1,
+      "returncode": 0,
+      "returncode_file": "step-01.rc"
+    },
+    {
+      "command": "Old1:bin/cc >b-cc.log -a b.c",
+      "index": 2,
+      "returncode": 0,
+      "returncode_file": "step-02.rc"
+    },
+    {
+      "command": "Old1:bin/as >b-as.log -o b.o b.asm",
+      "index": 3,
+      "returncode": 0,
+      "returncode_file": "step-03.rc"
+    },
+    {
+      "command": "Old1:bin/cc >h-cc.log -a h.c",
+      "index": 4,
+      "returncode": 0,
+      "returncode_file": "step-04.rc"
+    },
+    {
+      "command": "Old1:bin/as >h-as.log -o h.o h.asm",
+      "index": 5,
+      "returncode": 0,
+      "returncode_file": "step-05.rc"
+    },
+    {
+      "command": "Old1:bin/ln >normal-ln.log -m -t -o normal.exe h.o +o9 a.o b.o +o0 Old1:lib/c.lib",
+      "index": 6,
+      "returncode": 0,
+      "returncode_file": "step-06.rc"
+    },
+    {
+      "command": "Old1:bin/ln >perobj-ln.log -m -t -o perobj.exe h.o +o9 a.o +o9 b.o +o0 Old1:lib/c.lib",
+      "index": 7,
+      "returncode": 0,
+      "returncode_file": "step-07.rc"
+    },
+    {
+      "command": "Old2:bin/lb >lib-create.log cycle.lib a.o b.o",
+      "index": 8,
+      "returncode": 0,
+      "returncode_file": "step-08.rc"
+    },
+    {
+      "command": "Old1:bin/ln >library-ln.log -m -t -o library.exe h.o +o9 cycle.lib +o0 Old1:lib/c.lib",
+      "index": 9,
+      "returncode": 0,
+      "returncode_file": "step-09.rc"
+    },
+    {
+      "command": "Old1:bin/ln >library-twice-ln.log -m -t -o library-twice.exe h.o +o9 cycle.lib cycle.lib +o0 Old1:lib/c.lib",
+      "index": 10,
+      "returncode": 0,
+      "returncode_file": "step-10.rc"
+    }
+  ],
+  "kind": "historical_linker_cycle_probe",
+  "schema_version": 1,
+  "source_files": [
+    {
+      "path": "experiments/linker-cycle/a.c",
+      "sha256": "a45893bb0761c316409f51c4bcfb8b85d9433e6d757d5c7dd2f52f91d99c97d4"
+    },
+    {
+      "path": "experiments/linker-cycle/b.c",
+      "sha256": "47ab6e581c840452949fef34f1af7382ad1d27ad0bdcb7713089a502d4468dda"
+    },
+    {
+      "path": "experiments/linker-cycle/commands.json",
+      "sha256": "43a2db684fc2e3ad4ba0dc47038e6351920d2825279eed26d20c379c7ce40568"
+    },
+    {
+      "path": "experiments/linker-cycle/h.c",
+      "sha256": "bf8a847585e1c21829c24abf85e07818bf074af4f23a8e1244a55ca12dbe4335"
+    }
+  ],
+  "toolchain": "Aztec C68K Linker 3.6a 12-18-87",
+  "variants": [
+    {
+      "arrangement": "one +o9 selector before both candidate objects",
+      "executable_sha256": "5348459933a575c1d3749d1b5fed64923e62207cb6db6666f5c290a7a1b66528",
+      "name": "normal",
+      "observed_calls": {
+        "backward_F_h11_5C42_to_F_h11_5962": "4eac8016 (A4-relative JSR; expected PC-relative JSR)",
+        "forward_F_h11_5962_to_F_h11_5C42": "4eba002c (PC-relative JSR)"
+      },
+      "result": "NO_CHANGE",
+      "symbol_map_sha256": "315cca7db156e062fb4ff8b8a4411f520ae1fe6e0dfe2a7875061ce0b9c20169"
+    },
+    {
+      "arrangement": "repeat +o9 before each candidate object",
+      "executable_sha256": "5348459933a575c1d3749d1b5fed64923e62207cb6db6666f5c290a7a1b66528",
+      "name": "perobj",
+      "observed_calls": {
+        "backward_F_h11_5C42_to_F_h11_5962": "4eac8016 (A4-relative JSR; expected PC-relative JSR)",
+        "forward_F_h11_5962_to_F_h11_5C42": "4eba002c (PC-relative JSR)"
+      },
+      "result": "NO_CHANGE",
+      "symbol_map_sha256": "315cca7db156e062fb4ff8b8a4411f520ae1fe6e0dfe2a7875061ce0b9c20169"
+    },
+    {
+      "arrangement": "candidate objects in one library",
+      "executable_sha256": "5348459933a575c1d3749d1b5fed64923e62207cb6db6666f5c290a7a1b66528",
+      "name": "library",
+      "observed_calls": {
+        "backward_F_h11_5C42_to_F_h11_5962": "4eac8016 (A4-relative JSR; expected PC-relative JSR)",
+        "forward_F_h11_5962_to_F_h11_5C42": "4eba002c (PC-relative JSR)"
+      },
+      "result": "NO_CHANGE",
+      "symbol_map_sha256": "315cca7db156e062fb4ff8b8a4411f520ae1fe6e0dfe2a7875061ce0b9c20169"
+    },
+    {
+      "arrangement": "same candidate library scanned twice",
+      "executable_sha256": "5348459933a575c1d3749d1b5fed64923e62207cb6db6666f5c290a7a1b66528",
+      "name": "library-twice",
+      "observed_calls": {
+        "backward_F_h11_5C42_to_F_h11_5962": "4eac8016 (A4-relative JSR; expected PC-relative JSR)",
+        "forward_F_h11_5962_to_F_h11_5C42": "4eba002c (PC-relative JSR)"
+      },
+      "result": "NO_CHANGE",
+      "symbol_map_sha256": "315cca7db156e062fb4ff8b8a4411f520ae1fe6e0dfe2a7875061ce0b9c20169"
+    }
+  ],
+  "worker_job": "linker-cycle-001",
+  "worker_result_sha256": "f2bc81e2f138e0b7939039b18a982f8f5178ffd266b56288e87ee40c90df0a62"
+}

@@ -1,0 +1,13 @@
+[
+  "Old1:bin/cc >a-cc.log -a a.c",
+  "Old1:bin/as >a-as.log -o a.o a.asm",
+  "Old1:bin/cc >b-cc.log -a b.c",
+  "Old1:bin/as >b-as.log -o b.o b.asm",
+  "Old1:bin/cc >h-cc.log -a h.c",
+  "Old1:bin/as >h-as.log -o h.o h.asm",
+  "Old1:bin/ln >normal-ln.log -m -t -o normal.exe h.o +o9 a.o b.o +o0 Old1:lib/c.lib",
+  "Old1:bin/ln >perobj-ln.log -m -t -o perobj.exe h.o +o9 a.o +o9 b.o +o0 Old1:lib/c.lib",
+  "Old2:bin/lb >lib-create.log cycle.lib a.o b.o",
+  "Old1:bin/ln >library-ln.log -m -t -o library.exe h.o +o9 cycle.lib +o0 Old1:lib/c.lib",
+  "Old1:bin/ln >library-twice-ln.log -m -t -o library-twice.exe h.o +o9 cycle.lib cycle.lib +o0 Old1:lib/c.lib"
+]
