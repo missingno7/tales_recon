@@ -11,7 +11,7 @@ from common import FormatError,write_json,sha256
 from local_fact_pack import fit,messages_for,BudgetError
 from local_http import LocalHTTP
 import local_model_proposer as proposer
-from grinder import eligible,canonical_promotion
+from grinder import eligible,canonical_promotion,blocker_next_action
 from grinder_report import summarize,blocker_class
 
 
@@ -103,6 +103,10 @@ class LocalCacheTests(unittest.TestCase):
 
 
 class ReportTests(unittest.TestCase):
+    def test_byte_return_blocker_does_not_recommend_more_candidate_retries(self):
+        self.assertIn('do not retry ordinary candidate C',
+                      blocker_next_action('BYTE_RETURN_ABI_MISMATCH: return convention differs'))
+
     def test_local_match_requires_both_pinned_canonical_and_proposer_receipts(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
@@ -134,6 +138,8 @@ class ReportTests(unittest.TestCase):
                          'CYCLIC_INTER_OBJECT_PC_CALL')
         self.assertEqual(blocker_class({},'UNSUPPORTED_REGISTER_CALL_ABI: D0/D1 library wrapper'),
                          'UNSUPPORTED_REGISTER_CALL_ABI')
+        self.assertEqual(blocker_class({},'BYTE_RETURN_ABI_MISMATCH: signed and unsigned byte returns differ'),
+                         'BYTE_RETURN_ABI_MISMATCH')
 
 
 if __name__=='__main__':unittest.main()

@@ -32,33 +32,34 @@
   "prompt_budget_measurements": [],
   "recommendations": [
     "Keep one GPU generation at a time; no concurrency increase is automatic.",
-    "Supervisor should address shared mechanisms once: PERSISTENT_CODEGEN_MISMATCH, UNRESOLVED_INTER_OBJECT_CALL"
+    "Supervisor should address shared mechanisms once: BYTE_RETURN_ABI_MISMATCH, PERSISTENT_CODEGEN_MISMATCH, UNRESOLVED_INTER_OBJECT_CALL"
   ],
   "run_id": "8b07e457c8f54742b39bf5394bfb05fc",
   "schema_version": 1,
   "status": "NO_ELIGIBLE_WORK",
   "supervisor_blocker_groups": {
-    "PERSISTENT_CODEGEN_MISMATCH": [
-      "ov10_F_1F90",
-      "ov11_F_2562",
-      "ov11_F_4474",
-      "ov11_F_706C",
+    "BYTE_RETURN_ABI_MISMATCH": [
       "ov14_F_0412",
       "ov14_F_04A8",
       "ov14_F_0540"
     ],
-    "REFERENCE_IDENTITY": [
-      "ov11_F_727A",
-      "ov11_F_729C"
+    "CYCLIC_INTER_OBJECT_PC_CALL": [
+      "ov11_F_5962",
+      "ov11_F_5C42"
+    ],
+    "PERSISTENT_CODEGEN_MISMATCH": [
+      "ov04_F_18A6",
+      "ov09_F_298E",
+      "ov11_F_4474"
     ],
     "UNRESOLVED_INTER_OBJECT_CALL": [
+      "ov07_F_03CC",
       "ov11_F_3F90",
-      "ov11_F_6FFE",
+      "ov11_F_6F78",
       "ov11_F_70DC"
     ],
-    "UNSUPPORTED_DECLARATION": [
-      "ov08_F_3F70",
-      "ov11_F_4848"
+    "UNSUPPORTED_REGISTER_CALL_ABI": [
+      "ov11_F_5FB2"
     ]
   },
   "token_usage": {

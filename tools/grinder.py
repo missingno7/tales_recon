@@ -17,9 +17,18 @@ from check_function import check_many
 from compiler_oracle import PROFILES
 
 
+def blocker_next_action(reason):
+    """Give a proposer-resistant mechanism a concrete supervisor action."""
+    if 'BYTE_RETURN_ABI_MISMATCH' in reason:
+        return 'Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.'
+    if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:
+        return 'Resolve the inter-object PC-call linking mechanism or recover a different call-graph frontier.'
+    return 'Revise ABI/data hypothesis or use a stronger model; retry explicitly'
+
+
 def block(fid,reason):
     r=recovery();r['blockers'][fid]=dict(state='BLOCKED',reason=reason,attempts=r['attempts'].get(fid,[])[-5:],
-                                       ownership_unchanged=True,next_action='Revise ABI/data hypothesis or use a stronger model; retry explicitly')
+                                       ownership_unchanged=True,next_action=blocker_next_action(reason))
     write_json(LEDGER,r)
     try:package=facts(fid)
     except FormatError:package=dict(id=fid)

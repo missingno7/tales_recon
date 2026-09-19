@@ -17,6 +17,12 @@ def blocker_class(report,reason=''):
     # byte-level symptoms retained in the final comparison receipt.
     if 'UNSUPPORTED_REGISTER_CALL_ABI' in reason:return 'UNSUPPORTED_REGISTER_CALL_ABI'
     if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:return 'CYCLIC_INTER_OBJECT_PC_CALL'
+    # Both ov14 selectors establish this as a compiler-ABI limitation, not a
+    # source-body ambiguity: 3.6a emits EXT.W for a signed byte return and a
+    # D0 clear for an unsigned one, while the original returns the local byte
+    # directly.  Keep these candidates out of ordinary C proposal retries
+    # until the historical return-mode mechanism is understood.
+    if 'BYTE_RETURN_ABI_MISMATCH' in reason or 'CHAR_RETURN_EXTENSION' in reason:return 'BYTE_RETURN_ABI_MISMATCH'
     if 'PERSISTENT_CODEGEN_MISMATCH' in reason:return 'PERSISTENT_CODEGEN_MISMATCH'
     if data.get('candidate_bss',0):return 'CANDIDATE_OWNED_BSS'
     if data.get('candidate_data',0):return 'CANDIDATE_OWNED_DATA'

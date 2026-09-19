@@ -2,44 +2,6 @@
   "blocker": {
     "attempts": [
       {
-        "actual_length": 166,
-        "cache_key": "bb9cfcd6609f45b39864c45165270932a424c3bd759342e618d2cd91256fa572",
-        "comparison_identity": "07add72c461e39f7e23c4cee5ff594ce7116f522e264099e4cfe2a72f8b0ae4f",
-        "expected_length": 150,
-        "first_difference": {
-          "actual": "0841ec80344a300800664a102dffff48",
-          "actual_size": 166,
-          "expected": "f841ecc5304a300800664a102dffff48",
-          "expected_size": 150,
-          "offset": 45
-        },
-        "mnemonic_similarity": 0.9348,
-        "profile": "aztec36",
-        "receipt": "recovery/attempts/ov14_F_0412/958024a2f3f4e286c129b1e3bc785aa35c4e891be83cad363ba6e72d7f484f38-aztec36-bb9cfcd6609f-07add72c461e.json",
-        "source_sha256": "958024a2f3f4e286c129b1e3bc785aa35c4e891be83cad363ba6e72d7f484f38",
-        "state": "CODEGEN_SIMILAR",
-        "verdict": "DIFFER"
-      },
-      {
-        "actual_length": 152,
-        "cache_key": "1cf1fd093b761cf9f3410ca54e5b0e822ace933a9316dd747522dc63765d7a9e",
-        "comparison_identity": "07add72c461e39f7e23c4cee5ff594ce7116f522e264099e4cfe2a72f8b0ae4f",
-        "expected_length": 150,
-        "first_difference": {
-          "actual": "0841ec80344a300800664a102dffff48",
-          "actual_size": 152,
-          "expected": "f841ecc5304a300800664a102dffff48",
-          "expected_size": 150,
-          "offset": 45
-        },
-        "mnemonic_similarity": 0.9885,
-        "profile": "aztec36-x3",
-        "receipt": "recovery/attempts/ov14_F_0412/c880d2ac6d4b5bbda6688576039a95dd6386b00e9ec6feb0ffa918f2e249d5aa-aztec36-x3-1cf1fd093b76-07add72c461e.json",
-        "source_sha256": "c880d2ac6d4b5bbda6688576039a95dd6386b00e9ec6feb0ffa918f2e249d5aa",
-        "state": "CODEGEN_SIMILAR",
-        "verdict": "DIFFER"
-      },
-      {
         "actual_length": 154,
         "cache_key": "d126bed752d168d334b0bb1010e768d7fadc2ae239f3ec81daa36db5180586fe",
         "comparison_identity": "07add72c461e39f7e23c4cee5ff594ce7116f522e264099e4cfe2a72f8b0ae4f",
@@ -95,11 +57,43 @@
         "source_sha256": "c880d2ac6d4b5bbda6688576039a95dd6386b00e9ec6feb0ffa918f2e249d5aa",
         "state": "CANDIDATE_C",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": null,
+        "cache_key": "0cee42a8c963a21a1ef8d9083899937a42755459f24e64a77f49b029fdfa627b",
+        "comparison_identity": "9cacdfe4e40a5df198f60b636dd53ab210cfa55cc1a6c38771f405bb5049e6a1",
+        "expected_length": 150,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov14_F_0412/eb84ba0195a2d2e4d091f504155abe7cad29237664d683297c79efecf61f8669-aztec36-0cee42a8c963-9cacdfe4e40a.json",
+        "source_sha256": "eb84ba0195a2d2e4d091f504155abe7cad29237664d683297c79efecf61f8669",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": 152,
+        "cache_key": "1a5b066ff42e17ff91fe835743db3b8571b86520589bb056d60b5426d45e66b7",
+        "comparison_identity": "9cacdfe4e40a5df198f60b636dd53ab210cfa55cc1a6c38771f405bb5049e6a1",
+        "expected_length": 150,
+        "first_difference": {
+          "actual": "0841ec80344a300800664a102dffff48",
+          "actual_size": 152,
+          "expected": "f841ecc5304a300800664a102dffff48",
+          "expected_size": 150,
+          "offset": 45
+        },
+        "mnemonic_similarity": 0.9885,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov14_F_0412/3482de6da410a72de9980517bfa90e0feaf194ee73881ea2198fc0545df488d3-aztec36-1a5b066ff42e-9cacdfe4e40a.json",
+        "source_sha256": "3482de6da410a72de9980517bfa90e0feaf194ee73881ea2198fc0545df488d3",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
       }
     ],
-    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
     "ownership_unchanged": true,
-    "reason": "PERSISTENT_CODEGEN_MISMATCH: the recovered 3.6a loop body has 0.9885 mnemonic similarity but always inserts EXT.W after the final byte return; ordinary return declarations, local signedness, and four return-expression forms did not produce the original raw byte return. Alternate-profile escalation is non-discriminating: aztec36-x3 remains 152 bytes, aztec36-long 154, aztec50 152, and aztec50-short reaches 150 bytes only by inserting empty MOVEM prologue/epilogue code (0.7381 similarity).",
+    "reason": "BYTE_RETURN_ABI_MISMATCH: the recovered 3.6a loop body is structurally aligned, but signed/implicit/int byte returns add EXT.W and unsigned-char returns clear D0 before the byte load. The original returns its local byte directly, and the caller consumes only D0.b. aztec36-x3 retains the signed-return extension; defer until the historical return-mode mechanism is identified.",
     "state": "BLOCKED"
   },
   "facts": {
@@ -110,6 +104,7 @@
       "profiles": [
         "aztec36",
         "aztec36-x3",
+        "aztec36-large-data",
         "aztec36-long",
         "aztec50",
         "aztec50-short"
@@ -630,70 +625,6 @@
     ],
     "previous_attempts": [
       {
-        "actual_length": 166,
-        "compiler": "aztec36",
-        "expected_length": 150,
-        "first_differing_instruction": {
-          "actual": {
-            "mnemonic": "jsr",
-            "offset": 42,
-            "operands": "-$7ff8(a4)",
-            "raw": "4eac8008",
-            "size": 4
-          },
-          "expected": {
-            "mnemonic": "jsr",
-            "offset": 42,
-            "operands": "-$7f08(a4)",
-            "raw": "4eac80f8",
-            "size": 4
-          }
-        },
-        "flags": [],
-        "mnemonic_similarity": 0.9348,
-        "reason": "CODE_OR_REFERENCE_DIFFERS",
-        "relocation_issues": [
-          {
-            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
-          }
-        ],
-        "source_sha256": "958024a2f3f4e286c129b1e3bc785aa35c4e891be83cad363ba6e72d7f484f38",
-        "verdict": "DIFFER"
-      },
-      {
-        "actual_length": 152,
-        "compiler": "aztec36-x3",
-        "expected_length": 150,
-        "first_differing_instruction": {
-          "actual": {
-            "mnemonic": "jsr",
-            "offset": 42,
-            "operands": "-$7ff8(a4)",
-            "raw": "4eac8008",
-            "size": 4
-          },
-          "expected": {
-            "mnemonic": "jsr",
-            "offset": 42,
-            "operands": "-$7f08(a4)",
-            "raw": "4eac80f8",
-            "size": 4
-          }
-        },
-        "flags": [
-          "+X3"
-        ],
-        "mnemonic_similarity": 0.9885,
-        "reason": "CODE_OR_REFERENCE_DIFFERS",
-        "relocation_issues": [
-          {
-            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
-          }
-        ],
-        "source_sha256": "c880d2ac6d4b5bbda6688576039a95dd6386b00e9ec6feb0ffa918f2e249d5aa",
-        "verdict": "DIFFER"
-      },
-      {
         "actual_length": 154,
         "compiler": "aztec36-long",
         "expected_length": 150,
@@ -789,15 +720,81 @@
         ],
         "source_sha256": "c880d2ac6d4b5bbda6688576039a95dd6386b00e9ec6feb0ffa918f2e249d5aa",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": null,
+        "compiler": "aztec36",
+        "compiler_feedback": [
+          {
+            "file": "h000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+          },
+          {
+            "file": "h000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n"
+          },
+          {
+            "file": "t000-as.log",
+            "text": "Aztec 68000 Assembler 3.6a  12-18-87\n\tmove.o\t-2(a5),d0\n\t^\nFile t000.asm; Line 51 # Illegal extension on opcode.\n1 errors\n"
+          },
+          {
+            "file": "t000-cc.log",
+            "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n return chosen;\n               ^\nt000.c:17: ERROR 111: invalid use of void expression: \n1 errors\n"
+          },
+          {
+            "file": "t000-ln.log",
+            "text": "Aztec C68K Linker 3.6a  12-18-87\nfile: <t000.o> Can't open.\n"
+          }
+        ],
+        "expected_length": 150,
+        "flags": [],
+        "reason": "COMPILE_ERROR",
+        "source_sha256": "eb84ba0195a2d2e4d091f504155abe7cad29237664d683297c79efecf61f8669",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": 152,
+        "compiler": "aztec36",
+        "expected_length": 150,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 42,
+            "operands": "-$7ff8(a4)",
+            "raw": "4eac8008",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 42,
+            "operands": "-$7f08(a4)",
+            "raw": "4eac80f8",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.9885,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "3482de6da410a72de9980517bfa90e0feaf194ee73881ea2198fc0545df488d3",
+        "verdict": "DIFFER"
       }
     ],
     "previous_sources": {
-      "958024a2f3f4e286c129b1e3bc785aa35c4e891be83cad363ba6e72d7f484f38": {
-        "source": "struct Item { int pad; int value; };\nstruct Record { struct Item *item; int pad; char a; char b; char tail[4]; };\nextern struct Record G_h01_4528[36];\nunsigned int recovered(skip)\nchar skip;\n{\n char i, chosen;\n int best, value;\n best=0;\n chosen=35;\n for(i=1;i<35;i++) {\n  if(i!=skip && !G_h01_4528[i].a && !G_h01_4528[i].b) {\n   value=G_h01_4528[i].item->value;\n   if(value>best) { best=value; chosen=i; }\n  }\n }\n return chosen ? chosen : chosen;\n}\n",
+      "3482de6da410a72de9980517bfa90e0feaf194ee73881ea2198fc0545df488d3": {
+        "source": "struct Item { int pad; int value; };\nstruct Record { struct Item *item; int pad; char a; char b; char tail[4]; };\nextern struct Record G_h01_4528[36];\nchar recovered(skip)\nchar skip;\n{\n char i;\n unsigned char chosen;\n int best, value;\n best=0;\n chosen=35;\n for(i=1;i<35;i++) {\n  if(i!=skip && !G_h01_4528[i].a && !G_h01_4528[i].b) {\n   value=G_h01_4528[i].item->value;\n   if(value>best) { best=value; chosen=i; }\n  }\n }\n return chosen;\n}\n",
         "truncated": false
       },
       "c880d2ac6d4b5bbda6688576039a95dd6386b00e9ec6feb0ffa918f2e249d5aa": {
         "source": "struct Item { int pad; int value; };\nstruct Record { struct Item *item; int pad; char a; char b; char tail[4]; };\nextern struct Record G_h01_4528[36];\nunsigned int recovered(skip)\nchar skip;\n{\n char i, chosen;\n int best, value;\n best=0;\n chosen=35;\n for(i=1;i<35;i++) {\n  if(i!=skip && !G_h01_4528[i].a && !G_h01_4528[i].b) {\n   value=G_h01_4528[i].item->value;\n   if(value>best) { best=value; chosen=i; }\n  }\n }\n return chosen;\n}\n",
+        "truncated": false
+      },
+      "eb84ba0195a2d2e4d091f504155abe7cad29237664d683297c79efecf61f8669": {
+        "source": "struct Item { int pad; int value; };\nstruct Record { struct Item *item; int pad; char a; char b; char tail[4]; };\nextern struct Record G_h01_4528[36];\nvoid recovered(skip)\nchar skip;\n{\n char i, chosen;\n int best, value;\n best=0;\n chosen=35;\n for(i=1;i<35;i++) {\n  if(i!=skip && !G_h01_4528[i].a && !G_h01_4528[i].b) {\n   value=G_h01_4528[i].item->value;\n   if(value>best) { best=value; chosen=i; }\n  }\n }\n return chosen;\n}\n",
         "truncated": false
       }
     },
