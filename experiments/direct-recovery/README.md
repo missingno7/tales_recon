@@ -65,6 +65,11 @@ reference, every tail byte, and the next entry boundary to match exactly.
 tail. Its ten-byte indexed records show the same historical scan/error/advance
 shape in a smaller form, and the tail reaches the next discovered entry exactly.
 
+`ov11_F_6A44` is the first larger multi-section match in this family: its
+448-byte function body parses `V` 34-byte records and `J` word records, then
+owns all six contiguous literals (54 bytes) before the next entry. The normal
+source contribution resolves all 18 resident/global identities exactly.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
