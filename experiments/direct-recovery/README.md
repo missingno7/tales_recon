@@ -19,6 +19,10 @@ helper calls, and the proved compiler-emitted signed division helper. Two
 unreferenced stack-frame words remain explicitly unknown rather than given
 semantic names. Its canonical receipt records all eleven reference identities.
 
+The later `ov10_F_320C` guarded dispatcher adds 124 exact bytes. Its union
+layout follows the observed overlapping word and second-byte accesses; nine
+resident/global reference identities are independently resolved in its receipt.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
