@@ -109,9 +109,12 @@ overlay bytes are not yet owned by a complete source unit. The checker therefore
 retains it as an inter-object-call blocker instead of replacing the direct calls
 with synthetic A4 harness stubs.
 
-The two ov14 selector hypotheses remain unpromoted. Aztec 3.6a generates the
-expected bodies plus a two-byte EXT.W on explicit char return. Tested 5.0a-short
-also differs. No expression-fallthrough trick was substituted for explicit return
-semantics. Their compiler outputs and failed comparisons remain in the ledger.
+The two ov14 selector hypotheses remain unpromoted. The measured return matrix
+in `evidence/fingerprints/index.json` shows that installed Aztec 3.6a emits
+`EXT.W` for signed and integer byte returns, clears `D0` for an unsigned-byte
+return, and adds `EXT.L` for a long return; none reproduces the bare byte return
+in the game. The linked caller consumes only `D0.b`. This is retained as the
+`BYTE_RETURN_ABI_MISMATCH` toolchain blocker. No expression-fallthrough trick
+was substituted for explicit return semantics, and no source ownership changed.
 
 These are function matches only, not module or overlay layout matches.

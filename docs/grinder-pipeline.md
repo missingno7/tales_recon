@@ -225,7 +225,12 @@ The current matrix contains 34 programs × six profiles = 204 compiled trials:
 3.6a default / `+X3` / `+D` / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
 arguments/returns, frames/registers/MOVEM, branches/loops/switches, pointers,
 structs/arrays, globals/statics, indirect calls, library calls and K&R varargs.
-The latest additions measure char returns versus expression fallthrough, embedded
+The latest additions measure signed and unsigned byte returns, integer/long
+returns of a byte local, and expression fallthrough.  In the installed 3.6a
+profiles a signed or integer return emits `EXT.W`, an unsigned-byte return clears
+`D0`, and a long return adds `EXT.L`; none emits the game's bare byte return.
+This is a named `BYTE_RETURN_ABI_MISMATCH` blocker, so the grinder does not spend
+ordinary candidate-C attempts on it. Embedded
 string literals, and compiler-generated arithmetic helpers.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains
