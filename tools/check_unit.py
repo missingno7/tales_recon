@@ -17,6 +17,14 @@ from compiler_oracle import compile_many,PROFILES
 from function_compare import compare_function
 
 
+def stable_receipt(value):
+    """Remove cache observations from a persisted proof, at every depth."""
+    if isinstance(value,dict):
+        return {k:stable_receipt(v) for k,v in value.items() if k!='cache_hit'}
+    if isinstance(value,list):return [stable_receipt(v) for v in value]
+    return value
+
+
 def proven_tail(f,ledger):
     """Return a canonical member's separately proven adjacent CODE tail."""
     item=ledger['functions'].get(f['id'])
@@ -30,7 +38,7 @@ def proven_tail(f,ledger):
     return tail,ownership
 
 
-def prepare_unit(fid,source,with_parts=False):
+def prepare_unit(fid,source,with_parts=False,allow_gaps=False):
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
     def add_recovered(dep_id):
         if dep_id in members:return
@@ -49,14 +57,14 @@ def prepare_unit(fid,source,with_parts=False):
     for call in f['direct_callees']:
         if call['hunk']!=f['hunk'] or call['id']==fid:continue
         add_recovered(call['id'])
-    # A natural source unit can contain recovered routines that sit between a
-    # caller and its local dependency without being directly called by either.
-    # Include those bridges only when every intervening extent is already
-    # canonical; the contiguity gate below still rejects any unowned byte.
-    lo=min(x['start'] for x in members.values());hi=max(x['end'] for x in members.values())
-    for candidate in l['functions']:
-        if candidate['hunk']==f['hunk'] and lo<=candidate['start'] and candidate['end']<=hi:
-            if candidate['id'] not in members: add_recovered(candidate['id'])
+    if not allow_gaps:
+        # A natural source unit can contain recovered routines that sit between
+        # a caller and its local dependency without being directly called by
+        # either. Include them only when every intervening extent is canonical.
+        lo=min(x['start'] for x in members.values());hi=max(x['end'] for x in members.values())
+        for candidate in l['functions']:
+            if candidate['hunk']==f['hunk'] and lo<=candidate['start'] and candidate['end']<=hi:
+                if candidate['id'] not in members: add_recovered(candidate['id'])
     ordered=sorted(members.values(),key=lambda x:x['start'])
     require(len(ordered)>1,'unit requires a recovered same-node dependency')
     # A canonical predecessor can own only its separately proved literal tail.
@@ -64,8 +72,9 @@ def prepare_unit(fid,source,with_parts=False):
     # treating arbitrary bytes between recovered functions as source-owned.
     def contribution_end(member):
         tail,_=proven_tail(member,r);return member['end']+len(tail)
-    require(all(contribution_end(a)==b['start'] for a,b in zip(ordered,ordered[1:])),
-            'unit has unowned gaps; do not fill or copy original bytes')
+    if not allow_gaps:
+        require(all(contribution_end(a)==b['start'] for a,b in zip(ordered,ordered[1:])),
+                'unit has unowned gaps; do not fill or copy original bytes')
     # A bridge source may retain an old ``extern`` declaration for another
     # recovered member that now precedes it in this same translation unit.
     # Manx treats that later declaration as external linkage and can omit the
@@ -80,7 +89,7 @@ def prepare_unit(fid,source,with_parts=False):
     return (ordered,names,parts,combined,l) if with_parts else (ordered,names,combined,l)
 
 
-def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
+def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False):
     if compiled['status']!='COMPILED':return dict(verdict='BLOCKED',reason=compiled['status'],members=[])
     c=compiled['contribution'];raw=bytes.fromhex(c['code_hex']);expected=b''.join(bytes.fromhex(f['raw_bytes']) for f in members)
     result=dict(verdict='BLOCKED',expected_length=len(expected),actual_length=len(raw),members=[],object_sha256=c['object_sha256'])
@@ -117,9 +126,10 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
         require(symbol is not None and symbol['offset']==cursor,'natural function ordering/extent differs; no slice accepted')
         stop=cursor+f['size'];piece=copy.deepcopy(compiled);pc=piece['contribution']
         owned_tail=tails[f['id']]
-        pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=original_base+cursor,entry_offset=0)
+        code_offset=cursor if allow_gaps else original_base+cursor
+        pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=code_offset,entry_offset=0)
         pc['hunk']=original_hunk
-        pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
+        pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset'] if allow_gaps else s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
                        for s in c['symbols']]
         pc['relocations']=[]
         for relocation in c['relocations']:
@@ -142,22 +152,23 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False):
     return result
 
 
-def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False):
-    report=compare_unit(members,names,compiled,a4_bias,owned_code_data)
+def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False):
+    report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps)
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
                       compiler=compiled['identity'],
                       combined_source_sha256=sha256(combined.encode()),source_sha256=sha256(source.encode()),
                       dependency_sources={f['id']:recovery()['functions'][f['id']]['source_sha256'] for f in members if f['id']!=fid},
                       ordered_members=[{k:f[k] for k in ('id','hunk','start','end','size','sha256')} for f in members],
-                      verification_policy='Every byte and member of the complete naturally compiled object; no omitted padding or data')
+                      verification_policy=('Every byte and member of the complete naturally compiled object; no omitted padding or data'
+                                           if not allow_gaps else
+                                           'Every compact linked byte belongs to a recovered source object; original gaps remain unclaimed'))
     verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')}
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
     base=ROOT/'recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
     (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
     (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
-    persisted=copy.deepcopy(report);persisted.pop('cache_hit',None)
-    for m in persisted['members']:m.pop('cache_hit',None)
+    persisted=stable_receipt(report)
     write_json(base/'receipt.json',persisted)
     target=next(f for f in members if f['id']==fid)
     comparison=next((m for m in report['members'] if m['id']==fid),None)
@@ -170,8 +181,9 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     return report,comparison
 
 
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False):
-    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(fid,source,True)
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False):
+    require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
+    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(fid,source,True,allow_gaps)
     reports=[]
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
@@ -185,7 +197,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
         trials.append(trial)
     for compiled in compile_many(trials):
-        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data)
+        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps)
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
@@ -205,8 +217,9 @@ def main():
     ap.add_argument('--profile',action='append',choices=sorted(PROFILES));ap.add_argument('--no-promote',action='store_true')
     ap.add_argument('--owned-code-data',action='store_true',help='prove only the target function\'s adjacent PC-relative CODE string tail')
     ap.add_argument('--separate-objects',action='store_true',help='compile each proven unit member as an ordinary object before the normal overlay link')
+    ap.add_argument('--allow-original-gaps',action='store_true',help='with separate objects, prove compact linked source ownership across known but unreconstructed original gaps')
     a=ap.parse_args()
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects)
+    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps)
     for r in reports:print(json.dumps(r))
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 

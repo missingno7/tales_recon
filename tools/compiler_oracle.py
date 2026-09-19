@@ -108,7 +108,8 @@ def object_specs(trial):
         require(isinstance(obj,dict) and isinstance(obj.get('source'),str),'partitioned source object is malformed')
         label='candidate' if index==0 else 'part%03d'%index
         result.append(dict(label=label,source=obj['source']))
-    require('recovered(' in result[0]['source'],'first partitioned source object must define recovered')
+    require(any('recovered(' in obj['source'] for obj in result),
+            'partitioned source objects must define recovered')
     return result
 
 

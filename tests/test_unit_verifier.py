@@ -7,7 +7,7 @@ import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
 from compiler_oracle import identity,cached
-from check_unit import prepare_unit,compare_unit
+from check_unit import prepare_unit,compare_unit,stable_receipt
 from function_compare import compare_function
 from recovery_state import ROOT
 
@@ -103,3 +103,8 @@ class CompleteUnitTests(unittest.TestCase):
         # Manx's linked symbol map.
         _,_,combined,_=prepare_unit('ov10_F_22E6','recovered() {}')
         self.assertNotIn('extern int F_h10_1FDE();',combined)
+
+    def test_persisted_receipt_has_no_nested_cache_observations(self):
+        receipt=stable_receipt(dict(cache_hit=True,members=[dict(cache_hit=False,
+            owned_code_data=dict(code_comparison=dict(cache_hit=True,verdict='EQUAL')))]))
+        self.assertNotIn('cache_hit',str(receipt))
