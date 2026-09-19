@@ -40,6 +40,16 @@ class ModelProposerTests(unittest.TestCase):
 
 
 class GrinderContinuationTests(unittest.TestCase):
+    def test_eligibility_excludes_unowned_same_node_dependencies(self):
+        args=SimpleNamespace(max_unknown_calls=1,max_data_references=8)
+        candidate=dict(extent='CLOSED_CFG',size=36,node='ov11',confidence='HIGH',indirect=0,
+                       unknown_calls=0,data_references=1,pending_local_dependencies=[],same_node_unit_ready=True)
+        self.assertTrue(grinder.eligible(candidate,args,256))
+        candidate['same_node_unit_ready']=False
+        self.assertFalse(grinder.eligible(candidate,args,256))
+        candidate['same_node_unit_ready']=True;candidate['pending_local_dependencies']=['ov11_F_4610']
+        self.assertFalse(grinder.eligible(candidate,args,256))
+
     def test_first_cached_mismatch_gets_revision_opportunity(self):
         reports=[dict(source_sha256='candidate',cache_hit=True)]
         after=[dict(source_sha256='candidate')]

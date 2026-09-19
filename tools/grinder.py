@@ -147,7 +147,11 @@ def main():
     if args.action=='rank':print(json.dumps(ranked(args.node)[:args.limit],indent=2))
     elif args.action=='facts':print(json.dumps(facts(args.id),indent=2))
     elif args.action=='next':
-        q=[x for x in ranked(args.node) if x['id'] not in recovery()['blockers'] and x['extent']=='CLOSED_CFG' and x['size']<=512]
+        # Keep the interactive selector under the same mechanical contract as
+        # unattended runs.  In particular, never hand a proposer a caller
+        # whose exact PC-relative binding would require an unowned code gap.
+        selector=type('Selector',(),dict(max_unknown_calls=1,max_data_references=8))()
+        q=[x for x in ranked(args.node) if x['id'] not in recovery()['blockers'] and eligible(x,selector,512)]
         print(json.dumps(facts(q[0]['id']) if q else {'status':'NO_BOUNDED_WORK'},indent=2))
     elif args.action=='retry':
         r=recovery();r['blockers'].pop(args.id,None);write_json(LEDGER,r)
