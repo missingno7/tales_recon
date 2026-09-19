@@ -8,10 +8,11 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import uuid
 from common import require,write_json,sha256,FormatError
 from recovery_state import ROOT,LEDGER,recovery,ranked,facts,save_rank
 from check_function import check_many
-from compiler_oracle import validate_source,PROFILES
+from compiler_oracle import PROFILES
 
 
 def block(fid,reason):
@@ -26,12 +27,18 @@ def block(fid,reason):
 def exhausted(reports,before,after,max_attempts):
     count=len({a['source_sha256'] for a in after})
     already_seen=any(a['source_sha256']==reports[0]['source_sha256'] for a in before)
-    return count>=max_attempts or (already_seen and all(x['cache_hit'] for x in reports))
+    return count>=max_attempts or (already_seen and all(x['cache_hit'] or x.get('reason')=='SOURCE_REJECTED' for x in reports))
+
+
+def checkpoint(totals):
+    write_json(ROOT/'recovery/runs'/(totals['run_id']+'.json'),totals)
+    write_json(ROOT/'recovery/grinder-last-run.json',totals)
 
 
 def run(args):
     require(args.proposer,'--proposer executable [arguments...] is required')
-    totals=dict(rounds=0,promoted=[],blocked=[],proposer_errors=[],oracle_runs=[],status='RUNNING')
+    totals=dict(run_id=uuid.uuid4().hex,rounds=0,promoted=[],blocked=[],proposer_errors=[],oracle_runs=[],status='RUNNING',
+                proposer_command=args.proposer,requested_ids=args.ids)
     for _ in range(args.max_rounds):
         r=recovery();queue=[x for x in ranked(args.node) if x['id'] not in r['blockers']]
         previous_attempts=r['attempts']
@@ -51,7 +58,7 @@ def run(args):
                 if response.returncode!=0:
                     service_error='PROPOSER_SERVICE_FAILURE: '+response.stderr[:500];break
                 result=json.loads(response.stdout);source=result['source'];require(isinstance(source,str),'proposer source must be text')
-                validate_source(source)
+                require(source.isascii() and len(source)<=16384,'proposer source must be bounded ASCII C')
                 p=ROOT/'recovery/candidates'/fid/(sha256(source.encode())+'.c');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(source,newline='\n')
                 requests.append(dict(id=fid,source=str(p),profiles=args.profile or ['aztec36','aztec50-short'],proposer_receipt=result.get('proposer_receipt')))
             except (OSError,subprocess.TimeoutExpired) as exc:
@@ -59,7 +66,12 @@ def run(args):
             except (FormatError,ValueError,KeyError) as exc:
                 block(fid,'PROPOSER_FAILURE: '+str(exc));totals['proposer_errors'].append(dict(id=fid,reason=str(exc)));totals['blocked'].append(fid)
         if requests:
-            reports=check_many(requests,True)
+            try:reports=check_many(requests,True)
+            except (FormatError,OSError) as exc:
+                totals.update(status='SERVICE_BLOCKED',service_error='COMPILER_SERVICE_FAILURE: '+str(exc),
+                              pending_candidates=[dict(id=r['id'],source=r['source']) for r in requests])
+                checkpoint(totals)
+                break
             totals['oracle_runs'].append(json.loads((ROOT/'build/compiler-last-run.json').read_text()))
             for req in requests:
                 fid=req['id'];matching=[x for x in reports if x['id']==fid]
@@ -74,10 +86,10 @@ def run(args):
         totals['rounds']+=1
         if service_error:
             totals.update(status='SERVICE_BLOCKED',service_error=service_error)
-        write_json(ROOT/'recovery/grinder-last-run.json',totals)
+        checkpoint(totals)
         if service_error:break
     if totals['status']=='RUNNING':totals['status']='ROUND_LIMIT'
-    save_rank();write_json(ROOT/'recovery/grinder-last-run.json',totals);return totals
+    save_rank();checkpoint(totals);return totals
 
 
 def main():

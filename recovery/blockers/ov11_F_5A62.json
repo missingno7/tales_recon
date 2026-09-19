@@ -1,0 +1,332 @@
+{
+  "blocker": {
+    "attempts": [],
+    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "ownership_unchanged": true,
+    "reason": "PROPOSER_FAILURE: candidate must define recovered(...)",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [
+      {
+        "frame_offset": 8,
+        "instruction_offset": 23142,
+        "width": "w"
+      },
+      {
+        "frame_offset": 10,
+        "instruction_offset": 23192,
+        "width": "w"
+      }
+    ],
+    "calls": [],
+    "cfg": [
+      {
+        "kind": "CONDITIONAL",
+        "source": 23146,
+        "target": 23192
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 23146,
+        "target": 23148
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 23188,
+        "target": 23152
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 23188,
+        "target": 23190
+      },
+      {
+        "kind": "UNCONDITIONAL",
+        "source": 23190,
+        "target": 23214
+      },
+      {
+        "kind": "UNCONDITIONAL",
+        "source": 23214,
+        "target": 23210
+      }
+    ],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tasl.l\t#1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "array_index",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tdseg\n\tds\t0\n.4\n\tdc.w\t3\n\tdc.w\t7\n\tdc.w\t11\n\tcseg\n\tmove.w\t8(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tlea\t.4,a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n.5\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "static_data",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: static_data */\nrecovered(n) int n; { static int values[3]={3,7,11}; return values[n]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tadd.l\td1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "array_index",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.10002\n.10001\n\tadd.w\t#1,-2(a5)\n.10002\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tbge\t.10003\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tadd.w\td0,-4(a5)\n\tbra\t.10001\n.10003\n\tmove.w\t-4(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "local_loop",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_3844",
+        "offset": 14404,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_063A",
+        "kind": "DIRECT_CALL",
+        "site": 1954
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_0BB6",
+        "kind": "DIRECT_CALL",
+        "site": 3422
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_62B4",
+        "kind": "DIRECT_CALL",
+        "site": 25664
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 23216,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 11,
+      "node": "ov11",
+      "sha256": "fd497f08df880bbda7a5b76adf85545c7eb4427b5116fb4544764f9fb8f45cb3",
+      "size": 78,
+      "start": 23138
+    },
+    "id": "ov11_F_5A62",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 23138,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 23142,
+        "operands": "$8(a5)",
+        "raw": "4a6d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 23146,
+        "operands": "$5a98",
+        "raw": "672c",
+        "size": 2
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 23148,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23152,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 23156,
+        "operands": "d0",
+        "raw": "48c0",
+        "size": 2
+      },
+      {
+        "mnemonic": "asl.l",
+        "offset": 23158,
+        "operands": "#$1, d0",
+        "raw": "e380",
+        "size": 2
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 23160,
+        "operands": "-$47ba(a4), a0",
+        "raw": "41ecb846",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23164,
+        "operands": "-$2(a5), d1",
+        "raw": "322dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 23168,
+        "operands": "#$35, d1",
+        "raw": "c3fc0035",
+        "size": 4
+      },
+      {
+        "mnemonic": "subq.w",
+        "offset": 23172,
+        "operands": "#$2, d1",
+        "raw": "5541",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23174,
+        "operands": "d1, (a0, d0.l)",
+        "raw": "31810800",
+        "size": 4
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 23178,
+        "operands": "#$1, -$2(a5)",
+        "raw": "526dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 23182,
+        "operands": "#$28, -$2(a5)",
+        "raw": "0c6d0028fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "blt.b",
+        "offset": 23188,
+        "operands": "$5a70",
+        "raw": "6dda",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 23190,
+        "operands": "$5aae",
+        "raw": "6016",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23192,
+        "operands": "$a(a5), d0",
+        "raw": "302d000a",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 23196,
+        "operands": "d0",
+        "raw": "48c0",
+        "size": 2
+      },
+      {
+        "mnemonic": "asl.l",
+        "offset": 23198,
+        "operands": "#$1, d0",
+        "raw": "e380",
+        "size": 2
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 23200,
+        "operands": "-$47ba(a4), a0",
+        "raw": "41ecb846",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 23204,
+        "operands": "d0, d1",
+        "raw": "2200",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23206,
+        "operands": "(a0, d1.l), d0",
+        "raw": "30301800",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 23210,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 23212,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 23214,
+        "operands": "$5aaa",
+        "raw": "60fa",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [],
+    "previous_sources": {},
+    "recovered_dependencies": [],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 2,
+        "offset": 23138,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  }
+}

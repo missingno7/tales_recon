@@ -54,7 +54,11 @@ def promote(fid,source,report,compiled,f):
     write_json(receipt_path,proof)
     r['functions'][fid]={k:proof[k] for k in ('state','source','source_sha256','evidence_extent','compiler_selection')}
     r['functions'][fid]['proof']=receipt_path.relative_to(ROOT).as_posix()
-    r['functions'][fid]['proof_sha256']=sha256(receipt_path.read_bytes());write_json(LEDGER,r)
+    r['functions'][fid]['proof_sha256']=sha256(receipt_path.read_bytes())
+    # The immutable blocker package remains historical evidence; it must no
+    # longer appear as an active queue blocker once a verified source owns it.
+    r['blockers'].pop(fid,None)
+    write_json(LEDGER,r)
     return r['functions'][fid]
 
 

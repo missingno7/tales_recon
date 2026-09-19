@@ -56,6 +56,11 @@ class VerifierContractTests(unittest.TestCase):
         for src in ('int recovered(){asm("rts");}','#include "x.h"\nint recovered(){return 0;}'):
             with self.assertRaises(FormatError):validate_source(src)
 
+    def test_ansi_parameters_and_literal_placeholders_rejected(self):
+        for src in ('int recovered(int a) { return a; }', 'extern int G_hNN_OFFSET; recovered() { return G_hNN_OFFSET; }'):
+            with self.assertRaises(FormatError):validate_source(src)
+        validate_source('recovered(a) int a; { return a; }')
+
     def test_plain_harness_contains_no_fixed_placement(self):
         h=harness('extern char G_h01_1424; int recovered(){G_h01_1424=1;}')
         self.assertIn('char G_h01_1424;',h);self.assertNotIn('0x1424',h)

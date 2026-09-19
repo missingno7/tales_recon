@@ -1,0 +1,165 @@
+{
+  "actual_length": 74,
+  "actual_sha256": "f1aa802131ced2e757d1dcabc4345f2f1cc44a5b62001c0fec4afbecefc9ba48",
+  "cache_hit": false,
+  "cache_key": "e0cf60d9ae39c5b11b7bdbe29a4151463fbda16445c369e0e70d10066f6d84a1",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "move.w",
+        "offset": 66,
+        "operands": "(a0, d1.l), d0",
+        "raw": "30301800",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 70,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 72,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "unlk",
+        "offset": 72,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 74,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 76,
+        "operands": "$48",
+        "raw": "60fa",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 78,
+  "expected_sha256": "fd497f08df880bbda7a5b76adf85545c7eb4427b5116fb4544764f9fb8f45cb3",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "beq.b",
+      "offset": 8,
+      "operands": "$34",
+      "raw": "672a",
+      "size": 2
+    },
+    "expected": {
+      "mnemonic": "beq.b",
+      "offset": 8,
+      "operands": "$36",
+      "raw": "672c",
+      "size": 2
+    }
+  },
+  "flags": [],
+  "id": "ov11_F_5A62",
+  "mnemonic_similarity": 0.9583,
+  "normalized_first_difference": {
+    "actual": "2a426dfffe302dfffe48c0e38041ec80",
+    "actual_size": 74,
+    "expected": "2c426dfffe302dfffe48c0e38041ecb8",
+    "expected_size": 78,
+    "offset": 9
+  },
+  "normalized_sha256": "f1aa802131ced2e757d1dcabc4345f2f1cc44a5b62001c0fec4afbecefc9ba48",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 4,
+        "operands": "$8(a5)",
+        "raw": "4a6d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 8,
+        "operands": "$34",
+        "raw": "672a",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 4,
+        "operands": "$8(a5)",
+        "raw": "4a6d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 8,
+        "operands": "$36",
+        "raw": "672c",
+        "size": 2
+      }
+    ]
+  },
+  "proof_level": null,
+  "proposer": {
+    "model": "gpt-5.6-luna",
+    "receipt": "recovery/proposals/ov11_F_5A62/1bfaa254ca08aec4a739b152f78a50822b51848ca2efd353f8223f86fb34bcad.json",
+    "receipt_sha256": "f0622394dbaa702f00810cb02c19bc6d28080a31c15c013c6938ed5a6e6e09d9"
+  },
+  "raw_first_difference": {
+    "actual": "2a426dfffe302dfffe48c0e38041ec80",
+    "actual_size": 74,
+    "expected": "2c426dfffe302dfffe48c0e38041ecb8",
+    "expected_size": 78,
+    "offset": 9
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "eef661a8d8513e208012057fac534ec683b3bcbda5898daef3eeaaea90e6e2ab",
+  "verdict": "DIFFER"
+}

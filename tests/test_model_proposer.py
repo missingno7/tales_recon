@@ -57,6 +57,19 @@ class GrinderContinuationTests(unittest.TestCase):
             self.assertEqual(result['status'],'SERVICE_BLOCKED');blocked.assert_not_called();checked.assert_not_called()
             self.assertFalse(result['blocked'])
 
+    def test_compiler_service_failure_checkpoints_without_poisoning_queue(self):
+        args=SimpleNamespace(proposer=['synthetic'],max_rounds=2,node=None,ids=None,max_bytes=512,batch_size=1,proposer_timeout=1,profile=['aztec36'])
+        state=dict(functions={},attempts={},blockers={})
+        queue=[dict(id='ov14_F_TEST',extent='CLOSED_CFG',size=10)]
+        response=SimpleNamespace(returncode=0,stderr='',stdout=json.dumps(dict(source='recovered() { return 1; }')))
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(grinder,'ROOT',Path(tmp)),patch.object(grinder,'recovery',return_value=state),patch.object(grinder,'ranked',return_value=queue),patch.object(grinder,'facts',return_value={}),patch.object(grinder.subprocess,'run',return_value=response),patch.object(grinder,'block') as blocked,patch.object(grinder,'check_many',side_effect=FormatError('worker timeout')),patch.object(grinder,'save_rank'):
+                result=grinder.run(args)
+            self.assertEqual(result['status'],'SERVICE_BLOCKED')
+            self.assertEqual(result['pending_candidates'][0]['id'],'ov14_F_TEST')
+            self.assertTrue(Path(result['pending_candidates'][0]['source']).is_file())
+            blocked.assert_not_called()
+
     def test_bad_harness_trial_does_not_cancel_valid_trial(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);bad=root/'bad.c';good=root/'good.c';ledger=root/'ledger.json'

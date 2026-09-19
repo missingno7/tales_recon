@@ -1,0 +1,168 @@
+{
+  "actual_length": 18,
+  "actual_sha256": "8045adb2c0ad0a5f8ac6940f27f6c74943fc976abb3443dca23bc1b466e659fb",
+  "cache_hit": false,
+  "cache_key": "60cfffa6660b5d92354fc2a3a1b4648dfa43d6dc6e78af82e08f23bddf75d07b",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 12,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 14,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 16,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 12,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 14,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 16,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 18,
+  "expected_sha256": "78df5bca08c034749b0a275a682e272af5872f03cccb3870ffa9325bc70a310d",
+  "flags": [],
+  "id": "ov11_F_4A92",
+  "mnemonic_similarity": 1.0,
+  "normalized_first_difference": null,
+  "normalized_sha256": "78df5bca08c034749b0a275a682e272af5872f03cccb3870ffa9325bc70a310d",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 4,
+        "operands": "-$7fd2(a4), -(a7)",
+        "raw": "2f2c802e",
+        "size": 4
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 8,
+        "operands": "-$7ffe(a4)",
+        "raw": "4eac8002",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 4,
+        "operands": "$2462(a4), -(a7)",
+        "raw": "2f2c2462",
+        "size": 4
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 8,
+        "operands": "-$7f74(a4)",
+        "raw": "4eac808c",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": "FUNCTION_CODE_MATCH",
+  "proposer": {
+    "model": "gpt-5.6-luna",
+    "receipt": "recovery/proposals/ov11_F_4A92/d8c471806f60ad3bf92e29237987d3c456199eda19eb01fb771e01d34e0c69bd.json",
+    "receipt_sha256": "77b7bf6e8a48bcc75e38d25b68f2699623ddb6c61b871b872ba281c745c711f6"
+  },
+  "raw_first_difference": {
+    "actual": "802e4eac8002584f4e5d4e75",
+    "actual_size": 18,
+    "expected": "24624eac808c584f4e5d4e75",
+    "expected_size": 18,
+    "offset": 6
+  },
+  "reason": "COMPLETE_CONTRIBUTION",
+  "relocation_equal": true,
+  "relocation_issues": [],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        42080
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 42080,
+        "symbol": "_G_h01_A460"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 6
+    },
+    {
+      "expected": [
+        0,
+        15236
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 15236,
+        "symbol": "_F_h00_3B84"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 10
+    }
+  ],
+  "source_sha256": "be556c0a6b1ecd52e654f8b4bbd2e45240ecb58dc1f5fb25d8f77d39352deabf",
+  "verdict": "EQUAL"
+}

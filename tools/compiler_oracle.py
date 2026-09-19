@@ -26,6 +26,11 @@ def validate_source(source):
     require(not re.search(r'\b(?:asm|__asm|__asm__)\b',source),'inline assembly is outside candidate-C contract')
     require(not re.search(r'^\s*#\s*(?:include|pragma|line)',source,re.M),'candidate must be self-contained C; includes/pragmas need a pinned harness extension')
     require(bool(re.search(r'\brecovered\s*\(',source)),'candidate must define recovered(...)')
+    require(not re.search(r'\brecovered\s*\(\s*(?:signed|unsigned|short|long|char|int|void|float|double|struct)\b',source),
+            'use K&R parameter names, then type declarations before the function body; typed ANSI parameters are unsupported')
+    require(not re.search(r'\b[GF]_hNN_OFFSET\b',source),'replace placeholder symbols with exact mechanical names from function evidence')
+    outside_strings=re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*','',source,flags=re.S)
+    require(not re.search(r'\\[nrt]',outside_strings),'source has literal backslash escapes outside C strings; JSON source must decode to actual line breaks')
     require(source.isascii(),'historical source must be ASCII')
 
 
@@ -113,16 +118,25 @@ def compile_many(trials):
         missing={k:v for k,v in missing.items() if cached(k) is None}
         if not missing:return [cached(k) for k in requests]
         batch='compile-'+uuid.uuid4().hex[:12];source_dir=ROOT/'build/compiler-inputs'/batch;source_dir.mkdir(parents=True)
-        commands=[];mapping=[]
+        # Aztec 3.6 asks an interactive question after several syntax errors.
+        # Decline it explicitly so malformed candidates cannot stall the batch.
+        # This changes process I/O, not code-generation identity: prior immutable
+        # successful/error cache artifacts remain valid and are never recompiled.
+        compiler_input='n\n'*20
+        (source_dir/'compiler-input.txt').write_text(compiler_input,encoding='ascii',newline='\n')
+        # 5.0a returns 254 on ordinary compilation errors, above the worker's
+        # conservative general-purpose default of 100. Continue to record every
+        # trial's actual status, including valid trials following a bad one.
+        commands=['C:FailAt 1000000'];mapping=[]
         for idx,(key,item) in enumerate(missing.items()):
             prefix='t%03d'%idx;hp='h%03d'%idx;p=PROFILES[item['trial']['profile']];guest=p['guest'];flags=' '.join(p['flags'])
             (source_dir/(prefix+'.c')).write_text(item['trial']['source'],encoding='ascii',newline='\n')
             (source_dir/(hp+'.c')).write_text(item['harness'],encoding='ascii',newline='\n')
             first=len(commands)
             for name in (prefix,hp):
-                commands += [f'{guest}bin/cc >{name}-cc.log -a {flags} {name}.c',
-                             f'{guest}bin/as >{name}-as.log -o {name}.o {name}.asm']
-            commands += [f'{guest}bin/ln >{prefix}-ln.log -m -t -o {prefix}.exe {hp}.o +o1 {prefix}.o +o0 {item["meta"]["library_guest"]}lib/{item["meta"]["library"]}']
+                commands += [f'{guest}bin/cc <compiler-input.txt >{name}-cc.log -a {flags} {name}.c',
+                             f'{guest}bin/as <compiler-input.txt >{name}-as.log -o {name}.o {name}.asm']
+            commands += [f'{guest}bin/ln <compiler-input.txt >{prefix}-ln.log -m -t -o {prefix}.exe {hp}.o +o1 {prefix}.o +o0 {item["meta"]["library_guest"]}lib/{item["meta"]["library"]}']
             mapping.append((key,item,prefix,hp,first))
         job=prepare(batch,source_dir,commands,Path('C:/Program Files/WinUAE/winuae64.exe'),aztec36=any(v['trial']['profile'].startswith('aztec36') for v in missing.values()))
         shell=shutil.which('pwsh') or shutil.which('powershell')
@@ -134,10 +148,11 @@ def compile_many(trials):
             dest=CACHE/key;dest.mkdir()
             statuses=[s['returncode'] for s in result['steps'][first:first+5]]
             for f in work.iterdir():
-                if f.is_file() and (f.name.startswith(prefix+'.') or f.name.startswith(prefix+'-') or f.name.startswith(hp+'.') or f.name.startswith(hp+'-')):
+                if f.is_file() and (f.name=='compiler-input.txt' or f.name.startswith(prefix+'.') or f.name.startswith(prefix+'-') or f.name.startswith(hp+'.') or f.name.startswith(hp+'-')):
                     shutil.copyfile(f,dest/f.name)
             receipt=dict(cache_key=key,identity=item['meta'],status='COMPILED' if statuses==[0]*5 else 'COMPILE_ERROR',
-                guest_returncodes=statuses,worker_job=batch,worker_receipt_sha256=sha256((job/'result.json').read_bytes()),prefix=prefix)
+                guest_returncodes=statuses,worker_job=batch,worker_receipt_sha256=sha256((job/'result.json').read_bytes()),prefix=prefix,
+                noninteractive_input_sha256=sha256(compiler_input.encode('ascii')))
             if receipt['status']=='COMPILED':
                 try:
                     receipt['contribution']=extract(dest,prefix)

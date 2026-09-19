@@ -1,0 +1,161 @@
+{
+  "blocker": {
+    "attempts": [],
+    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "ownership_unchanged": true,
+    "reason": "PROPOSER_FAILURE: candidate must define recovered(...)",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [],
+    "calls": [
+      {
+        "basis": "A4_RELOCATED_JMP_STUB",
+        "current_state": "DISCOVERED",
+        "hunk": 0,
+        "id": "resident_F_3B84",
+        "name": "F_h00_3B84",
+        "offset": 15236,
+        "site": 19098
+      }
+    ],
+    "cfg": [],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_strlen\n\tadd.w\t#4,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_strlen\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "library_strlen",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: library_strlen */\nrecovered(p) char *p; { return strlen(p); }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),d0\n\tsub.l\t12(a5),d0\n\tmove.l\t#3,d1\n\tjsr\t.mulu#\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "long_arithmetic",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: long_arithmetic */\nlong recovered(a,b) long a,b; { return (a-b)*3; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_strlen\n\tadd.w\t#4,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t_strlen\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "library_strlen",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: library_strlen */\nrecovered(p) char *p; { return strlen(p); }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),-(sp)\n\tmove.l\t8(a5),a0\n\tjsr\t(a0)\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "function_pointer",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: function_pointer */\nrecovered(fn,n) int (*fn)(); int n; { return (*fn)(n); }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_008A",
+        "offset": 138,
+        "type_status": "INFER_FROM_ACCESSES"
+      },
+      {
+        "hunk": 1,
+        "name": "G_h01_A460",
+        "offset": 42080,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_0000",
+        "kind": "DIRECT_CALL",
+        "site": 1126
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 19108,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 11,
+      "node": "ov11",
+      "sha256": "78df5bca08c034749b0a275a682e272af5872f03cccb3870ffa9325bc70a310d",
+      "size": 18,
+      "start": 19090
+    },
+    "id": "ov11_F_4A92",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 19090,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 19094,
+        "operands": "$2462(a4), -(a7)",
+        "raw": "2f2c2462",
+        "size": 4
+      },
+      {
+        "mnemonic": "jsr",
+        "offset": 19098,
+        "operands": "-$7f74(a4)",
+        "raw": "4eac808c",
+        "size": 4
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 19102,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 19104,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 19106,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [],
+    "previous_sources": {},
+    "recovered_dependencies": [],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 0,
+        "offset": 19090,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  }
+}

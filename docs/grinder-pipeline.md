@@ -34,14 +34,19 @@ retained and revised from exact feedback. The ordinary verifier then automatical
 included a recovered callee and verified the entire naturally compiled 88-byte
 unit `ov11_F_25D6` + `ov11_F_25F8`. Both short BSR targets resolve to the verified
 callee symbol. Promoting its 54-byte caller brings the total to **17 functions,
-858 bytes**. This remains function-level proof, not an ov11 module match.
+858 bytes**. A subsequent four-leaf batch added 204 bytes, reaching 21 functions /
+1,062 bytes before live-model trials. The first successful hosted run then promoted
+`ov11_F_4A92` (18 bytes) on round one and `ov11_F_5A62` (78 bytes) on round four,
+reaching **23 functions / 1,158 bytes**. The latter converged through 74, 74, and
+82-byte mismatches before EQUAL. The third candidate was parked after a repeated
+mismatch. This remains function-level proof, not an ov11 module match. The full
+run receipt is `recovery/runs/a7a55000b4954d8995468d316a1dbd8c.json`.
 
 The end-to-end test uses `experiments/grinder-bootstrap/fixture_proposer.py`, a
 deterministic replay of independently authored C, **not an LLM**. It promotes the
 four leaves and deliberately emits a wrong ov11 candidate. The repeat is cached,
-becomes a blocker, and acquires no canonical source ownership. Actual model
-quality and unattended model convergence have not been measured. Any external
-cheap-model adapter implementing the JSON contract below can drive the same loop.
+becomes a blocker, and acquires no canonical source ownership. The live OpenAI adapter now also drives bounded trials through this contract.
+Its attempts and outcomes are retained separately from this fixture replay.
 
 ## Commands
 
@@ -88,10 +93,12 @@ or API key is embedded in this repository. The optional `tools/model_proposer.py
 adapter uses the installed CLI and existing login with an explicitly selected
 model (default `gpt-5.6-luna`, low reasoning). It requests read-only, ephemeral,
 structured output, disables project tool features, caches model proposals, and
-rejects tool events or incomplete responses. Offline contract tests pass; live
-model calls have **not** been validated. Automatic approval review rejected the
-first bounded data transfer, so recovery continued in the current task using the
-local compiler pipeline. Do not count the fixture proposer as model convergence.
+rejects tool events or incomplete responses. Live OpenAI calls are now running after explicit user approval to transmit bounded
+function evidence and candidate C. Proposals and comparisons retain independent
+receipts. Do not count fixture replay or a completed model request as convergence.
+An optional offline Qwen adapter was also tested; it produced no exact matches in
+its bounded trial. Its files remain installed for future experiments, with the
+server stopped. See [local inference](local-model.md).
 The interface follows the [official non-interactive documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
 
 Packages are limited to 160 decoded
@@ -109,7 +116,9 @@ are skipped on restart. Proposer errors and bounded non-convergence produce
 one. The loop processes other eligible candidates. Infrastructure failures pause
 the run without marking the selected functions blocked. A first cache hit still
 provides a revision opportunity; only a repeated failure for that function ends
-its attempt. Each completed round saves a checkpoint. Use one grinder writer per
+its attempt. Each completed round saves a checkpoint and a permanent `recovery/runs` receipt.
+Source validation failures are returned as candidate feedback. Repeated identical
+validation failures end that candidate, as do repeated cached compiler mismatches. Use one grinder writer per
 checkout. The worker has an exclusive compilation lock; a stale lock requires
 checking that its worker has stopped before removing that one file.
 
@@ -167,7 +176,10 @@ the remaining overlays, with resident reconstruction later.
 One worker invocation handles all missing trials in a batch. Cache identity
 includes source, compiler/assembler/linker hashes, flags, harness, headers,
 library, link recipe and worker implementation. Identical successes **and failures**
-are reused. Artifact hashes and independently re-extracted contribution metadata
+are reused. Malformed candidates receive explicit negative responses to compiler
+questions. The guest shell permits status 254 (5.0a syntax failure) so later trials
+still run; each trial retains its own status. Both behaviors were exercised with
+bad and good sources in one batch. Artifact hashes and independently re-extracted contribution metadata
 are checked before use. Corrupt cache entries stop with a blocker, never silently
 masquerade as valid results. JSON ledger writes use atomic replacement.
 
@@ -175,6 +187,8 @@ The matrix contains 24 programs × four profiles = 96 compiled trials:
 3.6a default / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
 arguments/returns, frames/registers/MOVEM, branches/loops/switches, pointers,
 structs/arrays, globals/statics, indirect calls, library calls and K&R varargs.
+The latest additions measure char returns versus expression fallthrough, embedded
+string literals, and compiler-generated arithmetic helpers.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains
 code, assembly, symbols, identities and artifact hashes. A repeated 96-trial run

@@ -1,0 +1,450 @@
+{
+  "blocker": {
+    "attempts": [
+      {
+        "actual_length": 70,
+        "cache_key": "fcc1a6e4b95b0f1b117b6c7185b5141a8e9d4cf2334961f9dd10b07c1d9bbc44",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 80,
+        "first_difference": {
+          "actual": "426dfffe302dfffe48c0e38041ec802a",
+          "actual_size": 70,
+          "expected": "4a6d0008672e426dfffe302dfffe48c0",
+          "expected_size": 80,
+          "offset": 4
+        },
+        "mnemonic_similarity": 0.9167,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_5A12/994de464b26554471a364e7b8be12176d6e7858c9019eaeb80f93ff56ffdd366-aztec36-fcc1a6e4b95b-e962cd232c05.json",
+        "source_sha256": "994de464b26554471a364e7b8be12176d6e7858c9019eaeb80f93ff56ffdd366",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 76,
+        "cache_key": "3174c165f8ab030e106e6aae3ceb43286545a8db9c1e51f592971697b3d3486a",
+        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+        "expected_length": 80,
+        "first_difference": {
+          "actual": "2c426dfffe302dfffe48c0e38041ec80",
+          "actual_size": 76,
+          "expected": "2e426dfffe302dfffe48c0e38041ecb7",
+          "expected_size": 80,
+          "offset": 9
+        },
+        "mnemonic_similarity": 0.96,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_5A12/404340cf888bcb0f07f9d0216bb0e53b1afafd96c9f581007535bb6bfca68736-aztec36-3174c165f8ab-e962cd232c05.json",
+        "source_sha256": "404340cf888bcb0f07f9d0216bb0e53b1afafd96c9f581007535bb6bfca68736",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      }
+    ],
+    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "ownership_unchanged": true,
+    "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [
+      {
+        "frame_offset": 8,
+        "instruction_offset": 23062,
+        "width": "w"
+      },
+      {
+        "frame_offset": 10,
+        "instruction_offset": 23114,
+        "width": "w"
+      }
+    ],
+    "calls": [],
+    "cfg": [
+      {
+        "kind": "CONDITIONAL",
+        "source": 23066,
+        "target": 23114
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 23066,
+        "target": 23068
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 23110,
+        "target": 23072
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 23110,
+        "target": 23112
+      },
+      {
+        "kind": "UNCONDITIONAL",
+        "source": 23112,
+        "target": 23136
+      },
+      {
+        "kind": "UNCONDITIONAL",
+        "source": 23136,
+        "target": 23132
+      }
+    ],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tdseg\n\tds\t0\n.4\n\tdc.w\t3\n\tdc.w\t7\n\tdc.w\t11\n\tcseg\n\tmove.w\t8(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tlea\t.4,a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n.5\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "static_data",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: static_data */\nrecovered(n) int n; { static int values[3]={3,7,11}; return values[n]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tasl.l\t#1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "array_index",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.10002\n.10001\n\tadd.w\t#1,-2(a5)\n.10002\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tbge\t.10003\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tadd.w\td0,-4(a5)\n\tbra\t.10001\n.10003\n\tmove.w\t-4(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "local_loop",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\ttst.w\t8(a5)\n\tbeq\t.10001\n\ttst.w\t10(a5)\n\tbeq\t.10002\n\tmove.w\t8(a5),d0\n\tadd.w\t10(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.10002\n\tmove.w\t8(a5),d0\n\tbra\t.4\n.10001\n\tmove.w\t10(a5),d0\n\tbra\t.4\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "nested_if",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: nested_if */\nrecovered(a,b) int a,b; { if(a) { if(b) return a+b; return a; } return b; }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_37F4",
+        "offset": 14324,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_063A",
+        "kind": "DIRECT_CALL",
+        "site": 1736
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_0BB6",
+        "kind": "DIRECT_CALL",
+        "site": 3354
+      },
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_62B4",
+        "kind": "DIRECT_CALL",
+        "site": 25680
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 23138,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 11,
+      "node": "ov11",
+      "sha256": "ad900bfeb6f027bcdc4921553f38f9ce56470c40889e02f9b6ab2c757bda5ec6",
+      "size": 80,
+      "start": 23058
+    },
+    "id": "ov11_F_5A12",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 23058,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 23062,
+        "operands": "$8(a5)",
+        "raw": "4a6d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 23066,
+        "operands": "$5a4a",
+        "raw": "672e",
+        "size": 2
+      },
+      {
+        "mnemonic": "clr.w",
+        "offset": 23068,
+        "operands": "-$2(a5)",
+        "raw": "426dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23072,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 23076,
+        "operands": "d0",
+        "raw": "48c0",
+        "size": 2
+      },
+      {
+        "mnemonic": "asl.l",
+        "offset": 23078,
+        "operands": "#$1, d0",
+        "raw": "e380",
+        "size": 2
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 23080,
+        "operands": "-$480a(a4), a0",
+        "raw": "41ecb7f6",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23084,
+        "operands": "-$2(a5), d1",
+        "raw": "322dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 23088,
+        "operands": "#$1, d1",
+        "raw": "5241",
+        "size": 2
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 23090,
+        "operands": "#$35, d1",
+        "raw": "c3fc0035",
+        "size": 4
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 23094,
+        "operands": "#$2, d1",
+        "raw": "5441",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23096,
+        "operands": "d1, (a0, d0.l)",
+        "raw": "31810800",
+        "size": 4
+      },
+      {
+        "mnemonic": "addq.w",
+        "offset": 23100,
+        "operands": "#$1, -$2(a5)",
+        "raw": "526dfffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 23104,
+        "operands": "#$28, -$2(a5)",
+        "raw": "0c6d0028fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "blt.b",
+        "offset": 23110,
+        "operands": "$5a20",
+        "raw": "6dd8",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 23112,
+        "operands": "$5a60",
+        "raw": "6016",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23114,
+        "operands": "$a(a5), d0",
+        "raw": "302d000a",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 23118,
+        "operands": "d0",
+        "raw": "48c0",
+        "size": 2
+      },
+      {
+        "mnemonic": "asl.l",
+        "offset": 23120,
+        "operands": "#$1, d0",
+        "raw": "e380",
+        "size": 2
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 23122,
+        "operands": "-$480a(a4), a0",
+        "raw": "41ecb7f6",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 23126,
+        "operands": "d0, d1",
+        "raw": "2200",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23128,
+        "operands": "(a0, d1.l), d0",
+        "raw": "30301800",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 23132,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 23134,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 23136,
+        "operands": "$5a5c",
+        "raw": "60fa",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [
+      {
+        "actual_length": 70,
+        "compiler": "aztec36",
+        "expected_length": 80,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "clr.w",
+            "offset": 4,
+            "operands": "-$2(a5)",
+            "raw": "426dfffe",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "tst.w",
+            "offset": 4,
+            "operands": "$8(a5)",
+            "raw": "4a6d0008",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.9167,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "994de464b26554471a364e7b8be12176d6e7858c9019eaeb80f93ff56ffdd366",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 76,
+        "compiler": "aztec36",
+        "expected_length": 80,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "beq.b",
+            "offset": 8,
+            "operands": "$36",
+            "raw": "672c",
+            "size": 2
+          },
+          "expected": {
+            "mnemonic": "beq.b",
+            "offset": 8,
+            "operands": "$38",
+            "raw": "672e",
+            "size": 2
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.96,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "404340cf888bcb0f07f9d0216bb0e53b1afafd96c9f581007535bb6bfca68736",
+        "verdict": "DIFFER"
+      }
+    ],
+    "previous_sources": {
+      "404340cf888bcb0f07f9d0216bb0e53b1afafd96c9f581007535bb6bfca68736": {
+        "source": "extern int G_h01_37F4[40];\n\nrecovered(n)\nint n;\n{\n\tint i;\n\n\tif (n) {\n\t\tfor (i = 0; i < 40; i++)\n\t\t\tG_h01_37F4[i] = (i + 1) * 53 + 2;\n\t}\n\treturn G_h01_37F4[n];\n}\n",
+        "truncated": false
+      },
+      "994de464b26554471a364e7b8be12176d6e7858c9019eaeb80f93ff56ffdd366": {
+        "source": "extern int G_h01_37F4[40];\n\nrecovered(n)\nint n;\n{\n\tint i;\n\n\tfor (i = 0; i < 40; i++)\n\t\tG_h01_37F4[i] = (i + 1) * 53 + 2;\n\treturn G_h01_37F4[n];\n}\n",
+        "truncated": false
+      }
+    },
+    "recovered_dependencies": [],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 2,
+        "offset": 23058,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  }
+}

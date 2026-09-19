@@ -18,8 +18,31 @@ def evidence():
     return json.loads(path.read_text())
 
 
+def runtime_dependencies(ledger):
+    """Read measured entry identities for guidance, never source ownership."""
+    path=ROOT/'evidence/experiments/runtime-arithmetic.json'
+    if not path.exists():return {}
+    proof=json.loads(path.read_text())
+    require(proof['game_sha256']==ledger['game_sha256'],'runtime guidance belongs to another executable')
+    require(proof['status']=='COMPLETE_RUNTIME_CODE_MATCH','runtime guidance lacks a complete match')
+    result={}
+    for contribution in proof['contributions']:
+        extent=contribution['original']
+        for entry in contribution['entries']:
+            require(0<=entry['offset']<contribution['size'],'runtime guidance entry outside extent')
+            key=(extent['hunk'],extent['offset']+entry['offset'])
+            item=result.setdefault(key,dict(state='MATCHED_RUNTIME_CONTRIBUTION',
+                kind='COMPILER_GENERATED_HELPER',symbol=entry['name'],profiles=[],
+                evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
+                source_contract='Express the C operation; let the compiler emit this helper. Do not declare a C function for its register ABI.'))
+            require(item['symbol']==entry['name'],'conflicting runtime entry names')
+            item['profiles'].append(contribution['profile'])
+    return result
+
+
 def ranked(node=None):
-    l=evidence();r=recovery();result=[]
+    l=evidence();r=recovery();result=[];runtime=runtime_dependencies(l)
+    known_runtime={x['id'] for x in l['functions'] if x['ownership']=='RUNTIME_CANDIDATE'}
     for f in l['functions']:
         if node and f['node']!=node:continue
         state=r['functions'].get(f['id'],{}).get('state','DISCOVERED')
@@ -27,7 +50,7 @@ def ranked(node=None):
         if f['id'] in r['blockers']:state='BLOCKED'
         elif f['id'] in r['attempts']:
             state='CODEGEN_SIMILAR' if any((a.get('mnemonic_similarity') or 0)>=0.75 for a in r['attempts'][f['id']]) else 'CANDIDATE_C'
-        known=sum(c['id'] in r['functions'] or any(x['id']==c['id'] and x['ownership']=='RUNTIME_CANDIDATE' for x in l['functions']) for c in f['direct_callees'])
+        known=sum(c['id'] in r['functions'] or c['id'] in known_runtime or (c['hunk'],c['offset']) in runtime for c in f['direct_callees'])
         score=f['size']+80*len(f['direct_callees'])-30*known+30*len(f['referenced_data'])+100*len(f['relocations'])+500*len(f['indirect_control_flow'])
         if f['extent_status']!='CLOSED_CFG':score+=10000
         if f['hunk']==0:score+=20000
@@ -39,9 +62,11 @@ def ranked(node=None):
 
 def facts(fid,max_instructions=160):
     ledger=evidence();r=recovery();f=next((f for f in ledger['functions'] if f['id']==fid),None)
+    runtime=runtime_dependencies(ledger)
     require(f is not None,'unknown function id')
     require(len(f['instructions'])<=max_instructions,'function exceeds bounded grinder budget; choose a smaller ranked candidate')
-    refs=sorted({(x['hunk'],x['offset']) for x in f['referenced_data']})
+    refs=sorted({(x['hunk'],x['offset']) for x in f['referenced_data']} |
+                {(x['target_hunk'],x['addend_raw']) for x in f['relocations'] if x['target_hunk'] in (1,2)})
     previous=[];previous_sources={}
     for attempt in r['attempts'].get(fid,[])[-5:]:
         receipt=json.loads((ROOT/attempt['receipt']).read_text())
@@ -68,9 +93,10 @@ def facts(fid,max_instructions=160):
         if dep:dependencies.append(dict(id=call['id'],name='F_h%02d_%04X'%(call['hunk'],call['offset']),state=dep['state'],source=(ROOT/dep['source']).read_text()[:3000]))
     packages=dict(schema_version=1,id=fid,extent={k:f[k] for k in ('node','hunk','start','end','size','sha256','extent_status','confidence')},
         entry_evidence=f['entry_evidence'],instructions=f['instructions'],cfg=f['cfg'],
-        calls=[dict(c,name='F_h%02d_%04X'%(c['hunk'],c['offset']),current_state=r['functions'].get(c['id'],{}).get('state','DISCOVERED')) for c in f['direct_callees']],
+        calls=[dict(c,name='F_h%02d_%04X'%(c['hunk'],c['offset']),current_state=r['functions'].get(c['id'],runtime.get((c['hunk'],c['offset']),{})).get('state','DISCOVERED'),
+                    **({'runtime':runtime[(c['hunk'],c['offset'])]} if (c['hunk'],c['offset']) in runtime else {})) for c in f['direct_callees']],
         indirect=f['indirect_control_flow'],data=[dict(hunk=h,offset=o,name='G_h%02d_%04X'%(h,o),type_status='INFER_FROM_ACCESSES') for h,o in refs],
-        strings=f['referenced_strings'],relocations=f['relocations'],stack_frames=f['stack_frames'],argument_accesses=f['likely_argument_accesses'],
+        strings=f['referenced_strings'],relocations=[dict(x,target_name=('G_h%02d_%04X'%(x['target_hunk'],x['addend_raw'])) if x['target_hunk'] in (1,2) else None) for x in f['relocations']],stack_frames=f['stack_frames'],argument_accesses=f['likely_argument_accesses'],
         abi=dict(a4_bias=ledger['a4']['bias'],profiles=['aztec36','aztec36-long','aztec50','aztec50-short'],historical_selection='AMBIGUOUS',fingerprints='evidence/fingerprints/index.json'),
         previous_attempts=previous,previous_sources=previous_sources,compiler_examples=fingerprints,recovered_dependencies=dependencies,
         contract='Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.')

@@ -9,6 +9,12 @@ from function_compare import decode_all
 from recovery_state import evidence
 
 CORPUS={
+ 'char_return':'char recovered(a) char a; { char value; value=a; return value; }',
+ 'char_expression_fallthrough':'recovered(a) char a; { char value; value=a; value; }',
+ 'int_expression_fallthrough':'recovered(a) int a; { int value; value=a; value; }',
+ 'literal_string':'char *recovered() { return "oracle"; }',
+ 'literal_argument':'extern int sink(); recovered() { return sink("oracle"); }',
+ 'char_struct_index':'struct item { long a,b,c; }; extern struct item table[36]; long recovered(i) char i; { return table[i].b; }',
  'int_add':'int recovered(a,b) int a,b; { return a+b; }',
  'word_add':'short recovered(a,b) short a,b; { return a+b; }',
  'long_arithmetic':'long recovered(a,b) long a,b; { return (a-b)*3; }',
