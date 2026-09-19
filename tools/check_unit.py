@@ -19,14 +19,25 @@ from function_compare import compare_function
 
 def prepare_unit(fid,source):
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
+    def add_recovered(dep_id):
+        if dep_id in members:return
+        dep=r['functions'].get(dep_id)
+        require(dep is not None,'unrecovered same-node dependency: '+dep_id)
+        df,_=validated_function(dep_id);text=(ROOT/dep['source']).read_text()
+        require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
+        name='F_h%02d_%04X'%(df['hunk'],df['start']);names[dep_id]=name;members[dep_id]=df
+        parts[dep_id]=re.sub(r'\brecovered\b',name,text)
     for call in f['direct_callees']:
         if call['hunk']!=f['hunk'] or call['id']==fid:continue
-        dep=r['functions'].get(call['id'])
-        require(dep is not None,'unrecovered same-node dependency: '+call['id'])
-        df,_=validated_function(call['id']);text=(ROOT/dep['source']).read_text()
-        require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
-        name='F_h%02d_%04X'%(df['hunk'],df['start']);names[df['id']]=name;members[df['id']]=df
-        parts[df['id']]=re.sub(r'\brecovered\b',name,text)
+        add_recovered(call['id'])
+    # A natural source unit can contain recovered routines that sit between a
+    # caller and its local dependency without being directly called by either.
+    # Include those bridges only when every intervening extent is already
+    # canonical; the contiguity gate below still rejects any unowned byte.
+    lo=min(x['start'] for x in members.values());hi=max(x['end'] for x in members.values())
+    for candidate in l['functions']:
+        if candidate['hunk']==f['hunk'] and lo<=candidate['start'] and candidate['end']<=hi:
+            if candidate['id'] not in members: add_recovered(candidate['id'])
     ordered=sorted(members.values(),key=lambda x:x['start'])
     require(len(ordered)>1,'unit requires a recovered same-node dependency')
     require(all(a['end']==b['start'] for a,b in zip(ordered,ordered[1:])),'unit has unowned gaps; do not fill or copy original bytes')

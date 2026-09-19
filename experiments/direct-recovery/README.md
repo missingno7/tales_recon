@@ -8,7 +8,12 @@ The permanent receipt is `evidence/experiments/direct-recovery.json`.
 models only the A4 fields reached by the routine; the receipt proves every
 field addend, five resident call identities, and the complete code extent.
 
-Twelve functions match completely under aztec36, adding 1,456 FUNCTION_CODE_MATCH
+`ov13_F_0190` adds another 302 bytes as a three-function natural source unit
+with `ov13_F_0000` and the recovered bridge `ov13_F_012E`. Its receipt proves
+all 702 bytes of that unit, including four same-overlay calls and every local
+and resident reference identity.
+
+Thirteen functions match completely under aztec36, adding 1,758 FUNCTION_CODE_MATCH
 bytes: ov09_F_18D0 (84), ov08_F_3FC0 (88), ov08_F_4018 (96), ov10_F_2BCA
 (136), ov11_F_69A4 (160), ov07_F_0EC0 (112), ov11_F_5A12 (80), ov11_F_5BC4
 (86), ov09_F_1956 (126), ov07_F_0E7C (68), and ov07_F_0E06 (118). Canonical

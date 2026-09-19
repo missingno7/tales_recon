@@ -67,6 +67,11 @@ def harness(source,target_node=1):
     # Explicit extern declarations become ordinary naturally allocated harness
     # definitions. Mechanical names carry identities for comparison, never layout.
     declarations=re.findall(r'\bstruct\s+\w+\s*\{[^{}]*\}\s*;',source)
+    emitted=set(declarations)
+    def emit(declaration):
+        """Keep repeated compatible externs from becoming duplicate harness definitions."""
+        if declaration not in emitted:
+            declarations.append(declaration);emitted.add(declaration)
     proxy_names={p['name'] for p in overlay_proxies(source,target_node)}
     for m in re.finditer(r'\bextern\s+([^;{}]+);',source):
         decl=m[1].strip()
@@ -78,10 +83,10 @@ def harness(source,target_node=1):
             # proxy object in their own Manx node.  Keeping them out of the
             # resident harness is what makes the linker produce a trampoline.
             if match[1] not in proxy_names:
-                declarations.append(decl+' { return 0; }')
+                emit(decl+' { return 0; }')
         else:
             require(re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(?:char|short|int|long|float|double|struct\s+\w+)\s+\**\s*\w+(?:\s*\[\s*[1-9]\d*\s*\])*',decl) is not None,'unsupported extern declaration; use scalar/pointer/positive-bound array facts')
-            declarations.append(decl+';')
+            emit(decl+';')
     return '/* Independent naturally allocated link harness. */\nextern int recovered();\nint (*candidate_reference)() = recovered;\nmain() { return 0; }\n'+'\n'.join(declarations)+'\n'
 
 

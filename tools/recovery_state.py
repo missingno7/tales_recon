@@ -64,11 +64,19 @@ def ranked(node=None):
                  and c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}
         local_dependencies=sorted({c['id'] for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id'] not in r['functions']})
         same_node_calls=[c for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk']]
-        # A recovered local callee is only usable for the complete-unit verifier
-        # when it immediately follows this function.  A gap would require code
-        # outside the claimed contribution, so do not present that caller as a
-        # cheap standalone grinder target.
-        unit_ready=not same_node_calls or all(c['offset']==f['end'] for c in same_node_calls)
+        # A local unit may include recovered bridge functions between its caller
+        # and callee.  It is usable only when the full interval is contiguous
+        # canonical ownership; otherwise no source unit may span the gap.
+        unit_ready=True
+        if same_node_calls:
+            lo=min([f['start']]+[c['offset'] for c in same_node_calls])
+            hi=max([f['end']]+[c['offset'] for c in same_node_calls])
+            cursor=lo
+            for item in sorted((x for x in l['functions'] if x['hunk']==f['hunk'] and lo<=x['start'] and x['end']<=hi),key=lambda x:x['start']):
+                if item['start']!=cursor or item['id']!=f['id'] and item['id'] not in r['functions']:
+                    unit_ready=False;break
+                cursor=item['end']
+            unit_ready=unit_ready and cursor==hi
         result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(f['indirect_control_flow']),state=state,
                            confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies,
                            pc_relative_data=sum(x['kind']=='PC_RELATIVE_DATA' for x in f['referenced_data']),same_node_unit_ready=unit_ready))

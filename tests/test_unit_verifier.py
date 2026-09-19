@@ -59,3 +59,11 @@ class CompleteUnitTests(unittest.TestCase):
     def test_owned_data_requires_stronger_proof(self):
         c=copy.deepcopy(self.compiled);c['contribution']['data_size']=2
         self.assertEqual(self.compare(c)['verdict'],'BLOCKED')
+
+    def test_recovered_bridge_joins_a_contiguous_local_unit(self):
+        source=ROOT/'experiments/direct-recovery/ov13_F_0190-v1.c'
+        if not source.exists():self.skipTest('ov13 bridge candidate absent')
+        members,names,combined,_=prepare_unit('ov13_F_0190',source.read_text())
+        self.assertEqual([m['id'] for m in members],['ov13_F_0000','ov13_F_012E','ov13_F_0190'])
+        self.assertIn('F_h13_012E()',combined)
+        self.assertEqual(names['ov13_F_0000'],'F_h13_0000')

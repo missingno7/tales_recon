@@ -82,6 +82,10 @@ class VerifierContractTests(unittest.TestCase):
         h=harness('extern char G_h01_1424; int recovered(){G_h01_1424=1;}')
         self.assertIn('char G_h01_1424;',h);self.assertNotIn('0x1424',h)
 
+    def test_repeated_extern_has_one_harness_definition(self):
+        h=harness('extern int F_h00_1234(); extern int F_h00_1234(); recovered(){F_h00_1234();}')
+        self.assertEqual(h.count('int F_h00_1234() { return 0; }'),1)
+
     def test_cross_overlay_extern_uses_a_separate_proxy(self):
         source='extern char F_h03_154E(); recovered() { return F_h03_154E(); }'
         self.assertNotIn('F_h03_154E() { return 0; }',harness(source,12))
