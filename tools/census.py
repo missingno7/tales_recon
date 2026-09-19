@@ -52,6 +52,26 @@ def derive(root):
     require('DT1:DuckTales' in files, 'main executable absent')
     exe = files['DT1:DuckTales']
     model = parse(exe)
+    runtime_candidate_bytes = 0
+    runtime_path = root/'evidence/experiments/runtime-matches.json'
+    if runtime_path.exists():
+        runtime = json.loads(runtime_path.read_text())
+        require(runtime['game_sha256'] == sha256(exe), 'runtime comparison belongs to another game fixture')
+        occupied = set()
+        for obj in runtime['objects']:
+            if len(obj['matches']) != 1:
+                continue
+            match = obj['matches'][0]
+            h = next(h for h in model['hunks'] if h['number'] == match['hunk'])
+            start, size = match['offset'], match['size']
+            require(h['type'] == 'CODE' and start >= 0 and size == obj['code_size'] and start+size <= h['initialized_size'], 'invalid runtime candidate extent')
+            require(sha256(exe[h['content_offset']+start:h['content_offset']+start+size]) == obj['code_sha256'], 'runtime candidate bytes changed')
+            require(not any(r['source_hunk'] == h['number'] and r['source_offset'] < start+size and r['source_offset']+4 > start for r in model['relocations']), 'candidate overlaps relocation')
+            locations = {(h['number'], offset) for offset in range(start, start+size)}
+            require(not occupied.intersection(locations), 'overlapping runtime candidate contributions')
+            occupied.update(locations)
+        runtime_candidate_bytes = len(occupied)
+        require(runtime_candidate_bytes == runtime['matched_candidate_bytes'], 'runtime match total inconsistent')
     tree = manx_overlay(model, exe)
     outputs['evidence/executable/hunks.json'] = {k:v for k,v in model.items() if k != 'relocations'}
     outputs['evidence/executable/relocations.json'] = dict(schema_version=1, count=len(model['relocations']),
@@ -170,10 +190,11 @@ def derive(root):
         allocation_sum_bytes=allocated, classification_unknown_bytes=unknown,
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
         reconstructed_functions=0, matched_source_bytes=0, current_proof_level=None,
+        runtime_candidate_matching_bytes=runtime_candidate_bytes,
         phases={'0':'CENSUS_COMPLETE','1':'CENSUS_COMPLETE','2':'CENSUS_COMPLETE',
                 '3':'STATIC_TOPOLOGY_VALIDATED_RUNTIME_NOT_TRACED','4':'PARTIAL_CONSERVATIVE_MAP',
-                '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'OVERLAY_GLUE_ONLY','7':'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
-        pilot='ov07', next_action='Pin candidate Manx distributions, match runtime objects, then fingerprint compiler and recover pilot control flow.')
+                '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'CANDIDATE_OBJECT_MATCHES' if runtime_candidate_bytes else 'OVERLAY_GLUE_ONLY','7':'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
+        pilot='ov07', next_action='Extend 3.6a runtime matching, fingerprint compiler variants, and establish natural overlay linking before pilot reconstruction.')
     outputs['evidence/executable/pilot.json'] = dict(schema_version=1, node='ov07', hunk=7,
         selection_reason='invest.arc and invart.arc anchors plus investment text; coherent candidate, not the smallest overlay',
         initialized_size=next(h['initialized_size'] for h in model['hunks'] if h['number']==7),

@@ -16,7 +16,7 @@ from common import FormatError, require, sha256, write_json
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def prepare(name, source_dir, commands, emulator):
+def prepare(name, source_dir, commands, emulator, aztec36=False):
     require(re.fullmatch(r'[a-zA-Z0-9_-]+', name) is not None, 'invalid experiment name')
     base = ROOT/'build/worker-jobs'/name
     require(not base.exists(), 'job exists; use a new name to preserve prior experiments')
@@ -38,6 +38,22 @@ def prepare(name, source_dir, commands, emulator):
             require(p.is_file() and sha256(p.read_bytes())==entry['sha256'], f'candidate file changed: {p}')
             pinned.append(dict(path=p.relative_to(ROOT).as_posix(),sha256=entry['sha256']))
     require(emulator.is_file(), 'WinUAE executable not found')
+    extra_config = ''
+    if aztec36:
+        older = ROOT/'toolchain/installed/aztec-3.6a'
+        report = json.loads((ROOT/'evidence/toolchain/aztec-3.6a.json').read_text())
+        for disk in report['disks']:
+            if disk['status'] != 'VALIDATED':
+                continue
+            manifest = disk['manifest']
+            for entry in manifest['entries']:
+                if entry['kind'] != 'file':
+                    continue
+                p = older/manifest['volume']/entry['path']
+                require(p.is_file() and sha256(p.read_bytes()) == entry['sha256'], f'candidate file changed: {p}')
+                pinned.append(dict(path=p.relative_to(ROOT).as_posix(), sha256=entry['sha256']))
+        extra_config = (f'filesystem2=ro,DH4:Old1:{older/"SYS1"},-128\n'
+                        f'filesystem2=ro,DH5:Old2:{older/"SYS2"},-128\n')
     source_files = sorted(p for p in source_dir.rglob('*') if p.is_file())
     require(source_files, 'experiment source directory is empty')
     guest=base/'sys';work=guest/'work';work.mkdir(parents=True)
@@ -87,7 +103,7 @@ filesystem2=ro,DH1:Tools1:{installed/'Aztec1'},-128
 filesystem2=ro,DH2:Tools2:{installed/'Aztec2'},-128
 filesystem2=ro,DH3:Tools4:{installed/'Aztec4'},-128
 '''
-    (base/'worker.uae').write_text(config,encoding='utf-8')
+    (base/'worker.uae').write_text(config+extra_config,encoding='utf-8')
     write_json(base/'request.json',dict(schema_version=1,name=name,archive_sha256=lock['sha256'],
         emulator=str(emulator),emulator_sha256=sha256(emulator.read_bytes()),rom_sha256=sha256(rom),
         pinned_inputs=pinned,steps=steps,source_files=[dict(path=p.relative_to(source_dir).as_posix(),sha256=sha256(p.read_bytes())) for p in source_files],
@@ -120,10 +136,11 @@ def main():
     prep=sub.add_parser('prepare');prep.add_argument('name');prep.add_argument('source',type=Path)
     prep.add_argument('--commands',type=Path,required=True,help='JSON array of explicit guest command lines')
     prep.add_argument('--emulator',type=Path,default=Path('C:/Program Files/WinUAE/winuae64.exe'))
+    prep.add_argument('--aztec36',action='store_true',help='also mount validated 3.6a SYS1/SYS2 read-only')
     coll=sub.add_parser('collect');coll.add_argument('job',type=Path)
     args=ap.parse_args()
     if args.action=='prepare':
-        print(prepare(args.name,args.source,json.loads(args.commands.read_text()),args.emulator))
+        print(prepare(args.name,args.source,json.loads(args.commands.read_text()),args.emulator,args.aztec36))
         return 0
     result=collect(args.job)
     print('Guest return codes:',[s['returncode'] for s in result['steps']])

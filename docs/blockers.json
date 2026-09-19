@@ -6,7 +6,8 @@
         "14-slot flat overlay table with 26 validated trampolines",
         "Aztec C Museum lists Amiga 5.0a",
         "Pinned 5.0a cc/as/ln and 17 libraries available; these tools require Amiga/m68k execution",
-        "Embedded banners dated Jan 9 1990 differ from read.me date; release notes document ABI/default-int changes"
+        "Embedded banners dated Jan 9 1990 differ from read.me date; release notes document ABI/default-int changes",
+        "3.6a cc/as/ln compile and run independent C; seven c.lib contributions match 226 resident code bytes; exact compiler release still unproven"
       ],
       "experiments_tried": [
         "Checked named toolchain commands on PATH; no Amiga toolchain or WinUAE returned",
@@ -19,7 +20,7 @@
       ],
       "id": "TOOLCHAIN-001",
       "missing_artifact": "Evidence selecting exact compiler release/flags and runtime objects; candidate worker now operational",
-      "next_experiment": "Compare 5.0a runtime objects against resident evidence; investigate 3.6-era toolchain before accepting a compiler match",
+      "next_experiment": "Expand C compiler fingerprint corpus across 3.6a/5.0a integer and register conventions; validate natural overlay linking",
       "status": "OPEN",
       "target": "historical compiler/assembler/linker selection"
     },
@@ -64,16 +65,21 @@
         "26 dispatch trampolines and a JMP bridge are structurally identified; 214 bytes have runtime ABI ownership",
         "Manager entry h00+0x798a is observed; full runtime extent is unknown",
         "HUNK_SYMBOL, HUNK_DEBUG and HUNK_EXT absent",
-        "Seventeen candidate 5.0a libraries pinned from validated disks; cj prefix is not generic HUNK object format"
+        "Seventeen candidate 5.0a libraries pinned from validated disks; cj prefix is not generic HUNK object format",
+        "evidence/experiments/runtime-matches.json: index, movmem, strcat, strcmp, strcpy, strlen, strncpy candidate objects"
       ],
-      "experiments_tried": [],
+      "experiments_tried": [
+        "5.0a c.lib/c16.lib isolated strlen/strcmp/memcpy: no exact resident matches",
+        "3.6a seven relocation-free objects: unique complete code matches, header lengths corroborated by natural combined link; 226 bytes",
+        "Missing members and unresolved standalone dependencies retained in aztec36-001/002/003 receipts; final aztec36-004 all 14 steps return zero"
+      ],
       "first_mismatch": null,
       "hypotheses": [
         "Linked Manx library/startup objects may match available distributions"
       ],
       "id": "OWNERSHIP-001",
       "missing_artifact": "Validated Manx archive/object parser and relocation-aware matching; exact historical library identity remains unproven",
-      "next_experiment": "Recover candidate library/object container boundaries and compare complete contributions before assigning ownership",
+      "next_experiment": "Resolve remaining runtime object dependencies and recover overlay manager contribution; distinguish shared runtime code from exact release identity",
       "status": "OPEN",
       "target": "resident game/runtime ownership"
     },
@@ -181,6 +187,24 @@
       "next_experiment": "Find independently sourced distribution and compare hashes/chains; preserve this failed candidate unchanged",
       "status": "OPEN",
       "target": "AztecCv50a3.adf"
+    },
+    {
+      "current_evidence": [
+        "Strict OFS parser rejects block 1374 checksum; no files extracted from this disk",
+        "Disks 1, 2 and 4 validate; compiler, assembler, linker and C library on validated SYS1"
+      ],
+      "experiments_tried": [
+        "Pinned all four downloaded archives; strict whole-volume parsing"
+      ],
+      "first_mismatch": {
+        "block": 1374,
+        "error": "bad checksum"
+      },
+      "id": "MEDIA-002",
+      "missing_artifact": "Validated replacement disk 3 if its contents are needed",
+      "next_experiment": "Seek independent media when a dependency requires rejected disk 3; do not repair this fixture",
+      "status": "OPEN",
+      "target": "Aztec 3.6a archival disk 3"
     }
   ],
   "schema_version": 1
