@@ -47,6 +47,12 @@ class GrinderContinuationTests(unittest.TestCase):
         self.assertTrue(grinder.eligible(candidate,args,256))
         candidate['same_node_unit_ready']=False
         self.assertFalse(grinder.eligible(candidate,args,256))
+
+    def test_deferral_reports_the_dependency_gap(self):
+        args=SimpleNamespace(max_unknown_calls=1,max_data_references=8)
+        candidate=dict(extent='CLOSED_CFG',size=36,node='ov11',confidence='HIGH',indirect=0,
+                       unknown_calls=0,data_references=1,pending_local_dependencies=[],same_node_unit_ready=False)
+        self.assertEqual(grinder.deferral_reason(candidate,args,256),'NONCONTIGUOUS_LOCAL_UNIT')
         candidate['same_node_unit_ready']=True;candidate['pending_local_dependencies']=['ov11_F_4610']
         self.assertFalse(grinder.eligible(candidate,args,256))
 

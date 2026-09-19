@@ -48,6 +48,32 @@ def eligible(item,args,limit):
             and not item.get('pending_local_dependencies') and item.get('same_node_unit_ready',True))
 
 
+def deferral_reason(item,args,limit):
+    """Return the first explicit reason a discovered item is not grinder-safe."""
+    if item['extent']!='CLOSED_CFG':return 'UNCERTAIN_EXTENT'
+    if item.get('node')=='resident':return 'RESIDENT_DEFERRED'
+    if item['size']>limit:return 'SIZE_LIMIT'
+    if item.get('confidence','HIGH')!='HIGH':return 'LOW_CONFIDENCE'
+    if item.get('indirect',0):return 'INDIRECT_CONTROL_FLOW'
+    if item.get('unknown_calls',0)>getattr(args,'max_unknown_calls',1):return 'UNKNOWN_CALL_LIMIT'
+    if item.get('data_references',0)>getattr(args,'max_data_references',8):return 'DATA_REFERENCE_LIMIT'
+    if item.get('pending_local_dependencies'):return 'UNRECOVERED_LOCAL_DEPENDENCY'
+    if not item.get('same_node_unit_ready',True):return 'NONCONTIGUOUS_LOCAL_UNIT'
+    return None
+
+
+def frontier(node=None,limit=512,max_unknown_calls=1,max_data_references=8):
+    args=type('Frontier',(),dict(max_unknown_calls=max_unknown_calls,max_data_references=max_data_references))()
+    r=recovery();eligible_ids=[];deferred={}
+    for item in ranked(node):
+        if item['id'] in r['blockers']:continue
+        reason=deferral_reason(item,args,limit)
+        if reason is None:eligible_ids.append(item['id'])
+        else:deferred.setdefault(reason,[]).append(item['id'])
+    return dict(schema_version=1,node=node,max_bytes=limit,eligible=eligible_ids,deferred_by_mechanism=deferred,
+                blocked_by_mechanism=__import__('grinder_report').summarize(dict(run_id='frontier',status='DIAGNOSED',elapsed_seconds=0),ROOT)['supervisor_blocker_groups'])
+
+
 def run(args):
     require(args.proposer,'--proposer executable [arguments...] is required')
     totals=dict(run_id=uuid.uuid4().hex,rounds=0,promoted=[],blocked=[],proposer_errors=[],oracle_runs=[],status='RUNNING',
@@ -136,6 +162,7 @@ def main():
     rank=sub.add_parser('rank');rank.add_argument('--node');rank.add_argument('--limit',type=int,default=20)
     package=sub.add_parser('facts');package.add_argument('id')
     nxt=sub.add_parser('next');nxt.add_argument('--node')
+    front=sub.add_parser('frontier');front.add_argument('--node');front.add_argument('--max-bytes',type=int,default=512)
     runner=sub.add_parser('run');runner.add_argument('--node');runner.add_argument('--ids',nargs='+');runner.add_argument('--profile',action='append')
     runner.add_argument('--batch-size',type=int,default=8);runner.add_argument('--max-rounds',type=int,default=20)
     runner.add_argument('--max-attempts',type=int,default=5);runner.add_argument('--max-bytes',type=int,default=256)
@@ -153,6 +180,7 @@ def main():
         selector=type('Selector',(),dict(max_unknown_calls=1,max_data_references=8))()
         q=[x for x in ranked(args.node) if x['id'] not in recovery()['blockers'] and eligible(x,selector,512)]
         print(json.dumps(facts(q[0]['id']) if q else {'status':'NO_BOUNDED_WORK'},indent=2))
+    elif args.action=='frontier':print(json.dumps(frontier(args.node,args.max_bytes),indent=2))
     elif args.action=='retry':
         r=recovery();r['blockers'].pop(args.id,None);write_json(LEDGER,r)
     else:
