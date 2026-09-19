@@ -56,7 +56,12 @@ def ranked(node=None):
         if f['hunk']==0:score+=20000
         if f['ownership']!='UNKNOWN':continue
         if f['hunk']==14:score-=100
-        unknown={c['id'] for c in f['direct_callees'] if c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}
+        # Resident A4 jump stubs are naturally linkable extern calls.  Their
+        # exact identity is independently checked by function_compare, so an
+        # unrecovered resident implementation is not an unknown dependency for
+        # an overlay candidate.
+        unknown={c['id'] for c in f['direct_callees'] if c['basis']!='A4_RELOCATED_JMP_STUB'
+                 and c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}
         local_dependencies=sorted({c['id'] for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id'] not in r['functions']})
         same_node_calls=[c for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk']]
         # A recovered local callee is only usable for the complete-unit verifier
