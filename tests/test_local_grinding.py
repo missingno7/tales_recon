@@ -69,6 +69,7 @@ class TransportAndQueueTests(unittest.TestCase):
         self.assertTrue(eligible(f,args,256))
         for change in (dict(node='resident'),dict(indirect=1),dict(size=258),dict(extent='UNCERTAIN'),dict(pending_local_dependencies=['callee']),dict(unknown_calls=2),dict(pc_relative_data=1),dict(same_node_unit_ready=False)):
             self.assertFalse(eligible(dict(f,**change),args,256))
+        self.assertFalse(eligible(dict(f,data_references=9),args,256))
 
 
 class LocalCacheTests(unittest.TestCase):

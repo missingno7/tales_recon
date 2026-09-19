@@ -65,7 +65,9 @@ call binding and code-generation mechanism.
 
 The existing ranking is retained. Default eligibility requires a high-confidence
 closed overlay CFG, <=256 bytes, no indirect control flow, <=1 unknown callee,
-<=8 data references and no unrecovered same-node PC-relative callee. The census
+<=40 data references and no unrecovered same-node PC-relative callee. The bound
+was raised after an exact 34-reference overlay recovery; it still limits the
+fact package while admitting measured-safe global users. The census
 already prevents closed ABI proof around explicit A4 changes. Aztec36 alone is
 the inner-loop default. Alternate profiles remain available to the supervisor.
 Optional `--adaptive` starts at 64 bytes and expands toward 128/256 only after ten
