@@ -130,6 +130,8 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(blocker_class(dict(relocation_issues=[dict(kind='HUNK_RELOCATION')]),
                                        'PERSISTENT_CODEGEN_MISMATCH: established profile mismatch'),
                          'PERSISTENT_CODEGEN_MISMATCH')
+        self.assertEqual(blocker_class({},'CYCLIC_INTER_OBJECT_PC_CALL: reciprocal PC-relative calls'),
+                         'CYCLIC_INTER_OBJECT_PC_CALL')
         self.assertEqual(blocker_class({},'UNSUPPORTED_REGISTER_CALL_ABI: D0/D1 library wrapper'),
                          'UNSUPPORTED_REGISTER_CALL_ABI')
 

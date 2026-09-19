@@ -16,6 +16,7 @@ def blocker_class(report,reason=''):
     # A supervisor's explicit confirmed mechanism takes precedence over raw
     # byte-level symptoms retained in the final comparison receipt.
     if 'UNSUPPORTED_REGISTER_CALL_ABI' in reason:return 'UNSUPPORTED_REGISTER_CALL_ABI'
+    if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:return 'CYCLIC_INTER_OBJECT_PC_CALL'
     if 'PERSISTENT_CODEGEN_MISMATCH' in reason:return 'PERSISTENT_CODEGEN_MISMATCH'
     if data.get('candidate_bss',0):return 'CANDIDATE_OWNED_BSS'
     if data.get('candidate_data',0):return 'CANDIDATE_OWNED_DATA'
