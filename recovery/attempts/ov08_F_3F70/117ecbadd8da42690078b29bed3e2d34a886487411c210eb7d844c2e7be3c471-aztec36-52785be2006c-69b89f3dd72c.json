@@ -1,0 +1,192 @@
+{
+  "actual_length": 80,
+  "actual_sha256": "a2733853ebac0bcc78b3f0f4a104f0d996f2e85b9127e030138eed026226c43e",
+  "cache_hit": true,
+  "cache_key": "52785be2006c7261482a77abd40af5e32aeba125285d9a7288086f7c5c6f22b8",
+  "comparison_identity": "69b89f3dd72c77bfe72644e6928ea7b6245702ec212339d50b5b385d99ce6e3a",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "blt.b",
+        "offset": 74,
+        "operands": "$a",
+        "raw": "6dbe",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 76,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 78,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "blt.b",
+        "offset": 74,
+        "operands": "$a",
+        "raw": "6dbe",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 76,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 78,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 80,
+  "expected_sha256": "6e1fc0231a5dce7b808e6354d7441fc65286fa17d87efa7ca1277ddadab38527",
+  "first_structural_instruction_difference": null,
+  "flags": [],
+  "id": "ov08_F_3F70",
+  "mnemonic_similarity": 1.0,
+  "normalized_first_difference": null,
+  "normalized_sha256": "6e1fc0231a5dce7b808e6354d7441fc65286fa17d87efa7ca1277ddadab38527",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "#$1, -$2(a5)",
+        "raw": "3b7c0001fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 10,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffe",
+        "raw": "4e55fffe",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "#$1, -$2(a5)",
+        "raw": "3b7c0001fffe",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 10,
+        "operands": "-$2(a5), d0",
+        "raw": "302dfffe",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": "FUNCTION_CODE_MATCH",
+  "raw_first_difference": {
+    "actual": "82803f300800302dfffec1fc003641ec",
+    "actual_size": 80,
+    "expected": "ef4c3f300800302dfffec1fc003641ec",
+    "expected_size": 80,
+    "offset": 20
+  },
+  "reason": "COMPLETE_CONTRIBUTION",
+  "relocation_equal": true,
+  "relocation_issues": [],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        28490
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 28490,
+        "symbol": "_G_h01_6F4A"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 20
+    },
+    {
+      "expected": [
+        1,
+        28488
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 28488,
+        "symbol": "_G_h01_6F48"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 36
+    },
+    {
+      "expected": [
+        1,
+        28496
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 28496,
+        "symbol": "_G_h01_6F50"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 52
+    },
+    {
+      "expected": [
+        0,
+        15076
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 15076,
+        "symbol": "_F_h00_3AE4"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 60
+    }
+  ],
+  "source_sha256": "117ecbadd8da42690078b29bed3e2d34a886487411c210eb7d844c2e7be3c471",
+  "verdict": "EQUAL"
+}

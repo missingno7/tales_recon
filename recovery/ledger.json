@@ -1513,6 +1513,38 @@
         "source_sha256": "73ab39583b88aaef6d32a46266c60415f2e14cefe0fffa6416fd0ccab9fba38f",
         "state": "CANDIDATE_C",
         "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": 82,
+        "cache_key": "6e2c3ffd9e2600ff8504547ff2a658e1486462028c24dbe7790f96189a797743",
+        "comparison_identity": "69b89f3dd72c77bfe72644e6928ea7b6245702ec212339d50b5b385d99ce6e3a",
+        "expected_length": 80,
+        "first_difference": {
+          "actual": "82803f300000302dfffec1fc003641ec",
+          "actual_size": 82,
+          "expected": "ef4c3f300800302dfffec1fc003641ec",
+          "expected_size": 80,
+          "offset": 20
+        },
+        "mnemonic_similarity": 0.9778,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov08_F_3F70/c667735ba6bf6004ac43310cc3388c09c912f6bafbecc0dad67d6e569f427fc9-aztec36-6e2c3ffd9e26-69b89f3dd72c.json",
+        "source_sha256": "c667735ba6bf6004ac43310cc3388c09c912f6bafbecc0dad67d6e569f427fc9",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 80,
+        "cache_key": "52785be2006c7261482a77abd40af5e32aeba125285d9a7288086f7c5c6f22b8",
+        "comparison_identity": "69b89f3dd72c77bfe72644e6928ea7b6245702ec212339d50b5b385d99ce6e3a",
+        "expected_length": 80,
+        "first_difference": null,
+        "mnemonic_similarity": 1.0,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov08_F_3F70/117ecbadd8da42690078b29bed3e2d34a886487411c210eb7d844c2e7be3c471-aztec36-52785be2006c-69b89f3dd72c.json",
+        "source_sha256": "117ecbadd8da42690078b29bed3e2d34a886487411c210eb7d844c2e7be3c471",
+        "state": "FUNCTION_CODE_MATCH",
+        "verdict": "EQUAL"
       }
     ],
     "ov08_F_3FC0": [
@@ -6139,40 +6171,6 @@
       "reason": "UNRESOLVED_INTER_OBJECT_CALL: PC-relative calls to verified ov07_F_0E06 and ov07_F_0E7C cross unreconstructed same-overlay code gaps; no synthetic same-node proxy or partial source unit is permitted",
       "state": "BLOCKED"
     },
-    "ov08_F_3F70": {
-      "attempts": [
-        {
-          "actual_length": null,
-          "cache_key": "9341d89435fa73324f02d1e81fa071244d1c15f6f972e9094643e69ecd332b23",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 80,
-          "first_difference": null,
-          "mnemonic_similarity": null,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov08_F_3F70/acf0e939cc00875908427157220da9e7d54cfe08ff800b2d5d916e6e20769264-aztec36-9341d89435fa-e962cd232c05.json",
-          "source_sha256": "acf0e939cc00875908427157220da9e7d54cfe08ff800b2d5d916e6e20769264",
-          "state": "CANDIDATE_C",
-          "verdict": "BLOCKED"
-        },
-        {
-          "actual_length": null,
-          "cache_key": "973dc2ccd256b9dab14c3ad2bd44fc4c6dd565a5d245f022619eb9649a4b0058",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 80,
-          "first_difference": null,
-          "mnemonic_similarity": null,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov08_F_3F70/73ab39583b88aaef6d32a46266c60415f2e14cefe0fffa6416fd0ccab9fba38f-aztec36-973dc2ccd256-e962cd232c05.json",
-          "source_sha256": "73ab39583b88aaef6d32a46266c60415f2e14cefe0fffa6416fd0ccab9fba38f",
-          "state": "CANDIDATE_C",
-          "verdict": "BLOCKED"
-        }
-      ],
-      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
-      "ownership_unchanged": true,
-      "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
-      "state": "BLOCKED"
-    },
     "ov09_F_298E": {
       "attempts": [
         {
@@ -7081,6 +7079,22 @@
       "proof_sha256": "a076fcc9e5a70ee3b71f4fc9157b71c21ec6994c7423f3073b63ecbba9b7f012",
       "source": "src/recovered/ov08/ov08_F_1C30.c",
       "source_sha256": "4401cf1ef2cfcfddffe1831cc8e859d44cdd0fe2c0a6018f7b9d8c027de73a23",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov08_F_3F70": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 16320,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 8,
+        "sha256": "6e1fc0231a5dce7b808e6354d7441fc65286fa17d87efa7ca1277ddadab38527",
+        "size": 80,
+        "start": 16240
+      },
+      "proof": "recovery/proofs/ov08_F_3F70.json",
+      "proof_sha256": "4bb553a629c804e7ffb2d415672c4b1a987d91626b440109cab7309d473c9543",
+      "source": "src/recovered/ov08/ov08_F_3F70.c",
+      "source_sha256": "117ecbadd8da42690078b29bed3e2d34a886487411c210eb7d844c2e7be3c471",
       "state": "FUNCTION_CODE_MATCH"
     },
     "ov08_F_3FC0": {
