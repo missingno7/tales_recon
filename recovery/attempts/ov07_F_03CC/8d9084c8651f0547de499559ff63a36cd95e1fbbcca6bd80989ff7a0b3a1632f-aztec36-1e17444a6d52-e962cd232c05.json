@@ -1,0 +1,127 @@
+{
+  "actual_length": 224,
+  "actual_sha256": "c2ffdf302ce86ec76fc80c5a4a79b0daf81c30782aa349b8735e4f5b32735af7",
+  "cache_hit": false,
+  "cache_key": "1e17444a6d522e449fad4034662d5dfab6aed7c5aab307db98a6f562062bddee",
+  "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "unlk",
+        "offset": 178,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 180,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      },
+      {
+        "mnemonic": "subq.w",
+        "offset": 182,
+        "operands": "#$1, (a4)",
+        "raw": "5354",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "lea.l",
+        "offset": 174,
+        "operands": "$c(a7), a7",
+        "raw": "4fef000c",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 178,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 180,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 182,
+  "expected_sha256": "9eb5bc40ca43331432f3844ea942aef5eb85f82407f7d0f1fb34f94cd133a12f",
+  "flags": [],
+  "id": "ov07_F_03CC",
+  "mnemonic_similarity": 0.9901,
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.l",
+        "offset": 4,
+        "operands": "-(a7)",
+        "raw": "42a7",
+        "size": 2
+      },
+      {
+        "mnemonic": "pea.l",
+        "offset": 6,
+        "operands": "$ff.w",
+        "raw": "487800ff",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "clr.l",
+        "offset": 4,
+        "operands": "-(a7)",
+        "raw": "42a7",
+        "size": 2
+      },
+      {
+        "mnemonic": "pea.l",
+        "offset": 6,
+        "operands": "$ff.w",
+        "raw": "487800ff",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "804642a742a72f2c80424eac80024fef",
+    "actual_size": 224,
+    "expected": "c6d442a742a72f2cc6d04eac814c4fef",
+    "expected_size": 182,
+    "offset": 28
+  },
+  "reason": "DATA_OR_UNDECODED_CONTRIBUTION_REQUIRES_OWNERSHIP_PROOF",
+  "relocation_equal": false,
+  "source_sha256": "8d9084c8651f0547de499559ff63a36cd95e1fbbcca6bd80989ff7a0b3a1632f",
+  "unit_blocker": "unit has unowned gaps; do not fill or copy original bytes",
+  "verdict": "BLOCKED"
+}
