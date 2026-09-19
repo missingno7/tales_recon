@@ -187,9 +187,10 @@ proved to address its expected tail offset. It never promotes a function alone;
 normal complete-unit proof must still own code and adjacent data without gaps.
 `--owned-static-data` adds a separate manifest-gated path for initialized static
 DATA: `recovery/data/<function-id>.json` must declare one bounded original DATA
-extent and its oracle hash. The checker derives the candidate DATA boundary from
-the natural harness/object link order, compares every byte, and currently rejects
-any DATA relocation or BSS. A manifest is boundary evidence, never source input;
+extent and its oracle hash, plus the candidate's linked DATA symbol. The checker
+uses that natural symbol rather than assuming object order survives runtime
+contributions, compares every byte, and currently rejects any DATA relocation or
+BSS. A manifest is boundary evidence, never source input;
 the candidate must reconstruct its own C initializer. Equality is recorded only
 as `FUNCTION_WITH_DATA_MATCH` and cannot promote canonical source by itself.
 Unknown indexed jumps stop descent; no jump table is guessed. Explicit A4

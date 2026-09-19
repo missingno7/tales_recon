@@ -23,6 +23,13 @@ The later `ov10_F_320C` guarded dispatcher adds 124 exact bytes. Its union
 layout follows the observed overlapping word and second-byte accesses; nine
 resident/global reference identities are independently resolved in its receipt.
 
+`ov11_F_727A` now supplies the first independently reconstructed initialized
+DATA trial: 64 fixed-point sine samples are emitted as a normal C global and
+their 128-byte linked DATA contribution matches exactly. All tested compiler
+profiles still address that global through A4, while the game uses a six-byte
+absolute HUNK relocation, so this remains a retained codegen blocker rather
+than a function promotion.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant

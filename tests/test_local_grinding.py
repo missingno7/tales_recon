@@ -126,6 +126,9 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(blocker_class(dict(data_contributions=dict(candidate_bss=4))),'CANDIDATE_OWNED_BSS')
         self.assertEqual(blocker_class(dict(unit_blocker='unrecovered callee')),'UNRESOLVED_INTER_OBJECT_CALL')
         self.assertEqual(blocker_class(dict(relocation_issues=[dict(kind='PC_RELATIVE_DATA_OWNERSHIP_UNPROVEN')])),'PC_RELATIVE_OWNED_DATA')
+        self.assertEqual(blocker_class(dict(relocation_issues=[dict(kind='HUNK_RELOCATION')]),
+                                       'PERSISTENT_CODEGEN_MISMATCH: established profile mismatch'),
+                         'PERSISTENT_CODEGEN_MISMATCH')
 
 
 if __name__=='__main__':unittest.main()

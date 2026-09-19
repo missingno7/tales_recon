@@ -32,8 +32,13 @@ def object_data_size(path):
     return int.from_bytes(raw[14:18],'big'),int.from_bytes(raw[18:22],'big')
 
 
-def linked_candidate_data(compiled):
-    """Locate candidate initialized DATA by the normal harness/object order."""
+def linked_candidate_data(compiled,candidate_symbol=None):
+    """Locate candidate initialized DATA in the natural linked root DATA hunk.
+
+    The library can contribute root DATA before the harness.  A curated
+    manifest may therefore name the candidate's linked data symbol instead of
+    relying on object-order arithmetic that is not preserved by every link.
+    """
     require(compiled['status']=='COMPILED','candidate did not compile')
     c=compiled['contribution'];directory=Path(compiled['directory']);prefix=compiled['prefix']
     require(prefix.startswith('t') and len(prefix)>1,'unrecognized compiler candidate prefix')
@@ -45,10 +50,16 @@ def linked_candidate_data(compiled):
     hunk=next((h for h in model['hunks'] if h['number']==1),None)
     require(hunk is not None and hunk['type']=='DATA','linked candidate has no root DATA hunk')
     start=harness_data
+    if candidate_symbol:
+        name='_'+candidate_symbol.lstrip('_')
+        symbol=next((s for s in c['symbols'] if s['name']==name and s['hunk']==1),None)
+        require(symbol is not None,'candidate static-DATA symbol is absent from linked root DATA')
+        start=symbol['offset']
     require(start+candidate_data<=hunk['initialized_size'],'candidate DATA exceeds linked root DATA')
     base=hunk['content_offset']+start
     return dict(hunk=1,start=start,size=candidate_data,bss_size=candidate_bss,
-                bytes=blob[base:base+candidate_data],model=model,blob=blob)
+                bytes=blob[base:base+candidate_data],model=model,blob=blob,
+                symbol=candidate_symbol)
 
 
 def static_data_proof(compiled,manifest,original,original_model):
@@ -56,6 +67,9 @@ def static_data_proof(compiled,manifest,original,original_model):
     declared=manifest.get('original',{})
     for key in ('hunk','start','size','sha256'):
         require(key in declared,'static-DATA manifest lacks original '+key)
+    candidate_symbol=manifest.get('candidate_symbol')
+    require(isinstance(candidate_symbol,str) and candidate_symbol,
+            'static-DATA manifest lacks candidate_symbol')
     require(declared['size']>0 and declared['start']>=0,'invalid static-DATA extent')
     original_hunk=next((h for h in original_model['hunks'] if h['number']==declared['hunk']),None)
     require(original_hunk is not None and original_hunk['type']=='DATA','static-DATA original is not DATA')
@@ -64,7 +78,7 @@ def static_data_proof(compiled,manifest,original,original_model):
     begin=original_hunk['content_offset']+declared['start']
     expected=original[begin:begin+declared['size']]
     require(sha256(expected)==declared['sha256'],'static-DATA manifest hash differs from oracle')
-    linked=linked_candidate_data(compiled)
+    linked=linked_candidate_data(compiled,candidate_symbol)
     require(linked['size']==declared['size'],'candidate static-DATA length differs')
     require(linked['bss_size']==0,'candidate static-DATA also owns BSS')
     original_relocs=[r for r in original_model['relocations'] if r['source_hunk']==declared['hunk']
@@ -78,7 +92,7 @@ def static_data_proof(compiled,manifest,original,original_model):
     require(linked['bytes']==expected,'candidate static-DATA bytes differ')
     return dict(kind='INITIALIZED_STATIC_DATA',original=dict(declared),
                 linked=dict(hunk=linked['hunk'],start=linked['start'],size=linked['size'],
-                            sha256=sha256(linked['bytes'])),relocations=[])
+                sha256=sha256(linked['bytes']),symbol=candidate_symbol),relocations=[])
 
 
 def compare_owned_static_data(f,compiled,a4_bias):
