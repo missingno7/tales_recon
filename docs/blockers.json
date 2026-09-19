@@ -13,7 +13,8 @@
       "experiments_tried": [
         "Checked named toolchain commands on PATH; no Amiga toolchain or WinUAE returned",
         "Inspected sibling toolchain top levels; these provide DOS/Win32 tools, not evidence of an Amiga compiler",
-        "WinUAE unattended smoke-003/004: compile, assemble, explicit c.lib link and execution all return 0; output identical across runs. Older adump rejects CJ object."
+        "WinUAE unattended smoke-003/004: compile, assemble, explicit c.lib link and execution all return 0; output identical across runs. Older adump rejects CJ object.",
+        "96-trial matrix: 24 sources across four 3.6a/5.0a profiles compiled; four complete game leaves match aztec36 and differ under tested alternatives. Shared runtime is not a discriminator."
       ],
       "first_mismatch": null,
       "hypotheses": [
@@ -21,7 +22,7 @@
       ],
       "id": "TOOLCHAIN-001",
       "missing_artifact": "Evidence selecting exact compiler release/flags and runtime objects; candidate worker now operational",
-      "next_experiment": "Compare compiler-generated game function conventions across 3.6a and 5.0a; preserve cross-release runtime ambiguity",
+      "next_experiment": "Expand game-code fingerprint discrimination through ranked leaf verification; keep both releases available automatically.",
       "status": "OPEN",
       "target": "historical compiler/assembler/linker selection"
     },
@@ -93,7 +94,8 @@
         "invart.arc, invest.arc, and STOCK PORTFOLIO anchors"
       ],
       "experiments_tried": [
-        "Selected whole historical overlay, recovered two exported entries, and linked asset anchors"
+        "Selected whole historical overlay, recovered two exported entries, and linked asset anchors",
+        "Recursive descent reaches 6030 bytes of ov07; uncertainty retained. Mechanical bootstrap moved to smaller ov14 leaves; ov07 remains semantic pilot."
       ],
       "first_mismatch": null,
       "hypotheses": [
@@ -101,7 +103,7 @@
       ],
       "id": "PILOT-001",
       "missing_artifact": "Complete control-flow/data/reference map and compiler code-generation identification; natural overlay link path is verified",
-      "next_experiment": "Trace pilot code and references with established runtime targets; compare compiler fingerprints for its functions",
+      "next_experiment": "Scale the verified grinder from low-risk leaves to ov07 after call/data proof extensions.",
       "status": "OPEN",
       "target": "ov07 complete reconstruction"
     },
@@ -226,6 +228,23 @@
       "next_experiment": "Use this normal link mechanism for independently reconstructed game modules; no full layout/content match claimed",
       "status": "RESOLVED",
       "target": "historical natural overlay link recipe"
+    },
+    {
+      "current_evidence": [
+        "Four game leaves promoted as FUNCTION_CODE_MATCH, 164 bytes",
+        "Owned candidate data/BSS and PC-relative data deliberately BLOCKED",
+        "Unproven inter-object PC-relative direct-call identity prevents promotion"
+      ],
+      "experiments_tried": [
+        "Independent complete-object extraction and relocation/A4 identity normalization",
+        "End-to-end fixture proposer: four promotions, one retained repeated mismatch, zero worker boots on repeat"
+      ],
+      "first_mismatch": null,
+      "id": "GRINDER-PROOF-001",
+      "missing_artifact": "Owned-data extent model and independently bound inter-object call proof",
+      "next_experiment": "Extend typed data/object ownership and call-target binding without relaxing whole-contribution equality",
+      "status": "OPEN",
+      "target": "stronger data and call contribution proofs"
     }
   ],
   "schema_version": 1

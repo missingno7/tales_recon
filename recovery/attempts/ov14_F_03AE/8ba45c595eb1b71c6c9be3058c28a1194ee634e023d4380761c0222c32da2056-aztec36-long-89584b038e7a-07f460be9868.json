@@ -1,0 +1,187 @@
+{
+  "actual_length": 20,
+  "actual_sha256": "ce7fa047e281d6b9f85cbe650aac45c2b625342aca4fc7a659be50ae1faec78e",
+  "cache_hit": true,
+  "cache_key": "89584b038e7a47fc63ba0a419c856bda1f5613b2fbecfd4e72083dc972c9f7ad",
+  "comparison_identity": "07f460be9868a2880b0959ab1df7e95cad51dc9c504dbfb68219a5d8b11f4c7c",
+  "compiler": "aztec36-long",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$f(a5), -$7fd5(a4)",
+        "raw": "196d000f802b",
+        "size": 6
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 16,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 18,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$b(a5), -$454c(a4)",
+        "raw": "196d000bbab4",
+        "size": 6
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 16,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 18,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 20,
+  "expected_sha256": "0803a73fa6966ac2ff4bca85e2a31b3da7458c78de42a21deef3c72893b35316",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "move.b",
+      "offset": 4,
+      "operands": "$b(a5), -$7fd6(a4)",
+      "raw": "196d000b802a",
+      "size": 6
+    },
+    "expected": {
+      "mnemonic": "move.b",
+      "offset": 4,
+      "operands": "$9(a5), -$6bda(a4)",
+      "raw": "196d00099426",
+      "size": 6
+    }
+  },
+  "flags": [
+    "+L"
+  ],
+  "id": "ov14_F_03AE",
+  "mnemonic_similarity": 1.0,
+  "normalized_first_difference": {
+    "actual": "0b9426196d000fbab44e5d4e75",
+    "actual_size": 20,
+    "expected": "099426196d000bbab44e5d4e75",
+    "expected_size": 20,
+    "offset": 7
+  },
+  "normalized_sha256": "976204fb2b8a09b98c238ac53d3f2851476353f2a2524233c30e86d6fe38bac7",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "$b(a5), -$7fd6(a4)",
+        "raw": "196d000b802a",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$f(a5), -$7fd5(a4)",
+        "raw": "196d000f802b",
+        "size": 6
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 4,
+        "operands": "$9(a5), -$6bda(a4)",
+        "raw": "196d00099426",
+        "size": 6
+      },
+      {
+        "mnemonic": "move.b",
+        "offset": 10,
+        "operands": "$b(a5), -$454c(a4)",
+        "raw": "196d000bbab4",
+        "size": 6
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "0b802a196d000f802b4e5d4e75",
+    "actual_size": 20,
+    "expected": "099426196d000bbab44e5d4e75",
+    "expected_size": 20,
+    "offset": 7
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": true,
+  "relocation_issues": [],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        5156
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 5156,
+        "symbol": "_G_h01_1424"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 8
+    },
+    {
+      "expected": [
+        1,
+        15026
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 15026,
+        "symbol": "_G_h01_3AB2"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 14
+    }
+  ],
+  "source_sha256": "8ba45c595eb1b71c6c9be3058c28a1194ee634e023d4380761c0222c32da2056",
+  "verdict": "DIFFER"
+}

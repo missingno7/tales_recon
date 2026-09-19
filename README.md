@@ -1,13 +1,24 @@
 # DuckTales Amiga historical reconstruction
 
 This independent project follows [the vision](docs/VISION.md). The current
-deliverable is a reproducible disk/HUNK/overlay evidence model. There is no
+deliverable is a mechanical source-recovery pipeline with four verified C
+functions (164 bytes), a recursive function census and a historical compiler
+oracle. There is no
 reconstructed game executable or completed source overlay yet.
 
 The supplied originals in `assets/` are hash-locked verification fixtures.
 They are never reconstructed build inputs. All analysis runs on Windows with
-Python 3.10+ and the standard library; no emulator or third-party package is
-needed for the census.
+Python 3.10+; the topology parser uses the standard library, and recursive 68k
+analysis uses the installed native Capstone. Historical compilation uses the
+unattended WinUAE worker.
+
+Start with [the grinder interface and proof boundaries](docs/grinder-pipeline.md):
+
+```powershell
+python tools/grinder.py rank --limit 12
+python tools/grinder.py facts ov14_F_03AE
+python tools/check_function.py ov14_F_03AE experiments/grinder-bootstrap/ov14_F_03AE.c
+```
 
 ## Reproduce the evidence
 
@@ -72,8 +83,11 @@ and [format scope](docs/formats.md) for validation boundaries.
 The supplied Aztec 5.0a archive is now pinned. Three disks validate, providing
 339 files including the compiler, assembler, linker and 17 libraries; disk 3
 fails strict OFS validation and remains quarantined. No historical tools have
-been executed or selected as a match. Object-level runtime matching and compiler
-fingerprinting remain next. The earlier HTTP 465 failure is retained in the ledger.
+been selected as the unique historical release. Both 3.6a and 5.0a execute
+unattended; 96 fingerprint trials are retained. Four game leaves match the tested
+3.6a profile, and 470 resident runtime bytes match candidate contributions.
+The shared segload code does not distinguish releases. The earlier HTTP 465
+failure is retained in the ledger.
 See [Windows tools and archive findings](docs/windows-tools.md) for native
 analysis/build options and the distinction between native execution and vamos.
 

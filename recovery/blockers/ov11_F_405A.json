@@ -1,0 +1,257 @@
+{
+  "blocker": {
+    "attempts": [
+      {
+        "actual_length": 10,
+        "expected_length": 34,
+        "first_difference": {
+          "actual": "70004e5d4e75",
+          "actual_size": 10,
+          "expected": "302d000848c0eb8041ec216c0c700004",
+          "expected_size": 34,
+          "offset": 4
+        },
+        "mnemonic_similarity": 0.5,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_405A/2c6ca892a3ae82d0045b3ac1e68a0e2b79aff6ac1367930eae44d1c75467c21a-aztec36.json",
+        "source_sha256": "2c6ca892a3ae82d0045b3ac1e68a0e2b79aff6ac1367930eae44d1c75467c21a",
+        "verdict": "DIFFER"
+      }
+    ],
+    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "ownership_unchanged": true,
+    "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
+    "state": "BLOCKED"
+  },
+  "facts": {
+    "abi": {
+      "a4_bias": 32766,
+      "fingerprints": "evidence/fingerprints/index.json",
+      "historical_selection": "AMBIGUOUS",
+      "profiles": [
+        "aztec36",
+        "aztec36-long",
+        "aztec50",
+        "aztec50-short"
+      ]
+    },
+    "argument_accesses": [
+      {
+        "frame_offset": 8,
+        "instruction_offset": 16478,
+        "width": "w"
+      }
+    ],
+    "calls": [],
+    "cfg": [
+      {
+        "kind": "CONDITIONAL",
+        "source": 16496,
+        "target": 16502
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 16496,
+        "target": 16498
+      },
+      {
+        "kind": "UNCONDITIONAL",
+        "source": 16500,
+        "target": 16504
+      }
+    ],
+    "compiler_examples": [
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),d0\n\tcmp.w\t10(a5),d0\n\tbcc\t.4\n\tmove.l\t#1,d0\n\tbra\t.5\n.4\n\tmove.l\t#0,d0\n.5\n.6\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "unsigned_compare",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: unsigned_compare */\nrecovered(a,b) unsigned a,b; { return a<b; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tdseg\n\tds\t0\n.4\n\tdc.w\t3\n\tdc.w\t7\n\tdc.w\t11\n\tcseg\n\tmove.w\t8(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tlea\t.4,a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n.5\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+        "flags": [],
+        "name": "static_data",
+        "profile": "aztec36",
+        "source": "/* Independent compiler fingerprint: static_data */\nrecovered(n) int n; { static int values[3]={3,7,11}; return values[n]; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),d0\n\tcmp.w\t10(a5),d0\n\tbcc\t.4\n\tmove.l\t#1,d0\n\tbra\t.5\n.4\n\tmove.l\t#0,d0\n.5\n.6\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "unsigned_compare",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: unsigned_compare */\nrecovered(a,b) unsigned a,b; { return a<b; }\n"
+      },
+      {
+        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#2,d0\n\tadd.l\t8(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+        "flags": [
+          "-ps"
+        ],
+        "name": "pointer_arithmetic",
+        "profile": "aztec50-short",
+        "source": "/* Independent compiler fingerprint: pointer_arithmetic */\nlong *recovered(p,n) long *p; int n; { return p+n; }\n"
+      }
+    ],
+    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+    "data": [
+      {
+        "hunk": 1,
+        "name": "G_h01_A16A",
+        "offset": 41322,
+        "type_status": "INFER_FROM_ACCESSES"
+      }
+    ],
+    "entry_evidence": [
+      {
+        "basis": "PC_RELATIVE",
+        "caller": "ov11_F_0B4C",
+        "kind": "DIRECT_CALL",
+        "site": 2928
+      }
+    ],
+    "extent": {
+      "confidence": "HIGH",
+      "end": 16508,
+      "extent_status": "CLOSED_CFG",
+      "hunk": 11,
+      "node": "ov11",
+      "sha256": "f3e63c1b6ad997fe3151c1b4536ae0e9dce2668efd93f42bea9aa5681c729f3c",
+      "size": 34,
+      "start": 16474
+    },
+    "id": "ov11_F_405A",
+    "indirect": [],
+    "instructions": [
+      {
+        "mnemonic": "link.w",
+        "offset": 16474,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 16478,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "ext.l",
+        "offset": 16482,
+        "operands": "d0",
+        "raw": "48c0",
+        "size": 2
+      },
+      {
+        "mnemonic": "asl.l",
+        "offset": 16484,
+        "operands": "#$5, d0",
+        "raw": "eb80",
+        "size": 2
+      },
+      {
+        "mnemonic": "lea.l",
+        "offset": 16486,
+        "operands": "$216c(a4), a0",
+        "raw": "41ec216c",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpi.w",
+        "offset": 16490,
+        "operands": "#$4, (a0, d0.l)",
+        "raw": "0c7000040800",
+        "size": 6
+      },
+      {
+        "mnemonic": "bne.b",
+        "offset": 16496,
+        "operands": "$4076",
+        "raw": "6604",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 16498,
+        "operands": "#$1, d0",
+        "raw": "7001",
+        "size": 2
+      },
+      {
+        "mnemonic": "bra.b",
+        "offset": 16500,
+        "operands": "$4078",
+        "raw": "6002",
+        "size": 2
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 16502,
+        "operands": "#$0, d0",
+        "raw": "7000",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 16504,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 16506,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "previous_attempts": [
+      {
+        "actual_length": 10,
+        "compiler": "aztec36",
+        "expected_length": 34,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "moveq",
+            "offset": 4,
+            "operands": "#$0, d0",
+            "raw": "7000",
+            "size": 2
+          },
+          "expected": {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.5,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "2c6ca892a3ae82d0045b3ac1e68a0e2b79aff6ac1367930eae44d1c75467c21a",
+        "verdict": "DIFFER"
+      }
+    ],
+    "recovered_dependencies": [],
+    "relocations": [],
+    "schema_version": 1,
+    "stack_frames": [
+      {
+        "local_bytes": 0,
+        "offset": 16474,
+        "register": "a5"
+      }
+    ],
+    "strings": []
+  }
+}

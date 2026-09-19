@@ -25,6 +25,14 @@ separate claims. No original source spelling or filename is assumed recovered.
 No per-function ORG, placement scripts, original-code fallback, carrier runtime,
 or post-link patching may satisfy the final reconstruction proof.
 
+The function grinder grants FUNCTION_CODE_MATCH only for a complete closed
+contribution. Proven external address fields may be normalized through independent
+symbol/relocation identities in the comparison buffer. This does not prove the
+data objects' contents, allocation order, or whole-overlay layout. Its canonical
+ledger is `recovery/ledger.json`; generated topology metrics validate those proofs
+before counting reconstructed bytes. See `docs/grinder-pipeline.md` for the API,
+unsupported cases, and reserved stronger states.
+
 Runtime ABI ownership is not exact library object provenance. A known Manx
 trampoline may be classified as runtime glue while the producing linker version
 and library object remain unknown. All other ranges retain unknown ownership

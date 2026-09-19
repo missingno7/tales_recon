@@ -8,6 +8,7 @@ import sys
 from common import FormatError, json_bytes, require, sha256
 from ofs import OFSDisk
 from hunk import parse, manx_overlay, overlay_shape
+from recovery_evidence import load_promotions
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -52,6 +53,12 @@ def derive(root):
     require('DT1:DuckTales' in files, 'main executable absent')
     exe = files['DT1:DuckTales']
     model = parse(exe)
+    function_path=root/'evidence/functions/ledger.json'
+    analysis=json.loads(function_path.read_text()) if function_path.exists() else {}
+    if analysis:require(analysis['game_sha256']==sha256(exe),'function census belongs to another game fixture')
+    analysis_current=bool(analysis) and all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in analysis.get('analysis_identity',{}).items())
+    promoted=load_promotions(root,exe,model,analysis)
+    matched_source_bytes=sum(f['size'] for f in promoted)
     runtime_candidate_bytes = 0
     occupied = set()
     natural_overlay_shape_reproduced = False
@@ -151,6 +158,7 @@ def derive(root):
             evidence='absolute JMP bridge with independent relocation record'))
     for h in model['hunks']:
         spans = list(verified) if h['number'] == 1 else []
+        spans += [(f['start'],f['end'],'CODE','GAME_C',f['proof']) for f in promoted if f['hunk']==h['number']]
         spans += [(a['offset'],a['offset']+a['size'],'STRING','UNKNOWN','exact asset filename anchor')
                   for a in anchors if a['hunk'] == h['number']]
         spans.sort()
@@ -174,9 +182,19 @@ def derive(root):
         note='Sum across all hunks, not simultaneous runtime RAM use. HUNK_CODE/DATA are containers, not per-byte classifications.',
         initialized_bytes=sum(h['initialized_size'] for h in model['hunks']), unknown_bytes=unknown,
         classified_bytes=allocated-unknown, ranges=ranges)
-    outputs['evidence/executable/instructions.json'] = dict(schema_version=1,
-        scope='Verified resident overlay trampolines/bridge only; no speculative linear disassembly.',
-        decoded_instruction_bytes=sum(i['length'] for i in instructions), instructions=instructions)
+    decoded={(i['hunk'],i['offset']):i for i in instructions}
+    for f in analysis.get('functions',[]):
+        for i in f['instructions']:
+            key=f['hunk'],i['offset']
+            if key not in decoded:
+                decoded[key]=dict(hunk=f['hunk'],offset=i['offset'],raw=i['raw'],length=i['size'],
+                    decoded=i['mnemonic']+' '+i['operands'],confidence='RECURSIVE_DESCENT_CANDIDATE',function_candidates=[])
+            decoded[key].setdefault('function_candidates',[]).append(f['id'])
+    instructions=[decoded[k] for k in sorted(decoded)]
+    reached={(i['hunk'],off) for i in instructions for off in range(i['offset'],i['offset']+i['length'])}
+    outputs['evidence/executable/instructions.json'] = dict(schema_version=2,
+        scope='Seeded recursive-descent CODE plus verified DATA-hunk overlay trampolines; uncertainty retained in function ledger. No linear hunk sweep.',
+        analysis_current=analysis_current,decoded_instruction_bytes=len(reached),instructions=instructions)
     outputs['evidence/executable/ownership.json'] = dict(schema_version=1,
         note='MANX_RUNTIME means observed overlay ABI role, not exact historical library-object identity.', ranges=ranges)
     modules = []
@@ -194,17 +212,20 @@ def derive(root):
             asset_anchors=[a for a in anchors if a['node'] == node['id']],
             byte_size=size, initialized_bytes=sum(h['initialized_size'] for h in hs),
             classified_bytes=size-unclassified, unknown_bytes=unclassified, ownership_unknown_bytes=owner_unknown,
-            game_owned_bytes=0, runtime_bytes=size-owner_unknown,
-            functions_identified=None, overlay_entries_identified=sum(s['hunk'] in node['hunks'] for s in symbols),
-            functions_reconstructed=0, code_matched_bytes=0, data_matched_bytes=0,
+            game_owned_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks']),
+            runtime_bytes=sum(r['end']-r['start'] for r in rs if r['ownership']=='MANX_RUNTIME'),
+            functions_identified=None,function_candidates=sum(f['hunk'] in node['hunks'] for f in analysis.get('functions',[])),
+            overlay_entries_identified=sum(s['hunk'] in node['hunks'] for s in symbols),
+            functions_reconstructed=sum(f['hunk'] in node['hunks'] for f in promoted),
+            code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks']),data_matched_bytes=0,
             relocation_records=sum(r['source_hunk'] in node['hunks'] for r in model['relocations']),
             relocations_resolved=0, current_proof_level=None, evidence_status='TOPOLOGY_OBSERVED',
             next_blocker='TOOLCHAIN-001' if node['id']=='ov07' else 'OWNERSHIP-001'))
     outputs['docs/modules.json'] = dict(schema_version=1, modules=modules)
-    outputs['docs/symbols.json'] = dict(schema_version=1, symbols=symbols, historical_symbols_present=False)
+    outputs['docs/symbols.json'] = dict(schema_version=1, symbols=symbols,recovered_functions=promoted,historical_symbols_present=False)
     outputs['docs/data-layout.json'] = dict(schema_version=1, ranges=[r for r in ranges
         if r['hunk'] in (1,2) or r['classification']=='STRING'], typed_game_objects=0)
-    outputs['docs/progress.json'] = dict(schema_version=1, milestone='IMMUTABLE_TOPOLOGY_CENSUS',
+    outputs['docs/progress.json'] = dict(schema_version=1, milestone='MECHANICAL_FUNCTION_RECOVERY' if promoted else 'IMMUTABLE_TOPOLOGY_CENSUS',
         reconstruction_complete=False, pilot_complete=False, independent_game_build_available=False,
         supplied_disks=len(disks), extracted_files=len(files), executable_size=len(exe),
         executable_hunks=len(model['hunks']), physical_overlays=len(model['nodes'])-1,
@@ -212,13 +233,16 @@ def derive(root):
         file_bytes_accounted=model['accounted_file_bytes'], file_bytes_unparsed=model['unparsed_bytes'],
         allocation_sum_bytes=allocated, classification_unknown_bytes=unknown,
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
-        reconstructed_functions=0, matched_source_bytes=0, current_proof_level=None,
+        reconstructed_functions=len(promoted),matched_source_bytes=matched_source_bytes,current_proof_level=None,
+        highest_individual_contribution_proof='FUNCTION_CODE_MATCH' if promoted else None,
+        function_analysis=analysis.get('summary'),function_analysis_current=analysis_current,
+        recovery_ledger='recovery/ledger.json',bootstrap_overlay='ov14',fingerprint_database='evidence/fingerprints/index.json',
         runtime_candidate_matching_bytes=runtime_candidate_bytes,
         natural_overlay_shape_reproduced=natural_overlay_shape_reproduced,
         phases={'0':'CENSUS_COMPLETE','1':'CENSUS_COMPLETE','2':'CENSUS_COMPLETE',
                 '3':'STATIC_TOPOLOGY_VALIDATED_RUNTIME_NOT_TRACED','4':'PARTIAL_CONSERVATIVE_MAP',
-                '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'CANDIDATE_OBJECT_MATCHES' if runtime_candidate_bytes else 'OVERLAY_GLUE_ONLY','7':'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
-        pilot='ov07', next_action='Fingerprint compiler variants and recover pilot control flow using the validated natural overlay link path.')
+                '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'CANDIDATE_OBJECT_MATCHES' if runtime_candidate_bytes else 'OVERLAY_GLUE_ONLY','7':'FINGERPRINT_MATRIX_AND_GAME_LEAF_MATCHES' if promoted else 'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
+        pilot='ov07',next_action='Run bounded candidate proposers through the batched verifier; recover ranked overlay leaves and extend blocked data/call proofs before whole-overlay linking.')
     outputs['evidence/executable/pilot.json'] = dict(schema_version=1, node='ov07', hunk=7,
         selection_reason='invest.arc and invart.arc anchors plus investment text; coherent candidate, not the smallest overlay',
         initialized_size=next(h['initialized_size'] for h in model['hunks'] if h['number']==7),
