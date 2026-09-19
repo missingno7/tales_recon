@@ -120,7 +120,7 @@ def facts(fid,max_instructions=160):
                     **({'runtime':runtime[(c['hunk'],c['offset'])]} if (c['hunk'],c['offset']) in runtime else {})) for c in f['direct_callees']],
         indirect=f['indirect_control_flow'],data=[dict(hunk=h,offset=o,name='G_h%02d_%04X'%(h,o),type_status='INFER_FROM_ACCESSES') for h,o in refs],
         strings=f['referenced_strings'],relocations=[dict(x,target_name=('G_h%02d_%04X'%(x['target_hunk'],x['addend_raw'])) if x['target_hunk'] in (1,2) else None) for x in f['relocations']],stack_frames=f['stack_frames'],argument_accesses=f['likely_argument_accesses'],
-        abi=dict(a4_bias=ledger['a4']['bias'],profiles=['aztec36','aztec36-x3','aztec36-long','aztec50','aztec50-short'],historical_selection='AMBIGUOUS',fingerprints='evidence/fingerprints/index.json'),
+        abi=dict(a4_bias=ledger['a4']['bias'],profiles=['aztec36','aztec36-x3','aztec36-large-data','aztec36-long','aztec50','aztec50-short'],historical_selection='AMBIGUOUS',fingerprints='evidence/fingerprints/index.json'),
         previous_attempts=previous,previous_sources=previous_sources,compiler_examples=fingerprints,recovered_dependencies=dependencies,
         contract='Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.')
     require(len(json.dumps(packages).encode())<=65536,'fact package exceeds 64 KiB budget; choose a smaller candidate')

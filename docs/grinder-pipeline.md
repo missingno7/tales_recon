@@ -219,16 +219,15 @@ bad and good sources in one batch. Artifact hashes and independently re-extracte
 are checked before use. Corrupt cache entries stop with a blocker, never silently
 masquerade as valid results. JSON ledger writes use atomic replacement.
 
-The matrix contains 24 programs × four profiles = 96 compiled trials:
-3.6a default / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
+The current matrix contains 34 programs × six profiles = 204 compiled trials:
+3.6a default / `+X3` / `+D` / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
 arguments/returns, frames/registers/MOVEM, branches/loops/switches, pointers,
 structs/arrays, globals/statics, indirect calls, library calls and K&R varargs.
 The latest additions measure char returns versus expression fallthrough, embedded
 string literals, and compiler-generated arithmetic helpers.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains
-code, assembly, symbols, identities and artifact hashes. A repeated 96-trial run
-used zero worker invocations; see `evidence/experiments/fingerprint-cache.json`.
+code, assembly, symbols, identities and artifact hashes.
 
 - `evidence/functions/ledger.json`: generated recursive evidence and uncertainty.
 - `evidence/executable/instructions.json`: expanded decoded instruction database.

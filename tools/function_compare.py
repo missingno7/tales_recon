@@ -101,7 +101,7 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False):
                 s['hunk']=1
     from pathlib import Path
     source=(Path(compiled['directory'])/(compiled['prefix']+'.c')).read_text()
-    int_size=2 if compiled['identity']['profile'] in ('aztec36','aztec50-short') else 4
+    int_size=2 if compiled['identity']['profile'] in ('aztec36','aztec36-x3','aztec36-large-data','aztec50-short') else 4
     bounds={}
     for m in re.finditer(r'extern\s+(?:(?:signed|unsigned)\s+)?(char|short|int|long|float|double)\s+(\**)(\w+)(?:\[(\d+)\])?\s*;',source):
         width=4 if m[2] else dict(char=1,short=2,int=int_size,long=4,float=4,double=8)[m[1]]
