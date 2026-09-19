@@ -8,9 +8,14 @@ function comparator to normalize relocations and A4 references.
 """
 import copy
 
-from analysis_support import K,decoder,instruction
+from analysis_support import K,decoder,instruction,game
 from common import FormatError,sha256
 from function_compare import compare_function,decode_all
+
+
+def alignment_padding(tail):
+    """Return the zero bytes Aztec adds to word-align a CODE literal bundle."""
+    return b'\0' if len(tail)&1 else b''
 
 
 def expected_string_tail(f):
@@ -19,8 +24,11 @@ def expected_string_tail(f):
     The ledger records printable strings from executable data references.  A
     candidate may own a tail only when every same-hunk PC-relative reference
     points at one of those strings and the NUL-terminated strings occupy every
-    byte immediately after the closed function extent.  This deliberately
-    rejects padding, interleaved bytes, inferred literals, and distant data.
+    byte immediately after the closed function extent.  A single zero byte is
+    accepted only when it is the word-alignment padding required by an
+    odd-length literal bundle and the immutable hunk contains that exact byte.
+    This deliberately rejects interleaved bytes, inferred literals, and distant
+    data.
     """
     refs=sorted(r['offset'] for r in f['referenced_data']
                 if r['kind']=='PC_RELATIVE_DATA' and r['hunk']==f['hunk'])
@@ -39,7 +47,17 @@ def expected_string_tail(f):
         if offset!=cursor:
             raise FormatError('owned string tail is not contiguous immediately after function extent')
         tail.append(raw);cursor+=len(raw)
-    return b''.join(tail),dict(start=f['end'],end=cursor,strings=[dict(offset=o,text=t) for o,t in strings])
+    literals=b''.join(tail);padding=alignment_padding(literals)
+    if padding:
+        blob,model,_=game()
+        hunk=next((h for h in model['hunks'] if h['number']==f['hunk']),None)
+        if hunk is None:
+            raise FormatError('owned string tail hunk is absent from immutable game model')
+        pad=blob[hunk['content_offset']+cursor:hunk['content_offset']+cursor+len(padding)]
+        if pad!=padding:
+            raise FormatError('owned string tail alignment padding is not the immutable zero byte')
+    return literals+padding,dict(start=f['end'],end=cursor+len(padding),
+        strings=[dict(offset=o,text=t) for o,t in strings],alignment_padding=len(padding))
 
 
 def pc_relative_tail_proof(f,prefix,tail_start):

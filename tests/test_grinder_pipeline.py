@@ -190,3 +190,21 @@ class CachedVerifierRegressionTests(unittest.TestCase):
             with self.assertRaises(FormatError):load_promotions(root,b,m,l)
             src.write_bytes(before);proof=root/item['proof'];proof.write_bytes(proof.read_bytes()+b'\n')
             with self.assertRaises(FormatError):load_promotions(root,b,m,l)
+
+    def test_generated_coverage_rejects_owned_code_data_receipt_tamper(self):
+        from analysis_support import game
+        b,m,_=game();l=evidence()
+        original=json.loads((ROOT/'recovery/ledger.json').read_text())
+        fid='ov11_F_20F2';item=original['functions'].get(fid)
+        if item is None:self.skipTest('owned CODE-data promotion not present')
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);proof=root/item['proof'];source=root/item['source']
+            proof.parent.mkdir(parents=True,exist_ok=True);source.parent.mkdir(parents=True,exist_ok=True)
+            proof.write_bytes((ROOT/item['proof']).read_bytes());source.write_bytes((ROOT/item['source']).read_bytes())
+            changed=json.loads(proof.read_text())
+            changed['data_ownership']['expected_tail_sha256']='0'*64
+            changed['comparison']['owned_code_data']['expected_tail_sha256']='0'*64
+            write_json(proof,changed)
+            altered=dict(item,proof_sha256=sha256(proof.read_bytes()))
+            write_json(root/'recovery/ledger.json',dict(functions={fid:altered}))
+            with self.assertRaises(FormatError):load_promotions(root,b,m,l)

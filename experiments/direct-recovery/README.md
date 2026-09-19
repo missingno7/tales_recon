@@ -36,10 +36,25 @@ with the observed draw/present/delay sequence, and naturally emits the proved
 signed modulo and division helpers. Reordering the 30-byte local frame was the
 only revision needed after the initial same-length, same-mnemonic trial.
 
+`ov11_F_20F2` is the first `FUNCTION_WITH_DATA_MATCH`: a 230-byte parser for
+an `L` header and 14-byte rows, followed by two source-owned format strings
+and one required Aztec word-alignment byte (32 bytes total). The literal extent
+ends exactly at the next discovered function entry. Its receipt proves the
+two PC-relative references, eight resident calls, the record-table A4 identity,
+and the matched `.divs` runtime contribution.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
 array dimensions without placement or changes to comparison normalization.
+
+`ov07_F_03CC` proves the complementary PC-relative string-tail path. Its normal
+aztec36 output has the exact 182-byte instruction body, all external A4
+identities, and the exact adjacent 42-byte string contribution. Its two local
+calls target recovered `ov07_F_0E06` and `ov07_F_0E7C`, but the intervening
+overlay bytes are not yet owned by a complete source unit. The checker therefore
+retains it as an inter-object-call blocker instead of replacing the direct calls
+with synthetic A4 harness stubs.
 
 The two ov14 selector hypotheses remain unpromoted. Aztec 3.6a generates the
 expected bodies plus a two-byte EXT.W on explicit char return. Tested 5.0a-short

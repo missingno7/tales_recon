@@ -234,7 +234,8 @@ def derive(root):
         allocation_sum_bytes=allocated, classification_unknown_bytes=unknown,
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
         reconstructed_functions=len(promoted),matched_source_bytes=matched_source_bytes,current_proof_level=None,
-        highest_individual_contribution_proof='FUNCTION_CODE_MATCH' if promoted else None,
+        highest_individual_contribution_proof=('FUNCTION_WITH_DATA_MATCH' if any(x['state']=='FUNCTION_WITH_DATA_MATCH' for x in promoted)
+                                               else 'FUNCTION_CODE_MATCH' if promoted else None),
         function_analysis=analysis.get('summary'),function_analysis_current=analysis_current,
         recovery_ledger='recovery/ledger.json',bootstrap_overlay='ov14',fingerprint_database='evidence/fingerprints/index.json',
         runtime_candidate_matching_bytes=runtime_candidate_bytes,

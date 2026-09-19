@@ -28,7 +28,7 @@ def validated_function(fid):
     return f,ledger
 
 
-def promote(fid,source,report,compiled,f):
+def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH'):
     for other,item in recovery()['functions'].items():
         e=item['evidence_extent']
         require(other==fid or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
@@ -42,13 +42,14 @@ def promote(fid,source,report,compiled,f):
     path=ROOT/'src/recovered'/f['node']/(fid+'.c');path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(source,encoding='ascii',newline='\n')
     receipt_path=ROOT/'recovery/proofs'/(fid+'.json')
-    proof=dict(schema_version=1,id=fid,state='FUNCTION_CODE_MATCH',source=str(path.relative_to(ROOT)).replace('\\','/'),source_sha256=source_hash,
+    proof=dict(schema_version=1,id=fid,state=state,source=str(path.relative_to(ROOT)).replace('\\','/'),source_sha256=source_hash,
         evidence_extent={k:f[k] for k in ('hunk','start','end','size','sha256','extent_status')},
         compiler=compiled['identity'],object_hash=compiled['contribution']['object_sha256'],
         artifacts=compiled['artifacts'],cache_key=compiled['cache_key'],
         verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')},
         comparison=report,relocation_proof=report['relocation_proof'],dependencies=f['direct_callees'],
-        data_ownership='External references only; no candidate-owned data or padding omitted',
+        data_ownership=(report['owned_code_data'] if state=='FUNCTION_WITH_DATA_MATCH'
+                        else 'External references only; no candidate-owned data or padding omitted'),
         compiler_selection='Matching candidate; historical release remains ambiguous',
         regression=dict(command='python -m unittest discover -s tests',passed=True,output_sha256=sha256((tests.stdout+tests.stderr).encode())))
     write_json(receipt_path,proof)
@@ -60,6 +61,21 @@ def promote(fid,source,report,compiled,f):
     r['blockers'].pop(fid,None)
     write_json(LEDGER,r)
     return r['functions'][fid]
+
+
+def owned_code_data_boundary(f,ledger,report):
+    """Require a proven CODE-data tail to stop exactly at the next entry.
+
+    An intermediate data match becomes canonical source ownership only when its
+    separately claimed literal/padding extent ends where the next discovered
+    candidate begins.  This prevents a source literal from silently claiming
+    unrelated bytes between functions.
+    """
+    owned=report['owned_code_data'];end=owned['end']
+    starts=sorted(other['start'] for other in ledger['functions']
+                  if other['hunk']==f['hunk'] and other['start']>=f['end'] and other['id']!=f['id'])
+    require(starts and starts[0]==end,
+            'owned CODE-data extent is not bounded by the next discovered function entry')
 
 
 def check_many(requests,promote_equal=True):
@@ -129,13 +145,16 @@ def check_many(requests,promote_equal=True):
         short.update(cache_key=report['cache_key'],comparison_identity=report['comparison_identity'])
         if not any(a.get('cache_key')==short['cache_key'] and a.get('comparison_identity')==short['comparison_identity'] for a in attempts):attempts.append(short)
         write_json(LEDGER,r)
-        # Compiler-owned CODE data is a useful bounded result, but it remains
-        # separate from ordinary function promotion until a full natural unit
-        # owns the adjacent data without gaps.
-        if report['verdict']=='EQUAL' and report.get('proof_level')=='FUNCTION_CODE_MATCH' and promote_equal:
+        # Compiler-owned CODE data is promoted only when its independently
+        # proved tail ends at the next discovered entry, so no unowned bytes
+        # can be absorbed between the function and its natural literal bundle.
+        proof_level=report.get('proof_level')
+        if report['verdict']=='EQUAL' and proof_level in ('FUNCTION_CODE_MATCH','FUNCTION_WITH_DATA_MATCH') and promote_equal:
+            if proof_level=='FUNCTION_WITH_DATA_MATCH':
+                owned_code_data_boundary(f,l,report)
             canonical=recovery()['functions'].get(f['id'])
             if not canonical or canonical['source_sha256']==report['source_sha256']:
-                report['promotion']=promote(f['id'],source,report,compiled,f)
+                report['promotion']=promote(f['id'],source,report,compiled,f,proof_level)
         reports.append(report)
     save_rank()
     return reports
@@ -146,7 +165,7 @@ def main():
     ap.add_argument('id',nargs='?');ap.add_argument('source',type=Path,nargs='?')
     ap.add_argument('--profile',action='append',choices=sorted(PROFILES))
     ap.add_argument('--batch',type=Path,help='JSON array of {id,source,profiles}; one boot for all cache misses')
-    ap.add_argument('--owned-code-data',action='store_true',help='strictly verify an adjacent compiler-owned PC-relative string tail; never promotes alone')
+    ap.add_argument('--owned-code-data',action='store_true',help='strictly verify an adjacent compiler-owned PC-relative string tail; promotes only at a proved next-entry boundary')
     ap.add_argument('--owned-static-data',action='store_true',help='strictly verify a manifest-declared initialized static DATA contribution; never promotes alone')
     ap.add_argument('--no-promote',action='store_true');ap.add_argument('--json',action='store_true');args=ap.parse_args()
     req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or ['aztec36','aztec50-short'],owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data)]
@@ -155,7 +174,8 @@ def main():
         if args.json:print(json.dumps(r))
         else:
             diff=r.get('normalized_first_difference');where='none' if not diff else hex(diff['offset'])
-            print(f"{r['id']} {r['compiler']}: {r['verdict']} expected={r['expected_length']} actual={r['actual_length']} first_diff={where} relocations={r['relocation_equal']} cache_hit={r['cache_hit']}")
+            relocations=r.get('relocation_equal')
+            print(f"{r['id']} {r['compiler']}: {r['verdict']} expected={r['expected_length']} actual={r['actual_length']} first_diff={where} relocations={relocations} cache_hit={r['cache_hit']}")
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 
 if __name__=='__main__':

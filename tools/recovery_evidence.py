@@ -8,7 +8,7 @@ def load_promotions(root,blob,model,analysis):
     if not path.exists():return []
     ledger=json.loads(path.read_text());out=[];occupied=set()
     for fid,item in sorted(ledger['functions'].items()):
-        require(item['state']=='FUNCTION_CODE_MATCH','unsupported promotion level: '+fid)
+        require(item['state'] in ('FUNCTION_CODE_MATCH','FUNCTION_WITH_DATA_MATCH'),'unsupported promotion level: '+fid)
         source=(root/item['source']).resolve();proof_path=(root/item['proof']).resolve()
         require(source.is_relative_to(root.resolve()) and proof_path.is_relative_to(root.resolve()),'proof paths escape workspace')
         proof=json.loads(proof_path.read_text());extent=proof['evidence_extent'];comparison=proof['comparison']
@@ -19,12 +19,36 @@ def load_promotions(root,blob,model,analysis):
         start,end=extent['start'],extent['end'];size=end-start
         require(h['type']=='CODE' and 0<=start<end<=h['initialized_size'] and size==extent['size'],'invalid promotion extent')
         raw=blob[h['content_offset']+start:h['content_offset']+end]
-        require(sha256(raw)==extent['sha256']==comparison['expected_sha256']==comparison['normalized_sha256'],'promotion bytes disagree')
         require(comparison['verdict']=='EQUAL' and comparison['relocation_equal'] and not comparison['relocation_issues'],'promotion comparison failed')
-        require(comparison['expected_length']==comparison['actual_length']==size and proof['regression']['passed'],'incomplete promotion')
-        require(comparison['data_contributions']['candidate_data']==comparison['data_contributions']['candidate_bss']==0,'unproven owned data')
         f=next((f for f in analysis.get('functions',[]) if f['id']==fid),None)
         require(f and all(f[k]==extent[k] for k in ('hunk','start','end','size','sha256','extent_status')) and f['extent_status']=='CLOSED_CFG','promotion extent no longer supported')
+        if item['state']=='FUNCTION_CODE_MATCH':
+            require(sha256(raw)==extent['sha256']==comparison['expected_sha256']==comparison['normalized_sha256'],'promotion bytes disagree')
+            require(comparison['expected_length']==comparison['actual_length']==size and proof['regression']['passed'],'incomplete promotion')
+            require(comparison['data_contributions']['candidate_data']==comparison['data_contributions']['candidate_bss']==0,'unproven owned data')
+            owned_end=end
+        else:
+            owned=proof['data_ownership'];code=comparison.get('code_comparison',{})
+            require(isinstance(owned,dict) and owned==comparison.get('owned_code_data'),'owned CODE-data receipt differs')
+            require(comparison.get('proof_level')=='FUNCTION_WITH_DATA_MATCH','wrong data promotion proof level')
+            require(code.get('verdict')=='EQUAL' and code.get('expected_length')==code.get('actual_length')==size,
+                    'function portion of CODE-data promotion is incomplete')
+            require(sha256(raw)==extent['sha256']==code.get('expected_sha256')==code.get('normalized_sha256'),
+                    'CODE-data function bytes disagree')
+            owned_end=owned.get('end');strings=owned.get('strings');padding=owned.get('alignment_padding')
+            require(isinstance(owned_end,int) and owned.get('start')==end and isinstance(strings,list) and padding in (0,1),
+                    'invalid owned CODE-data bounds')
+            literals=b''.join(s['text'].encode('ascii')+b'\0' for s in strings)
+            tail=literals+(b'\0' if padding else b'')
+            require(owned_end==end+len(tail) and sha256(tail)==owned.get('expected_tail_sha256')==owned.get('actual_tail_sha256'),
+                    'owned CODE-data payload disagrees')
+            actual_tail=blob[h['content_offset']+end:h['content_offset']+owned_end]
+            require(actual_tail==tail and comparison['actual_length']==size+len(tail) and proof['regression']['passed'],
+                    'owned CODE-data contribution is incomplete')
+            refs=sorted(r['offset'] for r in f['referenced_data'] if r['kind']=='PC_RELATIVE_DATA' and r['hunk']==f['hunk'])
+            require(refs==[s['offset'] for s in strings] and owned['end']==min(x['start'] for x in analysis['functions']
+                    if x['hunk']==f['hunk'] and x['start']>=end and x['id']!=fid),
+                    'owned CODE-data lacks contiguous reference or next-entry proof')
         if proof['compiler']['source_sha256']!=proof['source_sha256']:
             unit_path=(root/comparison.get('complete_unit_receipt','')).resolve()
             require(unit_path.is_relative_to(root.resolve()) and unit_path.is_file(),'combined source requires complete unit receipt')
@@ -45,7 +69,7 @@ def load_promotions(root,blob,model,analysis):
             require(sha256(b''.join(unit_raw))==unit['expected_sha256'],'complete unit original bytes disagree')
             for dep,digest in unit['dependency_sources'].items():
                 require(ledger['functions'].get(dep,{}).get('source_sha256')==digest,'unit dependency source changed')
-        locations={(extent['hunk'],offset) for offset in range(start,end)}
+        locations={(extent['hunk'],offset) for offset in range(start,owned_end)}
         require(not locations & occupied,'overlapping promoted source contributions');occupied.update(locations)
         out.append(dict(id=fid,node=h['node'],**extent,source=item['source'],proof=item['proof'],state=item['state']))
     return out

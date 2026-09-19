@@ -9,6 +9,7 @@ cannot be promoted to HUNK_CONTENT_MATCH by copying the oracle.
 | SEMANTIC_ONLY | Readable source with documented behavioral evidence |
 | CODEGEN_SIMILAR | Pinned compiler experiment and measured similarity |
 | FUNCTION_CODE_MATCH | Complete function bytes and independently resolved relocations |
+| FUNCTION_WITH_DATA_MATCH | Complete function bytes plus an independently proved, contiguous compiler-owned CODE-data contribution |
 | MODULE_CODE_MATCH | Complete module routines, padding and data contributions |
 | DATA_LAYOUT_MATCH | Typed objects reproduce measured sizes, offsets and references |
 | HUNK_CONTENT_MATCH | All initialized content independently produced |
@@ -32,6 +33,11 @@ data objects' contents, allocation order, or whole-overlay layout. Its canonical
 ledger is `recovery/ledger.json`; generated topology metrics validate those proofs
 before counting reconstructed bytes. See `docs/grinder-pipeline.md` for the API,
 unsupported cases, and reserved stronger states.
+
+FUNCTION_WITH_DATA_MATCH additionally requires every PC-relative literal to be
+separately evidenced, an exact source-produced CODE tail, and a boundary at the
+next discovered function entry. It claims that literal contribution only; it does
+not establish a complete module or overlay layout.
 
 Runtime ABI ownership is not exact library object provenance. A known Manx
 trampoline may be classified as runtime glue while the producing linker version

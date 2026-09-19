@@ -4,7 +4,7 @@ import sys
 import unittest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from owned_code_data import compare_owned_code_data,expected_string_tail
+from owned_code_data import alignment_padding,compare_owned_code_data,expected_string_tail
 from function_compare import compare_function
 
 
@@ -48,3 +48,7 @@ class OwnedCodeDataTests(unittest.TestCase):
         self.f['referenced_strings'][0]['offset']=107
         with self.assertRaisesRegex(ValueError,'exactly'):
             expected_string_tail(self.f)
+
+    def test_odd_literal_bundle_requires_one_zero_alignment_byte(self):
+        self.assertEqual(alignment_padding(b'XY\0'),b'\0')
+        self.assertEqual(alignment_padding(b'X\0'),b'')
