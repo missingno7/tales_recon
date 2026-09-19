@@ -30,6 +30,12 @@ profiles still address that global through A4, while the game uses a six-byte
 absolute HUNK relocation, so this remains a retained codegen blocker rather
 than a function promotion.
 
+The later `ov06_F_028C` decimal counter animation adds 414 exact bytes. It
+builds two right-to-left digit buffers from signed long values, renders them
+with the observed draw/present/delay sequence, and naturally emits the proved
+signed modulo and division helpers. Reordering the 30-byte local frame was the
+only revision needed after the initial same-length, same-mnemonic trial.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
