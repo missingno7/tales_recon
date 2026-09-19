@@ -61,6 +61,10 @@ short literal only when an explicit PC-relative reference reaches an
 ASCII/NUL-terminated payload; the unchanged tail verifier still requires every
 reference, every tail byte, and the next entry boundary to match exactly.
 
+`ov11_F_7194` adds a 210-byte `X` record parser and a 20-byte three-literal
+tail. Its ten-byte indexed records show the same historical scan/error/advance
+shape in a smaller form, and the tail reaches the next discovered entry exactly.
+
 The ov07 percentage lookup uses 31-byte rows. A struct containing 31 chars is
 rounded to 32 bytes by Aztec; an ordinary two-dimensional unsigned-char array
 produces the observed multiply by 31. The harness now accepts positive constant
