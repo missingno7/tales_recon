@@ -201,11 +201,13 @@ structs, and old-style function declarations; unsupported declarations return a
 blocker. Inline assembly and external includes are outside this candidate-C API.
 
 `FUNCTION_WITH_DATA_MATCH`, `MODULE_MATCH` and `OVERLAY_NODE_MATCH` remain
-stronger states. The owned-tail checker can issue the first as a noncanonical
-intermediate receipt, but canonical promotion still requires complete
-data/layout/dependency contributions and a normal whole-module `+oN` link. The
-next expansion is complete-unit data ownership and more ranked leaves, then ov07
-and the remaining overlays, with resident reconstruction later.
+stronger states. An owned-tail receipt promotes canonically only when its complete
+tail ends exactly at the next discovered function entry; this makes the
+function-plus-tail contribution a closed natural boundary. Otherwise it remains
+an intermediate receipt pending complete-unit proof. Whole-overlay evidence still
+requires complete data/layout/dependency contributions and a normal whole-module
+`+oN` link. The next expansion is complete-unit data ownership and more ranked
+leaves, then ov07 and the remaining overlays, with resident reconstruction later.
 
 ## Cache, fingerprints and ledgers
 

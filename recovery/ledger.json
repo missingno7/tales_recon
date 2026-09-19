@@ -869,6 +869,66 @@
         "verdict": "EQUAL"
       }
     ],
+    "ov04_F_26F0": [
+      {
+        "actual_length": null,
+        "cache_key": "c99f89c623c997f2330e8d136dcf1045fe1539feb349d0cff9a65e385e461569",
+        "comparison_identity": "69b89f3dd72c77bfe72644e6928ea7b6245702ec212339d50b5b385d99ce6e3a",
+        "expected_length": 266,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36-large-data",
+        "receipt": "recovery/attempts/ov04_F_26F0/1092f015734c80c27f680d819f4143e11d11fa6a6c0117cf3ab185be9218fc05-aztec36-large-data-c99f89c623c9-69b89f3dd72c.json",
+        "source_sha256": "1092f015734c80c27f680d819f4143e11d11fa6a6c0117cf3ab185be9218fc05",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": 270,
+        "cache_key": "78db30d30cf798a0376c66f604304452626797f584c17e60d3717effac94bbfb",
+        "comparison_identity": "69b89f3dd72c77bfe72644e6928ea7b6245702ec212339d50b5b385d99ce6e3a",
+        "expected_length": 266,
+        "first_difference": {
+          "actual": "3f3c3e802f39000054224eac80025c4f",
+          "actual_size": 266,
+          "expected": "48783e802f39000054224eac8140504f",
+          "expected_size": 266,
+          "offset": 12
+        },
+        "mnemonic_similarity": 0.8596,
+        "profile": "aztec36-large-data",
+        "receipt": "recovery/attempts/ov04_F_26F0/bf5acb661f9ec6a80053bff0f8da0318b195529062121caf5cf5c90ba27a692c-aztec36-large-data-78db30d30cf7-69b89f3dd72c.json",
+        "source_sha256": "bf5acb661f9ec6a80053bff0f8da0318b195529062121caf5cf5c90ba27a692c",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 274,
+        "cache_key": "dfc97043df0cae89121d5db3aa10838e6655b96d16f88c9b6903d6c746e7e0eb",
+        "comparison_identity": "69b89f3dd72c77bfe72644e6928ea7b6245702ec212339d50b5b385d99ce6e3a",
+        "expected_length": 266,
+        "first_difference": null,
+        "mnemonic_similarity": null,
+        "profile": "aztec36-large-data",
+        "receipt": "recovery/attempts/ov04_F_26F0/fc42862a6dfcbae2889ac25449620fc9fe3e4be3143eb7ba473100a1e8575e62-aztec36-large-data-dfc97043df0c-69b89f3dd72c.json",
+        "source_sha256": "fc42862a6dfcbae2889ac25449620fc9fe3e4be3143eb7ba473100a1e8575e62",
+        "state": "CANDIDATE_C",
+        "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": 270,
+        "cache_key": "d14d73d593146a323bfd633f2b1086ec465d0622fec0feee27ff3a5b741c3f8b",
+        "comparison_identity": "69b89f3dd72c77bfe72644e6928ea7b6245702ec212339d50b5b385d99ce6e3a",
+        "expected_length": 266,
+        "first_difference": null,
+        "mnemonic_similarity": 1.0,
+        "profile": "aztec36-large-data",
+        "receipt": "recovery/attempts/ov04_F_26F0/63111b254bdea793cd91fe766418bc4c3e93c9ebe9841d463557f52dae32e5c0-aztec36-large-data-d14d73d59314-69b89f3dd72c.json",
+        "source_sha256": "63111b254bdea793cd91fe766418bc4c3e93c9ebe9841d463557f52dae32e5c0",
+        "state": "FUNCTION_WITH_DATA_MATCH",
+        "verdict": "EQUAL"
+      }
+    ],
     "ov05_F_3A9E": [
       {
         "actual_length": 88,
@@ -6111,13 +6171,6 @@
     ]
   },
   "blockers": {
-    "ov04_F_26F0": {
-      "attempts": [],
-      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
-      "ownership_unchanged": true,
-      "reason": "ABSOLUTE_GLOBAL_ADDRESSING: twelve observed absolute resident-global operands plus a PC-relative tail require a natural absolute-address mechanism; current harness only proves A4 extern identities.",
-      "state": "BLOCKED"
-    },
     "ov07_F_03CC": {
       "attempts": [
         {
@@ -6942,6 +6995,22 @@
       "source": "src/recovered/ov04/ov04_F_1AA2.c",
       "source_sha256": "98015cd43ea869bd8eba1e7a621617626f4a5064a6a0b77b0c8f6b7520235203",
       "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov04_F_26F0": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 10234,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 4,
+        "sha256": "a43917de2cc44a4dddaf1586cebe3f419d5e5141ffe715092146fb5ee1bede3e",
+        "size": 266,
+        "start": 9968
+      },
+      "proof": "recovery/proofs/ov04_F_26F0.json",
+      "proof_sha256": "a712484c71d9a114821f774181e3dfbdec3323bf9ee0125021218a670e4172b9",
+      "source": "src/recovered/ov04/ov04_F_26F0.c",
+      "source_sha256": "63111b254bdea793cd91fe766418bc4c3e93c9ebe9841d463557f52dae32e5c0",
+      "state": "FUNCTION_WITH_DATA_MATCH"
     },
     "ov05_F_3A9E": {
       "compiler_selection": "Matching candidate; historical release remains ambiguous",

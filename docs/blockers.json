@@ -232,9 +232,9 @@
     },
     {
       "current_evidence": [
-        "72 functions promoted as FUNCTION_CODE_MATCH (10766 code bytes), plus ov11_F_20F2, ov11_F_2C96, ov11_F_3926, ov11_F_506A, ov11_F_67B0, ov11_F_6A44, and ov11_F_7194 at FUNCTION_WITH_DATA_MATCH (1872 code bytes and 230 compiler-owned CODE literal bytes)",
+        "76 functions promoted as FUNCTION_CODE_MATCH (11614 code bytes), plus eight functions at FUNCTION_WITH_DATA_MATCH (2138 code bytes)",
         "A complete natural 88-byte callee/caller unit matches, including both short PC-relative call identities",
-        "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC produces its exact 42-byte adjacent string tail and all external A4 identities, but its two direct same-overlay calls cross unowned gaps and are rejected; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 is retained as an explicit absolute-global-addressing blocker after 25 HUNK_RELOC32-backed absolute resident operands; ov04_F_1AA2 now matches through the historical `(unsigned)long_return % 3` high-word idiom; nonadjacent dependency units with gaps are rejected"
+        "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC produces its exact 42-byte adjacent string tail and all external A4 identities, but its two direct same-overlay calls cross unowned gaps and are rejected; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 now matches with aztec36 +D, 25 HUNK_RELOC32-backed absolute resident-global operands, and a four-byte compiler-owned `OK` tail; ov04_F_1AA2 matches through the historical `(unsigned)long_return % 3` high-word idiom; nonadjacent dependency units with gaps are rejected"
       ],
       "experiments_tried": [
         "Independent complete-object extraction and relocation/A4 identity normalization",
@@ -243,8 +243,8 @@
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
-      "missing_artifact": "An addressing/source-unit mechanism that reproduces absolute initialized-DATA references, plus natural layouts for larger dependency units",
-      "next_experiment": "Use the symbol-located static-DATA verifier for independently derived tables, recover contiguous same-node units that can bind direct PC-relative calls naturally, and investigate the absolute-versus-A4 addressing mechanism once without omitting gaps or weakening complete-contribution proof",
+      "missing_artifact": "Natural layouts for larger dependency units and evidence-backed initialized-DATA contributions",
+      "next_experiment": "Use the symbol-located static-DATA verifier for independently derived tables, recover contiguous same-node units that can bind direct PC-relative calls naturally, and apply the measured +D profile only where absolute relocation evidence requires it without omitting gaps or weakening complete-contribution proof",
       "status": "OPEN",
       "target": "stronger data and call contribution proofs"
     },
