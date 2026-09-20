@@ -1,0 +1,141 @@
+{
+  "comparison": {
+    "actual_length": 428,
+    "expected_length": 428
+  },
+  "compiler": {
+    "cache_hit": true,
+    "cache_key": "81d3ae34d5daf03efa8aaf9ef8acd3d01bd355af1abb08ba93aee5d000584709",
+    "identity": {
+      "candidate_overlay_node": 9,
+      "compiler_version": "3.6a",
+      "entry_function": "F_h11_583A",
+      "entry_symbol_extractor_sha256": "148b9bf90285128d64308e535a00d07d9cebba6cdc71a8d1b99f6c7711fb27a3",
+      "flags": [],
+      "harness_sha256": "bc20bc3a5fe067ffb82fa9fdd955c87a72d8ee2d849687ee522c06f75dbff0a1",
+      "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "library": "c.lib",
+      "library_guest": "Old1:",
+      "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+      "link_recipe": "harness.o +o9 candidate.o +o0 c.lib; -m -t",
+      "profile": "aztec36",
+      "service_version": 1,
+      "source_sha256": "c87653ebeb1cb30bbc00b3d5aeec3f761946614687c14be311e65dcff0faca82",
+      "tools": {
+        "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+        "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+        "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+      },
+      "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+    },
+    "profile": "aztec36"
+  },
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "kind": "ov11_cycle_predecessor_codegen_experiment",
+  "members": [
+    {
+      "actual_sha256": "bc0875b353d117922d086a2933094b7fd6f7a24f09468e7ecbb220b45dd9859e",
+      "end": 22882,
+      "expected_sha256": "51a74a20f425eaf16c028d664738d8daa92f651af4216c7ec7af88173a79332c",
+      "id": "ov11_F_583A",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 236,
+            "operands": "-$7fca(a4), a0",
+            "raw": "41ec8036",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 236,
+            "operands": "$b1e(a4), a0",
+            "raw": "41ec0b1e",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 236
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size": 296,
+      "start": 22586
+    },
+    {
+      "actual_sha256": "5efc3258b84ec1fd1d56e79ee0ecc340d25f9b94241686a8d167b396caf6a55f",
+      "end": 23014,
+      "expected_sha256": "5c86a324eca9407ce958eea2a6ce0351d064baecd4d3223870d3d5a73d42e5ee",
+      "id": "ov11_F_5962",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$7e82(a4), a0",
+            "raw": "41ec817e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "$bee(a4), a0",
+            "raw": "41ec0bee",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 12
+        },
+        {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 86,
+            "operands": "-$7ffe(a4)",
+            "raw": "4eac8002",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 86,
+            "operands": "$2e0(pc)",
+            "raw": "4eba0288",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 86
+        },
+        {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 122,
+            "operands": "-$7ff8(a4)",
+            "raw": "4eac8008",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 122,
+            "operands": "$d9c(pc)",
+            "raw": "4eba0d20",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 122
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size": 132,
+      "start": 22882
+    }
+  ],
+  "policy": "This receipt proves only ordinary same-source call binding for a future physical layout unit. It must not update source ownership, the recovery ledger, or recovered bytes.",
+  "promotion_eligible": false,
+  "schema_version": 1,
+  "source": {
+    "path": "experiments/direct-recovery/ov11_F_583A-layout-v1.c",
+    "sha256": "c87653ebeb1cb30bbc00b3d5aeec3f761946614687c14be311e65dcff0faca82"
+  },
+  "status": "CODEGEN_SIMILAR_LAYOUT_ONLY"
+}

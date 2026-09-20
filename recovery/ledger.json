@@ -4558,6 +4558,65 @@
         "verdict": "DIFFER"
       }
     ],
+    "ov11_F_583A": [
+      {
+        "actual_length": 298,
+        "cache_key": "87ff5c50b04be95481a62d0a4f33a3d89c29ed065de9499b7c8464a8f4c28e26",
+        "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+        "expected_length": 296,
+        "first_difference": {
+          "actual": "fa302d000ad06d000e3b40fffc302d00",
+          "actual_size": 298,
+          "expected": "f8302d000ad06d000e3b40fff6302d00",
+          "expected_size": 296,
+          "offset": 23
+        },
+        "mnemonic_similarity": 0.9882,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_583A/6deb288a087599485acb41063b8d54f77ef332212b1dad36d8ed49a8a9e06ef3-aztec36-87ff5c50b04b-6bf796548b92.json",
+        "source_sha256": "6deb288a087599485acb41063b8d54f77ef332212b1dad36d8ed49a8a9e06ef3",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 298,
+        "cache_key": "c2fa57acbb5b0ad40929c511574d8d8df9f75f168a59d3e693b1a83aeb3aedcb",
+        "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+        "expected_length": 296,
+        "first_difference": {
+          "actual": "fc302d000ad06d000e3b40fffa302d00",
+          "actual_size": 298,
+          "expected": "f8302d000ad06d000e3b40fff6302d00",
+          "expected_size": 296,
+          "offset": 23
+        },
+        "mnemonic_similarity": 0.9882,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_583A/fafd040863a9460b145b3e8743da57ebb53c2be7dd8d1185db02f510d80206d1-aztec36-c2fa57acbb5b-6bf796548b92.json",
+        "source_sha256": "fafd040863a9460b145b3e8743da57ebb53c2be7dd8d1185db02f510d80206d1",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 298,
+        "cache_key": "1976729719a4d8c305631b23dc4e9a4fdbff121f14b7eb8be172b752c58cb0fc",
+        "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+        "expected_length": 296,
+        "first_difference": {
+          "actual": "4a3b6d000afffa6034302dfffc48c0e7",
+          "actual_size": 298,
+          "expected": "483b6d000afffa6032302dfffc48c0e7",
+          "expected_size": 296,
+          "offset": 209
+        },
+        "mnemonic_similarity": 0.9882,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_583A/528572f0a0a9bac9eb036fb522030ee983185a015aaaab3e14a73722e2716a8b-aztec36-1976729719a4-6bf796548b92.json",
+        "source_sha256": "528572f0a0a9bac9eb036fb522030ee983185a015aaaab3e14a73722e2716a8b",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      }
+    ],
     "ov11_F_5A12": [
       {
         "actual_length": 70,
@@ -7557,14 +7616,14 @@
       "attempts": [],
       "next_action": "Extend the normal source-layout proof to reproduce physical call distances and A4/global placement across the known cluster; do not retry either isolated member.",
       "ownership_unchanged": true,
-      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves both forward callees internally but is two bytes short because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than original JSR.d16(PC). The physical frontier 0x4790..0x5962 has 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes; retain evidence/experiments/linker-cycle-layout-frontier.json for normal layout recovery.",
+      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves both forward callees internally but remains two bytes short because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than original JSR.d16(PC). A normal 428-byte F_h11_583A + F_h11_5962 predecessor unit now binds its BSR locally and matches F_h11_583A mnemonics, retaining only A4 layout differences. The remaining 0x4790..0x5962 physical frontier has 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes; retain the frontier receipt for normal layout recovery.",
       "state": "BLOCKED"
     },
     "ov11_F_5C42": {
       "attempts": [],
       "next_action": "Extend the normal source-layout proof to reproduce physical call distances and A4/global placement across the known cluster; do not retry either isolated member.",
       "ownership_unchanged": true,
-      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves both forward callees internally but is two bytes short because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than original JSR.d16(PC). The physical frontier 0x4790..0x5962 has 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes; retain evidence/experiments/linker-cycle-layout-frontier.json for normal layout recovery.",
+      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves both forward callees internally but remains two bytes short because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than original JSR.d16(PC). A normal 428-byte F_h11_583A + F_h11_5962 predecessor unit now binds its BSR locally and matches F_h11_583A mnemonics, retaining only A4 layout differences. The remaining 0x4790..0x5962 physical frontier has 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes; retain the frontier receipt for normal layout recovery.",
       "state": "BLOCKED"
     },
     "ov11_F_5FB2": {

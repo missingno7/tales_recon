@@ -55,3 +55,10 @@ bytes, and a 40-byte interval at `0x5174` remains unclaimed. The retained
 frontier receipt does not classify that interval or add any layout filler; it
 only supplies the source-order plan required before the cluster can be tested
 as a complete natural unit.
+
+`tools/cycle_predecessor_experiment.py` adds a provisional historical-style C
+source for `F_583A` immediately before `F_5962`. The ordinary 428-byte source
+unit matches the original contribution length. `F_583A` has an exact mnemonic
+sequence and retains only its A4 global-placement field; its call to `F_5962`
+binds locally with the original short `BSR`. This is a reusable layout
+contributor, never an independent function promotion.
