@@ -227,7 +227,7 @@ bad and good sources in one batch. Artifact hashes and independently re-extracte
 are checked before use. Corrupt cache entries stop with a blocker, never silently
 masquerade as valid results. JSON ledger writes use atomic replacement.
 
-The current matrix contains 42 programs × six profiles = 252 compiled trials:
+The current matrix contains 46 programs × six profiles = 276 compiled trials:
 3.6a default / `+X3` / `+D` / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
 arguments/returns, frames/registers/MOVEM, branches/loops/switches, pointers,
 structs/arrays, globals/statics, indirect calls, library calls and K&R varargs.
@@ -237,8 +237,14 @@ profiles a signed or integer return emits `EXT.W`, an unsigned-byte return clear
 `D0`, and a long return adds `EXT.L`; none emits the game's bare byte return.
 This is a named `BYTE_RETURN_ABI_MISMATCH` blocker; the equivalent historical
 `CHAR_RETURN_EXTENSION` receipts use the same action, so the grinder does not
-spend ordinary candidate-C attempts on either form. Embedded
-string literals, and compiler-generated arithmetic helpers.
+spend ordinary candidate-C attempts on either form. The matrix also retains
+embedded string literals and compiler-generated arithmetic helpers.
+
+Four byte-extraction probes distinguish a direct byte copy, a pointer byte copy,
+a promoted pointer byte, and a high-byte mask. The direct copies omit extension;
+the promoted form emits `MOVE.L #0,D0`, and the mask shifts a word. None emits
+`MOVEQ #0,D0`, so the measured `BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH` remains
+blocked instead of spending more ordinary candidate-C attempts.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains
 code, assembly, symbols, identities and artifact hashes.

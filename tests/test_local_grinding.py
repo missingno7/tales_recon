@@ -142,7 +142,9 @@ class ReportTests(unittest.TestCase):
         self.assertTrue({'boolean_nested_return','boolean_early_return','boolean_expression_return'} <= set(CORPUS))
 
     def test_fingerprint_retains_the_byte_zero_extension_probe(self):
-        self.assertIn('unsigned_char_assignment',CORPUS)
+        self.assertTrue({'unsigned_char_assignment','unsigned_char_assignment_plain',
+                         'unsigned_byte_pointer_assignment','unsigned_byte_pointer_promoted',
+                         'unsigned_high_byte_mask'} <= set(CORPUS))
 
     def test_byte_return_blocker_does_not_recommend_more_candidate_retries(self):
         self.assertIn('do not retry ordinary candidate C',
