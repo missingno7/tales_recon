@@ -8,7 +8,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
 from compiler_oracle import identity,cached
-from check_unit import prepare_unit,compare_unit,partitioned_objects,stable_receipt
+from check_unit import prepare_unit,compare_unit,partitioned_objects,gap_partitioned_objects,stable_receipt
 from function_compare import compare_function
 from recovery_state import ROOT
 
@@ -161,6 +161,16 @@ class CompleteUnitTests(unittest.TestCase):
         self.assertIn('F_h09_0002() {}',objects[0]['source'])
         self.assertNotIn('extern int F_h09_0002();',objects[0]['source'])
         self.assertEqual(objects[1]['source'],parts[distant['id']])
+
+    def test_gap_partition_keeps_distant_local_callers_as_separate_objects(self):
+        caller=dict(id='ov09_F_0000',hunk=9,start=0,end=2,
+                    direct_callees=[dict(id='ov09_F_0010',hunk=9)])
+        callee=dict(id='ov09_F_0010',hunk=9,start=16,end=18,direct_callees=[])
+        names={caller['id']:'recovered',callee['id']:'F_h09_0010'}
+        parts={caller['id']:'extern int F_h09_0010(); recovered() { F_h09_0010(); }',
+               callee['id']:'F_h09_0010() {}'}
+        objects=gap_partitioned_objects([caller,callee],names,parts)
+        self.assertEqual([x['source'] for x in objects],[parts[caller['id']],parts[callee['id']]])
 
     def test_persisted_receipt_has_no_nested_cache_observations(self):
         receipt=stable_receipt(dict(cache_hit=True,members=[dict(cache_hit=False,

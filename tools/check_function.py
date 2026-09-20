@@ -132,10 +132,10 @@ def check_many(requests,promote_equal=True):
             # call pairs in one object for Manx BSR shortening.
             if unit is None:
                 try:
-                    from check_unit import partitioned_objects
+                    from check_unit import gap_partitioned_objects
                     members,names,parts,compile_source,_=prepare_unit(
                         f['id'],source,True,allow_gaps=True,remove_stale_externs=False)
-                    objects=partitioned_objects(members,names,parts,True)
+                    objects=gap_partitioned_objects(members,names,parts)
                     local_functions=tuple(names[m['id']] for m in members if m['id']!=f['id'])
                     unit=(members,names,compile_source,True)
                     unit_blocker=None

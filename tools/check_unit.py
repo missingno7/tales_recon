@@ -252,6 +252,23 @@ def partitioned_objects(members,names,parts,join_direct_callees=False):
     return result
 
 
+def gap_partitioned_objects(members,names,parts):
+    """Keep a gap proof in ordinary objects when no adjacent pair can join.
+
+    Joining an adjacent direct caller and callee preserves Manx's short local
+    call form where the original source object proves it.  A real source gap
+    can instead leave every recovered member in its own ordinary object; that
+    remains a complete linked proof and must not be rejected merely because
+    there is no eligible pair to join.
+    """
+    try:
+        return partitioned_objects(members,names,parts,True)
+    except FormatError as exc:
+        if str(exc)!='joined local source proof requires an adjacent direct-call pair':
+            raise
+        return partitioned_objects(members,names,parts,False)
+
+
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False):
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
     require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
