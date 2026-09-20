@@ -2,25 +2,6 @@
   "blocker": {
     "attempts": [
       {
-        "actual_length": 384,
-        "cache_key": "6f6ad95135828fd0cb8c89fc295b17d6b847c164adbc0f0d0e64bc5783458de6",
-        "comparison_identity": "759e41fc0e97a91e6df3a31bf7d4d385179e75176a8588e24b8a84eea0ce3827",
-        "expected_length": 376,
-        "first_difference": {
-          "actual": "64206d000a52680006206d000a226d00",
-          "actual_size": 384,
-          "expected": "5c206d000a52680006206d000a226d00",
-          "expected_size": 376,
-          "offset": 25
-        },
-        "mnemonic_similarity": 0.798,
-        "profile": "aztec36",
-        "receipt": "recovery/attempts/ov11_F_4474/09b4264f671189e134bc81b1ca489575f8ad7d70bae75b6a2b407ebed1740cb6-aztec36-6f6ad9513582-759e41fc0e97.json",
-        "source_sha256": "09b4264f671189e134bc81b1ca489575f8ad7d70bae75b6a2b407ebed1740cb6",
-        "state": "CODEGEN_SIMILAR",
-        "verdict": "DIFFER"
-      },
-      {
         "actual_length": 324,
         "cache_key": "4709a10c90036dff02237d477ed2de2cd1229f08ac6d2af6dacfe087ffdd774c",
         "comparison_identity": "759e41fc0e97a91e6df3a31bf7d4d385179e75176a8588e24b8a84eea0ce3827",
@@ -95,11 +76,30 @@
         "source_sha256": "23e0429378e4d97eaa65df4750c948ae661f99e49fb630eadc7c7347db26df17",
         "state": "CODEGEN_SIMILAR",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 388,
+        "cache_key": "a9f76405d97777159434f91ec4c18da7c95ce34899ec591cc67402a9c373d638",
+        "comparison_identity": "1622774643bd03953820355de04cebb6b21a9b159e4b71350827ab652ce7765a",
+        "expected_length": 376,
+        "first_difference": {
+          "actual": "2f04382d0008206d000a4a6800086f0c",
+          "actual_size": 388,
+          "expected": "206d000a4a6800086f0c206d000a5368",
+          "expected_size": 376,
+          "offset": 4
+        },
+        "mnemonic_similarity": 0.7864,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_4474/2065bfaf89f69dffd8591ced1ff4248d3ce88cedf42a6eb1ae38ae63deff4290-aztec36-a9f76405d977-1622774643bd.json",
+        "source_sha256": "2065bfaf89f69dffd8591ced1ff4248d3ce88cedf42a6eb1ae38ae63deff4290",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
       }
     ],
-    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "next_action": "Derive the historical Boolean-return source form from the compiler fingerprint, then close the named same-node source unit; do not retry isolated candidate C until the codegen mismatch changes.",
     "ownership_unchanged": true,
-    "reason": "PERSISTENT_CODEGEN_MISMATCH: corrected source case order reproduces the target dispatcher/body correspondence. Aztec 3.6a either stores state->action into the stack parameter before re-dispatch (384 bytes) or, with an explicit dispatch label, omits the target six-byte D0 reload/EXT.L sequence (382 bytes). Retain both receipts; resolve this source-level re-dispatch codegen boundary before retrying.",
+    "reason": "PERSISTENT_CODEGEN_MISMATCH: corrected case order reproduces dispatcher/body correspondence. Ordinary parameter assignment stores state->action into the stack parameter before re-dispatch (384 bytes); an explicit dispatch label omits the required D0 reload/EXT.L sequence (382 bytes); and a K&R register parameter preserves the reload shape only by saving/restoring D4 and expands to 388 bytes. Retain the bounded receipts; resolve the source-level re-dispatch codegen boundary before retrying.",
     "state": "BLOCKED"
   },
   "facts": {
@@ -475,41 +475,6 @@
         "target": 17828
       }
     ],
-    "compiler_examples": [
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),a0\n\tmove.l\t(a0),d4\n\tmove.l\t8(a5),a0\n\tmove.l\t4(a0),d5\n\tmove.l\t8(a5),a0\n\tmove.l\t8(a0),d6\n\tmove.l\t8(a5),a0\n\tmove.l\t12(a0),d7\n.4\n\tmove.w\t12(a5),d0\n\tsub.w\t#1,12(a5)\n\ttst.w\td0\n\tbeq\t.5\n\tadd.l\td5,d4\n\tadd.l\td6,d5\n\tadd.l\td7,d6\n\tadd.l\td4,d7\n\tbra\t.4\n.5\n\tmove.l\td4,d0\n\tadd.l\td5,d0\n\tadd.l\td6,d0\n\tadd.l\td7,d0\n.6\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\td4/d5/d6/d7\n\tpublic\t.begin\n\tdseg\n\tend\n",
-        "flags": [],
-        "name": "movem_pressure",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: movem_pressure */\nlong recovered(p,n) long *p; int n; { register long a,b,c,d; a=p[0]; b=p[1]; c=p[2]; d=p[3]; while(n--) { a+=b; b+=c; c+=d; d+=a; } return a+b+c+d; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tasl.l\t#1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
-        "flags": [],
-        "name": "array_index",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.10002\n.10001\n\tadd.w\t#1,-2(a5)\n.10002\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tbge\t.10003\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tadd.w\td0,-4(a5)\n\tbra\t.10001\n.10003\n\tmove.w\t-4(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "local_loop",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),a0\n\tmove.l\t(a0),d4\n\tmove.l\t8(a5),a0\n\tmove.l\t4(a0),d5\n\tmove.l\t8(a5),a0\n\tmove.l\t8(a0),d6\n\tmove.l\t8(a5),a0\n\tmove.l\t12(a0),d7\n.10001\n\tmove.w\t12(a5),d0\n\tsub.w\t#1,12(a5)\n\ttst.w\td0\n\tbeq\t.10002\n\tadd.l\td5,d4\n\tadd.l\td6,d5\n\tadd.l\td7,d6\n\tadd.l\td4,d7\n\tbra\t.10001\n.10002\n\tmove.l\td4,d0\n\tadd.l\td5,d0\n\tadd.l\td6,d0\n\tadd.l\td7,d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\td4/d5/d6/d7\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "movem_pressure",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: movem_pressure */\nlong recovered(p,n) long *p; int n; { register long a,b,c,d; a=p[0]; b=p[1]; c=p[2]; d=p[3]; while(n--) { a+=b; b+=c; c+=d; d+=a; } return a+b+c+d; }\n"
-      }
-    ],
-    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
     "data": [
       {
         "hunk": 1,
@@ -1279,37 +1244,6 @@
     ],
     "previous_attempts": [
       {
-        "actual_length": 384,
-        "compiler": "aztec36",
-        "expected_length": 376,
-        "first_differing_instruction": {
-          "actual": {
-            "mnemonic": "bra.w",
-            "offset": 22,
-            "operands": "$17c",
-            "raw": "60000164",
-            "size": 4
-          },
-          "expected": {
-            "mnemonic": "bra.w",
-            "offset": 22,
-            "operands": "$174",
-            "raw": "6000015c",
-            "size": 4
-          }
-        },
-        "flags": [],
-        "mnemonic_similarity": 0.798,
-        "reason": "CODE_OR_REFERENCE_DIFFERS",
-        "relocation_issues": [
-          {
-            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
-          }
-        ],
-        "source_sha256": "09b4264f671189e134bc81b1ca489575f8ad7d70bae75b6a2b407ebed1740cb6",
-        "verdict": "DIFFER"
-      },
-      {
         "actual_length": 324,
         "compiler": "aztec36",
         "expected_length": 376,
@@ -1432,31 +1366,39 @@
         ],
         "source_sha256": "23e0429378e4d97eaa65df4750c948ae661f99e49fb630eadc7c7347db26df17",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 388,
+        "compiler": "aztec36",
+        "expected_length": 376,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "move.l",
+            "offset": 4,
+            "operands": "d4, -(a7)",
+            "raw": "2f04",
+            "size": 2
+          },
+          "expected": {
+            "mnemonic": "movea.l",
+            "offset": 4,
+            "operands": "$a(a5), a0",
+            "raw": "206d000a",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.7864,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "2065bfaf89f69dffd8591ced1ff4248d3ce88cedf42a6eb1ae38ae63deff4290",
+        "verdict": "DIFFER"
       }
     ],
-    "previous_sources": {
-      "09b4264f671189e134bc81b1ca489575f8ad7d70bae75b6a2b407ebed1740cb6": {
-        "source": "/* First structural candidate for ov11_F_4474. */\nstruct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit) {\n            if (state->counter)\n                state->counter += 16;\n        }\n        switch (action) {\n    case 1:\n        action = state->action;\n        goto again;\n    case 27:\n        if (state->action && state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 4;\n            state->counter = &G_h01_9F0C;\n        }\n        break;\n    case 3:\n        if (state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 1;\n            state->counter = &G_h01_9C2C;\n            F_h00_57D2(94);\n        } else if (state->index == 3)\n            F_h00_57D2(87);\n        break;\n    case 36:\n        if (state->action && state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 4;\n            state->counter = &G_h01_9F0C;\n        }\n        break;\n        }\nagain:\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n",
-        "truncated": false
-      },
-      "23e0429378e4d97eaa65df4750c948ae661f99e49fb630eadc7c7347db26df17": {
-        "source": "struct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit) {\n            if (state->counter)\n                state->counter += 16;\n        }\ndispatch:\n        switch (action) {\n        case 27:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        case 36:\n            action = state->action;\n            goto dispatch;\n        case 1:\n            if (state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 1;\n                state->counter = &G_h01_9C2C;\n                F_h00_57D2(94);\n            } else if (state->index == 3)\n                F_h00_57D2(87);\n            break;\n        case 3:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        }\nagain:\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n",
-        "truncated": false
-      },
-      "33b8a930f4ec9242d8d57ef69c82d8850426f66d34d5e95bca473e6c4a9384da": {
-        "source": "struct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit) {\n            if (state->counter)\n                state->counter += 16;\n        }\n        switch (action) {\n        case 27:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        case 36:\n            action = state->action;\n            goto again;\n        case 1:\n            if (state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 1;\n                state->counter = &G_h01_9C2C;\n                F_h00_57D2(94);\n            } else if (state->index == 3)\n                F_h00_57D2(87);\n            break;\n        case 3:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        }\nagain:\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n",
-        "truncated": false
-      },
-      "c4807a8b6c7523ac41727b7df57a5562ffbce765525abf665de27aa867eb39a5": {
-        "source": "/* First structural candidate for ov11_F_4474. */\nstruct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\nadvance:\n        state->index++;\n        if (state->index < state->limit) {\n            if (state->counter)\n                state->counter += 16;\n        }\n        switch (action) {\n    case 1:\n        action = state->action;\n        goto again;\n    case 27:\n        if (state->action && state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 4;\n            state->counter = &G_h01_9F0C;\n        }\n        break;\n    case 3:\n        if (state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 1;\n            state->counter = &G_h01_9C2C;\n            F_h00_57D2(94);\n        } else if (state->index == 3)\n            F_h00_57D2(87);\n        break;\n    case 36:\n        goto advance;\n        }\nagain:\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n",
-        "truncated": false
-      },
-      "d9bc29d8b646e86581cca069c9d21a42e3135bfd7a1489cc5d4060e69a4048d9": {
-        "source": "/* First structural candidate for ov11_F_4474. */\nstruct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit) {\n            if (state->counter)\n                state->counter += 16;\n        }\n        switch (action) {\n    case 27:\n        if (state->action && state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 4;\n            state->counter = &G_h01_9F0C;\n        }\n        break;\n    case 1:\n        action = state->action;\n        goto again;\n    case 3:\n        if (state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 1;\n            state->counter = &G_h01_9C2C;\n            F_h00_57D2(94);\n        } else if (state->index == 3)\n            F_h00_57D2(87);\n        break;\n    case 36:\n        if (state->action && state->index >= state->limit) {\n            state->index = 0;\n            state->limit = 4;\n            state->counter = &G_h01_9F0C;\n        }\n        break;\n        }\nagain:\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n",
-        "truncated": false
-      }
-    },
-    "recovered_dependencies": [],
     "relocations": [],
     "schema_version": 1,
     "stack_frames": [
