@@ -1,8 +1,8 @@
 # DuckTales Amiga historical reconstruction
 
 This independent project follows [the vision](docs/VISION.md). The current
-deliverable is a mechanical source-recovery pipeline with 107 verified C
-functions (19,306 bytes), a recursive function census and a historical compiler
+deliverable is a mechanical source-recovery pipeline with 108 verified C
+functions (19,692 bytes), a recursive function census and a historical compiler
 oracle. There is no
 reconstructed game executable or completed source overlay yet.
 
