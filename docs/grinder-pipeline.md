@@ -232,8 +232,9 @@ The latest additions measure signed and unsigned byte returns, integer/long
 returns of a byte local, and expression fallthrough.  In the installed 3.6a
 profiles a signed or integer return emits `EXT.W`, an unsigned-byte return clears
 `D0`, and a long return adds `EXT.L`; none emits the game's bare byte return.
-This is a named `BYTE_RETURN_ABI_MISMATCH` blocker, so the grinder does not spend
-ordinary candidate-C attempts on it. Embedded
+This is a named `BYTE_RETURN_ABI_MISMATCH` blocker; the equivalent historical
+`CHAR_RETURN_EXTENSION` receipts use the same action, so the grinder does not
+spend ordinary candidate-C attempts on either form. Embedded
 string literals, and compiler-generated arithmetic helpers.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains

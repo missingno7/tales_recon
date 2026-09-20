@@ -2,25 +2,6 @@
   "blocker": {
     "attempts": [
       {
-        "actual_length": 110,
-        "cache_key": "27f1772651640383631e265dec84999b1e99e9276a69eca79aebdc48c8e03066",
-        "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-        "expected_length": 152,
-        "first_difference": {
-          "actual": "f82b7cffff78d0fffc102d0009488048",
-          "actual_size": 110,
-          "expected": "fa1b7c0023fffe3b7c3e80fffc1b7c00",
-          "expected_size": 152,
-          "offset": 3
-        },
-        "mnemonic_similarity": 0.321,
-        "profile": "aztec36",
-        "receipt": "recovery/attempts/ov14_F_04A8/8d112e8e641ae3ac84959131c1b659b9fba9aecabf529c808f72e3d120c69277-aztec36-27f177265164-e962cd232c05.json",
-        "source_sha256": "8d112e8e641ae3ac84959131c1b659b9fba9aecabf529c808f72e3d120c69277",
-        "state": "CANDIDATE_C",
-        "verdict": "DIFFER"
-      },
-      {
         "actual_length": 154,
         "cache_key": "fa567dd27cac4b65d56050fdee2885ff5970808dcdf3f5642962e494bb7391db",
         "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
@@ -57,9 +38,66 @@
         "source_sha256": "e3cb52744ed6014df3bb3ae9ae9ccbb72416692b10816f4037ceff9b5e79b70d",
         "state": "CODEGEN_SIMILAR",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 154,
+        "cache_key": "14ee4cae49ded3e569a7107654cae76c66bc5b84f8602d37700f68163ed34900",
+        "comparison_identity": "2943f0cd70267013fe88cd65d72beb2ef5b698d0960c76d03f9cc470ad6594aa",
+        "expected_length": 152,
+        "first_difference": {
+          "actual": "0e41ec80364a300800664a102dffff48",
+          "actual_size": 154,
+          "expected": "f841ecc5304a300800664a102dffff48",
+          "expected_size": 152,
+          "offset": 47
+        },
+        "mnemonic_similarity": 0.989,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov14_F_04A8/b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c-aztec36-14ee4cae49de-2943f0cd7026.json",
+        "source_sha256": "b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 154,
+        "cache_key": "2b8e372f70e71ad026a2e05a9632073b0ad82227c852c47472c726c11cda3a04",
+        "comparison_identity": "ccd1a7903524713cc527bbf4f65b76be4b991d93375a9045a45e2d101a1962a4",
+        "expected_length": 152,
+        "first_difference": {
+          "actual": "0841ec80364a300800664a102dffff48",
+          "actual_size": 154,
+          "expected": "f841ecc5304a300800664a102dffff48",
+          "expected_size": 152,
+          "offset": 47
+        },
+        "mnemonic_similarity": 0.989,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov14_F_04A8/b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c-aztec36-2b8e372f70e7-ccd1a7903524.json",
+        "source_sha256": "b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 154,
+        "cache_key": "b577cffaca540bb0287a322fff98c37fdb6d1a9b35ebac4ea22fe4d30655c066",
+        "comparison_identity": "b45224929e233429b8ae4a5e226e16d5eee24d71ac56685f135f954dbc9a84ef",
+        "expected_length": 152,
+        "first_difference": {
+          "actual": "0841ec80364a300800664a102dffff48",
+          "actual_size": 154,
+          "expected": "f841ecc5304a300800664a102dffff48",
+          "expected_size": 152,
+          "offset": 47
+        },
+        "mnemonic_similarity": 0.989,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov14_F_04A8/b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c-aztec36-b577cffaca54-b45224929e23.json",
+        "source_sha256": "b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
       }
     ],
-    "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+    "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
     "ownership_unchanged": true,
     "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
     "state": "BLOCKED"
@@ -71,6 +109,8 @@
       "historical_selection": "AMBIGUOUS",
       "profiles": [
         "aztec36",
+        "aztec36-x3",
+        "aztec36-large-data",
         "aztec36-long",
         "aztec50",
         "aztec50-short"
@@ -98,7 +138,7 @@
         "offset": 31488,
         "runtime": {
           "evidence": "evidence/experiments/runtime-arithmetic.json",
-          "evidence_sha256": "fca54b2a90bfe198e09f2794047c95be406452adf14d2881ef2ec591ab14c951",
+          "evidence_sha256": "01d126e7cf1f1c6b8233cbb565de0f60ede764b5132c73c5cae548a4eb8ac338",
           "kind": "COMPILER_GENERATED_HELPER",
           "profiles": [
             "aztec36",
@@ -119,7 +159,7 @@
         "offset": 31488,
         "runtime": {
           "evidence": "evidence/experiments/runtime-arithmetic.json",
-          "evidence_sha256": "fca54b2a90bfe198e09f2794047c95be406452adf14d2881ef2ec591ab14c951",
+          "evidence_sha256": "01d126e7cf1f1c6b8233cbb565de0f60ede764b5132c73c5cae548a4eb8ac338",
           "kind": "COMPILER_GENERATED_HELPER",
           "profiles": [
             "aztec36",
@@ -133,7 +173,7 @@
       },
       {
         "basis": "A4_OVERLAY_TRAMPOLINE",
-        "current_state": "DISCOVERED",
+        "current_state": "FUNCTION_CODE_MATCH",
         "hunk": 3,
         "id": "ov03_F_154E",
         "name": "F_h03_154E",
@@ -198,41 +238,6 @@
         "target": 1312
       }
     ],
-    "compiler_examples": [
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.7\n.6\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d1\n\tadd.w\td1,-4(a5)\n.4\n\tadd.w\t#1,-2(a5)\n.7\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tblt\t.6\n.5\n\tmove.w\t-4(a5),d0\n.8\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
-        "flags": [],
-        "name": "local_loop",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.b\t9(a5),d0\n\text.w\td0\n\text.l\td0\n\tmove.l\t#12,d1\n\tjsr\t.mulu#\n\tlea\t_table+4,a0\n\tmove.l\td0,d1\n\tmove.l\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tpublic\t_table\n\tend\n",
-        "flags": [],
-        "name": "char_struct_index",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: char_struct_index */\nstruct item { long a,b,c; }; extern struct item table[36]; long recovered(i) char i; { return table[i].b; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.10002\n.10001\n\tadd.w\t#1,-2(a5)\n.10002\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tbge\t.10003\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tadd.w\td0,-4(a5)\n\tbra\t.10001\n.10003\n\tmove.w\t-4(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "local_loop",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.b\t9(a5),d0\n\text.w\td0\n\tmove.b\t11(a5),d1\n\text.w\td1\n\tadd.w\td1,d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "char_arguments",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: char_arguments */\nrecovered(a,b) char a,b; { return a+b; }\n"
-      }
-    ],
-    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
     "data": [
       {
         "hunk": 1,
@@ -598,37 +603,6 @@
     ],
     "previous_attempts": [
       {
-        "actual_length": 110,
-        "compiler": "aztec36",
-        "expected_length": 152,
-        "first_differing_instruction": {
-          "actual": {
-            "mnemonic": "link.w",
-            "offset": 0,
-            "operands": "a5, #$fff8",
-            "raw": "4e55fff8",
-            "size": 4
-          },
-          "expected": {
-            "mnemonic": "link.w",
-            "offset": 0,
-            "operands": "a5, #$fffa",
-            "raw": "4e55fffa",
-            "size": 4
-          }
-        },
-        "flags": [],
-        "mnemonic_similarity": 0.321,
-        "reason": "CODE_OR_REFERENCE_DIFFERS",
-        "relocation_issues": [
-          {
-            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
-          }
-        ],
-        "source_sha256": "8d112e8e641ae3ac84959131c1b659b9fba9aecabf529c808f72e3d120c69277",
-        "verdict": "DIFFER"
-      },
-      {
         "actual_length": 154,
         "compiler": "aztec36",
         "expected_length": 152,
@@ -691,19 +665,101 @@
         ],
         "source_sha256": "e3cb52744ed6014df3bb3ae9ae9ccbb72416692b10816f4037ceff9b5e79b70d",
         "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 154,
+        "compiler": "aztec36",
+        "expected_length": 152,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 44,
+            "operands": "-$7ff2(a4)",
+            "raw": "4eac800e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 44,
+            "operands": "-$7f08(a4)",
+            "raw": "4eac80f8",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.989,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 154,
+        "compiler": "aztec36",
+        "expected_length": 152,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 44,
+            "operands": "-$7ff8(a4)",
+            "raw": "4eac8008",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 44,
+            "operands": "-$7f08(a4)",
+            "raw": "4eac80f8",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.989,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 154,
+        "compiler": "aztec36",
+        "expected_length": 152,
+        "first_differing_instruction": {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 44,
+            "operands": "-$7ff8(a4)",
+            "raw": "4eac8008",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 44,
+            "operands": "-$7f08(a4)",
+            "raw": "4eac80f8",
+            "size": 4
+          }
+        },
+        "flags": [],
+        "mnemonic_similarity": 0.989,
+        "reason": "CODE_OR_REFERENCE_DIFFERS",
+        "relocation_issues": [
+          {
+            "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+          }
+        ],
+        "source_sha256": "b1aad833cb8671663cd787aaa611d7870b29c090c718d3824573687c68e2ba4c",
+        "verdict": "DIFFER"
       }
     ],
-    "previous_sources": {
-      "8d112e8e641ae3ac84959131c1b659b9fba9aecabf529c808f72e3d120c69277": {
-        "source": "recovered(i, j) char i, j; { char *p; long x; p = (char *)-34608L; x = *(p + i); if (x != j) return 0; p = (char *)-34609L; x = *(p + i); if (x != j) return 0; return 1; }\n",
-        "truncated": false
-      },
-      "e3cb52744ed6014df3bb3ae9ae9ccbb72416692b10816f4037ceff9b5e79b70d": {
-        "source": "struct Record { char first, second; char reserved[10]; };\nextern struct Record G_h01_452E[36];\nextern char F_h03_154E();\nchar recovered(a) char a;\n{\n    char i, best;\n    int score, value;\n    best = 35;\n    score = 16000;\n    for (i=1; i<35; ++i) {\n        if (i == a || G_h01_452E[i].first || G_h01_452E[i].second) continue;\n        value = F_h03_154E(a,i);\n        if (value < score) {\n            score = value;\n            best = i;\n        }\n    }\n    return best;\n}\n",
-        "truncated": false
-      }
-    },
-    "recovered_dependencies": [],
     "relocations": [],
     "schema_version": 1,
     "stack_frames": [
@@ -713,6 +769,13 @@
         "register": "a5"
       }
     ],
-    "strings": []
+    "strings": [
+      {
+        "confidence": "REFERENCED_PRINTABLE_CANDIDATE",
+        "hunk": 1,
+        "offset": 592,
+        "text": "a"
+      }
+    ]
   }
 }

@@ -23,7 +23,7 @@ def blocker_next_action(reason):
         return ('Identify the historical zero-extension code-generation mode: the tested compilers emit '
                 'MOVE.L #0,D0 where the original uses MOVEQ #0,D0. Do not retry ordinary candidate C '
                 'until that mechanism is explained.')
-    if 'BYTE_RETURN_ABI_MISMATCH' in reason:
+    if 'BYTE_RETURN_ABI_MISMATCH' in reason or 'CHAR_RETURN_EXTENSION' in reason:
         return 'Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.'
     if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:
         return ('Extend the normal source-layout proof to reproduce physical call distances and A4/global placement '

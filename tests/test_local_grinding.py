@@ -124,6 +124,8 @@ class ReportTests(unittest.TestCase):
     def test_byte_return_blocker_does_not_recommend_more_candidate_retries(self):
         self.assertIn('do not retry ordinary candidate C',
                       blocker_next_action('BYTE_RETURN_ABI_MISMATCH: return convention differs'))
+        self.assertIn('do not retry ordinary candidate C',
+                      blocker_next_action('CHAR_RETURN_EXTENSION: return convention differs'))
 
     def test_byte_zero_extension_blocker_does_not_recommend_more_candidate_retries(self):
         self.assertIn('Do not retry ordinary candidate C',
