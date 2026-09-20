@@ -47,10 +47,12 @@ def representation(package,stage=0,profile='aztec36'):
               disassembly=instructions,cfg=package['cfg'],arguments=package.get('argument_accesses',[]),
               stack_frame=package.get('stack_frames',[]),calls=package.get('calls',[]),
               callee_signatures=[signature(d) for d in package.get('recovered_dependencies',[])],
+              canonical_call_examples=package.get('canonical_call_examples',[]),
               globals=package.get('data',[]),strings=package.get('strings',[]),references=package.get('relocations',[]),
               indirect=package.get('indirect',[]))
     examples=[dict(name=e['name'],source=e['source'],assembly=e['assembly']) for e in package.get('compiler_examples',[]) if e['profile']==profile][:2]
     if stage==0:base['compiler_examples']=examples
+    if stage>=2:base.pop('canonical_call_examples',None)
     if stage<2 and len(attempts)>1:
         base['older_failures']=[{k:a[k] for k in ('source_sha256','verdict','reason','expected_length','actual_length','first_differing_instruction') if k in a} for a in attempts[:-1][-2:]]
     if stage>=4:

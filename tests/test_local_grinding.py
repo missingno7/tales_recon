@@ -14,6 +14,8 @@ import local_model_proposer as proposer
 from grinder import eligible,canonical_promotion,blocker_next_action,compact_blocker_facts
 from grinder_report import summarize,blocker_class,blocker_impact
 from fingerprint import CORPUS
+import recovery_state
+from recovery_state import call_excerpt,canonical_call_examples
 
 
 def facts():
@@ -56,6 +58,24 @@ class FactBudgetTests(unittest.TestCase):
         self.assertNotIn('previous_sources',compact)
         self.assertNotIn('compiler_examples',compact)
         self.assertNotIn('recovered_dependencies',compact)
+
+    def test_canonical_call_excerpt_is_complete_and_bounded(self):
+        source='extern int F_h00_8A46();\nvoid x() { F_h00_8A46(a, nested(b,c), d); }'
+        self.assertEqual(call_excerpt(source,'F_h00_8A46'),'F_h00_8A46(a, nested(b,c), d);')
+        self.assertIsNone(call_excerpt(source,'F_h00_9999'))
+
+    def test_canonical_examples_cover_each_external_callee_before_duplicates(self):
+        source='extern int F_h00_8A46(); extern int F_h00_8A47();\nvoid x() { F_h00_8A46(a); F_h00_8A47(b); }'
+        package={'functions':{'caller':{'source':'tests/fixture-call-examples.c'}}}
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'tests').mkdir()
+            (root/'tests/fixture-call-examples.c').write_text(source)
+            with patch.object(recovery_state,'ROOT',root):
+                examples=canonical_call_examples([
+                    {'basis':'A4_RELOCATED_JMP_STUB','hunk':0,'offset':0x8a46},
+                    {'basis':'A4_RELOCATED_JMP_STUB','hunk':0,'offset':0x8a47}],package)
+        self.assertEqual([example['callee'] for example in examples],['F_h00_8A46','F_h00_8A47'])
 
 
 class TransportAndQueueTests(unittest.TestCase):

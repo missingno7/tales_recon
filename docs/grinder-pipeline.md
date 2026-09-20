@@ -119,7 +119,10 @@ The interface follows the [official non-interactive documentation](https://learn
 Packages are limited to 160 decoded
 instructions and 64 KiB, and contain extent, disassembly/CFG, ABI, nearest measured
 compiler examples, calls, data/string references, relocations, recovered
-dependencies, retained prior candidate C, and up to five compact mismatches. Mechanical `G_hNN_OFFSET`
+dependencies, retained prior candidate C, and up to five compact mismatches. For a
+relocation-proven resident A4 call, they also include at most one complete call
+expression per external callee from canonical recovered C; this is ABI guidance
+only, and never source ownership for the target. Mechanical `G_hNN_OFFSET`
 and `F_hNN_OFFSET` extern names identify evidence targets; the harness allocates
 their definitions normally. They are not address-placement directives.
 

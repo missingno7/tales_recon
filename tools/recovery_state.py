@@ -2,6 +2,7 @@
 import json
 from difflib import SequenceMatcher
 from pathlib import Path
+import re
 from common import require,write_json,sha256
 from analysis_support import ROOT
 
@@ -83,6 +84,48 @@ def ranked(node=None):
     return sorted(result,key=lambda x:(x['score'],x['id']))
 
 
+def call_excerpt(source,name,limit=900):
+    """Return one complete bounded C call expression for an evidence-backed name."""
+    for match in re.finditer(r'\b'+re.escape(name)+r'\s*\(',source):
+        line_start=source.rfind('\n',0,match.start())+1
+        if re.search(r'\bextern\b',source[line_start:match.start()]):continue
+        depth=0
+        for index in range(match.start(),len(source)):
+            char=source[index]
+            if char=='(':depth+=1
+            elif char==')':
+                depth-=1
+                if depth==0:
+                    end=index+1
+                    while end<len(source) and source[end].isspace():end+=1
+                    if end<len(source) and source[end]==';':end+=1
+                    excerpt=source[match.start():end]
+                    return excerpt if len(excerpt)<=limit else None
+    return None
+
+
+def canonical_call_examples(calls,ledger,limit=4):
+    """Expose proven caller expressions for external ABI guidance only."""
+    wanted=[]
+    for call in calls:
+        if call['basis']=='A4_RELOCATED_JMP_STUB':
+            name='F_h%02d_%04X'%(call['hunk'],call['offset'])
+            if name not in wanted:wanted.append(name)
+    examples=[]
+    for name in wanted:
+        for caller_id,item in sorted(ledger.get('functions',{}).items()):
+            path=item.get('source')
+            if not path:continue
+            source_path=ROOT/path
+            if not source_path.is_file():continue
+            excerpt=call_excerpt(source_path.read_text(),name)
+            if excerpt:
+                examples.append(dict(callee=name,caller=caller_id,call=excerpt))
+                break
+        if len(examples)>=limit:return examples
+    return examples
+
+
 def facts(fid,max_instructions=160):
     ledger=evidence();r=recovery();f=next((f for f in ledger['functions'] if f['id']==fid),None)
     runtime=runtime_dependencies(ledger)
@@ -114,6 +157,7 @@ def facts(fid,max_instructions=160):
     for call in f['direct_callees'][:12]:
         dep=r['functions'].get(call['id'])
         if dep:dependencies.append(dict(id=call['id'],name='F_h%02d_%04X'%(call['hunk'],call['offset']),state=dep['state'],source=(ROOT/dep['source']).read_text()[:3000]))
+    call_examples=canonical_call_examples(f['direct_callees'],r)
     packages=dict(schema_version=1,id=fid,extent={k:f[k] for k in ('node','hunk','start','end','size','sha256','extent_status','confidence')},
         entry_evidence=f['entry_evidence'],instructions=f['instructions'],cfg=f['cfg'],
         calls=[dict(c,name='F_h%02d_%04X'%(c['hunk'],c['offset']),current_state=r['functions'].get(c['id'],runtime.get((c['hunk'],c['offset']),{})).get('state','DISCOVERED'),
@@ -121,7 +165,8 @@ def facts(fid,max_instructions=160):
         indirect=f['indirect_control_flow'],data=[dict(hunk=h,offset=o,name='G_h%02d_%04X'%(h,o),type_status='INFER_FROM_ACCESSES') for h,o in refs],
         strings=f['referenced_strings'],relocations=[dict(x,target_name=('G_h%02d_%04X'%(x['target_hunk'],x['addend_raw'])) if x['target_hunk'] in (1,2) else None) for x in f['relocations']],stack_frames=f['stack_frames'],argument_accesses=f['likely_argument_accesses'],
         abi=dict(a4_bias=ledger['a4']['bias'],profiles=['aztec36','aztec36-x3','aztec36-large-data','aztec36-long','aztec50','aztec50-short'],historical_selection='AMBIGUOUS',fingerprints='evidence/fingerprints/index.json'),
-        previous_attempts=previous,previous_sources=previous_sources,compiler_examples=fingerprints,recovered_dependencies=dependencies,
+        previous_attempts=previous,previous_sources=previous,compiler_examples=fingerprints,recovered_dependencies=dependencies,
+        canonical_call_examples=call_examples,
         contract='Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.')
     require(len(json.dumps(packages).encode())<=65536,'fact package exceeds 64 KiB budget; choose a smaller candidate')
     return packages
