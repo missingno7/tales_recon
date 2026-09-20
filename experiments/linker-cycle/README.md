@@ -27,3 +27,8 @@ latent loop as one normal source object. It records the exact-length mnemonic
 match and the remaining A4/external-call binding differences in
 `evidence/experiments/linker-cycle-prefix.json`; this also remains non-promotable
 until a complete natural module layout explains those references.
+
+`tools/cycle_gap_codegen_experiment.py` records the two standalone latent
+candidate results. Both have exact lengths and mnemonic sequences under aztec36,
+but their A4/global and external binding fields still require the complete source
+layout, so neither changes recovery ownership.
