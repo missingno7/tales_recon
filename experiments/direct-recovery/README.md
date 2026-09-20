@@ -125,4 +125,11 @@ same-overlay call is proved by a normal two-object link with recovered
 linker resolves the PC-relative target identity. The unrelated original gap
 between those functions remains unclaimed.
 
+`ov11_F_3F90` adds 202 exact bytes through a normal two-object `aztec36` link
+with recovered `ov11_F_25D6`. Its 32-byte event layout, local-frame declaration
+order, right-to-left call argument order, and variable shift are all derived
+from the complete function extent. The compact proof matches all 236 source-owned
+bytes and every A4/call identity; the original gap between the two objects remains
+unclaimed.
+
 These are function matches only, not module or overlay layout matches.
