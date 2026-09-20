@@ -108,9 +108,16 @@ class ReportTests(unittest.TestCase):
         self.assertTrue({'char_return','unsigned_char_return','int_from_char_return',
                          'unsigned_int_from_char_return','long_from_char_return'} <= set(CORPUS))
 
+    def test_fingerprint_retains_the_byte_zero_extension_probe(self):
+        self.assertIn('unsigned_char_assignment',CORPUS)
+
     def test_byte_return_blocker_does_not_recommend_more_candidate_retries(self):
         self.assertIn('do not retry ordinary candidate C',
                       blocker_next_action('BYTE_RETURN_ABI_MISMATCH: return convention differs'))
+
+    def test_byte_zero_extension_blocker_does_not_recommend_more_candidate_retries(self):
+        self.assertIn('Do not retry ordinary candidate C',
+                      blocker_next_action('BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH: measured compiler form differs'))
 
     def test_local_match_requires_both_pinned_canonical_and_proposer_receipts(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -145,6 +152,8 @@ class ReportTests(unittest.TestCase):
                          'UNSUPPORTED_REGISTER_CALL_ABI')
         self.assertEqual(blocker_class({},'BYTE_RETURN_ABI_MISMATCH: signed and unsigned byte returns differ'),
                          'BYTE_RETURN_ABI_MISMATCH')
+        self.assertEqual(blocker_class({},'BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH: measured compiler form differs'),
+                         'BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH')
 
 
 if __name__=='__main__':unittest.main()

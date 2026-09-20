@@ -23,6 +23,7 @@ def blocker_class(report,reason=''):
     # directly.  Keep these candidates out of ordinary C proposal retries
     # until the historical return-mode mechanism is understood.
     if 'BYTE_RETURN_ABI_MISMATCH' in reason or 'CHAR_RETURN_EXTENSION' in reason:return 'BYTE_RETURN_ABI_MISMATCH'
+    if 'BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH' in reason:return 'BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH'
     if 'PERSISTENT_CODEGEN_MISMATCH' in reason:return 'PERSISTENT_CODEGEN_MISMATCH'
     if data.get('candidate_bss',0):return 'CANDIDATE_OWNED_BSS'
     if data.get('candidate_data',0):return 'CANDIDATE_OWNED_DATA'

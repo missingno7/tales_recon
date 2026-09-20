@@ -128,7 +128,8 @@ excludes indirect flow, unowned PC-relative CODE data, and unrecovered same-node
 dependencies, and bounds unknown calls and data references. It retains the existing ranking and defaults to aztec36
 alone; alternate profiles require an explicit request. Recovered entries
 are skipped on restart. Proposer errors and bounded non-convergence produce
-`recovery/blockers/*.json`; `python tools/grinder.py retry ID` explicitly requeues
+`recovery/blockers/*.json`; `python tools/grinder.py block ID --reason "MECHANISM: evidence"`
+packages a supervisor-confirmed, proposer-resistant blocker, and `python tools/grinder.py retry ID` explicitly requeues
 one. The loop processes other eligible candidates. Infrastructure failures pause
 the run without marking the selected functions blocked. A first cache hit still
 provides a revision opportunity; only a repeated failure for that function ends

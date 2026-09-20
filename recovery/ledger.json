@@ -7351,6 +7351,71 @@
       "reason": "PERSISTENT_CODEGEN_MISMATCH: retained Aztec 3.6a trials establish the full 660-byte semantic body and exact frame/exit layout; the three unsigned table-mask tests retain a 12-byte temporary-allocation mismatch (expected D0 index/D1 mask, candidates use a copied index or byte-sized AND). Near-match escalation did not alter the conclusion: aztec36-x3 remains 672 bytes, aztec50 is 640 bytes, and aztec50-short is 772 bytes.",
       "state": "BLOCKED"
     },
+    "ov11_F_3B92": {
+      "attempts": [
+        {
+          "actual_length": 510,
+          "cache_key": "11737e4c2138f6ed167500b2a2b00583110110ae8fea421dc956e44ee7cd0b06",
+          "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+          "expected_length": 520,
+          "first_difference": {
+            "actual": "806c48c081fc00803b40fffe302c8072",
+            "actual_size": 510,
+            "expected": "0a4048c081fc00803b40fffe302c215a",
+            "expected_size": 520,
+            "offset": 6
+          },
+          "mnemonic_similarity": 0.9789,
+          "profile": "aztec36",
+          "receipt": "recovery/attempts/ov11_F_3B92/410d172e7a7047c88cc53ff3c64aab373e5a912a3e7b0c5b39d612482def8e34-aztec36-11737e4c2138-6bf796548b92.json",
+          "source_sha256": "410d172e7a7047c88cc53ff3c64aab373e5a912a3e7b0c5b39d612482def8e34",
+          "state": "CODEGEN_SIMILAR",
+          "verdict": "DIFFER"
+        },
+        {
+          "actual_length": 510,
+          "cache_key": "8a18f927de0ca880f268130f00fb58d1cb031647fe76f0634920385410d87bdd",
+          "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+          "expected_length": 520,
+          "first_difference": {
+            "actual": "806c48c081fc00803b40fffe302c8072",
+            "actual_size": 510,
+            "expected": "0a4048c081fc00803b40fffe302c215a",
+            "expected_size": 520,
+            "offset": 6
+          },
+          "mnemonic_similarity": 0.9789,
+          "profile": "aztec36",
+          "receipt": "recovery/attempts/ov11_F_3B92/6504f108dff4cff02a79bb70fa12d6b0cb97032998076e1b55fb19deafc70439-aztec36-8a18f927de0c-6bf796548b92.json",
+          "source_sha256": "6504f108dff4cff02a79bb70fa12d6b0cb97032998076e1b55fb19deafc70439",
+          "state": "CODEGEN_SIMILAR",
+          "verdict": "DIFFER"
+        },
+        {
+          "actual_length": 520,
+          "cache_key": "52da8184cebac11cba380d349b46b49ef6b2a4e09459594aed0ac177e82391df",
+          "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+          "expected_length": 520,
+          "first_difference": {
+            "actual": "009c302dfffed06dfffa5340ef40d06c",
+            "actual_size": 520,
+            "expected": "01a2302dfffed06dfffa5340ef40d06c",
+            "expected_size": 520,
+            "offset": 84
+          },
+          "mnemonic_similarity": 1.0,
+          "profile": "aztec36",
+          "receipt": "recovery/attempts/ov11_F_3B92/f2fe6df7378934fc4a8627e660d777613cad16f970e75e8cc5336b61d485c3f6-aztec36-52da8184ceba-6bf796548b92.json",
+          "source_sha256": "f2fe6df7378934fc4a8627e660d777613cad16f970e75e8cc5336b61d485c3f6",
+          "state": "CODEGEN_SIMILAR",
+          "verdict": "DIFFER"
+        }
+      ],
+      "next_action": "Identify the historical zero-extension code-generation mode: the tested compilers emit MOVE.L #0,D0 where the original uses MOVEQ #0,D0. Do not retry ordinary candidate C until that mechanism is explained.",
+      "ownership_unchanged": true,
+      "reason": "BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH: four retained source forms fail the compact unit; closest is 1052 bytes versus 1048 because two expected MOVEQ #0,D0 zero-extensions compile as MOVE.L #0,D0 under every measured 3.6a/5.0a profile",
+      "state": "BLOCKED"
+    },
     "ov11_F_3F90": {
       "attempts": [
         {

@@ -19,6 +19,10 @@ from compiler_oracle import PROFILES
 
 def blocker_next_action(reason):
     """Give a proposer-resistant mechanism a concrete supervisor action."""
+    if 'BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH' in reason:
+        return ('Identify the historical zero-extension code-generation mode: the tested compilers emit '
+                'MOVE.L #0,D0 where the original uses MOVEQ #0,D0. Do not retry ordinary candidate C '
+                'until that mechanism is explained.')
     if 'BYTE_RETURN_ABI_MISMATCH' in reason:
         return 'Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.'
     if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:
@@ -191,6 +195,8 @@ def main():
     runner.add_argument('--adaptive',action='store_true',help='start at 64 bytes and expand only after measured successes')
     runner.add_argument('--proposer-timeout',type=int,default=360);runner.add_argument('--proposer',nargs=argparse.REMAINDER)
     retry=sub.add_parser('retry');retry.add_argument('id')
+    manual_block=sub.add_parser('block',help='package a confirmed proposer-resistant blocker')
+    manual_block.add_argument('id');manual_block.add_argument('--reason',required=True)
     args=ap.parse_args()
     if args.action=='rank':print(json.dumps(ranked(args.node)[:args.limit],indent=2))
     elif args.action=='facts':print(json.dumps(facts(args.id),indent=2))
@@ -204,6 +210,9 @@ def main():
     elif args.action=='frontier':print(json.dumps(frontier(args.node,args.max_bytes,max_data_references=args.max_data_references),indent=2))
     elif args.action=='retry':
         r=recovery();r['blockers'].pop(args.id,None);write_json(LEDGER,r)
+    elif args.action=='block':
+        require(args.reason.strip() and '\n' not in args.reason,'block reason must be one nonempty line')
+        block(args.id,args.reason.strip());save_rank()
     else:
         result=run(args)
         print(json.dumps({k:result[k] for k in ('run_id','status','rounds','promoted','blocked','elapsed_seconds')},indent=2))
