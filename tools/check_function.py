@@ -89,18 +89,35 @@ def check_many(requests,promote_equal=True):
         source_hash=sha256(source.encode())
         retained=ROOT/'recovery/candidates'/f['id']/(source_hash+'.c')
         retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
-        unit=None;unit_blocker=None;compile_source=source
+        unit=None;unit_blocker=None;compile_source=source;objects=None;local_functions=()
         if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] for c in f.get('direct_callees',[])):
             from check_unit import prepare_unit
             try:
                 members,names,compile_source,_=prepare_unit(f['id'],source);unit=(members,names,compile_source)
             except FormatError as exc:unit_blocker=str(exc)
+            # A recovered dependency can sit across a real but still
+            # unclaimed original gap.  Prove the compact source contribution
+            # through normal separate objects, preserving only adjacent local
+            # call pairs in one object for Manx BSR shortening.
+            if unit is None:
+                try:
+                    from check_unit import partitioned_objects
+                    members,names,parts,compile_source,_=prepare_unit(
+                        f['id'],source,True,allow_gaps=True,remove_stale_externs=False)
+                    objects=partitioned_objects(members,names,parts,True)
+                    local_functions=tuple(names[m['id']] for m in members if m['id']!=f['id'])
+                    unit=(members,names,compile_source,True)
+                    unit_blocker=None
+                except FormatError as gap_exc:unit_blocker=str(gap_exc)
         profiles=req.get('profiles',['aztec36','aztec50-short'])
         for profile in profiles:
             require(profile in PROFILES,'unsupported compiler profile')
             try:
+                # Validate the candidate source before batching.  The oracle
+                # assigns stable object labels to the optional partition.
                 identity(compile_source,profile,target_node)
-                slot=len(trials);trials.append(dict(source=compile_source,profile=profile,target_node=target_node))
+                slot=len(trials);trials.append(dict(source=compile_source,profile=profile,target_node=target_node,
+                                                    objects=objects,local_functions=local_functions))
             except FormatError as exc:
                 slot=dict(status='SOURCE_REJECTED',identity=dict(profile=profile,flags=PROFILES[profile]['flags']),
                           cache_key=sha256((source_hash+profile+str(exc)).encode()),cache_hit=False,
@@ -117,8 +134,9 @@ def check_many(requests,promote_equal=True):
             report=compare_owned_static_data(f,compiled,l['a4']['bias'])
         elif unit and compiled['status']=='COMPILED':
             from check_unit import retain_unit
-            members,names,combined=unit
-            _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'])
+            members,names,combined,*unit_options=unit
+            _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'],
+                                 allow_gaps=bool(unit_options and unit_options[0]))
         else:report=compare_function(f,compiled,l['a4']['bias'])
         report['id']=f['id'];report['source_sha256']=sha256(source.encode())
         if unit_blocker:report['unit_blocker']=unit_blocker

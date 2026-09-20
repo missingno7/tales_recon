@@ -214,6 +214,44 @@ def joined_source(parts,members):
     return '\n'.join(result)
 
 
+def partitioned_objects(members,names,parts,join_direct_callees=False):
+    """Return ordinary source objects in original CODE order.
+
+    With ``join_direct_callees``, only adjacent functions with a proven
+    same-node direct edge share an object.  This is enough for Manx to retain
+    its normal short local branches without claiming bytes across a gap.
+    """
+    if not join_direct_callees:return [dict(source=parts[m['id']]) for m in members]
+    callees={m['id']:{c['id'] for c in m['direct_callees'] if c['hunk']==m['hunk']}
+              for m in members}
+    groups=[];current=[]
+    for member in members:
+        if current:
+            previous=current[-1]
+            contiguous=previous['end']==member['start']
+            linked=(member['id'] in callees[previous['id']] or
+                    previous['id'] in callees[member['id']])
+            if not (contiguous and linked):groups.append(current);current=[]
+        current.append(member)
+    if current:groups.append(current)
+    require(any(len(group)>1 for group in groups),
+            'joined local source proof requires an adjacent direct-call pair')
+    result=[]
+    for group in groups:
+        if len(group)==1:
+            result.append(dict(source=parts[group[0]['id']]))
+            continue
+        text=joined_source(parts,group)
+        # Declarations for definitions in this source object force external
+        # linkage in Manx.  Calls to functions in other groups remain externs.
+        for member in group:
+            name=names[member['id']]
+            pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
+            text=re.sub(pattern,'',text)
+        result.append(dict(source=text))
+    return result
+
+
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False):
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
     require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
@@ -229,41 +267,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             # Preserve historical module boundaries when their ordinary link
             # codegen matters (for example JSR instead of an intra-object BSR).
             if join_direct_callees:
-                # Preserve every original object boundary except an adjacent
-                # pair with a proven same-node direct call.  Manx shortens
-                # those source-local calls to BSR during the normal link, while
-                # calls across an original gap retain independent object proof.
-                callees={m['id']:{c['id'] for c in m['direct_callees']
-                                   if c['hunk']==m['hunk']}
-                          for m in members}
-                groups=[];current=[]
-                for member in members:
-                    if current:
-                        previous=current[-1]
-                        contiguous=previous['end']==member['start']
-                        linked=(member['id'] in callees[previous['id']] or
-                                previous['id'] in callees[member['id']])
-                        if not (contiguous and linked):
-                            groups.append(current);current=[]
-                    current.append(member)
-                if current:groups.append(current)
-                require(any(len(group)>1 for group in groups),
-                        'joined local source proof requires an adjacent direct-call pair')
-                trial['objects']=[]
-                for group in groups:
-                    if len(group)==1:
-                        trial['objects'].append(dict(source=parts[group[0]['id']]))
-                        continue
-                    text=joined_source(parts,group)
-                    # Declarations for definitions in the same source object
-                    # force external linkage in Manx.  Remove only those
-                    # declarations; external calls in other object groups stay
-                    # intact for the ordinary linker to resolve.
-                    for member in group:
-                        name=names[member['id']]
-                        pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
-                        text=re.sub(pattern,'',text)
-                    trial['objects'].append(dict(source=text))
+                trial['objects']=partitioned_objects(members,names,parts,True)
             else:
                 trial['objects']=[dict(source=parts[m['id']]) for m in members]
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]

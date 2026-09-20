@@ -175,6 +175,10 @@ Every function symbol must occur at its expected contribution boundary, all
 object bytes must be accounted for, and every member must match before the caller
 can promote. Wrong callee identities, calls into a function's interior, changed
 dependency code, extra trailing code, padding gaps, and owned data reject the unit.
+When recovered dependencies span an original gap, the normal checker falls back
+to separately linked source groups. It joins only adjacent functions connected by
+a proven same-node direct call, retaining Manx's short local branches while the
+gap remains explicitly unclaimed.
 Unit sources, dependency hashes, whole-object hashes and receipts are retained in
 `recovery/units`; generated coverage validates the linked receipt. `check_unit.py`
 exposes the same complete-unit comparison for diagnostics. No MODULE_MATCH is

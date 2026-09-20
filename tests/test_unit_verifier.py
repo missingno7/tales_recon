@@ -8,7 +8,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
 from compiler_oracle import identity,cached
-from check_unit import prepare_unit,compare_unit,stable_receipt
+from check_unit import prepare_unit,compare_unit,partitioned_objects,stable_receipt
 from function_compare import compare_function
 from recovery_state import ROOT
 
@@ -131,6 +131,19 @@ class CompleteUnitTests(unittest.TestCase):
         source='extern long F_h11_4610(); recovered() { return F_h11_4610(); }'
         _,_,parts,_,_=prepare_unit('ov11_F_23F4',source,True,True,False)
         self.assertIn('extern long F_h11_4610();',parts['ov11_F_23F4'])
+
+    def test_gap_partition_joins_only_adjacent_direct_calls(self):
+        first=dict(id='ov09_F_0000',hunk=9,start=0,end=2,direct_callees=[dict(id='ov09_F_0002',hunk=9)])
+        second=dict(id='ov09_F_0002',hunk=9,start=2,end=4,direct_callees=[])
+        distant=dict(id='ov09_F_0010',hunk=9,start=16,end=18,direct_callees=[])
+        names={first['id']:'recovered',second['id']:'F_h09_0002',distant['id']:'F_h09_0010'}
+        parts={first['id']:'extern int F_h09_0002(); recovered() { F_h09_0002(); }',
+               second['id']:'F_h09_0002() {}',distant['id']:'F_h09_0010() {}'}
+        objects=partitioned_objects([first,second,distant],names,parts,True)
+        self.assertEqual(len(objects),2)
+        self.assertIn('F_h09_0002() {}',objects[0]['source'])
+        self.assertNotIn('extern int F_h09_0002();',objects[0]['source'])
+        self.assertEqual(objects[1]['source'],parts[distant['id']])
 
     def test_persisted_receipt_has_no_nested_cache_observations(self):
         receipt=stable_receipt(dict(cache_hit=True,members=[dict(cache_hit=False,
