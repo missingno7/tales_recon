@@ -117,4 +117,12 @@ in the game. The linked caller consumes only `D0.b`. This is retained as the
 `BYTE_RETURN_ABI_MISMATCH` toolchain blocker. No expression-fallthrough trick
 was substituted for explicit return semantics, and no source ownership changed.
 
+`ov11_F_6F78` adds 134 exact bytes through the normal `aztec36` compiler. The
+fingerprint-derived `return index>0 && scale>distance(...)` form gives the
+observed short-circuit branches and final Boolean return layout. Its direct
+same-overlay call is proved by a normal two-object link with recovered
+`ov11_F_2562`: every one of the compact 250 source-owned bytes matches and the
+linker resolves the PC-relative target identity. The unrelated original gap
+between those functions remains unclaimed.
+
 These are function matches only, not module or overlay layout matches.
