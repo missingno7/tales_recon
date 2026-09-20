@@ -11,7 +11,7 @@ from common import FormatError,write_json,sha256
 from local_fact_pack import fit,messages_for,BudgetError
 from local_http import LocalHTTP
 import local_model_proposer as proposer
-from grinder import eligible,canonical_promotion,blocker_next_action
+from grinder import eligible,canonical_promotion,blocker_next_action,compact_blocker_facts
 from grinder_report import summarize,blocker_class
 from fingerprint import CORPUS
 
@@ -46,6 +46,16 @@ class FactBudgetTests(unittest.TestCase):
         f=facts();f['previous_attempts']=[dict(compiler='aztec36',source_sha256='x')]
         f['previous_sources']={'x':dict(source='incomplete',truncated=True)}
         with self.assertRaises(BudgetError):messages_for(f)
+
+    def test_blocker_package_keeps_current_evidence_without_source_duplication(self):
+        f=facts();f.update(previous_attempts=[dict(source_sha256='x')],previous_sources={'x':dict(source='old',truncated=False)},
+                   compiler_examples=[dict(source='example')],recovered_dependencies=[dict(source='dependency')])
+        compact=compact_blocker_facts(f)
+        self.assertEqual(compact['instructions'],f['instructions'])
+        self.assertEqual(compact['previous_attempts'],f['previous_attempts'])
+        self.assertNotIn('previous_sources',compact)
+        self.assertNotIn('compiler_examples',compact)
+        self.assertNotIn('recovered_dependencies',compact)
 
 
 class TransportAndQueueTests(unittest.TestCase):

@@ -30,11 +30,23 @@ def blocker_next_action(reason):
     return 'Revise ABI/data hypothesis or use a stronger model; retry explicitly'
 
 
+def compact_blocker_facts(package):
+    """Keep a blocker actionable without duplicating long sources and examples.
+
+    Receipts and source hashes in ``previous_attempts`` retain reproducibility;
+    the supervisor needs the current evidence, not a second generic proposer
+    prompt with embedded historical candidates.
+    """
+    keys=('schema_version','id','extent','entry_evidence','instructions','cfg','calls','indirect',
+          'data','strings','relocations','stack_frames','argument_accesses','abi','previous_attempts')
+    return {key:package[key] for key in keys if key in package}
+
+
 def block(fid,reason):
     r=recovery();r['blockers'][fid]=dict(state='BLOCKED',reason=reason,attempts=r['attempts'].get(fid,[])[-5:],
                                        ownership_unchanged=True,next_action=blocker_next_action(reason))
     write_json(LEDGER,r)
-    try:package=facts(fid)
+    try:package=compact_blocker_facts(facts(fid))
     except FormatError:package=dict(id=fid)
     write_json(ROOT/'recovery/blockers'/(fid+'.json'),dict(blocker=r['blockers'][fid],facts=package))
 

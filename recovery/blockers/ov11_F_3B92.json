@@ -263,41 +263,6 @@
         "target": 15678
       }
     ],
-    "compiler_examples": [
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.7\n.6\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d1\n\tadd.w\td1,-4(a5)\n.4\n\tadd.w\t#1,-2(a5)\n.7\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tblt\t.6\n.5\n\tmove.w\t-4(a5),d0\n.8\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
-        "flags": [],
-        "name": "local_loop",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tlea\t10(a5),a0\n\tmove.l\ta0,-4(a5)\n\tclr.w\t-6(a5)\n.4\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,8(a5)\n\ttst.w\td0\n\tbeq\t.5\n\tmove.l\t-4(a5),a0\n\tadd.l\t#2,-4(a5)\n\tmove.w\t(a0),d0\n\tadd.w\td0,-6(a5)\n\tbra\t.4\n.5\n\tmove.w\t-6(a5),d0\n.6\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-6\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
-        "flags": [],
-        "name": "varargs_stack_walk",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: varargs_stack_walk */\nrecovered(n,a) int n,a; { int *p,s; p=&a; s=0; while(n--) s+=*p++; return s; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tlea\t10(a5),a0\n\tmove.l\ta0,-4(a5)\n\tclr.w\t-6(a5)\n.10001\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,8(a5)\n\ttst.w\td0\n\tbeq\t.10002\n\tmove.l\t-4(a5),a0\n\tadd.l\t#2,-4(a5)\n\tmove.w\t(a0),d0\n\tadd.w\td0,-6(a5)\n\tbra\t.10001\n.10002\n\tmove.w\t-6(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-6\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "varargs_stack_walk",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: varargs_stack_walk */\nrecovered(n,a) int n,a; { int *p,s; p=&a; s=0; while(n--) s+=*p++; return s; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.10002\n.10001\n\tadd.w\t#1,-2(a5)\n.10002\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tbge\t.10003\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tadd.w\td0,-4(a5)\n\tbra\t.10001\n.10003\n\tmove.w\t-4(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "local_loop",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n"
-      }
-    ],
-    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
     "data": [
       {
         "hunk": 1,
@@ -1492,40 +1457,6 @@
         "source_sha256": "f2fe6df7378934fc4a8627e660d777613cad16f970e75e8cc5336b61d485c3f6",
         "unit_blocker": "unrecovered same-node dependency: ov11_F_27CC",
         "verdict": "DIFFER"
-      }
-    ],
-    "previous_sources": {
-      "410d172e7a7047c88cc53ff3c64aab373e5a912a3e7b0c5b39d612482def8e34": {
-        "source": "struct Event {\n    char pad0[2];\n    int value2;\n    int value4;\n    int kind;\n    int value8;\n    int value10;\n    int value12;\n    int value14;\n    int value16;\n    char pad12[2];\n    int work14;\n    int work16;\n    int work18;\n    int work1a;\n    int count1c;\n    int value1e;\n};\nstruct Sprite { int x,y; char pad4[48]; char value34; };\nextern int F_h11_37A0();\nextern int F_h11_25F8();\nextern int F_h11_40E0();\nextern void F_h00_34E0();\nextern struct Event G_h01_A15E[1];\nextern struct Sprite *G_h01_9F66;\nextern struct Sprite *G_h01_9F8A;\nextern int G_h01_7A92;\nextern int G_h01_8A3E;\nextern int G_h01_A152;\nextern int G_h01_A154;\nextern int G_h01_A158;\n\nrecovered()\n{\n    int quotient;\n    int base;\n    int i;\n    int x;\n    int y;\n    struct Event *event;\n    int screen_x;\n    int screen_y;\n\n    quotient = G_h01_8A3E / 128;\n    base = (G_h01_A158 + quotient) % G_h01_A152;\n    for (i = 0; i < 4; ++i) {\n        event = &G_h01_A15E[(base + i) % G_h01_A152];\n        if (event->value4 == 1) {\n            screen_x = (quotient + i - 1) * 128 + G_h01_A154;\n            screen_y = event->value2;\n            if (G_h01_7A92 && F_h11_37A0(G_h01_7A92, &x, &y) &&\n                F_h11_25F8(screen_x, screen_y - event->value10, x, y,\n                            event->value8 + screen_x, event->value10 + screen_y))\n                F_h11_40E0((base + i) % G_h01_A152, 7);\n        }\n        if (event->count1c > 0 && event->value12 < event->value14) {\n            switch (event->kind) {\n            case 18:\n                G_h01_9F66->value34 = ((char *)&event->value12)[1];\n                G_h01_9F66->x = screen_x - G_h01_8A3E;\n                G_h01_9F66->y = screen_y;\n                if (G_h01_9F66->x < 320)\n                    F_h00_34E0(G_h01_9F66);\n                break;\n            case 17:\n                G_h01_9F8A->value34 = ((char *)&event->value12)[1];\n                G_h01_9F8A->x = screen_x - G_h01_8A3E;\n                G_h01_9F8A->y = screen_y;\n                if (G_h01_9F8A->x < 320)\n                    F_h00_34E0(G_h01_9F8A);\n                break;\n            }\n            --event->count1c;\n            if (event->count1c == 0)\n                event->value1e = 0;\n        }\n        event->work16 = event->work14;\n        event->work1a = event->work18;\n        event->work14 = screen_x;\n        event->work18 = screen_y;\n    }\n}",
-        "truncated": false
-      },
-      "6504f108dff4cff02a79bb70fa12d6b0cb97032998076e1b55fb19deafc70439": {
-        "source": "struct Event {\n    char pad0[2];\n    int value2;\n    int value4;\n    int kind;\n    int value8;\n    int value10;\n    int value12;\n    int value14;\n    int value16;\n    char pad12[2];\n    int work14;\n    int work16;\n    int work18;\n    int work1a;\n    int count1c;\n    int value1e;\n};\nstruct Sprite { int x,y; char pad4[48]; char value34; };\nextern int F_h11_37A0();\nextern int F_h11_25F8();\nextern int F_h11_40E0();\nextern void F_h00_34E0();\nextern struct Event G_h01_A15E[1];\nextern struct Sprite *G_h01_9F66;\nextern struct Sprite *G_h01_9F8A;\nextern int G_h01_7A92;\nextern int G_h01_8A3E;\nextern int G_h01_A152;\nextern int G_h01_A154;\nextern int G_h01_A158;\n\nrecovered()\n{\n    int quotient;\n    int base;\n    int i;\n    int x;\n    int y;\n    struct Event *event;\n    int screen_x;\n    int screen_y;\n\n    quotient = G_h01_8A3E / 128;\n    base = (G_h01_A158 + quotient) % G_h01_A152;\n    for (i = 0; i < 4; ++i) {\n        event = &G_h01_A15E[(base + i) % G_h01_A152];\n        if (event->value4 == 1) {\n            screen_x = (quotient + i - 1) * 128 + G_h01_A154;\n            screen_y = event->value2;\n            if (G_h01_7A92 && F_h11_37A0(G_h01_7A92, &x, &y) &&\n                F_h11_25F8(screen_x, screen_y - event->value10, x, y,\n                            event->value8 + screen_x, event->value10 + screen_y))\n                F_h11_40E0((base + i) % G_h01_A152, 7);\n        }\n        if (event->count1c > 0 && event->value12 < event->value14) {\n            switch (event->kind) {\n            case 18:\n                G_h01_9F66->value34 = ((unsigned char *)&event->value12)[1];\n                G_h01_9F66->x = screen_x - G_h01_8A3E;\n                G_h01_9F66->y = screen_y;\n                if (G_h01_9F66->x < 320)\n                    F_h00_34E0(G_h01_9F66);\n                break;\n            case 17:\n                G_h01_9F8A->value34 = ((unsigned char *)&event->value12)[1];\n                G_h01_9F8A->x = screen_x - G_h01_8A3E;\n                G_h01_9F8A->y = screen_y;\n                if (G_h01_9F8A->x < 320)\n                    F_h00_34E0(G_h01_9F8A);\n                break;\n            }\n            --event->count1c;\n            if (event->count1c == 0)\n                event->value1e = 0;\n        }\n        event->work16 = event->work14;\n        event->work1a = event->work18;\n        event->work14 = screen_x;\n        event->work18 = screen_y;\n    }\n}",
-        "truncated": false
-      },
-      "f2fe6df7378934fc4a8627e660d777613cad16f970e75e8cc5336b61d485c3f6": {
-        "source": "struct Event {\n    char pad0[2];\n    int value2;\n    int value4;\n    int kind;\n    int value8;\n    int value10;\n    int value12;\n    int value14;\n    int value16;\n    char pad12[2];\n    int work14;\n    int work16;\n    int work18;\n    int work1a;\n    int count1c;\n    int value1e;\n};\nstruct Sprite { int x,y; char pad4[48]; char value34; };\nextern int F_h11_37A0();\nextern int F_h11_25F8();\nextern int F_h11_40E0();\nextern void F_h00_34E0();\nextern struct Event G_h01_A15E[1];\nextern struct Sprite *G_h01_9F66;\nextern struct Sprite *G_h01_9F8A;\nextern int G_h01_7A92;\nextern int G_h01_8A3E;\nextern int G_h01_A152;\nextern int G_h01_A154;\nextern int G_h01_A158;\n\nrecovered()\n{\n    int quotient;\n    int base;\n    int i;\n    int x;\n    int y;\n    struct Event *event;\n    int screen_x;\n    int screen_y;\n\n    quotient = G_h01_8A3E / 128;\n    base = (G_h01_A158 + quotient) % G_h01_A152;\n    for (i = 0; i < 4; ++i) {\n        event = &G_h01_A15E[(base + i) % G_h01_A152];\n        if (event->value4 == 1) {\n            screen_x = (quotient + i - 1) * 128 + G_h01_A154;\n            screen_y = event->value2;\n            if (G_h01_7A92 && F_h11_37A0(G_h01_7A92, &x, &y) &&\n                F_h11_25F8(screen_x, screen_y - event->value10, x, y,\n                            event->value8 + screen_x, event->value10 + screen_y))\n                F_h11_40E0((base + i) % G_h01_A152, 7);\n        }\n        if (event->count1c > 0 && event->value12 < event->value14) {\n            switch (event->kind) {\n            case 18:\n                G_h01_9F66->value34 = ((unsigned char *)&event->value12)[1] + 0;\n                G_h01_9F66->x = screen_x - G_h01_8A3E;\n                G_h01_9F66->y = screen_y;\n                if (G_h01_9F66->x < 320)\n                    F_h00_34E0(G_h01_9F66);\n                break;\n            case 17:\n                G_h01_9F8A->value34 = ((unsigned char *)&event->value12)[1] + 0;\n                G_h01_9F8A->x = screen_x - G_h01_8A3E;\n                G_h01_9F8A->y = screen_y;\n                if (G_h01_9F8A->x < 320)\n                    F_h00_34E0(G_h01_9F8A);\n                break;\n            }\n            --event->count1c;\n            if (event->count1c == 0)\n                event->value1e = 0;\n        }\n        event->work16 = event->work14;\n        event->work1a = event->work18;\n        event->work14 = screen_x;\n        event->work18 = screen_y;\n    }\n}",
-        "truncated": false
-      }
-    },
-    "recovered_dependencies": [
-      {
-        "id": "ov11_F_37A0",
-        "name": "F_h11_37A0",
-        "source": "struct Record { int pad[23]; int state; int gap; int x,y; char tail[10]; };\nextern struct Record G_h01_9FCE[36];\nrecovered(n,x,y) int n,*x,*y; {\n struct Record *p;\n p=&G_h01_9FCE[n];\n if(p->state) { *x=p->x; *y=p->y; }\n return p->state;\n}\n",
-        "state": "FUNCTION_CODE_MATCH"
-      },
-      {
-        "id": "ov11_F_25F8",
-        "name": "F_h11_25F8",
-        "source": "extern int F_h11_25D6();\nrecovered(a,b,c,d,e,f) int a,b,c,d,e,f; { return F_h11_25D6(a,c,e) && F_h11_25D6(b,d,f); }\n",
-        "state": "FUNCTION_CODE_MATCH"
-      },
-      {
-        "id": "ov11_F_40E0",
-        "name": "F_h11_40E0",
-        "source": "/* Direct reconstruction candidate for ov11_F_40E0. */\nstruct Record {\n    char pad0[22];\n    int value22;\n    char pad1[2];\n    int value26;\n    int state;\n    int value30;\n};\n\nextern struct Record G_h01_A15E[1];\nextern int F_h11_4696();\n\nrecovered(index, mode)\nint index;\nint mode;\n{\n    struct Record *record;\n\n    record = &G_h01_A15E[index];\n    record->state = 2;\n    if (record->value30 == 0 || mode == 6)\n        record->value30 = mode;\n    if (mode == 6)\n        F_h11_4696(record->value22, record->value26, 88, 30,\n                   index % 4 + 18);\n}",
-        "state": "FUNCTION_CODE_MATCH"
       }
     ],
     "relocations": [],
