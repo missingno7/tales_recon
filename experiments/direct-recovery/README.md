@@ -132,4 +132,11 @@ from the complete function extent. The compact proof matches all 236 source-owne
 bytes and every A4/call identity; the original gap between the two objects remains
 unclaimed.
 
+`ov11_F_70DC` adds 158 exact bytes through two normal source objects: the
+contiguous `ov11_F_25D6`/`ov11_F_25F8` helper pair and the contiguous
+`ov11_F_70DC`/`ov11_F_717A` update pair. This preserves the historical short
+local branches while keeping the 19 KiB original gap between those pairs
+unclaimed. The 272-byte compact proof matches every member, all six A4 globals,
+and all three direct-call identities.
+
 These are function matches only, not module or overlay layout matches.

@@ -1,6 +1,6 @@
 {
-  "compiled": 276,
-  "corpus_programs": 46,
+  "compiled": 282,
+  "corpus_programs": 47,
   "entries": [
     {
       "artifacts": [
@@ -50679,6 +50679,3461 @@
       "retained_directory": "build/compile-cache/e9662ee7606b2af90c8ec8c3e67dc469d41373bd95f4290bd2407cc4a6505251",
       "source": "experiments/fingerprints/adjacent_calls.c",
       "source_sha256": "b74aa9c7a8c6288a8ceae47bf4a1c09c02c7875e85d2afcfe2cd3ffc8b2baea5",
+      "status": "COMPILED"
+    },
+    {
+      "artifacts": [
+        {
+          "path": "compiler-input.txt",
+          "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+          "size": 40
+        },
+        {
+          "path": "h000-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "h000-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "h000.asm",
+          "sha256": "19611f781d206c3f763b629221a466526c16e33880856a363a330cfb60cf96ba",
+          "size": 256
+        },
+        {
+          "path": "h000.c",
+          "sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+          "size": 140
+        },
+        {
+          "path": "h000.o",
+          "sha256": "f93b538a103d7c07be8a41dac97797e5db48c412d6b6eff2d6cbd6e6c2995179",
+          "size": 120
+        },
+        {
+          "path": "t000-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "t000-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "t000-ln.log",
+          "sha256": "cb5cffa3c148a679cc02a95f08190c767be5829adc5b539d5ab6356944aefd3e",
+          "size": 105
+        },
+        {
+          "path": "t000.asm",
+          "sha256": "5ba5f5fa93425d0f71cf1250c20831e4349e97539e15fa2a62b39f540b879a08",
+          "size": 540
+        },
+        {
+          "path": "t000.c",
+          "sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+          "size": 269
+        },
+        {
+          "path": "t000.exe",
+          "sha256": "9a8bf22e5acad89cd14ea697b4969b6f1e981e8c1c73a88acc81514a585a24be",
+          "size": 2364
+        },
+        {
+          "path": "t000.o",
+          "sha256": "1077853833aa2335d0fb1595982a594306716ba86b3e15813856b82a453b1059",
+          "size": 144
+        },
+        {
+          "path": "t000.sym",
+          "sha256": "b85b475443a4932ccfc0ecb02063a9c249b8a9d0cf418191a34e88c9775bc7e6",
+          "size": 1517
+        }
+      ],
+      "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_public\n\tadd.w\t#2,sp\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_static\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_forward_public\n_forward_public:\n\tlink\ta5,#.5\n\tmovem.l\t.6,-(sp)\n\tmove.w\t8(a5),d0\n\tadd.w\t#1,d0\n.7\n\tmovem.l\t(sp)+,.6\n\tunlk\ta5\n\trts\n.5\tequ\t0\n.6\treg\t\n_forward_static:\n\tlink\ta5,#.8\n\tmovem.l\t.9,-(sp)\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,d0\n.10\n\tmovem.l\t(sp)+,.9\n\tunlk\ta5\n\trts\n.8\tequ\t0\n.9\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+      "cache_key": "d213dafb78ed3ba026aea8cd7cbd88854ee50cd38e693b10f3910225dab43cdc",
+      "compiler": {
+        "compiler_version": "3.6a",
+        "flags": [],
+        "harness_sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+        "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "library": "c.lib",
+        "library_guest": "Old1:",
+        "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+        "link_recipe": "harness.o +o1 candidate.o +o0 c.lib; -m -t",
+        "profile": "aztec36",
+        "service_version": 1,
+        "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+        "tools": {
+          "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+          "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+          "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+        },
+        "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+      },
+      "contribution": {
+        "all_relocations": [
+          {
+            "addend_raw": 8,
+            "entry_offset": 2116,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 74,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 0,
+            "entry_offset": 2128,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 96,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 32766,
+            "entry_offset": 2132,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 394,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 278,
+            "entry_offset": 2204,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 2,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 52,
+            "entry_offset": 2208,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 18,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 8,
+            "entry_offset": 2220,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 24,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ],
+        "bss_size": 0,
+        "code_hex": "4e5500003f2d0008610e544f3f2d00086114544f4e5d4e754e550000302d000852404e5d4e754e550000302d000853404e5d4e75",
+        "code_size": 52,
+        "data_size": 0,
+        "executable_sha256": "9a8bf22e5acad89cd14ea697b4969b6f1e981e8c1c73a88acc81514a585a24be",
+        "hunk": 3,
+        "hunks": [
+          {
+            "allocated_size": 2064,
+            "content_offset": 40,
+            "declared_size": 2064,
+            "initialized_size": 2064,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 0,
+            "record_offset": 32,
+            "sha256": "8c54f5f4ef3faba24bf74bae725dcd3db614ec90df690063b865a6161066099a",
+            "type": "CODE",
+            "zero_fill_size": 0
+          },
+          {
+            "allocated_size": 116,
+            "content_offset": 2152,
+            "declared_size": 40,
+            "initialized_size": 40,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 1,
+            "record_offset": 2144,
+            "sha256": "d69732256b8629e3d18f7539ccfe5fe72775054f8664730bb0429a6bcc0e8bfe",
+            "type": "DATA",
+            "zero_fill_size": 76
+          },
+          {
+            "allocated_size": 4,
+            "content_offset": null,
+            "declared_size": 4,
+            "initialized_size": 0,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 2,
+            "record_offset": 2232,
+            "sha256": null,
+            "type": "BSS",
+            "zero_fill_size": 4
+          },
+          {
+            "allocated_size": 52,
+            "content_offset": 2304,
+            "declared_size": 52,
+            "initialized_size": 52,
+            "memory_flags_raw": 0,
+            "node": "ov03",
+            "number": 3,
+            "record_offset": 2296,
+            "sha256": "8a8ff5d99ffd2894034b404ba09c2f5a9e20b0a955323abe231ba03d9086e944",
+            "type": "CODE",
+            "zero_fill_size": 0
+          }
+        ],
+        "object_sha256": "1077853833aa2335d0fb1595982a594306716ba86b3e15813856b82a453b1059",
+        "relocations": [],
+        "symbols": [
+          {
+            "hunk": 0,
+            "name": "__H0_org",
+            "offset": 0
+          },
+          {
+            "hunk": 0,
+            "name": "_main",
+            "offset": 24
+          },
+          {
+            "hunk": 0,
+            "name": "_segload",
+            "offset": 34
+          },
+          {
+            "hunk": 0,
+            "name": ".segload",
+            "offset": 52
+          },
+          {
+            "hunk": 0,
+            "name": ".begin",
+            "offset": 278
+          },
+          {
+            "hunk": 0,
+            "name": "_geta4",
+            "offset": 392
+          },
+          {
+            "hunk": 0,
+            "name": "__main",
+            "offset": 400
+          },
+          {
+            "hunk": 0,
+            "name": "__cli_parse",
+            "offset": 712
+          },
+          {
+            "hunk": 0,
+            "name": "_strcat",
+            "offset": 1168
+          },
+          {
+            "hunk": 0,
+            "name": "_strncat",
+            "offset": 1174
+          },
+          {
+            "hunk": 0,
+            "name": "_strncpy",
+            "offset": 1210
+          },
+          {
+            "hunk": 0,
+            "name": "__wb_parse",
+            "offset": 1244
+          },
+          {
+            "hunk": 0,
+            "name": "_exit",
+            "offset": 1424
+          },
+          {
+            "hunk": 0,
+            "name": "__exit",
+            "offset": 1454
+          },
+          {
+            "hunk": 0,
+            "name": "_close",
+            "offset": 1738
+          },
+          {
+            "hunk": 0,
+            "name": "__Close",
+            "offset": 1814
+          },
+          {
+            "hunk": 0,
+            "name": "__CurrentDir",
+            "offset": 1826
+          },
+          {
+            "hunk": 0,
+            "name": "__Input",
+            "offset": 1838
+          },
+          {
+            "hunk": 0,
+            "name": "__Open",
+            "offset": 1846
+          },
+          {
+            "hunk": 0,
+            "name": "__Output",
+            "offset": 1860
+          },
+          {
+            "hunk": 0,
+            "name": "_UnLock",
+            "offset": 1868
+          },
+          {
+            "hunk": 0,
+            "name": "__UnLock",
+            "offset": 1872
+          },
+          {
+            "hunk": 0,
+            "name": "_Alert",
+            "offset": 1884
+          },
+          {
+            "hunk": 0,
+            "name": "_CloseLibrary",
+            "offset": 1908
+          },
+          {
+            "hunk": 0,
+            "name": "__CloseLibrary",
+            "offset": 1912
+          },
+          {
+            "hunk": 0,
+            "name": "__AllocMem",
+            "offset": 1924
+          },
+          {
+            "hunk": 0,
+            "name": "__FindTask",
+            "offset": 1938
+          },
+          {
+            "hunk": 0,
+            "name": "__Forbid",
+            "offset": 1950
+          },
+          {
+            "hunk": 0,
+            "name": "__FreeMem",
+            "offset": 1958
+          },
+          {
+            "hunk": 0,
+            "name": "__GetMsg",
+            "offset": 1974
+          },
+          {
+            "hunk": 0,
+            "name": "__OpenLibrary",
+            "offset": 1986
+          },
+          {
+            "hunk": 0,
+            "name": "__ReplyMsg",
+            "offset": 2002
+          },
+          {
+            "hunk": 0,
+            "name": "__WaitPort",
+            "offset": 2014
+          },
+          {
+            "hunk": 0,
+            "name": "_FindToolType",
+            "offset": 2026
+          },
+          {
+            "hunk": 0,
+            "name": "_FreeDiskObject",
+            "offset": 2040
+          },
+          {
+            "hunk": 0,
+            "name": "_GetDiskObject",
+            "offset": 2052
+          },
+          {
+            "hunk": 0,
+            "name": "__H0_end",
+            "offset": 2064
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_org",
+            "offset": 0
+          },
+          {
+            "hunk": 1,
+            "name": "_candidate_reference",
+            "offset": 24
+          },
+          {
+            "hunk": 1,
+            "name": "__numdev",
+            "offset": 28
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_name",
+            "offset": 30
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_curdir",
+            "offset": 34
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_end",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_org",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__savsp",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "_SysBase",
+            "offset": 44
+          },
+          {
+            "hunk": 2,
+            "name": "_DOSBase",
+            "offset": 48
+          },
+          {
+            "hunk": 2,
+            "name": "__devtab",
+            "offset": 52
+          },
+          {
+            "hunk": 2,
+            "name": "__stkbase",
+            "offset": 56
+          },
+          {
+            "hunk": 2,
+            "name": "_Enable_Abort",
+            "offset": 60
+          },
+          {
+            "hunk": 2,
+            "name": "_WBenchMsg",
+            "offset": 62
+          },
+          {
+            "hunk": 2,
+            "name": "__argv",
+            "offset": 66
+          },
+          {
+            "hunk": 2,
+            "name": "__argc",
+            "offset": 70
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_len",
+            "offset": 72
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_lin",
+            "offset": 74
+          },
+          {
+            "hunk": 2,
+            "name": "_IconBase",
+            "offset": 78
+          },
+          {
+            "hunk": 2,
+            "name": "_cls_",
+            "offset": 82
+          },
+          {
+            "hunk": 2,
+            "name": "__cln",
+            "offset": 86
+          },
+          {
+            "hunk": 2,
+            "name": "__trapaddr",
+            "offset": 90
+          },
+          {
+            "hunk": 2,
+            "name": "__oldtrap",
+            "offset": 94
+          },
+          {
+            "hunk": 2,
+            "name": "_MathTransBase",
+            "offset": 98
+          },
+          {
+            "hunk": 2,
+            "name": "_MathBase",
+            "offset": 102
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubBasBase",
+            "offset": 106
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubTransBase",
+            "offset": 110
+          },
+          {
+            "hunk": 2,
+            "name": "_errno",
+            "offset": 114
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_end",
+            "offset": 116
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_org",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_recovered",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_forward_public",
+            "offset": 24
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_end",
+            "offset": 52
+          }
+        ]
+      },
+      "decode_stop": null,
+      "mnemonics": [
+        "link.w",
+        "move.w",
+        "bsr.b",
+        "addq.w",
+        "move.w",
+        "bsr.b",
+        "addq.w",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.w",
+        "addq.w",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.w",
+        "subq.w",
+        "unlk",
+        "rts"
+      ],
+      "name": "forward_local_calls",
+      "profile": "aztec36",
+      "retained_directory": "build/compile-cache/d213dafb78ed3ba026aea8cd7cbd88854ee50cd38e693b10f3910225dab43cdc",
+      "source": "experiments/fingerprints/forward_local_calls.c",
+      "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+      "status": "COMPILED"
+    },
+    {
+      "artifacts": [
+        {
+          "path": "compiler-input.txt",
+          "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+          "size": 40
+        },
+        {
+          "path": "h001-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "h001-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "h001.asm",
+          "sha256": "19611f781d206c3f763b629221a466526c16e33880856a363a330cfb60cf96ba",
+          "size": 256
+        },
+        {
+          "path": "h001.c",
+          "sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+          "size": 140
+        },
+        {
+          "path": "h001.o",
+          "sha256": "f93b538a103d7c07be8a41dac97797e5db48c412d6b6eff2d6cbd6e6c2995179",
+          "size": 120
+        },
+        {
+          "path": "t001-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "t001-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "t001-ln.log",
+          "sha256": "cb5cffa3c148a679cc02a95f08190c767be5829adc5b539d5ab6356944aefd3e",
+          "size": 105
+        },
+        {
+          "path": "t001.asm",
+          "sha256": "fe32ac933dcf2ce9784668f2712435a6b692b01f0a18d3b82c9866f043d2adec",
+          "size": 527
+        },
+        {
+          "path": "t001.c",
+          "sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+          "size": 269
+        },
+        {
+          "path": "t001.exe",
+          "sha256": "ec6c4852b16f633a8486ee06149b218960ea080dda175356f358a62b5fcb11a4",
+          "size": 2364
+        },
+        {
+          "path": "t001.o",
+          "sha256": "10f6c23386442b087a333fd3581d40ebe74ee3005611b31b196f9e8e714431ad",
+          "size": 140
+        },
+        {
+          "path": "t001.sym",
+          "sha256": "165b846b1e5148b822874727577b98123cdbc69a0ccb5c152c4dafa0a08dbdd4",
+          "size": 1517
+        }
+      ],
+      "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_public\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_static\n\tadd.w\t#4,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_forward_public\n_forward_public:\n\tlink\ta5,#.5\n\tmovem.l\t.6,-(sp)\n\tmove.w\t8(a5),d0\n\tadd.w\t#1,d0\n.7\n\tmovem.l\t(sp)+,.6\n\tunlk\ta5\n\trts\n.5\tequ\t0\n.6\treg\t\n_forward_static:\n\tlink\ta5,#.8\n\tmovem.l\t.9,-(sp)\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,d0\n.10\n\tmovem.l\t(sp)+,.9\n\tunlk\ta5\n\trts\n.8\tequ\t0\n.9\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+      "cache_key": "d86d8ad2d74bafca31d04518365a3d4835e4b5affb31150258c9caa4395bee17",
+      "compiler": {
+        "compiler_version": "3.6a",
+        "flags": [
+          "+X3"
+        ],
+        "harness_sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+        "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "library": "c.lib",
+        "library_guest": "Old1:",
+        "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+        "link_recipe": "harness.o +o1 candidate.o +o0 c.lib; -m -t",
+        "profile": "aztec36-x3",
+        "service_version": 1,
+        "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+        "tools": {
+          "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+          "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+          "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+        },
+        "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+      },
+      "contribution": {
+        "all_relocations": [
+          {
+            "addend_raw": 8,
+            "entry_offset": 2116,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 74,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 0,
+            "entry_offset": 2128,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 96,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 32766,
+            "entry_offset": 2132,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 394,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 278,
+            "entry_offset": 2204,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 2,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 52,
+            "entry_offset": 2208,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 18,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 8,
+            "entry_offset": 2220,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 24,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ],
+        "bss_size": 0,
+        "code_hex": "4e5500003f2d0008610c3f2d00086114584f4e5d4e754e550000302d000852404e5d4e754e550000302d000853404e5d4e75",
+        "code_size": 50,
+        "data_size": 0,
+        "executable_sha256": "ec6c4852b16f633a8486ee06149b218960ea080dda175356f358a62b5fcb11a4",
+        "hunk": 3,
+        "hunks": [
+          {
+            "allocated_size": 2064,
+            "content_offset": 40,
+            "declared_size": 2064,
+            "initialized_size": 2064,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 0,
+            "record_offset": 32,
+            "sha256": "8c54f5f4ef3faba24bf74bae725dcd3db614ec90df690063b865a6161066099a",
+            "type": "CODE",
+            "zero_fill_size": 0
+          },
+          {
+            "allocated_size": 116,
+            "content_offset": 2152,
+            "declared_size": 40,
+            "initialized_size": 40,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 1,
+            "record_offset": 2144,
+            "sha256": "d69732256b8629e3d18f7539ccfe5fe72775054f8664730bb0429a6bcc0e8bfe",
+            "type": "DATA",
+            "zero_fill_size": 76
+          },
+          {
+            "allocated_size": 4,
+            "content_offset": null,
+            "declared_size": 4,
+            "initialized_size": 0,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 2,
+            "record_offset": 2232,
+            "sha256": null,
+            "type": "BSS",
+            "zero_fill_size": 4
+          },
+          {
+            "allocated_size": 52,
+            "content_offset": 2304,
+            "declared_size": 52,
+            "initialized_size": 52,
+            "memory_flags_raw": 0,
+            "node": "ov03",
+            "number": 3,
+            "record_offset": 2296,
+            "sha256": "e957d6ace481b2b93ba1ef2c28c3f2ad28bda73b168c1f34984a98fd73b24da4",
+            "type": "CODE",
+            "zero_fill_size": 0
+          }
+        ],
+        "object_sha256": "10f6c23386442b087a333fd3581d40ebe74ee3005611b31b196f9e8e714431ad",
+        "relocations": [],
+        "symbols": [
+          {
+            "hunk": 0,
+            "name": "__H0_org",
+            "offset": 0
+          },
+          {
+            "hunk": 0,
+            "name": "_main",
+            "offset": 24
+          },
+          {
+            "hunk": 0,
+            "name": "_segload",
+            "offset": 34
+          },
+          {
+            "hunk": 0,
+            "name": ".segload",
+            "offset": 52
+          },
+          {
+            "hunk": 0,
+            "name": ".begin",
+            "offset": 278
+          },
+          {
+            "hunk": 0,
+            "name": "_geta4",
+            "offset": 392
+          },
+          {
+            "hunk": 0,
+            "name": "__main",
+            "offset": 400
+          },
+          {
+            "hunk": 0,
+            "name": "__cli_parse",
+            "offset": 712
+          },
+          {
+            "hunk": 0,
+            "name": "_strcat",
+            "offset": 1168
+          },
+          {
+            "hunk": 0,
+            "name": "_strncat",
+            "offset": 1174
+          },
+          {
+            "hunk": 0,
+            "name": "_strncpy",
+            "offset": 1210
+          },
+          {
+            "hunk": 0,
+            "name": "__wb_parse",
+            "offset": 1244
+          },
+          {
+            "hunk": 0,
+            "name": "_exit",
+            "offset": 1424
+          },
+          {
+            "hunk": 0,
+            "name": "__exit",
+            "offset": 1454
+          },
+          {
+            "hunk": 0,
+            "name": "_close",
+            "offset": 1738
+          },
+          {
+            "hunk": 0,
+            "name": "__Close",
+            "offset": 1814
+          },
+          {
+            "hunk": 0,
+            "name": "__CurrentDir",
+            "offset": 1826
+          },
+          {
+            "hunk": 0,
+            "name": "__Input",
+            "offset": 1838
+          },
+          {
+            "hunk": 0,
+            "name": "__Open",
+            "offset": 1846
+          },
+          {
+            "hunk": 0,
+            "name": "__Output",
+            "offset": 1860
+          },
+          {
+            "hunk": 0,
+            "name": "_UnLock",
+            "offset": 1868
+          },
+          {
+            "hunk": 0,
+            "name": "__UnLock",
+            "offset": 1872
+          },
+          {
+            "hunk": 0,
+            "name": "_Alert",
+            "offset": 1884
+          },
+          {
+            "hunk": 0,
+            "name": "_CloseLibrary",
+            "offset": 1908
+          },
+          {
+            "hunk": 0,
+            "name": "__CloseLibrary",
+            "offset": 1912
+          },
+          {
+            "hunk": 0,
+            "name": "__AllocMem",
+            "offset": 1924
+          },
+          {
+            "hunk": 0,
+            "name": "__FindTask",
+            "offset": 1938
+          },
+          {
+            "hunk": 0,
+            "name": "__Forbid",
+            "offset": 1950
+          },
+          {
+            "hunk": 0,
+            "name": "__FreeMem",
+            "offset": 1958
+          },
+          {
+            "hunk": 0,
+            "name": "__GetMsg",
+            "offset": 1974
+          },
+          {
+            "hunk": 0,
+            "name": "__OpenLibrary",
+            "offset": 1986
+          },
+          {
+            "hunk": 0,
+            "name": "__ReplyMsg",
+            "offset": 2002
+          },
+          {
+            "hunk": 0,
+            "name": "__WaitPort",
+            "offset": 2014
+          },
+          {
+            "hunk": 0,
+            "name": "_FindToolType",
+            "offset": 2026
+          },
+          {
+            "hunk": 0,
+            "name": "_FreeDiskObject",
+            "offset": 2040
+          },
+          {
+            "hunk": 0,
+            "name": "_GetDiskObject",
+            "offset": 2052
+          },
+          {
+            "hunk": 0,
+            "name": "__H0_end",
+            "offset": 2064
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_org",
+            "offset": 0
+          },
+          {
+            "hunk": 1,
+            "name": "_candidate_reference",
+            "offset": 24
+          },
+          {
+            "hunk": 1,
+            "name": "__numdev",
+            "offset": 28
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_name",
+            "offset": 30
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_curdir",
+            "offset": 34
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_end",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_org",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__savsp",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "_SysBase",
+            "offset": 44
+          },
+          {
+            "hunk": 2,
+            "name": "_DOSBase",
+            "offset": 48
+          },
+          {
+            "hunk": 2,
+            "name": "__devtab",
+            "offset": 52
+          },
+          {
+            "hunk": 2,
+            "name": "__stkbase",
+            "offset": 56
+          },
+          {
+            "hunk": 2,
+            "name": "_Enable_Abort",
+            "offset": 60
+          },
+          {
+            "hunk": 2,
+            "name": "_WBenchMsg",
+            "offset": 62
+          },
+          {
+            "hunk": 2,
+            "name": "__argv",
+            "offset": 66
+          },
+          {
+            "hunk": 2,
+            "name": "__argc",
+            "offset": 70
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_len",
+            "offset": 72
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_lin",
+            "offset": 74
+          },
+          {
+            "hunk": 2,
+            "name": "_IconBase",
+            "offset": 78
+          },
+          {
+            "hunk": 2,
+            "name": "_cls_",
+            "offset": 82
+          },
+          {
+            "hunk": 2,
+            "name": "__cln",
+            "offset": 86
+          },
+          {
+            "hunk": 2,
+            "name": "__trapaddr",
+            "offset": 90
+          },
+          {
+            "hunk": 2,
+            "name": "__oldtrap",
+            "offset": 94
+          },
+          {
+            "hunk": 2,
+            "name": "_MathTransBase",
+            "offset": 98
+          },
+          {
+            "hunk": 2,
+            "name": "_MathBase",
+            "offset": 102
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubBasBase",
+            "offset": 106
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubTransBase",
+            "offset": 110
+          },
+          {
+            "hunk": 2,
+            "name": "_errno",
+            "offset": 114
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_end",
+            "offset": 116
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_org",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_recovered",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_forward_public",
+            "offset": 22
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_end",
+            "offset": 52
+          }
+        ]
+      },
+      "decode_stop": null,
+      "mnemonics": [
+        "link.w",
+        "move.w",
+        "bsr.b",
+        "move.w",
+        "bsr.b",
+        "addq.w",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.w",
+        "addq.w",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.w",
+        "subq.w",
+        "unlk",
+        "rts"
+      ],
+      "name": "forward_local_calls",
+      "profile": "aztec36-x3",
+      "retained_directory": "build/compile-cache/d86d8ad2d74bafca31d04518365a3d4835e4b5affb31150258c9caa4395bee17",
+      "source": "experiments/fingerprints/forward_local_calls.c",
+      "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+      "status": "COMPILED"
+    },
+    {
+      "artifacts": [
+        {
+          "path": "compiler-input.txt",
+          "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+          "size": 40
+        },
+        {
+          "path": "h002-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "h002-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "h002.asm",
+          "sha256": "531611741a47e69491fd7722141447f3f7131320b45a9bd2300e135a65b51164",
+          "size": 266
+        },
+        {
+          "path": "h002.c",
+          "sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+          "size": 140
+        },
+        {
+          "path": "h002.o",
+          "sha256": "e9babf0b1dc5db32e418ce59ae18b3dc3f627cd17c60c082768934b8e9675597",
+          "size": 120
+        },
+        {
+          "path": "t002-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "t002-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "t002-ln.log",
+          "sha256": "cb5cffa3c148a679cc02a95f08190c767be5829adc5b539d5ab6356944aefd3e",
+          "size": 105
+        },
+        {
+          "path": "t002.asm",
+          "sha256": "4f1b73c536b35d55654fc3066af84199e66a51bee609fb07185942a1ce4b6b6d",
+          "size": 550
+        },
+        {
+          "path": "t002.c",
+          "sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+          "size": 269
+        },
+        {
+          "path": "t002.exe",
+          "sha256": "9a8bf22e5acad89cd14ea697b4969b6f1e981e8c1c73a88acc81514a585a24be",
+          "size": 2364
+        },
+        {
+          "path": "t002.o",
+          "sha256": "1a112408d22297d219c7710137ae146b19c341fe0a4b8b4090b1a3715fec70b2",
+          "size": 144
+        },
+        {
+          "path": "t002.sym",
+          "sha256": "b85b475443a4932ccfc0ecb02063a9c249b8a9d0cf418191a34e88c9775bc7e6",
+          "size": 1517
+        }
+      ],
+      "assembly": ";:ts=8\n\tfar\tdata\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_public\n\tadd.w\t#2,sp\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_static\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_forward_public\n_forward_public:\n\tlink\ta5,#.5\n\tmovem.l\t.6,-(sp)\n\tmove.w\t8(a5),d0\n\tadd.w\t#1,d0\n.7\n\tmovem.l\t(sp)+,.6\n\tunlk\ta5\n\trts\n.5\tequ\t0\n.6\treg\t\n_forward_static:\n\tlink\ta5,#.8\n\tmovem.l\t.9,-(sp)\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,d0\n.10\n\tmovem.l\t(sp)+,.9\n\tunlk\ta5\n\trts\n.8\tequ\t0\n.9\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+      "cache_key": "5b3ee805dc37806db89acaa907661363e852acd4dca7bba4e51541dabba79329",
+      "compiler": {
+        "compiler_version": "3.6a",
+        "flags": [
+          "+D"
+        ],
+        "harness_sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+        "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "library": "c.lib",
+        "library_guest": "Old1:",
+        "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+        "link_recipe": "harness.o +o1 candidate.o +o0 c.lib; -m -t",
+        "profile": "aztec36-large-data",
+        "service_version": 1,
+        "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+        "tools": {
+          "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+          "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+          "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+        },
+        "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+      },
+      "contribution": {
+        "all_relocations": [
+          {
+            "addend_raw": 8,
+            "entry_offset": 2116,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 74,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 0,
+            "entry_offset": 2128,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 96,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 32766,
+            "entry_offset": 2132,
+            "record_offset": 2104,
+            "source_hunk": 0,
+            "source_offset": 394,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 278,
+            "entry_offset": 2204,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 2,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 52,
+            "entry_offset": 2208,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 18,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 8,
+            "entry_offset": 2220,
+            "record_offset": 2192,
+            "source_hunk": 1,
+            "source_offset": 24,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ],
+        "bss_size": 0,
+        "code_hex": "4e5500003f2d0008610e544f3f2d00086114544f4e5d4e754e550000302d000852404e5d4e754e550000302d000853404e5d4e75",
+        "code_size": 52,
+        "data_size": 0,
+        "executable_sha256": "9a8bf22e5acad89cd14ea697b4969b6f1e981e8c1c73a88acc81514a585a24be",
+        "hunk": 3,
+        "hunks": [
+          {
+            "allocated_size": 2064,
+            "content_offset": 40,
+            "declared_size": 2064,
+            "initialized_size": 2064,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 0,
+            "record_offset": 32,
+            "sha256": "8c54f5f4ef3faba24bf74bae725dcd3db614ec90df690063b865a6161066099a",
+            "type": "CODE",
+            "zero_fill_size": 0
+          },
+          {
+            "allocated_size": 116,
+            "content_offset": 2152,
+            "declared_size": 40,
+            "initialized_size": 40,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 1,
+            "record_offset": 2144,
+            "sha256": "d69732256b8629e3d18f7539ccfe5fe72775054f8664730bb0429a6bcc0e8bfe",
+            "type": "DATA",
+            "zero_fill_size": 76
+          },
+          {
+            "allocated_size": 4,
+            "content_offset": null,
+            "declared_size": 4,
+            "initialized_size": 0,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 2,
+            "record_offset": 2232,
+            "sha256": null,
+            "type": "BSS",
+            "zero_fill_size": 4
+          },
+          {
+            "allocated_size": 52,
+            "content_offset": 2304,
+            "declared_size": 52,
+            "initialized_size": 52,
+            "memory_flags_raw": 0,
+            "node": "ov03",
+            "number": 3,
+            "record_offset": 2296,
+            "sha256": "8a8ff5d99ffd2894034b404ba09c2f5a9e20b0a955323abe231ba03d9086e944",
+            "type": "CODE",
+            "zero_fill_size": 0
+          }
+        ],
+        "object_sha256": "1a112408d22297d219c7710137ae146b19c341fe0a4b8b4090b1a3715fec70b2",
+        "relocations": [],
+        "symbols": [
+          {
+            "hunk": 0,
+            "name": "__H0_org",
+            "offset": 0
+          },
+          {
+            "hunk": 0,
+            "name": "_main",
+            "offset": 24
+          },
+          {
+            "hunk": 0,
+            "name": "_segload",
+            "offset": 34
+          },
+          {
+            "hunk": 0,
+            "name": ".segload",
+            "offset": 52
+          },
+          {
+            "hunk": 0,
+            "name": ".begin",
+            "offset": 278
+          },
+          {
+            "hunk": 0,
+            "name": "_geta4",
+            "offset": 392
+          },
+          {
+            "hunk": 0,
+            "name": "__main",
+            "offset": 400
+          },
+          {
+            "hunk": 0,
+            "name": "__cli_parse",
+            "offset": 712
+          },
+          {
+            "hunk": 0,
+            "name": "_strcat",
+            "offset": 1168
+          },
+          {
+            "hunk": 0,
+            "name": "_strncat",
+            "offset": 1174
+          },
+          {
+            "hunk": 0,
+            "name": "_strncpy",
+            "offset": 1210
+          },
+          {
+            "hunk": 0,
+            "name": "__wb_parse",
+            "offset": 1244
+          },
+          {
+            "hunk": 0,
+            "name": "_exit",
+            "offset": 1424
+          },
+          {
+            "hunk": 0,
+            "name": "__exit",
+            "offset": 1454
+          },
+          {
+            "hunk": 0,
+            "name": "_close",
+            "offset": 1738
+          },
+          {
+            "hunk": 0,
+            "name": "__Close",
+            "offset": 1814
+          },
+          {
+            "hunk": 0,
+            "name": "__CurrentDir",
+            "offset": 1826
+          },
+          {
+            "hunk": 0,
+            "name": "__Input",
+            "offset": 1838
+          },
+          {
+            "hunk": 0,
+            "name": "__Open",
+            "offset": 1846
+          },
+          {
+            "hunk": 0,
+            "name": "__Output",
+            "offset": 1860
+          },
+          {
+            "hunk": 0,
+            "name": "_UnLock",
+            "offset": 1868
+          },
+          {
+            "hunk": 0,
+            "name": "__UnLock",
+            "offset": 1872
+          },
+          {
+            "hunk": 0,
+            "name": "_Alert",
+            "offset": 1884
+          },
+          {
+            "hunk": 0,
+            "name": "_CloseLibrary",
+            "offset": 1908
+          },
+          {
+            "hunk": 0,
+            "name": "__CloseLibrary",
+            "offset": 1912
+          },
+          {
+            "hunk": 0,
+            "name": "__AllocMem",
+            "offset": 1924
+          },
+          {
+            "hunk": 0,
+            "name": "__FindTask",
+            "offset": 1938
+          },
+          {
+            "hunk": 0,
+            "name": "__Forbid",
+            "offset": 1950
+          },
+          {
+            "hunk": 0,
+            "name": "__FreeMem",
+            "offset": 1958
+          },
+          {
+            "hunk": 0,
+            "name": "__GetMsg",
+            "offset": 1974
+          },
+          {
+            "hunk": 0,
+            "name": "__OpenLibrary",
+            "offset": 1986
+          },
+          {
+            "hunk": 0,
+            "name": "__ReplyMsg",
+            "offset": 2002
+          },
+          {
+            "hunk": 0,
+            "name": "__WaitPort",
+            "offset": 2014
+          },
+          {
+            "hunk": 0,
+            "name": "_FindToolType",
+            "offset": 2026
+          },
+          {
+            "hunk": 0,
+            "name": "_FreeDiskObject",
+            "offset": 2040
+          },
+          {
+            "hunk": 0,
+            "name": "_GetDiskObject",
+            "offset": 2052
+          },
+          {
+            "hunk": 0,
+            "name": "__H0_end",
+            "offset": 2064
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_org",
+            "offset": 0
+          },
+          {
+            "hunk": 1,
+            "name": "_candidate_reference",
+            "offset": 24
+          },
+          {
+            "hunk": 1,
+            "name": "__numdev",
+            "offset": 28
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_name",
+            "offset": 30
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_curdir",
+            "offset": 34
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_end",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_org",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__savsp",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "_SysBase",
+            "offset": 44
+          },
+          {
+            "hunk": 2,
+            "name": "_DOSBase",
+            "offset": 48
+          },
+          {
+            "hunk": 2,
+            "name": "__devtab",
+            "offset": 52
+          },
+          {
+            "hunk": 2,
+            "name": "__stkbase",
+            "offset": 56
+          },
+          {
+            "hunk": 2,
+            "name": "_Enable_Abort",
+            "offset": 60
+          },
+          {
+            "hunk": 2,
+            "name": "_WBenchMsg",
+            "offset": 62
+          },
+          {
+            "hunk": 2,
+            "name": "__argv",
+            "offset": 66
+          },
+          {
+            "hunk": 2,
+            "name": "__argc",
+            "offset": 70
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_len",
+            "offset": 72
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_lin",
+            "offset": 74
+          },
+          {
+            "hunk": 2,
+            "name": "_IconBase",
+            "offset": 78
+          },
+          {
+            "hunk": 2,
+            "name": "_cls_",
+            "offset": 82
+          },
+          {
+            "hunk": 2,
+            "name": "__cln",
+            "offset": 86
+          },
+          {
+            "hunk": 2,
+            "name": "__trapaddr",
+            "offset": 90
+          },
+          {
+            "hunk": 2,
+            "name": "__oldtrap",
+            "offset": 94
+          },
+          {
+            "hunk": 2,
+            "name": "_MathTransBase",
+            "offset": 98
+          },
+          {
+            "hunk": 2,
+            "name": "_MathBase",
+            "offset": 102
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubBasBase",
+            "offset": 106
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubTransBase",
+            "offset": 110
+          },
+          {
+            "hunk": 2,
+            "name": "_errno",
+            "offset": 114
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_end",
+            "offset": 116
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_org",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_recovered",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_forward_public",
+            "offset": 24
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_end",
+            "offset": 52
+          }
+        ]
+      },
+      "decode_stop": null,
+      "mnemonics": [
+        "link.w",
+        "move.w",
+        "bsr.b",
+        "addq.w",
+        "move.w",
+        "bsr.b",
+        "addq.w",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.w",
+        "addq.w",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.w",
+        "subq.w",
+        "unlk",
+        "rts"
+      ],
+      "name": "forward_local_calls",
+      "profile": "aztec36-large-data",
+      "retained_directory": "build/compile-cache/5b3ee805dc37806db89acaa907661363e852acd4dca7bba4e51541dabba79329",
+      "source": "experiments/fingerprints/forward_local_calls.c",
+      "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+      "status": "COMPILED"
+    },
+    {
+      "artifacts": [
+        {
+          "path": "compiler-input.txt",
+          "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+          "size": 40
+        },
+        {
+          "path": "h003-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "h003-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "h003.asm",
+          "sha256": "19611f781d206c3f763b629221a466526c16e33880856a363a330cfb60cf96ba",
+          "size": 256
+        },
+        {
+          "path": "h003.c",
+          "sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+          "size": 140
+        },
+        {
+          "path": "h003.o",
+          "sha256": "f93b538a103d7c07be8a41dac97797e5db48c412d6b6eff2d6cbd6e6c2995179",
+          "size": 120
+        },
+        {
+          "path": "t003-as.log",
+          "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+          "size": 37
+        },
+        {
+          "path": "t003-cc.log",
+          "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+          "size": 72
+        },
+        {
+          "path": "t003-ln.log",
+          "sha256": "28307a4b89c487c6e98639605373406ba5f02be256565ede2b741618dfc8c4ee",
+          "size": 105
+        },
+        {
+          "path": "t003.asm",
+          "sha256": "8bbe96515dd8473ca2b4645e1533f0165cb6382ce2ac3ad1983e737bd4213a29",
+          "size": 540
+        },
+        {
+          "path": "t003.c",
+          "sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+          "size": 269
+        },
+        {
+          "path": "t003.exe",
+          "sha256": "da02e544cb3edaad1442be5a11ad0d2cff641fdb5a2a989e058d9cb49e7e1a92",
+          "size": 2424
+        },
+        {
+          "path": "t003.o",
+          "sha256": "fe0130be30e7bb5a889a26c72ada6fdfdb4068ad9a2ff7ce88ca5ae8478df9ed",
+          "size": 144
+        },
+        {
+          "path": "t003.sym",
+          "sha256": "238388428be0fabbaadc451e25035585f3b8f56df67328f0805f756b69b2662e",
+          "size": 1533
+        }
+      ],
+      "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_forward_public\n\tadd.w\t#4,sp\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_forward_static\n\tadd.w\t#4,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_forward_public\n_forward_public:\n\tlink\ta5,#.5\n\tmovem.l\t.6,-(sp)\n\tmove.l\t8(a5),d0\n\tadd.l\t#1,d0\n.7\n\tmovem.l\t(sp)+,.6\n\tunlk\ta5\n\trts\n.5\tequ\t0\n.6\treg\t\n_forward_static:\n\tlink\ta5,#.8\n\tmovem.l\t.9,-(sp)\n\tmove.l\t8(a5),d0\n\tsub.l\t#1,d0\n.10\n\tmovem.l\t(sp)+,.9\n\tunlk\ta5\n\trts\n.8\tequ\t0\n.9\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+      "cache_key": "8610be1742ae9df27559d1a46dff4479fad951d95d21c7151b582b234b28f7ef",
+      "compiler": {
+        "compiler_version": "3.6a",
+        "flags": [
+          "+L"
+        ],
+        "harness_sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+        "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "library": "c32.lib",
+        "library_guest": "Old2:",
+        "library_sha256": "c34e7ff51194c46f3f8fe5eac5ad838df43924401cb5c43e6ccb86af5757a20e",
+        "link_recipe": "harness.o +o1 candidate.o +o0 c.lib; -m -t",
+        "profile": "aztec36-long",
+        "service_version": 1,
+        "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+        "tools": {
+          "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+          "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+          "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+        },
+        "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+      },
+      "contribution": {
+        "all_relocations": [
+          {
+            "addend_raw": 8,
+            "entry_offset": 2176,
+            "record_offset": 2164,
+            "source_hunk": 0,
+            "source_offset": 74,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 0,
+            "entry_offset": 2188,
+            "record_offset": 2164,
+            "source_hunk": 0,
+            "source_offset": 96,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 32766,
+            "entry_offset": 2192,
+            "record_offset": 2164,
+            "source_hunk": 0,
+            "source_offset": 394,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 278,
+            "entry_offset": 2264,
+            "record_offset": 2252,
+            "source_hunk": 1,
+            "source_offset": 2,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 52,
+            "entry_offset": 2268,
+            "record_offset": 2252,
+            "source_hunk": 1,
+            "source_offset": 18,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 8,
+            "entry_offset": 2280,
+            "record_offset": 2252,
+            "source_hunk": 1,
+            "source_offset": 24,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ],
+        "bss_size": 0,
+        "code_hex": "4e5500002f2d0008610e584f2f2d00086114584f4e5d4e754e550000202d000852804e5d4e754e550000202d000853804e5d4e75",
+        "code_size": 52,
+        "data_size": 0,
+        "executable_sha256": "da02e544cb3edaad1442be5a11ad0d2cff641fdb5a2a989e058d9cb49e7e1a92",
+        "hunk": 3,
+        "hunks": [
+          {
+            "allocated_size": 2124,
+            "content_offset": 40,
+            "declared_size": 2124,
+            "initialized_size": 2124,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 0,
+            "record_offset": 32,
+            "sha256": "c8616193c2c2a49f27f8992d38292b35679c181bac590fa3bc70bfe1549bae00",
+            "type": "CODE",
+            "zero_fill_size": 0
+          },
+          {
+            "allocated_size": 124,
+            "content_offset": 2212,
+            "declared_size": 40,
+            "initialized_size": 40,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 1,
+            "record_offset": 2204,
+            "sha256": "d69732256b8629e3d18f7539ccfe5fe72775054f8664730bb0429a6bcc0e8bfe",
+            "type": "DATA",
+            "zero_fill_size": 84
+          },
+          {
+            "allocated_size": 4,
+            "content_offset": null,
+            "declared_size": 4,
+            "initialized_size": 0,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 2,
+            "record_offset": 2292,
+            "sha256": null,
+            "type": "BSS",
+            "zero_fill_size": 4
+          },
+          {
+            "allocated_size": 52,
+            "content_offset": 2364,
+            "declared_size": 52,
+            "initialized_size": 52,
+            "memory_flags_raw": 0,
+            "node": "ov03",
+            "number": 3,
+            "record_offset": 2356,
+            "sha256": "a135afcf11eafe0624b518537b53bf2cf1ab00407d7db72e2698c3161626338f",
+            "type": "CODE",
+            "zero_fill_size": 0
+          }
+        ],
+        "object_sha256": "fe0130be30e7bb5a889a26c72ada6fdfdb4068ad9a2ff7ce88ca5ae8478df9ed",
+        "relocations": [],
+        "symbols": [
+          {
+            "hunk": 0,
+            "name": "__H0_org",
+            "offset": 0
+          },
+          {
+            "hunk": 0,
+            "name": "_main",
+            "offset": 24
+          },
+          {
+            "hunk": 0,
+            "name": "_segload",
+            "offset": 34
+          },
+          {
+            "hunk": 0,
+            "name": ".segload",
+            "offset": 52
+          },
+          {
+            "hunk": 0,
+            "name": ".begin",
+            "offset": 278
+          },
+          {
+            "hunk": 0,
+            "name": "_geta4",
+            "offset": 392
+          },
+          {
+            "hunk": 0,
+            "name": "__main",
+            "offset": 400
+          },
+          {
+            "hunk": 0,
+            "name": "__cli_parse",
+            "offset": 716
+          },
+          {
+            "hunk": 0,
+            "name": "_strcat",
+            "offset": 1186
+          },
+          {
+            "hunk": 0,
+            "name": "_strncat",
+            "offset": 1192
+          },
+          {
+            "hunk": 0,
+            "name": "_strncpy",
+            "offset": 1228
+          },
+          {
+            "hunk": 0,
+            "name": "__wb_parse",
+            "offset": 1262
+          },
+          {
+            "hunk": 0,
+            "name": "_exit",
+            "offset": 1442
+          },
+          {
+            "hunk": 0,
+            "name": "__exit",
+            "offset": 1472
+          },
+          {
+            "hunk": 0,
+            "name": "_close",
+            "offset": 1750
+          },
+          {
+            "hunk": 0,
+            "name": ".mulu",
+            "offset": 1836
+          },
+          {
+            "hunk": 0,
+            "name": "__Close",
+            "offset": 1872
+          },
+          {
+            "hunk": 0,
+            "name": "__CurrentDir",
+            "offset": 1884
+          },
+          {
+            "hunk": 0,
+            "name": "__Input",
+            "offset": 1896
+          },
+          {
+            "hunk": 0,
+            "name": "__Open",
+            "offset": 1904
+          },
+          {
+            "hunk": 0,
+            "name": "__Output",
+            "offset": 1918
+          },
+          {
+            "hunk": 0,
+            "name": "_UnLock",
+            "offset": 1926
+          },
+          {
+            "hunk": 0,
+            "name": "__UnLock",
+            "offset": 1930
+          },
+          {
+            "hunk": 0,
+            "name": "_Alert",
+            "offset": 1942
+          },
+          {
+            "hunk": 0,
+            "name": "_CloseLibrary",
+            "offset": 1966
+          },
+          {
+            "hunk": 0,
+            "name": "__CloseLibrary",
+            "offset": 1970
+          },
+          {
+            "hunk": 0,
+            "name": "__AllocMem",
+            "offset": 1982
+          },
+          {
+            "hunk": 0,
+            "name": "__FindTask",
+            "offset": 1996
+          },
+          {
+            "hunk": 0,
+            "name": "__Forbid",
+            "offset": 2008
+          },
+          {
+            "hunk": 0,
+            "name": "__FreeMem",
+            "offset": 2016
+          },
+          {
+            "hunk": 0,
+            "name": "__GetMsg",
+            "offset": 2032
+          },
+          {
+            "hunk": 0,
+            "name": "__OpenLibrary",
+            "offset": 2044
+          },
+          {
+            "hunk": 0,
+            "name": "__ReplyMsg",
+            "offset": 2060
+          },
+          {
+            "hunk": 0,
+            "name": "__WaitPort",
+            "offset": 2072
+          },
+          {
+            "hunk": 0,
+            "name": "_FindToolType",
+            "offset": 2084
+          },
+          {
+            "hunk": 0,
+            "name": "_FreeDiskObject",
+            "offset": 2098
+          },
+          {
+            "hunk": 0,
+            "name": "_GetDiskObject",
+            "offset": 2110
+          },
+          {
+            "hunk": 0,
+            "name": "__H0_end",
+            "offset": 2124
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_org",
+            "offset": 0
+          },
+          {
+            "hunk": 1,
+            "name": "_candidate_reference",
+            "offset": 24
+          },
+          {
+            "hunk": 1,
+            "name": "__numdev",
+            "offset": 28
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_name",
+            "offset": 30
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_curdir",
+            "offset": 34
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_end",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_org",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__savsp",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "_SysBase",
+            "offset": 44
+          },
+          {
+            "hunk": 2,
+            "name": "_DOSBase",
+            "offset": 48
+          },
+          {
+            "hunk": 2,
+            "name": "__devtab",
+            "offset": 52
+          },
+          {
+            "hunk": 2,
+            "name": "__stkbase",
+            "offset": 56
+          },
+          {
+            "hunk": 2,
+            "name": "_Enable_Abort",
+            "offset": 60
+          },
+          {
+            "hunk": 2,
+            "name": "_WBenchMsg",
+            "offset": 64
+          },
+          {
+            "hunk": 2,
+            "name": "__argv",
+            "offset": 68
+          },
+          {
+            "hunk": 2,
+            "name": "__argc",
+            "offset": 72
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_len",
+            "offset": 76
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_lin",
+            "offset": 80
+          },
+          {
+            "hunk": 2,
+            "name": "_IconBase",
+            "offset": 84
+          },
+          {
+            "hunk": 2,
+            "name": "_cls_",
+            "offset": 88
+          },
+          {
+            "hunk": 2,
+            "name": "__cln",
+            "offset": 92
+          },
+          {
+            "hunk": 2,
+            "name": "__trapaddr",
+            "offset": 96
+          },
+          {
+            "hunk": 2,
+            "name": "__oldtrap",
+            "offset": 100
+          },
+          {
+            "hunk": 2,
+            "name": "_MathTransBase",
+            "offset": 104
+          },
+          {
+            "hunk": 2,
+            "name": "_MathBase",
+            "offset": 108
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubBasBase",
+            "offset": 112
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubTransBase",
+            "offset": 116
+          },
+          {
+            "hunk": 2,
+            "name": "_errno",
+            "offset": 120
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_end",
+            "offset": 124
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_org",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_recovered",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_forward_public",
+            "offset": 24
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_end",
+            "offset": 52
+          }
+        ]
+      },
+      "decode_stop": null,
+      "mnemonics": [
+        "link.w",
+        "move.l",
+        "bsr.b",
+        "addq.w",
+        "move.l",
+        "bsr.b",
+        "addq.w",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.l",
+        "addq.l",
+        "unlk",
+        "rts",
+        "link.w",
+        "move.l",
+        "subq.l",
+        "unlk",
+        "rts"
+      ],
+      "name": "forward_local_calls",
+      "profile": "aztec36-long",
+      "retained_directory": "build/compile-cache/8610be1742ae9df27559d1a46dff4479fad951d95d21c7151b582b234b28f7ef",
+      "source": "experiments/fingerprints/forward_local_calls.c",
+      "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+      "status": "COMPILED"
+    },
+    {
+      "artifacts": [
+        {
+          "path": "compiler-input.txt",
+          "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+          "size": 40
+        },
+        {
+          "path": "h004-as.log",
+          "sha256": "a95f456cc1ceac256a3f12c8eae6fb18c32392287d5e122ac8b36a21fb4195d0",
+          "size": 57
+        },
+        {
+          "path": "h004-cc.log",
+          "sha256": "d85d6f8380ebe4764ddf7352bf36d1d9df5eca9556db37f26eccfc68d0a19c12",
+          "size": 90
+        },
+        {
+          "path": "h004.asm",
+          "sha256": "2ed417d5ee0cfe5d3ce2998d171c544cf64391c9b3465f9a74458eb3cc36dfc3",
+          "size": 248
+        },
+        {
+          "path": "h004.c",
+          "sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+          "size": 140
+        },
+        {
+          "path": "h004.o",
+          "sha256": "ae4c9cb633a1ed15f7190649ddbede30803fb9e73ed8a80ba6793df6380f3d7b",
+          "size": 128
+        },
+        {
+          "path": "t004-as.log",
+          "sha256": "a95f456cc1ceac256a3f12c8eae6fb18c32392287d5e122ac8b36a21fb4195d0",
+          "size": 57
+        },
+        {
+          "path": "t004-cc.log",
+          "sha256": "d85d6f8380ebe4764ddf7352bf36d1d9df5eca9556db37f26eccfc68d0a19c12",
+          "size": 90
+        },
+        {
+          "path": "t004-ln.log",
+          "sha256": "156a861ee3bfac5f4296e8ece0937e43524f873bb9fa5990c55d0de0ce947c16",
+          "size": 125
+        },
+        {
+          "path": "t004.asm",
+          "sha256": "58299fbc92c124fd5bfe9fc8445b1ee5e7e9c7395c89c277e6eb951975064290",
+          "size": 534
+        },
+        {
+          "path": "t004.c",
+          "sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+          "size": 269
+        },
+        {
+          "path": "t004.exe",
+          "sha256": "c449249ff49bf3e844789f705b5e546538b3a0f38ea9380db360d9f2fb1b0bdd",
+          "size": 2556
+        },
+        {
+          "path": "t004.o",
+          "sha256": "7967322bffc24ebac1bf8a67c76cd28e6b360ac42e7bfccb9888941938ac5f93",
+          "size": 168
+        },
+        {
+          "path": "t004.sym",
+          "sha256": "3081cce307cc78db4f7b45cb84768579f71f470343eae0403df561a2428c8eda",
+          "size": 1161
+        }
+      ],
+      "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_forward_public\n\tadd.w\t#4,sp\n\tmove.l\t8(a5),-(sp)\n\tjsr\t_forward_static\n\tadd.w\t#4,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txdef\t_forward_public\n_forward_public:\n\tlink\ta5,#.5\n\tmovem.l\t.6,-(sp)\n\tmove.l\t8(a5),d0\n\tadd.l\t#1,d0\n.7\n\tmovem.l\t(sp)+,.6\n\tunlk\ta5\n\trts\n.5\tequ\t0\n.6\treg\t\n_forward_static:\n\tlink\ta5,#.8\n\tmovem.l\t.9,-(sp)\n\tmove.l\t8(a5),d0\n\tsub.l\t#1,d0\n.10\n\tmovem.l\t(sp)+,.9\n\tunlk\ta5\n\trts\n.8\tequ\t0\n.9\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+      "cache_key": "54c1f3d68286a714770b496c480037807f1823f6092fc17f6dec4142cf713a91",
+      "compiler": {
+        "compiler_version": "5.0a",
+        "flags": [],
+        "harness_sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+        "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "library": "c.lib",
+        "library_guest": "Tools2:",
+        "library_sha256": "da8ce83ce1cc698b4f0387fce7efd47367d9e3fbed4081cc0e8ef71d86852315",
+        "link_recipe": "harness.o +o1 candidate.o +o0 c.lib; -m -t",
+        "profile": "aztec50",
+        "service_version": 1,
+        "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+        "tools": {
+          "as": "9ad50b42b7c17b91193f701911c0ab222bdb9bb73cde73c4ba512cd4a15bf721",
+          "cc": "55ee069d49a116dac657e014ee6d4e999a572b38cffb64defcde897a8e68e572",
+          "ln": "a5b9ed9e22cc6818d0df2137fa7cd452b072166f26dd6a65536eb03f8d762345"
+        },
+        "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+      },
+      "contribution": {
+        "all_relocations": [
+          {
+            "addend_raw": 8,
+            "entry_offset": 2284,
+            "record_offset": 2272,
+            "source_hunk": 0,
+            "source_offset": 1130,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 32766,
+            "entry_offset": 2296,
+            "record_offset": 2272,
+            "source_hunk": 0,
+            "source_offset": 162,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 0,
+            "entry_offset": 2300,
+            "record_offset": 2272,
+            "source_hunk": 0,
+            "source_offset": 1152,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 42,
+            "entry_offset": 2372,
+            "record_offset": 2360,
+            "source_hunk": 1,
+            "source_offset": 2,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 1108,
+            "entry_offset": 2376,
+            "record_offset": 2360,
+            "source_hunk": 1,
+            "source_offset": 18,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 8,
+            "entry_offset": 2388,
+            "record_offset": 2360,
+            "source_hunk": 1,
+            "source_offset": 24,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ],
+        "bss_size": 0,
+        "code_hex": "4e55000048e700002f2d00086112584f2f2d00086120584f4cdf00004e5d4e754e55000048e70000202d000852804cdf00004e5d4e754e55000048e70000202d000853804cdf00004e5d4e75",
+        "code_size": 76,
+        "data_size": 0,
+        "executable_sha256": "c449249ff49bf3e844789f705b5e546538b3a0f38ea9380db360d9f2fb1b0bdd",
+        "hunk": 3,
+        "hunks": [
+          {
+            "allocated_size": 2232,
+            "content_offset": 40,
+            "declared_size": 2232,
+            "initialized_size": 2232,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 0,
+            "record_offset": 32,
+            "sha256": "ef1bd68331dd636ef2f1c81ce969fe7346cea67b524be19a30ff8dea8d5409b8",
+            "type": "CODE",
+            "zero_fill_size": 0
+          },
+          {
+            "allocated_size": 128,
+            "content_offset": 2320,
+            "declared_size": 40,
+            "initialized_size": 40,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 1,
+            "record_offset": 2312,
+            "sha256": "b26924e7fe0a5f11f0361412eaafa5de9d9881cfcad66de4afa6d691de7d0f2b",
+            "type": "DATA",
+            "zero_fill_size": 88
+          },
+          {
+            "allocated_size": 4,
+            "content_offset": null,
+            "declared_size": 4,
+            "initialized_size": 0,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 2,
+            "record_offset": 2400,
+            "sha256": null,
+            "type": "BSS",
+            "zero_fill_size": 4
+          },
+          {
+            "allocated_size": 76,
+            "content_offset": 2472,
+            "declared_size": 76,
+            "initialized_size": 76,
+            "memory_flags_raw": 0,
+            "node": "ov03",
+            "number": 3,
+            "record_offset": 2464,
+            "sha256": "593ed0182d035a74cf37556bcbcb626b7c2e2bfa5c1f48ef7024dc05f8266024",
+            "type": "CODE",
+            "zero_fill_size": 0
+          }
+        ],
+        "object_sha256": "7967322bffc24ebac1bf8a67c76cd28e6b360ac42e7bfccb9888941938ac5f93",
+        "relocations": [],
+        "symbols": [
+          {
+            "hunk": 0,
+            "name": "__H0_org",
+            "offset": 0
+          },
+          {
+            "hunk": 0,
+            "name": "_main",
+            "offset": 24
+          },
+          {
+            "hunk": 0,
+            "name": ".begin",
+            "offset": 42
+          },
+          {
+            "hunk": 0,
+            "name": "_geta4",
+            "offset": 160
+          },
+          {
+            "hunk": 0,
+            "name": "__main",
+            "offset": 168
+          },
+          {
+            "hunk": 0,
+            "name": "__cli_parse",
+            "offset": 600
+          },
+          {
+            "hunk": 0,
+            "name": "_strncat",
+            "offset": 1054
+          },
+          {
+            "hunk": 0,
+            "name": "_segload",
+            "offset": 1090
+          },
+          {
+            "hunk": 0,
+            "name": ".segload",
+            "offset": 1108
+          },
+          {
+            "hunk": 0,
+            "name": "__wb_parse",
+            "offset": 1334
+          },
+          {
+            "hunk": 0,
+            "name": "_strncpy",
+            "offset": 1586
+          },
+          {
+            "hunk": 0,
+            "name": "_strlen",
+            "offset": 1634
+          },
+          {
+            "hunk": 0,
+            "name": "_strcpy",
+            "offset": 1652
+          },
+          {
+            "hunk": 0,
+            "name": "_exit",
+            "offset": 1666
+          },
+          {
+            "hunk": 0,
+            "name": "__exit",
+            "offset": 1716
+          },
+          {
+            "hunk": 0,
+            "name": "__close",
+            "offset": 2106
+          },
+          {
+            "hunk": 0,
+            "name": "_close",
+            "offset": 2106
+          },
+          {
+            "hunk": 0,
+            "name": ".mulu",
+            "offset": 2194
+          },
+          {
+            "hunk": 0,
+            "name": "__H0_end",
+            "offset": 2232
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_org",
+            "offset": 0
+          },
+          {
+            "hunk": 1,
+            "name": "_candidate_reference",
+            "offset": 24
+          },
+          {
+            "hunk": 1,
+            "name": "__numdev",
+            "offset": 28
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_name",
+            "offset": 30
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_curdir",
+            "offset": 34
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_end",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_org",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__savsp",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "_SysBase",
+            "offset": 44
+          },
+          {
+            "hunk": 2,
+            "name": "_DOSBase",
+            "offset": 48
+          },
+          {
+            "hunk": 2,
+            "name": "__devtab",
+            "offset": 52
+          },
+          {
+            "hunk": 2,
+            "name": "__stkbase",
+            "offset": 56
+          },
+          {
+            "hunk": 2,
+            "name": "_Enable_Abort",
+            "offset": 60
+          },
+          {
+            "hunk": 2,
+            "name": "_WBenchMsg",
+            "offset": 64
+          },
+          {
+            "hunk": 2,
+            "name": "__argv",
+            "offset": 68
+          },
+          {
+            "hunk": 2,
+            "name": "__argc",
+            "offset": 72
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_len",
+            "offset": 76
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_lin",
+            "offset": 80
+          },
+          {
+            "hunk": 2,
+            "name": "_IconBase",
+            "offset": 84
+          },
+          {
+            "hunk": 2,
+            "name": "__exit_funcs",
+            "offset": 88
+          },
+          {
+            "hunk": 2,
+            "name": "__close_stdio",
+            "offset": 92
+          },
+          {
+            "hunk": 2,
+            "name": "__cln",
+            "offset": 96
+          },
+          {
+            "hunk": 2,
+            "name": "__trapaddr",
+            "offset": 100
+          },
+          {
+            "hunk": 2,
+            "name": "__oldtrap",
+            "offset": 104
+          },
+          {
+            "hunk": 2,
+            "name": "_MathTransBase",
+            "offset": 108
+          },
+          {
+            "hunk": 2,
+            "name": "_MathBase",
+            "offset": 112
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubBasBase",
+            "offset": 116
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubTransBase",
+            "offset": 120
+          },
+          {
+            "hunk": 2,
+            "name": "_errno",
+            "offset": 124
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_end",
+            "offset": 128
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_org",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_recovered",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_forward_public",
+            "offset": 32
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_end",
+            "offset": 76
+          }
+        ]
+      },
+      "decode_stop": null,
+      "mnemonics": [
+        "link.w",
+        "movem.l",
+        "move.l",
+        "bsr.b",
+        "addq.w",
+        "move.l",
+        "bsr.b",
+        "addq.w",
+        "movem.l",
+        "unlk",
+        "rts",
+        "link.w",
+        "movem.l",
+        "move.l",
+        "addq.l",
+        "movem.l",
+        "unlk",
+        "rts",
+        "link.w",
+        "movem.l",
+        "move.l",
+        "subq.l",
+        "movem.l",
+        "unlk",
+        "rts"
+      ],
+      "name": "forward_local_calls",
+      "profile": "aztec50",
+      "retained_directory": "build/compile-cache/54c1f3d68286a714770b496c480037807f1823f6092fc17f6dec4142cf713a91",
+      "source": "experiments/fingerprints/forward_local_calls.c",
+      "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+      "status": "COMPILED"
+    },
+    {
+      "artifacts": [
+        {
+          "path": "compiler-input.txt",
+          "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+          "size": 40
+        },
+        {
+          "path": "h005-as.log",
+          "sha256": "a95f456cc1ceac256a3f12c8eae6fb18c32392287d5e122ac8b36a21fb4195d0",
+          "size": 57
+        },
+        {
+          "path": "h005-cc.log",
+          "sha256": "d85d6f8380ebe4764ddf7352bf36d1d9df5eca9556db37f26eccfc68d0a19c12",
+          "size": 90
+        },
+        {
+          "path": "h005.asm",
+          "sha256": "2ed417d5ee0cfe5d3ce2998d171c544cf64391c9b3465f9a74458eb3cc36dfc3",
+          "size": 248
+        },
+        {
+          "path": "h005.c",
+          "sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+          "size": 140
+        },
+        {
+          "path": "h005.o",
+          "sha256": "ae4c9cb633a1ed15f7190649ddbede30803fb9e73ed8a80ba6793df6380f3d7b",
+          "size": 128
+        },
+        {
+          "path": "t005-as.log",
+          "sha256": "a95f456cc1ceac256a3f12c8eae6fb18c32392287d5e122ac8b36a21fb4195d0",
+          "size": 57
+        },
+        {
+          "path": "t005-cc.log",
+          "sha256": "d85d6f8380ebe4764ddf7352bf36d1d9df5eca9556db37f26eccfc68d0a19c12",
+          "size": 90
+        },
+        {
+          "path": "t005-ln.log",
+          "sha256": "38b541a96770b7307847d4a20349fa2efeb562064ffb94e702c9bdfd3d912b71",
+          "size": 125
+        },
+        {
+          "path": "t005.asm",
+          "sha256": "dcc6b85508252af92c4582620ea2480b281d24e865d49d6dcf3bec8296a57a2c",
+          "size": 534
+        },
+        {
+          "path": "t005.c",
+          "sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+          "size": 269
+        },
+        {
+          "path": "t005.exe",
+          "sha256": "57b99364cf75c39369c0039ddfba36b193684e6e9967864caf03457f5c783fbc",
+          "size": 2492
+        },
+        {
+          "path": "t005.o",
+          "sha256": "3924ee865ea6318dbaa2d1bb0c34a4f3527dde043b9744a8acdc2f500d1b1ed2",
+          "size": 168
+        },
+        {
+          "path": "t005.sym",
+          "sha256": "e3aefa22a593a6a2e50e931d7f51609aea62c64b23a80ff5876bdbfc631d27d9",
+          "size": 1145
+        }
+      ],
+      "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_public\n\tadd.w\t#2,sp\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_forward_static\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txdef\t_forward_public\n_forward_public:\n\tlink\ta5,#.5\n\tmovem.l\t.6,-(sp)\n\tmove.w\t8(a5),d0\n\tadd.w\t#1,d0\n.7\n\tmovem.l\t(sp)+,.6\n\tunlk\ta5\n\trts\n.5\tequ\t0\n.6\treg\t\n_forward_static:\n\tlink\ta5,#.8\n\tmovem.l\t.9,-(sp)\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,d0\n.10\n\tmovem.l\t(sp)+,.9\n\tunlk\ta5\n\trts\n.8\tequ\t0\n.9\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+      "cache_key": "dc371a1e5469ff40df29d4a8998c8a7301327249c45a3211bc5f36520a9385ed",
+      "compiler": {
+        "compiler_version": "5.0a",
+        "flags": [
+          "-ps"
+        ],
+        "harness_sha256": "e467cd76b2b5e357ea5c15c84d69d66c0f4af5c0b36456b06be0c13ea6ec4d45",
+        "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "library": "c16.lib",
+        "library_guest": "Tools2:",
+        "library_sha256": "520921cf2782ca2d08f9e907a7f2a7b9833a44cdc49e77cb511290090e137523",
+        "link_recipe": "harness.o +o1 candidate.o +o0 c.lib; -m -t",
+        "profile": "aztec50-short",
+        "service_version": 1,
+        "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
+        "tools": {
+          "as": "9ad50b42b7c17b91193f701911c0ab222bdb9bb73cde73c4ba512cd4a15bf721",
+          "cc": "55ee069d49a116dac657e014ee6d4e999a572b38cffb64defcde897a8e68e572",
+          "ln": "a5b9ed9e22cc6818d0df2137fa7cd452b072166f26dd6a65536eb03f8d762345"
+        },
+        "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+      },
+      "contribution": {
+        "all_relocations": [
+          {
+            "addend_raw": 8,
+            "entry_offset": 2220,
+            "record_offset": 2208,
+            "source_hunk": 0,
+            "source_offset": 1108,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 32766,
+            "entry_offset": 2232,
+            "record_offset": 2208,
+            "source_hunk": 0,
+            "source_offset": 162,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 0,
+            "entry_offset": 2236,
+            "record_offset": 2208,
+            "source_hunk": 0,
+            "source_offset": 1130,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 42,
+            "entry_offset": 2308,
+            "record_offset": 2296,
+            "source_hunk": 1,
+            "source_offset": 2,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 1086,
+            "entry_offset": 2312,
+            "record_offset": 2296,
+            "source_hunk": 1,
+            "source_offset": 18,
+            "target_hunk": 0,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "addend_raw": 8,
+            "entry_offset": 2324,
+            "record_offset": 2296,
+            "source_hunk": 1,
+            "source_offset": 24,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ],
+        "bss_size": 0,
+        "code_hex": "4e55000048e700003f2d00086112544f3f2d00086120544f4cdf00004e5d4e754e55000048e70000302d000852404cdf00004e5d4e754e55000048e70000302d000853404cdf00004e5d4e75",
+        "code_size": 76,
+        "data_size": 0,
+        "executable_sha256": "57b99364cf75c39369c0039ddfba36b193684e6e9967864caf03457f5c783fbc",
+        "hunk": 3,
+        "hunks": [
+          {
+            "allocated_size": 2168,
+            "content_offset": 40,
+            "declared_size": 2168,
+            "initialized_size": 2168,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 0,
+            "record_offset": 32,
+            "sha256": "3085d5fca5293f29c90a5295ae9082dc38904ceeb7ab7fdd1039030d83e305dd",
+            "type": "CODE",
+            "zero_fill_size": 0
+          },
+          {
+            "allocated_size": 120,
+            "content_offset": 2256,
+            "declared_size": 40,
+            "initialized_size": 40,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 1,
+            "record_offset": 2248,
+            "sha256": "0b866c81efd067d67504a981aa1a910b09524b9d539826b1f0dd2801dbf16f02",
+            "type": "DATA",
+            "zero_fill_size": 80
+          },
+          {
+            "allocated_size": 4,
+            "content_offset": null,
+            "declared_size": 4,
+            "initialized_size": 0,
+            "memory_flags_raw": 0,
+            "node": "resident",
+            "number": 2,
+            "record_offset": 2336,
+            "sha256": null,
+            "type": "BSS",
+            "zero_fill_size": 4
+          },
+          {
+            "allocated_size": 76,
+            "content_offset": 2408,
+            "declared_size": 76,
+            "initialized_size": 76,
+            "memory_flags_raw": 0,
+            "node": "ov03",
+            "number": 3,
+            "record_offset": 2400,
+            "sha256": "fe9efc20268b5e29a49d5a4bebd64676d81a067415a14ec7e1015a0e1563781f",
+            "type": "CODE",
+            "zero_fill_size": 0
+          }
+        ],
+        "object_sha256": "3924ee865ea6318dbaa2d1bb0c34a4f3527dde043b9744a8acdc2f500d1b1ed2",
+        "relocations": [],
+        "symbols": [
+          {
+            "hunk": 0,
+            "name": "__H0_org",
+            "offset": 0
+          },
+          {
+            "hunk": 0,
+            "name": "_main",
+            "offset": 24
+          },
+          {
+            "hunk": 0,
+            "name": ".begin",
+            "offset": 42
+          },
+          {
+            "hunk": 0,
+            "name": "_geta4",
+            "offset": 160
+          },
+          {
+            "hunk": 0,
+            "name": "__main",
+            "offset": 168
+          },
+          {
+            "hunk": 0,
+            "name": "__cli_parse",
+            "offset": 598
+          },
+          {
+            "hunk": 0,
+            "name": "_strncat",
+            "offset": 1032
+          },
+          {
+            "hunk": 0,
+            "name": "_segload",
+            "offset": 1068
+          },
+          {
+            "hunk": 0,
+            "name": ".segload",
+            "offset": 1086
+          },
+          {
+            "hunk": 0,
+            "name": "__wb_parse",
+            "offset": 1312
+          },
+          {
+            "hunk": 0,
+            "name": "_strncpy",
+            "offset": 1564
+          },
+          {
+            "hunk": 0,
+            "name": "_strlen",
+            "offset": 1612
+          },
+          {
+            "hunk": 0,
+            "name": "_strcpy",
+            "offset": 1630
+          },
+          {
+            "hunk": 0,
+            "name": "_exit",
+            "offset": 1644
+          },
+          {
+            "hunk": 0,
+            "name": "__exit",
+            "offset": 1694
+          },
+          {
+            "hunk": 0,
+            "name": "__close",
+            "offset": 2088
+          },
+          {
+            "hunk": 0,
+            "name": "_close",
+            "offset": 2088
+          },
+          {
+            "hunk": 0,
+            "name": "__H0_end",
+            "offset": 2168
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_org",
+            "offset": 0
+          },
+          {
+            "hunk": 1,
+            "name": "_candidate_reference",
+            "offset": 24
+          },
+          {
+            "hunk": 1,
+            "name": "__numdev",
+            "offset": 28
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_name",
+            "offset": 30
+          },
+          {
+            "hunk": 1,
+            "name": "__detach_curdir",
+            "offset": 34
+          },
+          {
+            "hunk": 1,
+            "name": "__H1_end",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_org",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "__savsp",
+            "offset": 40
+          },
+          {
+            "hunk": 2,
+            "name": "_SysBase",
+            "offset": 44
+          },
+          {
+            "hunk": 2,
+            "name": "_DOSBase",
+            "offset": 48
+          },
+          {
+            "hunk": 2,
+            "name": "__devtab",
+            "offset": 52
+          },
+          {
+            "hunk": 2,
+            "name": "__stkbase",
+            "offset": 56
+          },
+          {
+            "hunk": 2,
+            "name": "_Enable_Abort",
+            "offset": 60
+          },
+          {
+            "hunk": 2,
+            "name": "_WBenchMsg",
+            "offset": 62
+          },
+          {
+            "hunk": 2,
+            "name": "__argv",
+            "offset": 66
+          },
+          {
+            "hunk": 2,
+            "name": "__argc",
+            "offset": 70
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_len",
+            "offset": 72
+          },
+          {
+            "hunk": 2,
+            "name": "__arg_lin",
+            "offset": 74
+          },
+          {
+            "hunk": 2,
+            "name": "_IconBase",
+            "offset": 78
+          },
+          {
+            "hunk": 2,
+            "name": "__exit_funcs",
+            "offset": 82
+          },
+          {
+            "hunk": 2,
+            "name": "__close_stdio",
+            "offset": 86
+          },
+          {
+            "hunk": 2,
+            "name": "__cln",
+            "offset": 90
+          },
+          {
+            "hunk": 2,
+            "name": "__trapaddr",
+            "offset": 94
+          },
+          {
+            "hunk": 2,
+            "name": "__oldtrap",
+            "offset": 98
+          },
+          {
+            "hunk": 2,
+            "name": "_MathTransBase",
+            "offset": 102
+          },
+          {
+            "hunk": 2,
+            "name": "_MathBase",
+            "offset": 106
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubBasBase",
+            "offset": 110
+          },
+          {
+            "hunk": 2,
+            "name": "_MathIeeeDoubTransBase",
+            "offset": 114
+          },
+          {
+            "hunk": 2,
+            "name": "_errno",
+            "offset": 118
+          },
+          {
+            "hunk": 2,
+            "name": "__H2_end",
+            "offset": 120
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_org",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_recovered",
+            "offset": 0
+          },
+          {
+            "hunk": 3,
+            "name": "_forward_public",
+            "offset": 32
+          },
+          {
+            "hunk": 3,
+            "name": "__H3_end",
+            "offset": 76
+          }
+        ]
+      },
+      "decode_stop": null,
+      "mnemonics": [
+        "link.w",
+        "movem.l",
+        "move.w",
+        "bsr.b",
+        "addq.w",
+        "move.w",
+        "bsr.b",
+        "addq.w",
+        "movem.l",
+        "unlk",
+        "rts",
+        "link.w",
+        "movem.l",
+        "move.w",
+        "addq.w",
+        "movem.l",
+        "unlk",
+        "rts",
+        "link.w",
+        "movem.l",
+        "move.w",
+        "subq.w",
+        "movem.l",
+        "unlk",
+        "rts"
+      ],
+      "name": "forward_local_calls",
+      "profile": "aztec50-short",
+      "retained_directory": "build/compile-cache/dc371a1e5469ff40df29d4a8998c8a7301327249c45a3211bc5f36520a9385ed",
+      "source": "experiments/fingerprints/forward_local_calls.c",
+      "source_sha256": "81c41d2f805ae3f45a85fb09f4cf8674f758bdb1909fee4c4e0da617180426a1",
       "status": "COMPILED"
     },
     {
@@ -155338,5 +158793,5 @@
     "aztec50-short"
   ],
   "schema_version": 1,
-  "trials": 276
+  "trials": 282
 }

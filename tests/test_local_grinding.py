@@ -146,6 +146,9 @@ class ReportTests(unittest.TestCase):
                          'unsigned_byte_pointer_assignment','unsigned_byte_pointer_promoted',
                          'unsigned_high_byte_mask'} <= set(CORPUS))
 
+    def test_fingerprint_retains_forward_local_call_probe(self):
+        self.assertIn('forward_local_calls',CORPUS)
+
     def test_byte_return_blocker_does_not_recommend_more_candidate_retries(self):
         self.assertIn('do not retry ordinary candidate C',
                       blocker_next_action('BYTE_RETURN_ABI_MISMATCH: return convention differs'))

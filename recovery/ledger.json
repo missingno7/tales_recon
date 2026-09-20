@@ -5585,6 +5585,44 @@
         "source_sha256": "8417960cc3d76cc25b2ed73680cfd2b63135595c4bac0e5d214533ee7caca366",
         "state": "CANDIDATE_C",
         "verdict": "BLOCKED"
+      },
+      {
+        "actual_length": 160,
+        "cache_key": "8cb4451fbb0da228f10ffac33bc3336bcfec1c68026e0775ddf736e22c9b980b",
+        "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+        "expected_length": 158,
+        "first_difference": {
+          "actual": "8044d0882b40fffc206dfffc30105240",
+          "actual_size": 160,
+          "expected": "26aad0882b40fffc206dfffc30105240",
+          "expected_size": 158,
+          "offset": 14
+        },
+        "mnemonic_similarity": 0.9,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_70DC/12a003584c5090b64073f684d66ccc58ba26668e922eadf29b37b0adf9e3a8e1-aztec36-8cb4451fbb0d-6bf796548b92.json",
+        "source_sha256": "12a003584c5090b64073f684d66ccc58ba26668e922eadf29b37b0adf9e3a8e1",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
+      },
+      {
+        "actual_length": 160,
+        "cache_key": "9cb23692790f05038d59145e6a1dba8fb458b5eda0ce100717033e4caf3edb49",
+        "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+        "expected_length": 158,
+        "first_difference": {
+          "actual": "8044d0882b40fffc206dfffc30105240",
+          "actual_size": 160,
+          "expected": "26aad0882b40fffc206dfffc30105240",
+          "expected_size": 158,
+          "offset": 14
+        },
+        "mnemonic_similarity": 0.9,
+        "profile": "aztec36",
+        "receipt": "recovery/attempts/ov11_F_70DC/545defcea25d33e316e9c7e07f89d89b9ffb31880b4bd1acd4055f54fe27de55-aztec36-9cb23692790f-6bf796548b92.json",
+        "source_sha256": "545defcea25d33e316e9c7e07f89d89b9ffb31880b4bd1acd4055f54fe27de55",
+        "state": "CODEGEN_SIMILAR",
+        "verdict": "DIFFER"
       }
     ],
     "ov11_F_717A": [
@@ -7869,40 +7907,6 @@
       "reason": "UNSUPPORTED_REGISTER_CALL_ABI: resident F_8Dxx vector wrappers require D-register arguments. Aztec 3.6a rejects #pragma regcall before compilation; ordinary stack calls cannot express the observed D0/D1 sequence. Retain three bounded trial receipts; add a historically supported 3.6a register-call mechanism before retrying.",
       "state": "BLOCKED"
     },
-    "ov11_F_70DC": {
-      "attempts": [
-        {
-          "actual_length": null,
-          "cache_key": "28d5806ffb938a3a9cef9e1b03c00a939c92979a2139337ed223ba9b60f73d70",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 158,
-          "first_difference": null,
-          "mnemonic_similarity": null,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov11_F_70DC/cc94dd8c8bfb21f7e9c6f4f2b2ef62b90be512fae717dbe67626b9f419048727-aztec36-28d5806ffb93-e962cd232c05.json",
-          "source_sha256": "cc94dd8c8bfb21f7e9c6f4f2b2ef62b90be512fae717dbe67626b9f419048727",
-          "state": "CANDIDATE_C",
-          "verdict": "BLOCKED"
-        },
-        {
-          "actual_length": 198,
-          "cache_key": "9cf520af5deaf81f8ac39c87d373d78d4771718b7c4ef7bedffa3c0debe1d8ad",
-          "comparison_identity": "e962cd232c056cf888f25733b99de949b8963407de437280c0aee7e8646e8281",
-          "expected_length": 158,
-          "first_difference": null,
-          "mnemonic_similarity": null,
-          "profile": "aztec36",
-          "receipt": "recovery/attempts/ov11_F_70DC/8417960cc3d76cc25b2ed73680cfd2b63135595c4bac0e5d214533ee7caca366-aztec36-9cf520af5dea-e962cd232c05.json",
-          "source_sha256": "8417960cc3d76cc25b2ed73680cfd2b63135595c4bac0e5d214533ee7caca366",
-          "state": "CANDIDATE_C",
-          "verdict": "BLOCKED"
-        }
-      ],
-      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
-      "ownership_unchanged": true,
-      "reason": "NON_CONVERGENCE: bounded attempts exhausted or cached failure repeated",
-      "state": "BLOCKED"
-    },
     "ov14_F_0412": {
       "attempts": [
         {
@@ -9624,6 +9628,22 @@
       "proof_sha256": "9e20765211a4cf75129b93f9d56e716e9463b42bd2ca4d381ae1a931c55d838d",
       "source": "src/recovered/ov11/ov11_F_706C.c",
       "source_sha256": "3fdfc43b50cf8d93d37479d6458cd0e66bbc7baa6b435e50d5ef09cc7dfdc068",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_70DC": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 29050,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "e2c80eb0b33dfec7badb5a6beb32ba732acb51c7e5de47b9f40e9a62a294c6a2",
+        "size": 158,
+        "start": 28892
+      },
+      "proof": "recovery/proofs/ov11_F_70DC.json",
+      "proof_sha256": "ccc190413aae68252da3b4e147eb8ccb70484c69c312bb92473f2bfdf2de7b92",
+      "source": "src/recovered/ov11/ov11_F_70DC.c",
+      "source_sha256": "83017af121befa5d957beda7139c83e01d47711b0c8c8dd1b884dc9b2cf3f1e9",
       "state": "FUNCTION_CODE_MATCH"
     },
     "ov11_F_717A": {

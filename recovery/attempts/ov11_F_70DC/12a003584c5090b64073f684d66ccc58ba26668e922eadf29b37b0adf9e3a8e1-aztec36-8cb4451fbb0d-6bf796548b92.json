@@ -1,0 +1,182 @@
+{
+  "actual_length": 160,
+  "actual_sha256": "2b6af717305076a869d0d75726d2ae8652dfa6f6d1285eead92e092fde7fa70a",
+  "cache_hit": false,
+  "cache_key": "8cb4451fbb0da228f10ffac33bc3336bcfec1c68026e0775ddf736e22c9b980b",
+  "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "move.w",
+        "offset": 150,
+        "operands": "#$1, -$7fc6(a4)",
+        "raw": "397c0001803a",
+        "size": 6
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 156,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 158,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.w",
+        "offset": 148,
+        "operands": "#$1, -$6d00(a4)",
+        "raw": "397c00019300",
+        "size": 6
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 154,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 156,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 158,
+  "expected_sha256": "e2c80eb0b33dfec7badb5a6beb32ba732acb51c7e5de47b9f40e9a62a294c6a2",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "lea.l",
+      "offset": 12,
+      "operands": "-$7fbc(a4), a0",
+      "raw": "41ec8044",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "lea.l",
+      "offset": 12,
+      "operands": "$26aa(a4), a0",
+      "raw": "41ec26aa",
+      "size": 4
+    }
+  },
+  "first_structural_instruction_difference": {
+    "actual": [
+      {
+        "mnemonic": "jsr",
+        "offset": 64,
+        "operands": "-$7ff2(a4)",
+        "raw": "4eac800e",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "bsr.b",
+        "offset": 64,
+        "operands": "$9e",
+        "raw": "615c",
+        "size": 2
+      }
+    ],
+    "kind": "replace"
+  },
+  "flags": [],
+  "id": "ov11_F_70DC",
+  "mnemonic_similarity": 0.9,
+  "normalized_first_difference": {
+    "actual": "8044d0882b40fffc206dfffc30105240",
+    "actual_size": 160,
+    "expected": "26aad0882b40fffc206dfffc30105240",
+    "expected_size": 158,
+    "offset": 14
+  },
+  "normalized_sha256": "2b6af717305076a869d0d75726d2ae8652dfa6f6d1285eead92e092fde7fa70a",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$a, d0",
+        "raw": "c1fc000a",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$a, d0",
+        "raw": "c1fc000a",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "8044d0882b40fffc206dfffc30105240",
+    "actual_size": 160,
+    "expected": "26aad0882b40fffc206dfffc30105240",
+    "expected_size": 158,
+    "offset": 14
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "12a003584c5090b64073f684d66ccc58ba26668e922eadf29b37b0adf9e3a8e1",
+  "unit_blocker": "unrecovered same-node dependency: ov11_F_27CC",
+  "verdict": "DIFFER"
+}

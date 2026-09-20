@@ -24,6 +24,7 @@ CORPUS={
  'literal_string':'char *recovered() { return "oracle"; }',
  'literal_argument':'extern int sink(); recovered() { return sink("oracle"); }',
  'adjacent_calls':'extern int first(); extern int second(); recovered(a) int a; { first(a); return second(a); }',
+ 'forward_local_calls':'int forward_public(); static int forward_static(); recovered(a) int a; { forward_public(a); return forward_static(a); } forward_public(a) int a; { return a+1; } static forward_static(a) int a; { return a-1; }',
  'char_struct_index':'struct item { long a,b,c; }; extern struct item table[36]; long recovered(i) char i; { return table[i].b; }',
  'int_add':'int recovered(a,b) int a,b; { return a+b; }',
  'word_add':'short recovered(a,b) short a,b; { return a+b; }',

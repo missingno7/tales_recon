@@ -229,13 +229,41 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             # Preserve historical module boundaries when their ordinary link
             # codegen matters (for example JSR instead of an intra-object BSR).
             if join_direct_callees:
-                direct={call['id'] for call in target['direct_callees'] if call['hunk']==target['hunk']}
-                joined=[m for m in members if m['id']==fid or m['id'] in direct]
-                require(joined and joined[0]['id']==fid,
-                        'joined direct callees must follow the target in original code order')
-                joined_ids={m['id'] for m in joined}
-                trial['objects']=[dict(source=joined_source(parts,joined))]
-                trial['objects'] += [dict(source=parts[m['id']]) for m in members if m['id'] not in joined_ids]
+                # Preserve every original object boundary except an adjacent
+                # pair with a proven same-node direct call.  Manx shortens
+                # those source-local calls to BSR during the normal link, while
+                # calls across an original gap retain independent object proof.
+                callees={m['id']:{c['id'] for c in m['direct_callees']
+                                   if c['hunk']==m['hunk']}
+                          for m in members}
+                groups=[];current=[]
+                for member in members:
+                    if current:
+                        previous=current[-1]
+                        contiguous=previous['end']==member['start']
+                        linked=(member['id'] in callees[previous['id']] or
+                                previous['id'] in callees[member['id']])
+                        if not (contiguous and linked):
+                            groups.append(current);current=[]
+                    current.append(member)
+                if current:groups.append(current)
+                require(any(len(group)>1 for group in groups),
+                        'joined local source proof requires an adjacent direct-call pair')
+                trial['objects']=[]
+                for group in groups:
+                    if len(group)==1:
+                        trial['objects'].append(dict(source=parts[group[0]['id']]))
+                        continue
+                    text=joined_source(parts,group)
+                    # Declarations for definitions in the same source object
+                    # force external linkage in Manx.  Remove only those
+                    # declarations; external calls in other object groups stay
+                    # intact for the ordinary linker to resolve.
+                    for member in group:
+                        name=names[member['id']]
+                        pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
+                        text=re.sub(pattern,'',text)
+                    trial['objects'].append(dict(source=text))
             else:
                 trial['objects']=[dict(source=parts[m['id']]) for m in members]
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]

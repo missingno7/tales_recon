@@ -227,7 +227,7 @@ bad and good sources in one batch. Artifact hashes and independently re-extracte
 are checked before use. Corrupt cache entries stop with a blocker, never silently
 masquerade as valid results. JSON ledger writes use atomic replacement.
 
-The current matrix contains 46 programs × six profiles = 276 compiled trials:
+The current matrix contains 47 programs × six profiles = 282 compiled trials:
 3.6a default / `+X3` / `+D` / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
 arguments/returns, frames/registers/MOVEM, branches/loops/switches, pointers,
 structs/arrays, globals/statics, indirect calls, library calls and K&R varargs.
@@ -245,6 +245,10 @@ a promoted pointer byte, and a high-byte mask. The direct copies omit extension;
 the promoted form emits `MOVE.L #0,D0`, and the mask shifts a word. None emits
 `MOVEQ #0,D0`, so the measured `BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH` remains
 blocked instead of spending more ordinary candidate-C attempts.
+A forward local-call probe covers both public and static declarations. The
+normal historical link shortens each forward call to `BSR.B`, so compact proofs
+must keep adjacent same-node caller/callee pairs in one ordinary source object
+while leaving any intervening original gap unclaimed.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains
 code, assembly, symbols, identities and artifact hashes.
