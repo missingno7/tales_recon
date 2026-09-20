@@ -1,8 +1,8 @@
 # DuckTales Amiga historical reconstruction
 
 This independent project follows [the vision](docs/VISION.md). The current
-deliverable is a mechanical source-recovery pipeline with 17 verified C
-functions (858 bytes), a recursive function census and a historical compiler
+deliverable is a mechanical source-recovery pipeline with 104 verified C
+functions (18,048 bytes), a recursive function census and a historical compiler
 oracle. There is no
 reconstructed game executable or completed source overlay yet.
 
@@ -84,7 +84,7 @@ The supplied Aztec 5.0a archive is now pinned. Three disks validate, providing
 339 files including the compiler, assembler, linker and 17 libraries; disk 3
 fails strict OFS validation and remains quarantined. No historical tools have
 been selected as the unique historical release. Both 3.6a and 5.0a execute
-unattended; 96 fingerprint trials are retained. The recovered functions match the
+unattended; 282 fingerprint trials are retained. The recovered functions match the
 tested 3.6a profile, and 470 resident runtime bytes match candidate contributions.
 The shared segload code does not distinguish releases. The earlier HTTP 465
 failure is retained in the ledger.

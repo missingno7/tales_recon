@@ -1,0 +1,123 @@
+{
+  "compiler": {
+    "cache_hit": false,
+    "cache_key": "20a70e07ffc67d243378e54ff3b0abef0ddc890ca1012b74dffbde49f798f9a4",
+    "identity": {
+      "candidate_overlay_node": 9,
+      "compiler_version": "3.6a",
+      "flags": [],
+      "harness_sha256": "5c987e0fc40647f62dea64cd60870555bf754583b4ee7d4f6e15ae9d4ba0f624",
+      "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "library": "c.lib",
+      "library_guest": "Old1:",
+      "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+      "link_recipe": "harness.o +o9 candidate.o part001.o part002.o +o0 c.lib; -m -t",
+      "local_functions": [
+        "F_h11_4696",
+        "F_h11_66FE"
+      ],
+      "object_labels": [
+        "candidate",
+        "part001",
+        "part002"
+      ],
+      "partitioned_object_sources": [
+        {
+          "label": "candidate",
+          "source_sha256": "2a17bd6e79eeb9a3e8ea6b07e37c008d6d5e28d7388d35e7a3d16c3bb950467a"
+        },
+        {
+          "label": "part001",
+          "source_sha256": "bfc90aa08815f383e3777507f693f8ffb3048a25aea09aef900773f041aef887"
+        },
+        {
+          "label": "part002",
+          "source_sha256": "e2c0fc2390ba38d9a12db248db4a2df73ccc34e19f5a9b923d96075890a5b865"
+        }
+      ],
+      "profile": "aztec36",
+      "service_version": 1,
+      "source_sha256": "944073797e95218554c0bc8d24fa984d539de82a744d704d8917abac9e0beea7",
+      "tools": {
+        "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+        "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+        "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+      },
+      "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+    },
+    "profile": "aztec36"
+  },
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "kind": "ov11_cycle_object_order_codegen_experiment",
+  "objects": [
+    {
+      "label": "earlier",
+      "source_sha256": "2a17bd6e79eeb9a3e8ea6b07e37c008d6d5e28d7388d35e7a3d16c3bb950467a"
+    },
+    {
+      "label": "cluster",
+      "source_sha256": "bfc90aa08815f383e3777507f693f8ffb3048a25aea09aef900773f041aef887"
+    },
+    {
+      "label": "later",
+      "source_sha256": "e2c0fc2390ba38d9a12db248db4a2df73ccc34e19f5a9b923d96075890a5b865"
+    }
+  ],
+  "policy": "This receipt tests ordinary source-object ordering only. It must not update the function census, recovery ledger, source ownership, or recovered bytes.",
+  "promotion_eligible": false,
+  "schema_version": 1,
+  "source": {
+    "path": "experiments/direct-recovery/ov11_cycle_cluster-v2.c",
+    "sha256": "455fb63b5f5ab1729fb72f7e38504999bf7572be2d54e886a4d88b8c05474dd1"
+  },
+  "status": "CODEGEN_SIMILAR_LAYOUT_ONLY",
+  "target": {
+    "actual_length": 168,
+    "actual_sha256": "381ef4a4898b9f325d21f7771510f748d9f9c6657adffc8fb9fd397eff9d221c",
+    "end": 23786,
+    "expected_length": 168,
+    "expected_sha256": "df17ea30cbc16020ce146a22159cde3904a1947ca418f69edc3346d667ea4201",
+    "id": "ov11_F_5C42",
+    "instruction_differences": [
+      {
+        "actual": {
+          "mnemonic": "lea.l",
+          "offset": 12,
+          "operands": "-$7d9e(a4), a0",
+          "raw": "41ec8262",
+          "size": 4
+        },
+        "expected": {
+          "mnemonic": "lea.l",
+          "offset": 12,
+          "operands": "$bee(a4), a0",
+          "raw": "41ec0bee",
+          "size": 4
+        },
+        "kind": "A4_GLOBAL_LAYOUT",
+        "offset": 12
+      },
+      {
+        "actual": {
+          "mnemonic": "jsr",
+          "offset": 100,
+          "operands": "$fffffba0(pc)",
+          "raw": "4ebafb3a",
+          "size": 4
+        },
+        "expected": {
+          "mnemonic": "jsr",
+          "offset": 100,
+          "operands": "$ffffea54(pc)",
+          "raw": "4ebae9ee",
+          "size": 4
+        },
+        "kind": "PC_RELATIVE_LAYOUT_DISPLACEMENT",
+        "offset": 100
+      }
+    ],
+    "mnemonic_similarity": 1.0,
+    "start": 23618,
+    "symbol": "_F_h11_5C42"
+  }
+}

@@ -253,6 +253,12 @@ A forward local-call probe covers both public and static declarations. The
 normal historical link shortens each forward call to `BSR.B`, so compact proofs
 must keep adjacent same-node caller/callee pairs in one ordinary source object
 while leaving any intervening original gap unclaimed.
+A cycle-specific ordinary-object experiment independently shows that placing
+`F_h11_4696` before `F_h11_5C42` retains the historical four-byte backward
+`JSR` form. It remains a layout-only receipt: the exact PC displacement still
+requires the unrecovered physical `0x4790..0x5962` interval, and its A4 globals
+must be naturally placed. The cyclic functions therefore remain blocked rather
+than receiving an isolated function claim.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains
 code, assembly, symbols, identities and artifact hashes.

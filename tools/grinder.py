@@ -26,9 +26,9 @@ def blocker_next_action(reason):
     if 'BYTE_RETURN_ABI_MISMATCH' in reason or 'CHAR_RETURN_EXTENSION' in reason:
         return 'Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.'
     if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:
-        return ('Extend the normal source-layout proof to reproduce physical call distances and A4/global placement '
-                'across the known cluster; '
-                'do not retry either isolated member.')
+        return ('Recover and link the 0x4790..0x5962 physical ov11 source interval in order as a normal source-layout '
+                'proof. Ordinary earlier-object linking is proven to retain F_h11_5C42 -> F_h11_4696 as JSR, but the complete interval is still '
+                'needed for its exact PC displacement and A4/global placement; do not retry either isolated member.')
     if 'PERSISTENT_CODEGEN_MISMATCH' in reason:
         return ('Derive the historical Boolean-return source form from the compiler fingerprint, then close the named '
                 'same-node source unit; do not retry isolated candidate C until the codegen mismatch changes.')
