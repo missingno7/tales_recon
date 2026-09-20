@@ -48,6 +48,7 @@ def blocker_class(report,reason=''):
     # byte-level symptoms retained in the final comparison receipt.
     if 'UNSUPPORTED_REGISTER_CALL_ABI' in reason:return 'UNSUPPORTED_REGISTER_CALL_ABI'
     if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:return 'CYCLIC_INTER_OBJECT_PC_CALL'
+    if 'A4_GLOBAL_IDENTITY_AND_LOCAL_UNIT' in reason:return 'A4_GLOBAL_IDENTITY_AND_LOCAL_UNIT'
     # Both ov14 selectors establish this as a compiler-ABI limitation, not a
     # source-body ambiguity: 3.6a emits EXT.W for a signed byte return and a
     # D0 clear for an unsigned one, while the original returns the local byte
