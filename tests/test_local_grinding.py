@@ -12,7 +12,7 @@ from local_fact_pack import fit,messages_for,BudgetError
 from local_http import LocalHTTP
 import local_model_proposer as proposer
 from grinder import eligible,canonical_promotion,blocker_next_action,compact_blocker_facts
-from grinder_report import summarize,blocker_class
+from grinder_report import summarize,blocker_class,blocker_impact
 from fingerprint import CORPUS
 
 
@@ -164,6 +164,13 @@ class ReportTests(unittest.TestCase):
                          'BYTE_RETURN_ABI_MISMATCH')
         self.assertEqual(blocker_class({},'BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH: measured compiler form differs'),
                          'BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH')
+
+    def test_blocker_impact_follows_callers_without_claiming_recovery(self):
+        functions=[dict(id='leaf',direct_callees=[]),dict(id='middle',direct_callees=[dict(id='leaf')]),
+                   dict(id='caller',direct_callees=[dict(id='middle')]),dict(id='done',direct_callees=[dict(id='leaf')])]
+        impact=blocker_impact(functions,{'leaf':{}},{'done':dict(state='FUNCTION_CODE_MATCH')})
+        self.assertEqual(impact['leaf']['immediate_callers'],['done','middle'])
+        self.assertEqual(impact['leaf']['affected_functions'],['caller','middle'])
 
 
 if __name__=='__main__':unittest.main()

@@ -8,6 +8,37 @@ from common import sha256,write_json
 ROOT=Path(__file__).resolve().parents[1]
 
 
+def blocker_impact(functions,blockers,canonical):
+    """Measure queued work held behind each active blocker.
+
+    This is graph evidence only. It never changes a function state or assumes
+    that a caller is otherwise ready for ordinary-C recovery.
+    """
+    by_id={f['id']:f for f in functions};reverse=defaultdict(set)
+    for f in functions:
+        for call in f.get('direct_callees',[]):
+            if call['id'] in by_id:reverse[call['id']].add(f['id'])
+    recovered={'FUNCTION_CODE_MATCH','FUNCTION_WITH_DATA_MATCH','MODULE_MATCH','OVERLAY_NODE_MATCH'}
+    result={}
+    for fid in sorted(blockers):
+        seen=set();todo=list(reverse.get(fid,()))
+        while todo:
+            current=todo.pop()
+            if current in seen or current in blockers:continue
+            seen.add(current);todo.extend(reverse.get(current,()))
+        queued=sorted(x for x in seen if canonical.get(x,{}).get('state') not in recovered)
+        result[fid]=dict(immediate_callers=sorted(reverse.get(fid,())),affected_function_count=len(queued),
+                         affected_functions=queued)
+    return result
+
+
+def current_blocker_impact(root=ROOT):
+    evidence_path=root/'evidence/functions/ledger.json';ledger_path=root/'recovery/ledger.json'
+    if not evidence_path.exists() or not ledger_path.exists():return {}
+    evidence=json.loads(evidence_path.read_text());recovery=json.loads(ledger_path.read_text())
+    return blocker_impact(evidence['functions'],recovery.get('blockers',{}),recovery.get('functions',{}))
+
+
 def blocker_class(report,reason=''):
     text=reason+' '+json.dumps(report)
     data=report.get('data_contributions',{})

@@ -134,6 +134,8 @@ one. The loop processes other eligible candidates. Infrastructure failures pause
 the run without marking the selected functions blocked. A first cache hit still
 provides a revision opportunity; only a repeated failure for that function ends
 its attempt. Each completed round saves a checkpoint and a permanent `recovery/runs` receipt.
+`frontier` reports the transitive caller impact of each active blocker. It is a
+priority signal for verifier work, never a reconstruction claim.
 Source validation failures are returned as candidate feedback. Repeated identical
 validation failures end that candidate, as do repeated cached compiler mismatches. Use one grinder writer per
 checkout. The worker has an exclusive compilation lock; a stale lock requires

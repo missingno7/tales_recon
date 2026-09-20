@@ -103,7 +103,8 @@ def frontier(node=None,limit=512,max_unknown_calls=1,max_data_references=40):
         if reason is None:eligible_ids.append(item['id'])
         else:deferred.setdefault(reason,[]).append(item['id'])
     return dict(schema_version=1,node=node,max_bytes=limit,eligible=eligible_ids,deferred_by_mechanism=deferred,
-                blocked_by_mechanism=__import__('grinder_report').summarize(dict(run_id='frontier',status='DIAGNOSED',elapsed_seconds=0),ROOT)['supervisor_blocker_groups'])
+                blocked_by_mechanism=__import__('grinder_report').summarize(dict(run_id='frontier',status='DIAGNOSED',elapsed_seconds=0),ROOT)['supervisor_blocker_groups'],
+                blocker_impact=__import__('grinder_report').current_blocker_impact(ROOT))
 
 
 def run(args):
