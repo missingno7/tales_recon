@@ -23,7 +23,21 @@ def validated_function(fid):
     require(raw.hex()==f['raw_bytes'] and sha256(raw)==f['sha256'],'function evidence bytes changed')
     require(f['size']==len(raw),'function extent inconsistent')
     if f['extent_status']=='CLOSED_CFG':
-        require(''.join(i['raw'] for i in f['instructions'])==f['raw_bytes'],'closed function has unaccounted bytes')
+        # A closed CFG normally consists entirely of decoded instructions.
+        # The census may also prove a bounded PC-relative switch table inside
+        # the extent; that table is executable-control evidence but DATA, so
+        # it must cover its exact bytes without pretending to be code.
+        covered=[]
+        for item in f['instructions']:
+            covered.append((item['offset']-f['start'],item['offset']-f['start']+item['size'],'instruction'))
+        for table in f.get('jump_tables',[]):
+            covered.append((table['table_start']-f['start'],table['table_end']-f['start'],'proven jump table'))
+        covered.sort()
+        cursor=0
+        for lo,hi,kind in covered:
+            require(lo==cursor and hi>lo,'closed function has unaccounted or overlapping '+kind+' bytes')
+            cursor=hi
+        require(cursor==f['size'],'closed function has unaccounted bytes')
         require(not f['boundary_stops'] and not f['undecoded_gaps'] and f['return_sites'],'closed function evidence not complete')
     return f,ledger
 

@@ -6,23 +6,27 @@ from common import require,sha256,FormatError
 from compare import first_bytes
 
 
-def decode_all(raw):
+def decode_all(raw,data_spans=()):
     md=decoder();out=[];pc=0
+    spans=iter(sorted(data_spans));current=next(spans,None)
     while pc<len(raw):
+        if current and pc==current[0]:
+            pc=current[1];current=next(spans,None);continue
+        if current and current[0]<pc<current[1]:return out,pc
         ins=instruction(md,raw,pc)
         if ins is None:return out,pc
         out.append(ins);pc+=ins.size
     return out,None
 
 
-def first_structural_instruction_difference(expected,actual):
+def first_structural_instruction_difference(expected,actual,data_spans=()):
     """Return the first mnemonic/width divergence without masking references.
 
     Exact comparison still owns the verdict.  This auxiliary receipt avoids
     letting the first naturally different A4 displacement hide the code-shape
     mismatch that a candidate author can actually revise.
     """
-    ei,ebad=decode_all(expected);ai,abad=decode_all(actual)
+    ei,ebad=decode_all(expected,data_spans);ai,abad=decode_all(actual,data_spans)
     if ebad is not None or abad is not None:return None
     expected_shape=[(i.mnemonic,i.size) for i in ei]
     actual_shape=[(i.mnemonic,i.size) for i in ai]
@@ -118,13 +122,14 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
             bounds[s['name']]=end-s['offset']
     report['actual_length']=len(actual)
     report['expected_sha256']=sha256(expected);report['actual_sha256']=sha256(actual)
-    ei,ebad=decode_all(expected);ai,abad=decode_all(actual)
+    table_spans=[(t['table_start']-f['start'],t['table_end']-f['start']) for t in f.get('jump_tables',[])]
+    ei,ebad=decode_all(expected,table_spans);ai,abad=decode_all(actual,table_spans)
     report['mnemonic_similarity']=round(SequenceMatcher(None,[i.mnemonic for i in ei],[i.mnemonic for i in ai]).ratio(),4)
     report['prologue']={'expected':[basic(i) for i in ei[:3]],'actual':[basic(i) for i in ai[:3]]}
     report['epilogue']={'expected':[basic(i) for i in ei[-3:]],'actual':[basic(i) for i in ai[-3:]]}
     report['data_contributions']=dict(candidate_data=c['data_size'],candidate_bss=c['bss_size'],expected_owned_data='NOT_CLAIMED')
     report['raw_first_difference']=first_bytes(expected,actual)
-    report['first_structural_instruction_difference']=first_structural_instruction_difference(expected,actual)
+    report['first_structural_instruction_difference']=first_structural_instruction_difference(expected,actual,table_spans)
     if f['extent_status']!='CLOSED_CFG':report['reason']='UNCERTAIN_EVIDENCE_EXTENT';return report
     if c['data_size'] or c['bss_size'] or ebad is not None or abad is not None:
         report['reason']='DATA_OR_UNDECODED_CONTRIBUTION_REQUIRES_OWNERSHIP_PROOF';return report
