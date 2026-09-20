@@ -1,9 +1,9 @@
 {
   "blocker": {
     "attempts": [],
-    "next_action": "Infer the historical module/link-order mechanism that permits mutual external PC-relative JSR calls without same-object branch relaxation.",
+    "next_action": "Extend the normal source-layout proof across the remaining external callees and physical gaps; do not retry either isolated member.",
     "ownership_unchanged": true,
-    "reason": "CYCLIC_INTER_OBJECT_PC_CALL: ordinary separate-object and joined-object Aztec links cannot both preserve the original reciprocal JSR encodings",
+    "reason": "CYCLIC_INTER_OBJECT_PC_CALL: the retained 1080-byte normal source cluster has exact length and mnemonic sequence; reciprocal calls bind internally, leaving A4 placement, F_h11_66FE forward binding, and physical-gap PC displacement evidence in evidence/experiments/linker-cycle-cluster.json",
     "state": "BLOCKED"
   },
   "facts": {
@@ -134,41 +134,6 @@
         "target": 22992
       }
     ],
-    "compiler_examples": [
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_first\n\tadd.w\t#2,sp\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_second\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t_second\n\tpublic\t_first\n\tpublic\t.begin\n\tdseg\n\tend\n",
-        "flags": [],
-        "name": "adjacent_calls",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: adjacent_calls */\nextern int first(); extern int second(); recovered(a) int a; { first(a); return second(a); }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t12(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.l\td0,d1\n\tmove.w\t(a0,d1.l),d0\n\tmove.w\t12(a5),d1\n\tadd.w\t#1,d1\n\text.l\td1\n\tasl.l\t#1,d1\n\tmove.l\t8(a5),a0\n\tadd.w\t(a0,d1.l),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
-        "flags": [],
-        "name": "array_index",
-        "profile": "aztec36",
-        "source": "/* Independent compiler fingerprint: array_index */\nrecovered(p,n) int *p,n; { return p[n]+p[n+1]; }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_first\n\tadd.w\t#2,sp\n\tmove.w\t8(a5),-(sp)\n\tjsr\t_second\n\tadd.w\t#2,sp\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t0\n.3\treg\t\n\txref\t_second\n\txref\t_first\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "adjacent_calls",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: adjacent_calls */\nextern int first(); extern int second(); recovered(a) int a; { first(a); return second(a); }\n"
-      },
-      {
-        "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tlea\t10(a5),a0\n\tmove.l\ta0,-4(a5)\n\tclr.w\t-6(a5)\n.10001\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,8(a5)\n\ttst.w\td0\n\tbeq\t.10002\n\tmove.l\t-4(a5),a0\n\tadd.l\t#2,-4(a5)\n\tmove.w\t(a0),d0\n\tadd.w\td0,-6(a5)\n\tbra\t.10001\n.10002\n\tmove.w\t-6(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-6\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
-        "flags": [
-          "-ps"
-        ],
-        "name": "varargs_stack_walk",
-        "profile": "aztec50-short",
-        "source": "/* Independent compiler fingerprint: varargs_stack_walk */\nrecovered(n,a) int n,a; { int *p,s; p=&a; s=0; while(n--) s+=*p++; return s; }\n"
-      }
-    ],
-    "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
     "data": [
       {
         "hunk": 1,
@@ -524,15 +489,6 @@
       }
     ],
     "previous_attempts": [],
-    "previous_sources": {},
-    "recovered_dependencies": [
-      {
-        "id": "ov11_F_66FE",
-        "name": "F_h11_66FE",
-        "source": "struct Record { int padding[11],state,value; char tail[14]; };\nextern struct Record G_h01_A464[36];\nrecovered(a,b) int a,b; { struct Record *p; p=&G_h01_A464[a]; p->state=2; if(!p->value || b==8)p->value=b; }\n",
-        "state": "FUNCTION_CODE_MATCH"
-      }
-    ],
     "relocations": [],
     "schema_version": 1,
     "stack_frames": [
@@ -543,32 +499,5 @@
       }
     ],
     "strings": []
-  },
-  "mechanism_detail": {
-    "candidates": [
-      {
-        "path": "experiments/direct-recovery/ov11_F_5962-v2.c",
-        "sha256": "9b977f0c277fe124a2da2b9162e06956570b0b08fd8911c292ba1bd1b24c8834"
-      },
-      {
-        "path": "experiments/direct-recovery/ov11_F_5C42-v3.c",
-        "sha256": "36bf10aec9049c435859371eb92a1b1901af96e6d57aa9e192f65c22717255fb"
-      }
-    ],
-    "evidence": {
-      "joined_pair_cache_key": "24a126276dd57be61a85226ed19482191eb5cf33355fb81071fe19fb54c72038",
-      "joined_pair_result": {
-        "ov11_F_5962": "130 actual bytes vs 132 expected: BSR.b replaces JSR.d16"
-      },
-      "profile": "aztec36",
-      "separate_object_cache_key": "db924ce1288d7e353784dffda3fc977937207015fab2cc4611d79765c5268639",
-      "separate_object_result": {
-        "ov11_F_5962": "EQUAL",
-        "ov11_F_5C42": "DIRECT_CALL_BINDING_UNPROVEN at offsets 130,158"
-      }
-    },
-    "finding": "Aztec 3.6a produces the original PC-relative JSR for the forward edge when the two candidates are separate objects, but emits an A4 dispatch for the backward edge. Joining the pair lets both edges bind locally, but its assembler relaxes the forward JSR to a short BSR, changing the required byte extent by two bytes.",
-    "mechanism": "CYCLIC_INTER_OBJECT_PC_CALL",
-    "next_action": "Recover or infer the historical module/link-order mechanism that permits mutual external PC-relative JSR calls without same-object branch relaxation."
   }
 }

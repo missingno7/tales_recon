@@ -129,6 +129,10 @@ class ReportTests(unittest.TestCase):
         self.assertIn('Do not retry ordinary candidate C',
                       blocker_next_action('BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH: measured compiler form differs'))
 
+    def test_cyclic_call_blocker_uses_layout_proof_not_isolated_retries(self):
+        self.assertIn('normal source-layout proof',
+                      blocker_next_action('CYCLIC_INTER_OBJECT_PC_CALL: reciprocal PC-relative calls'))
+
     def test_local_match_requires_both_pinned_canonical_and_proposer_receipts(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
