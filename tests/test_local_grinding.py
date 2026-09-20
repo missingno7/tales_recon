@@ -138,6 +138,9 @@ class ReportTests(unittest.TestCase):
         self.assertTrue({'char_return','unsigned_char_return','int_from_char_return',
                          'unsigned_int_from_char_return','long_from_char_return'} <= set(CORPUS))
 
+    def test_fingerprint_retains_boolean_return_shapes(self):
+        self.assertTrue({'boolean_nested_return','boolean_early_return','boolean_expression_return'} <= set(CORPUS))
+
     def test_fingerprint_retains_the_byte_zero_extension_probe(self):
         self.assertIn('unsigned_char_assignment',CORPUS)
 
