@@ -21,3 +21,9 @@ or a substitute for a normal whole-module link.
 the pair and their surrounding recovered functions. Both decode as `LINK...RTS`
 code, but have no allowed discovery seed, so the audit retains them as latent
 layout evidence and never counts them as recovered functions.
+
+`tools/cycle_prefix_experiment.py` compiles the `F_5962` prefix plus the first
+latent loop as one normal source object. It records the exact-length mnemonic
+match and the remaining A4/external-call binding differences in
+`evidence/experiments/linker-cycle-prefix.json`; this also remains non-promotable
+until a complete natural module layout explains those references.
