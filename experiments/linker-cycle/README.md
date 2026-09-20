@@ -32,3 +32,9 @@ until a complete natural module layout explains those references.
 candidate results. Both have exact lengths and mnemonic sequences under aztec36,
 but their A4/global and external binding fields still require the complete source
 layout, so neither changes recovery ownership.
+
+`tools/cycle_cluster_experiment.py` compiles the 1,080-byte cluster spanning
+the recovered bridge, reciprocal pair, five recovered intervening functions,
+and both latent windows. Its receipt classifies every remaining difference as
+A4 placement, forward external binding, or a PC-relative displacement caused by
+the omitted physical layout. It is still strictly non-promoting evidence.
