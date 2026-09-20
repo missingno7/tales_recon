@@ -1,0 +1,194 @@
+{
+  "actual_length": 192,
+  "actual_sha256": "ab268aa39a88c64427b5f751c8ac73a0e3b9759b069a7c0b04d6565ba5862b61",
+  "cache_hit": false,
+  "cache_key": "450b1d5617e7f07137422c707dff306ae6a731ebc1a4f1fc745afa5d87ffb4c9",
+  "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 186,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 188,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 190,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 186,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 188,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 190,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 192,
+  "expected_sha256": "f1f9d1f6b7711014369fb42c9cab2b1461ba394d396efd80e44d5a9343ad1035",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "muls.w",
+      "offset": 8,
+      "operands": "#$24, d0",
+      "raw": "c1fc0024",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "muls.w",
+      "offset": 8,
+      "operands": "#$28, d0",
+      "raw": "c1fc0028",
+      "size": 4
+    }
+  },
+  "first_structural_instruction_difference": null,
+  "flags": [],
+  "id": "ov11_F_54F8",
+  "mnemonic_similarity": 1.0,
+  "normalized_first_difference": {
+    "actual": "2441ecb726d0882b40fffc206dfffc31",
+    "actual_size": 192,
+    "expected": "2841ecb726d0882b40fffc206dfffc31",
+    "expected_size": 192,
+    "offset": 11
+  },
+  "normalized_sha256": "afde1edc24b0429b793fa7fe197e30e6df38e31f5b508572385321983f605a28",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$24, d0",
+        "raw": "c1fc0024",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fffc",
+        "raw": "4e55fffc",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 4,
+        "operands": "$8(a5), d0",
+        "raw": "302d0008",
+        "size": 4
+      },
+      {
+        "mnemonic": "muls.w",
+        "offset": 8,
+        "operands": "#$28, d0",
+        "raw": "c1fc0028",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "2441ec8036d0882b40fffc206dfffc31",
+    "actual_size": 192,
+    "expected": "2841ecb726d0882b40fffc206dfffc31",
+    "expected_size": 192,
+    "offset": 11
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "DIRECT_CALL_BINDING_UNPROVEN",
+      "offset": 96,
+      "target": "ov11_F_4696"
+    },
+    {
+      "kind": "DIRECT_CALL_BINDING_UNPROVEN",
+      "offset": 126,
+      "target": "ov11_F_5962"
+    },
+    {
+      "kind": "DIRECT_CALL_BINDING_UNPROVEN",
+      "offset": 154,
+      "target": "ov11_F_5962"
+    },
+    {
+      "kind": "DIRECT_CALL_BINDING_UNPROVEN",
+      "offset": 182,
+      "target": "ov11_F_5962"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        14116
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 14116,
+        "symbol": "_G_h01_3724"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 14
+    }
+  ],
+  "source_sha256": "342304823be389939054f977493078c1b80c051524a14e4c2318b1e2e3514dd8",
+  "unit_blocker": "unrecovered same-node dependency: ov11_F_5962",
+  "verdict": "DIFFER"
+}
