@@ -1,0 +1,770 @@
+{
+  "comparison": {
+    "actual_length": 1392,
+    "expected_length": 1394,
+    "size_delta": -2
+  },
+  "compiler": {
+    "cache_hit": true,
+    "cache_key": "0b66dd65e9063d0c60d599e670250cee907ac9134fdd7e157359d4e7206fcaeb",
+    "identity": {
+      "candidate_overlay_node": 9,
+      "compiler_version": "3.6a",
+      "flags": [],
+      "harness_sha256": "21079aff1d6c8bf9ecb6746d82ecb9a47b89ab1fb1829b147577dcee5eab524f",
+      "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "library": "c.lib",
+      "library_guest": "Old1:",
+      "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+      "link_recipe": "harness.o +o9 candidate.o +o0 c.lib; -m -t",
+      "profile": "aztec36",
+      "service_version": 1,
+      "source_sha256": "455fb63b5f5ab1729fb72f7e38504999bf7572be2d54e886a4d88b8c05474dd1",
+      "tools": {
+        "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+        "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+        "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+      },
+      "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+    },
+    "profile": "aztec36"
+  },
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "kind": "ov11_cycle_cluster_extended_codegen_experiment",
+  "members": [
+    {
+      "actual_sha256": "7cdf2c21c5ea1d2d29d36c764ef1244624285cd9f72f05d02512df542f4ce6a4",
+      "actual_size": 134,
+      "end": 18070,
+      "expected_sha256": "b4e381cc03e086a1b7a3831099c9daf643c96abd223b9085ad2b74daee81542d",
+      "expected_size": 134,
+      "id": "ov11_F_4610",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "sub.w",
+            "offset": 50,
+            "operands": "-$7f9e(a4), d0",
+            "raw": "906c8062",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "sub.w",
+            "offset": 50,
+            "operands": "$a40(a4), d0",
+            "raw": "906c0a40",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 50
+        },
+        {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 98,
+            "operands": "-$7ffe(a4)",
+            "raw": "4eac8002",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 98,
+            "operands": "-$7faa(a4)",
+            "raw": "4eac8056",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 98
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 17936
+    },
+    {
+      "actual_sha256": "01f374b15f93b6a6c9deb35bc1d93390609939cc3f496214b5bdf11ece95878e",
+      "actual_size": 132,
+      "end": 23014,
+      "expected_sha256": "5c86a324eca9407ce958eea2a6ce0351d064baecd4d3223870d3d5a73d42e5ee",
+      "expected_size": 132,
+      "id": "ov11_F_5962",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$7fd2(a4), a0",
+            "raw": "41ec802e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "$bee(a4), a0",
+            "raw": "41ec0bee",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 12
+        },
+        {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 122,
+            "operands": "$4aa(pc)",
+            "raw": "4eba042e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 122,
+            "operands": "$d9c(pc)",
+            "raw": "4eba0d20",
+            "size": 4
+          },
+          "kind": "PC_RELATIVE_LAYOUT_DISPLACEMENT",
+          "offset": 122
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 22882
+    },
+    {
+      "actual_sha256": "366501c980c968414de167332629995f815347f54139b74cff7861589a01f2a2",
+      "actual_size": 44,
+      "end": 23058,
+      "expected_sha256": "e6812d3db32c18b44ffe58488f6f63f3be53b597725aac7cbc7a031f3171487a",
+      "expected_size": 44,
+      "id": "ov11_LATENT_59E6",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "cmp.w",
+            "offset": 34,
+            "operands": "-$7f9c(a4), d0",
+            "raw": "b06c8064",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "cmp.w",
+            "offset": 34,
+            "operands": "-$4812(a4), d0",
+            "raw": "b06cb7ee",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 34
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 23014
+    },
+    {
+      "actual_sha256": "dce5febc8e8bcfa87cec4c7304d9dd7b076e8bf1747347f24ee6b05b0c75d7ce",
+      "actual_size": 80,
+      "end": 23138,
+      "expected_sha256": "ad900bfeb6f027bcdc4921553f38f9ce56470c40889e02f9b6ab2c757bda5ec6",
+      "expected_size": 80,
+      "id": "ov11_F_5A12",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 22,
+            "operands": "-$7f9a(a4), a0",
+            "raw": "41ec8066",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 22,
+            "operands": "-$480a(a4), a0",
+            "raw": "41ecb7f6",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 22
+        },
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 64,
+            "operands": "-$7f9a(a4), a0",
+            "raw": "41ec8066",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 64,
+            "operands": "-$480a(a4), a0",
+            "raw": "41ecb7f6",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 64
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 23058
+    },
+    {
+      "actual_sha256": "d18750d2ef6bce5a73c73df070c194eb74061e5bcf85244d18996ba687e279c5",
+      "actual_size": 78,
+      "end": 23216,
+      "expected_sha256": "fd497f08df880bbda7a5b76adf85545c7eb4427b5116fb4544764f9fb8f45cb3",
+      "expected_size": 78,
+      "id": "ov11_F_5A62",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 22,
+            "operands": "-$7f4a(a4), a0",
+            "raw": "41ec80b6",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 22,
+            "operands": "-$47ba(a4), a0",
+            "raw": "41ecb846",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 22
+        },
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 62,
+            "operands": "-$7f4a(a4), a0",
+            "raw": "41ec80b6",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 62,
+            "operands": "-$47ba(a4), a0",
+            "raw": "41ecb846",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 62
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 23138
+    },
+    {
+      "actual_sha256": "decbcd5c1e965f6374f0d0976752462eb78519466d535b60f0a03c2a814df2f1",
+      "actual_size": 276,
+      "end": 23492,
+      "expected_sha256": "cc60f1c0c045d7aa18ed7ac7de08cf9fd3256eb30dae386a065500b469593abc",
+      "expected_size": 276,
+      "id": "ov11_F_5AB0",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "move.w",
+            "offset": 8,
+            "operands": "-$7efa(a4), -$4(a5)",
+            "raw": "3b6c8106fffc",
+            "size": 6
+          },
+          "expected": {
+            "mnemonic": "move.w",
+            "offset": 8,
+            "operands": "$14bc(a4), -$4(a5)",
+            "raw": "3b6c14bcfffc",
+            "size": 6
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 8
+        },
+        {
+          "actual": {
+            "mnemonic": "move.w",
+            "offset": 80,
+            "operands": "-$7ef8(a4), d0",
+            "raw": "302c8108",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "move.w",
+            "offset": 80,
+            "operands": "$14be(a4), d0",
+            "raw": "302c14be",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 80
+        },
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 112,
+            "operands": "-$7ef6(a4), a0",
+            "raw": "41ec810a",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 112,
+            "operands": "$b1e(a4), a0",
+            "raw": "41ec0b1e",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 112
+        },
+        {
+          "actual": {
+            "mnemonic": "move.w",
+            "offset": 146,
+            "operands": "-$7ef8(a4), d0",
+            "raw": "302c8108",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "move.w",
+            "offset": 146,
+            "operands": "$14be(a4), d0",
+            "raw": "302c14be",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 146
+        },
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 180,
+            "operands": "-$7ef6(a4), a0",
+            "raw": "41ec810a",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 180,
+            "operands": "$b1e(a4), a0",
+            "raw": "41ec0b1e",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 180
+        },
+        {
+          "actual": {
+            "mnemonic": "tst.w",
+            "offset": 214,
+            "operands": "-$7ef8(a4)",
+            "raw": "4a6c8108",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "tst.w",
+            "offset": 214,
+            "operands": "$14be(a4)",
+            "raw": "4a6c14be",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 214
+        },
+        {
+          "actual": {
+            "mnemonic": "move.w",
+            "offset": 228,
+            "operands": "-$7ef8(a4), d1",
+            "raw": "322c8108",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "move.w",
+            "offset": 228,
+            "operands": "$14be(a4), d1",
+            "raw": "322c14be",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 228
+        },
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 240,
+            "operands": "-$7ef6(a4), a0",
+            "raw": "41ec810a",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 240,
+            "operands": "$b1e(a4), a0",
+            "raw": "41ec0b1e",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 240
+        },
+        {
+          "actual": {
+            "mnemonic": "move.w",
+            "offset": 254,
+            "operands": "-$7ef8(a4), d0",
+            "raw": "302c8108",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "move.w",
+            "offset": 254,
+            "operands": "$14be(a4), d0",
+            "raw": "302c14be",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 254
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 23216
+    },
+    {
+      "actual_sha256": "67a94bbe7f1a8f0ff09a6301467aa22a7b566c16364da50f5535840015f667ab",
+      "actual_size": 86,
+      "end": 23578,
+      "expected_sha256": "16b051bb7f16a057443caba0ff77b02bb14c125d08efe72c854b60b6957e2648",
+      "expected_size": 86,
+      "id": "ov11_F_5BC4",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 30,
+            "operands": "-$7ef6(a4), a0",
+            "raw": "41ec810a",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 30,
+            "operands": "$b1e(a4), a0",
+            "raw": "41ec0b1e",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 30
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 23492
+    },
+    {
+      "actual_sha256": "a8856494f2a9630eef1b4888a84a2ea599a4cda7d27c0ecc63600aadc473c942",
+      "actual_size": 40,
+      "end": 23618,
+      "expected_sha256": "7ecd0b6bf317f32decc753cef7028d6fafd76ba1a74a904b12972dae88fb479d",
+      "expected_size": 40,
+      "id": "ov11_F_5C1A",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$7fd2(a4), a0",
+            "raw": "41ec802e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "$bee(a4), a0",
+            "raw": "41ec0bee",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 12
+        },
+        {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 30,
+            "operands": "$fffffcc2(pc)",
+            "raw": "4ebafca2",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 30,
+            "operands": "$ffffe9f6(pc)",
+            "raw": "4ebae9d6",
+            "size": 4
+          },
+          "kind": "PC_RELATIVE_LAYOUT_DISPLACEMENT",
+          "offset": 30
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 23578
+    },
+    {
+      "actual_sha256": "3f127849d008a59125c19ccbe8550b6a06066256d407609a99456cdec5d06ef0",
+      "actual_size": 166,
+      "end": 23786,
+      "expected_sha256": "df17ea30cbc16020ce146a22159cde3904a1947ca418f69edc3346d667ea4201",
+      "expected_size": 168,
+      "id": "ov11_F_5C42",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$7fd2(a4), a0",
+            "raw": "41ec802e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "$bee(a4), a0",
+            "raw": "41ec0bee",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 12
+        },
+        {
+          "actual": {
+            "mnemonic": "bne.b",
+            "offset": 66,
+            "operands": "$a2",
+            "raw": "665e",
+            "size": 2
+          },
+          "expected": {
+            "mnemonic": "bne.b",
+            "offset": 66,
+            "operands": "$a4",
+            "raw": "6660",
+            "size": 2
+          },
+          "kind": "PC_RELATIVE_LAYOUT_DISPLACEMENT",
+          "offset": 66
+        },
+        {
+          "actual": {
+            "mnemonic": "bsr.b",
+            "offset": 100,
+            "operands": "$d0",
+            "raw": "616a",
+            "size": 2
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 100,
+            "operands": "$ffffea54(pc)",
+            "raw": "4ebae9ee",
+            "size": 4
+          },
+          "kind": "COMPACT_FORWARD_CALL_ENCODING",
+          "offset": 100
+        },
+        {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 128,
+            "operands": "$fffffd20(pc)",
+            "raw": "4ebafc9e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 130,
+            "operands": "$fffffd20(pc)",
+            "raw": "4ebafc9c",
+            "size": 4
+          },
+          "kind": "PC_RELATIVE_LAYOUT_DISPLACEMENT",
+          "offset": 130
+        },
+        {
+          "actual": {
+            "mnemonic": "jsr",
+            "offset": 156,
+            "operands": "$fffffd20(pc)",
+            "raw": "4ebafc82",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "jsr",
+            "offset": 158,
+            "operands": "$fffffd20(pc)",
+            "raw": "4ebafc80",
+            "size": 4
+          },
+          "kind": "PC_RELATIVE_LAYOUT_DISPLACEMENT",
+          "offset": 158
+        }
+      ],
+      "mnemonic_similarity": 0.9782608695652174,
+      "promotion_eligible": false,
+      "size_delta": -2,
+      "start": 23618
+    },
+    {
+      "actual_sha256": "552fad6911080ed1878a0f2bbfbe11a6401dc9583dda7e0db83388d7cdfdb6af",
+      "actual_size": 42,
+      "end": 23828,
+      "expected_sha256": "6220cae05980025756c6ce3f77e6f8e7b32c6ee011516f600dd003c7656a687a",
+      "expected_size": 42,
+      "id": "ov11_LATENT_5CEA",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$7fd2(a4), a0",
+            "raw": "41ec802e",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "$bee(a4), a0",
+            "raw": "41ec0bee",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 12
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 23786
+    },
+    {
+      "actual_sha256": "3b00b51b6e6f99c47d158d2d213f9b13723531340b299690bd3240769cf53973",
+      "actual_size": 250,
+      "end": 18320,
+      "expected_sha256": "2bf9732e798c4eef793095c7712e9144b98dc031872ec4890712e9902c8864bb",
+      "expected_size": 250,
+      "id": "ov11_F_4696",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$7dae(a4), a0",
+            "raw": "41ec8252",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$4b12(a4), a0",
+            "raw": "41ecb4ee",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 12
+        },
+        {
+          "actual": {
+            "mnemonic": "cmpi.w",
+            "offset": 22,
+            "operands": "#$2, -$7b7e(a4)",
+            "raw": "0c6c00028482",
+            "size": 6
+          },
+          "expected": {
+            "mnemonic": "cmpi.w",
+            "offset": 22,
+            "operands": "#$2, $a3e(a4)",
+            "raw": "0c6c00020a3e",
+            "size": 6
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 22
+        },
+        {
+          "actual": {
+            "mnemonic": "move.w",
+            "offset": 32,
+            "operands": "-$7f9e(a4), d0",
+            "raw": "302c8062",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "move.w",
+            "offset": 32,
+            "operands": "$a40(a4), d0",
+            "raw": "302c0a40",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 32
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 18070
+    },
+    {
+      "actual_sha256": "e963a1768d4e8d1fb828837c785402691a863a3772851d60a40cacee29c62e80",
+      "actual_size": 64,
+      "end": 26430,
+      "expected_sha256": "5fd081309419a482855f78694d603fd0535b3bd0fce4ee0eb6f0b2e6558e5f42",
+      "expected_size": 64,
+      "id": "ov11_F_66FE",
+      "instruction_differences": [
+        {
+          "actual": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "-$7b7c(a4), a0",
+            "raw": "41ec8484",
+            "size": 4
+          },
+          "expected": {
+            "mnemonic": "lea.l",
+            "offset": 12,
+            "operands": "$2466(a4), a0",
+            "raw": "41ec2466",
+            "size": 4
+          },
+          "kind": "A4_GLOBAL_LAYOUT",
+          "offset": 12
+        }
+      ],
+      "mnemonic_similarity": 1.0,
+      "promotion_eligible": false,
+      "size_delta": 0,
+      "start": 26366
+    }
+  ],
+  "policy": "This receipt maps normal source-layout behavior only. It must not update the function census, recovery ledger, source ownership, or recovered bytes.",
+  "promotion_eligible": false,
+  "schema_version": 1,
+  "source": {
+    "path": "experiments/direct-recovery/ov11_cycle_cluster-v2.c",
+    "sha256": "455fb63b5f5ab1729fb72f7e38504999bf7572be2d54e886a4d88b8c05474dd1"
+  },
+  "status": "CODEGEN_SIMILAR_LAYOUT_ONLY"
+}

@@ -1,9 +1,9 @@
 {
   "blocker": {
     "attempts": [],
-    "next_action": "Extend the normal source-layout proof across the remaining external callees and physical gaps; do not retry either isolated member.",
+    "next_action": "Extend the normal source-layout proof to reproduce physical call distances and A4/global placement across the known cluster; do not retry either isolated member.",
     "ownership_unchanged": true,
-    "reason": "CYCLIC_INTER_OBJECT_PC_CALL: the retained 1080-byte normal source cluster has exact length and mnemonic sequence; reciprocal calls bind internally, leaving A4 placement, F_h11_4696 forward binding, and physical-gap PC displacement evidence in evidence/experiments/linker-cycle-cluster.json",
+    "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves F_h11_4696 internally; its 1394-byte original contribution compiles to 1392 bytes because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than the original JSR.d16(PC), leaving A4 placement and physical-layout call evidence in evidence/experiments/linker-cycle-cluster-extended.json",
     "state": "BLOCKED"
   },
   "facts": {

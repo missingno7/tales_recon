@@ -26,7 +26,8 @@ def blocker_next_action(reason):
     if 'BYTE_RETURN_ABI_MISMATCH' in reason:
         return 'Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.'
     if 'CYCLIC_INTER_OBJECT_PC_CALL' in reason:
-        return ('Extend the normal source-layout proof across the remaining external callees and physical gaps; '
+        return ('Extend the normal source-layout proof to reproduce physical call distances and A4/global placement '
+                'across the known cluster; '
                 'do not retry either isolated member.')
     return 'Revise ABI/data hypothesis or use a stronger model; retry explicitly'
 

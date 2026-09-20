@@ -38,3 +38,12 @@ the recovered bridge, reciprocal pair, five recovered intervening functions,
 and both latent windows. Its receipt classifies every remaining difference as
 A4 placement, forward external binding, or a PC-relative displacement caused by
 the omitted physical layout. It is still strictly non-promoting evidence.
+
+`tools/cycle_cluster_extended_experiment.py` adds the two forward callees to
+that same normal source unit. The previously external call from `F_5962` is now
+PC-relative. `F_5C42` reaches its nearby forward callee with a two-byte `BSR`
+where the original physical layout used a four-byte PC-relative `JSR`, making
+the unit two bytes shorter. The result retains only A4 and source-layout call
+encoding/displacement differences. Its 1,394-versus-1,392-byte receipt is
+strictly non-promoting and records the compact-layout effect rather than hiding
+it with padding or placement directives.
