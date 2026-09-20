@@ -81,6 +81,23 @@ class CompleteUnitTests(unittest.TestCase):
         self.assertEqual(report['verdict'],'EQUAL')
         self.assertIn('PC_RELATIVE_CALL_SYMBOL',[p['kind'] for p in report['members'][1]['relocation_proof']])
 
+    def test_recursive_pc_call_binds_to_the_candidate_entry(self):
+        """A one-function object can prove a BSR back to its own entry."""
+        f=dict(id='ov09_F_0064',hunk=9,start=100,end=104,size=4,raw_bytes='61fe4e75',
+               extent_status='CLOSED_CFG',referenced_data=[],relocations=[],
+               direct_callees=[dict(id='ov09_F_0064',hunk=9,offset=100,site=100)])
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'candidate.c').write_text('recovered() {}\n')
+            (root/'candidate.exe').write_bytes(b'\0'*64)
+            compiled=dict(status='COMPILED',identity=dict(profile='aztec36',flags=[]),cache_key='self-call',cache_hit=True,
+                directory=str(root),prefix='candidate',contribution=dict(entry_offset=0,code_hex='61fe4e75',
+                code_size=4,code_offset=0,hunk=3,data_size=0,bss_size=0,relocations=[],all_relocations=[],
+                symbols=[],hunks=[dict(number=0,content_offset=0),dict(number=1,initialized_size=0,allocated_size=0),
+                                  dict(number=2,allocated_size=0)]))
+            report=compare_function(f,compiled,32766)
+        self.assertEqual(report['verdict'],'EQUAL')
+        self.assertIn('PC_RELATIVE_CALL_SYMBOL',[p['kind'] for p in report['relocation_proof']])
+
     def test_target_owned_tail_precedes_a_separately_linked_callee(self):
         """A compact gap proof keeps a target's literal bundle in its object."""
         target=dict(id='ov09_F_0064',hunk=9,start=100,end=102,size=2,raw_bytes='4e75',

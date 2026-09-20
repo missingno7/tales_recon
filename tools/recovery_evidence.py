@@ -3,6 +3,18 @@ import json
 from common import require,sha256
 
 
+def owned_tail_boundary(h,fid,end,owned_end,analysis,blob):
+    """Prove a literal tail ends at the next entry or final HUNK alignment."""
+    starts=sorted(x['start'] for x in analysis['functions']
+                  if x['hunk']==h['number'] and x['start']>=end and x['id']!=fid)
+    if starts:
+        return owned_end==starts[0]
+    padding=h['initialized_size']-owned_end
+    if not (0<=padding<=3 and (owned_end+padding)%4==0):
+        return False
+    return blob[h['content_offset']+owned_end:h['content_offset']+h['initialized_size']]==b'\0'*padding
+
+
 def load_promotions(root,blob,model,analysis):
     path=root/'recovery/ledger.json'
     if not path.exists():return []
@@ -46,8 +58,7 @@ def load_promotions(root,blob,model,analysis):
             require(actual_tail==tail and comparison['actual_length']==size+len(tail) and proof['regression']['passed'],
                     'owned CODE-data contribution is incomplete')
             refs=sorted(r['offset'] for r in f['referenced_data'] if r['kind']=='PC_RELATIVE_DATA' and r['hunk']==f['hunk'])
-            require(refs==[s['offset'] for s in strings] and owned['end']==min(x['start'] for x in analysis['functions']
-                    if x['hunk']==f['hunk'] and x['start']>=end and x['id']!=fid),
+            require(refs==[s['offset'] for s in strings] and owned_tail_boundary(h,fid,end,owned['end'],analysis,blob),
                     'owned CODE-data lacks contiguous reference or next-entry proof')
         if proof['compiler']['source_sha256']!=proof['source_sha256']:
             unit_path=(root/comparison.get('complete_unit_receipt','')).resolve()

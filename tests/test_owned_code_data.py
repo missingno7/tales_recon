@@ -2,10 +2,13 @@ import tempfile
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from owned_code_data import alignment_padding,compare_owned_code_data,expected_string_tail
 from function_compare import compare_function
+from check_function import owned_code_data_boundary
+from recovery_evidence import owned_tail_boundary
 
 
 class OwnedCodeDataTests(unittest.TestCase):
@@ -52,3 +55,25 @@ class OwnedCodeDataTests(unittest.TestCase):
     def test_odd_literal_bundle_requires_one_zero_alignment_byte(self):
         self.assertEqual(alignment_padding(b'XY\0'),b'\0')
         self.assertEqual(alignment_padding(b'X\0'),b'')
+
+    def test_terminal_hunk_alignment_bounds_a_final_literal_tail(self):
+        """A final hunk tail may leave only serialization alignment zeros."""
+        report=dict(owned_code_data=dict(end=106))
+        ledger=dict(functions=[self.f])
+        model=dict(hunks=[dict(number=99,content_offset=0,initialized_size=108)])
+        with patch('check_function.game',return_value=(b'\0'*108,model,None)):
+            owned_code_data_boundary(self.f,ledger,report)
+
+    def test_terminal_hunk_alignment_rejects_nonzero_unclaimed_bytes(self):
+        report=dict(owned_code_data=dict(end=106))
+        ledger=dict(functions=[self.f])
+        model=dict(hunks=[dict(number=99,content_offset=0,initialized_size=108)])
+        with patch('check_function.game',return_value=(b'\0'*106+b'\0X',model,None)):
+            with self.assertRaisesRegex(ValueError,'immutable zero fill'):
+                owned_code_data_boundary(self.f,ledger,report)
+
+    def test_independent_promotion_loader_accepts_terminal_alignment(self):
+        hunk=dict(number=99,content_offset=0,initialized_size=108)
+        analysis=dict(functions=[self.f])
+        self.assertTrue(owned_tail_boundary(hunk,self.f['id'],self.f['end'],106,analysis,b'\0'*108))
+        self.assertFalse(owned_tail_boundary(hunk,self.f['id'],self.f['end'],106,analysis,b'\0'*106+b'\0X'))

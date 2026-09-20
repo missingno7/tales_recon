@@ -209,7 +209,15 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
                     identity=None
                     if disp is not None and width:
                         target=c.get('code_offset',0)+a.address+2+disp
-                        identity=target_identity(c['hunk'],target,symbol_map)
+                        # A recursive BSR targets the candidate object's own
+                        # entry. It has no separate symbol-map identity in a
+                        # one-function contribution, but both endpoints are
+                        # bounded by the same closed function extent.
+                        if call['id']==f['id'] and target==c.get('code_offset',0):
+                            identity=dict(hunk=call['hunk'],offset=call['offset'],
+                                          symbol='SELF_ENTRY',addend=0)
+                        else:
+                            identity=target_identity(c['hunk'],target,symbol_map)
                     if identity and (identity['hunk'],identity['offset'])==(call['hunk'],call['offset']):
                         at=a.address+field
                         norm[at:at+width]=bytes(e.bytes)[field:field+width]

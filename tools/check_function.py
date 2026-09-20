@@ -91,8 +91,24 @@ def owned_code_data_boundary(f,ledger,report):
     owned=report['owned_code_data'];end=owned['end']
     starts=sorted(other['start'] for other in ledger['functions']
                   if other['hunk']==f['hunk'] and other['start']>=f['end'] and other['id']!=f['id'])
-    require(starts and starts[0]==end,
-            'owned CODE-data extent is not bounded by the next discovered function entry')
+    if starts:
+        require(starts[0]==end,
+                'owned CODE-data extent is not bounded by the next discovered function entry')
+        return
+    # A final function may own a literal tail at the physical end of a CODE
+    # hunk. HUNK CODE payloads are longword-aligned, so permit only the
+    # immutable zero bytes needed to serialize that final tail; never use this
+    # exception to absorb arbitrary undiscovered bytes.
+    blob,model,_=game()
+    hunk=next((h for h in model['hunks'] if h['number']==f['hunk']),None)
+    require(hunk is not None,'owned CODE-data hunk is absent from immutable game model')
+    physical_end=hunk['initialized_size']
+    padding=physical_end-end
+    require(0<=padding<=3 and (end+padding)%4==0,
+            'owned CODE-data extent is not bounded by a next entry or terminal HUNK alignment')
+    actual=blob[hunk['content_offset']+end:hunk['content_offset']+physical_end]
+    require(actual==b'\0'*padding,
+            'terminal HUNK padding after owned CODE-data extent is not immutable zero fill')
 
 
 def check_many(requests,promote_equal=True):
@@ -104,7 +120,8 @@ def check_many(requests,promote_equal=True):
         retained=ROOT/'recovery/candidates'/f['id']/(source_hash+'.c')
         retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
         unit=None;unit_blocker=None;compile_source=source;objects=None;local_functions=()
-        if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] for c in f.get('direct_callees',[])):
+        if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id']!=f['id']
+               for c in f.get('direct_callees',[])):
             from check_unit import prepare_unit
             try:
                 members,names,compile_source,_=prepare_unit(f['id'],source);unit=(members,names,compile_source)
