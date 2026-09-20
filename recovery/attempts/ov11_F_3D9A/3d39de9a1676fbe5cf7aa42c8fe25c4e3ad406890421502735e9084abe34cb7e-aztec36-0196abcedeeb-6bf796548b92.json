@@ -1,0 +1,174 @@
+{
+  "actual_length": 498,
+  "actual_sha256": "d993a9751a21a1e5d0b528edf72eddccc2535c3f7fb2d251f6df621b3eb1349d",
+  "cache_hit": false,
+  "cache_key": "0196abcedeeb6064bad7f305de42a0787afa5e0480771f85ce742fc75919f70d",
+  "comparison_identity": "6bf796548b92179b446bccfaf34e8e624d2de0d0fcce6c0f3458aaf96e2dfbd6",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "move.w",
+        "offset": 490,
+        "operands": "d0, -$7f9c(a4)",
+        "raw": "39408064",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 494,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 496,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "move.w",
+        "offset": 494,
+        "operands": "d0, $215a(a4)",
+        "raw": "3940215a",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 498,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 500,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 502,
+  "expected_sha256": "8c6ed2d3b06e905a694a152f870d701c55a4bf86ecd2587ae963edf9eb3da2ed",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "tst.w",
+      "offset": 4,
+      "operands": "-$7fa6(a4)",
+      "raw": "4a6c805a",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "tst.w",
+      "offset": 4,
+      "operands": "$a44(a4)",
+      "raw": "4a6c0a44",
+      "size": 4
+    }
+  },
+  "first_structural_instruction_difference": {
+    "actual": [],
+    "expected": [
+      {
+        "mnemonic": "bra.b",
+        "offset": 272,
+        "operands": "$124",
+        "raw": "6012",
+        "size": 2
+      }
+    ],
+    "kind": "delete"
+  },
+  "flags": [],
+  "id": "ov11_F_3D9A",
+  "mnemonic_similarity": 0.9929,
+  "normalized_first_difference": {
+    "actual": "805a6708397c00038066600c4a6c8066",
+    "actual_size": 498,
+    "expected": "0a446708397c0003215c600c4a6c215c",
+    "expected_size": 502,
+    "offset": 6
+  },
+  "normalized_sha256": "d993a9751a21a1e5d0b528edf72eddccc2535c3f7fb2d251f6df621b3eb1349d",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fff4",
+        "raw": "4e55fff4",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 4,
+        "operands": "-$7fa6(a4)",
+        "raw": "4a6c805a",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 8,
+        "operands": "$12",
+        "raw": "6708",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$fff4",
+        "raw": "4e55fff4",
+        "size": 4
+      },
+      {
+        "mnemonic": "tst.w",
+        "offset": 4,
+        "operands": "$a44(a4)",
+        "raw": "4a6c0a44",
+        "size": 4
+      },
+      {
+        "mnemonic": "beq.b",
+        "offset": 8,
+        "operands": "$12",
+        "raw": "6708",
+        "size": 2
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "805a6708397c00038066600c4a6c8066",
+    "actual_size": 498,
+    "expected": "0a446708397c0003215c600c4a6c215c",
+    "expected_size": 502,
+    "offset": 6
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "3d39de9a1676fbe5cf7aa42c8fe25c4e3ad406890421502735e9084abe34cb7e",
+  "unit_blocker": "unrecovered same-node dependency: ov11_F_3F90",
+  "verdict": "DIFFER"
+}

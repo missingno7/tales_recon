@@ -232,15 +232,16 @@
     },
     {
       "current_evidence": [
-        "89 functions promoted as FUNCTION_CODE_MATCH (13584 code bytes), plus 11 functions at FUNCTION_WITH_DATA_MATCH (3468 code bytes)",
-        "A complete compact 738-byte ov11_F_3A24/ov11_F_40E0/ov11_F_4696 source unit matches with direct PC-relative local-call identity proof; intervening original bytes are explicitly unclaimed",
+        "90 functions promoted as FUNCTION_CODE_MATCH (14086 code bytes), plus 11 functions at FUNCTION_WITH_DATA_MATCH (3468 code bytes)",
+        "Two complete compact source units match with direct PC-relative local-call identity proof: 738 bytes for ov11_F_3A24/ov11_F_40E0/ov11_F_4696 and 874 bytes for ov11_F_3D9A/ov11_F_40E0/ov11_F_4696; intervening original bytes are explicitly unclaimed",
         "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC produces its exact 42-byte adjacent string tail and all external A4 identities, but its two direct same-overlay calls cross unowned gaps and are rejected; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 now matches with aztec36 +D, 25 HUNK_RELOC32-backed absolute resident-global operands, and a four-byte compiler-owned `OK` tail; ov04_F_18A6 reproduces its complete flow, loop addressing and four literal strings but retains a two-site call-cleanup codegen mismatch; ov04_F_1AA2 matches through the historical `(unsigned)long_return % 3` high-word idiom; explicitly scoped compact source units may retain original gaps only when every linked byte belongs to a recovered object"
       ],
       "experiments_tried": [
         "Independent complete-object extraction and relocation/A4 identity normalization",
         "End-to-end fixture proposer: four promotions, one retained repeated mismatch, zero worker boots on repeat",
         "Ordinary check_function automatically bundles adjacent recovered dependencies; all bytes and all members pass before promoting the caller",
-        "Separate-object compact unit verification: ov11_F_3A24 plus recovered ov11_F_40E0 and ov11_F_4696 matches all 738 source-contribution bytes and relocation identities while leaving original gaps unclaimed"
+        "Separate-object compact unit verification: ov11_F_3A24 plus recovered ov11_F_40E0 and ov11_F_4696 matches all 738 source-contribution bytes and relocation identities while leaving original gaps unclaimed",
+        "Separate-object compact unit verification: ov11_F_3D9A plus recovered ov11_F_40E0 and ov11_F_4696 matches all 874 source-contribution bytes and relocation identities while leaving original gaps unclaimed"
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
