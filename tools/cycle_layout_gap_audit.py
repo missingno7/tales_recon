@@ -16,6 +16,21 @@ END = 0x5962
 RECOVERED = {'FUNCTION_CODE_MATCH', 'FUNCTION_WITH_DATA_MATCH', 'MODULE_MATCH', 'OVERLAY_NODE_MATCH'}
 
 
+def contiguous_runs(spans, wanted):
+    """Group only adjacent physical spans in the requested recovery class."""
+    runs=[];current=[]
+    for span in spans:
+        if (span['recovery_state'] in RECOVERED) != wanted:
+            if current:runs.append(current);current=[]
+            continue
+        if current and current[-1]['end'] != span['start']:
+            runs.append(current);current=[]
+        current.append(span)
+    if current:runs.append(current)
+    return [dict(start=run[0]['start'],end=run[-1]['end'],size=run[-1]['end']-run[0]['start'],
+                 members=[x['id'] for x in run],promotion_eligible=False) for run in runs]
+
+
 def build():
     evidence = json.loads((ROOT/'evidence/functions/ledger.json').read_text())
     recovery = json.loads((ROOT/'recovery/ledger.json').read_text())
@@ -43,12 +58,26 @@ def build():
                          state='UNCLAIMED', promotion_eligible=False))
     canonical = [s for s in spans if s['recovery_state'] in RECOVERED]
     pending = [s for s in spans if s['recovery_state'] not in RECOVERED]
+    in_interval={s['id'] for s in spans}
+    states={s['id']:s['recovery_state'] for s in spans}
+    for span in spans:
+        internal=[callee for callee in span['direct_callees'] if callee in in_interval]
+        span['layout_dependencies']=dict(
+            internal=internal,
+            recovered=[callee for callee in internal if states[callee] in RECOVERED],
+            pending=[callee for callee in internal if states[callee] not in RECOVERED])
     return dict(
         schema_version=1, kind='ov11_cycle_physical_layout_frontier',
         interval=dict(hunk=HUNK, start=START, end=END, size=END-START),
         evidence_inputs=dict(function_ledger_sha256=sha256((ROOT/'evidence/functions/ledger.json').read_bytes()),
                              recovery_ledger_sha256=sha256((ROOT/'recovery/ledger.json').read_bytes())),
         candidate_spans=spans, unclaimed_spans=gaps,
+        source_layout_capsule=dict(
+            canonical_runs=contiguous_runs(spans,True),
+            pending_runs=contiguous_runs(spans,False),
+            contract=('Recover each pending span through its normal function verifier, preserve this physical order '
+                      'when assembling a larger source unit, and explain every unclaimed span independently. '
+                      'The runs are planning evidence only and never source ownership.')),
         summary=dict(candidate_count=len(spans), canonical_candidate_count=len(canonical),
                      canonical_candidate_bytes=sum(s['size'] for s in canonical),
                      unrecovered_candidate_count=len(pending),

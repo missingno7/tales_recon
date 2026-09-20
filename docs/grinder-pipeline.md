@@ -261,6 +261,10 @@ A cycle-specific ordinary-object experiment independently shows that placing
 requires the unrecovered physical `0x4790..0x5962` interval, and its A4 globals
 must be naturally placed. The cyclic functions therefore remain blocked rather
 than receiving an isolated function claim.
+`python tools/cycle_layout_gap_audit.py` emits a deterministic layout capsule
+with physical runs, pending same-interval dependencies, and explicitly unclaimed
+spans. It is a bounded supervisor work package for reconstructing that interval;
+it cannot promote any span.
 `build/compile-cache` retains source, assembly, AJ/CJ object, linked HUNK, symbols,
 logs, relocations and hash receipts. The searchable fingerprint index retains
 code, assembly, symbols, identities and artifact hashes.

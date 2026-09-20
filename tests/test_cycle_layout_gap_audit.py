@@ -20,6 +20,12 @@ class CycleLayoutGapAuditTests(unittest.TestCase):
         self.assertEqual([x['id'] for x in report['candidate_spans'] if x['recovery_state']=='DISCOVERED'],
                          ['ov11_F_487E','ov11_F_4B0C','ov11_F_4EC6','ov11_F_51C0',
                           'ov11_F_54F8','ov11_F_55B8','ov11_F_583A'])
+        capsule=report['source_layout_capsule']
+        self.assertEqual(capsule['canonical_runs'][0]['members'],['ov11_F_4790','ov11_F_4848'])
+        self.assertEqual(capsule['canonical_runs'][0]['size'],238)
+        first_pending=next(x for x in report['candidate_spans'] if x['id']=='ov11_F_487E')
+        self.assertEqual(first_pending['layout_dependencies']['internal'],['ov11_F_55B8'])
+        self.assertEqual(first_pending['layout_dependencies']['pending'],['ov11_F_55B8'])
 
 
 if __name__ == '__main__':
