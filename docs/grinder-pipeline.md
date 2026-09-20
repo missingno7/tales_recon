@@ -227,7 +227,7 @@ bad and good sources in one batch. Artifact hashes and independently re-extracte
 are checked before use. Corrupt cache entries stop with a blocker, never silently
 masquerade as valid results. JSON ledger writes use atomic replacement.
 
-The current matrix contains 34 programs × six profiles = 204 compiled trials:
+The current matrix contains 42 programs × six profiles = 252 compiled trials:
 3.6a default / `+X3` / `+D` / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
 arguments/returns, frames/registers/MOVEM, branches/loops/switches, pointers,
 structs/arrays, globals/statics, indirect calls, library calls and K&R varargs.

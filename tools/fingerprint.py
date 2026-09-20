@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from difflib import SequenceMatcher
 from compiler_oracle import compile_many,PROFILES,ROOT
-from common import write_json,sha256
+from common import require,write_json,sha256
 from function_compare import decode_all
 from recovery_state import evidence
 
@@ -77,9 +77,25 @@ def build():
     print(json.dumps({k:v for k,v in report.items() if k!='entries'}))
 
 
+def check():
+    """Reject a stale or incomplete generated fingerprint index."""
+    report=json.loads((ROOT/'evidence/fingerprints/index.json').read_text())
+    profiles=list(PROFILES);entries=report.get('entries',[])
+    require(report.get('corpus_programs')==len(CORPUS),'fingerprint corpus count is stale')
+    require(report.get('profiles')==profiles,'fingerprint profile set is stale')
+    require(report.get('trials')==len(CORPUS)*len(profiles),'fingerprint trial count is stale')
+    require(len(entries)==report['trials'],'fingerprint entries are incomplete')
+    observed={(e.get('name'),e.get('profile')) for e in entries}
+    expected={(name,profile) for name in CORPUS for profile in profiles}
+    require(observed==expected,'fingerprint name/profile matrix is incomplete')
+    require(report.get('compiled')==sum(e.get('status')=='COMPILED' for e in entries),'fingerprint compiled count is stale')
+    print(json.dumps({k:report[k] for k in ('schema_version','corpus_programs','profiles','trials','compiled')}))
+
+
 def main():
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--build',action='store_true');ap.add_argument('--search');ap.add_argument('--function');a=ap.parse_args()
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--build',action='store_true');ap.add_argument('--check',action='store_true');ap.add_argument('--search');ap.add_argument('--function');a=ap.parse_args()
     if a.build:build();return
+    if a.check:check();return
     index=json.loads((ROOT/'evidence/fingerprints/index.json').read_text());entries=index['entries']
     if a.search:entries=[e for e in entries if a.search in ' '.join(e.get('mnemonics',[])) or a.search in e['name']]
     if a.function:
