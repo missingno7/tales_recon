@@ -84,7 +84,7 @@ The supplied Aztec 5.0a archive is now pinned. Three disks validate, providing
 339 files including the compiler, assembler, linker and 17 libraries; disk 3
 fails strict OFS validation and remains quarantined. No historical tools have
 been selected as the unique historical release. Both 3.6a and 5.0a execute
-unattended; 282 fingerprint trials are retained. The recovered functions match the
+unattended; 294 fingerprint trials are retained. The recovered functions match the
 tested 3.6a profile, and 470 resident runtime bytes match candidate contributions.
 The shared segload code does not distinguish releases. The earlier HTTP 465
 failure is retained in the ledger.

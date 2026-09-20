@@ -13,7 +13,7 @@ from local_http import LocalHTTP
 import local_model_proposer as proposer
 from grinder import eligible,canonical_promotion,blocker_next_action,compact_blocker_facts
 from grinder_report import summarize,blocker_class,blocker_impact
-from fingerprint import CORPUS
+from fingerprint import CORPUS,ROOT
 import recovery_state
 from recovery_state import call_excerpt,canonical_call_examples
 
@@ -136,7 +136,17 @@ class LocalCacheTests(unittest.TestCase):
 class ReportTests(unittest.TestCase):
     def test_fingerprint_retains_the_byte_return_abi_matrix(self):
         self.assertTrue({'char_return','unsigned_char_return','int_from_char_return',
-                         'unsigned_int_from_char_return','long_from_char_return'} <= set(CORPUS))
+                         'unsigned_int_from_char_return','long_from_char_return',
+                         'typed_char_expression_fallthrough',
+                         'typed_unsigned_char_expression_fallthrough'} <= set(CORPUS))
+
+    def test_typed_byte_fallthrough_does_not_fake_a_defined_byte_return(self):
+        index=json.loads((ROOT/'evidence/fingerprints/index.json').read_text())
+        for name in ('typed_char_expression_fallthrough',
+                     'typed_unsigned_char_expression_fallthrough'):
+            item=next(x for x in index['entries']
+                      if x['name']==name and x['profile']=='aztec36')
+            self.assertEqual(item['mnemonics'],['link.w','move.b','unlk','rts'])
 
     def test_fingerprint_retains_boolean_return_shapes(self):
         self.assertTrue({'boolean_nested_return','boolean_early_return','boolean_expression_return'} <= set(CORPUS))

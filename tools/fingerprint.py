@@ -20,6 +20,8 @@ CORPUS={
  'unsigned_int_from_char_return':'unsigned int recovered(a) char a; { char value; value=a; return value; }',
  'long_from_char_return':'long recovered(a) char a; { char value; value=a; return value; }',
  'char_expression_fallthrough':'recovered(a) char a; { char value; value=a; value; }',
+ 'typed_char_expression_fallthrough':'char recovered(a) char a; { char value; value=a; value; }',
+ 'typed_unsigned_char_expression_fallthrough':'unsigned char recovered(a) char a; { char value; value=a; value; }',
  'int_expression_fallthrough':'recovered(a) int a; { int value; value=a; value; }',
  'literal_string':'char *recovered() { return "oracle"; }',
  'literal_argument':'extern int sink(); recovered() { return sink("oracle"); }',
