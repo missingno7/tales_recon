@@ -7,8 +7,8 @@ C. No complete game or overlay has been reconstructed.
 
 ## Measured bootstrap
 
-The recursive census finds 652 candidates and 246 closed contiguous CFGs. It
-decodes 127,462 distinct CODE bytes, starting with ov14/ov12/ov13 and ov07 before
+The recursive census finds 652 candidates and 252 closed contiguous CFGs. It
+decodes 135,770 distinct CODE bytes, starting with ov14/ov12/ov13 and ov07 before
 the other CODE hunks. Unreached ranges and uncertain boundaries remain explicit.
 These counts are analysis coverage, not reconstructed-source coverage.
 
@@ -203,7 +203,7 @@ contributions, compares every byte, and currently rejects any DATA relocation or
 BSS. A manifest is boundary evidence, never source input;
 the candidate must reconstruct its own C initializer. Equality is recorded only
 as `FUNCTION_WITH_DATA_MATCH` and cannot promote canonical source by itself.
-Unknown indexed jumps stop descent; no jump table is guessed. Explicit A4
+Unknown indexed jumps stop descent. The only exception is a bounded PC-relative word-table form with an unsigned range check, D0 word indexing, and every table word resolving to an aligned executable target; its table remains explicit DATA evidence. Explicit A4
 writes/restores prevent a closed ABI-based proof.
 Indirect calls can be recorded and compiled, but are deprioritized. The harness
 currently supports self-contained C with simple extern scalars, pointers, arrays,

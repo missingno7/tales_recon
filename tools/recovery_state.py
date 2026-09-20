@@ -52,7 +52,8 @@ def ranked(node=None):
         elif f['id'] in r['attempts']:
             state='CODEGEN_SIMILAR' if any((a.get('mnemonic_similarity') or 0)>=0.75 for a in r['attempts'][f['id']]) else 'CANDIDATE_C'
         known=sum(c['id'] in r['functions'] or c['id'] in known_runtime or (c['hunk'],c['offset']) in runtime for c in f['direct_callees'])
-        score=f['size']+80*len(f['direct_callees'])-30*known+30*len(f['referenced_data'])+100*len(f['relocations'])+500*len(f['indirect_control_flow'])
+        unresolved_indirect=[x for x in f['indirect_control_flow'] if x.get('kind')!='PC_RELATIVE_WORD_JUMP_TABLE']
+        score=f['size']+80*len(f['direct_callees'])-30*known+30*len(f['referenced_data'])+100*len(f['relocations'])+500*len(unresolved_indirect)
         if f['extent_status']!='CLOSED_CFG':score+=10000
         if f['hunk']==0:score+=20000
         if f['ownership']!='UNKNOWN':continue
@@ -78,7 +79,7 @@ def ranked(node=None):
                     unit_ready=False;break
                 cursor=item['end']
             unit_ready=unit_ready and cursor==hi
-        result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(f['indirect_control_flow']),state=state,
+        result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(unresolved_indirect),state=state,
                            confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies,
                            pc_relative_data=sum(x['kind']=='PC_RELATIVE_DATA' for x in f['referenced_data']),same_node_unit_ready=unit_ready))
     return sorted(result,key=lambda x:(x['score'],x['id']))

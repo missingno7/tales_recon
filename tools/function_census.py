@@ -66,8 +66,52 @@ class Census:
                 return r['target_hunk'],r['addend_raw'],'A4_RELOCATED_JMP_STUB'
         return None
 
+    def jump_table(self,h,pc):
+        """Prove the narrow PC-relative word-table dispatch form used by C switches.
+
+        A generic indexed JMP stays an unresolved control-flow boundary.  This
+        recognizes only ``cmp #N,d0; bcc default; asl #1,d0; move.w
+        table(pc,d0.w),d0; jmp (pc,d0.w)`` and validates every table entry as
+        an aligned executable target.  The table is retained as data evidence,
+        never decoded as fall-through instructions.
+        """
+        jmp=instruction(self.md,self.data[h],pc)
+        load=instruction(self.md,self.data[h],pc-4)
+        shift=instruction(self.md,self.data[h],pc-6)
+        bound=instruction(self.md,self.data[h],pc-8)
+        compare=instruction(self.md,self.data[h],pc-14)
+        if not all((jmp,load,shift,bound,compare)):return None
+        if (jmp.mnemonic.split('.')[0]!='jmp' or load.mnemonic.split('.')[0]!='move' or
+                shift.mnemonic.split('.')[0]!='asl' or bound.mnemonic.split('.')[0]!='bcc' or
+                compare.mnemonic.split('.')[0]!='cmp'):
+            return None
+        if len(jmp.operands)!=1 or len(load.operands)!=2 or len(shift.operands)!=2 or len(compare.operands)!=2:
+            return None
+        jo=jmp.operands[0];lo,ld=load.operands;si,sd=shift.operands;ci,cd=compare.operands
+        if not (jo.type==lo.type==K.M68K_OP_MEM and jo.mem.base_reg==lo.mem.base_reg==K.M68K_REG_PC and
+                jo.mem.index_reg==lo.mem.index_reg==K.M68K_REG_D0 and ld.type==sd.type==cd.type==K.M68K_OP_REG and
+                ld.reg==sd.reg==cd.reg==K.M68K_REG_D0 and si.type==K.M68K_OP_IMM and si.imm==1 and
+                ci.type==K.M68K_OP_IMM and compare.mnemonic.endswith('.l') and load.mnemonic.endswith('.w') and
+                bound.operands and bound.operands[-1].type==K.M68K_OP_BR_DISP and
+                bound.address+2+bound.operands[-1].br_disp.disp==jmp.address+4):
+            return None
+        count=ci.imm
+        if count<=0 or count>256:return None
+        table_start=load.address+2+lo.mem.disp
+        table_end=table_start+2*count
+        base=jmp.address+2+jo.mem.disp
+        if table_start<0 or table_end>len(self.data[h]) or table_start&1:return None
+        targets=[]
+        for index in range(count):
+            value=signed16(int.from_bytes(self.data[h][table_start+2*index:table_start+2*index+2],'big'))
+            target=base+value
+            if not self.valid(h,target) or table_start<=target<table_end or instruction(self.md,self.data[h],target) is None:return None
+            targets.append(target)
+        return dict(kind='PC_RELATIVE_WORD_JUMP_TABLE',dispatch_offset=pc,table_start=table_start,table_end=table_end,
+                    index_register='d0',entries=[dict(index=i,offset=table_start+2*i,target=t) for i,t in enumerate(targets)])
+
     def walk(self,h,start):
-        todo=[start];seen={};edges=[];calls=[];indirect=[];stops=[];refs=[];frames=[];args=[];saves=[];returns=[]
+        todo=[start];seen={};edges=[];calls=[];indirect=[];tables=[];stops=[];refs=[];frames=[];args=[];saves=[];returns=[]
         while todo:
             pc=todo.pop()
             while pc not in seen:
@@ -129,7 +173,13 @@ class Census:
                             self.seed(th,to,dict(kind='DIRECT_CALL',caller=function_id(h,start),site=pc,basis=basis))
                         else:indirect.append(dict(offset=pc,kind='CALL',operands=ins.op_str))
                     else:
-                        if target and target[0]==h and self.valid(h,target[1]):
+                        table=self.jump_table(h,pc) if mn=='jmp' and target is None else None
+                        if table:
+                            tables.append(table);indirect.append(table)
+                            for entry in table['entries']:
+                                edges.append(dict(source=pc,target=entry['target'],kind='JUMP_TABLE'))
+                                todo.append(entry['target'])
+                        elif target and target[0]==h and self.valid(h,target[1]):
                             to=target[1];edges.append(dict(source=pc,target=to,kind='UNCONDITIONAL' if mn in ('jmp','bra') else 'CONDITIONAL'))
                             if mn in ('jmp','bra') and pc==start and to!=start:
                                 self.seed(h,to,dict(kind='TAIL_TARGET',caller=function_id(h,start),site=pc))
@@ -145,6 +195,8 @@ class Census:
         ordered=[seen[p] for p in sorted(seen)];end=max((i['offset']+i['size'] for i in ordered),default=start)
         gaps=[];cursor=start
         for i in ordered:
+            for table in tables:
+                if cursor==table['table_start']:cursor=table['table_end']
             if i['offset']!=cursor:gaps.append([cursor,i['offset']])
             cursor=i['offset']+i['size']
         evidence=self.entries[(h,start)]
@@ -152,7 +204,7 @@ class Census:
         complete=bool(ordered and returns and not stops and not gaps and strong and ordered[0]['mnemonic'].startswith('link') and all(p>=start for p in seen))
         return dict(id=function_id(h,start),hunk=h,node=self.hunks[h]['node'],start=start,end=end,size=end-start,
             raw_bytes=self.data[h][start:end].hex(),sha256=sha256(self.data[h][start:end]),entry_evidence=evidence,
-            instructions=ordered,cfg=edges,direct_callees=calls,callers=[],indirect_control_flow=indirect,
+            instructions=ordered,cfg=edges,direct_callees=calls,callers=[],indirect_control_flow=indirect,jump_tables=tables,
             branch_targets=sorted({e['target'] for e in edges}),boundary_stops=stops,undecoded_gaps=gaps,
             relocations=[dict(r,relative_offset=r['source_offset']-start) for r in self.model['relocations'] if r['source_hunk']==h and start<=r['source_offset']<end],
             referenced_data=refs,referenced_strings=[],register_save_restore=saves,stack_frames=frames,

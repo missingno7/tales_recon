@@ -43,6 +43,16 @@ class FunctionCensusTests(unittest.TestCase):
         c=self.census('4e5500004ed04e5d4e75');f=c.run()['functions'][0]
         self.assertEqual(f['extent_status'],'UNCERTAIN');self.assertEqual(f['size'],6)
 
+    def test_proven_pc_relative_word_jump_table_closes_cfg(self):
+        # link; branch over two word offsets; bounded D0 dispatch through the
+        # table; each table target is an independently decodable RTS.
+        c=self.census('4e550000600000060002000490bc00000000b0bc00000002640ae380303b00ea4efb00004e754e75')
+        f=c.run()['functions'][0]
+        self.assertEqual(f['extent_status'],'CLOSED_CFG')
+        self.assertEqual(f['jump_tables'][0]['entries'],[
+            {'index':0,'offset':8,'target':36},{'index':1,'offset':10,'target':38}])
+        self.assertEqual(f['indirect_control_flow'][0]['kind'],'PC_RELATIVE_WORD_JUMP_TABLE')
+
     def test_seed_in_instruction_cannot_make_closed_extent(self):
         c=self.census('4e5500004e5d4e75');c.seed(0,2,{'kind':'RELOCATION_POINTER'})
         self.assertEqual(c.run()['functions'][0]['extent_status'],'UNCERTAIN')
