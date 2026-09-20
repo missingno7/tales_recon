@@ -7557,14 +7557,14 @@
       "attempts": [],
       "next_action": "Extend the normal source-layout proof to reproduce physical call distances and A4/global placement across the known cluster; do not retry either isolated member.",
       "ownership_unchanged": true,
-      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves F_h11_66FE internally; its 1394-byte original contribution compiles to 1392 bytes because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than the original JSR.d16(PC), leaving A4 placement and physical-layout call evidence in evidence/experiments/linker-cycle-cluster-extended.json",
+      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves both forward callees internally but is two bytes short because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than original JSR.d16(PC). The physical frontier 0x4790..0x5962 has 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes; retain evidence/experiments/linker-cycle-layout-frontier.json for normal layout recovery.",
       "state": "BLOCKED"
     },
     "ov11_F_5C42": {
       "attempts": [],
       "next_action": "Extend the normal source-layout proof to reproduce physical call distances and A4/global placement across the known cluster; do not retry either isolated member.",
       "ownership_unchanged": true,
-      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves F_h11_4696 internally; its 1394-byte original contribution compiles to 1392 bytes because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than the original JSR.d16(PC), leaving A4 placement and physical-layout call evidence in evidence/experiments/linker-cycle-cluster-extended.json",
+      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: extended normal source cluster resolves both forward callees internally but is two bytes short because compact F_h11_5C42 -> F_h11_4696 becomes BSR.b rather than original JSR.d16(PC). The physical frontier 0x4790..0x5962 has 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes; retain evidence/experiments/linker-cycle-layout-frontier.json for normal layout recovery.",
       "state": "BLOCKED"
     },
     "ov11_F_5FB2": {

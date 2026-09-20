@@ -47,3 +47,11 @@ the unit two bytes shorter. The result retains only A4 and source-layout call
 encoding/displacement differences. Its 1,394-versus-1,392-byte receipt is
 strictly non-promoting and records the compact-layout effect rather than hiding
 it with padding or placement directives.
+
+`tools/cycle_layout_gap_audit.py` makes the remaining physical interval
+explicit. Between `0x4790` and `0x5962`, 858 bytes already have canonical
+function receipts, seven discovered candidates account for 3,664 unrecovered
+bytes, and a 40-byte interval at `0x5174` remains unclaimed. The retained
+frontier receipt does not classify that interval or add any layout filler; it
+only supplies the source-order plan required before the cluster can be tested
+as a complete natural unit.
