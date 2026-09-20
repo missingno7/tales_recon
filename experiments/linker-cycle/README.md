@@ -16,3 +16,8 @@ The machine-readable receipt is
 [`evidence/experiments/linker-cycle.json`](../../evidence/experiments/linker-cycle.json).
 It is evidence for the cyclic inter-object-call blocker, not a reconstruction
 or a substitute for a normal whole-module link.
+
+`tools/cycle_gap_audit.py` separately records the two unclaimed windows between
+the pair and their surrounding recovered functions. Both decode as `LINK...RTS`
+code, but have no allowed discovery seed, so the audit retains them as latent
+layout evidence and never counts them as recovered functions.

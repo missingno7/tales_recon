@@ -1,0 +1,230 @@
+{
+  "conclusion": "Both cycle-separating gaps decode as self-contained LINK...RTS windows, but neither has an allowed function-discovery seed. They remain latent layout evidence, not recovered functions.",
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "kind": "ov11_cyclic_gap_audit",
+  "schema_version": 1,
+  "tool_sha256": "42edcbc3ae4724c132362ac8bd1ae8de6a08b44db8d3caff8ac6646060902533",
+  "windows": [
+    {
+      "confidence": "LATENT",
+      "end": 23058,
+      "entry_evidence": "ADJACENT_TO_CLOSED_CFG_RETURN_ONLY",
+      "hunk": 11,
+      "id": "ov11_LATENT_59E6",
+      "instructions": [
+        {
+          "mnemonic": "link.w",
+          "offset": 23014,
+          "operands": "a5, #$fffe",
+          "raw": "4e55fffe",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 23018,
+          "operands": "#$1, -$2(a5)",
+          "raw": "3b7c0001fffe",
+          "size": 6
+        },
+        {
+          "mnemonic": "bra.b",
+          "offset": 23024,
+          "operands": "$5a04",
+          "raw": "6012",
+          "size": 2
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 23026,
+          "operands": "#$2, -(a7)",
+          "raw": "3f3c0002",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 23030,
+          "operands": "-$2(a5), -(a7)",
+          "raw": "3f2dfffe",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 23034,
+          "operands": "$5962(pc)",
+          "raw": "4ebaff66",
+          "size": 4
+        },
+        {
+          "mnemonic": "addq.w",
+          "offset": 23038,
+          "operands": "#$4, a7",
+          "raw": "584f",
+          "size": 2
+        },
+        {
+          "mnemonic": "addq.w",
+          "offset": 23040,
+          "operands": "#$1, -$2(a5)",
+          "raw": "526dfffe",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 23044,
+          "operands": "-$2(a5), d0",
+          "raw": "302dfffe",
+          "size": 4
+        },
+        {
+          "mnemonic": "cmp.w",
+          "offset": 23048,
+          "operands": "-$4812(a4), d0",
+          "raw": "b06cb7ee",
+          "size": 4
+        },
+        {
+          "mnemonic": "blt.b",
+          "offset": 23052,
+          "operands": "$59f2",
+          "raw": "6de4",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 23054,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 23056,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "policy": "Do not add this window to function recovery coverage until an allowed entry seed or complete-module boundary proof exists.",
+      "predecessor": "ov11_F_5962",
+      "promotion_eligible": false,
+      "raw_bytes": "4e55fffe3b7c0001fffe60123f3c00023f2dfffe4ebaff66584f526dfffe302dfffeb06cb7ee6de44e5d4e75",
+      "sha256": "e6812d3db32c18b44ffe58488f6f63f3be53b597725aac7cbc7a031f3171487a",
+      "start": 23014,
+      "successor": "ov11_F_5A12"
+    },
+    {
+      "confidence": "LATENT",
+      "end": 23828,
+      "entry_evidence": "ADJACENT_TO_CLOSED_CFG_RETURN_ONLY",
+      "hunk": 11,
+      "id": "ov11_LATENT_5CEA",
+      "instructions": [
+        {
+          "mnemonic": "link.w",
+          "offset": 23786,
+          "operands": "a5, #$fffc",
+          "raw": "4e55fffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 23790,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "muls.w",
+          "offset": 23794,
+          "operands": "#$34, d0",
+          "raw": "c1fc0034",
+          "size": 4
+        },
+        {
+          "mnemonic": "lea.l",
+          "offset": 23798,
+          "operands": "$bee(a4), a0",
+          "raw": "41ec0bee",
+          "size": 4
+        },
+        {
+          "mnemonic": "add.l",
+          "offset": 23802,
+          "operands": "a0, d0",
+          "raw": "d088",
+          "size": 2
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 23804,
+          "operands": "d0, -$4(a5)",
+          "raw": "2b40fffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "movea.l",
+          "offset": 23808,
+          "operands": "-$4(a5), a0",
+          "raw": "206dfffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "tst.w",
+          "offset": 23812,
+          "operands": "$1e(a0)",
+          "raw": "4a68001e",
+          "size": 4
+        },
+        {
+          "mnemonic": "ble.b",
+          "offset": 23816,
+          "operands": "$5d0e",
+          "raw": "6f04",
+          "size": 2
+        },
+        {
+          "mnemonic": "moveq",
+          "offset": 23818,
+          "operands": "#$1, d0",
+          "raw": "7001",
+          "size": 2
+        },
+        {
+          "mnemonic": "bra.b",
+          "offset": 23820,
+          "operands": "$5d10",
+          "raw": "6002",
+          "size": 2
+        },
+        {
+          "mnemonic": "moveq",
+          "offset": 23822,
+          "operands": "#$0, d0",
+          "raw": "7000",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 23824,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 23826,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "policy": "Do not add this window to function recovery coverage until an allowed entry seed or complete-module boundary proof exists.",
+      "predecessor": "ov11_F_5C42",
+      "promotion_eligible": false,
+      "raw_bytes": "4e55fffc302d0008c1fc003441ec0beed0882b40fffc206dfffc4a68001e6f047001600270004e5d4e75",
+      "sha256": "6220cae05980025756c6ce3f77e6f8e7b32c6ee011516f600dd003c7656a687a",
+      "start": 23786,
+      "successor": "ov11_F_5D14"
+    }
+  ]
+}
