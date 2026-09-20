@@ -29,9 +29,9 @@ def blocker_next_action(reason):
         return ('Extend the normal source-layout proof to reproduce physical call distances and A4/global placement '
                 'across the known cluster; '
                 'do not retry either isolated member.')
-    if 'A4_GLOBAL_IDENTITY_AND_LOCAL_UNIT' in reason:
-        return ('Prove the candidate A4 DATA symbol against the original global identity and close the named '
-                'same-node source unit; do not retry isolated candidate C until both proofs are available.')
+    if 'PERSISTENT_CODEGEN_MISMATCH' in reason:
+        return ('Derive the historical Boolean-return source form from the compiler fingerprint, then close the named '
+                'same-node source unit; do not retry isolated candidate C until the codegen mismatch changes.')
     return 'Revise ABI/data hypothesis or use a stronger model; retry explicitly'
 
 

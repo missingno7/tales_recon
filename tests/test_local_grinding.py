@@ -155,9 +155,9 @@ class ReportTests(unittest.TestCase):
         self.assertIn('normal source-layout proof',
                       blocker_next_action('CYCLIC_INTER_OBJECT_PC_CALL: reciprocal PC-relative calls'))
 
-    def test_a4_global_unit_blocker_does_not_request_more_isolated_c(self):
-        action=blocker_next_action('A4_GLOBAL_IDENTITY_AND_LOCAL_UNIT: evidence gap')
-        self.assertIn('A4 DATA symbol',action)
+    def test_persistent_codegen_blocker_does_not_request_more_isolated_c(self):
+        action=blocker_next_action('PERSISTENT_CODEGEN_MISMATCH: evidence gap')
+        self.assertIn('Boolean-return source form',action)
         self.assertIn('do not retry',action)
 
     def test_local_match_requires_both_pinned_canonical_and_proposer_receipts(self):
@@ -189,8 +189,6 @@ class ReportTests(unittest.TestCase):
                          'PERSISTENT_CODEGEN_MISMATCH')
         self.assertEqual(blocker_class({},'CYCLIC_INTER_OBJECT_PC_CALL: reciprocal PC-relative calls'),
                          'CYCLIC_INTER_OBJECT_PC_CALL')
-        self.assertEqual(blocker_class({},'A4_GLOBAL_IDENTITY_AND_LOCAL_UNIT: natural data identity required'),
-                         'A4_GLOBAL_IDENTITY_AND_LOCAL_UNIT')
         self.assertEqual(blocker_class({},'UNSUPPORTED_REGISTER_CALL_ABI: D0/D1 library wrapper'),
                          'UNSUPPORTED_REGISTER_CALL_ABI')
         self.assertEqual(blocker_class({},'BYTE_RETURN_ABI_MISMATCH: signed and unsigned byte returns differ'),
