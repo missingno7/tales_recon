@@ -298,11 +298,18 @@
   ],
   "runtime_libraries": [],
   "runtime_worker": {
-    "command_line_alternative": "vamos: CPU/API emulator, not native execution; Windows/tool compatibility untested",
+    "command_line_alternative": "vamos: CPU/API emulator, not native execution; isolated Windows attempt failed before loading cc",
     "discovery_scope": "Initial bounded host inventory followed by isolated compile/assemble/link/run experiments",
     "installed_emulator": "C:/Program Files/WinUAE/winuae64.exe",
     "policy": "Windows orchestration; WinUAE only as oracle or historical tool worker",
-    "status": "VERIFIED_CANDIDATE_SMOKE"
+    "status": "VERIFIED_CANDIDATE_SMOKE",
+    "vamos_probe": {
+      "evidence": "experiments/vamos/availability-probe.md",
+      "installed_versions": "amitools 0.8.1; machine68k 0.3.0 in build/vamos-probe-venv",
+      "result": "Work:/ current-directory lock creation failed before cc loaded; no ASM/object produced",
+      "byte_identical_to_winuae": null,
+      "preferred_backend": "WinUAE"
+    }
   },
   "schema_version": 1,
   "selected_historical_toolchain": null,
