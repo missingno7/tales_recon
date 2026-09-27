@@ -12,7 +12,9 @@ Define every referenced global/callee with an explicit extern declaration BEFORE
 the function. A name mentioned in the facts is not a C declaration.
 Use EXACT supplied G_hNN_HEX / F_hNN_HEX names. Each extern has an explicit type;
 external function declarations use empty (); arrays require positive constant bounds.
-Use unsigned int in externs. K&R definitions put parameter types after the names.
+Choose extern widths from access evidence; signedness may remain ambiguous.
+Shared declaration differences are hypotheses to test, not historical type proof.
+K&R definitions put parameter types after the names.
 Compiler helpers arise from C operations, never an invented C call to a register ABI.
 No includes, inline assembly, raw-code arrays, fixed addresses, placement, patching,
 tools or filesystem access. Do not simulate registers instruction-by-instruction.
@@ -50,6 +52,13 @@ def representation(package,stage=0,profile='aztec36'):
               canonical_call_examples=package.get('canonical_call_examples',[]),
               globals=package.get('data',[]),strings=package.get('strings',[]),references=package.get('relocations',[]),
               indirect=package.get('indirect',[]))
+    if stage<2 and package.get('advisory_feedback'):
+        advice=dict(package['advisory_feedback'])
+        basis=advice.get('based_on',{})
+        if basis and (not latest or basis.get('source_sha256')!=latest.get('source_sha256')
+                      or basis.get('profile')!=profile):
+            advice.pop('compiler_diagnostic',None)
+        base['advisory_feedback']=advice
     examples=[dict(name=e['name'],source=e['source'],assembly=e['assembly']) for e in package.get('compiler_examples',[]) if e['profile']==profile][:2]
     if stage==0:base['compiler_examples']=examples
     if stage>=2:base.pop('canonical_call_examples',None)

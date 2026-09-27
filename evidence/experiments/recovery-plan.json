@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-27",
+  "tool": "tools/recovery_plan.py",
+  "method": "read-only plan over evidence/functions/ledger.json and recovery/ledger.json",
+  "scope": {
+    "node": null,
+    "ids": null,
+    "candidate_count": 526,
+    "max_bytes": 256,
+    "max_packages": 64,
+    "max_package_members": 8,
+    "max_unknown_calls": 1,
+    "max_data_references": 40
+  },
+  "mode": "RECOVERY_REVIEW_REQUIRED",
+  "measurement": {
+    "eligible_count": 0,
+    "eligible_ids": [],
+    "dominant_first_constraint": "UNCERTAIN_EXTENT",
+    "first_constraint_counts": {
+      "RECOVERY_BLOCKER": 4,
+      "RESIDENT_DEFERRED": 71,
+      "SIZE_LIMIT": 49,
+      "UNCERTAIN_EXTENT": 389,
+      "UNKNOWN_CALL_LIMIT": 3,
+      "UNRECOVERED_LOCAL_DEPENDENCY": 10
+    },
+    "all_constraint_counts": {
+      "DATA_REFERENCE_LIMIT": 47,
+      "INDIRECT_CONTROL_FLOW": 113,
+      "LOW_CONFIDENCE": 389,
+      "NONCONTIGUOUS_LOCAL_UNIT": 127,
+      "PC_RELATIVE_DATA_OWNERSHIP": 49,
+      "RECOVERY_BLOCKER": 7,
+      "RESIDENT_DEFERRED": 444,
+      "SIZE_LIMIT": 84,
+      "UNCERTAIN_EXTENT": 389,
+      "UNKNOWN_CALL_LIMIT": 55,
+      "UNRECOVERED_LOCAL_DEPENDENCY": 124
+    },
+    "constraint_note": "Counts overlap in all_constraint_counts; first_constraint_counts follows grinder deferral order."
+  },
+  "package_count_total": 13,
+  "omitted_package_count": 0,
+  "package_counts": {
+    "CALL_IDENTITY_REVIEW": 1,
+    "DEPENDENCY_SCC_REVIEW": 1,
+    "FRONTIER_REVIEW": 2,
+    "LOCAL_DEPENDENCY_REVIEW": 1,
+    "PROOF_BLOCKER_REVIEW": 4,
+    "RESIDENT_OWNERSHIP_REVIEW": 1,
+    "SIZE_BOUNDARY_REVIEW": 1,
+    "SOURCE_CONTEXT_AND_PROFILE_REVIEW": 1,
+    "UNKNOWN_EXTENT_AUDIT": 1
+  },
+  "packages": [
+    {
+      "id": "RP01",
+      "kind": "DEPENDENCY_SCC_REVIEW",
+      "member_count": 2,
+      "members_complete": true,
+      "members": [
+        "ov11_F_5962",
+        "ov11_F_5C42"
+      ],
+      "action": "inspect_dependency_scc",
+      "metadata": {
+        "hunk": 11,
+        "interval": [
+          22882,
+          23786
+        ],
+        "bridge_functions": [
+          "ov11_F_5A12",
+          "ov11_F_5A62",
+          "ov11_F_5AB0",
+          "ov11_F_5BC4",
+          "ov11_F_5C1A"
+        ],
+        "canonical_bridge_ids": [
+          "ov11_F_5A12",
+          "ov11_F_5A62",
+          "ov11_F_5AB0",
+          "ov11_F_5BC4",
+          "ov11_F_5C1A"
+        ],
+        "unknown_bridge_ids": [],
+        "unclassified_gaps": [
+          [
+            23014,
+            23058
+          ]
+        ],
+        "interval_tiled_by_bounded_candidates_and_canonical_bridges": false,
+        "bounded_members_high_confidence_closed_cfg": true,
+        "missing_candidate_sources": [
+          "ov11_F_5962",
+          "ov11_F_5C42"
+        ],
+        "external_canonical_dependencies": [
+          "ov11_F_4696",
+          "ov11_F_66FE"
+        ],
+        "external_unrecovered_dependencies": [],
+        "call_graph_scope": "direct same-hunk PC-relative callees",
+        "compiler_component_closed_by_scc": false,
+        "source_unit_compile_ready": false
+      }
+    },
+    {
+      "id": "RP05",
+      "kind": "PROOF_BLOCKER_REVIEW",
+      "member_count": 1,
+      "members_complete": true,
+      "members": [
+        "ov09_F_298E"
+      ],
+      "action": "review_proof_blocker",
+      "metadata": {}
+    },
+    {
+      "id": "RP03",
+      "kind": "PROOF_BLOCKER_REVIEW",
+      "member_count": 2,
+      "members_complete": true,
+      "members": [
+        "ov11_F_5962",
+        "ov11_F_5C42"
+      ],
+      "action": "review_proof_blocker",
+      "metadata": {}
+    },
+    {
+      "id": "RP04",
+      "kind": "PROOF_BLOCKER_REVIEW",
+      "member_count": 1,
+      "members_complete": true,
+      "members": [
+        "ov11_F_5FB2"
+      ],
+      "action": "review_proof_blocker",
+      "metadata": {}
+    },
+    {
+      "id": "RP02",
+      "kind": "PROOF_BLOCKER_REVIEW",
+      "member_count": 3,
+      "members_complete": true,
+      "members": [
+        "ov14_F_0412",
+        "ov14_F_04A8",
+        "ov14_F_0540"
+      ],
+      "action": "audit_profile_or_codegen",
+      "metadata": {}
+    },
+    {
+      "id": "RP06",
+      "kind": "UNKNOWN_EXTENT_AUDIT",
+      "member_count": 389,
+      "members_complete": false,
+      "members": [
+        "ov05_F_131C",
+        "ov05_F_1EFC",
+        "ov05_F_318E",
+        "ov05_F_42E6",
+        "ov05_F_467E",
+        "ov06_F_063A",
+        "ov07_F_0612",
+        "ov07_F_1424"
+      ],
+      "action": "audit_extent",
+      "metadata": {}
+    },
+    {
+      "id": "RP07",
+      "kind": "LOCAL_DEPENDENCY_REVIEW",
+      "member_count": 122,
+      "members_complete": false,
+      "members": [
+        "ov03_F_0000",
+        "ov04_F_0E44",
+        "ov04_F_1302",
+        "ov05_F_0000",
+        "ov05_F_131C",
+        "ov05_F_1860",
+        "ov05_F_3B6C",
+        "ov06_F_0000"
+      ],
+      "action": "inspect_dependency_closure",
+      "metadata": {}
+    },
+    {
+      "id": "RP08",
+      "kind": "SOURCE_CONTEXT_AND_PROFILE_REVIEW",
+      "member_count": 2,
+      "members_complete": true,
+      "members": [
+        "ov11_F_54F8",
+        "ov11_F_583A"
+      ],
+      "action": "inspect_retained_source_context",
+      "metadata": {}
+    },
+    {
+      "id": "RP12",
+      "kind": "CALL_IDENTITY_REVIEW",
+      "member_count": 2,
+      "members_complete": true,
+      "members": [
+        "ov11_F_0B4C",
+        "ov11_F_247C"
+      ],
+      "action": "inspect_call_identities",
+      "metadata": {}
+    },
+    {
+      "id": "RP11",
+      "kind": "FRONTIER_REVIEW",
+      "member_count": 381,
+      "members_complete": false,
+      "members": [
+        "ov08_F_0000",
+        "ov08_F_1F4C",
+        "ov08_F_354E",
+        "ov09_F_0000",
+        "ov09_F_1B1C",
+        "ov11_F_0D8E",
+        "ov13_F_0942",
+        "ov15_F_1428"
+      ],
+      "action": "inspect_frontier_evidence",
+      "metadata": {}
+    },
+    {
+      "id": "RP13",
+      "kind": "FRONTIER_REVIEW",
+      "member_count": 7,
+      "members_complete": true,
+      "members": [
+        "ov08_F_1AB8",
+        "ov11_F_13DC",
+        "ov11_F_2430",
+        "ov11_F_2E26",
+        "ov11_F_415A",
+        "ov11_F_5EC0",
+        "ov11_F_6486"
+      ],
+      "action": "inspect_frontier_evidence",
+      "metadata": {}
+    },
+    {
+      "id": "RP09",
+      "kind": "RESIDENT_OWNERSHIP_REVIEW",
+      "member_count": 71,
+      "members_complete": false,
+      "members": [
+        "resident_F_08FC",
+        "resident_F_0976",
+        "resident_F_09C0",
+        "resident_F_0A44",
+        "resident_F_0D36",
+        "resident_F_0FDE",
+        "resident_F_134C",
+        "resident_F_2816"
+      ],
+      "action": "inspect_resident_context",
+      "metadata": {}
+    },
+    {
+      "id": "RP10",
+      "kind": "SIZE_BOUNDARY_REVIEW",
+      "member_count": 41,
+      "members_complete": false,
+      "members": [
+        "ov03_F_001C",
+        "ov04_F_0536",
+        "ov04_F_0B50",
+        "ov04_F_149C",
+        "ov04_F_1E36",
+        "ov05_F_2CD4",
+        "ov05_F_3836",
+        "ov07_F_0000"
+      ],
+      "action": "inspect_size_boundary",
+      "metadata": {}
+    }
+  ],
+  "candidate_source_states": {
+    "NO_RETAINED_ATTEMPT_RECEIPT": 50,
+    "RETAINED_CANDIDATE_SOURCE": 7
+  },
+  "claim_policy": "Planning is not recovery evidence or promotion. Never copy original bytes into reconstructed outputs; do not relock fixtures or infer semantic names from numeric containers."
+}

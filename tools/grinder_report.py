@@ -138,6 +138,7 @@ def summarize(run,root=ROOT):
         verified_functions_per_gpu_hour=n/gpu_hours if gpu_hours else None,verified_bytes_per_gpu_hour=sum(matches.values())/gpu_hours if gpu_hours else None,
         blocked_this_run_by_class={k:[f for f in v if f in run.get('blocked',[])] for k,v in sorted(blocked.items()) if any(f in run.get('blocked',[]) for f in v)},
         supervisor_blocker_groups=dict(sorted(blocked.items())),recommendations=guidance,
+        recovery_review=run.get('recovery_review'),
         limitations=['Only new canonical promotions with local-model provenance count; no fixture or hosted-model matches are included.',
                      'VRAM peak is sampled across the whole GPU, including Windows/desktop allocations.',
                      'A small bounded run measures this candidate set; it does not prove whole-overlay convergence.'])

@@ -1,0 +1,699 @@
+{
+  "exact_control": {
+    "alignment_counts": {
+      "actual_only": 0,
+      "expected_only": 0,
+      "paired": 5
+    },
+    "cache_key": "f25f68d19e2811fa7533a18a206ec128d932d9de16c8f6cf7e6c96009b0e9456",
+    "cfg": {
+      "actual_unpaired": 0,
+      "condition_or_terminator_changes": 0,
+      "expected_unpaired": 0,
+      "paired_blocks": 1,
+      "target_checks": {
+        "consistent": 0,
+        "different_or_unresolved": 0,
+        "not_applicable": 1
+      },
+      "unresolved_edges": {
+        "actual": null,
+        "expected": null
+      },
+      "unresolved_indirect": 0
+    },
+    "claim": "DIAGNOSTIC_ONLY_NO_EQUALITY_OR_SEMANTIC_CLAIM",
+    "extents": {
+      "candidate": 20,
+      "expected": 20
+    },
+    "first_nonreference_divergence": null,
+    "function": "ov14_F_03AE",
+    "hypotheses": [
+      {
+        "category": "a4_global_layout",
+        "confidence": "low",
+        "count": 2,
+        "evidence": [
+          {
+            "actual": {
+              "mnemonic": "move.b",
+              "offset": 4,
+              "operands": "$9(a5), -$7fd6(a4)"
+            },
+            "expected": {
+              "mnemonic": "move.b",
+              "offset": 4,
+              "operands": "$9(a5), -$6bda(a4)"
+            },
+            "note": "A4-relative displacement/addressing mode differs; symbol identity is unresolved."
+          },
+          {
+            "actual": {
+              "mnemonic": "move.b",
+              "offset": 10,
+              "operands": "$b(a5), -$7fd5(a4)"
+            },
+            "expected": {
+              "mnemonic": "move.b",
+              "offset": 10,
+              "operands": "$b(a5), -$454c(a4)"
+            },
+            "note": "A4-relative displacement/addressing mode differs; symbol identity is unresolved."
+          }
+        ]
+      }
+    ],
+    "instruction_similarity": 1.0,
+    "recommended_search_scope": [
+      "reference identity and data-boundary evidence"
+    ],
+    "schema_version": 1,
+    "status": "DIAGNOSTIC_ONLY",
+    "uncertainty": [
+      "Coarse instruction alignment is heuristic and does not establish semantic correspondence.",
+      "Reference identity, data ownership, and source intent are not proved by this report."
+    ]
+  },
+  "schema_version": 1,
+  "scoped_review": {
+    "claim_policy": "Planning is not recovery evidence or promotion. Never copy original bytes into reconstructed outputs; do not relock fixtures or infer semantic names from numeric containers.",
+    "executed_diagnostics": [
+      {
+        "feedback": {
+          "based_on": {
+            "cache_key": "5d74128b28b30c647f3528921a6bca6ac9f28bab31c5128da77f1c4cb132c580",
+            "profile": "aztec36",
+            "source_sha256": "ed8397cec5acb2142883aba73619db7f8ea7572e5e9139aa3a4bd29dacf9205d"
+          },
+          "compiler_diagnostic": {
+            "alignment_counts": {
+              "actual_only": 6,
+              "expected_only": 0,
+              "paired": 183
+            },
+            "cache_key": "5d74128b28b30c647f3528921a6bca6ac9f28bab31c5128da77f1c4cb132c580",
+            "cfg": {
+              "actual_unpaired": 0,
+              "condition_or_terminator_changes": 0,
+              "expected_unpaired": 0,
+              "paired_blocks": 32,
+              "target_checks": {
+                "consistent": 25,
+                "different_or_unresolved": 0,
+                "not_applicable": 7
+              },
+              "unresolved_edges": {
+                "actual": null,
+                "expected": null
+              },
+              "unresolved_indirect": 16
+            },
+            "claim": "DIAGNOSTIC_ONLY_NO_EQUALITY_OR_SEMANTIC_CLAIM",
+            "extents": {
+              "candidate": 672,
+              "expected": 660
+            },
+            "first_nonreference_divergence": {
+              "confidence": "medium",
+              "instruction": {
+                "mnemonic": "moveq",
+                "offset": 112,
+                "operands": "#$0, d1"
+              },
+              "note": "First unpaired candidate instruction after shift-tolerant alignment.",
+              "side": "candidate"
+            },
+            "function": "ov09_F_298E",
+            "hypotheses": [
+              {
+                "category": "a4_global_layout",
+                "confidence": "low",
+                "count": 24,
+                "evidence": [
+                  {
+                    "actual": {
+                      "mnemonic": "move.b",
+                      "offset": 22,
+                      "operands": "-$7fca(a4), d1"
+                    },
+                    "expected": {
+                      "mnemonic": "move.b",
+                      "offset": 22,
+                      "operands": "-$e6c(a4), d1"
+                    },
+                    "note": "A4-relative displacement/addressing mode differs; symbol identity is unresolved."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "move.w",
+                      "offset": 32,
+                      "operands": "-$7fc8(a4), -$2(a5)"
+                    },
+                    "expected": {
+                      "mnemonic": "move.w",
+                      "offset": 32,
+                      "operands": "-$3d9c(a4), -$2(a5)"
+                    },
+                    "note": "A4-relative displacement/addressing mode differs; symbol identity is unresolved."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "lea.l",
+                      "offset": 62,
+                      "operands": "-$7fc6(a4), a0"
+                    },
+                    "expected": {
+                      "mnemonic": "lea.l",
+                      "offset": 62,
+                      "operands": "-$3d9a(a4), a0"
+                    },
+                    "note": "A4-relative displacement/addressing mode differs; symbol identity is unresolved."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "lea.l",
+                      "offset": 116,
+                      "operands": "-$7fba(a4), a0"
+                    },
+                    "expected": {
+                      "mnemonic": "lea.l",
+                      "offset": 112,
+                      "operands": "-$3d8c(a4), a0"
+                    },
+                    "note": "A4-relative displacement/addressing mode differs; symbol identity is unresolved."
+                  }
+                ]
+              },
+              {
+                "category": "call_target_or_encoding",
+                "confidence": "low",
+                "count": 8,
+                "evidence": [
+                  {
+                    "actual": {
+                      "mnemonic": "jsr",
+                      "offset": 6,
+                      "operands": "-$7ffe(a4)"
+                    },
+                    "expected": {
+                      "mnemonic": "jsr",
+                      "offset": 6,
+                      "operands": "-$7f56(a4)"
+                    },
+                    "note": "Call encoding/target differs; callee identity is unresolved."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "jsr",
+                      "offset": 40,
+                      "operands": "-$7ffe(a4)"
+                    },
+                    "expected": {
+                      "mnemonic": "jsr",
+                      "offset": 40,
+                      "operands": "-$7f56(a4)"
+                    },
+                    "note": "Call encoding/target differs; callee identity is unresolved."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "jsr",
+                      "offset": 80,
+                      "operands": "-$7ffe(a4)"
+                    },
+                    "expected": {
+                      "mnemonic": "jsr",
+                      "offset": 80,
+                      "operands": "-$7f56(a4)"
+                    },
+                    "note": "Call encoding/target differs; callee identity is unresolved."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "jsr",
+                      "offset": 264,
+                      "operands": "-$7ff8(a4)"
+                    },
+                    "expected": {
+                      "mnemonic": "jsr",
+                      "offset": 260,
+                      "operands": "-$7f32(a4)"
+                    },
+                    "note": "Call encoding/target differs; callee identity is unresolved."
+                  }
+                ]
+              },
+              {
+                "category": "instruction_layout",
+                "confidence": "medium",
+                "count": 1,
+                "evidence": [
+                  {
+                    "note": "Unpaired instructions remain after shift-tolerant alignment."
+                  }
+                ]
+              },
+              {
+                "category": "register_assignment",
+                "confidence": "low",
+                "count": 17,
+                "evidence": [
+                  {
+                    "actual": {
+                      "mnemonic": "moveq",
+                      "offset": 120,
+                      "operands": "#$0, d0"
+                    },
+                    "expected": {
+                      "mnemonic": "moveq",
+                      "offset": 116,
+                      "operands": "#$0, d1"
+                    },
+                    "note": "Ordered register roles differ; register allocation or operand lifetime is a hypothesis, not a source claim."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "move.b",
+                      "offset": 122,
+                      "operands": "(a0, d1.l), d0"
+                    },
+                    "expected": {
+                      "mnemonic": "move.b",
+                      "offset": 118,
+                      "operands": "(a0, d0.l), d1"
+                    },
+                    "note": "Ordered register roles differ; register allocation or operand lifetime is a hypothesis, not a source claim."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "move.w",
+                      "offset": 126,
+                      "operands": "-$4(a5), d1"
+                    },
+                    "expected": {
+                      "mnemonic": "move.w",
+                      "offset": 122,
+                      "operands": "-$4(a5), d0"
+                    },
+                    "note": "Ordered register roles differ; register allocation or operand lifetime is a hypothesis, not a source claim."
+                  },
+                  {
+                    "actual": {
+                      "mnemonic": "move.b",
+                      "offset": 134,
+                      "operands": "(a0, d1.w), d2"
+                    },
+                    "expected": {
+                      "mnemonic": "move.b",
+                      "offset": 130,
+                      "operands": "(a0, d0.w), d2"
+                    },
+                    "note": "Ordered register roles differ; register allocation or operand lifetime is a hypothesis, not a source claim."
+                  }
+                ]
+              }
+            ],
+            "instruction_similarity": 0.9839,
+            "recommended_search_scope": [
+              "register roles or temporary lifetime",
+              "local statement structure around the inserted or missing instructions"
+            ],
+            "schema_version": 1,
+            "status": "DIAGNOSTIC_ONLY",
+            "uncertainty": [
+              "Coarse instruction alignment is heuristic and does not establish semantic correspondence.",
+              "Reference identity, data ownership, and source intent are not proved by this report."
+            ]
+          },
+          "promotion_eligible": false,
+          "status": "DIAGNOSTIC_ONLY",
+          "type_evidence": {
+            "declaration_conflict_summary": {
+              "corpus_total": 55,
+              "examples": [],
+              "identity_basis": "mechanical G_h01_HEX symbol maps its suffix to the exact DATA HUNK offset",
+              "omitted": 0,
+              "relation_counts": {},
+              "relevant_total": 0,
+              "scope": "candidate source declarations at touched mechanically named global offsets; see evidence/types.json"
+            },
+            "frame_accesses": [
+              {
+                "access_count": 3,
+                "address_sites": [],
+                "address_taken_count": 0,
+                "extension_context_count": 0,
+                "extension_sites": [],
+                "frame_offset": 9,
+                "observed_widths_bytes": [
+                  1
+                ],
+                "sites": [
+                  {
+                    "mnemonic": "tst.b",
+                    "offset": 10710,
+                    "width_bytes": 1
+                  },
+                  {
+                    "mnemonic": "cmpi.b",
+                    "offset": 10912,
+                    "width_bytes": 1
+                  }
+                ]
+              }
+            ],
+            "frame_slot_count": 1,
+            "function": "ov09_F_298E",
+            "global_identity_count": 14,
+            "globals": [
+              {
+                "address_sites": [],
+                "data_hunk_offset": 168,
+                "extension_sites": [],
+                "function_access_count": 5,
+                "function_address_taken_count": 0,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 97,
+                "program_read_write_counts": {
+                  "UNKNOWN": 97
+                },
+                "sites": [
+                  {
+                    "direction": "UNKNOWN",
+                    "mnemonic": "jsr",
+                    "offset": 10644,
+                    "width_bytes": null
+                  },
+                  {
+                    "direction": "UNKNOWN",
+                    "mnemonic": "jsr",
+                    "offset": 10678,
+                    "width_bytes": null
+                  }
+                ]
+              },
+              {
+                "address_sites": [],
+                "data_hunk_offset": 204,
+                "extension_sites": [],
+                "function_access_count": 3,
+                "function_address_taken_count": 0,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 208,
+                "program_read_write_counts": {
+                  "UNKNOWN": 208
+                },
+                "sites": [
+                  {
+                    "direction": "UNKNOWN",
+                    "mnemonic": "jsr",
+                    "offset": 10898,
+                    "width_bytes": null
+                  },
+                  {
+                    "direction": "UNKNOWN",
+                    "mnemonic": "jsr",
+                    "offset": 11082,
+                    "width_bytes": null
+                  }
+                ]
+              },
+              {
+                "address_sites": [
+                  10764,
+                  10962
+                ],
+                "data_hunk_offset": 1128,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 3,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 0,
+                "program_read_write_counts": {},
+                "sites": []
+              },
+              {
+                "address_sites": [],
+                "data_hunk_offset": 16776,
+                "extension_sites": [],
+                "function_access_count": 3,
+                "function_address_taken_count": 0,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [
+                  1
+                ],
+                "program_access_count": 24,
+                "program_read_write_counts": {
+                  "READ": 14,
+                  "UNKNOWN": 6,
+                  "WRITE": 4
+                },
+                "sites": [
+                  {
+                    "direction": "UNKNOWN",
+                    "mnemonic": "tst.b",
+                    "offset": 10830,
+                    "width_bytes": 1
+                  },
+                  {
+                    "direction": "UNKNOWN",
+                    "mnemonic": "cmpi.b",
+                    "offset": 11012,
+                    "width_bytes": 1
+                  }
+                ]
+              },
+              {
+                "address_sites": [],
+                "data_hunk_offset": 16994,
+                "extension_sites": [],
+                "function_access_count": 1,
+                "function_address_taken_count": 0,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [
+                  2
+                ],
+                "program_access_count": 17,
+                "program_read_write_counts": {
+                  "READ": 6,
+                  "UNKNOWN": 7,
+                  "WRITE": 4
+                },
+                "sites": [
+                  {
+                    "direction": "READ",
+                    "mnemonic": "move.w",
+                    "offset": 10670,
+                    "width_bytes": 2
+                  }
+                ]
+              },
+              {
+                "address_sites": [
+                  10700
+                ],
+                "data_hunk_offset": 16996,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 1,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [
+                  2
+                ],
+                "program_access_count": 3,
+                "program_read_write_counts": {
+                  "UNKNOWN": 2,
+                  "WRITE": 1
+                },
+                "sites": []
+              },
+              {
+                "address_sites": [
+                  10750,
+                  10946
+                ],
+                "data_hunk_offset": 17010,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 3,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 0,
+                "program_read_write_counts": {},
+                "sites": []
+              },
+              {
+                "address_sites": [
+                  10862,
+                  11046
+                ],
+                "data_hunk_offset": 17012,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 3,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 0,
+                "program_read_write_counts": {},
+                "sites": []
+              },
+              {
+                "address_sites": [
+                  10884,
+                  11068
+                ],
+                "data_hunk_offset": 17014,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 3,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 0,
+                "program_read_write_counts": {},
+                "sites": []
+              },
+              {
+                "address_sites": [
+                  10794
+                ],
+                "data_hunk_offset": 17202,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 1,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 0,
+                "program_read_write_counts": {},
+                "sites": []
+              },
+              {
+                "address_sites": [
+                  10976
+                ],
+                "data_hunk_offset": 17214,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 1,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 0,
+                "program_read_write_counts": {},
+                "sites": []
+              },
+              {
+                "address_sites": [
+                  11170
+                ],
+                "data_hunk_offset": 17226,
+                "extension_sites": [],
+                "function_access_count": 0,
+                "function_address_taken_count": 1,
+                "function_extension_context_count": 0,
+                "observed_widths_bytes": [],
+                "program_access_count": 0,
+                "program_read_write_counts": {},
+                "sites": []
+              }
+            ],
+            "omitted_frame_slots": 0,
+            "omitted_global_identities": 2
+          }
+        },
+        "id": "ov09_F_298E"
+      }
+    ],
+    "execution": {
+      "compiler_trials": 0,
+      "max_functions": 4,
+      "mode": "CACHED_DIAGNOSTIC_REVIEW",
+      "model_proposals": 0,
+      "note": "Remaining package actions require a new evidence or source hypothesis; none was silently retried.",
+      "promotions": 0
+    },
+    "measurement": {
+      "all_constraint_counts": {
+        "RECOVERY_BLOCKER": 1,
+        "SIZE_LIMIT": 1
+      },
+      "constraint_note": "Counts overlap in all_constraint_counts; first_constraint_counts follows grinder deferral order.",
+      "dominant_first_constraint": "SIZE_LIMIT",
+      "eligible_count": 0,
+      "eligible_ids": [],
+      "first_constraint_counts": {
+        "SIZE_LIMIT": 1
+      }
+    },
+    "mode": "RECOVERY_REVIEW_REQUIRED",
+    "omitted_package_count": 0,
+    "package_count_total": 1,
+    "packages": [
+      {
+        "diagnostics": [
+          {
+            "constraints": [
+              "SIZE_LIMIT"
+            ],
+            "extent": "CLOSED_CFG",
+            "id": "ov09_F_298E",
+            "node": "ov09",
+            "proof_blocker": "PERSISTENT_CODEGEN_MISMATCH: retained Aztec 3.6a trials establish the full 660-byte semantic body and exact frame/exit layout; the three unsigned table-mask tests retain a 12-byte temporary-allocation mismatch (expected D0 index/D1 mask, candidates use a copied index or byte-sized AND). Near-match escalation did not alter the conclusion: aztec36-x3 remains 672 bytes, aztec50 is 640 bytes, and aztec50-short is 772 bytes.",
+            "size": 660,
+            "source": {
+              "attempts": 19,
+              "latest_reason": null,
+              "latest_verdict": "DIFFER",
+              "profiles": [
+                "aztec36",
+                "aztec36-x3",
+                "aztec50",
+                "aztec50-short"
+              ],
+              "source_available": true,
+              "state": "RETAINED_CANDIDATE_SOURCE"
+            }
+          }
+        ],
+        "dispatch": {
+          "action": "review_proof_blocker",
+          "ids": [
+            "ov09_F_298E"
+          ],
+          "read_only": true
+        },
+        "evidence_refs": [
+          {
+            "kind": "RECOVERY_BLOCKER_LEDGER",
+            "mechanism": "SOURCE_OR_ALGORITHM_SHAPE"
+          }
+        ],
+        "id": "RP01",
+        "kind": "PROOF_BLOCKER_REVIEW",
+        "member_count": 1,
+        "members": [
+          "ov09_F_298E"
+        ],
+        "members_complete": true,
+        "priority": 20,
+        "rationale": "A prior exact comparison is blocked; inspect the named mechanism and change the hypothesis before any retry."
+      }
+    ],
+    "read_only": true,
+    "schema_version": 1,
+    "scope": {
+      "candidate_count": 1,
+      "ids": [
+        "ov09_F_298E"
+      ],
+      "max_bytes": 256,
+      "max_data_references": 40,
+      "max_package_members": 8,
+      "max_packages": 8,
+      "max_unknown_calls": 1,
+      "node": null
+    }
+  }
+}

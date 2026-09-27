@@ -1,0 +1,223 @@
+{
+  "execution": {
+    "cache_misses": 0,
+    "compiler_worker_invocations": 0,
+    "mode": "cached-only",
+    "promotion": "NONE",
+    "promotion_count": 0,
+    "requested_variants": 3,
+    "unique_compile_identities": 3
+  },
+  "implementation_sha256": {
+    "tools/check_function.py": "60e3ff3832fd9fa8887f58382700b1bdfe490f865eca6117e31e9fb366a7fe03",
+    "tools/diag.py": "f690b4bc5b8539325740039791706de807ce139227c2d56d722ebadfdd78d45e",
+    "tools/shape_search.py": "7dc09a7cbc8e408aaaa96b8bb90b2e232828c47851a32ff5097b0b7460fc57d7"
+  },
+  "limitations": [
+    "No source was generated or promoted.",
+    "Diagnostic alignment is coarse and does not establish source intent or equality.",
+    "Function comparisons do not prove object, HUNK, or overlay layout."
+  ],
+  "manifest": {
+    "budget": {
+      "max_unique_compiles": 3,
+      "max_variants": 3
+    },
+    "function_id": "ov09_F_298E",
+    "schema_version": 1,
+    "variants": [
+      {
+        "causal_family": "table-mask-register-allocation",
+        "diagnostic_scope": "register_assignment",
+        "id": "retained-v15",
+        "profile": "aztec36",
+        "source": "experiments/direct-recovery/ov09_F_298E-v15.c"
+      },
+      {
+        "causal_family": "table-mask-register-allocation",
+        "diagnostic_scope": "register_assignment",
+        "id": "row-register-hint",
+        "profile": "aztec36",
+        "source": "experiments/worker-ov09-298e/register_row_value.c"
+      },
+      {
+        "causal_family": "table-mask-register-allocation",
+        "diagnostic_scope": "register_assignment",
+        "id": "explicit-byte-temp",
+        "profile": "aztec36",
+        "source": "experiments/worker-ov09-298e/explicit_register_byte_temp.c"
+      }
+    ]
+  },
+  "purpose": "bounded isolated cached source-shape comparison; diagnostic only",
+  "ranking": [
+    "retained-v15",
+    "explicit-byte-temp",
+    "row-register-hint"
+  ],
+  "results": [
+    {
+      "actual_length": 672,
+      "actual_only": 6,
+      "alignment_pairs": 183,
+      "cache_hit": true,
+      "cache_key": "5d74128b28b30c647f3528921a6bca6ac9f28bab31c5128da77f1c4cb132c580",
+      "cfg_different_or_unresolved_targets": 0,
+      "cfg_paired_blocks": 32,
+      "cfg_unpaired_actual": 0,
+      "cfg_unpaired_expected": 0,
+      "compiler_profile": "aztec36",
+      "diagnostic_rank": 98,
+      "diagnostic_status": "DIAGNOSTIC_ONLY",
+      "exact_verdict": "DIFFER",
+      "expected_length": 660,
+      "expected_only": 0,
+      "hypotheses": [
+        {
+          "category": "a4_global_layout",
+          "confidence": "low",
+          "count": 24
+        },
+        {
+          "category": "call_target_or_encoding",
+          "confidence": "low",
+          "count": 8
+        },
+        {
+          "category": "instruction_layout",
+          "confidence": "medium",
+          "count": 1
+        },
+        {
+          "category": "register_assignment",
+          "confidence": "low",
+          "count": 17
+        }
+      ],
+      "id": "retained-v15",
+      "instruction_similarity": 0.9839,
+      "mnemonic_similarity": 0.9839,
+      "source": "experiments/direct-recovery/ov09_F_298E-v15.c",
+      "source_sha256": "ed8397cec5acb2142883aba73619db7f8ea7572e5e9139aa3a4bd29dacf9205d"
+    },
+    {
+      "actual_length": 682,
+      "actual_only": 9,
+      "alignment_pairs": 183,
+      "cache_hit": true,
+      "cache_key": "66a189242ac32373cd8202a6390645385df80beb5b38d0d52035e07225b5f087",
+      "cfg_different_or_unresolved_targets": 0,
+      "cfg_paired_blocks": 32,
+      "cfg_unpaired_actual": 0,
+      "cfg_unpaired_expected": 0,
+      "compiler_profile": "aztec36",
+      "diagnostic_rank": 96,
+      "diagnostic_status": "DIAGNOSTIC_ONLY",
+      "exact_verdict": "DIFFER",
+      "expected_length": 660,
+      "expected_only": 0,
+      "hypotheses": [
+        {
+          "category": "a4_global_layout",
+          "confidence": "low",
+          "count": 24
+        },
+        {
+          "category": "call_target_or_encoding",
+          "confidence": "low",
+          "count": 8
+        },
+        {
+          "category": "instruction_layout",
+          "confidence": "medium",
+          "count": 1
+        },
+        {
+          "category": "register_assignment",
+          "confidence": "low",
+          "count": 17
+        },
+        {
+          "category": "unknown_codegen",
+          "confidence": "low",
+          "count": 2
+        }
+      ],
+      "id": "explicit-byte-temp",
+      "instruction_similarity": 0.9493,
+      "mnemonic_similarity": 0.9653,
+      "source": "experiments/worker-ov09-298e/explicit_register_byte_temp.c",
+      "source_sha256": "afaba22599db04ef4abe8cc74adb876c6bd514c6c4a770d7cdd1a8e50d56529d"
+    },
+    {
+      "actual_length": 620,
+      "actual_only": 9,
+      "alignment_pairs": 179,
+      "cache_hit": true,
+      "cache_key": "95f9f3cb5f5e11a9f97c1ad1493f5d46c9628902a54f8bf05d4b9a0d9ad5f0ce",
+      "cfg_different_or_unresolved_targets": 0,
+      "cfg_paired_blocks": 32,
+      "cfg_unpaired_actual": 0,
+      "cfg_unpaired_expected": 0,
+      "compiler_profile": "aztec36",
+      "diagnostic_rank": 89,
+      "diagnostic_status": "DIAGNOSTIC_ONLY",
+      "exact_verdict": "DIFFER",
+      "expected_length": 660,
+      "expected_only": 4,
+      "hypotheses": [
+        {
+          "category": "a4_global_layout",
+          "confidence": "low",
+          "count": 24
+        },
+        {
+          "category": "call_target_or_encoding",
+          "confidence": "low",
+          "count": 8
+        },
+        {
+          "category": "frame_or_stack_reference",
+          "confidence": "low",
+          "count": 21
+        },
+        {
+          "category": "immediate_constant",
+          "confidence": "low",
+          "count": 1
+        },
+        {
+          "category": "instruction_layout",
+          "confidence": "medium",
+          "count": 1
+        },
+        {
+          "category": "memory_reference_or_layout",
+          "confidence": "low",
+          "count": 3
+        },
+        {
+          "category": "operand_width",
+          "confidence": "low",
+          "count": 1
+        },
+        {
+          "category": "register_assignment",
+          "confidence": "low",
+          "count": 45
+        },
+        {
+          "category": "unknown_codegen",
+          "confidence": "low",
+          "count": 2
+        }
+      ],
+      "id": "row-register-hint",
+      "instruction_similarity": 0.841,
+      "mnemonic_similarity": 0.938,
+      "source": "experiments/worker-ov09-298e/register_row_value.c",
+      "source_sha256": "1aa0ee2963cfa1632afcad70a4855c5c671317b9bcdfb8656372cedee8df0589"
+    }
+  ],
+  "schema_version": 1
+}

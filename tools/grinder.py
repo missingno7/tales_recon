@@ -129,7 +129,13 @@ def run(args):
             if len(selected)>=args.batch_size:break
             selected.append(item)
         if not selected:
-            totals['status']='NO_ELIGIBLE_WORK';break
+            from recovery_feedback import review_frontier
+            totals['recovery_review']=review_frontier(
+                node=args.node,ids=args.ids,limit=limit,
+                max_unknown_calls=getattr(args,'max_unknown_calls',1),
+                max_data_references=getattr(args,'max_data_references',40))
+            totals['status']='RECOVERY_REVIEW_REQUIRED' if totals['recovery_review']['packages'] else 'NO_BOUNDED_WORK'
+            break
         requests=[];service_error=None
         for item in selected:
             fid=item['id']
@@ -224,7 +230,11 @@ def main():
         # whose exact PC-relative binding would require an unowned code gap.
         selector=type('Selector',(),dict(max_unknown_calls=1,max_data_references=40))()
         q=[x for x in ranked(args.node) if x['id'] not in recovery()['blockers'] and eligible(x,selector,512)]
-        print(json.dumps(facts(q[0]['id']) if q else {'status':'NO_BOUNDED_WORK'},indent=2))
+        if q:result=facts(q[0]['id'])
+        else:
+            from recovery_feedback import review_frontier
+            result=review_frontier(node=args.node,limit=512)
+        print(json.dumps(result,indent=2))
     elif args.action=='frontier':print(json.dumps(frontier(args.node,args.max_bytes,max_data_references=args.max_data_references),indent=2))
     elif args.action=='retry':
         r=recovery();r['blockers'].pop(args.id,None);write_json(LEDGER,r)

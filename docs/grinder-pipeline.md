@@ -73,7 +73,31 @@ python tools/fingerprint.py --search movem
 # Read-only closure planning from exact promotions and the current census.
 python tools/overlay_frontier.py --node ov14
 python tools/overlay_frontier.py --node ov07 --json
+
+# Advisory compiler archaeology; these commands never promote source.
+python tools/recovery_plan.py --limit 256
+python tools/type_evidence.py --write
+python tools/type_evidence.py --check
+python tools/diag.py ov09_F_298E --cache-key <retained-compiler-cache-key> --json
+python tools/shape_search.py experiments/my-variants.json --cached-only --json
 ```
+
+When the ordinary queue is exhausted, `grinder run` performs a bounded
+read-only recovery review instead of returning only `NO_ELIGIBLE_WORK`.
+The saved run/report includes overlapping frontier constraints, bounded
+dependency/proof/source-context packages, and at most four cached diagnostic
+summaries. `RECOVERY_REVIEW_REQUIRED` means a new evidence or source hypothesis
+is needed; it does not mean additional functions became eligible or compiled.
+Requested node/ID and eligibility limits remain in force. `grinder next`
+returns the same kind of review when it cannot supply an ordinary fact package.
+
+Fact packages now retain prior source text keyed by its hash and optionally
+include fresh shared type observations and the latest cached structural
+diagnosis. These are search guidance. The local context packer drops optional
+advice before dropping any required instruction or reference evidence.
+See [compiler archaeology measurements](compiler-archaeology.md),
+[type evidence](type-evidence.md), [recovery planning](recovery-planning.md),
+and [bounded source variants](source-shape-search.md).
 
 `check_function` uses 3.6a and 5.0a-short by default. Repeat `--profile` to select
 profiles. `--no-promote` retains comparisons without assigning canonical source.
