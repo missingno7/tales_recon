@@ -69,6 +69,10 @@ python tools/check_function.py --batch experiments/grinder-bootstrap/batch.json
 python tools/fingerprint.py --build
 python tools/fingerprint.py --function ov14_F_03C2
 python tools/fingerprint.py --search movem
+
+# Read-only closure planning from exact promotions and the current census.
+python tools/overlay_frontier.py --node ov14
+python tools/overlay_frontier.py --node ov07 --json
 ```
 
 `check_function` uses 3.6a and 5.0a-short by default. Repeat `--profile` to select

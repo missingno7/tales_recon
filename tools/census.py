@@ -14,7 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def inputs(root):
-    supplied = sorted(p for p in (root / 'assets').rglob('*') if p.is_file())
+    assets = root / 'assets'
+    # Auxiliary DOS comparison media are kept beside the supplied Amiga disks,
+    # but they are not inputs to this Amiga census or its immutable oracle lock.
+    supplied = sorted(p for p in assets.rglob('*')
+                      if p.is_file() and p.relative_to(assets).parts[0].lower() != 'dos')
     require(supplied, 'no supplied assets')
     return supplied
 

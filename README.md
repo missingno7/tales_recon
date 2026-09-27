@@ -1,12 +1,13 @@
 # DuckTales Amiga historical reconstruction
 
 This independent project follows [the vision](docs/VISION.md). The current
-deliverable is a mechanical source-recovery pipeline with 112 verified C
-functions (21,164 bytes), a recursive function census and a historical compiler
+deliverable is a mechanical source-recovery pipeline with 113 verified C
+functions (21,540 bytes), a recursive function census and a historical compiler
 oracle. There is no
 reconstructed game executable or completed source overlay yet.
 
-The supplied originals in `assets/` are hash-locked verification fixtures.
+The supplied Amiga disks in `assets/` are hash-locked verification fixtures;
+auxiliary DOS comparison media in `assets/dos/` are outside that Amiga oracle.
 They are never reconstructed build inputs. All analysis runs on Windows with
 Python 3.10+; the topology parser uses the standard library, and recursive 68k
 analysis uses the installed native Capstone. Historical compilation uses the

@@ -166,6 +166,20 @@ class EvidenceTests(unittest.TestCase):
             p.write_bytes(b'original');(root/'assets/extra').write_bytes(b'added')
             with self.assertRaises(FormatError):verify_lock(root)
 
+    def test_dos_comparison_media_do_not_change_amiga_fixture_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'assets/dos').mkdir(parents=True);(root/'evidence').mkdir()
+            disk=root/'assets/test.adf';disk.write_bytes(b'original')
+            lock=root/'evidence/fixture-lock.json'
+            lock.write_text(json.dumps(dict(supplied_inputs=fixture_identity(root))))
+            before=lock.read_bytes()
+            (root/'assets/dos/DUCKTALE.EXE').write_bytes(b'comparison only')
+            verify_lock(root)
+            self.assertEqual(lock.read_bytes(),before)
+            disk.write_bytes(b'changed')
+            with self.assertRaisesRegex(FormatError,'lock mismatch'):
+                verify_lock(root)
+
     def test_comparison_separates_bytes_and_relocations(self):
         same=compare(self.exe,self.exe)
         self.assertTrue(same['whole_file_equal']);self.assertIsNone(same['reconstruction_proof_level'])
