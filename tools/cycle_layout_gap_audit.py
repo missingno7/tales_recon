@@ -8,12 +8,17 @@ import json
 
 from analysis_support import ROOT
 from common import require, sha256, write_json
+from check_unit import proven_tail
 
 
 HUNK = 11
 START = 0x4790
 END = 0x5962
 RECOVERED = {'FUNCTION_CODE_MATCH', 'FUNCTION_WITH_DATA_MATCH', 'MODULE_MATCH', 'OVERLAY_NODE_MATCH'}
+
+
+def contribution_end(span):
+    return span.get('contribution_end', span['end'])
 
 
 def contiguous_runs(spans, wanted):
@@ -23,11 +28,12 @@ def contiguous_runs(spans, wanted):
         if (span['recovery_state'] in RECOVERED) != wanted:
             if current:runs.append(current);current=[]
             continue
-        if current and current[-1]['end'] != span['start']:
+        if current and contribution_end(current[-1]) != span['start']:
             runs.append(current);current=[]
         current.append(span)
     if current:runs.append(current)
-    return [dict(start=run[0]['start'],end=run[-1]['end'],size=run[-1]['end']-run[0]['start'],
+    return [dict(start=run[0]['start'],end=contribution_end(run[-1]),
+                 size=contribution_end(run[-1])-run[0]['start'],
                  members=[x['id'] for x in run],promotion_eligible=False) for run in runs]
 
 
@@ -48,11 +54,30 @@ def build():
             gaps.append(dict(start=cursor, end=f['start'], size=f['start']-cursor,
                              state='UNCLAIMED', promotion_eligible=False))
         state = recovery.get('functions', {}).get(f['id'], {}).get('state', 'DISCOVERED')
-        spans.append(dict(id=f['id'], start=f['start'], end=f['end'], size=f['size'],
-                          confidence=f['confidence'], recovery_state=state,
-                          direct_callees=[c['id'] for c in f['direct_callees']],
-                          promotion_eligible=False))
-        cursor = f['end']
+        span=dict(id=f['id'], start=f['start'], end=f['end'], size=f['size'],
+                  confidence=f['confidence'], recovery_state=state,
+                  direct_callees=[c['id'] for c in f['direct_callees']],
+                  contribution_end=f['end'], promotion_eligible=False)
+        if state == 'FUNCTION_WITH_DATA_MATCH':
+            tail, ownership = proven_tail(f, recovery)
+            item = recovery['functions'][f['id']]
+            proof_bytes = (ROOT/item['proof']).read_bytes()
+            require(sha256(proof_bytes) == item['proof_sha256'],
+                    'canonical CODE-data proof receipt hash changed')
+            proof = json.loads(proof_bytes)
+            claimed = proof['data_ownership']
+            require(len(tail) == claimed['actual_tail_length'] and
+                    sha256(tail) == claimed['actual_tail_sha256'] == claimed['expected_tail_sha256'],
+                    'canonical CODE-data contribution changed')
+            span['contribution_end'] = ownership['end']
+            span['owned_code_data'] = dict(
+                start=ownership['start'], end=ownership['end'], size=len(tail),
+                sha256=sha256(tail), alignment_padding=ownership['alignment_padding'],
+                strings=ownership['strings'], proof=item['proof'],
+                proof_sha256=item['proof_sha256'])
+        require(span['contribution_end'] <= END, 'compiler-owned contribution exceeds physical interval')
+        spans.append(span)
+        cursor = span['contribution_end']
     if cursor < END:
         gaps.append(dict(start=cursor, end=END, size=END-cursor,
                          state='UNCLAIMED', promotion_eligible=False))
@@ -67,7 +92,7 @@ def build():
             recovered=[callee for callee in internal if states[callee] in RECOVERED],
             pending=[callee for callee in internal if states[callee] not in RECOVERED])
     return dict(
-        schema_version=1, kind='ov11_cycle_physical_layout_frontier',
+        schema_version=2, kind='ov11_cycle_physical_layout_frontier',
         interval=dict(hunk=HUNK, start=START, end=END, size=END-START),
         evidence_inputs=dict(function_ledger_sha256=sha256((ROOT/'evidence/functions/ledger.json').read_bytes()),
                              recovery_ledger_sha256=sha256((ROOT/'recovery/ledger.json').read_bytes())),
@@ -84,9 +109,10 @@ def build():
                      unrecovered_candidate_bytes=sum(s['size'] for s in pending),
                      unclaimed_bytes=sum(s['size'] for s in gaps)),
         status='LAYOUT_FRONTIER_ONLY', promotion_eligible=False,
-        next_action=('Recover the remaining candidates and independently explain the unclaimed span in this '
-                     'physical order before attempting another normal source-layout proof. Do not add padding '
-                     'or copied original bytes to force the call distance.'),
+        next_action=('Recover the remaining candidates in this physical order before attempting another normal '
+                     'source-layout proof. Account for separately proved compiler-owned CODE-data contributions '
+                     'as part of their owning source object. Do not add padding or copied original bytes to force '
+                     'the call distance.'),
         policy=('This audit is a planning receipt only. It must not update the function census, recovery ledger, '
                 'source ownership, or recovered-byte total.'))
 

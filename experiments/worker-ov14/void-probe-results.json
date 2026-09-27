@@ -1,0 +1,777 @@
+{
+  "callers": {
+    "ov14_F_0412": [
+      {
+        "basis": "PC_RELATIVE",
+        "id": "ov14_F_0000",
+        "reference_kind": "CALL",
+        "site": 158
+      }
+    ],
+    "ov14_F_04A8": [
+      {
+        "basis": "PC_RELATIVE",
+        "id": "ov14_F_0000",
+        "reference_kind": "CALL",
+        "site": 138
+      }
+    ],
+    "ov14_F_0540": [
+      {
+        "basis": "PC_RELATIVE",
+        "id": "ov14_F_0000",
+        "reference_kind": "CALL",
+        "site": 194
+      }
+    ]
+  },
+  "experiments": [
+    {
+      "id": "ov14_F_0412",
+      "variant": "discard_value",
+      "status": "COMPILED",
+      "expected_length": 150,
+      "actual_length": 146,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 45,
+        "expected": "f841ecc5304a300800664a102dffff48",
+        "actual": "0841ec80344a300800664a102dffff48",
+        "expected_size": 150,
+        "actual_size": 146
+      },
+      "first_structural_instruction_difference": {
+        "kind": "delete",
+        "expected": [
+          {
+            "offset": 142,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          }
+        ],
+        "actual": []
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 142,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 146,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 140,
+            "size": 2,
+            "raw": "6d88",
+            "mnemonic": "blt.b",
+            "operands": "$16"
+          },
+          {
+            "offset": 142,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 144,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\9222fec72842d0bc891a4b12748a6c56a85b783fc2a7a37b3d090c261b29e5d1",
+      "prefix": "t000"
+    },
+    {
+      "id": "ov14_F_0412",
+      "variant": "self_assign",
+      "status": "COMPILED",
+      "expected_length": 150,
+      "actual_length": 152,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 45,
+        "expected": "f841ecc5304a300800664a102dffff48",
+        "actual": "0841ec80344a300800664a102dffff48",
+        "expected_size": 150,
+        "actual_size": 152
+      },
+      "first_structural_instruction_difference": {
+        "kind": "replace",
+        "expected": [
+          {
+            "offset": 142,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          }
+        ],
+        "actual": [
+          {
+            "offset": 142,
+            "size": 6,
+            "raw": "1b6dfffefffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), -$2(a5)"
+          }
+        ]
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 142,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 146,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 142,
+            "size": 6,
+            "raw": "1b6dfffefffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), -$2(a5)"
+          },
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 150,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\212dec147bcfdd4c0894914e807919ce217ce9e523244eb8ad4adb59abfeedc8",
+      "prefix": "t001"
+    },
+    {
+      "id": "ov14_F_0412",
+      "variant": "add_zero_assign",
+      "status": "COMPILED",
+      "expected_length": 150,
+      "actual_length": 156,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 45,
+        "expected": "f841ecc5304a300800664a102dffff48",
+        "actual": "0841ec80344a300800664a102dffff48",
+        "expected_size": 150,
+        "actual_size": 156
+      },
+      "first_structural_instruction_difference": {
+        "kind": "insert",
+        "expected": [],
+        "actual": [
+          {
+            "offset": 142,
+            "size": 2,
+            "raw": "7000",
+            "mnemonic": "moveq",
+            "operands": "#$0, d0"
+          },
+          {
+            "offset": 144,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          }
+        ]
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 142,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 146,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 148,
+            "size": 4,
+            "raw": "1b40fffe",
+            "mnemonic": "move.b",
+            "operands": "d0, -$2(a5)"
+          },
+          {
+            "offset": 152,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 154,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\2c7ee24e0aec2eea9c1495475e9f06c02c8dc28edb9fad41dc4b83e65aa77ce4",
+      "prefix": "t002"
+    },
+    {
+      "id": "ov14_F_04A8",
+      "variant": "discard_value",
+      "status": "COMPILED",
+      "expected_length": 152,
+      "actual_length": 148,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 47,
+        "expected": "f841ecc5304a300800664a102dffff48",
+        "actual": "0841ec80364a300800664a102dffff48",
+        "expected_size": 152,
+        "actual_size": 148
+      },
+      "first_structural_instruction_difference": {
+        "kind": "delete",
+        "expected": [
+          {
+            "offset": 144,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          }
+        ],
+        "actual": []
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 144,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 150,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 142,
+            "size": 2,
+            "raw": "6d88",
+            "mnemonic": "blt.b",
+            "operands": "$18"
+          },
+          {
+            "offset": 144,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 146,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\0080a2045d19b38f9ed6dd69ffdf1a374ae060bb2e176c7d6769168e5495e8a1",
+      "prefix": "t003"
+    },
+    {
+      "id": "ov14_F_04A8",
+      "variant": "self_assign",
+      "status": "COMPILED",
+      "expected_length": 152,
+      "actual_length": 154,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 47,
+        "expected": "f841ecc5304a300800664a102dffff48",
+        "actual": "0841ec80364a300800664a102dffff48",
+        "expected_size": 152,
+        "actual_size": 154
+      },
+      "first_structural_instruction_difference": {
+        "kind": "replace",
+        "expected": [
+          {
+            "offset": 144,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          }
+        ],
+        "actual": [
+          {
+            "offset": 144,
+            "size": 6,
+            "raw": "1b6dfffefffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), -$2(a5)"
+          }
+        ]
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 144,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 150,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 144,
+            "size": 6,
+            "raw": "1b6dfffefffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), -$2(a5)"
+          },
+          {
+            "offset": 150,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 152,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\08527a606d5c5b9f0c3b86b6d26fb481466357eb5676d41fc9f73b148aa3fc17",
+      "prefix": "t004"
+    },
+    {
+      "id": "ov14_F_04A8",
+      "variant": "add_zero_assign",
+      "status": "COMPILED",
+      "expected_length": 152,
+      "actual_length": 158,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 47,
+        "expected": "f841ecc5304a300800664a102dffff48",
+        "actual": "0841ec80364a300800664a102dffff48",
+        "expected_size": 152,
+        "actual_size": 158
+      },
+      "first_structural_instruction_difference": {
+        "kind": "insert",
+        "expected": [],
+        "actual": [
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4880",
+            "mnemonic": "ext.w",
+            "operands": "d0"
+          },
+          {
+            "offset": 150,
+            "size": 4,
+            "raw": "1b40fffe",
+            "mnemonic": "move.b",
+            "operands": "d0, -$2(a5)"
+          }
+        ]
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 144,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 148,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 150,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 150,
+            "size": 4,
+            "raw": "1b40fffe",
+            "mnemonic": "move.b",
+            "operands": "d0, -$2(a5)"
+          },
+          {
+            "offset": 154,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 156,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\96908d06f16f3a2f72defde0001bd3bf08ba0089565891819cfa9bafb7bc1c0e",
+      "prefix": "t005"
+    },
+    {
+      "id": "ov14_F_0540",
+      "variant": "discard_value",
+      "status": "COMPILED",
+      "expected_length": 198,
+      "actual_length": 194,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 49,
+        "expected": "f841ecc5304a3008006674102dffff48",
+        "actual": "0841ec80364a3008006674102dffff48",
+        "expected_size": 198,
+        "actual_size": 194
+      },
+      "first_structural_instruction_difference": {
+        "kind": "delete",
+        "expected": [
+          {
+            "offset": 190,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          }
+        ],
+        "actual": []
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 190,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 194,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 196,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 186,
+            "size": 4,
+            "raw": "6d00ff5c",
+            "mnemonic": "blt.w",
+            "operands": "$18"
+          },
+          {
+            "offset": 190,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 192,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\ec758408c93f7b515e254ec9af4281aeec42cbec91ce3f7cd8806189b079503e",
+      "prefix": "t006"
+    },
+    {
+      "id": "ov14_F_0540",
+      "variant": "self_assign",
+      "status": "COMPILED",
+      "expected_length": 198,
+      "actual_length": 200,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 49,
+        "expected": "f841ecc5304a3008006674102dffff48",
+        "actual": "0841ec80364a3008006674102dffff48",
+        "expected_size": 198,
+        "actual_size": 200
+      },
+      "first_structural_instruction_difference": {
+        "kind": "replace",
+        "expected": [
+          {
+            "offset": 190,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          }
+        ],
+        "actual": [
+          {
+            "offset": 190,
+            "size": 6,
+            "raw": "1b6dfffefffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), -$2(a5)"
+          }
+        ]
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 190,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 194,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 196,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 190,
+            "size": 6,
+            "raw": "1b6dfffefffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), -$2(a5)"
+          },
+          {
+            "offset": 196,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 198,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\92263517ce4bb318a99194839290be8b7426a2ba1682a2299cb5fbea20ed9812",
+      "prefix": "t007"
+    },
+    {
+      "id": "ov14_F_0540",
+      "variant": "add_zero_assign",
+      "status": "COMPILED",
+      "expected_length": 198,
+      "actual_length": 204,
+      "verdict": "DIFFER",
+      "raw_first_difference": {
+        "offset": 49,
+        "expected": "f841ecc5304a3008006674102dffff48",
+        "actual": "0841ec80364a3008006674102dffff48",
+        "expected_size": 198,
+        "actual_size": 204
+      },
+      "first_structural_instruction_difference": {
+        "kind": "insert",
+        "expected": [],
+        "actual": [
+          {
+            "offset": 194,
+            "size": 2,
+            "raw": "4880",
+            "mnemonic": "ext.w",
+            "operands": "d0"
+          },
+          {
+            "offset": 196,
+            "size": 4,
+            "raw": "1b40fffe",
+            "mnemonic": "move.b",
+            "operands": "d0, -$2(a5)"
+          }
+        ]
+      },
+      "epilogue": {
+        "expected": [
+          {
+            "offset": 190,
+            "size": 4,
+            "raw": "102dfffe",
+            "mnemonic": "move.b",
+            "operands": "-$2(a5), d0"
+          },
+          {
+            "offset": 194,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 196,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ],
+        "actual": [
+          {
+            "offset": 196,
+            "size": 4,
+            "raw": "1b40fffe",
+            "mnemonic": "move.b",
+            "operands": "d0, -$2(a5)"
+          },
+          {
+            "offset": 200,
+            "size": 2,
+            "raw": "4e5d",
+            "mnemonic": "unlk",
+            "operands": "a5"
+          },
+          {
+            "offset": 202,
+            "size": 2,
+            "raw": "4e75",
+            "mnemonic": "rts",
+            "operands": ""
+          }
+        ]
+      },
+      "directory": "D:\\Prog\\tales_recon\\build\\compile-cache\\d58858361378e4950ff713083698535fc715202d90d644b9bc77c37d1a87b74c",
+      "prefix": "t008"
+    }
+  ]
+}

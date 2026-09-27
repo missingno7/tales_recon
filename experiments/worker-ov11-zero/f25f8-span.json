@@ -1,0 +1,454 @@
+{
+  "expected": {
+    "size": 54,
+    "hex": "4e5500003f2d00103f2d000c3f2d000861cc5c4f4a4067183f2d00123f2d000e3f2d000a61b85c4f4a4067047001600270004e5d4e75",
+    "instructions": [
+      {
+        "offset": 0,
+        "size": 4,
+        "raw": "4e550000",
+        "mnemonic": "link.w",
+        "operands": "a5, #$0"
+      },
+      {
+        "offset": 4,
+        "size": 4,
+        "raw": "3f2d0010",
+        "mnemonic": "move.w",
+        "operands": "$10(a5), -(a7)"
+      },
+      {
+        "offset": 8,
+        "size": 4,
+        "raw": "3f2d000c",
+        "mnemonic": "move.w",
+        "operands": "$c(a5), -(a7)"
+      },
+      {
+        "offset": 12,
+        "size": 4,
+        "raw": "3f2d0008",
+        "mnemonic": "move.w",
+        "operands": "$8(a5), -(a7)"
+      },
+      {
+        "offset": 16,
+        "size": 2,
+        "raw": "61cc",
+        "mnemonic": "bsr.b",
+        "operands": "$ffffffde"
+      },
+      {
+        "offset": 18,
+        "size": 2,
+        "raw": "5c4f",
+        "mnemonic": "addq.w",
+        "operands": "#$6, a7"
+      },
+      {
+        "offset": 20,
+        "size": 2,
+        "raw": "4a40",
+        "mnemonic": "tst.w",
+        "operands": "d0"
+      },
+      {
+        "offset": 22,
+        "size": 2,
+        "raw": "6718",
+        "mnemonic": "beq.b",
+        "operands": "$30"
+      },
+      {
+        "offset": 24,
+        "size": 4,
+        "raw": "3f2d0012",
+        "mnemonic": "move.w",
+        "operands": "$12(a5), -(a7)"
+      },
+      {
+        "offset": 28,
+        "size": 4,
+        "raw": "3f2d000e",
+        "mnemonic": "move.w",
+        "operands": "$e(a5), -(a7)"
+      },
+      {
+        "offset": 32,
+        "size": 4,
+        "raw": "3f2d000a",
+        "mnemonic": "move.w",
+        "operands": "$a(a5), -(a7)"
+      },
+      {
+        "offset": 36,
+        "size": 2,
+        "raw": "61b8",
+        "mnemonic": "bsr.b",
+        "operands": "$ffffffde"
+      },
+      {
+        "offset": 38,
+        "size": 2,
+        "raw": "5c4f",
+        "mnemonic": "addq.w",
+        "operands": "#$6, a7"
+      },
+      {
+        "offset": 40,
+        "size": 2,
+        "raw": "4a40",
+        "mnemonic": "tst.w",
+        "operands": "d0"
+      },
+      {
+        "offset": 42,
+        "size": 2,
+        "raw": "6704",
+        "mnemonic": "beq.b",
+        "operands": "$30"
+      },
+      {
+        "offset": 44,
+        "size": 2,
+        "raw": "7001",
+        "mnemonic": "moveq",
+        "operands": "#$1, d0"
+      },
+      {
+        "offset": 46,
+        "size": 2,
+        "raw": "6002",
+        "mnemonic": "bra.b",
+        "operands": "$32"
+      },
+      {
+        "offset": 48,
+        "size": 2,
+        "raw": "7000",
+        "mnemonic": "moveq",
+        "operands": "#$0, d0"
+      },
+      {
+        "offset": 50,
+        "size": 2,
+        "raw": "4e5d",
+        "mnemonic": "unlk",
+        "operands": "a5"
+      },
+      {
+        "offset": 52,
+        "size": 2,
+        "raw": "4e75",
+        "mnemonic": "rts",
+        "operands": ""
+      }
+    ]
+  },
+  "actual": [
+    {
+      "mode": "separate",
+      "code_bytes": 1042,
+      "f25f8_start": 34,
+      "f25f8_end": 92,
+      "size": 58,
+      "hex": "4e5500003f2d00103f2d000c3f2d00084ebaffcc5c4f4a40671a3f2d00123f2d000e3f2d000a4ebaffb65c4f4a4067047001600270004e5d4e75",
+      "instructions": [
+        {
+          "offset": 0,
+          "size": 4,
+          "raw": "4e550000",
+          "mnemonic": "link.w",
+          "operands": "a5, #$0"
+        },
+        {
+          "offset": 4,
+          "size": 4,
+          "raw": "3f2d0010",
+          "mnemonic": "move.w",
+          "operands": "$10(a5), -(a7)"
+        },
+        {
+          "offset": 8,
+          "size": 4,
+          "raw": "3f2d000c",
+          "mnemonic": "move.w",
+          "operands": "$c(a5), -(a7)"
+        },
+        {
+          "offset": 12,
+          "size": 4,
+          "raw": "3f2d0008",
+          "mnemonic": "move.w",
+          "operands": "$8(a5), -(a7)"
+        },
+        {
+          "offset": 16,
+          "size": 4,
+          "raw": "4ebaffcc",
+          "mnemonic": "jsr",
+          "operands": "$ffffffde(pc)"
+        },
+        {
+          "offset": 20,
+          "size": 2,
+          "raw": "5c4f",
+          "mnemonic": "addq.w",
+          "operands": "#$6, a7"
+        },
+        {
+          "offset": 22,
+          "size": 2,
+          "raw": "4a40",
+          "mnemonic": "tst.w",
+          "operands": "d0"
+        },
+        {
+          "offset": 24,
+          "size": 2,
+          "raw": "671a",
+          "mnemonic": "beq.b",
+          "operands": "$34"
+        },
+        {
+          "offset": 26,
+          "size": 4,
+          "raw": "3f2d0012",
+          "mnemonic": "move.w",
+          "operands": "$12(a5), -(a7)"
+        },
+        {
+          "offset": 30,
+          "size": 4,
+          "raw": "3f2d000e",
+          "mnemonic": "move.w",
+          "operands": "$e(a5), -(a7)"
+        },
+        {
+          "offset": 34,
+          "size": 4,
+          "raw": "3f2d000a",
+          "mnemonic": "move.w",
+          "operands": "$a(a5), -(a7)"
+        },
+        {
+          "offset": 38,
+          "size": 4,
+          "raw": "4ebaffb6",
+          "mnemonic": "jsr",
+          "operands": "$ffffffde(pc)"
+        },
+        {
+          "offset": 42,
+          "size": 2,
+          "raw": "5c4f",
+          "mnemonic": "addq.w",
+          "operands": "#$6, a7"
+        },
+        {
+          "offset": 44,
+          "size": 2,
+          "raw": "4a40",
+          "mnemonic": "tst.w",
+          "operands": "d0"
+        },
+        {
+          "offset": 46,
+          "size": 2,
+          "raw": "6704",
+          "mnemonic": "beq.b",
+          "operands": "$34"
+        },
+        {
+          "offset": 48,
+          "size": 2,
+          "raw": "7001",
+          "mnemonic": "moveq",
+          "operands": "#$1, d0"
+        },
+        {
+          "offset": 50,
+          "size": 2,
+          "raw": "6002",
+          "mnemonic": "bra.b",
+          "operands": "$36"
+        },
+        {
+          "offset": 52,
+          "size": 2,
+          "raw": "7000",
+          "mnemonic": "moveq",
+          "operands": "#$0, d0"
+        },
+        {
+          "offset": 54,
+          "size": 2,
+          "raw": "4e5d",
+          "mnemonic": "unlk",
+          "operands": "a5"
+        },
+        {
+          "offset": 56,
+          "size": 2,
+          "raw": "4e75",
+          "mnemonic": "rts",
+          "operands": ""
+        }
+      ],
+      "decode_error": null,
+      "cache_key": "1e4cfb4cdf2cbc67c353a735e422560a28b0e37ac8583f4bd31f1880c2f4d7d2"
+    },
+    {
+      "mode": "joined",
+      "code_bytes": 1038,
+      "f25f8_start": 34,
+      "f25f8_end": 88,
+      "size": 54,
+      "hex": "4e5500003f2d00103f2d000c3f2d000861cc5c4f4a4067183f2d00123f2d000e3f2d000a61b85c4f4a4067047001600270004e5d4e75",
+      "instructions": [
+        {
+          "offset": 0,
+          "size": 4,
+          "raw": "4e550000",
+          "mnemonic": "link.w",
+          "operands": "a5, #$0"
+        },
+        {
+          "offset": 4,
+          "size": 4,
+          "raw": "3f2d0010",
+          "mnemonic": "move.w",
+          "operands": "$10(a5), -(a7)"
+        },
+        {
+          "offset": 8,
+          "size": 4,
+          "raw": "3f2d000c",
+          "mnemonic": "move.w",
+          "operands": "$c(a5), -(a7)"
+        },
+        {
+          "offset": 12,
+          "size": 4,
+          "raw": "3f2d0008",
+          "mnemonic": "move.w",
+          "operands": "$8(a5), -(a7)"
+        },
+        {
+          "offset": 16,
+          "size": 2,
+          "raw": "61cc",
+          "mnemonic": "bsr.b",
+          "operands": "$ffffffde"
+        },
+        {
+          "offset": 18,
+          "size": 2,
+          "raw": "5c4f",
+          "mnemonic": "addq.w",
+          "operands": "#$6, a7"
+        },
+        {
+          "offset": 20,
+          "size": 2,
+          "raw": "4a40",
+          "mnemonic": "tst.w",
+          "operands": "d0"
+        },
+        {
+          "offset": 22,
+          "size": 2,
+          "raw": "6718",
+          "mnemonic": "beq.b",
+          "operands": "$30"
+        },
+        {
+          "offset": 24,
+          "size": 4,
+          "raw": "3f2d0012",
+          "mnemonic": "move.w",
+          "operands": "$12(a5), -(a7)"
+        },
+        {
+          "offset": 28,
+          "size": 4,
+          "raw": "3f2d000e",
+          "mnemonic": "move.w",
+          "operands": "$e(a5), -(a7)"
+        },
+        {
+          "offset": 32,
+          "size": 4,
+          "raw": "3f2d000a",
+          "mnemonic": "move.w",
+          "operands": "$a(a5), -(a7)"
+        },
+        {
+          "offset": 36,
+          "size": 2,
+          "raw": "61b8",
+          "mnemonic": "bsr.b",
+          "operands": "$ffffffde"
+        },
+        {
+          "offset": 38,
+          "size": 2,
+          "raw": "5c4f",
+          "mnemonic": "addq.w",
+          "operands": "#$6, a7"
+        },
+        {
+          "offset": 40,
+          "size": 2,
+          "raw": "4a40",
+          "mnemonic": "tst.w",
+          "operands": "d0"
+        },
+        {
+          "offset": 42,
+          "size": 2,
+          "raw": "6704",
+          "mnemonic": "beq.b",
+          "operands": "$30"
+        },
+        {
+          "offset": 44,
+          "size": 2,
+          "raw": "7001",
+          "mnemonic": "moveq",
+          "operands": "#$1, d0"
+        },
+        {
+          "offset": 46,
+          "size": 2,
+          "raw": "6002",
+          "mnemonic": "bra.b",
+          "operands": "$32"
+        },
+        {
+          "offset": 48,
+          "size": 2,
+          "raw": "7000",
+          "mnemonic": "moveq",
+          "operands": "#$0, d0"
+        },
+        {
+          "offset": 50,
+          "size": 2,
+          "raw": "4e5d",
+          "mnemonic": "unlk",
+          "operands": "a5"
+        },
+        {
+          "offset": 52,
+          "size": 2,
+          "raw": "4e75",
+          "mnemonic": "rts",
+          "operands": ""
+        }
+      ],
+      "decode_error": null,
+      "cache_key": "4ac811275864d83428aaac78c72fa05123bfb906b3abbe2ea6e7736056f3ba6a"
+    }
+  ]
+}

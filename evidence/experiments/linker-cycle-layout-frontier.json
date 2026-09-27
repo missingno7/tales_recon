@@ -2,6 +2,7 @@
   "candidate_spans": [
     {
       "confidence": "HIGH",
+      "contribution_end": 18504,
       "direct_callees": [
         "resident_F_7F9C",
         "resident_F_8A46"
@@ -20,6 +21,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 18558,
       "direct_callees": [
         "resident_F_7F9C"
       ],
@@ -37,6 +39,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 18894,
       "direct_callees": [
         "resident_F_8A46",
         "ov11_F_55B8",
@@ -61,6 +64,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 18922,
       "direct_callees": [],
       "end": 18922,
       "id": "ov11_F_49CE",
@@ -76,6 +80,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 19090,
       "direct_callees": [
         "resident_F_8BC8",
         "resident_F_8A46",
@@ -97,6 +102,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 19108,
       "direct_callees": [
         "resident_F_3B84"
       ],
@@ -114,6 +120,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 19212,
       "direct_callees": [],
       "end": 19212,
       "id": "ov11_F_4AA4",
@@ -129,6 +136,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 20166,
       "direct_callees": [
         "resident_F_57D2",
         "ov11_F_6ED6",
@@ -149,6 +157,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 20586,
       "direct_callees": [
         "ov11_F_54F8",
         "ov11_F_41F6"
@@ -171,6 +180,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 20892,
       "direct_callees": [
         "resident_F_75D8",
         "resident_F_704E",
@@ -188,6 +198,29 @@
         "pending": [],
         "recovered": []
       },
+      "owned_code_data": {
+        "alignment_padding": 1,
+        "end": 20892,
+        "proof": "recovery/proofs/ov11_F_506A.json",
+        "proof_sha256": "ce1f6f08345b34e9a750466c355c236fd3ade38e0e13bc356cec8fdd6b585818",
+        "sha256": "b412d75b98c6aba75a06599ce39999541b5b1a2ae7884b03ecc8069207706538",
+        "size": 40,
+        "start": 20852,
+        "strings": [
+          {
+            "offset": 20852,
+            "text": "P %d"
+          },
+          {
+            "offset": 20857,
+            "text": " %d "
+          },
+          {
+            "offset": 20862,
+            "text": "%*d %d %d %d %d %d %d %d %d\n"
+          }
+        ]
+      },
       "promotion_eligible": false,
       "recovery_state": "FUNCTION_WITH_DATA_MATCH",
       "size": 266,
@@ -195,6 +228,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 20928,
       "direct_callees": [
         "ov11_F_4610"
       ],
@@ -212,6 +246,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 21752,
       "direct_callees": [
         "ov11_F_54F8",
         "ov11_F_41F6",
@@ -251,6 +286,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 21944,
       "direct_callees": [
         "ov11_F_4696",
         "ov11_F_5962",
@@ -271,6 +307,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 22586,
       "direct_callees": [
         "ov11_F_5962",
         "resident_F_34E0",
@@ -290,6 +327,7 @@
     },
     {
       "confidence": "HIGH",
+      "contribution_end": 22882,
       "direct_callees": [
         "ov11_F_5962"
       ],
@@ -307,8 +345,8 @@
     }
   ],
   "evidence_inputs": {
-    "function_ledger_sha256": "9be5dc27f00597361c36eec8d829f7006aeeaf8505445c54c869c9de584f6780",
-    "recovery_ledger_sha256": "d66f8339aaa795f7728acd7ffcf367c75fd9c43329f013051eced58d0e47165d"
+    "function_ledger_sha256": "d16348c66639f8c87a16e114a4803881b57d1b3fb2e4856128d7723c03ea84c4",
+    "recovery_ledger_sha256": "4851516b2d0cc8e37eeff16bc462f5863e419d45458ff19bde733cd4482fcb8a"
   },
   "interval": {
     "end": 22882,
@@ -317,10 +355,10 @@
     "start": 18320
   },
   "kind": "ov11_cycle_physical_layout_frontier",
-  "next_action": "Recover the remaining candidates and independently explain the unclaimed span in this physical order before attempting another normal source-layout proof. Do not add padding or copied original bytes to force the call distance.",
+  "next_action": "Recover the remaining candidates in this physical order before attempting another normal source-layout proof. Account for separately proved compiler-owned CODE-data contributions as part of their owning source object. Do not add padding or copied original bytes to force the call distance.",
   "policy": "This audit is a planning receipt only. It must not update the function census, recovery ledger, source ownership, or recovered-byte total.",
   "promotion_eligible": false,
-  "schema_version": 1,
+  "schema_version": 2,
   "source_layout_capsule": {
     "canonical_runs": [
       {
@@ -346,22 +384,14 @@
         "start": 18894
       },
       {
-        "end": 20852,
-        "members": [
-          "ov11_F_506A"
-        ],
-        "promotion_eligible": false,
-        "size": 266,
-        "start": 20586
-      },
-      {
         "end": 20928,
         "members": [
+          "ov11_F_506A",
           "ov11_F_519C"
         ],
         "promotion_eligible": false,
-        "size": 36,
-        "start": 20892
+        "size": 342,
+        "start": 20586
       }
     ],
     "contract": "Recover each pending span through its normal function verifier, preserve this physical order when assembling a larger source unit, and explain every unclaimed span independently. The runs are planning evidence only and never source ownership.",
@@ -404,17 +434,9 @@
     "candidate_count": 15,
     "canonical_candidate_bytes": 858,
     "canonical_candidate_count": 8,
-    "unclaimed_bytes": 40,
+    "unclaimed_bytes": 0,
     "unrecovered_candidate_bytes": 3664,
     "unrecovered_candidate_count": 7
   },
-  "unclaimed_spans": [
-    {
-      "end": 20892,
-      "promotion_eligible": false,
-      "size": 40,
-      "start": 20852,
-      "state": "UNCLAIMED"
-    }
-  ]
+  "unclaimed_spans": []
 }

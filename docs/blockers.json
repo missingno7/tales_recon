@@ -15,7 +15,8 @@
         "Inspected sibling toolchain top levels; these provide DOS/Win32 tools, not evidence of an Amiga compiler",
         "WinUAE unattended smoke-003/004: compile, assemble, explicit c.lib link and execution all return 0; output identical across runs. Older adump rejects CJ object.",
         "96-trial matrix: 24 sources across four 3.6a/5.0a profiles compiled; four complete game leaves match aztec36 and differ under tested alternatives. Shared runtime is not a discriminator.",
-        "120-trial matrix: 30 independent sources across four profiles compiled. Hosted gpt-5.6-luna grinder ran four rounds, promoted two complete functions through exact comparisons, and retained a third blocker; this historical experiment remains valid, while current recovery totals are tracked separately."
+        "120-trial matrix: 30 independent sources across four profiles compiled. Hosted gpt-5.6-luna grinder ran four rounds, promoted two complete functions through exact comparisons, and retained a third blocker; this historical experiment remains valid, while current recovery totals are tracked separately.",
+        "Isolated amitools 0.8.1/machine68k 0.3.0 Vamos attempt launched on Windows but failed creating the mapped Work:/ current-directory lock before loading cc; no compiler output exists to compare with WinUAE. See experiments/vamos/availability-probe.md."
       ],
       "first_mismatch": null,
       "hypotheses": [
@@ -232,7 +233,7 @@
     },
     {
       "current_evidence": [
-        "98 functions promoted as FUNCTION_CODE_MATCH (16478 code bytes), plus 15 functions at FUNCTION_WITH_DATA_MATCH (5062 code bytes)",
+        "99 functions promoted as FUNCTION_CODE_MATCH (16998 code bytes), plus 16 functions at FUNCTION_WITH_DATA_MATCH (5244 code bytes)",
         "Two complete compact source units match with direct PC-relative local-call identity proof: 738 bytes for ov11_F_3A24/ov11_F_40E0/ov11_F_4696 and 874 bytes for ov11_F_3D9A/ov11_F_40E0/ov11_F_4696; intervening original bytes are explicitly unclaimed",
         "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC produces its exact 42-byte adjacent string tail and all external A4 identities, but its two direct same-overlay calls cross unowned gaps and are rejected; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 now matches with aztec36 +D, 25 HUNK_RELOC32-backed absolute resident-global operands, and a four-byte compiler-owned `OK` tail; ov04_F_18A6 matches its complete 240-byte flow and four adjacent 40-space literal strings through strict compiler-owned CODE-tail proof; ov04_F_1AA2 matches through the historical `(unsigned)long_return % 3` high-word idiom; explicitly scoped compact source units may retain original gaps only when every linked byte belongs to a recovered object"
       ],
@@ -241,7 +242,12 @@
         "End-to-end fixture proposer: four promotions, one retained repeated mismatch, zero worker boots on repeat",
         "Ordinary check_function automatically bundles adjacent recovered dependencies; all bytes and all members pass before promoting the caller",
         "Separate-object compact unit verification: ov11_F_3A24 plus recovered ov11_F_40E0 and ov11_F_4696 matches all 738 source-contribution bytes and relocation identities while leaving original gaps unclaimed",
-        "Separate-object compact unit verification: ov11_F_3D9A plus recovered ov11_F_40E0 and ov11_F_4696 matches all 874 source-contribution bytes and relocation identities while leaving original gaps unclaimed"
+        "Separate-object compact unit verification: ov11_F_3D9A plus recovered ov11_F_40E0 and ov11_F_4696 matches all 874 source-contribution bytes and relocation identities while leaving original gaps unclaimed",
+        "ov07_F_03CC plus its two recovered local callees matches a complete 410-byte compact linked contribution, including its 42-byte compiler-owned CODE string tail and both PC-relative call identities; promoted at FUNCTION_WITH_DATA_MATCH.",
+        "ov11_F_506A's 40-byte owned CODE-data tail fills the formerly misreported 0x5174..0x519C layout gap; this corrects layout accounting without changing recovery coverage.",
+        "Bounded ov14 byte-return variants under 3.6a and 5.0a all differ by return normalization; all three caller results are consumed as D0.b, and void-return trials also differ. See experiments/worker-ov14/abi-mode-report.md.",
+        "ov11_F_3B92 compact-unit replay first resolved F25F8's four-byte call-layout excess by natural adjacent-object grouping, then matched F3B92's +84 branch by nesting the switch/count and four history updates under the outer event guard; the complete six-member 1048-byte unit matches and F3B92 is promoted. See experiments/worker-ov11-zero/report.md.",
+        "ov11_F_5FB2 ordinary-call trials differ and the installed Aztec 3.6a headers show stack-to-register Amiga library stubs, but no evidenced direct register-call source syntax. See experiments/worker-ov11-5fb2/report.json."
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
