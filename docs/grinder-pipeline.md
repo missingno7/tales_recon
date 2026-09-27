@@ -77,6 +77,17 @@ python tools/overlay_frontier.py --node ov07 --json
 
 `check_function` uses 3.6a and 5.0a-short by default. Repeat `--profile` to select
 profiles. `--no-promote` retains comparisons without assigning canonical source.
+For parallel or exploratory trials, use `--isolated` instead: it runs the same
+compiler and exact comparison but does not write recovery candidates, attempts,
+unit receipts, proofs, the ledger, or ranking. Optional `--output-dir` saves
+the source and verdict under `experiments/` or ignored `build/`.
+The canonical promotion gate remains a normal verifier run after review.
+
+```powershell
+python tools/check_function.py ov14_F_03AE experiments/grinder-bootstrap/ov14_F_03AE.c --profile aztec36 --isolated --output-dir build/isolated-trials
+python tools/check_unit.py ov07_F_03CC src/recovered/ov07/ov07_F_03CC.c --profile aztec36 --separate-objects --allow-original-gaps --owned-code-data --isolated --output-dir build/isolated-trials
+```
+
 Its batch input is an array of `{id, source, profiles}` objects. Exit status 0
 means at least one trial matched, 1 means no match, and 2 means an input/service
 blocker; consumers of a multi-function batch must inspect each verdict.

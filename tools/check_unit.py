@@ -164,7 +164,7 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
     return result
 
 
-def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False):
+def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False):
     report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined)
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
                       compiler=compiled['identity'],
@@ -177,19 +177,23 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')}
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
-    base=ROOT/'recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
-    (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
-    (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
-    persisted=stable_receipt(report)
-    write_json(base/'receipt.json',persisted)
+    base=None
+    if not isolated:
+        base=ROOT/'recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
+        (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
+        (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
+        persisted=stable_receipt(report)
+        write_json(base/'receipt.json',persisted)
     target=next(f for f in members if f['id']==fid)
     comparison=next((m for m in report['members'] if m['id']==fid),None)
     if comparison is None:
         comparison=compare_function(target,compiled,a4_bias);comparison['actual_length']=None
     comparison=dict(comparison,id=fid,verdict=report['verdict'],reason=report['reason'],
-                    source_sha256=report['source_sha256'],complete_unit_receipt=(base/'receipt.json').relative_to(ROOT).as_posix(),
-                    complete_unit_receipt_sha256=sha256((base/'receipt.json').read_bytes()),
+                    source_sha256=report['source_sha256'],
                     unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
+    if base is not None:
+        comparison['complete_unit_receipt']=(base/'receipt.json').relative_to(ROOT).as_posix()
+        comparison['complete_unit_receipt_sha256']=sha256((base/'receipt.json').read_bytes())
     return report,comparison
 
 
@@ -269,9 +273,14 @@ def gap_partitioned_objects(members,names,parts):
         return partitioned_objects(members,names,parts,False)
 
 
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False):
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None):
+    if isolated:promote_equal=False
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
     require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
+    output_root=None
+    if isolated and output_dir is not None:
+        from check_function import isolated_output_root
+        output_root=isolated_output_root(output_dir)
     source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(
         fid,source,True,allow_gaps,remove_stale_externs=not separate_objects)
     reports=[]
@@ -290,7 +299,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
         trials.append(trial)
     for compiled in compile_many(trials):
-        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps)
+        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated)
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
@@ -301,8 +310,14 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                 state='FUNCTION_CODE_MATCH'
             if not canonical or canonical['source_sha256']==report['source_sha256']:
                 promote(fid,source,comparison,compiled,target,state=state)
+        if isolated and output_root is not None:
+            base=output_root/fid/(compiled['identity']['profile']+'-'+compiled['cache_key'][:12]);base.mkdir(parents=True,exist_ok=True)
+            (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
+            (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
+            write_json(base/'receipt.json',stable_receipt(report))
         reports.append(report)
-    save_rank();return reports
+    if not isolated:save_rank()
+    return reports
 
 
 def main():
@@ -312,8 +327,11 @@ def main():
     ap.add_argument('--separate-objects',action='store_true',help='compile each proven unit member as an ordinary object before the normal overlay link')
     ap.add_argument('--allow-original-gaps',action='store_true',help='with separate objects, prove compact linked source ownership across known but unreconstructed original gaps')
     ap.add_argument('--join-direct-callees',action='store_true',help='compile the target and its following direct same-node callees as one ordinary source object')
+    ap.add_argument('--isolated',action='store_true',help='run exact unit comparison without writing recovery units, proofs, ledger, or ranking')
+    ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
     a=ap.parse_args()
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees)
+    require(a.output_dir is None or a.isolated,'--output-dir requires --isolated')
+    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir)
     for r in reports:print(json.dumps(r))
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 

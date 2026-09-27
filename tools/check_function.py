@@ -111,14 +111,26 @@ def owned_code_data_boundary(f,ledger,report):
             'terminal HUNK padding after owned CODE-data extent is not immutable zero fill')
 
 
-def check_many(requests,promote_equal=True):
+def isolated_output_root(output_dir):
+    if output_dir is None:return None
+    path=Path(output_dir).resolve();experiments=(ROOT/'experiments').resolve();build=(ROOT/'build').resolve()
+    require(path.is_relative_to(experiments) or path.is_relative_to(build),
+            'isolated output must be under experiments/ or build/')
+    path.mkdir(parents=True,exist_ok=True)
+    return path
+
+
+def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
+    if isolated:promote_equal=False
+    output_root=isolated_output_root(output_dir) if isolated else None
     prepared=[];trials=[]
     for req in requests:
         f,l=validated_function(req['id']);source=Path(req['source']).read_text()
         target_node=f['hunk']-2 if f.get('node')!='resident' and f.get('hunk',0)>=3 else 1
         source_hash=sha256(source.encode())
-        retained=ROOT/'recovery/candidates'/f['id']/(source_hash+'.c')
-        retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
+        if not isolated:
+            retained=ROOT/'recovery/candidates'/f['id']/(source_hash+'.c')
+            retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
         unit=None;unit_blocker=None;compile_source=source;objects=None;local_functions=()
         if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id']!=f['id']
                for c in f.get('direct_callees',[])):
@@ -167,7 +179,7 @@ def check_many(requests,promote_equal=True):
             from check_unit import retain_unit
             members,names,combined,*unit_options=unit
             _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'],
-                                 allow_gaps=bool(unit_options and unit_options[0]))
+                                 allow_gaps=bool(unit_options and unit_options[0]),isolated=isolated)
         else:report=compare_function(f,compiled,l['a4']['bias'])
         report['id']=f['id'];report['source_sha256']=sha256(source.encode())
         if unit_blocker:report['unit_blocker']=unit_blocker
@@ -185,18 +197,25 @@ def check_many(requests,promote_equal=True):
                 text=p.read_text(errors='replace')
                 if text:logs.append(dict(file=p.name,text=text[:1800]))
             report['compiler_feedback']=logs
-        path=ROOT/'recovery/attempts'/f['id']/(report['source_sha256']+'-'+profile+'-'+report['cache_key'][:12]+'-'+report['comparison_identity'][:12]+'.json')
-        write_json(path,report)
-        r=recovery();attempts=r['attempts'].setdefault(f['id'],[])
-        short=dict(source_sha256=report['source_sha256'],profile=profile,verdict=report['verdict'],receipt=path.relative_to(ROOT).as_posix(),
-                   expected_length=report['expected_length'],actual_length=report['actual_length'],first_difference=report.get('normalized_first_difference'),mnemonic_similarity=report.get('mnemonic_similarity'))
-        if report['verdict']=='EQUAL':
-            short['state']=report.get('proof_level','CODEGEN_SIMILAR')
+        if isolated:
+            if output_root is not None:
+                base=output_root/f['id'];base.mkdir(parents=True,exist_ok=True)
+                stem=report['source_sha256']+'-'+profile+'-'+report['cache_key'][:12]
+                (base/(stem+'.c')).write_text(source,encoding='utf-8',newline='\n')
+                write_json(base/(stem+'.json'),report)
         else:
-            short['state']='CODEGEN_SIMILAR' if (report.get('mnemonic_similarity') or 0)>=0.75 else 'CANDIDATE_C'
-        short.update(cache_key=report['cache_key'],comparison_identity=report['comparison_identity'])
-        if not any(a.get('cache_key')==short['cache_key'] and a.get('comparison_identity')==short['comparison_identity'] for a in attempts):attempts.append(short)
-        write_json(LEDGER,r)
+            path=ROOT/'recovery/attempts'/f['id']/(report['source_sha256']+'-'+profile+'-'+report['cache_key'][:12]+'-'+report['comparison_identity'][:12]+'.json')
+            write_json(path,report)
+            r=recovery();attempts=r['attempts'].setdefault(f['id'],[])
+            short=dict(source_sha256=report['source_sha256'],profile=profile,verdict=report['verdict'],receipt=path.relative_to(ROOT).as_posix(),
+                       expected_length=report['expected_length'],actual_length=report['actual_length'],first_difference=report.get('normalized_first_difference'),mnemonic_similarity=report.get('mnemonic_similarity'))
+            if report['verdict']=='EQUAL':
+                short['state']=report.get('proof_level','CODEGEN_SIMILAR')
+            else:
+                short['state']='CODEGEN_SIMILAR' if (report.get('mnemonic_similarity') or 0)>=0.75 else 'CANDIDATE_C'
+            short.update(cache_key=report['cache_key'],comparison_identity=report['comparison_identity'])
+            if not any(a.get('cache_key')==short['cache_key'] and a.get('comparison_identity')==short['comparison_identity'] for a in attempts):attempts.append(short)
+            write_json(LEDGER,r)
         # Compiler-owned CODE data is promoted only when its independently
         # proved tail ends at the next discovered entry, so no unowned bytes
         # can be absorbed between the function and its natural literal bundle.
@@ -208,7 +227,7 @@ def check_many(requests,promote_equal=True):
             if not canonical or canonical['source_sha256']==report['source_sha256'] or req.get('replace_canonical'):
                 report['promotion']=promote(f['id'],source,report,compiled,f,proof_level,req.get('replace_canonical',False))
         reports.append(report)
-    save_rank()
+    if not isolated:save_rank()
     return reports
 
 
@@ -219,11 +238,14 @@ def main():
     ap.add_argument('--batch',type=Path,help='JSON array of {id,source,profiles}; one boot for all cache misses')
     ap.add_argument('--owned-code-data',action='store_true',help='strictly verify an adjacent compiler-owned PC-relative string tail; promotes only at a proved next-entry boundary')
     ap.add_argument('--owned-static-data',action='store_true',help='strictly verify a manifest-declared initialized static DATA contribution; never promotes alone')
+    ap.add_argument('--isolated',action='store_true',help='run exact comparison without writing recovery candidates, receipts, proofs, ledger, or ranking')
+    ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
     ap.add_argument('--no-promote',action='store_true');ap.add_argument('--replace-canonical',action='store_true',
         help='replace an already promoted source only after this exact proof succeeds')
     ap.add_argument('--json',action='store_true');args=ap.parse_args()
+    require(args.output_dir is None or args.isolated,'--output-dir requires --isolated')
     req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or ['aztec36','aztec50-short'],owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical)]
-    reports=check_many(req,not args.no_promote)
+    reports=check_many(req,not args.no_promote,args.isolated,args.output_dir)
     for r in reports:
         if args.json:print(json.dumps(r))
         else:
