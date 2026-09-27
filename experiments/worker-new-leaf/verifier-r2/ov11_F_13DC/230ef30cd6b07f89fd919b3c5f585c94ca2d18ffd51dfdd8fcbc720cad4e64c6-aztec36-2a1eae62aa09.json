@@ -1,0 +1,196 @@
+{
+  "actual_length": 222,
+  "actual_sha256": "dd1cc08f350002de8af624107ac857f502dd4ea010cdf2a0ac5ea18f4100d4e3",
+  "cache_hit": false,
+  "cache_key": "2a1eae62aa09207dbdc5391ff222df1148f3ea24d9b1791ba9e781299e77f9ea",
+  "comparison_identity": "86b5bb5236228a2ae960c4011f7bed4f3f5bde897d6ebcd8da6e661d09c95f2f",
+  "compiler": "aztec36",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "lea.l",
+        "offset": 214,
+        "operands": "$a(a7), a7",
+        "raw": "4fef000a",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 218,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 220,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "lea.l",
+        "offset": 214,
+        "operands": "$a(a7), a7",
+        "raw": "4fef000a",
+        "size": 4
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 218,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 220,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 222,
+  "expected_sha256": "beacb80f37f2145f1664069730d21d8d6052a582fbbf2c7778b09c9080d3db10",
+  "first_differing_instruction": {
+    "actual": {
+      "mnemonic": "move.l",
+      "offset": 4,
+      "operands": "-$7fca(a4), d0",
+      "raw": "202c8036",
+      "size": 4
+    },
+    "expected": {
+      "mnemonic": "movea.l",
+      "offset": 4,
+      "operands": "$14d0(a4), a0",
+      "raw": "206c14d0",
+      "size": 4
+    }
+  },
+  "first_structural_instruction_difference": {
+    "actual": [
+      {
+        "mnemonic": "move.l",
+        "offset": 4,
+        "operands": "-$7fca(a4), d0",
+        "raw": "202c8036",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmp.l",
+        "offset": 8,
+        "operands": "-$7fc6(a4), d0",
+        "raw": "b0ac803a",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "movea.l",
+        "offset": 4,
+        "operands": "$14d0(a4), a0",
+        "raw": "206c14d0",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpa.l",
+        "offset": 8,
+        "operands": "$1f50(a4), a0",
+        "raw": "b1ec1f50",
+        "size": 4
+      }
+    ],
+    "kind": "replace"
+  },
+  "flags": [],
+  "id": "ov11_F_13DC",
+  "mnemonic_similarity": 0.8644,
+  "normalized_first_difference": {
+    "actual": "2c8036b0ac803a670a202c8036b0ac80",
+    "actual_size": 222,
+    "expected": "6c14d0b1ec1f50670a206c14d0b1ec1f",
+    "expected_size": 222,
+    "offset": 5
+  },
+  "normalized_sha256": "dd1cc08f350002de8af624107ac857f502dd4ea010cdf2a0ac5ea18f4100d4e3",
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 4,
+        "operands": "-$7fca(a4), d0",
+        "raw": "202c8036",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmp.l",
+        "offset": 8,
+        "operands": "-$7fc6(a4), d0",
+        "raw": "b0ac803a",
+        "size": 4
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$0",
+        "raw": "4e550000",
+        "size": 4
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 4,
+        "operands": "$14d0(a4), a0",
+        "raw": "206c14d0",
+        "size": 4
+      },
+      {
+        "mnemonic": "cmpa.l",
+        "offset": 8,
+        "operands": "$1f50(a4), a0",
+        "raw": "b1ec1f50",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "2c8036b0ac803a670a202c8036b0ac80",
+    "actual_size": 222,
+    "expected": "6c14d0b1ec1f50670a206c14d0b1ec1f",
+    "expected_size": 222,
+    "offset": 5
+  },
+  "reason": "CODE_OR_REFERENCE_DIFFERS",
+  "relocation_equal": false,
+  "relocation_issues": [
+    {
+      "kind": "INSTRUCTION_LAYOUT_DIFFERS_FOR_SYMBOL_PROOF"
+    }
+  ],
+  "relocation_profiles": {
+    "actual": [],
+    "expected": []
+  },
+  "relocation_proof": [],
+  "source_sha256": "230ef30cd6b07f89fd919b3c5f585c94ca2d18ffd51dfdd8fcbc720cad4e64c6",
+  "unit_blocker": "unrecovered same-node dependency: ov11_F_583A",
+  "verdict": "DIFFER"
+}

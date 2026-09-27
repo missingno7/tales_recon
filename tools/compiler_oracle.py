@@ -130,9 +130,18 @@ def object_specs(trial):
     return result
 
 
-def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered'):
+def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered',extra_libraries=()):
     validate_source(source,entry_function);p=PROFILES[profile];h=harness(source,target_node,local_functions,entry_function);proxies=overlay_proxies(source,target_node)
     require(target_node>=1,'candidate overlay node must be positive')
+    extra_libraries=tuple(extra_libraries)
+    require(len(set(extra_libraries))==len(extra_libraries),'duplicate additional link library')
+    additional=[]
+    for library in extra_libraries:
+        require(library=='m.lib','unsupported additional link library '+str(library))
+        require(profile=='aztec36','m.lib inclusion is pinned to the standard aztec36 profile; other 3.6a variants are unverified')
+        path=ROOT/'toolchain/installed/aztec-3.6a/SYS1/lib/m.lib'
+        require(path.is_file(),'missing pinned Aztec 3.6a library '+str(path))
+        additional.append(dict(library=library,library_guest='Old1:',library_sha256=sha256(path.read_bytes())))
     versions={n:sha256((ROOT/p['base']/'bin'/n).read_bytes()) for n in ('cc','as','ln')}
     library='c32.lib' if profile=='aztec36-long' else 'c16.lib' if profile=='aztec50-short' else 'c.lib'
     libbase='toolchain/installed/aztec-3.6a/SYS2' if profile=='aztec36-long' else p['base']
@@ -141,11 +150,12 @@ def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_
     object_labels=[x['label'] for x in objects] if objects is not None else ['candidate']
     recipe='harness.o +o%d '%target_node+' '.join(label+'.o' for label in object_labels)
     if proxies:recipe+=' '+' '.join('+o%d %s.o'%(x['node'],x['name']) for x in proxies)
-    recipe+=' +o0 c.lib; -m -t'
+    recipe+=' +o0 c.lib' + ''.join(' '+x['library'] for x in additional) + '; -m -t'
     keydata=dict(service_version=SERVICE_VERSION,source_sha256=sha256(source.encode('ascii')),
         profile=profile,compiler_version=p['version'],tools=versions,flags=p['flags'],harness_sha256=sha256(h.encode('ascii')),
         headers_sha256=sha256(b''),library=library,library_guest=('Old2:' if profile=='aztec36-long' else p['guest']),library_sha256=sha256(lib.read_bytes()),
         link_recipe=recipe,worker_sha256=sha256((ROOT/'tools/aztec_worker.py').read_bytes()))
+    if additional:keydata['additional_libraries']=additional
     # Preserve all previous default-node cache identities.  A non-default
     # candidate node is material only when a link must model overlay calls.
     if target_node!=1:keydata['candidate_overlay_node']=target_node
@@ -167,6 +177,13 @@ def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_
         keydata['partitioned_object_sources']=[dict(label=x['label'],source_sha256=sha256(x['source'].encode('ascii'))) for x in objects]
         keydata['local_functions']=sorted(local_functions)
     return sha256(json_bytes(keydata)),keydata,h
+
+
+def link_command(guest,prefix,hp,node,object_names,proxy_args,meta):
+    libraries=[f'{meta["library_guest"]}lib/{meta["library"]}']
+    libraries.extend(f'{x["library_guest"]}lib/{x["library"]}' for x in meta.get('additional_libraries',[]))
+    return (f'{guest}bin/ln <compiler-input.txt >{prefix}-ln.log -m -t -o {prefix}.exe {hp}.o +o{node} '+
+            ' '.join(name+'.o' for name in object_names)+' '+ ' '.join(proxy_args)+' +o0 '+' '.join(libraries))
 
 
 def cached(key):
@@ -223,8 +240,9 @@ def compile_many(trials):
     for trial in trials:
         target_node=trial.get('target_node',1)
         objects=object_specs(trial);local_functions=trial.get('local_functions',());entry_function=trial.get('entry_function','recovered')
+        extra_libraries=trial.get('extra_libraries',())
         key,meta,h=identity(trial['source'],trial['profile'],target_node,
-                            objects if trial.get('objects') is not None else None,local_functions,entry_function)
+                            objects if trial.get('objects') is not None else None,local_functions,entry_function,extra_libraries)
         requests.append(key)
         if cached(key) is None:
             missing.setdefault(key,dict(trial=trial,meta=meta,harness=h,
@@ -273,7 +291,7 @@ def compile_many(trials):
                              f'{guest}bin/as <compiler-input.txt >{name}-as.log -o {name}.o {name}.asm']
                 proxy_args += [f'+o{proxy["node"]}',name+'.o']
             node=item['trial'].get('target_node',1)
-            commands += [f'{guest}bin/ln <compiler-input.txt >{prefix}-ln.log -m -t -o {prefix}.exe {hp}.o +o{node} '+' '.join(name+'.o' for name in object_names)+' '+ ' '.join(proxy_args) +f' +o0 {item["meta"]["library_guest"]}lib/{item["meta"]["library"]}']
+            commands += [link_command(guest,prefix,hp,node,object_names,proxy_args,item['meta'])]
             mapping.append((key,item,prefix,hp,first,2*(len(object_names)+1+len(item['proxies']))+1,idx))
         job=prepare(batch,source_dir,commands,Path('C:/Program Files/WinUAE/winuae64.exe'),aztec36=any(v['trial']['profile'].startswith('aztec36') for v in missing.values()))
         shell=shutil.which('pwsh') or shutil.which('powershell')

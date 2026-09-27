@@ -88,6 +88,14 @@ python tools/check_function.py ov14_F_03AE experiments/grinder-bootstrap/ov14_F_
 python tools/check_unit.py ov07_F_03CC src/recovered/ov07/ov07_F_03CC.c --profile aztec36 --separate-objects --allow-original-gaps --owned-code-data --isolated --output-dir build/isolated-trials
 ```
 
+Candidates using compiler-private floating-point helpers may opt into the
+pinned 3.6a `m.lib` after `c.lib` with `--profile aztec36 --with-m-lib`.
+This changes the compile-cache identity and is currently supported only for
+the standard `aztec36` profile. A successful link is not a function proof:
+the helper-call targets still require independent identity and byte evidence.
+The bounded `ov11_F_5FB2` and `ov05_F_3836` trials in
+`experiments/worker-ffp-link/` both link but remain `DIFFER`.
+
 Its batch input is an array of `{id, source, profiles}` objects. Exit status 0
 means at least one trial matched, 1 means no match, and 2 means an input/service
 blocker; consumers of a multi-function batch must inspect each verdict.

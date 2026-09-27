@@ -152,18 +152,21 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                     unit=(members,names,compile_source,True)
                     unit_blocker=None
                 except FormatError as gap_exc:unit_blocker=str(gap_exc)
-        profiles=req.get('profiles',['aztec36','aztec50-short'])
+        profiles=req.get('profiles',['aztec36'] if 'm.lib' in req.get('extra_libraries',()) else ['aztec36','aztec50-short'])
         for profile in profiles:
             require(profile in PROFILES,'unsupported compiler profile')
             try:
                 # Validate the candidate source before batching.  The oracle
                 # assigns stable object labels to the optional partition.
-                identity(compile_source,profile,target_node)
+                extra_libraries=req.get('extra_libraries',())
+                identity(compile_source,profile,target_node,extra_libraries=extra_libraries)
                 slot=len(trials);trials.append(dict(source=compile_source,profile=profile,target_node=target_node,
-                                                    objects=objects,local_functions=local_functions))
+                                                    objects=objects,local_functions=local_functions,
+                                                    extra_libraries=extra_libraries))
             except FormatError as exc:
-                slot=dict(status='SOURCE_REJECTED',identity=dict(profile=profile,flags=PROFILES[profile]['flags']),
-                          cache_key=sha256((source_hash+profile+str(exc)).encode()),cache_hit=False,
+                slot=dict(status='SOURCE_REJECTED',identity=dict(profile=profile,flags=PROFILES[profile]['flags'],
+                                                                  extra_libraries=list(req.get('extra_libraries',()))),
+                          cache_key=sha256((source_hash+profile+str(exc)+repr(req.get('extra_libraries',()))).encode()),cache_hit=False,
                           guest_returncodes=[],directory=str(ROOT/'build/source-rejections'),error=str(exc))
             prepared.append((req,f,l,source,profile,slot,unit,unit_blocker))
     results=compile_many(trials);reports=[]
@@ -238,13 +241,21 @@ def main():
     ap.add_argument('--batch',type=Path,help='JSON array of {id,source,profiles}; one boot for all cache misses')
     ap.add_argument('--owned-code-data',action='store_true',help='strictly verify an adjacent compiler-owned PC-relative string tail; promotes only at a proved next-entry boundary')
     ap.add_argument('--owned-static-data',action='store_true',help='strictly verify a manifest-declared initialized static DATA contribution; never promotes alone')
+    ap.add_argument('--with-m-lib',action='store_true',help='link pinned Aztec 3.6a m.lib after c.lib (3.6a profiles only)')
     ap.add_argument('--isolated',action='store_true',help='run exact comparison without writing recovery candidates, receipts, proofs, ledger, or ranking')
     ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
     ap.add_argument('--no-promote',action='store_true');ap.add_argument('--replace-canonical',action='store_true',
         help='replace an already promoted source only after this exact proof succeeds')
     ap.add_argument('--json',action='store_true');args=ap.parse_args()
     require(args.output_dir is None or args.isolated,'--output-dir requires --isolated')
-    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or ['aztec36','aztec50-short'],owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical)]
+    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or (['aztec36'] if args.with_m_lib else ['aztec36','aztec50-short']),owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical)]
+    if args.with_m_lib:
+        for item in req:
+            profiles=item.setdefault('profiles',['aztec36'])
+            require(all(p=='aztec36' for p in profiles),'--with-m-lib is pinned to the standard aztec36 profile; other variants are unverified')
+            extras=list(item.get('extra_libraries',()))
+            if 'm.lib' not in extras:extras.append('m.lib')
+            item['extra_libraries']=extras
     reports=check_many(req,not args.no_promote,args.isolated,args.output_dir)
     for r in reports:
         if args.json:print(json.dumps(r))

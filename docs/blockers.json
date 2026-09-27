@@ -71,13 +71,17 @@
         "HUNK_SYMBOL, HUNK_DEBUG and HUNK_EXT absent",
         "Seventeen candidate 5.0a libraries pinned from validated disks; cj prefix is not generic HUNK object format",
         "evidence/experiments/runtime-matches.json: index, movmem, strcat, strcmp, strcpy, strlen, strncpy candidate objects",
-        "Complete segload contribution h00+0x7978..0x7a6c matches 244 bytes and both relocations; eight total candidate contributions cover 470 bytes"
+        "Complete segload contribution h00+0x7978..0x7a6c matches 244 bytes and both relocations; eight total candidate contributions cover 470 bytes",
+        "Resident h00+0x8D00..0x8D80 FFP gateway vector offsets, stub pattern, dispatcher behavior, and strings strongly match Aztec 3.6a Library Source/ffp.arc and m.lib private .F* helpers; exact object-byte/relocation provenance remains unproved. See experiments/worker-resident-regabi/report.md.",
+        "Five naturally linked m.lib private FFP entry gates each match one unique 10-byte resident gate at h00+0x8D00..0x8D32. The shared dispatcher differs in seven link-context address operands, so complete runtime object provenance remains UNKNOWN. See experiments/worker-resident-object/report.md."
       ],
       "experiments_tried": [
         "5.0a c.lib/c16.lib isolated strlen/strcmp/memcpy: no exact resident matches",
         "3.6a seven relocation-free objects: unique complete code matches, header lengths corroborated by natural combined link; 226 bytes",
         "Missing members and unresolved standalone dependencies retained in aztec36-001/002/003 receipts; final aztec36-004 all 14 steps return zero",
-        "Compared naturally linked 3.6a and 5.0a segload against game; complete code and relocation profiles equal in both releases"
+        "Compared naturally linked 3.6a and 5.0a segload against game; complete code and relocation profiles equal in both releases",
+        "Mapped private FFP .Fflt/.Fsub/.Fmul/.Fdiv/.Ffix register-ABI gates separately from public stack-argument _SP* wrappers using installed 3.6a source/archive and 119 game call sites; no exact runtime object contribution claimed.",
+        "Compared all five 10-byte private m.lib gates and the 80-byte dispatcher after a normal c.lib+m.lib link; gate bytes match uniquely, while dispatcher byte equality fails at A4 and runtime-call operands."
       ],
       "first_mismatch": null,
       "hypotheses": [
@@ -93,7 +97,8 @@
       "current_evidence": [
         "8352 initialized bytes",
         "Entry points h07+0 and h07+0x1a02",
-        "invart.arc, invest.arc, and STOCK PORTFOLIO anchors"
+        "invart.arc, invest.arc, and STOCK PORTFOLIO anchors",
+        "ov07_F_03CC is now FUNCTION_WITH_DATA_MATCH: 182 function bytes plus a 42-byte compiler-owned string tail, proved in a 410-byte normal compact link with both recovered same-overlay callees."
       ],
       "experiments_tried": [
         "Selected whole historical overlay, recovered two exported entries, and linked asset anchors",
@@ -235,7 +240,7 @@
       "current_evidence": [
         "99 functions promoted as FUNCTION_CODE_MATCH (16998 code bytes), plus 16 functions at FUNCTION_WITH_DATA_MATCH (5244 code bytes)",
         "Two complete compact source units match with direct PC-relative local-call identity proof: 738 bytes for ov11_F_3A24/ov11_F_40E0/ov11_F_4696 and 874 bytes for ov11_F_3D9A/ov11_F_40E0/ov11_F_4696; intervening original bytes are explicitly unclaimed",
-        "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC produces its exact 42-byte adjacent string tail and all external A4 identities, but its two direct same-overlay calls cross unowned gaps and are rejected; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 now matches with aztec36 +D, 25 HUNK_RELOC32-backed absolute resident-global operands, and a four-byte compiler-owned `OK` tail; ov04_F_18A6 matches its complete 240-byte flow and four adjacent 40-space literal strings through strict compiler-owned CODE-tail proof; ov04_F_1AA2 matches through the historical `(unsigned)long_return % 3` high-word idiom; explicitly scoped compact source units may retain original gaps only when every linked byte belongs to a recovered object"
+        "Adjacent compiler-owned PC-relative data has strict proof; ov07_F_03CC now matches its 182 code bytes plus 42-byte compiler-owned string tail in a complete 410-byte compact link with both recovered same-overlay callees; unowned original gaps remain unclaimed; one normal-C fixed-point table initializer matches its 128-byte DATA payload, but its accessor still has a distinct absolute-address codegen mismatch; ov04_F_26F0 now matches with aztec36 +D, 25 HUNK_RELOC32-backed absolute resident-global operands, and a four-byte compiler-owned `OK` tail; ov04_F_18A6 matches its complete 240-byte flow and four adjacent 40-space literal strings through strict compiler-owned CODE-tail proof; ov04_F_1AA2 matches through the historical `(unsigned)long_return % 3` high-word idiom; explicitly scoped compact source units may retain original gaps only when every linked byte belongs to a recovered object"
       ],
       "experiments_tried": [
         "Independent complete-object extraction and relocation/A4 identity normalization",
@@ -247,12 +252,16 @@
         "ov11_F_506A's 40-byte owned CODE-data tail fills the formerly misreported 0x5174..0x519C layout gap; this corrects layout accounting without changing recovery coverage.",
         "Bounded ov14 byte-return variants under 3.6a and 5.0a all differ by return normalization; all three caller results are consumed as D0.b, and void-return trials also differ. See experiments/worker-ov14/abi-mode-report.md.",
         "ov11_F_3B92 compact-unit replay first resolved F25F8's four-byte call-layout excess by natural adjacent-object grouping, then matched F3B92's +84 branch by nesting the switch/count and four history updates under the outer event guard; the complete six-member 1048-byte unit matches and F3B92 is promoted. See experiments/worker-ov11-zero/report.md.",
-        "ov11_F_5FB2 ordinary-call trials differ and the installed Aztec 3.6a headers show stack-to-register Amiga library stubs, but no evidenced direct register-call source syntax. See experiments/worker-ov11-5fb2/report.json."
+        "ov11_F_5FB2 ordinary-call trials differ; the resident D0/D1 targets are private Aztec FFP helpers, so normal C floating-point lowering is the next source hypothesis rather than unsupported register-call syntax. See experiments/worker-resident-regabi/report.md.",
+        "Opt-in isolated verifier mode runs the same exact compiler comparison without writing canonical recovery state, enabling parallel bounded worker trials; real function and compact-unit EQUAL cache probes and 180 tests passed.",
+        "ov04_F_0536 has a proved 38-byte literal tail but no matching 622-byte body; ov09_F_298E remains a 12-byte table-mask register-allocation near-match; ov11_F_4B0C first switch-shaped probes differ by 20+ bytes. These failed trials remain under experiments/worker-ov04-0536, worker-ov09-298e, and worker-ov11-4b0c.",
+        "Pinned Aztec 3.6a m.lib after c.lib lets private FFP candidates link, with a separate cache identity; ov11_F_5FB2 (206/206 bytes) and ov05_F_3836 (616/616 bytes after bounded source fixes) have matching instruction shapes but remain DIFFER because private helper A4 call targets are not independently bound. Final HUNK relocations do not identify those calls; exact five 10-byte runtime gates alone are insufficient. See experiments/worker-ffp-link, worker-ov05-3836, and worker-resident-object.",
+        "ov07_F_0000 has a candidate 72-byte compiler-owned CODE tail ending at the recovered 03CC entry, but its 900-byte function still depends on uncertain 1424/0612 indexed-jump extents and unrecovered 0F30; no source promotion. See experiments/worker-ov07-0000-audit."
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
       "missing_artifact": "Natural layouts for larger dependency units and evidence-backed initialized-DATA contributions",
-      "next_experiment": "Use the symbol-located static-DATA verifier for independently derived tables; recover direct-call dependency units through either contiguous natural layout or explicitly scoped compact source contributions with all original gaps unclaimed; apply the measured +D profile only where absolute relocation evidence requires it.",
+      "next_experiment": "Parse candidate AJ named external fixups and test whether they independently bind the seven private FFP A4 call sites through the normal link; retain DIFFER until that binding is proved. Continue symbol-located static-DATA and compact dependency-unit verification, leaving all original gaps unclaimed.",
       "status": "OPEN",
       "target": "stronger data and call contribution proofs"
     },
