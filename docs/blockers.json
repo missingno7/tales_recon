@@ -256,12 +256,14 @@
         "Opt-in isolated verifier mode runs the same exact compiler comparison without writing canonical recovery state, enabling parallel bounded worker trials; real function and compact-unit EQUAL cache probes and 180 tests passed.",
         "ov04_F_0536 has a proved 38-byte literal tail but no matching 622-byte body; ov09_F_298E remains a 12-byte table-mask register-allocation near-match; ov11_F_4B0C first switch-shaped probes differ by 20+ bytes. These failed trials remain under experiments/worker-ov04-0536, worker-ov09-298e, and worker-ov11-4b0c.",
         "Pinned Aztec 3.6a m.lib after c.lib lets private FFP candidates link, with a separate cache identity; ov11_F_5FB2 (206/206 bytes) and ov05_F_3836 (616/616 bytes after bounded source fixes) have matching instruction shapes but remain DIFFER because private helper A4 call targets are not independently bound. Final HUNK relocations do not identify those calls; exact five 10-byte runtime gates alone are insufficient. See experiments/worker-ffp-link, worker-ov05-3836, and worker-resident-object.",
-        "ov07_F_0000 has a candidate 72-byte compiler-owned CODE tail ending at the recovered 03CC entry, but its 900-byte function still depends on uncertain 1424/0612 indexed-jump extents and unrecovered 0F30; no source promotion. See experiments/worker-ov07-0000-audit."
+        "ov07_F_0000 has a candidate 72-byte compiler-owned CODE tail ending at the recovered 03CC entry, but its 900-byte function still depends on uncertain 1424/0612 indexed-jump extents and unrecovered 0F30; no source promotion. See experiments/worker-ov07-0000-audit.",
+        "ov07_F_0F30 is a 1268-byte closed leaf with four repeated drawing blocks. The corrected-arity/word-width candidate is 1256 bytes and still differs; site-by-site evidence finds twelve target +24 word additions, only ten in the candidate, with two at wrong calls. See experiments/worker-ov07-0f30-audit.",
+        "Synthetic AJ one-call/two-call and NOP-shift probes identify named .Fflt presence and a plausible shifting site byte but do not establish a strict per-call external-fixup grammar or linked binding. No FFP call identity is promoted. See experiments/worker-aj-fixup-grammar/audit.md."
       ],
       "first_mismatch": null,
       "id": "GRINDER-PROOF-001",
       "missing_artifact": "Natural layouts for larger dependency units and evidence-backed initialized-DATA contributions",
-      "next_experiment": "Parse candidate AJ named external fixups and test whether they independently bind the seven private FFP A4 call sites through the normal link; retain DIFFER until that binding is proved. Continue symbol-located static-DATA and compact dependency-unit verification, leaving all original gaps unclaimed.",
+      "next_experiment": "Derive and validate the AJ per-site external-fixup grammar before binding private FFP A4 calls through the normal link; retain DIFFER until that binding is proved. Continue independent overlay leaves and compact dependency-unit verification, leaving all original gaps unclaimed.",
       "status": "OPEN",
       "target": "stronger data and call contribution proofs"
     },
