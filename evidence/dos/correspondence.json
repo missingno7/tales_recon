@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "role": "SECONDARY_CROSS_VERSION_HYPOTHESES",
+  "amiga_promotion_effect": "NONE",
+  "note": "DOS overlay numbering is independent of Amiga overlay numbering. Compiler-bound external fields are measured, not source ownership proofs.",
+  "links": [
+    {
+      "amiga": "ov10_F_2B8A",
+      "dos": "dos_ov06_F_2390",
+      "relationship": "STRONG_SHARED_SOURCE",
+      "evidence": ["Aztec 3.6a complete Amiga code match", "MSC 5.10 /AM /Os first 33 bytes of a natural two-function C object match every DOS non-fixup byte", "stack-check and global identity fields consistent across pair", "DOS overlay relocation sites match object pointer32 fixups"],
+      "receipt": "evidence/dos/pair-receipt.json"
+    },
+    {
+      "amiga": "ov10_F_2BAC",
+      "dos": "dos_ov06_F_23B1",
+      "relationship": "STRONG_SHARED_SOURCE",
+      "evidence": ["Aztec 3.6a complete Amiga code match", "MSC 5.10 /AM /Os second 33 bytes of same natural C object match every DOS non-fixup byte", "both functions use the same two DOS globals in the same order", "MSC 5.00 and 6.00a controlled alternatives fail"],
+      "receipt": "evidence/dos/pair-receipt.json"
+    },
+    {
+      "amiga": "ov09_F_18D0",
+      "dos": "dos_ov07_F_1226",
+      "relationship": "STRONG_SHARED_SOURCE",
+      "evidence": ["Aztec 3.6a complete Amiga code match", "MSC 5.10 /AM /Os produces all 61 DOS body bytes after declared external bindings", "one trailing 90 is standalone object alignment and not claimed as an original DOS contribution", "loop bound 6, row stride 10, subtraction 16, and relocation site agree"],
+      "receipt": "evidence/dos/specimen-receipts.json"
+    },
+    {
+      "amiga": "ov09_F_1924",
+      "dos": "dos_ov07_F_1263",
+      "relationship": "STRONG_SHARED_SOURCE",
+      "evidence": ["Aztec 3.6a complete Amiga code match", "MSC 5.10 /AM /Os produces complete 44-byte DOS body after declared stack-check binding", "constants 16, 32, 4, and 3 and all branch structure agree", "DOS MZ relocation matches pointer32 fixup"],
+      "receipt": "evidence/dos/specimen-receipts.json"
+    },
+    {
+      "amiga": "ov09_F_1956",
+      "dos": "dos_ov07_F_128F",
+      "relationship": "LIKELY_SHARED_SOURCE",
+      "evidence": ["adjacent to two strong ov09/dos_ov07 links", "same state-field offsets and type constants 16, 32, 19, 35", "MSC 5.10 /AM /Os probe has extra parameter reloads; no exact source-shape receipt"],
+      "receipt": null
+    },
+    {
+      "amiga": "ov10_F_2BCA",
+      "dos": "dos_ov06_F_23D2",
+      "relationship": "SEMANTICALLY_EQUIVALENT",
+      "evidence": ["same row/column distance formula using shifts by 3 and masks by 7", "DOS calls an absolute-value helper twice; Amiga-matched C uses conditional ABS macro", "source spelling is not claimed shared"],
+      "receipt": null
+    },
+    {
+      "amiga": "ov07_F_0E7C",
+      "dos": "dos_ov10_F_0A6B",
+      "relationship": "PARTIAL_SHARED_LOGIC_PLATFORM_DIVERGENCE",
+      "evidence": ["both initialize first two 16-bit header fields to 40 and 172", "later call argument constants and call mechanisms differ", "MSC probe is structurally near but cannot satisfy exact body length/fields"],
+      "receipt": "evidence/dos/cross-probe-os.json"
+    }
+  ]
+}

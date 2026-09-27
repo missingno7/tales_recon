@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "role": "SECONDARY_DOS_ANALYSIS_TOOLCHAIN",
+  "historical_compiler_selection": "MSC_5_10_STRONGLY_FAVORED_BY_GAME_CODE_NOT_PROVEN_UNIQUE",
+  "analysis_only": {
+    "capstone": {
+      "version": "5.0.3",
+      "path": "C:/tools/capstone-5.0.3/capstone",
+      "source": "Copied from existing D:/Prog/pre2_recon/tools/vendor/capstone; that project's README records pip installation from tools/requirements-research.txt. No new download was made for this pilot.",
+      "file_count": 58,
+      "tree_sha256": "8f9e32e3a255708979a04a9e4a7faed31b5cbdf24d3680ff620a8129391f4632",
+      "native_dll_sha256": "0c039b46f064ace44b21801a4147f9c22032e6481ad6afc35c3a82f98e4bafb8"
+    },
+    "dos_runner": {
+      "path": "C:/tools/nmlgcdos/msdos.exe",
+      "sha256": "f7f6cb0a3e816c5edb13112d327c1bddbf7463fe7bf9a005ca1eb5317751bd02",
+      "role": "MS-DOS Player execution of historical compiler passes"
+    }
+  },
+  "experimental_historical_compilers": [
+    {
+      "profile": "msc500",
+      "path": "C:/tools/msc-5.00",
+      "provenance": "C:/tools/msc-5.00/provenance.json",
+      "cl_sha256": "11e3c7d53b3efc085b7ad90c2190a1ddb395c8874f57aef3a5cfc0a4a0a0f504",
+      "status": "COMPATIBLE_EXPERIMENTAL_TOOL_REJECTED_BY_PAIRED_GAME_CODE"
+    },
+    {
+      "profile": "msc510",
+      "path": "C:/tools/msc-5.10",
+      "provenance": "C:/tools/msc-5.10/provenance.json",
+      "cl_sha256": "cad40cef732beea3455225fbd62286c664166db7c3f87e2402e22b2e3f107771",
+      "status": "LIKELY_HISTORICAL_TOOL_NOT_PROVEN_UNIQUE"
+    },
+    {
+      "profile": "msc600a",
+      "path": "C:/tools/msc-6.00a-simantw/BIN",
+      "provenance": "C:/tools/msc-6.00a-simantw/provenance.json",
+      "cl_sha256": "9f452b39def257b3e07a9f4e07857d6d8a6e36da869a30c6e20ac51ea98b9816",
+      "status": "COMPATIBLE_EXPERIMENTAL_TOOL_REJECTED_BY_PAIRED_GAME_CODE"
+    }
+  ],
+  "full_compiler_pass_hashes": "evidence/dos/pair-receipt.json"
+}
