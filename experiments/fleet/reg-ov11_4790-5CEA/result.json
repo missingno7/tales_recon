@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "task_id": "reg-ov11_4790-5CEA",
-  "worker": "luna-reg-ov11-r2",
+  "worker": "luna-reg-ov11-r3",
   "status": "NEAR",
   "target": "ov11_F_487E,ov11_F_4EC6,ov11_F_51C0,ov11_F_54F8,ov11_F_55B8,ov11_F_583A,ov11_F_5962,ov11_F_5C42",
   "best": {
-    "source": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_487E.c",
+    "source": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_487E.c",
     "profile": "aztec36",
-    "cache_key": "717ec170386325028c372f670a11a16ea7dcab2ead4d6051e6a870c3ab8cd8cc",
+    "cache_key": "321d88d96b70c1ca6d6afc7aa6cacf9351ce848baf2eb7204def4a9767bc097b",
     "verdict": "DIFFER",
     "verifier": "check_unit",
     "entry": "ov11_F_487E",
@@ -16,15 +16,15 @@
       "natural_interval"
     ],
     "expected_length": 7198,
-    "actual_length": 6936,
+    "actual_length": 7262,
     "members": {
-      "ov11_F_4EC6": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_4EC6.c",
-      "ov11_F_51C0": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_51C0.c",
-      "ov11_F_54F8": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_54F8.c",
-      "ov11_F_55B8": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_55B8.c",
-      "ov11_F_583A": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_583A.c",
-      "ov11_F_5962": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_5962.c",
-      "ov11_F_5C42": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_5C42.c"
+      "ov11_F_4EC6": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_4EC6.c",
+      "ov11_F_51C0": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_51C0.c",
+      "ov11_F_54F8": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_54F8.c",
+      "ov11_F_55B8": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_55B8.c",
+      "ov11_F_583A": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_583A.c",
+      "ov11_F_5962": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_5962.c",
+      "ov11_F_5C42": "experiments/fleet/reg-ov11_4790-5CEA/v10/ov11_F_5C42.c"
     }
   },
   "hypotheses": [
@@ -32,43 +32,43 @@
       "id": "h01-487e-baseline",
       "statement": "The baseline F487E source would retain the predicted differing state.",
       "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F487E differs, delta +38 (predicted length 336; observed 374)."
+      "evidence": "build/link-argfile-region/unit_diag.json: F487E differs, delta +38 (predicted 336 bytes; observed 374)."
     },
     {
       "id": "h02-4ec6-baseline",
       "statement": "The baseline F4EC6 source would retain the predicted differing state.",
       "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F4EC6 differs, delta +22 (predicted length 420; observed 442)."
+      "evidence": "build/link-argfile-region/unit_diag.json: F4EC6 differs, delta +22 (predicted 420 bytes; observed 442)."
     },
     {
       "id": "h03-51c0-baseline",
       "statement": "The baseline F51C0 source would retain the predicted differing state.",
       "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F51C0 differs, delta -308 (predicted length 824; observed 516)."
+      "evidence": "build/link-argfile-region/unit_diag.json: F51C0 differs, delta -308 (predicted 824 bytes; observed 516)."
     },
     {
       "id": "h04-54f8-baseline",
       "statement": "The baseline F54F8 candidate would differ despite matching its 192-byte extent.",
       "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F54F8 is same_after_reference_identity at delta 0; predicted same extent but differs state."
+      "evidence": "build/link-argfile-region/unit_diag.json: F54F8 is same_after_reference_identity at delta 0; predicted length matched but state did not."
     },
     {
       "id": "h05-55b8-baseline",
       "statement": "The baseline F55B8 source would retain the predicted differing state.",
       "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F55B8 differs, delta -52 (predicted length 642; observed 590)."
+      "evidence": "build/link-argfile-region/unit_diag.json: F55B8 differs, delta -52 (predicted 642 bytes; observed 590)."
     },
     {
       "id": "h06-583a-baseline",
       "statement": "The baseline F583A source would be 298 bytes and differ.",
       "outcome": "confirmed",
-      "evidence": "build/link-argfile-region/unit_diag.json: F583A differs at delta +2, observed length 298."
+      "evidence": "build/link-argfile-region/unit_diag.json: F583A differs at delta +2, observed 298 bytes."
     },
     {
       "id": "h07-5962-baseline",
       "statement": "The baseline F5962 candidate would differ at its 132-byte extent.",
       "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F5962 is same_after_reference_identity at delta 0; predicted length matches but state differs."
+      "evidence": "build/link-argfile-region/unit_diag.json: F5962 is same_after_reference_identity at delta 0; length matched but state did not."
     },
     {
       "id": "h08-5c42-baseline",
@@ -80,22 +80,58 @@
       "id": "h09-583a-void-callee",
       "statement": "Changing the ignored F5962 result declaration to void would make F583A 296 bytes and same after reference identity.",
       "outcome": "refuted",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-82209b893bea/receipt.json: unit_diag still reports F583A delta +2, differs."
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-82209b893bea/receipt.json: F583A remains +2 and differs; the sole call mismatch is expected BSR.B versus candidate external JSR."
     },
     {
       "id": "h10-4ec6-long-pointer-tables",
-      "statement": "Widening the three pointer tables to long would make F4EC6 448 bytes and still differ.",
+      "statement": "Widening three pointer tables to long would make F4EC6 448 bytes and still differ.",
       "outcome": "partial",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-42d91ce38941/receipt.json: F4EC6 remains differing at delta +22 (442 bytes); first divergence moved past pointer-table setup."
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-42d91ce38941/receipt.json: F4EC6 remains +22, but its first divergence moved past the table setup."
     },
     {
       "id": "h11-4ec6-switch-dispatch",
       "statement": "Switching the state selection would make F4EC6 equal at 420 bytes.",
       "outcome": "partial",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-717ec1703863/receipt.json: F4EC6 improved from +22 to +14 bytes and similarity rose to 0.9633, but it still differs at 434 bytes."
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-717ec1703863/receipt.json: F4EC6 improved to +14 and similarity 0.9633, but still differs."
+    },
+    {
+      "id": "h12-4ec6-long-byte-offsets",
+      "statement": "Long byte-pointer offsets would produce a 428-byte differing F4EC6 member.",
+      "outcome": "confirmed",
+      "evidence": "unit_diag explicit member form, cache ac76b4b8cf5f: F4EC6 is 428 bytes, delta +8, differs; similarity 0.9767."
+    },
+    {
+      "id": "h13-487e-resident-call-long-arguments",
+      "statement": "A prototype with eleven long F8A46 parameters and long G46D2/G46CE declarations would make F487E 402 bytes and differ.",
+      "outcome": "unmeasurable",
+      "evidence": "v06 verify-region was rejected before compilation: unsupported extern declaration; recovery source format requires an old-style empty parameter list."
+    },
+    {
+      "id": "h14-487e-long-call-argument-casts",
+      "statement": "Casting all resident F8A46 arguments to long and widening G46D2/G46CE would make F487E 402 bytes and differ.",
+      "outcome": "partial",
+      "evidence": "unit_diag explicit member form, cache 75145561e27c: F487E is 410 bytes, delta +74, differs; similarity improved to 0.7137 from 0.3732."
+    },
+    {
+      "id": "h15-55b8-gated-parity-positioning",
+      "statement": "The G37F2-gated parity position phase would make F55B8 608 bytes and differ.",
+      "outcome": "partial",
+      "evidence": "unit_diag explicit member form, cache 3df273ebf41a: F55B8 is 616 bytes, delta -26, differs; similarity improved to 0.6648."
+    },
+    {
+      "id": "h16-51c0-read-mode-field",
+      "statement": "Reading record->mode instead of record->frame would leave F51C0 at 516 bytes and differing.",
+      "outcome": "confirmed",
+      "evidence": "unit_diag explicit member form, cache 4779b631f6ad: F51C0 is 516 bytes, delta -308, differs."
+    },
+    {
+      "id": "h17-51c0-mode18-transition-path",
+      "statement": "Adding the recovered mode-18 path would make F51C0 708 bytes and still differ.",
+      "outcome": "partial",
+      "evidence": "unit_diag explicit member form, cache 321d88d96b70: F51C0 is 790 bytes, delta -34, differs; similarity rose to 0.627 and expected-only instructions fell from 132 to 36."
     }
   ],
-  "compile_trials": 5,
+  "compile_trials": 10,
   "ledger_lines": [
     1,
     2,
@@ -107,8 +143,14 @@
     8,
     9,
     10,
-    11
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
   ],
-  "explanation": "The best complete unit is v04: it measures 6936 bytes versus 7198 and remains DIFFER. F54F8, F5962, and F5C42 are same_after_reference_identity and stayed frozen. F4EC6 improved from +22 to +14 bytes after correcting pointer table widths and state dispatch; F487E remains +38, F51C0 -308, F55B8 -52, and F583A +2. Canonical F25F8 is +4 from two cross-object calls to F25D6; F41F6 is unsupported because its extent contains jump-table/data bytes. The 44-byte 0x59E6..0x5A12 gap remains unclaimed and does not block encoding. Four source variants were used, so the remaining member differences need a new variant budget.",
+  "explanation": "Best complete candidate is v10: DIFFER at 7262 vs 7198. F54F8, F5962, and F5C42 remain frozen and same_after_reference_identity. Remaining states: F487E +74 (similarity 0.7137), F4EC6 +8 (0.9767), F51C0 -34 (0.627), F55B8 -26 (0.6648), F583A +2. F51C0 facts show 229 instructions and 61 CFG edges; the v08 per-member diagnostic paired 97 instructions with 132 target-only and 35 candidate-only, and v10 reduced target-only to 36. The added mode-18 path moved F51C0 from 516 to 790 bytes. F583A still differs only at its F5962 call: target BSR.B, separate-object candidate JSR. The 44-byte unknown gap remains unclaimed. Receipt-mode unit_diag hit a shared combined-source hash check after tooling changed, so measurements used the task-provided explicit member form. Six variants were used in this step; 10 compiler trials total.",
   "proposed_blocker": null
 }
