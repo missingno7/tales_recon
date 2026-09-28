@@ -127,7 +127,7 @@ def canonical_call_examples(calls,ledger,limit=4):
     return examples
 
 
-def facts(fid,max_instructions=160):
+def facts(fid,max_instructions=160,max_bytes=65536):
     ledger=evidence();r=recovery();f=next((f for f in ledger['functions'] if f['id']==fid),None)
     runtime=runtime_dependencies(ledger)
     require(f is not None,'unknown function id')
@@ -172,11 +172,11 @@ def facts(fid,max_instructions=160):
     from recovery_feedback import advisory_feedback
     attempts=r['attempts'].get(fid,[])
     guidance=advisory_feedback(fid,attempts[-1] if attempts else None,root=ROOT)
-    if len(json.dumps(packages).encode())+len(json.dumps(guidance).encode())<65000:
+    if len(json.dumps(packages).encode())+len(json.dumps(guidance).encode())<max_bytes-536:
         packages['advisory_feedback']=guidance
     else:
         packages['advisory_feedback']=dict(status='OMITTED_FOR_BUDGET',promotion_eligible=False)
-    require(len(json.dumps(packages).encode())<=65536,'fact package exceeds 64 KiB budget; choose a smaller candidate')
+    require(len(json.dumps(packages).encode())<=max_bytes,'fact package exceeds %d-byte budget; choose a smaller candidate'%max_bytes)
     return packages
 
 
