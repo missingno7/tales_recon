@@ -4,15 +4,21 @@ This utility is a bounded diagnostic front end to ``check_function``. It never
 generates source text, updates recovery state, or promotes an exact comparison.
 """
 import argparse
+from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
+import re
 import sys
+import time
 
 from analysis_support import ROOT
 from common import FormatError, require, sha256
 from check_function import check_many
 from recovery_state import evidence
 from compiler_oracle import identity
+import compile_queue
+import file_lock
 
 
 MAX_VARIANTS = 32
@@ -20,6 +26,16 @@ MAX_UNIQUE_COMPILES = 32
 MANIFEST_KEYS = {"schema_version", "function_id", "budget", "variants"}
 BUDGET_KEYS = {"max_variants", "max_unique_compiles"}
 VARIANT_KEYS = {"id", "causal_family", "diagnostic_scope", "source", "profile"}
+# Schema v2 adds a recorded, machine-checkable hypothesis to every variant.
+HYPOTHESIS_KEYS = {"parent", "suspected_cause", "controlled_change", "predicted_effect"}
+PREDICTION_KEYS = {"length_delta", "removed_candidate_only", "register_role_diffs", "note"}
+PREDICTED_FIELDS = ("length_delta", "removed_candidate_only", "register_role_diffs")
+ROLE_TRENDS = {"fewer", "same", "more"}
+LEDGER_SCHEMA = 1
+# ``fleet_intake`` records are appended by tools/fleet.py after supervisor
+# intake of a worker result; they never count as compiler trials.
+RECORD_TYPES = ("trial", "duplicate_rejected", "fleet_intake")
+DEFAULT_LEDGER = Path("evidence/experiments/hypothesis-ledger.jsonl")
 DIAGNOSTIC_SCOPES = {"operand_width", "register_assignment", "frame_or_stack_reference",
                      "a4_global_layout", "pc_relative_layout", "memory_reference_or_layout",
                      "call_target_or_encoding", "immediate_constant", "unknown_codegen",
@@ -54,14 +70,95 @@ def _source_path(value):
     return path
 
 
+def normalize_source(text):
+    """Deliberately shallow C text normalization for duplicate detection only.
+
+    Comments are replaced by one space; string and character literals are
+    copied verbatim. Outside literals, every whitespace run (including line
+    breaks) collapses to one space, except that preprocessor directive lines
+    (and their backslash continuations) stay on their own lines. No token,
+    macro, or semantic normalization is applied: ``a+b`` and ``a + b`` remain
+    different hypotheses.
+    """
+    segments, plain, i, n = [], [], 0, len(text)
+    while i < n:
+        c = text[i]
+        if c in "\"'":
+            j = i + 1
+            while j < n and text[j] != c and text[j] != "\n":
+                j += 2 if text[j] == "\\" else 1
+            segments.append(re.sub(r"[ \t\f\v\r]+", " ", "".join(plain)))
+            segments.append(text[i:j + 1])
+            plain, i = [], j + 1
+        elif text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+            plain.append(" ")
+        elif text.startswith("//", i):
+            j = text.find("\n", i)
+            i = n if j < 0 else j
+            plain.append(" ")
+        else:
+            plain.append(c)
+            i += 1
+    segments.append(re.sub(r"[ \t\f\v\r]+", " ", "".join(plain)))
+    out, code, directive = [], [], False
+    for line in (x.strip() for x in "".join(segments).split("\n")):
+        if directive or line.startswith("#"):
+            if code:
+                out.append(" ".join(code))
+                code = []
+            if line:
+                out.append(line)
+            directive = line.endswith("\\")
+        elif line:
+            code.append(line)
+    if code:
+        out.append(" ".join(code))
+    return "\n".join(out)
+
+
+def normalized_sha256(text):
+    return sha256(normalize_source(text).encode("utf-8"))
+
+
+def _prediction(value, where):
+    _object(value, where, PREDICTION_KEYS)
+    length = value["length_delta"]
+    removed = value["removed_candidate_only"]
+    roles = value["register_role_diffs"]
+    require(length is None or type(length) is int, where + ".length_delta must be an integer or null")
+    require(removed is None or type(removed) is int, where + ".removed_candidate_only must be an integer or null")
+    require(roles is None or roles in ROLE_TRENDS, where + ".register_role_diffs must be fewer, same, more or null")
+    require(any(v is not None for v in (length, removed, roles)),
+            where + " must make at least one machine-checkable prediction")
+    _text(value["note"], where + ".note", 300)
+    return dict(length_delta=length, removed_candidate_only=removed,
+                register_role_diffs=roles, note=value["note"])
+
+
+def _parent(value, where, earlier_ids):
+    require(isinstance(value, str) and value, where + " must be text")
+    if value == "none":
+        return dict(kind="none", value=value)
+    if value in earlier_ids:
+        return dict(kind="variant", value=value)
+    require(value.endswith(".c"), where + " must be an earlier variant id, a repository .c path, or none")
+    path = _source_path(value)
+    return dict(kind="source", value=value, source_path=path,
+                source=path.read_text(encoding="ascii"))
+
+
 def load_manifest(path):
     """Parse and validate the deliberately narrow JSON manifest format."""
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise FormatError("cannot read manifest: " + str(exc)) from exc
+    require(isinstance(manifest, dict) and manifest.get("schema_version") in (1, 2),
+            "unsupported manifest schema_version")
+    version = manifest["schema_version"]
     _object(manifest, "manifest", MANIFEST_KEYS)
-    require(manifest["schema_version"] == 1, "unsupported manifest schema_version")
     function_id = _text(manifest["function_id"], "function_id", 80)
     _object(manifest["budget"], "budget", BUDGET_KEYS)
     max_variants = manifest["budget"]["max_variants"]
@@ -77,20 +174,37 @@ def load_manifest(path):
     normalized = []
     for index, variant in enumerate(variants):
         where = "variants[" + str(index) + "]"
-        _object(variant, where, VARIANT_KEYS)
+        _object(variant, where, VARIANT_KEYS if version == 1 else VARIANT_KEYS | HYPOTHESIS_KEYS)
         variant_id = _text(variant["id"], where + ".id", 80)
         require(variant_id not in ids, "variant ids must be unique")
-        ids.add(variant_id)
         causal_family = _text(variant["causal_family"], where + ".causal_family", 80)
         diagnostic_scope = _text(variant["diagnostic_scope"], where + ".diagnostic_scope", 80)
         require(diagnostic_scope in DIAGNOSTIC_SCOPES,
                 where + ".diagnostic_scope is unsupported")
         profile = _text(variant["profile"], where + ".profile", 80)
         source = _source_path(variant["source"])
-        normalized.append(dict(id=variant_id, causal_family=causal_family,
-                              diagnostic_scope=diagnostic_scope, profile=profile,
-                              source_path=source, source=source.read_text(encoding="ascii"),
-                              manifest_source=variant["source"]))
+        item = dict(id=variant_id, causal_family=causal_family,
+                    diagnostic_scope=diagnostic_scope, profile=profile,
+                    source_path=source, source=source.read_text(encoding="ascii"),
+                    manifest_source=variant["source"])
+        if version == 2:
+            # A variant may only name an earlier variant as parent, so the
+            # hypothesis graph is acyclic by construction.
+            item["parent"] = _parent(variant["parent"], where + ".parent", ids)
+            item["suspected_cause"] = _text(variant["suspected_cause"], where + ".suspected_cause", 300)
+            item["controlled_change"] = _text(variant["controlled_change"], where + ".controlled_change", 300)
+            item["predicted_effect"] = _prediction(variant["predicted_effect"], where + ".predicted_effect")
+            item["normalized_sha256"] = normalized_sha256(item["source"])
+            twin = next((v for v in normalized if v["normalized_sha256"] == item["normalized_sha256"]
+                         and v["profile"] == profile), None)
+            require(twin is None, where + " duplicates variant " + (twin or {}).get("id", "") +
+                    " after comment/whitespace normalization")
+            parent = item["parent"]
+            if parent["kind"] == "source":
+                require(normalized_sha256(parent["source"]) != item["normalized_sha256"],
+                        where + " is identical to its parent after normalization; no controlled change")
+        ids.add(variant_id)
+        normalized.append(item)
 
     # Every entry is one independent hypothesis over the same target and one
     # profile. Count conservative compile attempts by distinct source/profile;
@@ -181,6 +295,10 @@ def _rank_key(item):
             -(report.get("mnemonic_similarity") or 0), report.get("actual_length") or 0)
 
 
+def _node(function):
+    return function["hunk"] - 2 if function.get("node") != "resident" and function.get("hunk", 0) >= 3 else 1
+
+
 def evaluate(function_id, variants, cached_only=False, output_dir=None):
     """Run exact isolated comparisons; never retain, rank-promote, or canonicalize."""
     require(1 <= len(variants) <= MAX_VARIANTS, "variant count exceeds the hard limit")
@@ -190,7 +308,7 @@ def evaluate(function_id, variants, cached_only=False, output_dir=None):
     if cached_only and any(c.get("basis") == "PC_RELATIVE" and c.get("hunk") == function["hunk"] and c.get("id") != function_id
                            for c in function.get("direct_callees", [])):
         raise FormatError("same-overlay PC-relative calls require prepared-unit cache identity; bounded shape search currently rejects them")
-    node = function["hunk"] - 2 if function.get("node") != "resident" and function.get("hunk", 0) >= 3 else 1
+    node = _node(function)
     requests = []
     expected_keys = []
     for variant in variants:
@@ -207,6 +325,9 @@ def evaluate(function_id, variants, cached_only=False, output_dir=None):
         from compiler_oracle import cached
         misses = [key for key in unique_keys if cached(key) is None]
         require(not misses, "cached-only mode refused: " + str(len(misses)) + " compiler identities would require a compile")
+    # Cache misses wait in the coalescing compile queue instead of failing
+    # while another process holds the oracle; cache hits never wait.
+    compile_queue.install()
     reports = check_many(requests, promote_equal=False, isolated=True, output_dir=output_dir)
     require(len(reports) == len(variants), "verifier returned an unexpected report count")
     evaluated = []
@@ -232,16 +353,333 @@ def evaluate(function_id, variants, cached_only=False, output_dir=None):
                 ranking=[item["id"] for item in evaluated])
 
 
+# ---------------------------------------------------------------------------
+# Schema v2: recorded hypotheses, duplicate rejection and prediction scoring.
+# Nothing below reads or alters an exact verdict; it only records it.
+
+
+def ledger_path(path=None):
+    """Resolve the append-only hypothesis ledger, confined to experiment areas."""
+    rel = Path(path) if path is not None else DEFAULT_LEDGER
+    full = (rel if rel.is_absolute() else ROOT / rel).resolve()
+    allowed = [(ROOT / "evidence" / "experiments").resolve(), (ROOT / "experiments").resolve(),
+               (ROOT / "build").resolve()]
+    require(any(full.is_relative_to(a) for a in allowed) and full.suffix == ".jsonl",
+            "hypothesis ledger must be a .jsonl file under evidence/experiments/, experiments/ or build/")
+    return full
+
+
+def read_ledger(path):
+    """Return [(line_number, record)]; any malformed line refuses the ledger."""
+    if not path.exists():
+        return []
+    text = path.read_text(encoding="utf-8")
+    require(not text or text.endswith("\n"), "hypothesis ledger has a truncated final line")
+    records = []
+    for number, line in enumerate(text.splitlines(), 1):
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise FormatError("hypothesis ledger line " + str(number) + " is not JSON") from exc
+        require(isinstance(record, dict) and record.get("ledger_schema") == LEDGER_SCHEMA
+                and record.get("record_type") in RECORD_TYPES,
+                "hypothesis ledger line " + str(number) + " has an unsupported record shape")
+        records.append((number, record))
+    return records
+
+
+def append_ledger(path, records, timeout=60):
+    """Append records under an exclusive lock file; never rewrite prior lines."""
+    if not records:
+        return []
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with file_lock.locked(_ledger_lock(path), "hypothesis ledger append", timeout, "hypothesis ledger"):
+        first = len(read_ledger(path)) + 1
+        data = "".join(json.dumps(r, sort_keys=True, separators=(",", ":")) + "\n" for r in records)
+        with open(path, "a", encoding="utf-8", newline="\n") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+        return list(range(first, first + len(records)))
+
+
+def _ledger_lock(path):
+    return path.with_name(path.name + ".lock")
+
+
+def _reservation_dir(path):
+    """Ephemeral in-flight markers live in ignored build/, never in evidence/."""
+    return ROOT / "build" / "hypothesis-inflight" / sha256(str(path).encode("utf-8"))[:16]
+
+
+def _reservation_path(path, function_id, variant):
+    key = "|".join((function_id, variant["normalized_sha256"], variant["profile"]))
+    return _reservation_dir(path) / (sha256(key.encode("utf-8"))[:32] + ".json")
+
+
+def _prior_trials(prior):
+    seen = {}
+    for number, record in prior:
+        if record["record_type"] == "trial":
+            seen.setdefault((record.get("function_id"), record.get("normalized_sha256"), record.get("profile")),
+                            (number, record))
+    return seen
+
+
+def reserve_hypotheses(path, function_id, variants, timeout=None, poll=0.5):
+    """Race-safe duplicate check immediately before compiling.
+
+    Under the ledger lock, the ledger is re-read and every variant that is
+    neither recorded nor in flight elsewhere receives an in-flight
+    reservation. A twin in flight in a live process is waited for, then
+    re-checked, so it becomes an ordinary ``duplicate_rejected`` pointer. A
+    reservation left by a dead process is replaced and reported.
+    """
+    timeout = compile_queue.wait_timeout() if timeout is None else timeout
+    deadline = time.monotonic() + timeout
+    lock = _ledger_lock(path)
+    while True:
+        with file_lock.locked(lock, "hypothesis ledger reservation", 60, "hypothesis ledger"):
+            prior = read_ledger(path)
+            seen = _prior_trials(prior)
+            duplicates = {v["id"]: seen[(function_id, v["normalized_sha256"], v["profile"])] for v in variants
+                          if (function_id, v["normalized_sha256"], v["profile"]) in seen}
+            waiting, stale = [], []
+            for v in variants:
+                if v["id"] in duplicates:
+                    continue
+                marker = _reservation_path(path, function_id, v)
+                try:
+                    owner = json.loads(marker.read_text(encoding="utf-8"))
+                except (OSError, ValueError):
+                    continue
+                if owner.get("host") == file_lock.HOST and not file_lock.pid_alive(owner.get("pid")):
+                    stale.append(dict(variant=v["id"], reservation=owner))
+                else:
+                    waiting.append(dict(variant=v["id"], reservation=owner))
+            if not waiting:
+                reserved = []
+                for v in variants:
+                    if v["id"] in duplicates:
+                        continue
+                    marker = _reservation_path(path, function_id, v)
+                    marker.parent.mkdir(parents=True, exist_ok=True)
+                    marker.write_text(json.dumps(dict(pid=os.getpid(), host=file_lock.HOST, function_id=function_id,
+                                                      variant=v["id"], profile=v["profile"],
+                                                      normalized_sha256=v["normalized_sha256"],
+                                                      started=time.time()), sort_keys=True), encoding="utf-8")
+                    reserved.append(marker)
+                return prior, duplicates, reserved, stale
+        require(time.monotonic() < deadline,
+                "identical hypothesis is still in flight in another process: " + json.dumps(waiting, sort_keys=True))
+        time.sleep(poll)
+
+
+def release_reservations(markers):
+    for marker in markers:
+        try:
+            owner = json.loads(marker.read_text(encoding="utf-8"))
+            if owner.get("pid") == os.getpid():
+                file_lock.unlink_retry(marker)
+        except (OSError, ValueError):
+            pass
+
+
+def diagnostic_metrics(diagnostic):
+    """Extract the few quantities predictions are scored against."""
+    if not isinstance(diagnostic, dict) or diagnostic.get("status") != "DIAGNOSTIC_ONLY":
+        return dict(status="UNSUPPORTED", reason=str((diagnostic or {}).get("reason", "UNSUPPORTED")))
+    align = diagnostic.get("alignment") or {}
+    extent = diagnostic.get("candidate_extent") or diagnostic.get("actual_extent") or {}
+    size, actual_only, expected_only = extent.get("bytes"), align.get("actual_only"), align.get("expected_only")
+    hypotheses = diagnostic.get("hypotheses")
+    if type(size) is not int or not isinstance(actual_only, list) or not isinstance(expected_only, list) \
+            or not isinstance(hypotheses, list):
+        return dict(status="UNSUPPORTED", reason="diagnostic lacks extent, alignment or hypothesis counts")
+    roles = sum(h.get("count", 0) for h in hypotheses
+                if isinstance(h, dict) and h.get("category") == "register_assignment")
+    return dict(status="DIAGNOSTIC_ONLY", candidate_bytes=size, candidate_only=len(actual_only),
+                expected_only=len(expected_only), register_role_diffs=roles)
+
+
+def score_prediction(predicted, child, parent):
+    """Compare a structured prediction with the observed child-parent delta.
+
+    A field is ``unmeasurable`` whenever either diagnostic is unsupported or
+    no parent measurement exists; it is never guessed from other signals.
+    """
+    measurable = (isinstance(child, dict) and child.get("status") == "DIAGNOSTIC_ONLY" and
+                  isinstance(parent, dict) and parent.get("status") == "DIAGNOSTIC_ONLY")
+    observed = None
+    if measurable:
+        roles = child["register_role_diffs"] - parent["register_role_diffs"]
+        observed = dict(length_delta=child["candidate_bytes"] - parent["candidate_bytes"],
+                        removed_candidate_only=parent["candidate_only"] - child["candidate_only"],
+                        register_role_diffs="fewer" if roles < 0 else "more" if roles > 0 else "same")
+    fields = {}
+    for name in PREDICTED_FIELDS:
+        if predicted.get(name) is None:
+            fields[name] = "not_predicted"
+        elif not measurable:
+            fields[name] = "unmeasurable"
+        else:
+            fields[name] = "confirmed" if observed[name] == predicted[name] else "refuted"
+    states = [s for s in fields.values() if s != "not_predicted"]
+    measured = [s for s in states if s != "unmeasurable"]
+    if not measured:
+        outcome = "unmeasurable"
+    elif all(s == "confirmed" for s in states):
+        outcome = "confirmed"
+    elif all(s == "refuted" for s in measured):
+        outcome = "refuted"
+    else:
+        outcome = "partial"
+    return dict(observed_delta=observed, fields=fields, outcome=outcome)
+
+
+def _rel(path):
+    try:
+        return Path(path).resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _pointer(number, record):
+    return dict(ledger_line=number, timestamp=record.get("timestamp"), manifest=record.get("manifest"),
+                variant=record.get("variant"), exact_verdict=record.get("exact_verdict"),
+                cache_key=record.get("cache_key"))
+
+
+def _parent_metrics(function_id, function, variant, metrics, prior):
+    """Measure the declared parent without ever compiling it implicitly."""
+    parent = variant["parent"]
+    if parent["kind"] == "none":
+        return None, "NO_PARENT"
+    if parent["kind"] == "variant":
+        return metrics.get(parent["value"]), "MANIFEST_VARIANT"
+    digest = normalized_sha256(parent["source"])
+    for number, record in reversed(prior):
+        if (record["record_type"] == "trial" and record.get("function_id") == function_id and
+                record.get("normalized_sha256") == digest and record.get("profile") == variant["profile"]):
+            return record.get("observed"), "LEDGER_LINE_" + str(number)
+    try:
+        from compiler_oracle import cached
+        key, _, _ = identity(parent["source"], variant["profile"], _node(function))
+        if cached(key) is None:
+            return dict(status="UNSUPPORTED", reason="PARENT_NOT_IN_COMPILER_CACHE"), "NOT_COMPILED"
+    except (KeyError, FormatError) as exc:
+        return dict(status="UNSUPPORTED", reason="parent identity rejected: " + str(exc)), "NOT_COMPILED"
+    return diagnostic_metrics(_diagnostic(function_id, dict(cache_key=key), variant["diagnostic_scope"])), \
+        "CACHED_PARENT_COMPILE"
+
+
+def evaluate_hypotheses(function_id, variants, cached_only=False, output_dir=None, ledger=None,
+                        manifest=None, now=None):
+    """Run non-duplicate v2 variants and append one ledger record per variant."""
+    path = ledger_path(ledger)
+    # The duplicate check is repeated under the ledger lock immediately before
+    # compiling, with in-flight reservations, so parallel workers cannot both
+    # compile the same (function, normalized source, profile) hypothesis.
+    prior, duplicates, reserved, stale = reserve_hypotheses(path, function_id, variants)
+    try:
+        return _evaluate_reserved(function_id, variants, cached_only, output_dir, path, manifest, now,
+                                  prior, duplicates, stale)
+    finally:
+        release_reservations(reserved)
+
+
+def _evaluate_reserved(function_id, variants, cached_only, output_dir, path, manifest, now,
+                       prior, duplicates, stale):
+    to_run = [v for v in variants if v["id"] not in duplicates]
+    base = evaluate(function_id, to_run, cached_only, output_dir) if to_run else dict(evaluated=[], ranking=[])
+    function = next((f for f in evidence()["functions"] if f["id"] == function_id), None)
+    require(function is not None, "unknown function " + function_id)
+    by_id = {item["id"]: item for item in base["evaluated"]}
+    metrics = {item_id: diagnostic_metrics(item["diagnostic"]) for item_id, item in by_id.items()}
+    metrics.update({item_id: record.get("observed") for item_id, (_, record) in duplicates.items()})
+    stamp = now or datetime.now(timezone.utc).isoformat(timespec="seconds")
+    records, rejected = [], []
+    for variant in variants:
+        common = dict(ledger_schema=LEDGER_SCHEMA, timestamp=stamp, function_id=function_id,
+                      manifest=_rel(manifest) if manifest else None, variant=variant["id"],
+                      source=variant["manifest_source"], normalized_sha256=variant["normalized_sha256"],
+                      source_sha256=sha256(variant["source"].encode("ascii")), profile=variant["profile"],
+                      parent=variant["parent"]["value"], causal_family=variant["causal_family"],
+                      diagnostic_scope=variant["diagnostic_scope"], suspected_cause=variant["suspected_cause"],
+                      controlled_change=variant["controlled_change"], predicted_effect=variant["predicted_effect"])
+        if variant["id"] in duplicates:
+            pointer = _pointer(*duplicates[variant["id"]])
+            records.append(dict(common, record_type="duplicate_rejected", prior_record=pointer))
+            rejected.append(dict(id=variant["id"], prior_record=pointer))
+            continue
+        item = by_id[variant["id"]]
+        report = item["report"]
+        parent, basis = _parent_metrics(function_id, function, variant, metrics, prior)
+        score = score_prediction(variant["predicted_effect"], metrics[variant["id"]], parent)
+        record = dict(common, record_type="trial", cache_key=report.get("cache_key"),
+                      cache_hit=report.get("cache_hit"), exact_verdict=report.get("verdict"),
+                      observed=metrics[variant["id"]], parent_observed=parent, parent_basis=basis,
+                      observed_delta=score["observed_delta"], prediction=score)
+        records.append(record)
+        item["hypothesis"] = dict(parent=common["parent"], parent_basis=basis,
+                                  suspected_cause=variant["suspected_cause"],
+                                  controlled_change=variant["controlled_change"],
+                                  predicted_effect=variant["predicted_effect"], observed=record["observed"],
+                                  parent_observed=parent, prediction=score)
+    lines = append_ledger(path, records)
+    for line, record in zip(lines, records):
+        if record["record_type"] == "trial":
+            by_id[record["variant"]]["ledger_line"] = line
+    return dict(schema_version=2, function_id=function_id,
+                exact_verdict_authority="check_function.check_many isolated comparison",
+                promotion="NONE", evaluated=base["evaluated"], ranking=base["ranking"],
+                duplicates_rejected=rejected, ledger=dict(path=_rel(path), lines=lines),
+                stale_reservations_replaced=stale)
+
+
+def ledger_summary(path, function_id=None):
+    """Convergence counts: exact matches per compiler trial and prediction outcomes."""
+    records = [r for _, r in read_ledger(path) if function_id in (None, r.get("function_id"))]
+    trials = [r for r in records if r["record_type"] == "trial"]
+    compiled = {r.get("cache_key") for r in trials if r.get("cache_hit") is False}
+    exact = sum(r.get("exact_verdict") == "EQUAL" for r in trials)
+    # The ratio counts only exact matches produced by a real compile in this
+    # ledger, so replaying cached identities cannot inflate convergence.
+    fresh = len({r.get("cache_key") for r in trials
+                 if r.get("exact_verdict") == "EQUAL" and r.get("cache_hit") is False})
+    outcomes = {k: 0 for k in ("confirmed", "partial", "refuted", "unmeasurable")}
+    for r in trials:
+        outcome = (r.get("prediction") or {}).get("outcome")
+        if outcome in outcomes:
+            outcomes[outcome] += 1
+    return dict(ledger=_rel(path), function_id=function_id, evaluations=len(trials),
+                compiler_trials=len(compiled), cache_hits=sum(r.get("cache_hit") is True for r in trials),
+                exact_matches=exact, exact_matches_from_compiler_trials=fresh,
+                exact_matches_per_compiler_trial=round(fresh / len(compiled), 4) if compiled else None,
+                predictions=outcomes, duplicates_rejected=sum(r["record_type"] == "duplicate_rejected"
+                                                              for r in records),
+                functions=sorted({r.get("function_id") for r in records}))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("manifest", type=Path)
+    parser.add_argument("manifest", type=Path, nargs="?")
     parser.add_argument("--cached-only", action="store_true",
                         help="refuse before verification if any unique compiler identity misses cache")
     parser.add_argument("--output-dir", type=Path,
                         help="save isolated exact reports under experiments/ or build/")
     parser.add_argument("--json", action="store_true", help="emit the complete JSON evaluation")
+    parser.add_argument("--ledger", type=Path,
+                        help="schema v2 hypothesis ledger (default " + DEFAULT_LEDGER.as_posix() + ")")
+    parser.add_argument("--ledger-summary", nargs="?", const="*", metavar="FUNCTION",
+                        help="print convergence counts from the ledger, optionally for one function")
     args = parser.parse_args(argv)
     try:
+        if args.ledger_summary is not None:
+            function = None if args.ledger_summary == "*" else args.ledger_summary
+            print(json.dumps(ledger_summary(ledger_path(args.ledger), function), indent=2, sort_keys=True))
+            return 0
+        require(args.manifest is not None, "a manifest path is required")
         function_id, _budget, variants = load_manifest(args.manifest)
         output_dir = args.output_dir
         if output_dir is not None:
@@ -249,7 +687,12 @@ def main(argv=None):
             allowed = ((ROOT / "experiments").resolve(), (ROOT / "build").resolve())
             require(any(output_dir.is_relative_to(root) for root in allowed),
                     "output directory must be under experiments/ or build/")
-        result = evaluate(function_id, variants, args.cached_only, output_dir)
+        if variants and "predicted_effect" in variants[0]:
+            result = evaluate_hypotheses(function_id, variants, args.cached_only, output_dir,
+                                         args.ledger, args.manifest)
+        else:
+            require(args.ledger is None, "--ledger applies only to schema_version 2 manifests")
+            result = evaluate(function_id, variants, args.cached_only, output_dir)
         print(json.dumps(result, indent=2 if args.json else None, sort_keys=True))
         return 0
     except (FormatError, OSError, UnicodeError, ValueError) as exc:

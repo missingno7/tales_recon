@@ -1,0 +1,10 @@
+[
+  {
+    "id": "h08_row_signed_long",
+    "source": "experiments/worker-ov09-hyp/h08_row_signed_long.c",
+    "parent": "v15",
+    "suspected_cause": "The signed row factor changes scaling from mulu.w to muls.w, while the long cast independently removes the row-offset copy in the unsigned-row exact match. Their interaction may preserve the d0 index without reintroducing copies.",
+    "controlled_change": "Combine the two observed codegen factors: declare row as int (h03) and cast (row-14) to long before multiplying by six at the three flag lookups (h05).",
+    "predicted_effect": "At all three flag-byte scale sites, mulu.w #$6,d0 becomes muls.w #$6,d0 and the d0-to-d1 widening-copy pair remains absent; expected length 660 bytes, byte delta -12 versus v15. The exact verdict is not predicted."
+  }
+]

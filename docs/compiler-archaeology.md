@@ -122,9 +122,10 @@ The reproducible manifest, hashes, cache keys and results are retained in
 The scoped exhaustion review delivers the ov09 type evidence in 4,889 JSON bytes
 and its compiler diagnostic in 4,655 bytes, without dropping either optional
 section or invoking a compiler/model. The exact `ov14_F_03AE` control aligns all
-five instructions without insertions; two A4 displacement observations remain
-unresolved because diagnostics do not normalize reference identities. The
-integrated review and control are retained in
+five instructions without insertions. In the retained snapshot, two A4
+displacement observations were unresolved. Diagnostics now resolve both as
+`layout_only` through established bindings; see `docs/m68k-diagnostics.md`.
+The integrated review and control are retained in
 `evidence/experiments/recovery-feedback-baseline.json`.
 
 The ov11 cycle is now a concrete review package with a 44-byte unclassified
@@ -142,6 +143,24 @@ That independently bounded unit diagnostic is the next highest-leverage general
 mechanism: the measured overlay dependency frontier is broader than the isolated
 near-match set. SCCs are useful review seeds, not evidence of original translation
 unit boundaries or of the smallest compiler-coupled component.
+
+## Controlled hypothesis follow-up (ov09)
+
+The recommended ov09 experiment was run with predictions recorded before any
+compile. `register_trace` located the first register-role split at the
+`(row-14)*6` table index. Eight one-factor variants of v15 (temporary lifetime,
+expression grouping, index width/signedness) used eight new compiler trials:
+one EQUAL, predictions 1 confirmed / 6 partial / 1 refuted. Casting the index to
+`long` before scaling removed all six candidate-only instructions and matched all
+660 bytes; the normal verifier then promoted it. A length-matching `row*6-84`
+variant still differed, which confirms that structural scores are experiment
+selectors, not convergence measures. Retained in `experiments/worker-ov09-hyp/`.
+With proven reference identities consumed, v15's 32 A4/call observations resolve
+as layout-only, leaving only source-shape hypotheses.
+
+Fleet-scale execution of this protocol (task leases, packets, coalesced compile
+queue, re-verifying intake) is described in [fleet.md](fleet.md); whole-unit
+diagnostics are in [unit-diagnostics.md](unit-diagnostics.md).
 
 ## Boundaries and deferred work
 

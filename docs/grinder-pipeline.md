@@ -189,7 +189,9 @@ priority signal for verifier work, never a reconstruction claim.
 Source validation failures are returned as candidate feedback. Repeated identical
 validation failures end that candidate, as do repeated cached compiler mismatches. Use one grinder writer per
 checkout. The worker has an exclusive compilation lock; a stale lock requires
-checking that its worker has stopped before removing that one file.
+checking that its worker has stopped before removing that one file. Parallel
+isolated experiments (`shape_search.py`, `fleet.py verify-*`) instead wait in
+the coalescing compile queue described in [fleet](fleet.md).
 
 ## Exact comparison and proof boundaries
 
