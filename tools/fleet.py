@@ -29,7 +29,7 @@ import file_lock
 FLEET_DIR = ROOT / "build/fleet"
 PACKETS = ROOT / "experiments/fleet"
 CANONICAL_STATES = ("FUNCTION_CODE_MATCH", "FUNCTION_WITH_DATA_MATCH", "MODULE_MATCH", "OVERLAY_NODE_MATCH")
-KINDS = ("function", "unit", "review", "blocker-probe")
+KINDS = ("function", "unit", "region", "review", "blocker-probe")
 RESULT_STATUSES = ("EQUAL_CANDIDATE", "NEAR", "BLOCKED", "NEEDS_EVIDENCE")
 TASK_ID = re.compile(r"[A-Za-z0-9_.+-]{1,80}")
 PACKET_TARGET_BYTES = 10240
@@ -38,6 +38,7 @@ DEFAULT_LEASE_HOURS = 6.0
 BUDGETS = {"function": dict(max_compile_trials=24, max_variants_per_manifest=6),
            "blocker-probe": dict(max_compile_trials=16, max_variants_per_manifest=4),
            "unit": dict(max_compile_trials=12, max_variants_per_manifest=4),
+           "region": dict(max_compile_trials=40, max_variants_per_manifest=4),
            "review": dict(max_compile_trials=4, max_variants_per_manifest=2)}
 UNIT_OPTIONS = ("separate_objects", "allow_original_gaps", "join_direct_callees", "owned_code_data")
 FUNCTION_OPTIONS = ("owned_code_data", "with_m_lib")
@@ -150,14 +151,51 @@ def blocking_graph(items, by_id, intakes=()):
     return graph
 
 
+def region_tasks(regions, canonical):
+    """Region task dicts (targets = new members); member tasks are marked separately."""
+    out = []
+    for region in regions:
+        targets = [t for t in region["new_members"] if t not in canonical]
+        if len(targets) < 2:
+            continue
+        deferred = []
+        if region["oversized"]:
+            deferred.append("OVERSIZED_REGION")
+        if region.get("node") == "resident":
+            deferred.append("RESIDENT_DEFERRED")
+        if not region.get("members_well_bounded", True):
+            deferred.append("MEMBER_EXTENT_UNCERTAIN")
+        notes = []
+        if region["bridges_not_linked"]:
+            notes.append("With --allow-original-gaps, check_unit links only the new members and their canonical call "
+                         "closure; %d canonical bridges of the natural interval are not linked, so the linked object "
+                         "is compact, not the natural layout. Report that as evidence if encodings depend on it."
+                         % len(region["bridges_not_linked"]))
+        if deferred:
+            notes.append("Deferred region (%s): gather split/extent evidence before compiling." % ", ".join(deferred))
+        summary = {k: region[k] for k in ("hunk", "interval_hex", "size", "new_bytes", "canonical_bytes", "gap_bytes",
+                                          "edge_kinds", "external_prerequisites", "options", "entry")}
+        out.append(dict(id=region["id"], kind="region", targets=targets, priority=70 if deferred else 10,
+                        title="Recover strongly connected region %s %s (%d new members, %d bytes) as one natural unit"
+                              % (region["node"], region["interval_hex"], len(targets), region["new_bytes"]),
+                        dependencies=[], origin=dict(source="fleet_regions", summary=summary, deferred=deferred,
+                                                     region=region),
+                        verifier="check_unit", budget=dict(BUDGETS["region"]), notes=notes))
+    return out
+
+
 def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=1024, max_review_tasks=24,
-                include_abi_blockers=False, hypothesis_functions=(), intakes=()):
+                include_abi_blockers=False, hypothesis_functions=(), intakes=(), regions=None, region_context=None):
     """Deterministic task list from supplied ledgers (pure helper).
 
-    Each function target appears in at most one task; canonical exact
-    recoveries never become targets. Priority: lower runs first. A task whose
-    recovery would unblock other non-review tasks (``unlocks``) is boosted by
-    UNLOCK_BOOST per unlocked target, at most UNLOCK_CAP targets.
+    Canonical exact recoveries never become targets. A strongly connected
+    region (fleet_regions) becomes one ``region`` task over all of its new
+    members; a member's own function or blocker-probe task is kept but marked
+    ``blocked_by_region`` (never claimable) unless the member is independently
+    provable. Otherwise each function target appears in at most one task.
+    Priority: lower runs first. A task whose recovery would unblock other
+    non-review tasks (``unlocks``) is boosted by UNLOCK_BOOST per unlocked
+    target, at most UNLOCK_CAP targets.
     """
     from recovery_plan import _constraints
     canonical = {fid for fid, item in recovery_ledger.get("functions", {}).items()
@@ -167,6 +205,22 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
     by_id = {f["id"]: f for f in functions}
     items = {x["id"]: x for x in ranked_items if x["id"] not in canonical}
     tasks, assigned = [], set()
+    if regions is None:
+        import fleet_regions
+        regions = fleet_regions.build_regions(functions, ranked_items, canonical, blockers, attempts, intakes,
+                                              **(region_context or {}))
+    for region in regions:
+        region["members_well_bounded"] = all(items.get(m, {}).get("extent") == "CLOSED_CFG"
+                                             and items.get(m, {}).get("confidence") == "HIGH"
+                                             for m in region["new_members"])
+    in_region, region_of = set(), {}
+    for task in region_tasks(regions, canonical):
+        tasks.append(task)
+        region = task["origin"]["region"]
+        in_region.update(task["targets"])
+        for fid in task["targets"]:
+            if fid not in region["independent_members"]:
+                region_of[fid] = task["id"]
 
     def add(kind, task_id, targets, priority, title, origin, dependencies=(), verifier=None, notes=()):
         targets = [t for t in targets if t not in canonical]
@@ -176,6 +230,12 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
         task = dict(id=task_id, kind=kind, targets=targets, priority=priority, title=title,
                     dependencies=sorted(dependencies), origin=origin, verifier=verifier,
                     budget=dict(BUDGETS[kind]), notes=list(notes))
+        blocking = sorted({region_of[t] for t in targets if t in region_of})
+        if blocking:
+            # Kept visible, never claimable: this member cannot be proved alone.
+            task["blocked_by_region"] = blocking[0]
+            task["notes"].append("Blocked by region %s: this member is strongly connected to other unrecovered "
+                                 "members and is proved only by the whole region." % blocking[0])
         tasks.append(task)
         return task
 
@@ -183,6 +243,8 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
     for package in packages:
         if not package["kind"].startswith("DEPENDENCY_SCC") or not package.get("members_complete"):
             continue
+        if in_region.intersection(package["members"]):
+            continue  # superseded by the region that contains this cycle
         members = sorted(package["members"], key=lambda fid: (by_id.get(fid, {}).get("start", 0), fid))
         task_id = "unit-" + members[0] + "".join("-" + _hex_suffix(m) for m in members[1:])
         meta = package.get("metadata", {})
@@ -247,7 +309,7 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
     for fid in sorted(graph):
         item = items.get(fid)
         blocks = sorted(graph[fid] - {fid})
-        if item is None or fid in assigned or not blocks:
+        if item is None or fid in assigned or fid in in_region or not blocks:
             continue
         closed = (item["extent"] == "CLOSED_CFG" and item.get("confidence") == "HIGH" and item["node"] != "resident"
                   and not item.get("indirect") and item["size"] <= max_bytes)
@@ -258,7 +320,8 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
 
     # Callers whose unrecovered local callees are all tasks themselves. The
     # dependency is satisfied only when those callees become canonical.
-    target_task = {t: task["id"] for task in tasks for t in task["targets"]}
+    target_task = {t: task["id"] for task in tasks for t in task["targets"] if not task.get("blocked_by_region")}
+    target_task.update(region_of)
     for item in sorted((x for x in items.values() if workable(x) and x.get("pending_local_dependencies")),
                        key=lambda x: (x["size"], x["id"])):
         deps = item["pending_local_dependencies"]
@@ -273,7 +336,7 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
     # Remaining frontier: bounded read-only review chunks by constraint and node.
     groups = {}
     for item in sorted(items.values(), key=lambda x: x["id"]):
-        if item["id"] in assigned:
+        if item["id"] in assigned or item["id"] in in_region:
             continue
         constraints = _constraints(item, max_bytes, 1, 40)
         if not constraints:
@@ -294,6 +357,22 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
             "Review %s evidence for %d %s functions" % (constraint, len(members), node),
             dict(source="grinder_frontier", constraint=constraint, node=node,
                  constraints={m: _constraints(items[m], max_bytes, 1, 40) for m in members}))
+    # A region waits on the tasks of its unrecovered prerequisites outside it
+    # (check_unit needs every other same-node callee canonical).
+    final_target = {t: task["id"] for task in tasks for t in task["targets"]
+                    if not task.get("blocked_by_region") and task["kind"] != "review"}
+    final_target.update(region_of)
+    for task in tasks:
+        if task["kind"] != "region":
+            continue
+        external = task["origin"]["region"]["external_prerequisites"]
+        task["dependencies"] = sorted({final_target[d] for d in external if d in final_target} - {task["id"]})
+        untasked = [d for d in external if d not in final_target and d not in canonical]
+        if untasked:
+            task["origin"]["untasked_prerequisites"] = untasked
+            task["priority"] = max(task["priority"], 70)
+            task["notes"].append("Prerequisites without any task: %s; the region cannot be verified until they are "
+                                 "canonical." % ", ".join(untasked[:8]))
     apply_unlocks(tasks, graph, canonical)
     tasks.sort(key=lambda t: (t["priority"], t["id"]))
     return tasks, dict(omitted_review_chunks=omitted, untasked_blocking_leaves=untasked_leaves)
@@ -301,7 +380,8 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
 
 def apply_unlocks(tasks, graph, canonical=()):
     """Count, per task, the other non-review task targets its recovery would unblock; boost priority."""
-    target_task = {t: task for task in tasks for t in task["targets"]}
+    target_task = {t: task for task in tasks for t in task["targets"] if not task.get("blocked_by_region")}
+    member_tasks = Counter(task["blocked_by_region"] for task in tasks if task.get("blocked_by_region"))
     waiting_on = {}
     for task in tasks:
         for dep in task.get("dependencies", []):
@@ -321,15 +401,17 @@ def apply_unlocks(tasks, graph, canonical=()):
         task["unlocks"] = len(unlocked)
         task["unlocks_targets"] = sorted(unlocked)[:12]
         task["blocked_by"] = blocked_by[:12]
-        # A task that itself waits on an unrecovered function is not boosted
-        # past that function's own task.
-        if unlocked and not blocked_by:
+        if task["kind"] == "region":
+            task["member_tasks_blocked"] = member_tasks.get(task["id"], 0)
+        # A task that itself waits on an unrecovered function, or on its
+        # region, is not boosted past that task.
+        if unlocked and not blocked_by and not task.get("blocked_by_region"):
             task["base_priority"] = task["priority"]
             task["priority"] = max(1, task["priority"] - UNLOCK_BOOST * min(len(unlocked), UNLOCK_CAP))
     return tasks
 
 
-def plan(fleet, max_bytes=1024, max_review_tasks=24, include_abi_blockers=False):
+def plan(fleet, max_bytes=1024, max_review_tasks=24, include_abi_blockers=False, write=True):
     from recovery_plan import build_plan
     from recovery_state import evidence, ranked, recovery
     functions = evidence()["functions"]
@@ -347,16 +429,62 @@ def plan(fleet, max_bytes=1024, max_review_tasks=24, include_abi_blockers=False)
         if r["record_type"] == "fleet_intake":
             latest[r.get("task_id")] = r
     tasks, extra = build_tasks(functions, items, rec, report["packages"], max_bytes, max_review_tasks,
-                               include_abi_blockers, hyp, list(latest.values()))
+                               include_abi_blockers, hyp, list(latest.values()),
+                               region_context=region_context(fleet, functions, rec))
     frontier = dict(recovery_ledger_sha256=sha256((ROOT / "recovery/ledger.json").read_bytes()),
                     function_ledger_sha256=sha256((ROOT / "evidence/functions/ledger.json").read_bytes()))
     document = dict(schema_version=1, generated=iso(now_epoch()), frontier=frontier,
                     options=dict(max_bytes=max_bytes, max_review_tasks=max_review_tasks,
                                  include_abi_blockers=include_abi_blockers),
-                    counts=dict(Counter(t["kind"] for t in tasks)), omitted=extra, tasks=tasks)
-    with fleet.locked("plan"):
-        write_json(fleet.tasks, document)
+                    counts=dict(Counter(t["kind"] for t in tasks)), omitted=extra,
+                    regions=region_summaries(tasks), tasks=tasks)
+    if write:
+        with fleet.locked("plan"):
+            write_json(fleet.tasks, document)
     return document
+
+
+LAYOUT_AUDITS = ("evidence/experiments/linker-cycle-layout-frontier.json",)
+
+
+def region_context(fleet, functions, rec):
+    """Repository inputs for fleet_regions: proven literal-tail ends, layout audits, prior task dirs."""
+    tail_ends = {}
+    by_id = {f["id"]: f for f in functions}
+    for fid, item in rec.get("functions", {}).items():
+        if item.get("state") == "FUNCTION_WITH_DATA_MATCH" and fid in by_id:
+            try:
+                from check_unit import proven_tail
+                tail, _ = proven_tail(by_id[fid], rec)
+                tail_ends[fid] = by_id[fid]["end"] + len(tail)
+            except Exception:  # an unprovable tail stays an unknown gap
+                pass
+    audits = []
+    for path in LAYOUT_AUDITS:
+        try:
+            audits.append(json.loads((ROOT / path).read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            pass
+    dirs = sorted(p.name for p in fleet.packets.iterdir() if p.is_dir()) if fleet.packets.is_dir() else []
+    return dict(tail_ends=tail_ends, audits=audits, existing_dirs=dirs,
+                source_exists=lambda path: (ROOT / path).is_file())
+
+
+def region_summaries(tasks):
+    rows = []
+    for task in tasks:
+        if task["kind"] != "region":
+            continue
+        region = task["origin"]["region"]
+        rows.append(dict(id=task["id"], priority=task["priority"], interval=region["interval_hex"],
+                         new_members=len(task["targets"]), new_bytes=region["new_bytes"],
+                         canonical_members=len(region["canonical_members"]), gap_bytes=region["gap_bytes"],
+                         edge_kinds=region["edge_kinds"], unlocks=task.get("unlocks", 0),
+                         unlocks_targets=task.get("unlocks_targets", []),
+                         member_tasks_blocked=task.get("member_tasks_blocked", 0),
+                         dependencies=task["dependencies"], deferred=task["origin"]["deferred"],
+                         options=region["options"], bridges_not_linked=len(region["bridges_not_linked"])))
+    return rows
 
 
 # ---------------------------------------------------------------------------
@@ -393,6 +521,8 @@ def task_state(task, state, done, canonical, by_id, at):
     lease = state["leases"].get(task["id"])
     if lease and lease["expires_at"] > at:
         return "leased"
+    if task.get("blocked_by_region"):
+        return "blocked_by_region"
     for dep in task.get("dependencies", []):
         dep_task = by_id.get(dep)
         if dep_task is None or not all(t in canonical for t in dep_task["targets"]):
@@ -680,7 +810,7 @@ RESULT_SCHEMA = """## result.json (closed schema; intake re-verifies every EQUAL
  "status":"EQUAL_CANDIDATE|NEAR|BLOCKED|NEEDS_EVIDENCE",
  "target":"{target}",
  "best":null or {{"source":"{dir}/<file>.c","profile":"aztec36","cache_key":"<64 hex>",
-   "verdict":"EQUAL|DIFFER|BLOCKED","verifier":"{verifier}","entry":"<evidence id of the member compiled as recovered(), e.g. {target}>",
+   "verdict":"EQUAL|DIFFER|BLOCKED","verifier":"{verifier}","entry":"<evidence id of the member compiled as recovered(), e.g. {entry}>",
    "options":[{options}],"expected_length":0,"actual_length":0}},
  "hypotheses":[{{"id":"h1","statement":"...","outcome":"confirmed|refuted|partial|unmeasurable|untested","evidence":"ledger line / report path"}}],
  "compile_trials":0,"ledger_lines":[],
@@ -692,8 +822,81 @@ For check_unit with several new members, `best` may add `"members":{{"<other mem
 """
 
 
+REGION_PROTOCOL = """## Region protocol (staged; the whole region is the only acceptance unit)
+Full member facts, candidates and edges are in `{dir}/task.json` (`task.origin.region`); read that file and `python tools/grinder.py facts ID` per member instead of asking for more context.
+A. Stage sources: each variant is one directory `{dir}/vNN/` holding `<ID>.c` for EVERY new member (copy the best candidate listed below, else author it; later variants copy their parent directory and change one member). Each file is self-contained K&R C defining `recovered(...)`; calls to other members, including back to the entry, use mechanical `F_hNN_XXXX` names. The entry file is compiled as recovered(); every other new member is one `--member ID=SRC`. Canonical members are reused automatically; never copy their bytes or source into your files.
+B. Baseline: compile the complete region once with the verify command below and run the diagnostics command on its receipt and cache key. It reports per-member states (`same_after_reference_identity`, `differs`, ...), unknown gaps and candidate-only bytes.
+C. Improve members one at a time: pick the worst `differs` member, record a hypothesis for THAT member (`"member"` field, `"parent"` = parent variant directory), change only that member's file in a new variant directory, recompile the whole region, rerun unit_diag. A member already `same_after_reference_identity` is frozen unless a hypothesis names it.
+D. Unknown gaps stay unknown: never fill them with bytes, padding, data or asm. If a gap or a compact (non-natural) link is what blocks equality, report NEEDS_EVIDENCE or BLOCKED naming the gap/bridge.
+E. The region is EQUAL only if the complete object and every member are EQUAL. Report every non-entry source in best.members.
+"""
+
+
+def _region_body(fleet, task, rec, directory):
+    import fleet_regions
+    region = task["origin"]["region"]
+    sections = []
+    summary = dict(task["origin"]["summary"], deferred=task["origin"].get("deferred"),
+                   independent=region["independent_members"], layout_intervals=[
+                       dict(interval="0x%04X..0x%04X" % (i["start"], i["end"]), dependents=i["dependents"],
+                            sources=i["sources"]) for i in region["layout_intervals"]],
+                   linked_compact=region["linked_compact"], bridges_not_linked=len(region["bridges_not_linked"]),
+                   blocked_by=task.get("blocked_by"), waits_on=task.get("dependencies"))
+    summary = {k: v for k, v in summary.items() if v not in ([], {}, None) and k not in ("hunk", "interval_hex")}
+    sections.append(("region", "## Region\n`" + _j(summary)[:1200] + "`\n(internal edges: "
+                     "`task.origin.region.internal_edges`)\n", False))
+    rows, run = [], []
+
+    def flush():
+        if run:
+            rows.append("- 0x%04X +%d canonical (reused): %s" % (run[0]["start"], sum(x["size"] for x in run),
+                                                                ", ".join(x["id"] for x in run)))
+            run.clear()
+    for m in region["ordered"]:
+        if m.get("role") == "canonical":
+            run.append(m)
+            continue
+        flush()
+        if m.get("gap"):
+            rows.append("- 0x%04X +%d GAP UNKNOWN_NOT_ASSIGNED (stays unclaimed)" % (m["start"], m["size"]))
+            continue
+        line = "- 0x%04X +%d NEW %s" % (m["start"], m["size"], m["id"])
+        line += " scc" if m.get("scc") else (" independent" if m.get("independent") else "")
+        info = region["candidates"].get(m["id"], {})
+        for c in info.get("candidates", [])[:2]:
+            line += "; cand `%s` %s %s/%s key %s" % (c["source"], c.get("verdict") or c.get("intake_status"),
+                                                    c.get("actual"), c.get("expected"),
+                                                    (c.get("cache_key") or "-")[:12])
+        if info.get("experiment_dirs"):
+            line += "; dirs " + ",".join(info["experiment_dirs"])
+        rows.append(line)
+    flush()
+    sections.append(("members", "## Members in address order (region interval %s)\n" % region["interval_hex"]
+                     + "\n".join(rows) + "\n", False))
+    commands = fleet_regions.region_commands(region, directory)
+    sections.append(("commands", "## Commands\n- verify (isolated, queued): `python tools/fleet.py verify-region %s "
+                     "--sources %s/vNN` compiles `vNN/<ID>.c` for every new member: entry `%s` as recovered(), the "
+                     "others as `--member`, flags `%s`, output under `%s/runs` (explicit form: `commands.verify` in "
+                     "task.json).\n- per-member diagnostics: `%s` (explicit `--members` form: `commands.diag`).\n"
+                     "Promotion is the supervisor's `check_unit.py` with the same arguments; never run it yourself.\n"
+                     % (task["id"], directory, region["entry"],
+                        " ".join("--" + o.replace("_", "-") for o in region["options"]), directory,
+                        commands["diag_receipt"]), False))
+    history, intakes = ledger_history(fleet, task["targets"], task["id"], limit=4)
+    sections.append(("ledger", "## Prior hypotheses (do not repeat)\n`" + _j(history)[:600] + "`\n" +
+                     ("Prior fleet outcomes: `" + _j(intakes)[:500] + "`\n" if intakes else ""), False))
+    optional = []
+    receipts = unit_receipts(task["targets"], limit=3)
+    if receipts:
+        optional.append(("unit-receipts", "## Prior unit receipts (advisory)\n" +
+                         "\n".join("- `" + _j(r) + "`" for r in receipts) + "\n"))
+    return sections, optional
+
+
 def _task_body(fleet, task, rec, functions, rank):
     """Return ordered (name, text, optional) packet sections."""
+    if task["kind"] == "region":
+        return _region_body(fleet, task, rec, rel(fleet.task_dir(task["id"])))
     sections = []
     targets = task["targets"]
     origin = task.get("origin", {})
@@ -744,7 +947,16 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
     budget = task["budget"]
     target = task["targets"][0] if len(task["targets"]) == 1 else ",".join(task["targets"])
     verifier = task.get("verifier") or "check_function"
-    if task["kind"] == "unit":
+    if task["kind"] == "region":
+        record = ("Append one JSON line per hypothesis to `%s/hypotheses.jsonl`: "
+                  "{\"id\",\"parent\",\"member\",\"suspected_cause\",\"controlled_change\",\"prediction\"} with a concrete "
+                  "per-member length/state prediction (for example `member ov11_F_54F8 becomes same_after_reference_identity`)."
+                  % directory)
+        run = ("the verify command in the Commands section (always isolated; one --member per other new member, exactly "
+               "the listed flags), then the per-member diagnostics command with the new cache key.")
+        options = "\"separate_objects\",\"allow_original_gaps\",\"join_direct_callees\",\"owned_code_data\""
+        unit_doc = ", docs/unit-diagnostics.md, docs/fleet.md (Regions)"
+    elif task["kind"] == "unit":
         record = ("Append one JSON line per hypothesis to `%s/hypotheses.jsonl`: "
                   "{\"id\",\"parent\",\"suspected_cause\",\"controlled_change\",\"prediction\"} with a concrete length/diff prediction. "
                   "Unit member sources: copy candidates into `%s/` and edit there." % (directory, directory))
@@ -779,9 +991,12 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
                     "becomes a concrete bounded source hypothesis (then use the function protocol, max %d trials). "
                     "Report NEEDS_EVIDENCE with the precise missing evidence per member, or BLOCKED with a mechanism.\n"
                     % budget["max_compile_trials"])
+    if task["kind"] == "region":
+        head.append(REGION_PROTOCOL.format(dir=directory))
     tail = [PROTOCOL.format(unit_doc=unit_doc, record=record, run=run, trials=budget["max_compile_trials"],
                             variants=budget["max_variants_per_manifest"], dir=directory, task_id=task["id"]),
-            RESULT_SCHEMA.format(task_id=task["id"], dir=directory, target=target, verifier=verifier, options=options)]
+            RESULT_SCHEMA.format(task_id=task["id"], dir=directory, target=target, verifier=verifier, options=options,
+                                 entry=task["origin"]["region"]["entry"] if task["kind"] == "region" else target)]
     sections, optional = _task_body(fleet, task, rec, functions, rank)
     for note in task.get("notes", []):
         sections.append(("note", "Note: " + note + "\n", False))
@@ -821,7 +1036,11 @@ def write_packet(fleet, task_id):
     directory = fleet.task_dir(task_id)
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "PROMPT.md").write_text(text, encoding="utf-8", newline="\n")
-    write_json(directory / "task.json", dict(schema_version=1, task=task, lease=lease))
+    extra = {}
+    if task["kind"] == "region":
+        import fleet_regions
+        extra["commands"] = fleet_regions.region_commands(task["origin"]["region"], rel(directory))
+    write_json(directory / "task.json", dict(schema_version=1, task=task, lease=lease, **extra))
     return directory / "PROMPT.md", len(text.encode("utf-8"))
 
 
@@ -1182,6 +1401,23 @@ def _run_wrapped(module_name, argv):
         sys.argv = saved
 
 
+def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_direct_callees=False, canonical=None):
+    """Isolated check_unit argv for a region variant directory (see fleet_regions.region_check_args)."""
+    import fleet_regions
+    task = find_task(fleet, task_id)
+    require(task["kind"] == "region", "not a region task: " + task_id)
+    directory = fleet.task_dir(task_id)
+    source_dir = Path(sources).resolve() if sources else directory.resolve()
+    require(source_dir.is_relative_to(directory.resolve()), "--sources must be inside the task directory")
+    canonical = canonical_ids() if canonical is None else canonical
+    members = [m for m in task["targets"] if m not in canonical]
+    require(len(members) >= 1, "every region member is already canonical")
+    for m in members:
+        require((source_dir / (m + ".c")).is_file(), "missing member source " + rel(source_dir / (m + ".c")))
+    return fleet_regions.region_check_args(task["origin"]["region"], rel(directory), rel(source_dir), members, profile,
+                                           ["--join-direct-callees"] if join_direct_callees else [])
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--fleet-dir", type=Path, help=argparse.SUPPRESS)
@@ -1192,6 +1428,8 @@ def main(argv=None):
     p.add_argument("--max-bytes", type=int, default=1024)
     p.add_argument("--max-review-tasks", type=int, default=24)
     p.add_argument("--include-abi-blockers", action="store_true")
+    p = sub.add_parser("regions", help="print the strongly connected recovery regions (writes nothing)")
+    p.add_argument("--max-bytes", type=int, default=1024)
     p = sub.add_parser("claim", help="atomically lease the next task")
     p.add_argument("--worker", required=True); p.add_argument("--kind", action="append", choices=KINDS)
     p.add_argument("--task"); p.add_argument("--lease-hours", type=float, default=DEFAULT_LEASE_HOURS)
@@ -1226,6 +1464,10 @@ def main(argv=None):
     for name in ("verify-function", "verify-unit"):
         p = sub.add_parser(name, help="isolated check_%s run through the compile queue" % name.split("-")[1])
         p.add_argument("args", nargs=argparse.REMAINDER)
+    p = sub.add_parser("verify-region", help="isolated whole-region check_unit of one variant directory")
+    p.add_argument("task"); p.add_argument("--sources", help="variant directory with <ID>.c per new member")
+    p.add_argument("--profile", default="aztec36"); p.add_argument("--join-direct-callees", action="store_true")
+    p.add_argument("--print", action="store_true", help="print the check_unit arguments without compiling")
     args = ap.parse_args(argv)
     if args.packets_dir is not None:
         packets = args.packets_dir.resolve()
@@ -1235,7 +1477,12 @@ def main(argv=None):
     try:
         if args.command == "plan":
             doc = plan(fleet, args.max_bytes, args.max_review_tasks, args.include_abi_blockers)
-            print(_j(dict(tasks=len(doc["tasks"]), counts=doc["counts"], omitted=doc["omitted"], path=rel(fleet.tasks))))
+            print(_j(dict(tasks=len(doc["tasks"]), counts=doc["counts"], omitted=doc["omitted"],
+                          regions=[r["id"] for r in doc["regions"]], path=rel(fleet.tasks))))
+        elif args.command == "regions":
+            doc = plan(fleet, args.max_bytes, write=False)
+            print(json.dumps(sorted(doc["regions"], key=lambda r: (r["priority"], -r["unlocks"], r["id"])),
+                             indent=1, sort_keys=True))
         elif args.command == "claim":
             task, lease = claim(fleet, args.worker, args.kind, args.task, args.lease_hours)
             if task is None:
@@ -1265,6 +1512,12 @@ def main(argv=None):
             lines, _ = launch_plan(fleet, args.count, args.kind, args.prefix, args.model, args.effort,
                                    args.lease_hours, args.dry_run, args.cx, not args.no_host_guard)
             print("\n".join(lines))
+        elif args.command == "verify-region":
+            argv = region_verify_argv(fleet, args.task, args.sources, args.profile, args.join_direct_callees)
+            if args.print:
+                print(" ".join(argv + ["--isolated"]))
+                return 0
+            return _run_wrapped("check_unit", argv)
         elif args.command in ("verify-function", "verify-unit"):
             module = "check_function" if args.command == "verify-function" else "check_unit"
             return _run_wrapped(module, [a for a in args.args if a != "--"])

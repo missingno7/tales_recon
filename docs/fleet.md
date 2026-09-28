@@ -8,9 +8,11 @@ not a game build.
 
 ```powershell
 python tools/fleet.py plan                      # build/fleet/tasks.json from the current frontier
+python tools/fleet.py regions                   # strongly connected regions of the frontier (writes nothing)
 python tools/fleet.py status                    # task states, leases, compile queue
 python tools/fleet.py launch-plan 6             # claim 6 tasks, write packets, print cx commands
-python tools/fleet.py claim --worker NAME [--kind function|unit|review|blocker-probe] [--task ID]
+python tools/fleet.py claim --worker NAME [--kind function|unit|region|review|blocker-probe] [--task ID]
+python tools/fleet.py verify-region TASK --sources DIR [--print]   # isolated whole-region check_unit
 python tools/fleet.py packet TASK               # experiments/fleet/TASK/PROMPT.md
 python tools/fleet.py renew|release|complete|reopen TASK ...
 python tools/fleet.py intake TASK [--verify-near] [--dry-run]
@@ -40,13 +42,15 @@ launched; `--no-host-guard` skips the check.
 
 `plan` reads the function census, `recovery/ledger.json`, the ranked frontier,
 `recovery_plan` packages and the hypothesis ledger. Task ids are stable per
-target: `fn-<id>`, `blk-<id>`, `unit-<first>-<hex>...`, `rev-<constraint>-<first>`.
-A function target appears in at most one task. Canonical exact recoveries never
-become targets, and a task whose targets become canonical later is `obsolete`.
+target: `fn-<id>`, `blk-<id>`, `reg-<node>_<start>-<end>`, `unit-<first>-<hex>...`,
+`rev-<constraint>-<first>`. Outside regions, a function target appears in at
+most one task. Canonical exact recoveries never become targets, and a task
+whose targets become canonical later is `obsolete`.
 
 | Kind | Source | Priority |
 | --- | --- | --- |
-| unit | complete same-hunk dependency SCC packages | 10 (hypothesis) / 30 (review) |
+| region | strongly connected regions (below); all new members of one physical interval | 10 / 70 (deferred) |
+| unit | complete same-hunk dependency SCC packages not covered by a region | 10 (hypothesis) / 30 (review) |
 | function | retained attempts or ledger trials, not blocked | 15 (similarity >= 0.75) / 25 |
 | blocker-probe | recovery blockers; ABI-profile blockers only with `--include-abi-blockers` | 20 |
 | function | closed, high-confidence, non-resident, direct-flow leaves <= `--max-bytes` (1024) | 40 + size/128 |
@@ -67,10 +71,77 @@ no task (an excluded ABI-profile blocker) are listed under
 `omitted.untasked_blocking_leaves`, not turned into tasks. A leaf in a
 same-hunk cycle, like ov11_F_5962 (calls ov11_F_5C42, which calls it back),
 has an unresolved callee of its own, so `check_function` cannot build it alone.
-It stays in its unit task, which the boost now puts first. The worker authors
-both members and proves them together with `check_unit --member` (below). On 2026-09-28, `plan`
-produced 53 tasks: 26 function (10 open, 16 waiting), 2 blocker-probe, 1 unit
-and 24 review; 60 further review chunks were omitted by the cap.
+It belongs to a region task (below).
+
+## Regions
+
+Single-function tasks were sent to impossible targets: in ov11, 5C42's call to
+4696 must stay a 4-byte `JSR d16(PC)`, which the recorded
+CYCLIC_INTER_OBJECT_PC_CALL blocker ties to the whole physical interval
+`0x4790..0x5962`. `tools/fleet_regions.py` (pure, read-only) computes strongly
+connected components of the unrecovered same-hunk graph. Its edges are:
+
+- `call`: a same-hunk PC-relative direct call between unrecovered functions;
+- `pending_dependency`: the ranked frontier's pending local dependency;
+- `layout_interval`: a DEPENDENCY_LAYOUT recovery blocker that names
+  `0xAAAA..0xBBBB`. The blocked function needs every unrecovered candidate
+  inside that interval;
+- `short_form_if_compacted`: a long call form (`JSR d16(PC)`/`BSR.W`) whose
+  original displacement is outside the BSR.B range but would fall inside it
+  without the unrecovered bytes in between.
+
+Intake explanations that only mention a function are not region edges. Each
+component is widened to its physical interval. The interval grows to whole
+function extents and to overlapping curated intervals, including the
+`cycle_layout_gap_audit` report. Overlapping regions in one hunk are merged.
+Every unrecovered function in the interval is a new member and every canonical
+one is reused. Bytes covered by no function and no proven literal tail are
+listed as `UNKNOWN_NOT_ASSIGNED` gaps and stay unclaimed.
+
+A `region` task targets all new members. It records the ordered members, the
+SCC and independent members, gaps, edges and external prerequisites. It also
+records the up to three best candidate sources per new member (fleet intakes,
+then retained recovery attempts, with verdicts and cache keys), prior task
+directories, and the check_unit options. The options are always
+`--separate-objects`, plus `--allow-original-gaps` unless the linked span is
+contiguous. A new member's own function or blocker-probe task is kept, but it
+is marked `blocked_by_region` and is never claimable. The exception is an
+*independent* member: it lies inside the interval but has no unrecovered
+prerequisite, so its task stays open. A region waits on the tasks of
+prerequisites outside it and counts `member_tasks_blocked`. A region is
+deferred to priority 70 if it is oversized (more than 12 new members), resident,
+or has a member of uncertain extent.
+
+The region packet (at most 12 KB) references `task.json` for full facts. Its
+protocol is staged. Each variant is a directory `vNN/` with one `<ID>.c` per
+new member. Stage the best candidates first, then compile the whole region
+with `fleet.py verify-region TASK --sources DIR`. That command runs an isolated
+check_unit: the first unrecovered member is the entry and the rest are passed
+as `--member`. Next, run `unit_diag.py --receipt` for per-member states. Then
+change one member per variant, and record a hypothesis naming that member
+before each compile. The budget is 40 trials.
+
+Limitation: with `--allow-original-gaps`, check_unit links only the new members
+and their canonical call closure. Non-called canonical bridges of the interval
+are therefore not linked, and the object is compact, not the natural layout.
+Each region lists these bridges as `bridges_not_linked`.
+
+On 2026-09-28 the frontier had 4 regions:
+
+| Region | New members | New / canonical / gap bytes | Unlocks | Member tasks blocked | State |
+| --- | --- | --- | --- | --- | --- |
+| `reg-ov11_4790-5CEA` | 487E, 4EC6, 51C0, 54F8, 55B8, 583A, 5962, 5C42 | 3010 / 2372 / 44 | 7 | 8 | open, priority 1 |
+| `reg-ov05_131C-1EFC` | 131C, 1860 | 3040 / 0 / 0 | 0 | 0 | deferred, waits on fn-ov05_F_3836 |
+| `reg-resident_287C-2D00` | 287C, 291E | 1156 / 0 / 0 | 0 | 0 | deferred (resident) |
+| `reg-resident_7BF4-7F9C` | 7BF4, 7C82 | 936 / 0 / 0 | 0 | 0 | deferred (resident) |
+
+The ov11 region's edges are 8 call, 8 pending-dependency, 12 layout-interval
+and 2 short-form. Its gap is `0x59E6..0x5A12`. It links 20 functions under
+`--allow-original-gaps`, and 13 of its 14 canonical bridges are not linked.
+The 7 tasks it unlocks are 13DC, 2E26, 3532, 5D14, 5EC0, 62B4 and 6CFE. A
+`plan` then yields 56 tasks: 4 region, 25 function, 3 blocker-probe and 24
+review. Six member tasks are `blocked_by_region`; the other two are already
+completed.
 
 ## Leases and outcomes
 

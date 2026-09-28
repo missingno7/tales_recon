@@ -250,16 +250,23 @@ class PlannerUnlockTests(unittest.TestCase):
                         explanation="Missing evidence is an independently recovered F_h11_5962.", proposed_blocker=None)]
         tasks, extra = fleet.build_tasks(functions, items, ledger, packages, intakes=intakes)
         by_id = {t["id"]: t for t in tasks}
-        unit = by_id["unit-ov11_F_5962-5C42"]
-        self.assertEqual(unit["unlocks_targets"], ["ov11_F_54F8", "ov11_F_583A"])
-        self.assertEqual((unit["base_priority"], unit["priority"]), (30, 30 - 2 * fleet.UNLOCK_BOOST))
+        # The mutual pending dependency is a region; it supersedes the package unit.
+        self.assertNotIn("unit-ov11_F_5962-5C42", by_id)
+        region = by_id["reg-ov11_5962-5C6A"]
+        self.assertEqual((region["kind"], region["targets"]), ("region", ["ov11_F_5962", "ov11_F_5C42"]))
+        self.assertEqual(region["unlocks_targets"], ["ov11_F_54F8", "ov11_F_583A"])
+        self.assertEqual((region["base_priority"], region["priority"]), (10, 1))
         self.assertEqual(by_id["fn-ov11_F_583A"]["blocked_by"], ["ov11_F_5962"])
         self.assertEqual(by_id["fn-ov11_F_54F8"]["blocked_by"], ["ov11_F_5962"])
-        self.assertLess(unit["priority"], by_id["fn-ov11_F_1000"]["priority"])
+        self.assertLess(region["priority"], by_id["fn-ov11_F_1000"]["priority"])
         self.assertEqual(by_id["fn-ov11_F_583A"]["priority"], 15)  # blocked tasks are not boosted
         self.assertEqual(extra["untasked_blocking_leaves"], [])
         without, _ = fleet.build_tasks(functions, items, ledger, packages)
-        self.assertEqual({t["id"]: t for t in without}["unit-ov11_F_5962-5C42"]["unlocks"], 1)
+        self.assertEqual({t["id"]: t for t in without}["reg-ov11_5962-5C6A"]["unlocks"], 1)
+        # With region planning disabled the package unit path still works.
+        units, _ = fleet.build_tasks(functions, items, ledger, packages, intakes=intakes, regions=[])
+        unit = {t["id"]: t for t in units}["unit-ov11_F_5962-5C42"]
+        self.assertEqual((unit["base_priority"], unit["priority"]), (30, 30 - 2 * fleet.UNLOCK_BOOST))
 
     def test_blocked_task_is_not_boosted_and_waiting_tasks_count(self):
         tasks = [task("leaf", targets=["L"], priority=40), task("mid", targets=["M"], priority=44),
@@ -283,6 +290,128 @@ class PlannerUnlockTests(unittest.TestCase):
         self.assertNotIn("fn-ov14_F_0412", {t["id"] for t in tasks})
         self.assertEqual(extra["untasked_blocking_leaves"][0]["id"], "ov14_F_0412")
         self.assertEqual(extra["untasked_blocking_leaves"][0]["blocker_class"], "ABI_OR_CODEGEN_PROFILE")
+
+
+class RegionTests(unittest.TestCase):
+    """Synthetic hunk-11 layout: A B G C D [gap] F E (A, C, F canonical)."""
+
+    CYCLE = ("CYCLIC_INTER_OBJECT_PC_CALL: exact displacement requires the full physical 0x0100..0x01C0 "
+             "interval; recover it in order.")
+
+    @staticmethod
+    def fn(fid, start, end, calls=(), instructions=()):
+        return dict(id="ov11_F_" + fid, hunk=11, node="ov11", start=start, end=end, size=end - start,
+                    direct_callees=[dict(basis="PC_RELATIVE", hunk=11, id="ov11_F_" + c, offset=o, site=s)
+                                    for c, o, s in calls],
+                    instructions=list(instructions))
+
+    def setUp(self):
+        fn = self.fn
+        self.functions = [fn("0100", 0x100, 0x120), fn("0120", 0x120, 0x160, [("01C0", 0x1C0, 0x130)]),
+                          fn("0160", 0x160, 0x180), fn("0180", 0x180, 0x1C0),
+                          fn("01C0", 0x1C0, 0x200, [("0240", 0x240, 0x1D0)]), fn("0210", 0x210, 0x240),
+                          fn("0240", 0x240, 0x280, [("01C0", 0x1C0, 0x250)])]
+        self.items = [PlannerUnlockTests.item("ov11_F_" + x, size=0x40) for x in ("0120", "0160", "01C0", "0240")]
+        self.canonical = {"ov11_F_0100", "ov11_F_0180", "ov11_F_0210"}
+        self.ledger = dict(functions={c: dict(state="FUNCTION_CODE_MATCH") for c in self.canonical}, attempts={
+            "ov11_F_0120": [dict(source_sha256="ab" * 32, verdict="DIFFER", mnemonic_similarity=0.9,
+                                 cache_key="c" * 64, expected_length=64, actual_length=66)]},
+            blockers={"ov11_F_0240": dict(reason=self.CYCLE, state="BLOCKED")})
+
+    def test_layout_interval_widens_cycle_into_one_region(self):
+        import fleet_regions
+        regions = fleet_regions.build_regions(self.functions, self.items, self.canonical, self.ledger["blockers"],
+                                              self.ledger["attempts"], source_exists=lambda p: True,
+                                              existing_dirs=["fn-ov11_F_0120", "fn-other"])
+        self.assertEqual(len(regions), 1)
+        r = regions[0]
+        self.assertEqual((r["id"], r["interval"]), ("reg-ov11_0100-0280", [0x100, 0x280]))
+        self.assertEqual(r["new_members"], ["ov11_F_0120", "ov11_F_0160", "ov11_F_01C0", "ov11_F_0240"])
+        self.assertEqual(r["scc_members"], ["ov11_F_0120", "ov11_F_01C0", "ov11_F_0240"])
+        self.assertEqual(r["independent_members"], ["ov11_F_0160"])  # inside the interval, no prerequisites
+        self.assertEqual(r["gaps"], [dict(start=0x200, end=0x210, size=16, ownership="UNKNOWN_NOT_ASSIGNED")])
+        self.assertEqual(r["options"], ["separate_objects", "allow_original_gaps"])
+        self.assertEqual(r["bridges_not_linked"], ["ov11_F_0100", "ov11_F_0180", "ov11_F_0210"])
+        self.assertEqual(r["edge_kinds"]["layout_interval"], 2)  # 0240 needs 0120 and 0160
+        cand = r["candidates"]["ov11_F_0120"]
+        self.assertEqual(cand["candidates"][0]["source"], "recovery/candidates/ov11_F_0120/" + "ab" * 32 + ".c")
+        self.assertEqual(cand["experiment_dirs"], ["experiments/fleet/fn-ov11_F_0120"])
+        commands = fleet_regions.region_commands(r, "experiments/fleet/" + r["id"])
+        self.assertIn("verify-unit ov11_F_0120 experiments/fleet/reg-ov11_0100-0280/vNN/ov11_F_0120.c "
+                      "--member ov11_F_0160=", commands["verify"])
+        self.assertTrue(commands["verify"].endswith("--separate-objects --allow-original-gaps "
+                                                    "--output-dir experiments/fleet/reg-ov11_0100-0280/runs"))
+        self.assertEqual(commands["promote_shape"].count("--member"), 3)
+
+    def test_member_tasks_are_blocked_by_region_and_independent_ones_stay_open(self):
+        tasks, _ = fleet.build_tasks(self.functions, self.items, self.ledger, [])
+        by_id = {t["id"]: t for t in tasks}
+        region = by_id["reg-ov11_0100-0280"]
+        self.assertEqual((region["kind"], region["verifier"], region["budget"]["max_compile_trials"]),
+                         ("region", "check_unit", 40))
+        self.assertEqual(by_id["fn-ov11_F_0120"]["blocked_by_region"], region["id"])
+        self.assertEqual(by_id["blk-ov11_F_0240"]["blocked_by_region"], region["id"])
+        self.assertNotIn("blocked_by_region", by_id["fn-ov11_F_0160"])
+        self.assertEqual(region["member_tasks_blocked"], 3)  # fn-0120, fn-01C0, blk-0240
+        self.assertFalse(any(t["kind"] == "review" and set(t["targets"]) & set(region["targets"]) for t in tasks))
+        state = dict(leases={}, completed={}, reopened={}, history=[])
+        self.assertEqual(fleet.task_state(by_id["fn-ov11_F_0120"], state, {}, set(), by_id, 0), "blocked_by_region")
+        with tempfile.TemporaryDirectory() as temp:
+            f = fleet.Fleet(Path(temp) / "fleet", "build/test-fleet-" + uuid.uuid4().hex + ".jsonl", Path(temp) / "p")
+            f.dir.mkdir(parents=True)
+            f.tasks.write_text(json.dumps(dict(schema_version=1, tasks=tasks)), encoding="utf-8")
+            with patch.object(fleet, "canonical_ids", return_value=set()):
+                claimed = [fleet.claim(f, "w%d" % i)[0] for i in range(4)]
+        self.assertEqual({t["id"] for t in claimed if t}, {region["id"], "fn-ov11_F_0160"})
+
+    def test_short_form_call_depends_on_unrecovered_bytes_between(self):
+        import fleet_regions
+        call = dict(offset=0x10, raw="4eba00fc", size=4, mnemonic="jsr", operands="")
+        functions = [self.fn("0000", 0, 0x20, [("0100", 0x100, 0x10)], [call]), self.fn("0020", 0x20, 0xF0),
+                     self.fn("00F0", 0xF0, 0x100), self.fn("0100", 0x100, 0x120)]
+        by_id = {f["id"]: f for f in functions}
+        unrecovered = set(by_id) - {"ov11_F_00F0"}
+        edges = fleet_regions.region_edges(by_id, {}, unrecovered, [])
+        self.assertEqual(edges[("ov11_F_0000", "ov11_F_0020")], {"short_form_if_compacted"})
+        self.assertEqual(edges[("ov11_F_0000", "ov11_F_0100")], {"call"})
+        # With the 0xD0 bytes between recovered, the compact distance stays long.
+        edges = fleet_regions.region_edges(by_id, {}, {"ov11_F_0000", "ov11_F_0100"}, [])
+        self.assertEqual(set(edges), {("ov11_F_0000", "ov11_F_0100")})
+
+    def test_region_packet_and_verify_argv(self):
+        tasks, _ = fleet.build_tasks(self.functions, self.items, self.ledger, [])
+        region = next(t for t in tasks if t["kind"] == "region")
+        packets = ROOT / "build" / ("test-packets-" + uuid.uuid4().hex)
+        ledger = "build/test-fleet-" + uuid.uuid4().hex + ".jsonl"
+        try:
+            with tempfile.TemporaryDirectory() as temp:
+                f = fleet.Fleet(Path(temp) / "fleet", ledger, packets)
+                f.dir.mkdir(parents=True)
+                f.tasks.write_text(json.dumps(dict(schema_version=1, tasks=tasks)), encoding="utf-8")
+                text = fleet.render_packet(f, region, dict(worker="luna-reg", expires="2026-01-01T00:00:00+00:00"))
+                self.assertLessEqual(len(text.encode()), fleet.PACKET_MAX_BYTES)
+                for needle in ("Region protocol", "verify-region reg-ov11_0100-0280", "GAP UNKNOWN_NOT_ASSIGNED",
+                               "NEW ov11_F_0120 scc", "independent", "canonical (reused)", "best.members",
+                               "at most 40 compiler trials", '"member"', "entry `ov11_F_0120`"):
+                    self.assertIn(needle, text)
+                variant = f.task_dir(region["id"]) / "v01"
+                variant.mkdir(parents=True)
+                with patch.object(fleet, "canonical_ids", return_value=set()):
+                    with self.assertRaisesRegex(FormatError, "missing member source"):
+                        fleet.region_verify_argv(f, region["id"], variant)
+                    for m in region["targets"]:
+                        (variant / (m + ".c")).write_text("recovered() { return 0; }\n", encoding="ascii")
+                    argv = fleet.region_verify_argv(f, region["id"], variant)
+                    with self.assertRaisesRegex(FormatError, "inside the task directory"):
+                        fleet.region_verify_argv(f, region["id"], packets)
+                src = fleet.rel(variant)
+                self.assertEqual(argv[:2], ["ov11_F_0120", src + "/ov11_F_0120.c"])
+                self.assertEqual(argv.count("--member"), 3)
+                self.assertIn("--allow-original-gaps", argv)
+                self.assertNotIn("--isolated", argv)  # _run_wrapped adds it
+        finally:
+            import shutil
+            shutil.rmtree(packets, ignore_errors=True)
 
 
 CX_PS = """f2-author-1   01a0  gpt-6-luna/xhigh   up   4h25m  idle   0m08s  cmds-failed 0/8  simantw_recon  | thinking
