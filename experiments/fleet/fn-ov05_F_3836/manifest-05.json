@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_3836",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "fourth-draw-wide-second-arg",
+      "causal_family": "ui-call-stack-arguments",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov05_F_3836/float-expressions-v4.c",
+      "profile": "aztec36",
+      "parent": "1168b78eb9825c05714bc0c07ed74ba63324f48714b7540c6a5daa0efe0f447c",
+      "suspected_cause": "The fourth F_h00_8B4C call pushes a 32-bit second argument of 319, while the current candidate clears that slot.",
+      "controlled_change": "Change only the second argument of the fourth F_h00_8B4C call from 0L to 319L.",
+      "predicted_effect": {
+        "length_delta": 2,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Replacing CLR.L -(A7) (2 bytes) with PEA.L #319 (4 bytes) should grow the contribution by two bytes."
+      }
+    }
+  ]
+}

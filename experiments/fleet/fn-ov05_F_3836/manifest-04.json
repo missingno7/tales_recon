@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_3836",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "third-draw-zero-column",
+      "causal_family": "ui-call-stack-arguments",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov05_F_3836/float-expressions-v3.c",
+      "profile": "aztec36",
+      "parent": "6b8dd58e6b9b89c59581e509e13a4f9298eed8f9d2cc834fc1c100aeef5a93c9",
+      "suspected_cause": "The third repeated draw call uses a zero second argument; the current candidate pushes 319 at that call site.",
+      "controlled_change": "Change only the second argument of that third F_h00_8AA8 call from 319L to 0L.",
+      "predicted_effect": {
+        "length_delta": -2,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Replacing PEA.L #319 (4 bytes) with CLR.L -(A7) (2 bytes) should shorten the contribution by two bytes."
+      }
+    }
+  ]
+}

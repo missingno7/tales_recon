@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_3836",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "threshold-fallthrough-body",
+      "causal_family": "threshold-control-flow",
+      "diagnostic_scope": "branch_condition_or_kind",
+      "source": "experiments/fleet/fn-ov05_F_3836/float-expressions-v6.c",
+      "profile": "aztec36",
+      "parent": "bffcb9598c949bc1b11ce4a4643fed287b60227c53121c324e17d0b6a80c270a",
+      "suspected_cause": "The target branches over both state updates when index+42 exceeds the limit; the candidate currently increments the counter on the opposite comparison and always advances the index.",
+      "controlled_change": "Change only the threshold condition and place both state updates in the at-or-below branch.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "This should change the conditional from BLE-to-skip-increment to BGT-to-skip-both-updates without changing contribution length or register roles."
+      }
+    }
+  ]
+}

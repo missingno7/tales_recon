@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_3836",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "fourth-label-width",
+      "causal_family": "ui-call-stack-arguments",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov05_F_3836/float-expressions-v5.c",
+      "profile": "aztec36",
+      "parent": "8955bd3a856c34d5a09d89ce06d4bcef417f7c1a8639fc2b41c674570af77280",
+      "suspected_cause": "The fourth F_h00_8AA8 call uses 199 as its third argument; the current candidate uses 177.",
+      "controlled_change": "Change only the third argument of the fourth F_h00_8AA8 call from 177L to 199L.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The immediate changes from 177 to 199 without changing the instruction form or code length."
+      }
+    }
+  ]
+}

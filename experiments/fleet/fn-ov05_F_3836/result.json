@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov05_F_3836",
+  "worker": "luna-fn-ov05_F_3836",
+  "status": "NEAR",
+  "target": "ov05_F_3836",
+  "best": {
+    "source": "experiments/fleet/fn-ov05_F_3836/float-expressions-v6.c",
+    "profile": "aztec36",
+    "cache_key": "b42ba2b48227186611d4d8fd8dbcb023e916f22e6b37ac9f1ca4927e38628b50",
+    "verdict": "DIFFER",
+    "verifier": "check_function",
+    "entry": "ov05_F_3836",
+    "options": [
+      "with_m_lib"
+    ],
+    "expected_length": 616,
+    "actual_length": 616
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Native floating-point source produces the observed register-only FFP helper sequence when linked with m.lib.",
+      "outcome": "partial",
+      "evidence": "manifest-01.json, ledger line 44 (default link unresolved .Fflt/.Fdiv/.Fmul/.Fadd/.Ffix); float-expressions.c with --with-m-lib report, cache 283120517e11f90f220b290ea37175a44982afcdb04ae909eb3650587ca7dd2f."
+    },
+    {
+      "id": "h2",
+      "statement": "The nonzero mode path emits a second output record; the initial control-flow transcription omitted it.",
+      "outcome": "confirmed",
+      "evidence": "manifest-03.json; float-expressions-v2.c report 6b8dd58e6b9b89c59581e509e13a4f9298eed8f9d2cc834fc1c100aeef5a93c9: length increased by the predicted 56 bytes to 616."
+    },
+    {
+      "id": "h3",
+      "statement": "The third F_h00_8AA8 call has a zero second argument.",
+      "outcome": "confirmed",
+      "evidence": "manifest-04.json; float-expressions-v3.c report 1168b78eb9825c05714bc0c07ed74ba63324f48714b7540c6a5daa0efe0f447c: predicted length delta -2 observed."
+    },
+    {
+      "id": "h4",
+      "statement": "The fourth F_h00_8B4C call has 319 as its second argument.",
+      "outcome": "confirmed",
+      "evidence": "manifest-05.json; float-expressions-v4.c report 8955bd3a856c34d5a09d89ce06d4bcef417f7c1a8639fc2b41c674570af77280: predicted length delta +2 observed."
+    },
+    {
+      "id": "h5",
+      "statement": "The fourth F_h00_8AA8 call has 199 as its third argument.",
+      "outcome": "confirmed",
+      "evidence": "manifest-06.json; float-expressions-v5.c produced a 616-byte candidate; its immediate-constant difference is absent in diag-v6.json."
+    },
+    {
+      "id": "h6",
+      "statement": "The counter and index advance only when the current value plus 42 is at or below the limit.",
+      "outcome": "confirmed",
+      "evidence": "manifest-07.json; diag-v6.json reports 174 paired instructions, similarity 1.0, no nonreference divergence, and no branch-condition hypothesis."
+    },
+    {
+      "id": "h7",
+      "statement": "Explicit register-call pragmas can bind FFP helper operations to the mechanical resident stub symbols in the standalone harness.",
+      "outcome": "unmeasurable",
+      "evidence": "manifest-08.json; register-ffp-helpers.c was SOURCE_REJECTED before compilation because the harness requires a pinned pragma extension."
+    }
+  ],
+  "compile_trials": 7,
+  "ledger_lines": [
+    44
+  ],
+  "explanation": "With m.lib, the refined aztec36 candidate emits 616 bytes. Diagnostic alignment pairs all 174 instructions with similarity 1.0 and reports no source-shape hypotheses or register divergence. Exact verification remains DIFFER because 15 register-only FFP calls lower to .Fflt/.Fdiv/.Fmul/.Fadd/.Ffix references with no established binding to the observed resident stub IDs; the other 58 A4 references are layout matches in this standalone object. The harness rejected an explicit-regcall source before compilation because its pragma extension is not pinned.",
+  "proposed_blocker": null
+}

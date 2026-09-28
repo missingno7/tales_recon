@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_3836",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "ffp-expression-baseline",
+      "causal_family": "ffp-arithmetic-source-shape",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov05_F_3836/float-expressions.c",
+      "profile": "aztec36",
+      "parent": "none",
+      "suspected_cause": "The final register-only FFP call clusters may come from native float conversion, division, scaling, addition, and integer conversion expressions.",
+      "controlled_change": "Initial complete C candidate expressing each observed FFP pipeline with ordinary float casts and operators, while retaining the observed stack calls and branch structure.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Initial measurement against the 616-byte CLOSED_CFG function; parent none intentionally leaves deltas unmeasurable."
+      }
+    }
+  ]
+}
