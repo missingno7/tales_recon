@@ -441,7 +441,23 @@ def package_hypothesis(package_id, root=ROOT):
 
 
 def diagnose_unit(member_ids, cache_key, *, entry_member=None, interval=None, root=ROOT, new_members=None):
-    """Load validated originals and a cached compile, then run ``analyze_unit``."""
+    """Load validated originals and a cached compile, then run ``analyze_unit``.
+
+    Runs under ``census.advisory_image``: original bytes, function evidence
+    and the compile cache are still hash-checked, but the census's
+    re-validation of every canonical promotion receipt is not repeated here.
+    A receipt written by another tool version therefore cannot make this
+    advisory report unreadable; promotion evidence stays strict in census.
+    """
+    from census import advisory_image
+    with advisory_image():
+        report = _diagnose_unit(member_ids, cache_key, entry_member=entry_member, interval=interval, root=root,
+                                new_members=new_members)
+    report['canonical_promotion_evidence'] = 'NOT_REVALIDATED_BY_ADVISORY_DIAGNOSTIC'
+    return report
+
+
+def _diagnose_unit(member_ids, cache_key, *, entry_member=None, interval=None, root=ROOT, new_members=None):
     from check_function import validated_function
     from check_unit import proven_tail
     from compiler_oracle import cached

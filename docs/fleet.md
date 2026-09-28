@@ -180,6 +180,25 @@ compact, not the natural layout. Regions therefore use the opt-in
   retained `unit.c`, plus the local functions and overlay proxies of the
   compile identity. It requires the receipt's merge list and the proof's
   compiler source hash to match.
+- `--object-group ID,ID,...` (repeatable; `--separate-objects` only, not with
+  `--join-direct-callees`) compiles the named members as one ordinary object.
+  This is a translation-unit hypothesis tested like any variant. It is not
+  source-file provenance. The members are taken in address order and must be
+  consecutive linked members. No original byte may lie between them: a
+  compaction span or an unknown gap cannot sit inside one object, and only a
+  proven literal tail may. A group is all new members. A canonical member may
+  join only if its whole proven object group lies inside the group. The object
+  source is the address-ordered concatenation of the member parts
+  (`recovery_evidence.group_object_source`). Externs of the group's own
+  definitions are removed. Differing views of one external keep the first
+  declaration, and the object lists them in `object_group_merged_declarations`.
+  The receipt adds `object_groups`, `object_partition` and a `parts/`
+  directory. The promotion evidence check
+  (`recovery_evidence.object_partition_sources`) re-derives `unit.c` from the
+  parts, and every object source hash from them. Without the option, trials and
+  cache keys are unchanged. `fleet.py verify-region --object-group` passes
+  the option through. A result's `best.object_groups` is re-verified and
+  promoted with the same groups.
 
 For intake, `natural_interval` is a region-only option. `reverify` and the
 promote command take the interval from the region task.
@@ -192,6 +211,15 @@ On 2026-09-28 the frontier had 4 regions:
 | `reg-ov05_131C-1EFC` | 131C, 1860 | 3040 / 0 / 0 | 0 | 0 | deferred, waits on fn-ov05_F_3836 |
 | `reg-resident_287C-2D00` | 287C, 291E | 1156 / 0 / 0 | 0 | 0 | deferred (resident) |
 | `reg-resident_7BF4-7F9C` | 7BF4, 7C82 | 936 / 0 / 0 | 0 | 0 | deferred (resident) |
+
+In ov11 region v10, 583A's only difference was its call to 5962. The original
+has `BSR.B`; the separate-object candidate had `JSR d16(PC)`. With
+`--object-group ov11_F_583A,ov11_F_5962` (build/object-group-reg-ov11, key
+`f0d0039d…`), 583A emits `BSR.B` and both members are
+`same_after_reference_identity`. The unit is still DIFFER, 7260 vs 7198 bytes,
+from 487E, 4EC6, 51C0 and 55B8. A group reaching 5C42 is refused: the unknown
+gap `0x59E6..0x5A12` follows 5962, and the canonical `5A12`..`5C1A` have no
+proven object grouping.
 
 The ov11 region's edges are 8 call, 8 pending-dependency, 12 layout-interval
 and 2 short-form. Its gap is `0x59E6..0x5A12`. Under `--allow-original-gaps`

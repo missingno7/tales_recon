@@ -33,6 +33,89 @@ def stand_in_source(combined,skip=()):
     return ''.join(pieces),{name:dict(defined=decls[0],merged=decls[1:]) for name,decls in sorted(merged.items())}
 
 
+def joined_source(texts):
+    """Join address-ordered source fragments into one physical source object.
+
+    A historical C source unit may use one complete record declaration while
+    separately recovered routines currently retain narrower views of it.  The
+    first fragment supplies the declaration; later duplicate tags and extern
+    globals are removed before Manx sees the one physical source object.
+    """
+    import re
+    tags=set();globals=set();result=[]
+    for text in texts:
+        for tag in list(tags):
+            text=re.sub(r'\bstruct\s+'+re.escape(tag)+r'\s*\{[^{}]*\}\s*;\s*','',text)
+        for name in list(globals):
+            text=re.sub(r'\bextern\s+struct\s+\w+\s+'+re.escape(name)+r'\s*\[\s*[1-9]\d*\s*\]\s*;\s*','',text)
+        tags.update(re.findall(r'\bstruct\s+(\w+)\s*\{[^{}]*\}\s*;',text))
+        globals.update(re.findall(r'\bextern\s+struct\s+\w+\s+(\w+)\s*\[\s*[1-9]\d*\s*\]\s*;',text))
+        result.append(text)
+    return '\n'.join(result)
+
+
+def proven_object_source(texts,own_names):
+    """One object of joined canonical members (``--join-direct-callees`` and
+    proven natural groups): declarations of its own definitions are removed,
+    since they would force external linkage in Manx."""
+    import re
+    text=joined_source(texts)
+    for name in own_names:
+        text=re.sub(r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;','',text)
+    return text
+
+
+def group_object_source(texts,own_names):
+    """One ``--object-group`` translation-unit hypothesis.
+
+    The address-ordered member sources are concatenated (``joined_source``);
+    every ``extern`` function declaration of a member defined in this object
+    is removed, and differing views of one external are kept once, as for the
+    harness stand-ins (``stand_in_source``).  Returns ``(text, merged)``.
+    """
+    import re
+    text=joined_source(texts)
+    for name in own_names:
+        text=re.sub(r'\bextern\s+'+EXTERN_FUNCTION.replace(r'(\w+)',re.escape(name))+r'\s*;','',text)
+    return stand_in_source(text,own_names)
+
+
+def object_partition_sources(unit,unit_text,parts_dir):
+    """Re-derive every object source hash of an ``object_groups`` unit receipt.
+
+    ``parts_dir`` holds each member's part as linked in that unit; together
+    they must re-derive ``unit.c`` exactly, so every object source below is
+    bound to the retained, hash-checked unit source.  Object groups must be
+    whole partition objects of address-consecutive members with no original
+    byte between them; a canonical member may join only a group that contains
+    its whole proven object group.
+    """
+    ordered=unit['ordered_members'];ids=[m['id'] for m in ordered];by={m['id']:m for m in ordered}
+    partition=unit.get('object_partition');groups=unit.get('object_groups')
+    require(isinstance(partition,list) and all(isinstance(o,list) and o for o in partition) and
+            [x for o in partition for x in o]==ids,'object partition is not the ordered unit')
+    require(isinstance(groups,list) and groups and all(len(g)>1 and g in partition for g in groups),
+            'object groups are not objects of the partition')
+    parts={x:(parts_dir/(x+'.c')).read_bytes().decode('ascii') for x in ids}
+    require('\n'.join(parts[x] for x in ids)+'\n'==unit_text,'unit member parts do not re-derive unit.c')
+    tails={t['id']:t['end']-t['start'] for t in unit.get('owned_code_tails') or []}
+    new=set(unit.get('member_sources') or ())|{unit['id']}
+    proven=[list(g) for g in unit.get('proven_object_groups') or []]
+    for g in groups:
+        for a,b in zip(g,g[1:]):
+            require(by[a]['end']+tails.get(a,0)==by[b]['start'],'object group spans original bytes it does not own: '+a+'/'+b)
+        for x in g:
+            require(x in new or any(x in p and set(p)<=set(g) for p in proven),
+                    'canonical member joins an object group without agreeing proven grouping: '+x)
+    names={m['id']:'recovered' if m['id']==unit['id'] else 'F_h%02d_%04X'%(m['hunk'],m['start']) for m in ordered}
+    hashes=[]
+    for o in partition:
+        texts=[parts[x] for x in o];own=[names[x] for x in o]
+        text=texts[0] if len(o)==1 else group_object_source(texts,own)[0] if o in groups else proven_object_source(texts,own)
+        hashes.append(sha256(text.encode('ascii')))
+    return hashes
+
+
 def compiled_unit_source_sha256(unit,unit_text,compiler):
     """Hash of the source the oracle compiled for a retained complete unit.
 
@@ -114,6 +197,12 @@ def load_promotions(root,blob,model,analysis):
             require(sha256(unit_source.read_bytes())==unit['combined_source_sha256'] and
                     compiled_unit_source_sha256(unit,unit_source.read_bytes().decode('ascii'),proof['compiler'])==proof['compiler']['source_sha256'],
                     'combined source hash differs')
+            if unit.get('object_groups') is not None:
+                # An --object-group unit compiled re-derivable object sources.
+                derived=object_partition_sources(unit,unit_source.read_bytes().decode('ascii'),unit_path.parent/'parts')
+                compiled_objects=proof['compiler'].get('partitioned_object_sources') or []
+                require(derived==[o.get('source_sha256') for o in compiled_objects],
+                        'object group sources do not re-derive from unit.c')
             # A multi-member unit names every new member's authored source.
             # Its receipt proves them together, so each must be canonical
             # with exactly that source (all members or none).

@@ -406,5 +406,114 @@ class NaturalPromotionEvidenceTests(unittest.TestCase):
             with self.assertRaisesRegex(FormatError,'merged external declarations'):load_promotions(root,b,m,l)
 
 
+class ObjectGroupTests(unittest.TestCase):
+    """--object-group: one translation-unit hypothesis over consecutive members."""
+
+    def setUp(self):
+        self.a=fn(0x100,'4e71'*3+'4e75');self.b=fn(0x108,'4e71'*3+'4e75')
+        self.c=fn(0x110,'4e71'*3+'4e75');self.d=fn(0x120,'4e71'*3+'4e75')
+        self.members=[self.a,self.b,self.c,self.d]
+
+    def ids(self,*fs):return [f['id'] for f in fs]
+
+    def test_groups_are_consecutive_gapless_and_new_or_proven(self):
+        v=check_unit.validate_object_groups;new={self.b['id'],self.c['id'],self.d['id']}
+        # Given out of order, returned in address order.
+        self.assertEqual(v(self.members,[self.ids(self.c,self.b)],new),[self.ids(self.b,self.c)])
+        with self.assertRaisesRegex(FormatError,'not consecutive in address order; intervening member ov09_F_0110'):
+            v(self.members,[self.ids(self.b,self.d)],new)
+        # 0x118..0x120 is original bytes no member owns.
+        with self.assertRaisesRegex(FormatError,'spans original bytes it does not own'):
+            v(self.members,[self.ids(self.c,self.d)],new)
+        # A proven literal tail closes that span.
+        self.assertEqual(v(self.members,[self.ids(self.c,self.d)],new,tails={self.c['id']:8}),[self.ids(self.c,self.d)])
+        with self.assertRaisesRegex(FormatError,'without agreeing proven grouping: ov09_F_0100'):
+            v(self.members,[self.ids(self.a,self.b)],new)
+        self.assertEqual(v(self.members,[self.ids(self.a,self.b)],new,[self.ids(self.a)]),[self.ids(self.a,self.b)])
+        with self.assertRaisesRegex(FormatError,'splits a proven canonical object'):
+            v(self.members,[self.ids(self.b,self.c)],{self.c['id']},[self.ids(self.a,self.b)])
+        with self.assertRaisesRegex(FormatError,'two object groups'):
+            v(self.members,[self.ids(self.b,self.c),self.ids(self.c,self.b)],new)
+
+    def test_group_object_concatenates_sources_and_keeps_one_external_view(self):
+        names={f['id']:check_unit.mechanical_name(f) for f in self.members};names[self.a['id']]='recovered'
+        parts={self.a['id']:'recovered() {}',
+               self.b['id']:'extern void F_h00_3674();\nextern int F_h09_0110();\nF_h09_0108() { F_h00_3674(); F_h09_0110(); }',
+               self.c['id']:'extern int F_h00_3674();\nF_h09_0110() { F_h00_3674(); }',self.d['id']:'F_h09_0120() {}'}
+        objects=check_unit.grouped_objects(self.members,names,parts,False,[],[self.ids(self.b,self.c)])
+        self.assertEqual([o['members'] for o in objects],[self.ids(self.a),self.ids(self.b,self.c),self.ids(self.d)])
+        self.assertEqual(objects[1]['source'],'extern void F_h00_3674();\n\nF_h09_0108() { F_h00_3674(); F_h09_0110(); }\n'
+                                              '\nF_h09_0110() { F_h00_3674(); }')
+        self.assertEqual(objects[1]['merged_external_declarations'],
+                         {'F_h00_3674':dict(defined='void F_h00_3674()',merged=['int F_h00_3674()'])})
+        # Without groups the historical partition (and its cache identity) is unchanged.
+        self.assertEqual(check_unit.grouped_objects(self.members,names,parts,False,[],[]),
+                         [dict(source=parts[m['id']]) for m in self.members])
+
+
+class ObjectGroupPromotionEvidenceTests(unittest.TestCase):
+    """A synthetic object-group unit promoted in a temporary root re-derives its object sources."""
+
+    def test_grouped_unit_promotes_and_its_objects_re_derive_from_unit_c(self):
+        import shutil
+        import check_function
+        import recovery_state
+        from compiler_oracle import object_specs
+        from recovery_evidence import object_partition_sources
+        a=fn(0x100,'4e71'*3+'4e75');b=fn(0x108,'4e71'*3+'4e75');c=fn(0x110,'4e71'*3+'4e75')
+        for f in (a,b,c):f.update(sha256=check_unit.sha256(bytes.fromhex(f['raw_bytes'])),extent_status='CLOSED_CFG')
+        functions={f['id']:f for f in (a,b,c)}
+        def validated(fid):
+            if fid not in functions:raise FormatError('unknown function '+fid)
+            return functions[fid],dict(functions=list(functions.values()),a4=dict(bias=32766))
+        sources={a['id']:'recovered() {}\n',
+                 b['id']:'extern void F_h00_3674();\nextern int F_h09_0110();\nrecovered() { F_h00_3674(); F_h09_0110(); }\n',
+                 c['id']:'extern int F_h00_3674();\nrecovered() { F_h00_3674(); }\n'}
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'recovery').mkdir();(root/'tools').mkdir();(root/'src').mkdir()
+            for name in ('check_unit.py','check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py'):
+                shutil.copyfile(ROOT/'tools'/name,root/'tools'/name)
+            paths={}
+            for fid,text in sources.items():
+                paths[fid]=root/(fid+'.c');paths[fid].write_text(text,newline='\n')
+            compiled_objects=[]
+            def compile_fake(trials):
+                (trial,)=trials;objects=object_specs(trial);compiled_objects.append(objects)
+                result=linked(root,'4e71'*3+'4e75'+'4e71'*3+'4e75'+'4e71'*3+'4e75',
+                              (('_recovered',0),('_F_h09_0108',8),('_F_h09_0110',16)))
+                result['identity']=dict(profile='aztec36',flags=[],object_labels=[o['label'] for o in objects],
+                                        partitioned_object_sources=[dict(label=o['label'],source_sha256=check_unit.sha256(o['source'].encode()))
+                                                                    for o in objects],local_functions=trial['local_functions'])
+                result.update(cache_key='f'*64,artifacts=[])
+                return [result]
+            ledger=root/'recovery/ledger.json'
+            with patch.object(check_unit,'ROOT',root),patch.object(check_function,'ROOT',root), \
+                 patch.object(check_function,'LEDGER',ledger),patch.object(recovery_state,'LEDGER',ledger), \
+                 patch.object(check_unit,'validated_function',side_effect=validated), \
+                 patch.object(check_unit,'compile_many',side_effect=compile_fake), \
+                 patch.object(check_function,'regression_receipt',return_value=dict(command='test',passed=True,output_sha256='0'*64)), \
+                 patch.object(check_unit,'save_rank'):
+                report=check_unit.check(a['id'],paths[a['id']],['aztec36'],separate_objects=True,natural_interval='0x100..0x118',
+                                        member_sources={k:v for k,v in paths.items() if k!=a['id']},
+                                        object_groups=[[c['id'],b['id']]])[0]
+            self.assertEqual(report['verdict'],'EQUAL')
+            self.assertEqual((report['object_groups'],report['object_partition']),([[b['id'],c['id']]],[[a['id']],[b['id'],c['id']]]))
+            self.assertEqual(len(compiled_objects[0]),2)
+            items=json.loads(ledger.read_text())['functions']
+            self.assertEqual(sorted(items),sorted(functions))
+            proof=json.loads((root/items[b['id']]['proof']).read_text())
+            unit_dir=(root/proof['comparison']['complete_unit_receipt']).parent
+            unit=json.loads((unit_dir/'receipt.json').read_text());unit_text=(unit_dir/'unit.c').read_text()
+            expected=[o['source_sha256'] for o in proof['compiler']['partitioned_object_sources']]
+            self.assertEqual(object_partition_sources(unit,unit_text,unit_dir/'parts'),expected)
+            # A grouped object may not absorb an original byte no member owns.
+            gapped=dict(unit,ordered_members=[dict(m,end=m['end']-2) if m['id']==b['id'] else m for m in unit['ordered_members']])
+            with self.assertRaisesRegex(FormatError,'does not own'):object_partition_sources(gapped,unit_text,unit_dir/'parts')
+            # A forged member part no longer re-derives the retained unit.c.
+            (unit_dir/'parts'/(c['id']+'.c')).write_text('F_h09_0110() { }\n',newline='\n')
+            with self.assertRaisesRegex(FormatError,'do not re-derive unit.c'):
+                object_partition_sources(unit,unit_text,unit_dir/'parts')
+
+
 if __name__=='__main__':
     unittest.main()

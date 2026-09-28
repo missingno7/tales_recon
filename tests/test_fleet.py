@@ -416,6 +416,10 @@ class RegionTests(unittest.TestCase):
                 with patch.object(fleet, "canonical_ids", return_value=set()):
                     dry = fleet.region_verify_argv(f, region["id"], variant, prepare_only=True)
                 self.assertIn("--prepare-only", dry)
+                with patch.object(fleet, "canonical_ids", return_value=set()):
+                    grouped = fleet.region_verify_argv(f, region["id"], variant, object_groups=["ov11_F_0120,ov11_F_0180"])
+                self.assertEqual(grouped[grouped.index("--object-group") + 1], "ov11_F_0120,ov11_F_0180")
+                self.assertIn("--object-group", text)
                 self.assertIn("--natural-interval 0x0100..0x0280", text)
                 self.assertNotIn("--isolated", argv)  # _run_wrapped adds it
         finally:
@@ -658,6 +662,22 @@ class PacketAndIntakeTests(unittest.TestCase):
                    side_effect=lambda *a, **k: seen.update(k) or [dict(verdict="EQUAL", cache_key="a" * 64)]):
             fleet.reverify(self.fleet, region, natural)
         self.assertEqual(seen["natural_interval"], (0x4790, 0x5CEA))
+        self.assertIsNone(seen["object_groups"])
+        # An object-group hypothesis is re-verified and promoted exactly as claimed.
+        grouped = dict(natural, object_groups=[["a", "b"]])
+        self.assertEqual(fleet.validate_result(self.fleet, region, dict(value, best=grouped))["best"]["object_groups"],
+                         [["a", "b"]])
+        for bad in ([["a"]], [], "a,b", [["a", 1]]):
+            with self.subTest(object_groups=bad), self.assertRaises(FormatError):
+                fleet.validate_result(self.fleet, region, dict(value, best=dict(grouped, object_groups=bad)))
+        with self.assertRaises(FormatError):
+            fleet.validate_result(self.fleet, region, dict(value, best=dict(grouped, options=["natural_interval"])))
+        self.assertTrue(fleet.promote_command(grouped, region).endswith(" --object-group a,b"))
+        seen.clear()
+        with patch("compile_queue.install"), patch("check_unit.check",
+                   side_effect=lambda *a, **k: seen.update(k) or [dict(verdict="EQUAL", cache_key="a" * 64)]):
+            fleet.reverify(self.fleet, region, grouped)
+        self.assertEqual(seen["object_groups"], [["a", "b"]])
 
     def test_unit_packet_explains_multi_member_authoring(self):
         unit = task("u2", kind="unit", targets=["ov11_F_5962", "ov11_F_5C42"])

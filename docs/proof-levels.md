@@ -52,6 +52,12 @@ accepted by target identity only when its displacement class (8-bit or 16-bit)
 is the same in the original and compact links. Otherwise the unit is BLOCKED
 (`GAP_DEPENDENT_ENCODING`). See docs/fleet.md.
 
+With `--separate-objects`, `--object-group` compiles consecutive members, with
+no original byte between them, as one ordinary object. This is a
+translation-unit hypothesis with the same exact acceptance. It is never
+source-file provenance. The promotion evidence check re-derives each object
+source from the retained unit parts.
+
 FUNCTION_WITH_DATA_MATCH additionally requires every PC-relative literal to be
 separately evidenced, an exact source-produced CODE tail, and a boundary at the
 next discovered function entry. It claims that literal contribution only; it does

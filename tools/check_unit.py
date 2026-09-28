@@ -15,7 +15,8 @@ from recovery_state import recovery,evidence,save_rank
 from check_function import validated_function,promote
 from compiler_oracle import compile_many,PROFILES
 from function_compare import compare_function
-from recovery_evidence import stand_in_source,EXTERN_FUNCTION
+from recovery_evidence import stand_in_source,EXTERN_FUNCTION,proven_object_source,group_object_source
+from recovery_evidence import joined_source as joined_texts
 
 
 def stable_receipt(value):
@@ -420,10 +421,33 @@ NATURAL_POLICY=('Every linked byte comes from a recovered or candidate source ob
                 'when their displacement class is gap-independent')
 
 
-def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None,natural=None,merged_externals=None):
+OBJECT_GROUP_KEYS=('object_groups','object_partition','proven_object_groups','object_group_merged_declarations')
+
+
+def object_group_record(trial):
+    """Receipt fields of an ``--object-group`` trial (empty otherwise)."""
+    if not trial.get('object_groups'):return {}
+    record={k:trial[k] for k in OBJECT_GROUP_KEYS if trial.get(k)}
+    record['object_group_policy']=('Each object group is one translation-unit HYPOTHESIS tested like any variant; '
+                                   'it is not source-file provenance')
+    return record
+
+
+def write_parts(base,parts):
+    (base/'parts').mkdir(exist_ok=True)
+    for member_id,text in parts.items():
+        (base/'parts'/(member_id+'.c')).write_text(text,encoding='ascii',newline='\n')
+
+
+def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None,natural=None,merged_externals=None,
+                object_record=None,parts=None):
     report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined,natural=natural)
     # Differing per-object views of one external share one harness stand-in.
     if merged_externals:report['merged_external_declarations']=merged_externals
+    # Object-group hypotheses and the member parts that re-derive unit.c.
+    if object_record:
+        require(parts is not None,'object groups require the linked member parts')
+        report.update(object_record)
     member_sources=dict(member_sources or {})
     new_ids={fid,*member_sources}
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
@@ -453,6 +477,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         for member_id,text in member_sources.items():
             (base/'members').mkdir(exist_ok=True)
             (base/'members'/(member_id+'.c')).write_text(text,encoding='ascii',newline='\n')
+        if object_record:write_parts(base,parts)
         persisted=stable_receipt(report)
         write_json(base/'receipt.json',persisted)
     target=next(f for f in members if f['id']==fid)
@@ -476,17 +501,7 @@ def joined_source(parts,members):
     first fragment supplies the declaration; later duplicate tags and extern
     globals are removed before Manx sees the one physical source object.
     """
-    tags=set();globals=set();result=[]
-    for member in members:
-        text=parts[member['id']]
-        for tag in list(tags):
-            text=re.sub(r'\bstruct\s+'+re.escape(tag)+r'\s*\{[^{}]*\}\s*;\s*','',text)
-        for name in list(globals):
-            text=re.sub(r'\bextern\s+struct\s+\w+\s+'+re.escape(name)+r'\s*\[\s*[1-9]\d*\s*\]\s*;\s*','',text)
-        tags.update(re.findall(r'\bstruct\s+(\w+)\s*\{[^{}]*\}\s*;',text))
-        globals.update(re.findall(r'\bextern\s+struct\s+\w+\s+(\w+)\s*\[\s*[1-9]\d*\s*\]\s*;',text))
-        result.append(text)
-    return '\n'.join(result)
+    return joined_texts([parts[m['id']] for m in members])
 
 
 def partitioned_objects(members,names,parts,join_direct_callees=False):
@@ -608,17 +623,60 @@ def proven_unit_groups(members,new_ids,ledger=None):
     return merged,skipped
 
 
-def grouped_objects(members,names,parts,join_direct_callees,proven_groups):
+def validate_object_groups(members,object_groups,new_ids,proven_groups=(),tails=None):
+    """Normalize ``--object-group`` hypotheses against one prepared unit.
+
+    Each group names two or more unit members that become ONE ordinary
+    source object (one translation-unit hypothesis, never source-file
+    provenance).  Members are taken in original address order and must be
+    consecutive linked members with no original byte between them (a
+    compaction span or unknown gap cannot sit inside one object).  A group is
+    all new members, or includes a canonical member only when that member's
+    whole proven object group (``proven_unit_groups``) lies inside it; a
+    proven group may not be split.  Returns address-ordered id lists.
+    """
+    order=[m['id'] for m in members];by={m['id']:m for m in members};tails=dict(tails or {})
+    seen=set();result=[]
+    for group in object_groups:
+        ids=list(group)
+        require(len(ids)>1 and len(set(ids))==len(ids),'--object-group needs two or more distinct member ids')
+        for x in ids:
+            require(x in by,'--object-group member is not linked in this unit: '+x)
+            require(x not in seen,'member appears in two object groups: '+x)
+        seen.update(ids)
+        ids.sort(key=order.index)
+        at=order.index(ids[0])
+        require(order[at:at+len(ids)]==ids,'object group is not consecutive in address order; intervening member '+
+                next((x for x in order[at:at+len(ids)] if x not in ids),'?'))
+        for a,b in zip(ids,ids[1:]):
+            require(by[a]['end']+tails.get(a,0)==by[b]['start'],
+                    'object group spans original bytes it does not own between %s and %s'%(a,b))
+        for proven in proven_groups:
+            inside=[x for x in proven if x in ids]
+            require(not inside or len(inside)==len(proven),'object group splits a proven canonical object: '+','.join(proven))
+        for x in ids:
+            require(x in new_ids or any(x in p for p in proven_groups),
+                    'canonical member joins an object group without agreeing proven grouping: '+x)
+        result.append(ids)
+    return sorted(result,key=lambda g:order.index(g[0]))
+
+
+def grouped_objects(members,names,parts,join_direct_callees,proven_groups,object_groups=()):
     """Ordinary objects in original order, keeping proven natural units together.
 
-    Without ``proven_groups`` this is exactly the historical partition (one
-    object per member, or ``partitioned_objects`` with joined callees).
+    Without ``proven_groups`` or ``object_groups`` this is exactly the
+    historical partition (one object per member, or ``partitioned_objects``
+    with joined callees).  An ``object_groups`` entry (validated by
+    ``validate_object_groups``) is one object built by
+    ``recovery_evidence.group_object_source``; its objects carry ``members``.
     """
-    if not proven_groups:
+    if not proven_groups and not object_groups:
         return partitioned_objects(members,names,parts,True) if join_direct_callees else [dict(source=parts[m['id']]) for m in members]
     owner={}
     for index,ids in enumerate(proven_groups):
         for x in ids:owner[x]=('proven',index)
+    for index,ids in enumerate(object_groups):
+        for x in ids:owner[x]=('object',index)
     callees={m['id']:{c['id'] for c in m['direct_callees'] if c['hunk']==m['hunk']} for m in members}
     groups=[];current=[]
     for member in members:
@@ -632,13 +690,15 @@ def grouped_objects(members,names,parts,join_direct_callees,proven_groups):
     if current:groups.append(current)
     result=[]
     for group in groups:
-        if len(group)==1:
-            result.append(dict(source=parts[group[0]['id']]));continue
-        text=joined_source(parts,group)
-        for member in group:
-            pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(names[member['id']])+r'\s*\(\s*\)\s*;'
-            text=re.sub(pattern,'',text)
-        result.append(dict(source=text))
+        ids=[m['id'] for m in group]
+        texts=[parts[x] for x in ids];own=[names[x] for x in ids]
+        if len(group)==1:obj=dict(source=texts[0])
+        elif owner.get(ids[0],('',))[0]=='object':
+            text,merged=group_object_source(texts,own);obj=dict(source=text)
+            if merged:obj['merged_external_declarations']=merged
+        else:obj=dict(source=proven_object_source(texts,own))
+        if object_groups:obj['members']=ids
+        result.append(obj)
     return result
 
 
@@ -713,9 +773,11 @@ def external_stand_in_source(combined,local_functions,target_node):
     return stand_in_source(combined,skip)
 
 
-def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups=()):
+def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups=(),
+                object_groups=()):
     """``proven_groups`` (natural-interval only) keeps canonical runs that
-    were proved as one natural object in that one object."""
+    were proved as one natural object in that one object; ``object_groups``
+    (validated ``--object-group`` hypotheses) compiles each group as one."""
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
     trials=[]
@@ -724,8 +786,14 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
         if separate_objects:
             # Preserve historical module boundaries when their ordinary link
             # codegen matters (for example JSR instead of an intra-object BSR).
-            trial['objects']=grouped_objects(members,names,parts,join_direct_callees,proven_groups)
+            trial['objects']=grouped_objects(members,names,parts,join_direct_callees,proven_groups,object_groups)
             if proven_groups:trial['proven_object_groups']=[list(g) for g in proven_groups]
+            if object_groups:
+                trial['object_groups']=[list(g) for g in object_groups]
+                trial['object_partition']=[o['members'] for o in trial['objects']]
+                merged_in_objects={x:o['merged_external_declarations'] for o in trial['objects']
+                                   if o.get('merged_external_declarations') for x in o['members'][:1]}
+                if merged_in_objects:trial['object_group_merged_declarations']=merged_in_objects
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
             # A new member's extern for the entry is a real cross-object call
             # into this unit; the harness must not define a stand-in for it.
@@ -760,13 +828,16 @@ def trial_cache_key(trial):
     return key,cached(key) is not None
 
 
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False):
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
+          object_groups=None):
     """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
     members authored with the entry; acceptance is then the complete unit.
 
     ``natural_interval`` (``START..END``) links every function of that
     interval in original order; ``prepare_only`` returns the planned unit
-    (members, spacing, gap crossings, trial cache keys) without compiling."""
+    (members, spacing, gap crossings, trial cache keys) without compiling.
+    ``object_groups`` (lists of member ids) compiles each group as one
+    ordinary object: a translation-unit hypothesis, never provenance."""
     if isolated or prepare_only:promote_equal=False
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
     require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
@@ -796,7 +867,16 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         proven_groups,skipped=proven_unit_groups(members,{fid,*member_sources},ledger=recovery())
         natural['proven_object_groups']=proven_groups
         if skipped:natural['proven_object_groups_not_applied']=skipped
-    trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups)
+    if object_groups:
+        require(separate_objects,'--object-group requires --separate-objects')
+        require(not join_direct_callees,'--object-group replaces --join-direct-callees; name the joined members explicitly')
+        if natural is not None:
+            tails={r['id']:r['tail_bytes'] for r in natural['members']}
+        else:
+            current=recovery();tails={f['id']:len(proven_tail(f,current)[0]) for f in members}
+        object_groups=validate_object_groups(members,object_groups,{fid,*member_sources},proven_groups,tails)
+    trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups,
+                       object_groups or ())
     if prepare_only:
         keys=[trial_cache_key(t) for t in trials]
         plan=dict(verdict='PREPARED_NOT_COMPILED',id=fid,
@@ -807,11 +887,14 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                   trials=[dict(profile=t['profile'],cache_key=k,cached=c,**stand_in_summary(t)) for t,(k,c) in zip(trials,keys)],
                   combined_source_sha256=sha256(combined.encode()))
         if natural is not None:plan['natural_interval']=natural
+        if object_groups:plan.update(object_group_record(trials[0]))
         return [plan]
     for trial,compiled in zip(trials,compile_many(trials)):
+        record=object_group_record(trial)
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,
                                       member_sources=member_sources,natural=natural,
-                                      merged_externals=trial.get('merged_external_declarations'))
+                                      merged_externals=trial.get('merged_external_declarations'),
+                                      object_record=record,parts=parts if record else None)
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
@@ -831,10 +914,17 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             for member_id,text in member_sources.items():
                 (base/'members').mkdir(exist_ok=True)
                 (base/'members'/(member_id+'.c')).write_text(text,encoding='ascii',newline='\n')
+            if record:write_parts(base,parts)
             write_json(base/'receipt.json',stable_receipt(report))
         reports.append(report)
     if not isolated:save_rank()
     return reports
+
+
+def parse_object_groups(values):
+    """``['A,B', 'C,D,E']`` -> ``[['A','B'], ['C','D','E']]`` (``None`` when empty)."""
+    groups=[[x.strip() for x in str(v).split(',') if x.strip()] for v in values or ()]
+    return groups or None
 
 
 def main():
@@ -853,6 +943,10 @@ def main():
                          '(canonical sources are regression checks); unknown gaps stay unclaimed and gap-crossing '
                          'references are classified (GAP_DEPENDENT_ENCODING blocks the unit)')
     ap.add_argument('--prepare-only',action='store_true',help='print the planned unit, spacing, gap crossings and trial cache keys; never compile')
+    ap.add_argument('--object-group',action='append',default=[],metavar='ID,ID,...',
+                    help='with --separate-objects, compile these address-consecutive unit members (no original byte '
+                         'between them) as ONE ordinary object; all new, or canonical only inside their whole proven '
+                         'object group. A translation-unit hypothesis, not provenance; repeat for several groups')
     a=ap.parse_args()
     require(a.output_dir is None or a.isolated,'--output-dir requires --isolated')
     member_sources={}
@@ -861,7 +955,7 @@ def main():
         require(sep and member_id and member_path and member_id not in member_sources,'--member expects a unique ID=SOURCE')
         member_sources[member_id]=Path(member_path)
     reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
-                  a.natural_interval,a.prepare_only)
+                  a.natural_interval,a.prepare_only,parse_object_groups(a.object_group))
     for r in reports:print(json.dumps(r))
     if a.prepare_only:return 0
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1

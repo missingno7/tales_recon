@@ -154,6 +154,40 @@ class CachedUnitTests(unittest.TestCase):
         self.assertLessEqual(len(json.dumps(unit_diag.compact_summary(r)).encode()), 5000)
 
 
+class AdvisoryPromotionEvidenceTests(unittest.TestCase):
+    """A canonical receipt the current evidence checker rejects (for example
+    one written by another tool version) must not make advisory diagnostics
+    unreadable; census and promotion stay strict."""
+
+    def test_advisory_image_skips_only_promotion_revalidation(self):
+        from unittest.mock import patch
+        import census
+        from analysis_support import game
+        from common import FormatError
+        with patch.object(census, 'load_promotions', side_effect=FormatError('combined source hash differs')):
+            with self.assertRaisesRegex(FormatError, 'combined source hash differs'):
+                game()
+            with census.advisory_image():
+                blob, model, outputs = game()
+            self.assertIsNone(outputs)
+            self.assertTrue(blob and model['hunks'])
+            # Strictness is restored after the advisory block.
+            with self.assertRaisesRegex(FormatError, 'combined source hash differs'):
+                game()
+
+    def test_receipt_diagnostic_survives_a_rejected_canonical_receipt(self):
+        from unittest.mock import patch
+        import census
+        from common import FormatError
+        if cached(CachedUnitTests.CONTROL) is None:
+            self.skipTest('cached ov10 unit artifact unavailable')
+        with patch.object(census, 'load_promotions', side_effect=FormatError('combined source hash differs')):
+            r = unit_diag.diagnose_unit(['ov10_F_1FDE', 'ov10_F_2160'], CachedUnitTests.CONTROL, entry_member='ov10_F_2160')
+        self.assertEqual(r['status'], 'DIAGNOSTIC_ONLY')
+        self.assertEqual(r['canonical_promotion_evidence'], 'NOT_REVALIDATED_BY_ADVISORY_DIAGNOSTIC')
+        self.assertTrue(r['unit_shape']['all_members_same'], r['member_states'])
+
+
 class MultiNewMemberTests(unittest.TestCase):
     """A candidate that authors every member of a same-hunk call cycle."""
 

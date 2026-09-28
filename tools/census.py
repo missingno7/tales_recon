@@ -1,5 +1,6 @@
 """Generate or verify deterministic archaeological evidence, never a game build."""
 import argparse
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import re
@@ -36,7 +37,38 @@ def verify_lock(root):
     return lock
 
 
-def derive(root):
+_PROMOTION_EVIDENCE = [True]
+
+
+@contextmanager
+def advisory_image():
+    """Within this block ``derive`` (and so ``analysis_support.game``) reads
+    the immutable image only.
+
+    The fixture lock and the disk/executable parse are unchanged, but
+    canonical promotion receipts are neither re-validated nor used and
+    ``outputs`` is ``None``.  Strict promotion evidence belongs to census and
+    promotion; an advisory diagnostic must stay usable when one retained
+    receipt was written by another tool version.
+    """
+    saved = _PROMOTION_EVIDENCE[0]
+    _PROMOTION_EVIDENCE[0] = False
+    try:
+        yield
+    finally:
+        _PROMOTION_EVIDENCE[0] = saved
+
+
+def derive(root, promotion_evidence=None):
+    """Derive every census output from the immutable inputs.
+
+    ``promotion_evidence=False`` (default: strict unless inside
+    ``advisory_image``) stops after the immutable disk and executable parse
+    and returns ``outputs=None``, so no metric can be read or written from
+    that partial derivation.
+    """
+    if promotion_evidence is None:
+        promotion_evidence = _PROMOTION_EVIDENCE[0]
     outputs, files, disks = {}, {}, []
     outputs['evidence/analysis-tools.json'] = dict(schema_version=1, classification='ANALYSIS_ONLY',
         tools=[dict(path=p.relative_to(root).as_posix(), sha256=sha256(p.read_bytes()), size=p.stat().st_size)
@@ -57,6 +89,8 @@ def derive(root):
     require('DT1:DuckTales' in files, 'main executable absent')
     exe = files['DT1:DuckTales']
     model = parse(exe)
+    if not promotion_evidence:
+        return None, files, model
     function_path=root/'evidence/functions/ledger.json'
     analysis=json.loads(function_path.read_text()) if function_path.exists() else {}
     if analysis:require(analysis['game_sha256']==sha256(exe),'function census belongs to another game fixture')

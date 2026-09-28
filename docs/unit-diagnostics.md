@@ -68,6 +68,15 @@ unknown gaps, the gap-crossing counts, every crossing that is not
 gap-independent, and every canonical member that is not EQUAL. This is an echo
 of the receipt; the classification comes only from check_unit.
 
+`diagnose_unit` runs under `census.advisory_image`. The fixture lock, the
+function evidence, and the compile cache are still hash-checked. The census does
+not re-validate every canonical promotion receipt here, and the report records
+`canonical_promotion_evidence: NOT_REVALIDATED_BY_ADVISORY_DIAGNOSTIC`. A
+receipt written by another tool version therefore cannot make an advisory
+diagnostic unreadable. For example, on 2026-09-28 a canonical receipt with
+merged stand-ins raised "combined source hash differs" in every region
+`--receipt` run. Census and promotion stay strict.
+
 By default, the CLI prints `compact_summary` (at most 5 KB, for fleet-worker
 prompts). `--json` prints the full report. The API consists of
 `analyze_unit(...)` (pure, used by the synthetic fixtures), `diagnose_unit(ids,

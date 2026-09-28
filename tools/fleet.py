@@ -826,6 +826,7 @@ RESULT_SCHEMA = """## result.json (closed schema; intake re-verifies every EQUAL
 ```
 EQUAL_CANDIDATE needs best.verdict EQUAL from an isolated run. NEAR needs best. BLOCKED needs proposed_blocker. NEEDS_EVIDENCE names the missing evidence in explanation. `entry` is required for check_unit and equals the target for check_function.
 For check_unit with several new members, `best` may add `"members":{{"<other member id>":"{dir}/<file>.c"}}` (the `--member` sources; never the entry).
+If `best` was compiled with `--object-group`, add `"object_groups":[["<ID>","<ID>"]]` exactly as passed (intake re-verifies with them).
 """
 
 
@@ -836,6 +837,7 @@ B. Baseline: compile the complete region once with the verify command below and 
 C. Improve members one at a time: pick the worst `differs` member, record a hypothesis for THAT member (`"member"` field, `"parent"` = parent variant directory), change only that member's file in a new variant directory, recompile the whole region, rerun unit_diag. A member already `same_after_reference_identity` is frozen unless a hypothesis names it.
 D. Unknown gaps stay unknown: never fill them with bytes, padding, data or asm. With `--natural-interval` every canonical function of the interval is linked as well and must stay EQUAL. A BLOCKED verdict `GAP_DEPENDENT_ENCODING` or `TARGET_IN_UNLINKED_SPAN` (receipt `natural_interval.gap_crossings`) means the gap itself blocks equality: report NEEDS_EVIDENCE or BLOCKED naming the gap.
 E. The region is EQUAL only if the complete object and every member are EQUAL. Report every non-entry source in best.members.
+F. Object grouping is a hypothesis like any variant. `--object-group ID,ID,...` (repeatable, passed to verify-region) compiles address-consecutive members with no gap or unlinked span between them as ONE ordinary object (their sources concatenated in address order; a canonical member only inside its whole proven object group). Record it as a hypothesis with a machine-checkable prediction first (e.g. "grouping 583A with 5962 turns 583A's JSR d16(PC) into the original BSR.B"). It never establishes a source file; keep member sources unchanged in a grouping variant.
 """
 
 
@@ -1095,8 +1097,9 @@ def validate_result(fleet, task, result):
         require(isinstance(blocker["text"], str) and 0 < len(blocker["text"]) <= 2000, "proposed_blocker.text 1..2000 chars")
     best = result["best"]
     if best is not None:
-        require(isinstance(best, dict) and BEST_KEYS <= set(best) <= BEST_KEYS | {"members"},
-                "best keys must be exactly " + ", ".join(sorted(BEST_KEYS)) + " (optional members for check_unit)")
+        require(isinstance(best, dict) and BEST_KEYS <= set(best) <= BEST_KEYS | {"members", "object_groups"},
+                "best keys must be exactly " + ", ".join(sorted(BEST_KEYS)) +
+                " (optional members and object_groups for check_unit)")
         path = (ROOT / best["source"]).resolve() if isinstance(best["source"], str) else None
         require(path is not None and "\\" not in best["source"] and path.is_relative_to(fleet.task_dir(task["id"]).resolve())
                 and path.suffix == ".c" and path.is_file(), "best.source must be an existing .c file in the task directory")
@@ -1128,6 +1131,13 @@ def validate_result(fleet, task, result):
                         and member_path.is_relative_to(fleet.task_dir(task["id"]).resolve())
                         and member_path.suffix == ".c" and member_path.is_file(),
                         "best.members sources must be existing .c files in the task directory")
+        if "object_groups" in best:
+            # Translation-unit hypotheses the verifier must reproduce exactly.
+            groups = best["object_groups"]
+            require(best["verifier"] == "check_unit" and "separate_objects" in best["options"] and isinstance(groups, list)
+                    and groups and all(isinstance(g, list) and len(g) > 1 and all(isinstance(x, str) for x in g)
+                                       for g in groups),
+                    "best.object_groups is a non-empty list of member-id lists (check_unit with separate_objects)")
     if result["status"] == "EQUAL_CANDIDATE":
         require(best is not None and best["verdict"] == "EQUAL", "EQUAL_CANDIDATE requires best.verdict EQUAL")
     if result["status"] == "NEAR":
@@ -1152,7 +1162,8 @@ def reverify(fleet, task, best):
         reports = check_unit.check(best["entry"], source, [best["profile"]], False, "owned_code_data" in options,
                                    "separate_objects" in options, "allow_original_gaps" in options,
                                    "join_direct_callees" in options, isolated=True, output_dir=output,
-                                   member_sources={k: ROOT / v for k, v in best.get("members", {}).items()}, **extra)
+                                   member_sources={k: ROOT / v for k, v in best.get("members", {}).items()},
+                                   object_groups=best.get("object_groups"), **extra)
     else:
         import check_function
         request = dict(id=best["entry"], source=str(source), profiles=[best["profile"]],
@@ -1182,6 +1193,7 @@ def promote_command(best, task=None):
         if "natural_interval" in options:
             flags += " --natural-interval 0x%04X..0x%04X" % natural_interval(task)
         flags += "".join(" --member %s=%s" % item for item in sorted(best.get("members", {}).items()))
+        flags += "".join(" --object-group " + ",".join(g) for g in best.get("object_groups") or ())
         return "python tools/check_unit.py %s %s --profile %s%s" % (best["entry"], best["source"], best["profile"], flags)
     flags = (" --owned-code-data" if "owned_code_data" in options else "") + (" --with-m-lib" if "with_m_lib" in options else "")
     return "python tools/check_function.py %s %s --profile %s%s" % (best["entry"], best["source"], best["profile"], flags)
@@ -1423,7 +1435,7 @@ def _run_wrapped(module_name, argv):
 
 
 def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_direct_callees=False, canonical=None,
-                       prepare_only=False):
+                       prepare_only=False, object_groups=()):
     """Isolated check_unit argv for a region variant directory (see fleet_regions.region_check_args)."""
     import fleet_regions
     task = find_task(fleet, task_id)
@@ -1437,6 +1449,9 @@ def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_dir
     for m in members:
         require((source_dir / (m + ".c")).is_file(), "missing member source " + rel(source_dir / (m + ".c")))
     extra = (["--join-direct-callees"] if join_direct_callees else []) + (["--prepare-only"] if prepare_only else [])
+    for group in object_groups or ():
+        # One translation-unit hypothesis per group; check_unit validates it.
+        extra += ["--object-group", group]
     return fleet_regions.region_check_args(task["origin"]["region"], rel(directory), rel(source_dir), members, profile,
                                            extra)
 
@@ -1493,6 +1508,8 @@ def main(argv=None):
     p.add_argument("--print", action="store_true", help="print the check_unit arguments without compiling")
     p.add_argument("--prepare-only", action="store_true",
                    help="print the planned natural-interval unit (order, spacing, gap crossings, cache keys); no compile")
+    p.add_argument("--object-group", action="append", default=[], metavar="ID,ID,...",
+                   help="compile these address-consecutive members as one object (a hypothesis; repeatable)")
     args = ap.parse_args(argv)
     if args.packets_dir is not None:
         packets = args.packets_dir.resolve()
@@ -1539,7 +1556,7 @@ def main(argv=None):
             print("\n".join(lines))
         elif args.command == "verify-region":
             argv = region_verify_argv(fleet, args.task, args.sources, args.profile, args.join_direct_callees,
-                                      prepare_only=args.prepare_only)
+                                      prepare_only=args.prepare_only, object_groups=args.object_group)
             if args.print:
                 print(" ".join(argv + ["--isolated"]))
                 return 0
