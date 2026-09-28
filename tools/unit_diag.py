@@ -551,6 +551,24 @@ def compact_summary(report, max_bytes=5000):
     return s
 
 
+def natural_receipt_summary(receipt, limit=8):
+    """Bounded echo of a check_unit --natural-interval receipt (verdict authority stays check_unit)."""
+    n = receipt.get('natural_interval') or {}
+    crossings = n.get('gap_crossings') or []
+    flagged = [c for c in crossings if c.get('classification') != 'GAP_INDEPENDENT_ENCODING']
+    keep = ('member', 'kind', 'site', 'target_id', 'original_displacement', 'compact_displacement',
+            'distance_delta', 'original_class', 'compact_class', 'classification')
+    return dict(interval=n.get('interval'), receipt_verdict=receipt.get('verdict'), receipt_reason=receipt.get('reason'),
+                member_verdict=receipt.get('member_verdict'), blocked_reason=n.get('blocked_reason'),
+                compaction_spans=[{k: s.get(k) for k in ('start', 'end', 'size', 'kind')}
+                                  for s in n.get('compaction_spans') or []],
+                unknown_gaps=[[g['start'], g['end']] for g in n.get('unknown_gaps') or []],
+                gap_crossing_counts=n.get('gap_crossing_counts'),
+                flagged_crossings=[{k: c.get(k) for k in keep} for c in flagged[:limit]],
+                canonical_not_equal=[c['id'] for c in receipt.get('canonical_regressions') or []
+                                     if c.get('verdict') != 'EQUAL'])
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--cache-key', required=True, help='validated key in build/compile-cache')
@@ -576,6 +594,11 @@ def main(argv=None):
         entry = entry or r.get('id')
         if new_members is None and r.get('member_sources'):
             new_members = sorted(r['member_sources'])
+        if r.get('natural_interval'):
+            # Unknown gaps are measured over the claimed interval only; the
+            # linked callees outside it are listed as outside members.
+            interval = tuple(r['natural_interval']['interval'])
+            extra = dict(natural_interval=natural_receipt_summary(r))
     else:
         ids = [x.strip() for x in a.members.split(',') if x.strip()]
     if a.interval:
@@ -584,6 +607,8 @@ def main(argv=None):
     report = diagnose_unit(ids, a.cache_key, entry_member=entry, interval=interval, new_members=new_members)
     report.update(extra)
     out = report if a.json else compact_summary(report)
+    if extra.get('natural_interval'):
+        out['natural_interval'] = extra['natural_interval']
     if extra.get('package') and report.get('original'):
         measured = [[g['start'], g['end']] for g in report['original']['unknown_gaps']]
         out['package_unclassified_gaps'] = extra['package']['package_unclassified_gaps']

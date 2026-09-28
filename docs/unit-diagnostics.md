@@ -60,6 +60,14 @@ member's row is then marked `new`, and canonical bridges are marked as not new.
 Calls back to the entry bind through `_recovered`. The labels are advisory and
 do not change pairing, states or gaps.
 
+For a `check_unit --natural-interval` receipt, `--receipt` uses the receipt's
+interval for unknown gaps. Linked callees outside the interval are listed as
+`members_outside_interval`. The summary gains a `natural_interval` block, which
+echoes the receipt verdict, the member verdict, the compaction spans, the
+unknown gaps, the gap-crossing counts, every crossing that is not
+gap-independent, and every canonical member that is not EQUAL. This is an echo
+of the receipt; the classification comes only from check_unit.
+
 By default, the CLI prints `compact_summary` (at most 5 KB, for fleet-worker
 prompts). `--json` prints the full report. The API consists of
 `analyze_unit(...)` (pure, used by the synthetic fixtures), `diagnose_unit(ids,

@@ -44,6 +44,14 @@ new members or for none of them. Each proof names the shared unit
 receipt, which records each member's source hash. Census validation rejects the
 receipt unless every listed member is canonical with that source.
 
+The opt-in `--natural-interval START..END` mode links every function of an
+original interval in address order. Canonical functions keep their canonical
+sources and must stay EQUAL. Unknown gaps are not linked, so the object is
+compacted only at those spans. A PC-relative reference crossing a span is
+accepted by target identity only when its displacement class (8-bit or 16-bit)
+is the same in the original and compact links. Otherwise the unit is BLOCKED
+(`GAP_DEPENDENT_ENCODING`). See docs/fleet.md.
+
 FUNCTION_WITH_DATA_MATCH additionally requires every PC-relative literal to be
 separately evidenced, an exact source-produced CODE tail, and a boundary at the
 next discovered function entry. It claims that literal contribution only; it does

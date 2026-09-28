@@ -40,7 +40,7 @@ BUDGETS = {"function": dict(max_compile_trials=24, max_variants_per_manifest=6),
            "unit": dict(max_compile_trials=12, max_variants_per_manifest=4),
            "region": dict(max_compile_trials=40, max_variants_per_manifest=4),
            "review": dict(max_compile_trials=4, max_variants_per_manifest=2)}
-UNIT_OPTIONS = ("separate_objects", "allow_original_gaps", "join_direct_callees", "owned_code_data")
+UNIT_OPTIONS = ("separate_objects", "allow_original_gaps", "join_direct_callees", "owned_code_data", "natural_interval")
 FUNCTION_OPTIONS = ("owned_code_data", "with_m_lib")
 
 
@@ -166,7 +166,14 @@ def region_tasks(regions, canonical):
         if not region.get("members_well_bounded", True):
             deferred.append("MEMBER_EXTENT_UNCERTAIN")
         notes = []
-        if region["bridges_not_linked"]:
+        if "natural_interval" in region["options"]:
+            notes.append("check_unit --natural-interval %s links every function of the interval in address order "
+                         "(canonical members from their canonical sources, as regression checks that must stay EQUAL) "
+                         "plus %d canonical callees outside it. Unknown gaps stay unclaimed; a PC-relative reference "
+                         "crossing a gap or unlinked span whose displacement class could change BLOCKS the unit "
+                         "(GAP_DEPENDENT_ENCODING). `verify-region --prepare-only` shows the layout without compiling."
+                         % (region["interval_hex"], len(region.get("linked_outside_interval", []))))
+        elif region["bridges_not_linked"]:
             notes.append("With --allow-original-gaps, check_unit links only the new members and their canonical call "
                          "closure; %d canonical bridges of the natural interval are not linked, so the linked object "
                          "is compact, not the natural layout. Report that as evidence if encodings depend on it."
@@ -827,7 +834,7 @@ Full member facts, candidates and edges are in `{dir}/task.json` (`task.origin.r
 A. Stage sources: each variant is one directory `{dir}/vNN/` holding `<ID>.c` for EVERY new member (copy the best candidate listed below, else author it; later variants copy their parent directory and change one member). Each file is self-contained K&R C defining `recovered(...)`; calls to other members, including back to the entry, use mechanical `F_hNN_XXXX` names. The entry file is compiled as recovered(); every other new member is one `--member ID=SRC`. Canonical members are reused automatically; never copy their bytes or source into your files.
 B. Baseline: compile the complete region once with the verify command below and run the diagnostics command on its receipt and cache key. It reports per-member states (`same_after_reference_identity`, `differs`, ...), unknown gaps and candidate-only bytes.
 C. Improve members one at a time: pick the worst `differs` member, record a hypothesis for THAT member (`"member"` field, `"parent"` = parent variant directory), change only that member's file in a new variant directory, recompile the whole region, rerun unit_diag. A member already `same_after_reference_identity` is frozen unless a hypothesis names it.
-D. Unknown gaps stay unknown: never fill them with bytes, padding, data or asm. If a gap or a compact (non-natural) link is what blocks equality, report NEEDS_EVIDENCE or BLOCKED naming the gap/bridge.
+D. Unknown gaps stay unknown: never fill them with bytes, padding, data or asm. With `--natural-interval` every canonical function of the interval is linked as well and must stay EQUAL. A BLOCKED verdict `GAP_DEPENDENT_ENCODING` or `TARGET_IN_UNLINKED_SPAN` (receipt `natural_interval.gap_crossings`) means the gap itself blocks equality: report NEEDS_EVIDENCE or BLOCKED naming the gap.
 E. The region is EQUAL only if the complete object and every member are EQUAL. Report every non-entry source in best.members.
 """
 
@@ -840,7 +847,8 @@ def _region_body(fleet, task, rec, directory):
                    independent=region["independent_members"], layout_intervals=[
                        dict(interval="0x%04X..0x%04X" % (i["start"], i["end"]), dependents=i["dependents"],
                             sources=i["sources"]) for i in region["layout_intervals"]],
-                   linked_compact=region["linked_compact"], bridges_not_linked=len(region["bridges_not_linked"]),
+                   linked_outside_interval=len(region.get("linked_outside_interval", [])),
+                   bridges_not_linked=len(region["bridges_not_linked"]),
                    blocked_by=task.get("blocked_by"), waits_on=task.get("dependencies"))
     summary = {k: v for k, v in summary.items() if v not in ([], {}, None) and k not in ("hunk", "interval_hex")}
     sections.append(("region", "## Region\n`" + _j(summary)[:1200] + "`\n(internal edges: "
@@ -877,10 +885,11 @@ def _region_body(fleet, task, rec, directory):
     sections.append(("commands", "## Commands\n- verify (isolated, queued): `python tools/fleet.py verify-region %s "
                      "--sources %s/vNN` compiles `vNN/<ID>.c` for every new member: entry `%s` as recovered(), the "
                      "others as `--member`, flags `%s`, output under `%s/runs` (explicit form: `commands.verify` in "
-                     "task.json).\n- per-member diagnostics: `%s` (explicit `--members` form: `commands.diag`).\n"
+                     "task.json). Add `--prepare-only` to see member order, spacing and gap crossings without "
+                     "compiling.\n- per-member diagnostics: `%s` (explicit `--members` form: `commands.diag`).\n"
                      "Promotion is the supervisor's `check_unit.py` with the same arguments; never run it yourself.\n"
                      % (task["id"], directory, region["entry"],
-                        " ".join("--" + o.replace("_", "-") for o in region["options"]), directory,
+                        " ".join(fleet_regions.region_flags(region)), directory,
                         commands["diag_receipt"]), False))
     history, intakes = ledger_history(fleet, task["targets"], task["id"], limit=4)
     sections.append(("ledger", "## Prior hypotheses (do not repeat)\n`" + _j(history)[:600] + "`\n" +
@@ -954,7 +963,7 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
                   % directory)
         run = ("the verify command in the Commands section (always isolated; one --member per other new member, exactly "
                "the listed flags), then the per-member diagnostics command with the new cache key.")
-        options = "\"separate_objects\",\"allow_original_gaps\",\"join_direct_callees\",\"owned_code_data\""
+        options = "\"separate_objects\",\"natural_interval\",\"join_direct_callees\",\"owned_code_data\""
         unit_doc = ", docs/unit-diagnostics.md, docs/fleet.md (Regions)"
     elif task["kind"] == "unit":
         record = ("Append one JSON line per hypothesis to `%s/hypotheses.jsonl`: "
@@ -1137,10 +1146,13 @@ def reverify(fleet, task, best):
     options = set(best["options"])
     if best["verifier"] == "check_unit":
         import check_unit
+        extra = {}
+        if "natural_interval" in options:
+            extra["natural_interval"] = natural_interval(task)
         reports = check_unit.check(best["entry"], source, [best["profile"]], False, "owned_code_data" in options,
                                    "separate_objects" in options, "allow_original_gaps" in options,
                                    "join_direct_callees" in options, isolated=True, output_dir=output,
-                                   member_sources={k: ROOT / v for k, v in best.get("members", {}).items()})
+                                   member_sources={k: ROOT / v for k, v in best.get("members", {}).items()}, **extra)
     else:
         import check_function
         request = dict(id=best["entry"], source=str(source), profiles=[best["profile"]],
@@ -1156,10 +1168,19 @@ def reverify(fleet, task, best):
                 output_dir=rel(output))
 
 
-def promote_command(best):
+def natural_interval(task):
+    """The claimed interval of a region task (the only source of --natural-interval)."""
+    require(task is not None and task["kind"] == "region", "natural_interval is only defined for region tasks")
+    start, end = task["origin"]["region"]["interval"]
+    return start, end
+
+
+def promote_command(best, task=None):
     options = set(best["options"])
     if best["verifier"] == "check_unit":
-        flags = "".join(" --" + o.replace("_", "-") for o in UNIT_OPTIONS if o in options)
+        flags = "".join(" --" + o.replace("_", "-") for o in UNIT_OPTIONS if o in options and o != "natural_interval")
+        if "natural_interval" in options:
+            flags += " --natural-interval 0x%04X..0x%04X" % natural_interval(task)
         flags += "".join(" --member %s=%s" % item for item in sorted(best.get("members", {}).items()))
         return "python tools/check_unit.py %s %s --profile %s%s" % (best["entry"], best["source"], best["profile"], flags)
     flags = (" --owned-code-data" if "owned_code_data" in options else "") + (" --with-m-lib" if "with_m_lib" in options else "")
@@ -1196,7 +1217,7 @@ def intake(fleet, task_id, verify_near=False, record=True, verifier=reverify):
         if entry and entry.get("state") in CANONICAL_STATES and entry.get("source_sha256") == source_hash:
             command = None
         else:
-            command = promote_command(best)
+            command = promote_command(best, task)
     stamp = now_epoch()
     entry = dict(ledger_schema=1, record_type="fleet_intake", timestamp=iso(stamp), timestamp_epoch=stamp,
                  function_id=task["targets"][0], task_id=task_id, kind=task["kind"], targets=task["targets"],
@@ -1401,7 +1422,8 @@ def _run_wrapped(module_name, argv):
         sys.argv = saved
 
 
-def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_direct_callees=False, canonical=None):
+def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_direct_callees=False, canonical=None,
+                       prepare_only=False):
     """Isolated check_unit argv for a region variant directory (see fleet_regions.region_check_args)."""
     import fleet_regions
     task = find_task(fleet, task_id)
@@ -1414,8 +1436,9 @@ def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_dir
     require(len(members) >= 1, "every region member is already canonical")
     for m in members:
         require((source_dir / (m + ".c")).is_file(), "missing member source " + rel(source_dir / (m + ".c")))
+    extra = (["--join-direct-callees"] if join_direct_callees else []) + (["--prepare-only"] if prepare_only else [])
     return fleet_regions.region_check_args(task["origin"]["region"], rel(directory), rel(source_dir), members, profile,
-                                           ["--join-direct-callees"] if join_direct_callees else [])
+                                           extra)
 
 
 def main(argv=None):
@@ -1468,6 +1491,8 @@ def main(argv=None):
     p.add_argument("task"); p.add_argument("--sources", help="variant directory with <ID>.c per new member")
     p.add_argument("--profile", default="aztec36"); p.add_argument("--join-direct-callees", action="store_true")
     p.add_argument("--print", action="store_true", help="print the check_unit arguments without compiling")
+    p.add_argument("--prepare-only", action="store_true",
+                   help="print the planned natural-interval unit (order, spacing, gap crossings, cache keys); no compile")
     args = ap.parse_args(argv)
     if args.packets_dir is not None:
         packets = args.packets_dir.resolve()
@@ -1513,7 +1538,8 @@ def main(argv=None):
                                    args.lease_hours, args.dry_run, args.cx, not args.no_host_guard)
             print("\n".join(lines))
         elif args.command == "verify-region":
-            argv = region_verify_argv(fleet, args.task, args.sources, args.profile, args.join_direct_callees)
+            argv = region_verify_argv(fleet, args.task, args.sources, args.profile, args.join_direct_callees,
+                                      prepare_only=args.prepare_only)
             if args.print:
                 print(" ".join(argv + ["--isolated"]))
                 return 0

@@ -42,7 +42,158 @@ def mechanical_name(f):
     return 'F_h%02d_%04X'%(f['hunk'],f['start'])
 
 
-def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True,member_sources=None):
+def parse_interval(text):
+    """``0xSTART..0xEND`` (hex, or decimal without ``0x``) -> (start, end)."""
+    if isinstance(text,(tuple,list)):start,end=text
+    else:
+        lo,sep,hi=str(text).partition('..')
+        require(sep=='..','natural interval must be START..END')
+        try:start,end=int(lo.strip(),0),int(hi.strip(),0)
+        except ValueError as exc:raise FormatError('natural interval bounds must be integers') from exc
+    require(0<=start<end,'natural interval must satisfy 0 <= START < END')
+    return start,end
+
+
+# Displacement classes for the gap-dependence rule (68000 short BSR/Bcc.B
+# carry a nonzero 8-bit displacement; d16(PC) and BSR/Bcc.W a 16-bit one).
+BYTE_MIN,BYTE_MAX=-128,127
+WORD_MIN,WORD_MAX=-32768,32767
+
+
+def displacement_class(d):
+    if BYTE_MIN<=d<=BYTE_MAX and d!=0:return 'BYTE'
+    if WORD_MIN<=d<=WORD_MAX:return 'WORD'
+    return 'OUT_OF_RANGE'
+
+
+def natural_layout(members,interval,tails,new_ids,all_functions=()):
+    """Pure description of a natural-interval link (no compilation).
+
+    ``members`` are the linked functions in original address order and
+    ``tails`` maps an id to the byte length of its proven literal tail.  The
+    compact linked object places every member (plus that tail) back to back,
+    so each run of original bytes absent between two consecutive members is a
+    *compaction span*: an ``UNKNOWN_GAP`` when both neighbours lie inside the
+    interval, else ``UNLINKED_OUTSIDE_INTERVAL`` (bytes of functions outside
+    the claimed interval that are not needed by any member).  Nothing inside
+    a span is claimed, filled or copied.
+    """
+    lo,hi=interval
+    rows=[];spans=[];removed=0;previous=None;base=members[0]['start'] if members else lo
+    for f in members:
+        end=f['end']+tails.get(f['id'],0)
+        if previous is not None:
+            require(f['start']>=previous['contribution_end'],'natural layout members overlap: '+previous['id']+'/'+f['id'])
+            if f['start']>previous['contribution_end']:
+                a,b=previous['contribution_end'],f['start']
+                inside=lo<=a and b<=hi
+                spans.append(dict(start=a,end=b,size=b-a,after=previous['id'],before=f['id'],
+                                  kind='UNKNOWN_GAP' if inside else 'UNLINKED_OUTSIDE_INTERVAL',
+                                  ownership='UNKNOWN_NOT_ASSIGNED' if inside else 'NOT_LINKED_NOT_CLAIMED',
+                                  object_offset=a-removed-base,
+                                  discovered_functions_inside=[x['id'] for x in all_functions
+                                                               if x.get('hunk')==f['hunk'] and a<=x['start']<b]))
+                removed+=b-a
+        role=('new' if f['id'] in new_ids else 'canonical')+('' if lo<=f['start'] and end<=hi else '_outside_interval')
+        row=dict(id=f['id'],role=role,start=f['start'],end=f['end'],contribution_end=end,
+                 tail_bytes=tails.get(f['id'],0),object_offset=f['start']-removed-base,shift=-removed)
+        rows.append(row);previous=row
+    # Interval bytes covered by no linked contribution, including its edges.
+    unknown=[];cursor=lo
+    for row in rows:
+        if row['contribution_end']<=lo or row['start']>=hi:continue
+        if row['start']>cursor:unknown.append(dict(start=cursor,end=row['start'],size=row['start']-cursor,ownership='UNKNOWN_NOT_ASSIGNED'))
+        cursor=max(cursor,row['contribution_end'])
+    if cursor<hi:unknown.append(dict(start=cursor,end=hi,size=hi-cursor,ownership='UNKNOWN_NOT_ASSIGNED'))
+    return dict(interval=[lo,hi],interval_hex='0x%04X..0x%04X'%(lo,hi),members=rows,compaction_spans=spans,
+                unknown_gaps=unknown,unknown_gap_bytes=sum(g['size'] for g in unknown),
+                interval_members=[r['id'] for r in rows if not r['role'].endswith('_outside_interval')],
+                outside_interval_members=[r['id'] for r in rows if r['role'].endswith('_outside_interval')])
+
+
+def _pc_references(f):
+    """Original PC-relative calls and data references of ``f`` (absolute hunk offsets)."""
+    instructions={i.get('offset'):i for i in f.get('instructions') or []}
+    for call in f.get('direct_callees') or []:
+        if call.get('basis')!='PC_RELATIVE' or call.get('hunk')!=f['hunk']:continue
+        ins=instructions.get(call['site'],{})
+        yield dict(kind='CALL',site=call['site'],target=call['offset'],target_id=call.get('id'),
+                   size=ins.get('size'),raw=str(ins.get('raw',''))[:4].lower() or None)
+    for ref in f.get('referenced_data') or []:
+        if ref.get('kind')!='PC_RELATIVE_DATA' or ref.get('hunk')!=f['hunk']:continue
+        ins=instructions.get(ref['instruction_offset'],{})
+        yield dict(kind='DATA',site=ref['instruction_offset'],target=ref['offset'],target_id=None,
+                   size=ins.get('size'),raw=str(ins.get('raw',''))[:4].lower() or None)
+
+
+def gap_crossings(members,layout):
+    """Classify every original PC-relative reference that crosses a compaction span.
+
+    Conservative rule: the natural link differs from the compact link only by
+    the absent span bytes, so a reference is ``GAP_INDEPENDENT_ENCODING`` only
+    when its original and compact displacements fall in the same displacement
+    class (nonzero 8-bit, 16-bit).  Whatever rule (compiler, assembler or
+    linker) selected the original form then sees the same class in both
+    links, and the member comparison proves the reference by target identity.
+    A crossing whose class changes (for example a 4-byte ``JSR d16(PC)`` whose
+    compact distance would fit ``BSR.B``) is ``GAP_DEPENDENT_ENCODING``; a
+    reference whose target lies inside an unlinked span is
+    ``TARGET_IN_UNLINKED_SPAN``.  Both block the unit.
+    """
+    spans=layout['compaction_spans'];rows=[]
+    shift={r['id']:r['shift'] for r in layout['members']}
+    def removed_before(addr):
+        return sum(s['size'] for s in spans if s['end']<=addr)
+    for f in members:
+        for ref in _pc_references(f):
+            site,target=ref['site'],ref['target']
+            lo,hi=sorted((site,target))
+            crossed=[s for s in spans if lo<s['end'] and s['start']<hi]
+            if not crossed:continue
+            origin=site+2
+            original=target-origin
+            inside=next((s for s in crossed if s['start']<=target<s['end']),None)
+            compact=(target-removed_before(target))-(origin+shift[f['id']])
+            row=dict(member=f['id'],kind=ref['kind'],site=site,target=target,target_id=ref['target_id'],
+                     instruction_size=ref['size'],opcode=ref['raw'],original_displacement=original,
+                     compact_displacement=compact if inside is None else None,
+                     distance_delta=(compact-original) if inside is None else None,
+                     spans=[[s['start'],s['end'],s['kind']] for s in crossed])
+            if inside is not None:
+                row['classification']='TARGET_IN_UNLINKED_SPAN'
+            else:
+                row.update(original_class=displacement_class(original),compact_class=displacement_class(compact))
+                same=row['original_class']==row['compact_class']!='OUT_OF_RANGE'
+                row['classification']='GAP_INDEPENDENT_ENCODING' if same else 'GAP_DEPENDENT_ENCODING'
+            rows.append(row)
+    counts={}
+    for r in rows:counts[r['classification']]=counts.get(r['classification'],0)+1
+    return rows,counts
+
+
+def natural_interval_plan(members,interval,new_ids,owned_code_data=False,target_id=None,all_functions=()):
+    """Layout plus gap-crossing classification for a natural-interval unit."""
+    ledger=recovery();tails={}
+    for f in members:
+        tail,_=proven_tail(f,ledger)
+        if owned_code_data and f['id']==target_id and not tail:
+            from owned_code_data import expected_string_tail
+            tail,_=expected_string_tail(f)
+        if tail:tails[f['id']]=len(tail)
+    layout=natural_layout(members,interval,tails,new_ids,all_functions)
+    crossings,counts=gap_crossings(members,layout)
+    blocking=[c for c in crossings if c['classification']!='GAP_INDEPENDENT_ENCODING']
+    layout.update(gap_crossings=crossings,gap_crossing_counts=counts,
+                  gap_policy=('A PC-relative reference crossing a compaction span is compared by target identity only when '
+                              'its original and compact displacement classes agree; otherwise the unit is BLOCKED '
+                              '(GAP_DEPENDENT_ENCODING). No span byte is claimed.'),
+                  blocked_reason=None if not blocking else
+                  ('GAP_DEPENDENT_ENCODING' if any(c['classification']=='GAP_DEPENDENT_ENCODING' for c in blocking)
+                   else 'TARGET_IN_UNLINKED_SPAN'))
+    return layout
+
+
+def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True,member_sources=None,natural_interval=None):
     """Build one complete unit around ``fid`` (compiled as ``recovered``).
 
     ``member_sources`` maps further *new* member ids to candidate source text.
@@ -92,7 +243,23 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     # Every named new member is part of the claimed unit, even one reached
     # only through a canonical bridge or by physical adjacency.
     for dep_id in member_sources:add_recovered(dep_id)
-    if not allow_gaps:
+    if natural_interval is not None:
+        # Natural interval: every discovered function of the claimed interval
+        # is linked in original order, canonical ones from their exact
+        # canonical sources and new ones from their candidate sources.  An
+        # unrecovered function without a candidate source cannot be skipped.
+        lo,hi=parse_interval(natural_interval)
+        for m in members.values():
+            if m['id']==fid or m['id'] in member_sources:
+                require(lo<=m['start'] and m['end']<=hi,'new unit member is outside the natural interval: '+m['id'])
+        for candidate in sorted(l['functions'],key=lambda x:x['start']):
+            if candidate['hunk']!=f['hunk'] or candidate['end']<=lo or candidate['start']>=hi:continue
+            require(lo<=candidate['start'] and candidate['end']<=hi,'natural interval splits function '+candidate['id'])
+            if candidate['id'] in members:continue
+            require(candidate['id'] in r['functions'],
+                    'natural interval contains an unrecovered function without a member source: '+candidate['id'])
+            add_recovered(candidate['id'])
+    elif not allow_gaps:
         # A natural source unit can contain recovered routines that sit between
         # a caller and its local dependency without being directly called by
         # either. Include them only when every intervening extent is canonical.
@@ -107,7 +274,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     # treating arbitrary bytes between recovered functions as source-owned.
     def contribution_end(member):
         tail,_=proven_tail(member,r);return member['end']+len(tail)
-    if not allow_gaps:
+    if not allow_gaps and natural_interval is None:
         require(all(contribution_end(a)==b['start'] for a,b in zip(ordered,ordered[1:])),
                 'unit has unowned gaps; do not fill or copy original bytes')
     # A bridge source may retain an old ``extern`` declaration for another
@@ -127,7 +294,27 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     return (ordered,names,parts,combined,l) if with_parts else (ordered,names,combined,l)
 
 
-def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None):
+def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None,natural=None):
+    """Exact comparison of a complete linked unit.
+
+    ``natural`` is a ``natural_interval_plan`` layout.  Members are then
+    compared in compact linked coordinates (like ``allow_gaps``), and the unit
+    verdict additionally requires every gap-crossing reference to be
+    gap-independent; otherwise it is BLOCKED with the layout's reason.
+    """
+    if natural is None:
+        return _compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,source_text)
+    result=_compare_unit(members,names,compiled,a4_bias,owned_code_data,True,source_text)
+    new_ids={r['id'] for r in natural['members'] if r['role'].startswith('new')}
+    result['canonical_regressions']=[dict(id=m['id'],verdict=m.get('verdict'),reason=m.get('reason'))
+                                     for m in result.get('members',[]) if m['id'] not in new_ids]
+    if natural.get('blocked_reason'):
+        result['member_verdict']=result['verdict']
+        result.update(verdict='BLOCKED',reason=natural['blocked_reason'],normalized_sha256=None)
+    return result
+
+
+def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None):
     if compiled['status']!='COMPILED':return dict(verdict='BLOCKED',reason=compiled['status'],members=[])
     c=compiled['contribution'];raw=bytes.fromhex(c['code_hex']);expected=b''.join(bytes.fromhex(f['raw_bytes']) for f in members)
     result=dict(verdict='BLOCKED',expected_length=len(expected),actual_length=len(raw),members=[],object_sha256=c['object_sha256'])
@@ -226,8 +413,14 @@ def member_comparison(report,fid,source_sha256,base=None):
     return comparison
 
 
-def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None):
-    report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined)
+NATURAL_POLICY=('Every linked byte comes from a recovered or candidate source object; every function of the natural '
+                'interval is linked in original address order (canonical members are regression checks); unknown gaps '
+                'and unlinked outside spans remain unclaimed; gap-crossing PC-relative references are accepted only '
+                'when their displacement class is gap-independent')
+
+
+def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None,natural=None):
+    report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined,natural=natural)
     member_sources=dict(member_sources or {})
     new_ids={fid,*member_sources}
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
@@ -235,9 +428,11 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
                       combined_source_sha256=sha256(combined.encode()),source_sha256=sha256(source.encode()),
                       dependency_sources={f['id']:recovery()['functions'][f['id']]['source_sha256'] for f in members if f['id'] not in new_ids},
                       ordered_members=[{k:f[k] for k in ('id','hunk','start','end','size','sha256')} for f in members],
-                      verification_policy=('Every byte and member of the complete naturally compiled object; no omitted padding or data'
+                      verification_policy=(NATURAL_POLICY if natural is not None else
+                                           'Every byte and member of the complete naturally compiled object; no omitted padding or data'
                                            if not allow_gaps else
                                            'Every compact linked byte belongs to a recovered source object; original gaps remain unclaimed'))
+    if natural is not None:report['natural_interval']=natural
     if member_sources:
         # Several members are proved together: all of them, or none, may
         # acquire canonical source from this receipt.
@@ -380,20 +575,7 @@ def promote_unit_members(fid,source,member_sources,members,report,comparison,com
             for member_id,text,member_report,member_state in plan]
 
 
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None):
-    """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
-    members authored with the entry; acceptance is then the complete unit."""
-    if isolated:promote_equal=False
-    require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
-    require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
-    output_root=None
-    if isolated and output_dir is not None:
-        from check_function import isolated_output_root
-        output_root=isolated_output_root(output_dir)
-    member_sources={k:Path(v).read_text() for k,v in (member_sources or {}).items()}
-    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(
-        fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources)
-    reports=[]
+def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources):
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
     trials=[]
@@ -413,9 +595,62 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             if member_sources and re.search(r'\bextern\s+(?:int|long|short|char|void)\s+recovered\s*\(\s*\)\s*;',combined):
                 trial['local_functions'].append('recovered')
         trials.append(trial)
+    return trials
+
+
+def trial_cache_key(trial):
+    """The compile-cache identity of one trial, computed without compiling."""
+    from compiler_oracle import identity,object_specs,cached
+    objects=object_specs(trial) if trial.get('objects') is not None else None
+    key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()))[0]
+    return key,cached(key) is not None
+
+
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False):
+    """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
+    members authored with the entry; acceptance is then the complete unit.
+
+    ``natural_interval`` (``START..END``) links every function of that
+    interval in original order; ``prepare_only`` returns the planned unit
+    (members, spacing, gap crossings, trial cache keys) without compiling."""
+    if isolated or prepare_only:promote_equal=False
+    require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
+    require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
+    if natural_interval is not None:
+        natural_interval=parse_interval(natural_interval)
+        require(not allow_gaps,'--natural-interval replaces --allow-original-gaps; its gaps are listed and classified')
+    output_root=None
+    if isolated and output_dir is not None:
+        from check_function import isolated_output_root
+        output_root=isolated_output_root(output_dir)
+    member_sources={k:Path(v).read_text() for k,v in (member_sources or {}).items()}
+    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(
+        fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources,
+        natural_interval=natural_interval)
+    natural=None
+    if natural_interval is not None:
+        natural=natural_interval_plan(members,natural_interval,{fid,*member_sources},owned_code_data,fid,ledger['functions'])
+        # Like --allow-original-gaps, a compacted link keeps ordinary object
+        # boundaries; one combined object is accepted only without spans,
+        # where the natural interval is the ordinary contiguous unit.
+        require(separate_objects or not natural['compaction_spans'],
+                'natural-interval proof across compaction spans requires separate ordinary source objects')
+    reports=[]
+    trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources)
+    if prepare_only:
+        keys=[trial_cache_key(t) for t in trials]
+        plan=dict(verdict='PREPARED_NOT_COMPILED',id=fid,
+                  ordered_members=[dict(id=m['id'],start=m['start'],end=m['end'],size=m['size'],
+                                        role='new' if m['id']==fid or m['id'] in member_sources else 'canonical',
+                                        linked_name=names[m['id']]) for m in members],
+                  objects=len(trials[0].get('objects') or [None]) if trials else 0,
+                  trials=[dict(profile=t['profile'],cache_key=k,cached=c) for t,(k,c) in zip(trials,keys)],
+                  combined_source_sha256=sha256(combined.encode()))
+        if natural is not None:plan['natural_interval']=natural
+        return [plan]
     for compiled in compile_many(trials):
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,
-                                      member_sources=member_sources)
+                                      member_sources=member_sources,natural=natural)
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
@@ -452,6 +687,11 @@ def main():
     ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
     ap.add_argument('--member',action='append',default=[],metavar='ID=SOURCE',
                     help='another new (not yet canonical) unit member and its source; repeat. The unit is accepted only if every member is EQUAL')
+    ap.add_argument('--natural-interval',metavar='START..END',
+                    help='link every function of this original interval in address order '
+                         '(canonical sources are regression checks); unknown gaps stay unclaimed and gap-crossing '
+                         'references are classified (GAP_DEPENDENT_ENCODING blocks the unit)')
+    ap.add_argument('--prepare-only',action='store_true',help='print the planned unit, spacing, gap crossings and trial cache keys; never compile')
     a=ap.parse_args()
     require(a.output_dir is None or a.isolated,'--output-dir requires --isolated')
     member_sources={}
@@ -459,8 +699,10 @@ def main():
         member_id,sep,member_path=item.partition('=')
         require(sep and member_id and member_path and member_id not in member_sources,'--member expects a unique ID=SOURCE')
         member_sources[member_id]=Path(member_path)
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources)
+    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
+                  a.natural_interval,a.prepare_only)
     for r in reports:print(json.dumps(r))
+    if a.prepare_only:return 0
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 
 if __name__=='__main__':

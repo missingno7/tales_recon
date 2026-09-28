@@ -237,9 +237,11 @@ def build_regions(functions, items, canonical, blockers, attempts=None, intakes=
         if cursor < end:
             gaps.append(dict(start=cursor, end=end, size=end - cursor, ownership="UNKNOWN_NOT_ASSIGNED"))
             ordered.append(dict(gap=True, start=cursor, size=end - cursor))
-        # What check_unit will link: the new members plus the canonical call
-        # closure (prepare_unit follows every same-hunk direct callee).
-        linked, stack = set(new), list(new)
+        # What check_unit --natural-interval links: every function of the
+        # interval (new members and canonical bridges, in address order) plus
+        # the canonical call closure outside it (prepare_unit follows every
+        # same-hunk direct callee).
+        linked, stack = {f["id"] for f in inside}, [f["id"] for f in inside]
         while stack:
             f = by_id[stack.pop()]
             for call in f.get("direct_callees") or []:
@@ -247,21 +249,9 @@ def build_regions(functions, items, canonical, blockers, attempts=None, intakes=
                 if call.get("hunk") == hunk and dep in canonical and dep in by_id and dep not in linked:
                     linked.add(dep)
                     stack.append(dep)
-        lo = min(by_id[m]["start"] for m in linked)
-        hi = max(contribution_end(by_id[m]) for m in linked)
-        cursor, compact = lo, True
-        for f in hunk_functions[hunk]:
-            if f["end"] <= lo or f["start"] >= hi:
-                continue
-            if (f["id"] not in linked and f["id"] not in canonical) or f["start"] != cursor:
-                compact = False
-                break
-            cursor = contribution_end(f)
-        compact = compact and cursor == hi
-        if compact:
-            linked.update(f["id"] for f in hunk_functions[hunk] if lo <= f["start"] and f["end"] <= hi)
         linked_order = sorted(linked, key=lambda m: (by_id[m]["start"], m))
-        bridges_not_linked = [f["id"] for f in inside if f["id"] in canonical and f["id"] not in linked]
+        outside_linked = [m for m in linked_order if not (start <= by_id[m]["start"] and by_id[m]["end"] <= end)]
+        bridges_not_linked = []
         applied = [dict(i, dependents=i["dependents"]) for i in intervals
                    if i["hunk"] == hunk and i["start"] < end and i["end"] > start]
         kinds = {}
@@ -271,7 +261,7 @@ def build_regions(functions, items, canonical, blockers, attempts=None, intakes=
                     kinds[k] = kinds.get(k, 0) + 1
         internal = sorted("%s>%s:%s" % (a.rsplit("_", 1)[-1], b.rsplit("_", 1)[-1], "+".join(sorted(ks)))
                           for (a, b), ks in edges.items() if a in member_set and b in member_set)
-        options = ["separate_objects"] + ([] if compact else ["allow_original_gaps"])
+        options = ["separate_objects", "natural_interval"]
         new_bytes = sum(_size(by_id[m]) for m in new)
         node = (items.get(new[0]) or {}).get("node") or by_id[new[0]].get("node")
         regions.append(dict(
@@ -283,7 +273,7 @@ def build_regions(functions, items, canonical, blockers, attempts=None, intakes=
             gaps=gaps, gap_bytes=sum(g["size"] for g in gaps), ordered=ordered,
             edge_kinds=dict(sorted(kinds.items())), internal_edges=internal[:48],
             layout_intervals=applied, external_prerequisites=external,
-            entry=new[0], linked_members=linked_order, linked_compact=compact,
+            entry=new[0], linked_members=linked_order, linked_outside_interval=outside_linked,
             bridges_not_linked=bridges_not_linked, options=options,
             oversized=len(new) > max_new,
             candidates={m: member_candidates(m, attempts, intakes, existing_dirs, source_exists) for m in new}))
@@ -304,8 +294,18 @@ def region_check_args(region, directory, sources=None, members=None, profile="az
     argv = [entry, "%s/%s.c" % (sources, entry)]
     for m in members[1:]:
         argv += ["--member", "%s=%s/%s.c" % (m, sources, m)]
-    argv += ["--profile", profile] + ["--" + o.replace("_", "-") for o in region["options"]] + list(extra)
+    argv += ["--profile", profile] + region_flags(region) + list(extra)
     return argv + ["--output-dir", directory + "/runs"]
+
+
+def region_flags(region):
+    """check_unit option flags of a region; ``natural_interval`` carries the region interval."""
+    flags = []
+    for o in region["options"]:
+        flags.append("--" + o.replace("_", "-"))
+        if o == "natural_interval":
+            flags.append("0x%04X..0x%04X" % tuple(region["interval"]))
+    return flags
 
 
 def region_commands(region, directory):

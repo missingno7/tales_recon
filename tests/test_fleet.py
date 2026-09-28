@@ -330,8 +330,12 @@ class RegionTests(unittest.TestCase):
         self.assertEqual(r["scc_members"], ["ov11_F_0120", "ov11_F_01C0", "ov11_F_0240"])
         self.assertEqual(r["independent_members"], ["ov11_F_0160"])  # inside the interval, no prerequisites
         self.assertEqual(r["gaps"], [dict(start=0x200, end=0x210, size=16, ownership="UNKNOWN_NOT_ASSIGNED")])
-        self.assertEqual(r["options"], ["separate_objects", "allow_original_gaps"])
-        self.assertEqual(r["bridges_not_linked"], ["ov11_F_0100", "ov11_F_0180", "ov11_F_0210"])
+        self.assertEqual(r["options"], ["separate_objects", "natural_interval"])
+        # Every canonical bridge of the interval is linked in natural order.
+        self.assertEqual(r["bridges_not_linked"], [])
+        self.assertEqual(r["linked_members"], ["ov11_F_0100", "ov11_F_0120", "ov11_F_0160", "ov11_F_0180",
+                                               "ov11_F_01C0", "ov11_F_0210", "ov11_F_0240"])
+        self.assertEqual(r["linked_outside_interval"], [])
         self.assertEqual(r["edge_kinds"]["layout_interval"], 2)  # 0240 needs 0120 and 0160
         cand = r["candidates"]["ov11_F_0120"]
         self.assertEqual(cand["candidates"][0]["source"], "recovery/candidates/ov11_F_0120/" + "ab" * 32 + ".c")
@@ -339,7 +343,7 @@ class RegionTests(unittest.TestCase):
         commands = fleet_regions.region_commands(r, "experiments/fleet/" + r["id"])
         self.assertIn("verify-unit ov11_F_0120 experiments/fleet/reg-ov11_0100-0280/vNN/ov11_F_0120.c "
                       "--member ov11_F_0160=", commands["verify"])
-        self.assertTrue(commands["verify"].endswith("--separate-objects --allow-original-gaps "
+        self.assertTrue(commands["verify"].endswith("--separate-objects --natural-interval 0x0100..0x0280 "
                                                     "--output-dir experiments/fleet/reg-ov11_0100-0280/runs"))
         self.assertEqual(commands["promote_shape"].count("--member"), 3)
 
@@ -407,7 +411,12 @@ class RegionTests(unittest.TestCase):
                 src = fleet.rel(variant)
                 self.assertEqual(argv[:2], ["ov11_F_0120", src + "/ov11_F_0120.c"])
                 self.assertEqual(argv.count("--member"), 3)
-                self.assertIn("--allow-original-gaps", argv)
+                self.assertEqual(argv[argv.index("--natural-interval") + 1], "0x0100..0x0280")
+                self.assertNotIn("--allow-original-gaps", argv)
+                with patch.object(fleet, "canonical_ids", return_value=set()):
+                    dry = fleet.region_verify_argv(f, region["id"], variant, prepare_only=True)
+                self.assertIn("--prepare-only", dry)
+                self.assertIn("--natural-interval 0x0100..0x0280", text)
                 self.assertNotIn("--isolated", argv)  # _run_wrapped adds it
         finally:
             import shutil
@@ -636,6 +645,19 @@ class PacketAndIntakeTests(unittest.TestCase):
             self.assertEqual(fleet.reverify(self.fleet, unit, best)["verdict"], "EQUAL")
         self.assertEqual(seen["member_sources"], {"b": ROOT / fleet.rel(member)})
         self.assertTrue(seen["isolated"])
+        self.assertNotIn("natural_interval", seen)
+        # A natural-interval option takes its interval only from a region task.
+        natural = dict(best, options=["separate_objects", "natural_interval"])
+        with self.assertRaises(FormatError):
+            fleet.promote_command(natural, unit)
+        region = dict(unit, kind="region", origin=dict(region=dict(interval=[0x4790, 0x5CEA])))
+        self.assertIn("--separate-objects --natural-interval 0x4790..0x5CEA --member b=",
+                      fleet.promote_command(natural, region))
+        seen.clear()
+        with patch("compile_queue.install"), patch("check_unit.check",
+                   side_effect=lambda *a, **k: seen.update(k) or [dict(verdict="EQUAL", cache_key="a" * 64)]):
+            fleet.reverify(self.fleet, region, natural)
+        self.assertEqual(seen["natural_interval"], (0x4790, 0x5CEA))
 
     def test_unit_packet_explains_multi_member_authoring(self):
         unit = task("u2", kind="unit", targets=["ov11_F_5962", "ov11_F_5C42"])

@@ -102,9 +102,9 @@ A `region` task targets all new members. It records the ordered members, the
 SCC and independent members, gaps, edges and external prerequisites. It also
 records the up to three best candidate sources per new member (fleet intakes,
 then retained recovery attempts, with verdicts and cache keys), prior task
-directories, and the check_unit options. The options are always
-`--separate-objects`, plus `--allow-original-gaps` unless the linked span is
-contiguous. A new member's own function or blocker-probe task is kept, but it
+directories, and the check_unit options. The options are
+`--separate-objects --natural-interval START..END` with the region interval. A
+new member's own function or blocker-probe task is kept, but it
 is marked `blocked_by_region` and is never claimable. The exception is an
 *independent* member: it lies inside the interval but has no unrecovered
 prerequisite, so its task stays open. A region waits on the tasks of
@@ -117,14 +117,52 @@ protocol is staged. Each variant is a directory `vNN/` with one `<ID>.c` per
 new member. Stage the best candidates first, then compile the whole region
 with `fleet.py verify-region TASK --sources DIR`. That command runs an isolated
 check_unit: the first unrecovered member is the entry and the rest are passed
-as `--member`. Next, run `unit_diag.py --receipt` for per-member states. Then
+as `--member`. `verify-region --prepare-only` prints the planned member order,
+object offsets, spans, gap crossings and trial cache keys without compiling.
+Next, run `unit_diag.py --receipt` for per-member states. Then
 change one member per variant, and record a hypothesis naming that member
 before each compile. The budget is 40 trials.
 
-Limitation: with `--allow-original-gaps`, check_unit links only the new members
-and their canonical call closure. Non-called canonical bridges of the interval
-are therefore not linked, and the object is compact, not the natural layout.
-Each region lists these bridges as `bridges_not_linked`.
+### Natural-interval verification
+
+`--allow-original-gaps` links only the new members and their canonical call
+closure. It leaves out canonical bridges that nothing calls, so the object is
+compact, not the natural layout. Regions therefore use the opt-in
+`check_unit.py --natural-interval START..END` mode:
+
+- Every discovered function of the interval is linked in original address
+  order. Canonical functions use their exact canonical sources, and new
+  members use their candidate sources. Proven literal tails of canonical
+  members are included as before. A function straddling a bound, a new member
+  outside the interval, or an unrecovered interval function without a
+  `--member` source is refused. Canonical callees outside the interval are
+  linked in address order, as before.
+- Acceptance is unchanged. Every linked byte comes from normal compiler and
+  linker output of these sources, and every member must be EQUAL. Canonical
+  members are regression checks and are listed in `canonical_regressions`.
+- The receipt's `natural_interval` block lists each member's role, original
+  extent and linked object offset. It also lists every *compaction span*:
+  original bytes absent between two consecutive linked members. A span is an
+  `UNKNOWN_GAP` (inside the interval, `UNKNOWN_NOT_ASSIGNED`) or
+  `UNLINKED_OUTSIDE_INTERVAL`. No span byte is claimed, filled or copied.
+- Each original PC-relative call or data reference that crosses a span is
+  listed with its original displacement, compact displacement and distance
+  delta. The rule is conservative. A crossing is `GAP_INDEPENDENT_ENCODING`
+  only if both displacements fall in the same class: a nonzero 8-bit
+  displacement (`BSR.B`), or a 16-bit one (`JSR d16(PC)`, `BSR.W`, `d16(PC)`
+  data). Whatever rule chose the original form then sees the same class in
+  both links, so the member comparison proves the reference by target
+  identity. If the class changes, the crossing is `GAP_DEPENDENT_ENCODING`.
+  A target inside a span is `TARGET_IN_UNLINKED_SPAN`. Either result makes
+  the unit `BLOCKED` with that reason, even when every member compares EQUAL
+  (the member verdict is kept as `member_verdict`).
+- Across spans the mode requires `--separate-objects`. It cannot be combined
+  with `--allow-original-gaps`. Without spans, one combined object is
+  accepted: this is the ordinary contiguous unit, with the same cache key.
+  Other option sets keep their exact trials and cache keys.
+
+For intake, `natural_interval` is a region-only option. `reverify` and the
+promote command take the interval from the region task.
 
 On 2026-09-28 the frontier had 4 regions:
 
@@ -136,8 +174,21 @@ On 2026-09-28 the frontier had 4 regions:
 | `reg-resident_7BF4-7F9C` | 7BF4, 7C82 | 936 / 0 / 0 | 0 | 0 | deferred (resident) |
 
 The ov11 region's edges are 8 call, 8 pending-dependency, 12 layout-interval
-and 2 short-form. Its gap is `0x59E6..0x5A12`. It links 20 functions under
-`--allow-original-gaps`, and 13 of its 14 canonical bridges are not linked.
+and 2 short-form. Its gap is `0x59E6..0x5A12`. Under `--allow-original-gaps`
+it linked 20 functions and left out 13 of its 14 canonical bridges. The
+`--natural-interval 0x4790..0x5CEA` prepare-only dry run (stub sources, no
+compile) links 33 objects. These are the 22 interval functions in address
+order (8 new, 14 canonical, including `506A`'s 40-byte proven tail) and 11
+canonical callees outside the interval (`2562`..`4696`, `645E`, `66FE`,
+`6ED6`). The spans are the 44-byte unknown gap and four unlinked outside
+spans (`0x262E..0x41F6`, `0x5CEA..0x645E`, `0x6486..0x66FE`,
+`0x673E..0x6ED6`). `0x41F6..0x59E6` is linked at its natural spacing. All 12
+crossing calls are 16-bit `JSR d16(PC)` and stay 16-bit when compacted, so all
+are `GAP_INDEPENDENT_ENCODING`. Five cross only the unknown gap (distance change 44 bytes):
+`5962`->`5C42`, `5C1A`->`4610`, `5C42`->`4696`, and `5C42`->`5962` twice.
+`5C42`->`4696` is at -5650 in the original and -5606 when compacted. The other
+seven also cross outside spans: from `487E`, `4B0C`, `51C0` (three),
+`5962` and `645E`. Nothing is `GAP_DEPENDENT_ENCODING`.
 The 7 tasks it unlocks are 13DC, 2E26, 3532, 5D14, 5EC0, 62B4 and 6CFE. A
 `plan` then yields 56 tasks: 4 region, 25 function, 3 blocker-probe and 24
 review. Six member tasks are `blocked_by_region`; the other two are already
