@@ -863,7 +863,7 @@ RULES = """## Rules (binding; from AGENTS.md)
 """
 
 PROTOCOL = """## Protocol
-1. Inspect evidence (read-only): `python tools/grinder.py facts ID` (full disassembly/CFG/relocations), `python tools/diag.py ID --cache-key KEY` for any cached key, `python tools/type_evidence.py --function ID`, `python tools/shape_search.py --ledger-summary ID`, docs/source-shape-search.md, docs/m68k-diagnostics.md{unit_doc}.
+1. Inspect evidence (read-only): `python tools/grinder.py facts ID --max-instructions 2000` (full disassembly/CFG/relocations), `python tools/diag.py ID --cache-key KEY` for any cached key, `python tools/type_evidence.py --function ID`, `python tools/shape_search.py --ledger-summary ID`, docs/source-shape-search.md, docs/m68k-diagnostics.md{unit_doc}.
 2. BEFORE compiling, record each hypothesis with a machine-checkable prediction. {record}
 3. Each variant makes ONE controlled change from its parent. Do not resubmit a hypothesis listed under prior hypotheses; the ledger rejects normalized duplicates and returns the earlier record, which you must read instead.
 4. Compile via: {run}
@@ -892,7 +892,7 @@ If `best` was compiled with `--object-group`, add `"object_groups":[["<ID>","<ID
 
 
 REGION_PROTOCOL = """## Region protocol (staged; the whole region is the only acceptance unit)
-Full member facts, candidates and edges are in `{dir}/task.json` (`task.origin.region`); read that file and `python tools/grinder.py facts ID` per member instead of asking for more context.
+Full member facts, candidates and edges are in `{dir}/task.json` (`task.origin.region`); read that file and `python tools/grinder.py facts ID --max-instructions 2000` per member instead of asking for more context.
 A. Stage sources: each variant is one directory `{dir}/vNN/` holding `<ID>.c` for EVERY new member (copy the best candidate listed below, else author it; later variants copy their parent directory and change one member). Each file is self-contained K&R C defining `recovered(...)`; calls to other members, including back to the entry, use mechanical `F_hNN_XXXX` names. The entry file is compiled as recovered(); every other new member is one `--member ID=SRC`. Canonical members are reused automatically; never copy their bytes or source into your files.
 B. Baseline: compile the complete region once with the verify command below and run the diagnostics command on its receipt and cache key. It reports per-member states (`same_after_reference_identity`, `differs`, ...), unknown gaps and candidate-only bytes.
 C. Improve members one at a time: pick the worst `differs` member, record a hypothesis for THAT member (`"member"` field, `"parent"` = parent variant directory), change only that member's file in a new variant directory, recompile the whole region, rerun unit_diag. A member already `same_after_reference_identity` is frozen unless a hypothesis names it.

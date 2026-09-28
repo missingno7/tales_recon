@@ -210,6 +210,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);sub=ap.add_subparsers(dest='action',required=True)
     rank=sub.add_parser('rank');rank.add_argument('--node');rank.add_argument('--limit',type=int,default=20)
     package=sub.add_parser('facts');package.add_argument('id')
+    package.add_argument('--max-instructions',type=int,default=160,help='explicit review budget for larger functions (default 160)')
     nxt=sub.add_parser('next');nxt.add_argument('--node')
     front=sub.add_parser('frontier');front.add_argument('--node');front.add_argument('--max-bytes',type=int,default=512);front.add_argument('--max-data-references',type=int,default=40)
     runner=sub.add_parser('run');runner.add_argument('--node');runner.add_argument('--ids',nargs='+');runner.add_argument('--profile',action='append')
@@ -223,7 +224,7 @@ def main():
     manual_block.add_argument('id');manual_block.add_argument('--reason',required=True)
     args=ap.parse_args()
     if args.action=='rank':print(json.dumps(ranked(args.node)[:args.limit],indent=2))
-    elif args.action=='facts':print(json.dumps(facts(args.id),indent=2))
+    elif args.action=='facts':print(json.dumps(facts(args.id,max_instructions=args.max_instructions),indent=2))
     elif args.action=='next':
         # Keep the interactive selector under the same mechanical contract as
         # unattended runs.  In particular, never hand a proposer a caller
