@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_14BA",
+  "budget": {"max_variants": 2, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "base",
+      "causal_family": "counter-switch-expression",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov11_F_14BA/base.c",
+      "profile": "aztec36",
+      "parent": "none",
+      "suspected_cause": "An explicit one-based case switch selects one of three parameter tables from the global counter.",
+      "controlled_change": "Establish the initial reconstructed translation as a baseline.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "No measured parent; baseline effects are unmeasurable."
+      }
+    },
+    {
+      "id": "plus-one",
+      "causal_family": "counter-switch-expression",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov11_F_14BA/plus_one.c",
+      "profile": "aztec36",
+      "parent": "base",
+      "suspected_cause": "The compiler may preserve the historical one-based expression as a subtraction followed by an increment.",
+      "controlled_change": "Rewrite only the selector from 4 - counter to 3 - counter + 1.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Predict the same total function length with the target-like immediate sequence."
+      }
+    }
+  ]
+}
+

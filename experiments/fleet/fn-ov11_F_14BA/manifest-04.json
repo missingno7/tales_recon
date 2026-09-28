@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_14BA",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "a4-bias-names",
+      "causal_family": "a4-global-identity",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov11_F_14BA/bias_names.c",
+      "profile": "aztec36",
+      "parent": "ledger:62",
+      "suspected_cause": "Positive A4 displacements map to data-hunk symbols two bytes below the displacement because the linked A4 bias is 0x7ffe.",
+      "controlled_change": "Rename each touched positive-offset global to its data-hunk identity using displacement plus the measured A4 bias; leave code expressions unchanged.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Only external symbol identities should change; function length and instruction structure should remain fixed."
+      }
+    }
+  ]
+}

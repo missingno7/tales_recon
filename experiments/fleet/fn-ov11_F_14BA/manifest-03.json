@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_14BA",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "local-selector-fixed",
+      "causal_family": "switch-selector-spill",
+      "diagnostic_scope": "frame_or_stack_reference",
+      "source": "experiments/fleet/fn-ov11_F_14BA/local_selector_fixed.c",
+      "profile": "aztec36",
+      "parent": "ledger:54",
+      "suspected_cause": "The historical selector is stored in a one-word frame slot before the switch dispatch.",
+      "controlled_change": "Add one block-local int selector and switch on it; preserve the expression and every other statement.",
+      "predicted_effect": {
+        "length_delta": 8,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The explicit local should add the two word transfers visible in the target switch setup."
+      }
+    }
+  ]
+}
