@@ -195,9 +195,10 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
                  blockers={m: blockers[m].get("reason", "")[:400] for m in members if m in blockers}),
             verifier="check_unit",
             notes=["Unit acceptance is complete-object check_unit; original gaps stay unclaimed.",
-                   "check_unit verifies one candidate source whose other same-node callees are already canonical; "
-                   "a mutual cycle cannot reach EQUAL through it alone. Report the layout evidence (unit_diag, "
-                   "isolated receipts) as NEEDS_EVIDENCE/BLOCKED rather than forcing a member claim."])
+                   "Author every unrecovered member: the ENTRY source is compiled as recovered(), each other new member "
+                   "is passed as `--member ID=SRC` (its source also defines recovered(); calls use mechanical F_hNN_XXXX "
+                   "names, including calls back to the entry). The unit is EQUAL only if every member is EQUAL; "
+                   "report the non-entry sources in best.members."])
 
     # Explicit blockers worth a new hypothesis.
     for fid in sorted(blockers):
@@ -643,7 +644,8 @@ def unit_receipts(members, limit=4):
 def unit_diag_summary(members, receipt, max_bytes=1800):
     try:
         import unit_diag
-        report = unit_diag.diagnose_unit(members, receipt["cache_key"], entry_member=receipt["entry"])
+        report = unit_diag.diagnose_unit(members, receipt["cache_key"], entry_member=receipt["entry"],
+                                         new_members=members)
         return unit_diag.compact_summary(report, max_bytes)
     except Exception as exc:
         return dict(status="UNAVAILABLE", reason=_clip(exc, 200))
@@ -686,6 +688,7 @@ RESULT_SCHEMA = """## result.json (closed schema; intake re-verifies every EQUAL
  "proposed_blocker":null or {{"mechanism":"UPPER_SNAKE_CASE","text":"blocker text for docs/blockers.json curation"}}}}
 ```
 EQUAL_CANDIDATE needs best.verdict EQUAL from an isolated run. NEAR needs best. BLOCKED needs proposed_blocker. NEEDS_EVIDENCE names the missing evidence in explanation. `entry` is required for check_unit and equals the target for check_function.
+For check_unit with several new members, `best` may add `"members":{{"<other member id>":"{dir}/<file>.c"}}` (the `--member` sources; never the entry).
 """
 
 
@@ -745,9 +748,11 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
         record = ("Append one JSON line per hypothesis to `%s/hypotheses.jsonl`: "
                   "{\"id\",\"parent\",\"suspected_cause\",\"controlled_change\",\"prediction\"} with a concrete length/diff prediction. "
                   "Unit member sources: copy candidates into `%s/` and edit there." % (directory, directory))
-        run = ("`python tools/fleet.py verify-unit ENTRY %s/<unit>.c --profile aztec36 [--separate-objects] "
-               "[--allow-original-gaps] [--join-direct-callees] --output-dir %s/runs` (always isolated); "
-               "diagnose with `python tools/unit_diag.py --members A,B --entry ENTRY --cache-key KEY`." % (directory, directory))
+        run = ("`python tools/fleet.py verify-unit ENTRY %s/<entry>.c [--member ID=%s/<member>.c ...] --profile aztec36 "
+               "[--separate-objects] [--allow-original-gaps] [--join-direct-callees] --output-dir %s/runs` (always isolated; "
+               "one --member per other unrecovered member); diagnose with "
+               "`python tools/unit_diag.py --members A,B --entry ENTRY --new-members A,B --cache-key KEY`."
+               % (directory, directory, directory))
         options = "\"separate_objects\",\"allow_original_gaps\",\"join_direct_callees\",\"owned_code_data\""
         unit_doc = ", docs/unit-diagnostics.md"
     else:
@@ -862,7 +867,8 @@ def validate_result(fleet, task, result):
         require(isinstance(blocker["text"], str) and 0 < len(blocker["text"]) <= 2000, "proposed_blocker.text 1..2000 chars")
     best = result["best"]
     if best is not None:
-        require(isinstance(best, dict) and set(best) == BEST_KEYS, "best keys must be exactly " + ", ".join(sorted(BEST_KEYS)))
+        require(isinstance(best, dict) and BEST_KEYS <= set(best) <= BEST_KEYS | {"members"},
+                "best keys must be exactly " + ", ".join(sorted(BEST_KEYS)) + " (optional members for check_unit)")
         path = (ROOT / best["source"]).resolve() if isinstance(best["source"], str) else None
         require(path is not None and "\\" not in best["source"] and path.is_relative_to(fleet.task_dir(task["id"]).resolve())
                 and path.suffix == ".c" and path.is_file(), "best.source must be an existing .c file in the task directory")
@@ -881,6 +887,19 @@ def validate_result(fleet, task, result):
                 and len(set(best["options"])) == len(best["options"]), "best.options must be a subset of " + ", ".join(allowed))
         for key in ("expected_length", "actual_length"):
             require(best[key] is None or type(best[key]) is int, "best." + key + " must be an integer or null")
+        if "members" in best:
+            # Other new members of one complete unit, each with its own source.
+            members = best["members"]
+            require(best["verifier"] == "check_unit" and isinstance(members, dict) and members,
+                    "best.members is a non-empty {member id: source} map for check_unit only")
+            for member_id, member_source in members.items():
+                require(member_id in task["targets"] and member_id != best["entry"],
+                        "best.members ids must be task targets other than best.entry")
+                member_path = (ROOT / member_source).resolve() if isinstance(member_source, str) else None
+                require(member_path is not None and "\\" not in member_source
+                        and member_path.is_relative_to(fleet.task_dir(task["id"]).resolve())
+                        and member_path.suffix == ".c" and member_path.is_file(),
+                        "best.members sources must be existing .c files in the task directory")
     if result["status"] == "EQUAL_CANDIDATE":
         require(best is not None and best["verdict"] == "EQUAL", "EQUAL_CANDIDATE requires best.verdict EQUAL")
     if result["status"] == "NEAR":
@@ -901,7 +920,8 @@ def reverify(fleet, task, best):
         import check_unit
         reports = check_unit.check(best["entry"], source, [best["profile"]], False, "owned_code_data" in options,
                                    "separate_objects" in options, "allow_original_gaps" in options,
-                                   "join_direct_callees" in options, isolated=True, output_dir=output)
+                                   "join_direct_callees" in options, isolated=True, output_dir=output,
+                                   member_sources={k: ROOT / v for k, v in best.get("members", {}).items()})
     else:
         import check_function
         request = dict(id=best["entry"], source=str(source), profiles=[best["profile"]],
@@ -921,6 +941,7 @@ def promote_command(best):
     options = set(best["options"])
     if best["verifier"] == "check_unit":
         flags = "".join(" --" + o.replace("_", "-") for o in UNIT_OPTIONS if o in options)
+        flags += "".join(" --member %s=%s" % item for item in sorted(best.get("members", {}).items()))
         return "python tools/check_unit.py %s %s --profile %s%s" % (best["entry"], best["source"], best["profile"], flags)
     flags = (" --owned-code-data" if "owned_code_data" in options else "") + (" --with-m-lib" if "with_m_lib" in options else "")
     return "python tools/check_function.py %s %s --profile %s%s" % (best["entry"], best["source"], best["profile"], flags)

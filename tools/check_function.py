@@ -42,14 +42,22 @@ def validated_function(fid):
     return f,ledger
 
 
-def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_canonical=False):
+def regression_receipt():
+    """Run the host-only regression suite once; no nested compilation or emulator launch."""
+    tests=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests'],cwd=ROOT,capture_output=True,text=True)
+    require(tests.returncode==0,'promotion regression tests failed: '+tests.stdout+tests.stderr)
+    return dict(command='python -m unittest discover -s tests',passed=True,output_sha256=sha256((tests.stdout+tests.stderr).encode()))
+
+
+def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_canonical=False,regression=None):
+    """Write canonical source and proof.  ``regression`` lets a complete
+    multi-member unit share one suite run taken before its first write."""
     for other,item in recovery()['functions'].items():
         e=item['evidence_extent']
         require(other==fid or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
                 'promotion would overlap canonical source ownership: '+other)
-    # Regression suite is host-only; no nested compilation or emulator launch.
-    tests=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests'],cwd=ROOT,capture_output=True,text=True)
-    require(tests.returncode==0,'promotion regression tests failed: '+tests.stdout+tests.stderr)
+    if regression is None:regression=regression_receipt()
+    require(regression.get('passed') is True,'promotion requires a passing regression receipt')
     r=recovery();prior=r['functions'].get(fid)
     source_hash=sha256(source.encode('ascii'))
     require(not prior or prior['source_sha256']==source_hash or replace_canonical,
@@ -68,7 +76,7 @@ def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_can
         data_ownership=(report['owned_code_data'] if state=='FUNCTION_WITH_DATA_MATCH'
                         else 'External references only; no candidate-owned data or padding omitted'),
         compiler_selection='Matching candidate; historical release remains ambiguous',
-        regression=dict(command='python -m unittest discover -s tests',passed=True,output_sha256=sha256((tests.stdout+tests.stderr).encode())))
+        regression=regression)
     write_json(receipt_path,proof)
     r['functions'][fid]={k:proof[k] for k in ('state','source','source_sha256','evidence_extent','compiler_selection')}
     r['functions'][fid]['proof']=receipt_path.relative_to(ROOT).as_posix()

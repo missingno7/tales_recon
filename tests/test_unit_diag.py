@@ -154,5 +154,36 @@ class CachedUnitTests(unittest.TestCase):
         self.assertLessEqual(len(json.dumps(unit_diag.compact_summary(r)).encode()), 5000)
 
 
+class MultiNewMemberTests(unittest.TestCase):
+    """A candidate that authors every member of a same-hunk call cycle."""
+
+    def test_cycle_calls_resolve_per_member_and_the_gap_stays_unknown(self):
+        # Original: A (0x100) BSR.B B; RTS, 4-byte gap, B (0x108) BSR.B A; RTS.
+        a = member('ovXX_F_0100', 0x100, '61064e75')
+        b = member('ovXX_F_0108', 0x108, '61f64e75')
+        evidence = {a['id']: dict(id=a['id'], hunk=5, start=0x100, end=0x104,
+                                  direct_callees=[dict(id=b['id'], hunk=5, offset=0x108, site=0x100)]),
+                    b['id']: dict(id=b['id'], hunk=5, start=0x108, end=0x10C,
+                                  direct_callees=[dict(id=a['id'], hunk=5, offset=0x100, site=0x108)])}
+        # Compact candidate: B calls back to the entry, linked as _recovered.
+        c = candidate('61024e75' + '61fa4e75', [('_recovered', 0), ('_F_h05_0108', 4)])
+        with tempfile.TemporaryDirectory() as temp:
+            def factory(m, piece):
+                return unit_diag.UnitReferenceResolver(evidence[m['id']], {}, piece,
+                                                       entry={'_recovered': (5, 0x100)}, root=Path(temp))
+            r = unit_diag.analyze_unit([a, b], c, discovered=DISCOVERED, entry_member=a['id'],
+                                       resolver_factory=factory, new_members=[a['id'], b['id']])
+        rows = {m['id']: m for m in r['members']}
+        self.assertEqual({k: v['state'] for k, v in rows.items()},
+                         {a['id']: 'same_after_reference_identity', b['id']: 'same_after_reference_identity'})
+        self.assertTrue(all(v['authored'] for v in rows.values()))
+        self.assertEqual(r['hypothesis']['new_members'], [a['id'], b['id']])
+        self.assertEqual([(g['start'], g['end']) for g in r['original']['unknown_gaps']], [(0x104, 0x108)])
+        self.assertEqual({m['id']: m['new'] for m in unit_diag.compact_summary(r)['members']},
+                         {a['id']: True, b['id']: True})
+        with self.assertRaises(Exception):
+            unit_diag.analyze_unit([a, b], c, new_members=['ovXX_F_0200'])
+
+
 if __name__ == '__main__':
     unittest.main()

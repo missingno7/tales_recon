@@ -34,6 +34,16 @@ ledger is `recovery/ledger.json`; generated topology metrics validate those proo
 before counting reconstructed bytes. See `docs/grinder-pipeline.md` for the API,
 unsupported cases, and reserved stronger states.
 
+A complete unit may introduce several new members at once (`check_unit.py
+--member`), for example a same-node call cycle in which no member can be proved
+first. Acceptance is the whole unit. The object is bounded by its own ordered
+linked symbols. Every member must pass the exact comparison, and every
+intra-unit call must resolve to the right member. Every linked byte must belong
+to a member, and original gaps stay unclaimed. Promotion writes proofs for all
+new members or for none of them. Each proof names the shared unit
+receipt, which records each member's source hash. Census validation rejects the
+receipt unless every listed member is canonical with that source.
+
 FUNCTION_WITH_DATA_MATCH additionally requires every PC-relative literal to be
 separately evidenced, an exact source-produced CODE tail, and a boundary at the
 next discovered function entry. It claims that literal contribution only; it does

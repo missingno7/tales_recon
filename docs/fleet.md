@@ -67,7 +67,8 @@ no task (an excluded ABI-profile blocker) are listed under
 `omitted.untasked_blocking_leaves`, not turned into tasks. A leaf in a
 same-hunk cycle, like ov11_F_5962 (calls ov11_F_5C42, which calls it back),
 has an unresolved callee of its own, so `check_function` cannot build it alone.
-It stays in its unit task, which the boost now puts first. On 2026-09-28, `plan`
+It stays in its unit task, which the boost now puts first. The worker authors
+both members and proves them together with `check_unit --member` (below). On 2026-09-28, `plan`
 produced 53 tasks: 26 function (10 open, 16 waiting), 2 blocker-probe, 1 unit
 and 24 review; 60 further review chunks were omitted by the cap.
 
@@ -103,9 +104,16 @@ target is exceeded.
 
 Workers compile only through isolated paths that use the compile queue:
 `shape_search.py` and `fleet.py verify-function|verify-unit ARGS` (wrappers
-that always add `--isolated`). `check_unit` accepts one candidate whose other
-same-node callees are canonical. Therefore a mutual-call SCC unit task can
-report layout evidence, but it cannot reach EQUAL on its own.
+that always add `--isolated`). A unit task names every unrecovered member. The
+entry source is compiled as `recovered()`. Each other new member is passed as
+`--member ID=SRC`; its file also defines `recovered()` and is renamed to
+`F_hNN_XXXX`. Calls between members, including calls back to the entry, use
+mechanical names. Remaining same-node callees must already be canonical.
+The unit is EQUAL only when the complete object and every member are EQUAL,
+so a mutual-call SCC can now reach EQUAL as a whole
+(`fleet.py verify-unit ov11_F_5962 T/a.c --member ov11_F_5C42=T/b.c
+--separate-objects --allow-original-gaps ...`). `unit_diag.py --new-members`
+labels the authored members in per-member diagnostics.
 
 ## Intake
 
@@ -117,6 +125,9 @@ An EQUAL claim is re-run through the isolated verifier (`check_many` or
 `EQUAL_CLAIM_REJECTED`. `--verify-near` also re-runs NEAR results. For a
 confirmed result, intake prints the normal promoting command, for example
 `python tools/check_function.py ID experiments/fleet/T/x.c --profile aztec36`.
+A multi-member unit result adds `best.members` (`{id: source}` for the
+non-entry members, task targets only). Intake re-verifies with those sources,
+and the printed `check_unit` command repeats them as `--member` flags.
 It does not run that command. BLOCKED and NEEDS_EVIDENCE results are printed
 as a `blocker_curation` summary for manual editing of `docs/blockers.json`.
 Intake never writes them there.

@@ -54,6 +54,12 @@ python tools/unit_diag.py --members ov10_F_1FDE,ov10_F_2160 --entry ov10_F_2160 
 python tools/unit_diag.py --package RP01 --cache-key 0b66dd65e9063d0c60d599e670250cee907ac9134fdd7e157359d4e7206fcaeb
 ```
 
+For a multi-member candidate (`check_unit --member`), pass `--new-members
+A,B` (or `--receipt`, which reads the receipt's `member_sources`). Each new
+member's row is then marked `new`, and canonical bridges are marked as not new.
+Calls back to the entry bind through `_recovered`. The labels are advisory and
+do not change pairing, states or gaps.
+
 By default, the CLI prints `compact_summary` (at most 5 KB, for fleet-worker
 prompts). `--json` prints the full report. The API consists of
 `analyze_unit(...)` (pure, used by the synthetic fixtures), `diagnose_unit(ids,

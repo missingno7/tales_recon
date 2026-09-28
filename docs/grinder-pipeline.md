@@ -230,7 +230,9 @@ a proven same-node direct call, retaining Manx's short local branches while the
 gap remains explicitly unclaimed.
 Unit sources, dependency hashes, whole-object hashes and receipts are retained in
 `recovery/units`; generated coverage validates the linked receipt. `check_unit.py`
-exposes the same complete-unit comparison for diagnostics. No MODULE_MATCH is
+exposes the same complete-unit comparison for diagnostics. With `--member ID=SRC`
+it also verifies units whose members are all new, such as call cycles, and
+accepts or promotes them only as a whole (see `docs/proof-levels.md`). No MODULE_MATCH is
 granted for a partial historical module.
 
 Unsupported source/harness declarations are recorded per trial. They no longer

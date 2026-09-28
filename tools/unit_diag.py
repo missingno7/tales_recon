@@ -281,7 +281,7 @@ def _member_report(m, seg, compiled, resolver_factory):
 
 
 def analyze_unit(members, compiled, *, discovered=(), interval=None, entry_member=None, resolver_factory=None,
-                 recovered_ids=None, rejected_ranges=()):
+                 recovered_ids=None, rejected_ranges=(), new_members=None):
     """Diagnose a unit hypothesis against one compiled candidate.
 
     ``members``: ordered dicts with id, hunk, start, end, bytes and optional
@@ -289,11 +289,16 @@ def analyze_unit(members, compiled, *, discovered=(), interval=None, entry_membe
     (id, hunk, start, end) for every discovered original function, used only to
     name identities and to list discovered extents inside unknown gaps.
     ``resolver_factory(member, member_compiled)`` returns a reference resolver
-    or None (bytes-only comparison).  No ownership is assigned.
+    or None (bytes-only comparison).  ``new_members`` names the members whose
+    source the candidate authors (``check_unit --member`` plus the entry); the
+    rest are canonical bridges.  It only labels rows.  No ownership is assigned.
     """
     members = sorted(members, key=lambda m: m['start'])
     require(members, 'unit hypothesis has no members')
     require(len({m['hunk'] for m in members}) == 1, 'unit members cross original CODE hunks')
+    new_members = None if new_members is None else sorted(set(new_members))
+    require(new_members is None or set(new_members) <= {m['id'] for m in members},
+            'new members are not in the unit hypothesis')
     hunk = members[0]['hunk']
     lo = min(m['start'] for m in members)
     hi = max(m['end'] + len(m.get('tail') or b'') for m in members)
@@ -302,6 +307,8 @@ def analyze_unit(members, compiled, *, discovered=(), interval=None, entry_membe
     report = dict(schema_version=SCHEMA_VERSION, claim=CLAIM, authority=AUTHORITY,
                   hypothesis=dict(hunk=hunk, interval=[lo, hi], members=[m['id'] for m in members],
                                   entry_member=entry_member))
+    if new_members is not None:
+        report['hypothesis']['new_members'] = new_members
     # Original coverage: members plus proven literal tails; the rest is unknown.
     covered, conflicts = [], []
     for m in members:
@@ -376,6 +383,9 @@ def analyze_unit(members, compiled, *, discovered=(), interval=None, entry_membe
         r = _member_report(m, seg, compiled, resolver_factory)
         r['pairing'] = dict(symbol=ident['symbol'], basis=ident['basis'])
         results.append(r)
+    if new_members is not None:
+        for r in results:
+            r['authored'] = r['id'] in new_members
     report['members'] = results
     orig_order = [m['id'] for m in members if m['id'] in paired]
     cand_order = [mid for mid, _ in sorted(paired.items(), key=lambda kv: kv[1][0]['start'])]
@@ -430,7 +440,7 @@ def package_hypothesis(package_id, root=ROOT):
                 unknown_bridge_ids=meta.get('unknown_bridge_ids', []))
 
 
-def diagnose_unit(member_ids, cache_key, *, entry_member=None, interval=None, root=ROOT):
+def diagnose_unit(member_ids, cache_key, *, entry_member=None, interval=None, root=ROOT, new_members=None):
     """Load validated originals and a cached compile, then run ``analyze_unit``."""
     from check_function import validated_function
     from check_unit import proven_tail
@@ -471,7 +481,7 @@ def diagnose_unit(member_ids, cache_key, *, entry_member=None, interval=None, ro
                                      tail_bytes=len(m.get('tail') or b''), root=root)
 
     report = analyze_unit(members, compiled, discovered=discovered, interval=interval, entry_member=entry_member,
-                          resolver_factory=factory, recovered_ids=recovered_ids)
+                          resolver_factory=factory, recovered_ids=recovered_ids, new_members=new_members)
     report.update({k: v for k, v in base.items() if k not in report})
     report['status'] = 'DIAGNOSTIC_ONLY'
     report['exact_verdict'] = (sorted({r['verdict'] for r in report['exact_receipts']})
@@ -504,6 +514,8 @@ def compact_summary(report, max_bytes=5000):
     rows = []
     for m in report['members']:
         row = dict(id=m['id'], state=m['state'])
+        if 'authored' in m:
+            row['new'] = m['authored']
         if 'length_delta' in m:
             row['delta'] = m['length_delta']
         cmp_ = m.get('comparison') or {}
@@ -547,11 +559,13 @@ def main(argv=None):
     src.add_argument('--package', help='recovery-plan package id (members + canonical bridges, interval)')
     src.add_argument('--receipt', type=Path, help='check_unit receipt.json (ordered members, entry = target)')
     ap.add_argument('--entry', help='member compiled as `recovered` (check_unit target naming)')
+    ap.add_argument('--new-members', help='comma-separated members authored by the candidate (entry plus check_unit --member ids)')
     ap.add_argument('--interval', help='START:END original hunk offsets (hex with 0x or decimal)')
     ap.add_argument('--json', action='store_true', help='print the full report instead of the compact summary')
     a = ap.parse_args(argv)
     interval, extra = None, {}
     entry = a.entry
+    new_members = [x.strip() for x in a.new_members.split(',') if x.strip()] if a.new_members else None
     if a.package:
         h = package_hypothesis(a.package)
         ids, interval = h['members'], h['interval']
@@ -560,12 +574,14 @@ def main(argv=None):
         r = json.loads(a.receipt.read_text())
         ids = [m['id'] for m in r['ordered_members']]
         entry = entry or r.get('id')
+        if new_members is None and r.get('member_sources'):
+            new_members = sorted(r['member_sources'])
     else:
         ids = [x.strip() for x in a.members.split(',') if x.strip()]
     if a.interval:
         lo, hi = a.interval.split(':')
         interval = (int(lo, 0), int(hi, 0))
-    report = diagnose_unit(ids, a.cache_key, entry_member=entry, interval=interval)
+    report = diagnose_unit(ids, a.cache_key, entry_member=entry, interval=interval, new_members=new_members)
     report.update(extra)
     out = report if a.json else compact_summary(report)
     if extra.get('package') and report.get('original'):

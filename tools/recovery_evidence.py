@@ -66,7 +66,22 @@ def load_promotions(root,blob,model,analysis):
             require(sha256(unit_path.read_bytes())==comparison['complete_unit_receipt_sha256'],'complete unit receipt changed')
             unit=json.loads(unit_path.read_text());unit_source=unit_path.parent/'unit.c'
             require(sha256(unit_source.read_bytes())==unit['combined_source_sha256']==proof['compiler']['source_sha256'],'combined source hash differs')
-            require(unit['object_sha256']==proof['object_hash'] and unit['source_sha256']==proof['source_sha256'],'unit object/source identity differs')
+            # A multi-member unit names every new member's authored source.
+            # Its receipt proves them together, so each must be canonical
+            # with exactly that source (all members or none).
+            member_sources=unit.get('member_sources')
+            if member_sources is None:
+                source_ok=unit['source_sha256']==proof['source_sha256']
+            else:
+                require(isinstance(member_sources,dict) and member_sources.get(unit['id'])==unit['source_sha256'],
+                        'unit member sources are malformed')
+                require(all(ledger['functions'].get(mid,{}).get('source_sha256')==digest for mid,digest in member_sources.items()),
+                        'multi-member unit is not canonical for every new member')
+                require(not set(member_sources)&set(unit['dependency_sources']) and
+                        {m['id'] for m in unit['ordered_members']}==set(member_sources)|set(unit['dependency_sources']),
+                        'unit members are not partitioned into new sources and canonical dependencies')
+                source_ok=member_sources.get(fid)==proof['source_sha256']
+            require(unit['object_sha256']==proof['object_hash'] and source_ok,'unit object/source identity differs')
             require(unit['verdict']=='EQUAL' and unit['unclaimed_bytes']==0,'unit is not completely proven')
             # A complete unit normally contains only closed function CODE.
             # It can also carry literal tails already proved for internal

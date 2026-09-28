@@ -483,6 +483,38 @@ class PacketAndIntakeTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(FormatError):
                 fleet.validate_result(self.fleet, task("t3", targets=["tgt"]), value)
 
+    def test_unit_result_names_every_new_member_source(self):
+        unit = task("u1", kind="unit", targets=["a", "b"])
+        self.setup_task("u1", "a")
+        value = self.result("u1", "a,b")
+        member = self.fleet.task_dir("u1") / "b.c"
+        member.write_text("recovered() { return 2; }\n", encoding="ascii")
+        best = dict(value["best"], verifier="check_unit", entry="a", options=["separate_objects"],
+                    members={"b": fleet.rel(member)})
+        value["best"] = best
+        self.assertEqual(fleet.validate_result(self.fleet, unit, value)["best"]["members"], {"b": fleet.rel(member)})
+        command = fleet.promote_command(best)
+        self.assertTrue(command.startswith("python tools/check_unit.py a "))
+        self.assertIn("--separate-objects --member b=" + fleet.rel(member), command)
+        for members in ({"a": fleet.rel(member)}, {"x": fleet.rel(member)}, {"b": "tools/fleet.py"}, {}):
+            with self.subTest(members=members), self.assertRaises(FormatError):
+                fleet.validate_result(self.fleet, unit, dict(value, best=dict(best, members=members)))
+        with self.assertRaises(FormatError):
+            fleet.validate_result(self.fleet, unit, dict(value, best=dict(best, verifier="check_function")))
+        seen = {}
+        with patch("compile_queue.install"), patch("check_unit.check",
+                   side_effect=lambda *a, **k: seen.update(k) or [dict(verdict="EQUAL", cache_key="a" * 64)]):
+            self.assertEqual(fleet.reverify(self.fleet, unit, best)["verdict"], "EQUAL")
+        self.assertEqual(seen["member_sources"], {"b": ROOT / fleet.rel(member)})
+        self.assertTrue(seen["isolated"])
+
+    def test_unit_packet_explains_multi_member_authoring(self):
+        unit = task("u2", kind="unit", targets=["ov11_F_5962", "ov11_F_5C42"])
+        unit["verifier"] = "check_unit"
+        text = fleet.render_packet(self.fleet, unit, None)
+        self.assertIn("--member ID=", text)
+        self.assertIn('"members"', text)
+
 
 class HypothesisReservationTests(unittest.TestCase):
     def setUp(self):

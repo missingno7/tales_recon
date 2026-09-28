@@ -38,15 +38,47 @@ def proven_tail(f,ledger):
     return tail,ownership
 
 
-def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True):
+def mechanical_name(f):
+    return 'F_h%02d_%04X'%(f['hunk'],f['start'])
+
+
+def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True,member_sources=None):
+    """Build one complete unit around ``fid`` (compiled as ``recovered``).
+
+    ``member_sources`` maps further *new* member ids to candidate source text.
+    They join the unit exactly like canonical dependencies (renamed from
+    ``recovered`` to their mechanical name), but need no prior proof: the unit
+    is then accepted only as a whole, so a same-node call cycle whose members
+    are all unproven can be verified in one normal compilation.  A reference
+    to the entry's mechanical name inside a new member is bound to the entry's
+    ``recovered`` definition, the only name it has in the compiled unit.
+    """
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
+    member_sources=dict(member_sources or {})
+    require(fid not in member_sources,'the entry member source is the positional candidate, not a --member')
+    entry_name=mechanical_name(f)
+    def new_part(text):
+        return re.sub(r'\b'+re.escape(entry_name)+r'\b','recovered',text)
+    if member_sources:
+        parts[fid]=new_part(source)
     def add_recovered(dep_id):
         if dep_id in members:return
+        if dep_id in member_sources:
+            df,_=validated_function(dep_id)
+            require(df['hunk']==f['hunk'],'new unit member is outside the entry CODE hunk: '+dep_id)
+            name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
+            # A missing definition is rejected by the linked-symbol partition
+            # check in compare_unit, never guessed from source text.
+            parts[dep_id]=new_part(re.sub(r'\brecovered\b',name,member_sources[dep_id]))
+            for call in df['direct_callees']:
+                if call['hunk']==df['hunk'] and call['id']!=dep_id:
+                    add_recovered(call['id'])
+            return
         dep=r['functions'].get(dep_id)
         require(dep is not None,'unrecovered same-node dependency: '+dep_id)
         df,_=validated_function(dep_id);text=(ROOT/dep['source']).read_text()
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
-        name='F_h%02d_%04X'%(df['hunk'],df['start']);names[dep_id]=name;members[dep_id]=df
+        name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
         # The routine's own local calls must stay in this translation unit as
         # well.  Leaving them as externs can preserve a plausible instruction
@@ -57,6 +89,9 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     for call in f['direct_callees']:
         if call['hunk']!=f['hunk'] or call['id']==fid:continue
         add_recovered(call['id'])
+    # Every named new member is part of the claimed unit, even one reached
+    # only through a canonical bridge or by physical adjacency.
+    for dep_id in member_sources:add_recovered(dep_id)
     if not allow_gaps:
         # A natural source unit can contain recovered routines that sit between
         # a caller and its local dependency without being directly called by
@@ -82,7 +117,9 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     # declarations from every unit member, not only the target candidate.
     if remove_stale_externs:
         for dep_id,name in names.items():
-            if dep_id==fid:continue
+            # A new member's declaration of the entry now names ``recovered``;
+            # it is the same stale external declaration in one object.
+            if dep_id==fid and not member_sources:continue
             pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
             for part_id in parts:
                 parts[part_id]=re.sub(pattern,'',parts[part_id])
@@ -129,6 +166,18 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
     # exact ordered extents for the complete object.
     require(len({f['hunk'] for f in members})==1,'unit members cross original CODE hunks')
     source_hunk=c['hunk'];original_hunk=members[0]['hunk'];original_base=members[0]['start']
+    # The entry member is linked as ``_recovered``.  Its identity is fixed by
+    # the verifier's own naming (names[target_id]=='recovered') and its extent
+    # by the ordered symbol partition below, so give that linked symbol its
+    # mechanical identity too.  A call from another member back to the entry
+    # (a same-node cycle) can then be proved like any other local call; a
+    # call to any other offset still fails target_identity's exact-entry rule.
+    target=next(f for f in members if f['id']==target_id)
+    entry_alias='_'+mechanical_name(target)
+    linked_entry=[s for s in c['symbols'] if s['hunk']==source_hunk and s['name']=='_recovered']
+    symbols=list(c['symbols'])
+    if len(linked_entry)==1 and not any(s['name']==entry_alias for s in symbols):
+        symbols.append(dict(linked_entry[0],name=entry_alias))
     for f in members:
         symbol=next((s for s in c['symbols'] if s['hunk']==c['hunk'] and s['name']=='_'+names[f['id']]),None)
         require(symbol is not None and symbol['offset']==cursor,'natural function ordering/extent differs; no slice accepted')
@@ -138,7 +187,7 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
         pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=code_offset,entry_offset=0)
         pc['hunk']=original_hunk
         pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset'] if allow_gaps else s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
-                       for s in c['symbols']]
+                       for s in symbols]
         pc['relocations']=[]
         for relocation in c['relocations']:
             at=relocation['relative_offset'];end=at+relocation['width']
@@ -164,16 +213,37 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
     return result
 
 
-def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False):
+def member_comparison(report,fid,source_sha256,base=None):
+    """One member's promotion comparison, bound to the whole unit verdict."""
+    comparison=next((m for m in report['members'] if m['id']==fid),None)
+    require(comparison is not None,'unit member has no comparison: '+fid)
+    comparison=dict(comparison,id=fid,verdict=report['verdict'],reason=report['reason'],
+                    source_sha256=source_sha256,
+                    unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
+    if base is not None:
+        comparison['complete_unit_receipt']=(base/'receipt.json').relative_to(ROOT).as_posix()
+        comparison['complete_unit_receipt_sha256']=sha256((base/'receipt.json').read_bytes())
+    return comparison
+
+
+def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None):
     report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined)
+    member_sources=dict(member_sources or {})
+    new_ids={fid,*member_sources}
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
                       compiler=compiled['identity'],
                       combined_source_sha256=sha256(combined.encode()),source_sha256=sha256(source.encode()),
-                      dependency_sources={f['id']:recovery()['functions'][f['id']]['source_sha256'] for f in members if f['id']!=fid},
+                      dependency_sources={f['id']:recovery()['functions'][f['id']]['source_sha256'] for f in members if f['id'] not in new_ids},
                       ordered_members=[{k:f[k] for k in ('id','hunk','start','end','size','sha256')} for f in members],
                       verification_policy=('Every byte and member of the complete naturally compiled object; no omitted padding or data'
                                            if not allow_gaps else
                                            'Every compact linked byte belongs to a recovered source object; original gaps remain unclaimed'))
+    if member_sources:
+        # Several members are proved together: all of them, or none, may
+        # acquire canonical source from this receipt.
+        report['member_sources']={f['id']:sha256((source if f['id']==fid else member_sources[f['id']]).encode())
+                                  for f in members if f['id'] in new_ids}
+        report['acceptance']='ALL_NEW_MEMBERS_EQUAL_IN_ONE_COMPLETE_UNIT'
     verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')}
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
@@ -182,6 +252,9 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         base=ROOT/'recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
         (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
         (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
+        for member_id,text in member_sources.items():
+            (base/'members').mkdir(exist_ok=True)
+            (base/'members'/(member_id+'.c')).write_text(text,encoding='ascii',newline='\n')
         persisted=stable_receipt(report)
         write_json(base/'receipt.json',persisted)
     target=next(f for f in members if f['id']==fid)
@@ -273,7 +346,43 @@ def gap_partitioned_objects(members,names,parts):
         return partitioned_objects(members,names,parts,False)
 
 
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None):
+def promote_unit_members(fid,source,member_sources,members,report,comparison,compiled,state):
+    """Promote every new member of one EQUAL unit, or none of them.
+
+    All preconditions are checked before the first canonical write, and the
+    host regression suite runs once for the whole unit, so a failure cannot
+    leave a cycle half-promoted.  Each member keeps its own authored source;
+    all proofs name the same complete-unit receipt.
+    """
+    import check_function
+    require(report['verdict']=='EQUAL' and all(m['verdict']=='EQUAL' for m in report['members']),
+            'multi-member promotion requires every unit member EQUAL')
+    require(comparison.get('complete_unit_receipt'),'multi-member promotion requires a retained unit receipt')
+    sources={fid:source,**member_sources};by_id={f['id']:f for f in members}
+    ledger=recovery()['functions'];plan=[]
+    for member_id,text in sources.items():
+        digest=sha256(text.encode('ascii'))
+        require(report['member_sources'].get(member_id)==digest,'unit receipt does not name member source: '+member_id)
+        canonical=ledger.get(member_id)
+        require(not canonical or canonical['source_sha256']==digest,
+                'already promoted with another source; preserve canonical source: '+member_id)
+        f=by_id[member_id]
+        for other,item in ledger.items():
+            e=item['evidence_extent']
+            require(other==member_id or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
+                    'promotion would overlap canonical source ownership: '+other)
+        member_report=comparison if member_id==fid else member_comparison(report,member_id,digest)
+        member_report=dict(member_report,complete_unit_receipt=comparison['complete_unit_receipt'],
+                           complete_unit_receipt_sha256=comparison['complete_unit_receipt_sha256'])
+        plan.append((member_id,text,member_report,state if member_id==fid else 'FUNCTION_CODE_MATCH'))
+    regression=check_function.regression_receipt()
+    return [promote(member_id,text,member_report,compiled,by_id[member_id],state=member_state,regression=regression)
+            for member_id,text,member_report,member_state in plan]
+
+
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None):
+    """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
+    members authored with the entry; acceptance is then the complete unit."""
     if isolated:promote_equal=False
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
     require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
@@ -281,8 +390,9 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     if isolated and output_dir is not None:
         from check_function import isolated_output_root
         output_root=isolated_output_root(output_dir)
+    member_sources={k:Path(v).read_text() for k,v in (member_sources or {}).items()}
     source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(
-        fid,source,True,allow_gaps,remove_stale_externs=not separate_objects)
+        fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources)
     reports=[]
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
@@ -297,9 +407,15 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             else:
                 trial['objects']=[dict(source=parts[m['id']]) for m in members]
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
+            # A new member's extern for the entry is a real cross-object call
+            # into this unit; the harness must not define a stand-in for it.
+            # Added only when present, so ordinary unit cache keys are stable.
+            if member_sources and re.search(r'\bextern\s+(?:int|long|short|char|void)\s+recovered\s*\(\s*\)\s*;',combined):
+                trial['local_functions'].append('recovered')
         trials.append(trial)
     for compiled in compile_many(trials):
-        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated)
+        report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,
+                                      member_sources=member_sources)
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
@@ -308,12 +424,17 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                 state='FUNCTION_WITH_DATA_MATCH'
             else:
                 state='FUNCTION_CODE_MATCH'
-            if not canonical or canonical['source_sha256']==report['source_sha256']:
+            if member_sources:
+                report['promotions']=promote_unit_members(fid,source,member_sources,members,report,comparison,compiled,state)
+            elif not canonical or canonical['source_sha256']==report['source_sha256']:
                 promote(fid,source,comparison,compiled,target,state=state)
         if isolated and output_root is not None:
             base=output_root/fid/(compiled['identity']['profile']+'-'+compiled['cache_key'][:12]);base.mkdir(parents=True,exist_ok=True)
             (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
             (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
+            for member_id,text in member_sources.items():
+                (base/'members').mkdir(exist_ok=True)
+                (base/'members'/(member_id+'.c')).write_text(text,encoding='ascii',newline='\n')
             write_json(base/'receipt.json',stable_receipt(report))
         reports.append(report)
     if not isolated:save_rank()
@@ -329,9 +450,16 @@ def main():
     ap.add_argument('--join-direct-callees',action='store_true',help='compile the target and its following direct same-node callees as one ordinary source object')
     ap.add_argument('--isolated',action='store_true',help='run exact unit comparison without writing recovery units, proofs, ledger, or ranking')
     ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
+    ap.add_argument('--member',action='append',default=[],metavar='ID=SOURCE',
+                    help='another new (not yet canonical) unit member and its source; repeat. The unit is accepted only if every member is EQUAL')
     a=ap.parse_args()
     require(a.output_dir is None or a.isolated,'--output-dir requires --isolated')
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir)
+    member_sources={}
+    for item in a.member:
+        member_id,sep,member_path=item.partition('=')
+        require(sep and member_id and member_path and member_id not in member_sources,'--member expects a unique ID=SOURCE')
+        member_sources[member_id]=Path(member_path)
+    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources)
     for r in reports:print(json.dumps(r))
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
 
