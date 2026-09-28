@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_6582",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "load-current-mode-for-helper",
+      "causal_family": "call-argument-source-expression",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_6582/state-argument.c",
+      "profile": "aztec36",
+      "parent": "ledger:77",
+      "suspected_cause": "The candidate uses the assigned literal for the helper argument, while the target reloads the current state global.",
+      "controlled_change": "Pass G_h01_94AE to F_h11_4B0C after assigning that global to 45.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 0,
+        "register_role_diffs": "fewer",
+        "note": "The operand should change from an immediate to the evidenced A4 global load without changing instruction size."
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_6582",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "absolute-data-identities",
+      "causal_family": "a4-global-symbol-identity",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov11_F_6582/globals.c",
+      "profile": "aztec36",
+      "parent": "ledger:76",
+      "suspected_cause": "A4 operands were named from displacements instead of the absolute DATA HUNK identities evidenced for this function.",
+      "controlled_change": "Replace the displacement-shaped global labels with the corresponding evidence-backed absolute HUNK offsets.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 0,
+        "register_role_diffs": "same",
+        "note": "Symbol binding should change while machine instruction count, payload size, and register assignment stay fixed."
+      }
+    }
+  ]
+}

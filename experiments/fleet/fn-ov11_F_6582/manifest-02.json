@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_6582",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "collision-else-transition",
+      "causal_family": "control-flow-branch-placement",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_6582/nested.c",
+      "profile": "aztec36",
+      "parent": "ledger:73",
+      "suspected_cause": "The fallback transition is not guarded as the collision-call else path, so the successful action does not branch over it.",
+      "controlled_change": "Move the fallback state condition into the else arm of the collision call inside the existing state gate.",
+      "predicted_effect": {
+        "length_delta": 2,
+        "removed_candidate_only": 0,
+        "register_role_diffs": "same",
+        "note": "Expect the target's missing two-byte branch to be emitted; data and value flow remain unchanged."
+      }
+    }
+  ]
+}
