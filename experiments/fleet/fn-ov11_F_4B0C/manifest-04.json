@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_4B0C",
+  "budget": {
+    "max_variants": 6,
+    "max_unique_compiles": 24
+  },
+  "variants": [
+    {
+      "id": "merge-conditional-descriptor-selections-v10",
+      "causal_family": "conditional-pointer-selection",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov11_F_4B0C/v10_conditional_descriptor_selection.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_4B0C/v06_case6_store.c",
+      "suspected_cause": "The target emits each selected descriptor address into D0 in both arms and stores the merged pointer once, while the candidate uses separate direct global stores in its if/else arms.",
+      "controlled_change": "Rewrite only the five descriptor pointer if/else assignments (cases 3, 4, 5, 10 and 18) as conditional pointer expressions.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The target pattern adds two short register moves while eliminating one of two global stores per selection, so total payload length is predicted unchanged."
+      }
+    }
+  ]
+}

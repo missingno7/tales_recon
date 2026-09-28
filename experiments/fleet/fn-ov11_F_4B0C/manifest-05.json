@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_4B0C",
+  "budget": {
+    "max_variants": 6,
+    "max_unique_compiles": 24
+  },
+  "variants": [
+    {
+      "id": "target-disassembly-body-order-v11",
+      "causal_family": "switch-case-body-order",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov11_F_4B0C/v11_target_case_body_order.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_4B0C/v10_conditional_descriptor_selection.c",
+      "suspected_cause": "The parent places case 45 last, but the target body addresses place case 45 before cases 12 and 13.",
+      "controlled_change": "Reorder only the switch case blocks to the exact body-address sequence 20,21,6,19,18,17,16,14,45,12,13,3,10,4,5,1,2,8.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Moving unchanged case blocks should preserve generated payload length."
+      }
+    }
+  ]
+}

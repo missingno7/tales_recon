@@ -1,0 +1,47 @@
+﻿import json
+from pathlib import Path
+root = Path('experiments/fleet/blk-ov11_F_5FB2')
+result = {
+  'schema_version': 1,
+  'task_id': 'blk-ov11_F_5FB2',
+  'worker': 'luna-blk-ov11_F_5FB2',
+  'status': 'BLOCKED',
+  'target': 'ov11_F_5FB2',
+  'best': {
+    'source': 'experiments/fleet/blk-ov11_F_5FB2/ffp-lowering.c',
+    'profile': 'aztec36',
+    'cache_key': '7db436d7e179481ad2d8cc553d997c224ba873da5704d5f059cb0bf0ac2e1e1a',
+    'verdict': 'DIFFER',
+    'verifier': 'check_function',
+    'entry': 'ov11_F_5FB2',
+    'options': ['with_m_lib'],
+    'expected_length': 206,
+    'actual_length': 206
+  },
+  'hypotheses': [
+    {
+      'id': 'h1',
+      'statement': 'Native Aztec 3.6a C floating-point lowering emits the needed private D-register FFP helper sequence without source-level regcall syntax.',
+      'outcome': 'confirmed',
+      'evidence': 'experiments/fleet/blk-ov11_F_5FB2/runs/ov11_F_5FB2/95dc8eb042af0ee0b8ddd0d6632686be84dce595fee6e92b80dd01364f45fbe6-aztec36-7db436d7e179.json; diag cache key 7db436d7e179481ad2d8cc553d997c224ba873da5704d5f059cb0bf0ac2e1e1a lists .Fflt/.Fsub/.Fmul/.Fdiv/.Ffix and matching D0/D1 register trace.'
+    },
+    {
+      'id': 'h2',
+      'statement': 'Linking the generated private FFP helper names with pinned aztec36 m.lib establishes the target resident F_8Dxx A4 call identities.',
+      'outcome': 'refuted',
+      'evidence': 'Same exact check_function report is DIFFER at 206/206; seven A4 call sites are unresolved because candidate .Fflt/.Fsub/.Fmul/.Fdiv/.Ffix symbols have no established original binding.'
+    }
+  ],
+  'compile_trials': 0,
+  'ledger_lines': [],
+  'explanation': 'The changed ABI hypothesis works at source/code-generation level: ordinary C float expressions produce the private Aztec FFP helper sequence and a 206-byte payload, without #pragma regcall. The exact verifier still reports DIFFER because all seven helper calls lack established bindings to the target resident F_8Dxx gates; the emitted .F* targets resolve elsewhere in candidate HUNK 0. This invocation was a compiler-cache hit, so it added no compiler trial. Further source edits cannot prove those external identities; the missing evidence is the original-link call-site binding or a supported natural alias contribution. Helper ABI recognition does not establish exact library provenance.',
+  'proposed_blocker': {
+    'mechanism': 'EXTERNAL_CALL_BINDING',
+    'text': 'Aztec 3.6a floating-point lowering emits the expected private FFP helper sequence and reaches 206 bytes, but the seven candidate call sites do not have established original bindings to resident F_8Dxx A4 wrappers. The exact comparator leaves each .Fflt/.Fsub/.Fmul/.Fdiv/.Ffix target unresolved. Resolve only with historical linker call-site evidence or a supported natural alias/contribution path that proves those identities.'
+  }
+}
+(root / 'result.json').write_text('', encoding='utf-8')
+with (root / 'result.json').open('w', encoding='utf-8', newline='') as f:
+  json.dump(result, f, ensure_ascii=False, indent=2)
+  f.write('\n')
+print('wrote result.json')

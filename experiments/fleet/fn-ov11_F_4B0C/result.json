@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_4B0C",
+  "worker": "luna-fn-ov11_F_4B0C",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov11_F_4B0C",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_4B0C/v14_relocation_identity_map.c",
+    "profile": "aztec36",
+    "cache_key": "5872c1124b5dee3ce0a5be50a1a39231c46e47f6926546a5053bb279396f50c5",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov11_F_4B0C",
+    "options": [],
+    "expected_length": 954,
+    "actual_length": 954
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The switch bodies follow target address order, including case 45 before cases 12 and 13.",
+      "outcome": "confirmed",
+      "evidence": "ledger lines 42, 46; exact report experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h2",
+      "statement": "Case 6 stores 0x8e to the target word at data offset 0x94c0 after the timer call.",
+      "outcome": "confirmed",
+      "evidence": "ledger lines 35, 46; exact report experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h3",
+      "statement": "The five conditional descriptor selections use conditional pointer expressions that merge into one global store.",
+      "outcome": "confirmed",
+      "evidence": "ledger lines 41, 46; exact report experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h4",
+      "statement": "Case 8 selects each object state byte through D0 before the common object store.",
+      "outcome": "confirmed",
+      "evidence": "ledger lines 43, 46; exact report experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h5",
+      "statement": "Case 8 coordinate adjustments use zero/nonzero tests.",
+      "outcome": "confirmed",
+      "evidence": "ledger lines 39, 45, 46; exact report experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h6",
+      "statement": "The initial candidate had several A4 global names at wrong DATA offsets; exact identities recover the target operands.",
+      "outcome": "confirmed",
+      "evidence": "ledger line 46; relocation_equal=true in experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h7",
+      "statement": "A4 global base 0x8000 requires rebasing all descriptor LEA symbols by +2.",
+      "outcome": "refuted",
+      "evidence": "ledger line 37 and exact relocation identity match in ledger line 46; experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h8",
+      "statement": "The selected object pointer globals are at 0x9f54 and 0x9f50.",
+      "outcome": "refuted",
+      "evidence": "ledger line 38; exact match retains offsets 0x9f52 and 0x9f4e in ledger line 46; experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h9",
+      "statement": "The F_h11_6ED6 first argument is the word at 0x94da rather than 0x94d8.",
+      "outcome": "refuted",
+      "evidence": "ledger line 34; exact match retains G_h01_94D8 in ledger line 46; experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    },
+    {
+      "id": "h10",
+      "statement": "Selected object storage should be split from G_h01_94DA into G_h01_94DC.",
+      "outcome": "refuted",
+      "evidence": "ledger line 33; exact match uses G_h01_94DA in ledger line 46; experiments/fleet/fn-ov11_F_4B0C/runs/ov11_F_4B0C/c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0-aztec36-5872c1124b5d.json"
+    }
+  ],
+  "compile_trials": 12,
+  "ledger_lines": [
+    31,
+    33,
+    34,
+    35,
+    37,
+    38,
+    39,
+    41,
+    42,
+    43,
+    45,
+    46
+  ],
+  "explanation": "The isolated aztec36 exact verifier returned EQUAL for all 954 function bytes, with relocation_equal=true and proof level FUNCTION_CODE_MATCH. The final report has no structural instruction difference. The advisory diagnostic remained UNSUPPORTED for this multi-object unit, so all 12 schema-v2 metric predictions are unmeasurable; exact equality is established independently by the verifier.",
+  "proposed_blocker": null
+}
