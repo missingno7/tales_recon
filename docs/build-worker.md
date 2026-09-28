@@ -45,3 +45,11 @@ Next: identify candidate runtime object contributions and compare compiler ABI
 fingerprints before selecting a toolchain for the complete investment overlay.
 
 Natural overlay linking is now verified; see [overlay experiments](overlay-linking.md).
+
+Long links: the worker's AmigaDOS shell rejects a command whose argument text
+(after the command name and redirections) exceeds 510 characters, returning 10
+with an empty redirected log before the program runs. The oracle therefore passes
+links whose argument text would exceed 480 characters to `ln -f PREFIX-ln.lnk`
+(`tools/link_line.py`); shorter links keep their unchanged single-line command
+and cache identity. Measurements are recorded in `docs/toolchain.json`
+(`link_command_line_limit`).

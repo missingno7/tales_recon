@@ -12,6 +12,9 @@ from common import require,sha256,write_json,FormatError,json_bytes
 from aztec_worker import prepare,collect,ROOT
 from hunk import parse,manx_overlay
 from overlay_experiment import symbols
+import link_line
+# The single-line form is unchanged; long links use an ``ln -f`` argument file.
+link_command=link_line.direct_command
 
 PROFILES={
  'aztec36':dict(version='3.6a',base='toolchain/installed/aztec-3.6a/SYS1',guest='Old1:',flags=[]),
@@ -176,14 +179,12 @@ def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_
         keydata['object_labels']=object_labels
         keydata['partitioned_object_sources']=[dict(label=x['label'],source_sha256=sha256(x['source'].encode('ascii'))) for x in objects]
         keydata['local_functions']=sorted(local_functions)
+    # A link too long for one guest shell line reads its list from ``ln -f``.
+    # Only those links gain this field; every short link keeps its identity
+    # (and a cached shell-rejected failure is not reused for the new form).
+    argument_file=link_line.identity_field(object_labels,proxies,target_node,keydata)
+    if argument_file is not None:keydata['link_argument_file']=argument_file
     return sha256(json_bytes(keydata)),keydata,h
-
-
-def link_command(guest,prefix,hp,node,object_names,proxy_args,meta):
-    libraries=[f'{meta["library_guest"]}lib/{meta["library"]}']
-    libraries.extend(f'{x["library_guest"]}lib/{x["library"]}' for x in meta.get('additional_libraries',[]))
-    return (f'{guest}bin/ln <compiler-input.txt >{prefix}-ln.log -m -t -o {prefix}.exe {hp}.o +o{node} '+
-            ' '.join(name+'.o' for name in object_names)+' '+ ' '.join(proxy_args)+' +o0 '+' '.join(libraries))
 
 
 def cached(key):
@@ -291,7 +292,11 @@ def compile_many(trials):
                              f'{guest}bin/as <compiler-input.txt >{name}-as.log -o {name}.o {name}.asm']
                 proxy_args += [f'+o{proxy["node"]}',name+'.o']
             node=item['trial'].get('target_node',1)
-            commands += [link_command(guest,prefix,hp,node,object_names,proxy_args,item['meta'])]
+            command,argument_file=link_line.plan(guest,prefix,hp,node,object_names,proxy_args,item['meta'])
+            require((argument_file is not None)==('link_argument_file' in item['meta']),'link argument-file decision differs from cache identity')
+            if argument_file is not None:
+                (source_dir/argument_file[0]).write_text(argument_file[1],encoding='ascii',newline='\n')
+            commands += [command]
             mapping.append((key,item,prefix,hp,first,2*(len(object_names)+1+len(item['proxies']))+1,idx))
         job=prepare(batch,source_dir,commands,Path('C:/Program Files/WinUAE/winuae64.exe'),aztec36=any(v['trial']['profile'].startswith('aztec36') for v in missing.values()))
         shell=shutil.which('pwsh') or shutil.which('powershell')

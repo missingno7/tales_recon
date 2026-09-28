@@ -320,5 +320,42 @@
     "historical_selection_proven": false,
     "repeat_binary_identical": true,
     "status": "COMPILE_ASSEMBLE_LINK_EXECUTE_PASSED"
+  },
+  "link_command_line_limit": {
+    "cache_identity_impact": "0 of 1029 cached identities gain the new field except the shell-rejected 94cbb29bb1e6 failure. Editing compiler_oracle.py changes its file hash, which is in named-entry/proxy identities: 1 cached entry carried the prior hash (28 already carried older hashes).",
+    "experiments": [
+      {
+        "generator": "experiments/link-command-limit/make_001.py",
+        "job": "link-limit-001",
+        "observation": "Aztec 3.6a ln linking 1..33 trivial independent objects: direct commands up to 548 characters (31 objects) returned 0; 563 (32) and 578 (33) returned 10 with an empty redirected log and no executable, reproducing the region failure. ln -f argument files (single-line and one-per-line) linked 7 and 33 objects; the 7-object -f executable and .sym are byte-identical to the direct link.",
+        "result_sha256": "43cfc5855552ea419944719b83a8412c1002279adf70f925cd0633221b833a3b"
+      },
+      {
+        "generator": "experiments/link-command-limit/make_002.py",
+        "job": "link-limit-002",
+        "observation": "Same 30-object link padded with spaces to 544..571 characters: <=555 linked, >=556 returned 10. Argument text after the command name and redirections was 510 (pass) vs 511 (fail). C:Echo lines fail with 10 at the same argument length (507 ran, 511 failed), so the limit is the guest shell, not ln.",
+        "result_sha256": "92c770596ac0a0be7ec0ce14c8654fd14e961ec711058a7d4102671177fabbc4"
+      },
+      {
+        "generator": "experiments/link-command-limit/make_003.py",
+        "job": "link-limit-003",
+        "observation": "ln -f with 96 objects (1462-byte argument file) linked with status 0.",
+        "result_sha256": "801d4b2e5a55be3838b99560d80c2d2c1d9212ec3aa5a920a934743918d3169b"
+      }
+    ],
+    "failed_attempts": [
+      "Single-quoted long C:Echo lines were rejected by Echo itself above ~255 characters (Invalid argument to ECHO) and could not probe the shell limit; multi-word Echo was also rejected but still showed the shell-level status-10 boundary."
+    ],
+    "fix": "tools/link_line.py: direct form unchanged when argument text <= 480 characters; otherwise the oracle writes PREFIX-ln.lnk (one argument per line, same order) and runs ln -m -t -o PREFIX.exe -f PREFIX-ln.lnk. Only argument-file links gain identity field link_argument_file.",
+    "hypotheses_tested": [
+      "AmigaDOS shell argument-length limit (confirmed)",
+      "Aztec ln object-count limit (rejected: 31 objects linked directly, 33 and 96 objects linked via -f)"
+    ],
+    "limit": "Guest shell (pinned Kickstart 3.0 worker) accepts at most 510 characters of argument text after the command name and redirections; longer lines fail with status 10 before the program runs.",
+    "limitations": "Limit measured only in this worker configuration; the 5.0a -f path is supported by ln strings but was not executed.",
+    "ln_option": "Aztec 3.6a and 5.0a ln both accept -f FILE (strings: Cannot have nested -f options; Too few arguments in -f file).",
+    "status": "MEASURED_AND_WORKED_AROUND",
+    "symptom": "reg-ov11_4790-5CEA natural-interval link (33 source objects): 580-character ln command, guest status 10, empty t000-ln.log, no executable (cache 94cbb29bb1e6..., worker job compile-d8d519375561)",
+    "verification": "Region rerun via compile queue: cache e653318e690d..., worker job compile-89766e447d1f, all guest steps 0, executable linked; verdict DIFFER (draft member sources)."
   }
 }
