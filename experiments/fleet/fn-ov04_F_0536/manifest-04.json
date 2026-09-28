@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0536",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "noarg-resident-463e",
+      "causal_family": "resident-helper-arity",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov04_F_0536/noarg-463e.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_0536/long-strides.c",
+      "suspected_cause": "resident_F_463E has a closed 56-byte body with no stack argument accesses; the caller saves the base and offset around a zero-argument call.",
+      "controlled_change": "Change only the two F_h00_463E invocations from two stack arguments to no arguments.",
+      "predicted_effect": {
+        "length_delta": -24,
+        "removed_candidate_only": 6,
+        "register_role_diffs": null,
+        "note": "Each call should lose two argument pushes and one stack cleanup while retaining the saved address pair used by the indexed store."
+      }
+    }
+  ]
+}

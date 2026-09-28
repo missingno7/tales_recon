@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_583A",
+  "worker": "luna-fn-ov11_F_583A",
+  "status": "NEEDS_EVIDENCE",
+  "target": "ov11_F_583A",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_583A/near.c",
+    "profile": "aztec36",
+    "cache_key": "1976729719a4d8c305631b23dc4e9a4fdbff121f14b7eb8be172b752c58cb0fc",
+    "verdict": "DIFFER",
+    "verifier": "check_function",
+    "entry": "ov11_F_583A",
+    "options": [],
+    "expected_length": 296,
+    "actual_length": 298
+  },
+  "hypotheses": [],
+  "compile_trials": 0,
+  "ledger_lines": [],
+  "explanation": "The retained best candidate is 298 bytes versus the 296-byte target. Its only remaining generated-call shape difference is at offset 0x104: candidate JSR through the A4 call stub versus the target BSR to ov11_F_5962. The 132-byte callee is a closed, discovered same-hunk function, but it has no recovered source. Exact unit proof needs that independently reconstructed source so the compiler can bind the adjacent local call naturally; rerunning the same caller-only source cannot resolve it.",
+  "proposed_blocker": null
+}

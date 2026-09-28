@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_54F8",
+  "worker": "luna-fn-ov11_F_54F8",
+  "status": "NEEDS_EVIDENCE",
+  "target": "ov11_F_54F8",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_54F8/fieldgap-after-y.c",
+    "profile": "aztec36",
+    "cache_key": "0dbb63338233cff7f42c1b0ef11307bf8da91f12b02cfd41a9245c48c765a9f5",
+    "verdict": "DIFFER",
+    "verifier": "check_function",
+    "entry": "recovered",
+    "options": [],
+    "expected_length": 192,
+    "actual_length": 192
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Attempt 2 places the extra four bytes after the fields; moving them between y and first corrects the three conditional-field displacements without changing extent.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 1; manifest-01 prediction confirmed and exact report shows 192-byte extent with no structural instruction difference."
+    }
+  ],
+  "compile_trials": 1,
+  "ledger_lines": [
+    1
+  ],
+  "explanation": "The isolated aztec36 trial kept the 192-byte extent and 52-instruction shape. Moving the four-byte gap between y and first confirmed the predicted layout correction: the three conditional fields now address +34, +36, and +38. The exact verdict remains DIFFER because direct-call binding is unproven at offsets 96, 126, 154, and 182. The verifier identifies ov11_F_5962 as an unrecovered same-node dependency. Missing evidence is an independently recovered/bound F_h11_5962 and a natural compact unit that binds the local callees, including already matched F_h11_4696.",
+  "proposed_blocker": null
+}

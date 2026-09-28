@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0536",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "implicit-int-entry-x3",
+      "causal_family": "function-entry-prologue",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov04_F_0536/implicit-return.c",
+      "profile": "aztec36-x3",
+      "parent": "experiments/fleet/fn-ov04_F_0536/no-parse-clear.c",
+      "suspected_cause": "The historical entry may use the default K&R int return declaration, which could suppress the empty saved-register frame pair.",
+      "controlled_change": "Remove only the explicit void return type from recovered().",
+      "predicted_effect": {
+        "length_delta": -8,
+        "removed_candidate_only": 2,
+        "register_role_diffs": null,
+        "note": "The compiler may omit the empty movem save and restore instructions while leaving the instruction body unchanged."
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0536",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "long-stride-arithmetic",
+      "causal_family": "stride-integer-promotion",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov04_F_0536/long-strides.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_0536/buffer-gap-3.c",
+      "suspected_cause": "The repeated record and chart offsets need long arithmetic so their ABI arguments remain 32-bit and address formation can reuse the multiply result.",
+      "controlled_change": "Change only the 46 and 31 stride constants from int literals to long literals.",
+      "predicted_effect": {
+        "length_delta": null,
+        "removed_candidate_only": 6,
+        "register_role_diffs": null,
+        "note": "Long stride expressions should remove six candidate-only zero-extension instructions across the indexed accesses and long offset arguments."
+      }
+    }
+  ]
+}

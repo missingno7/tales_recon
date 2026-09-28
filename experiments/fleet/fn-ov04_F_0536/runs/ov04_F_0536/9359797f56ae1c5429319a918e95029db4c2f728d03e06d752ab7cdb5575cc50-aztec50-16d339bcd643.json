@@ -1,0 +1,127 @@
+{
+  "actual_length": 704,
+  "actual_sha256": "eb20f0a4696eb47838326725c68829b085a17f4f92c2b8b399e5285b3736efae",
+  "cache_hit": false,
+  "cache_key": "16d339bcd6434a7f4fb96a5cff59fa0ecf4cd48a434072139d45552d7fbd2bda",
+  "comparison_identity": "86b5bb5236228a2ae960c4011f7bed4f3f5bde897d6ebcd8da6e661d09c95f2f",
+  "compiler": "aztec50",
+  "data_contributions": {
+    "candidate_bss": 0,
+    "candidate_data": 0,
+    "expected_owned_data": "NOT_CLAIMED"
+  },
+  "epilogue": {
+    "actual": [
+      {
+        "mnemonic": "neg.w",
+        "offset": 666,
+        "operands": "(a4)",
+        "raw": "4454",
+        "size": 2
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 668,
+        "operands": "$6c0c(pc), -(a0)",
+        "raw": "313a696e",
+        "size": 4
+      },
+      {
+        "mnemonic": "moveq",
+        "offset": 672,
+        "operands": "#$65, d3",
+        "raw": "7665",
+        "size": 2
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "addq.w",
+        "offset": 616,
+        "operands": "#$4, a7",
+        "raw": "584f",
+        "size": 2
+      },
+      {
+        "mnemonic": "unlk",
+        "offset": 618,
+        "operands": "a5",
+        "raw": "4e5d",
+        "size": 2
+      },
+      {
+        "mnemonic": "rts",
+        "offset": 620,
+        "operands": "",
+        "raw": "4e75",
+        "size": 2
+      }
+    ]
+  },
+  "expected_length": 622,
+  "expected_sha256": "2521787d5eb281ef20aadb86c99b16d4231e4d7a937dd97977570b89c0f89811",
+  "first_structural_instruction_difference": null,
+  "flags": [],
+  "id": "ov04_F_0536",
+  "mnemonic_similarity": 0.1105,
+  "prologue": {
+    "actual": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$ff68",
+        "raw": "4e55ff68",
+        "size": 4
+      },
+      {
+        "mnemonic": "movem.l",
+        "offset": 4,
+        "operands": "#$0, -(a7)",
+        "raw": "48e70000",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 8,
+        "operands": "-$7efe(a4), -$40(a5)",
+        "raw": "2b6c8102ffc0",
+        "size": 6
+      }
+    ],
+    "expected": [
+      {
+        "mnemonic": "link.w",
+        "offset": 0,
+        "operands": "a5, #$ff6e",
+        "raw": "4e55ff6e",
+        "size": 4
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 4,
+        "operands": "-$3924(a4), -$3c(a5)",
+        "raw": "2b6cc6dcffc4",
+        "size": 6
+      },
+      {
+        "mnemonic": "clr.b",
+        "offset": 10,
+        "operands": "-$329e(a4)",
+        "raw": "422ccd62",
+        "size": 4
+      }
+    ]
+  },
+  "proof_level": null,
+  "raw_first_difference": {
+    "actual": "6848e700002b6c8102ffc0422c810148",
+    "actual_size": 704,
+    "expected": "6e2b6cc6dcffc4422ccd623f3c00014e",
+    "expected_size": 622,
+    "offset": 3
+  },
+  "reason": "DATA_OR_UNDECODED_CONTRIBUTION_REQUIRES_OWNERSHIP_PROOF",
+  "relocation_equal": false,
+  "source_sha256": "9359797f56ae1c5429319a918e95029db4c2f728d03e06d752ab7cdb5575cc50",
+  "verdict": "BLOCKED"
+}

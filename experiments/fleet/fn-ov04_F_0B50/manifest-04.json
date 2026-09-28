@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0B50",
+  "budget": {"max_variants": 3, "max_unique_compiles": 3},
+  "variants": [
+    {
+      "id": "unsigned-mode-product",
+      "causal_family": "mode-arithmetic-width",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov04_F_0B50/candidate-04.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_0B50/candidate-03.c",
+      "suspected_cause": "The final mode calculation is unsigned 16-bit arithmetic before zero extension to the long call argument.",
+      "controlled_change": "Cast only the result of F_h00_463E to unsigned before masking and multiplying.",
+      "predicted_effect": {
+        "length_delta": 2,
+        "removed_candidate_only": null,
+        "register_role_diffs": "fewer",
+        "note": "Predicts unsigned multiply and a zero-extended D1 long argument, adding the target's two-byte D1 copy."
+      }
+    },
+    {
+      "id": "labeled-bottom-check",
+      "causal_family": "outer-loop-control-flow",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov04_F_0B50/candidate-05.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_0B50/candidate-03.c",
+      "suspected_cause": "The compiler's while lowering puts the side-effecting test at the top, while the target starts with a branch to its bottom increment/check block.",
+      "controlled_change": "Replace only the outer while construct with an initial goto and a labeled bottom preincrement test.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The same increment and comparison should move to the function tail, yielding the target's initial skip-to-check and backward conditional edge."
+      }
+    },
+    {
+      "id": "byte-offset-table-access",
+      "causal_family": "table-index-scaling",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov04_F_0B50/candidate-06.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_0B50/candidate-03.c",
+      "suspected_cause": "Array element scaling currently emits separate shifts for record stride and element width instead of the target's single shift by three.",
+      "controlled_change": "Use byte-offset pointer expressions for each field while preserving the observed eight-byte stride.",
+      "predicted_effect": {
+        "length_delta": -12,
+        "removed_candidate_only": 6,
+        "register_role_diffs": "same",
+        "note": "Six table loads should replace two scale shifts with one shared shift-by-three operation."
+      }
+    }
+  ]
+}

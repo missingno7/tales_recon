@@ -570,7 +570,7 @@ PROTOCOL = """## Protocol
 4. Compile via: {run}
    Compiles are queued and batched across workers (a cache miss may wait minutes); cache hits are instant. Never loop on a failing tool.
 5. Budget: at most {trials} compiler trials and {variants} variants per manifest. Stop at an exact EQUAL, at budget, or after three consecutive refuted predictions in one causal family without new evidence (switch family once, then report).
-6. Write `{dir}/result.json` exactly per the schema below, then reply with one line: `TASK {task_id} <STATUS> {dir}/result.json`.
+6. Write `{dir}/result.json` exactly per the schema below using Python `json.dump` (UTF-8, no BOM; never an empty file), check it with `python tools/fleet.py intake {task_id} --dry-run`, fix any REJECTED reason, then reply with one line: `TASK {task_id} <STATUS> {dir}/result.json`.
 """
 
 RESULT_SCHEMA = """## result.json (closed schema; intake re-verifies every EQUAL claim)
@@ -579,7 +579,7 @@ RESULT_SCHEMA = """## result.json (closed schema; intake re-verifies every EQUAL
  "status":"EQUAL_CANDIDATE|NEAR|BLOCKED|NEEDS_EVIDENCE",
  "target":"{target}",
  "best":null or {{"source":"{dir}/<file>.c","profile":"aztec36","cache_key":"<64 hex>",
-   "verdict":"EQUAL|DIFFER|BLOCKED","verifier":"{verifier}","entry":"<member compiled as recovered>",
+   "verdict":"EQUAL|DIFFER|BLOCKED","verifier":"{verifier}","entry":"<evidence id of the member compiled as recovered(), e.g. {target}>",
    "options":[{options}],"expected_length":0,"actual_length":0}},
  "hypotheses":[{{"id":"h1","statement":"...","outcome":"confirmed|refuted|partial|unmeasurable|untested","evidence":"ledger line / report path"}}],
  "compile_trials":0,"ledger_lines":[],
@@ -770,7 +770,11 @@ def validate_result(fleet, task, result):
                 "best.cache_key must be 64 lowercase hex")
         require(best["verdict"] in ("EQUAL", "DIFFER", "BLOCKED"), "best.verdict must be EQUAL, DIFFER or BLOCKED")
         require(best["verifier"] in ("check_function", "check_unit"), "best.verifier must be check_function or check_unit")
-        require(best["entry"] in task["targets"], "best.entry must be one of the task targets")
+        if best["entry"] == "recovered" and best["verifier"] == "check_function" and len(task["targets"]) == 1:
+            # Workers name the C entry symbol; for a single-target function
+            # task that unambiguously denotes the target itself.
+            best["entry"] = task["targets"][0]
+        require(best["entry"] in task["targets"], "best.entry must be one of the task targets (evidence id, not the C symbol)")
         allowed = UNIT_OPTIONS if best["verifier"] == "check_unit" else FUNCTION_OPTIONS
         require(isinstance(best["options"], list) and set(best["options"]) <= set(allowed)
                 and len(set(best["options"])) == len(best["options"]), "best.options must be a subset of " + ", ".join(allowed))

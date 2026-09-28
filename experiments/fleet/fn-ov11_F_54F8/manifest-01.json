@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_54F8",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "field-gap-after-y",
+      "causal_family": "record-field-layout",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_54F8/fieldgap-after-y.c",
+      "profile": "aztec36",
+      "parent": "recovery/candidates/ov11_F_54F8/df9ae8495f45ded7b66d35bbd3be77804507e1dc03da71d214cce3d3986fa29c.c",
+      "suspected_cause": "Attempt 2 keeps a 40-byte stride but places its extra four bytes after the fields, leaving three field accesses four bytes early.",
+      "controlled_change": "Move the existing four-byte padding member from after the third field to between the second and third fields, preserving all statements and call arguments.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The three target field displacements should increase by four without changing instruction widths, control flow, or the 40-byte record stride."
+      }
+    }
+  ]
+}

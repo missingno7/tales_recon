@@ -195,6 +195,36 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
+          "declaration": "extern int G_h01_50E6;",
+          "line": 11,
+          "path": "src/recovered/ov04/ov04_F_0B50.c",
+          "shape": {
+            "array": false,
+            "base": "int",
+            "category": "word",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "DECLARATION_VIEW_REVIEW",
+        "right": {
+          "declaration": "extern struct UiState G_h01_50E6;",
+          "line": 31,
+          "path": "src/recovered/ov13/ov13_F_0000.c",
+          "shape": {
+            "array": false,
+            "base": "struct UiState",
+            "category": "struct",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_50E6"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
           "declaration": "extern struct MotionRecord G_h01_8BEC[1];",
           "line": 7,
           "path": "src/recovered/ov11/ov11_F_5C1A.c",
@@ -1663,13 +1693,13 @@
         "symbol": "G_h01_A6A8"
       }
     ],
-    "declarations_scanned": 412,
+    "declarations_scanned": 426,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
       "ARRAY_EXTENT_CONFLICT": 1,
       "ARRAY_SCALAR_VIEW_CONFLICT": 3,
-      "DECLARATION_VIEW_REVIEW": 3,
+      "DECLARATION_VIEW_REVIEW": 4,
       "POINTER_SCALAR_VIEW_CONFLICT": 5,
       "STRUCT_VIEW_DIFFERENCE_REVIEW": 43
     },
@@ -1682,6 +1712,7 @@
       "src/recovered/ov04/ov04_F_037E.c": "e6816588d5942ffd2ed06aa85917f6a6070d9d0b2004d3567cd04d47dccf8957",
       "src/recovered/ov04/ov04_F_07CA.c": "20cbdb72fcf4dca7999f990a372a608110f6cec6bcb7c9970fa9e12ba72c9056",
       "src/recovered/ov04/ov04_F_0926.c": "56823d34527e1441a751a6599069ed7e4a43b468e5cf039fd7c3424a8dee1d8d",
+      "src/recovered/ov04/ov04_F_0B50.c": "27dd20f4c833709914b8cfdd2ff8249e5b54d801e883e288e9e602f81af90204",
       "src/recovered/ov04/ov04_F_1822.c": "f59ca1eb5dda5093dcb102d97f5469486a90f1a20da83a730e4f33c5744ebf69",
       "src/recovered/ov04/ov04_F_18A6.c": "4d5d1a937608d9f6b5deb2435697f5a69bb2af767c9bab5cecc7d98c790ad7a1",
       "src/recovered/ov04/ov04_F_1A3A.c": "189b5b311193bbe6e531b354c8eee6ece0fc85f7a8a93aa794fba3a2e9a62568",
@@ -1773,7 +1804,7 @@
       "src/recovered/ov15/ov15_F_08B0.c": "4136434dc8c871e1e8731e062d3968fc94588745c4808b19fbf50293c2cfd6a7",
       "src/recovered/ov15/ov15_F_0A80.c": "a0e4679a60eb1f4c35d3227dd95537b71370a7dbf3f2da8f9208e1cb1064b441"
     },
-    "symbols_with_multiple_views": 63
+    "symbols_with_multiple_views": 68
   },
   "frame_access_candidates": [
     {
@@ -136258,6 +136289,7 @@
       "src/recovered/ov04/ov04_F_037E.c": "e6816588d5942ffd2ed06aa85917f6a6070d9d0b2004d3567cd04d47dccf8957",
       "src/recovered/ov04/ov04_F_07CA.c": "20cbdb72fcf4dca7999f990a372a608110f6cec6bcb7c9970fa9e12ba72c9056",
       "src/recovered/ov04/ov04_F_0926.c": "56823d34527e1441a751a6599069ed7e4a43b468e5cf039fd7c3424a8dee1d8d",
+      "src/recovered/ov04/ov04_F_0B50.c": "27dd20f4c833709914b8cfdd2ff8249e5b54d801e883e288e9e602f81af90204",
       "src/recovered/ov04/ov04_F_1822.c": "f59ca1eb5dda5093dcb102d97f5469486a90f1a20da83a730e4f33c5744ebf69",
       "src/recovered/ov04/ov04_F_18A6.c": "4d5d1a937608d9f6b5deb2435697f5a69bb2af767c9bab5cecc7d98c790ad7a1",
       "src/recovered/ov04/ov04_F_1A3A.c": "189b5b311193bbe6e531b354c8eee6ece0fc85f7a8a93aa794fba3a2e9a62568",

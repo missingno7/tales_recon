@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0B50",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "entry-check-skips-increment",
+      "causal_family": "outer-loop-control-flow",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov04_F_0B50/candidate-10.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_0B50/candidate-09.c",
+      "suspected_cause": "The target's initial branch enters directly at the comparison, while only the later back edge executes the counter increment.",
+      "controlled_change": "Move the preincrement into a statement immediately before the bottom-check label and compare the counter there.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 0,
+        "register_role_diffs": "same",
+        "note": "The instruction count should stay fixed while the initial branch target moves past the increment to the target comparison."
+      }
+    }
+  ]
+}

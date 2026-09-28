@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0536",
+  "budget": {"max_variants": 2, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "invest-chart-baseline",
+      "causal_family": "asset-loop-control-flow",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov04_F_0536/baseline.c",
+      "profile": "aztec36",
+      "parent": "none",
+      "suspected_cause": "The body is two do-while asset passes over 15 records and five 30-byte chart rows.",
+      "controlled_change": "Initial complete C body; it follows the observed calls, loop bounds, indexed fields, and four referenced literals.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Baseline predicts a 622-byte contribution, including the four referenced strings totaling 38 bytes."
+      }
+    },
+    {
+      "id": "signed-index-control",
+      "causal_family": "asset-loop-control-flow",
+      "diagnostic_scope": "branch_condition_or_kind",
+      "source": "experiments/fleet/fn-ov04_F_0536/signed-index.c",
+      "profile": "aztec36",
+      "parent": "invest-chart-baseline",
+      "suspected_cause": "The outer index signedness may control the observed carry-condition loop branches.",
+      "controlled_change": "Change only the outer index declaration from unsigned int to int.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "Signedness should change loop branch conditions while preserving instruction count, byte length, and register roles."
+      }
+    }
+  ]
+}
+
