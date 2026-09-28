@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov10_F_2FA0",
+  "worker": "luna-fn-ov10_F_2FA0",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov10_F_2FA0",
+  "best": {
+    "source": "experiments/fleet/fn-ov10_F_2FA0/candidate-v6.c",
+    "profile": "aztec36",
+    "cache_key": "fc56412e3fe588b10b9ce6d9e3b7c2eccda83e09ab398fb9449f738c8d842f24",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov10_F_2FA0",
+    "options": [],
+    "expected_length": 620,
+    "actual_length": 620
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Making the first byte bit-0 condition an explicit nonzero comparison preserves its generated test sequence.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 83; prediction length_delta 0 confirmed; exact verdict DIFFER"
+    },
+    {
+      "id": "h2",
+      "statement": "The F_57D2 call is guarded by a nonzero byte flag.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 85; prediction length_delta 0 confirmed; exact verdict DIFFER"
+    },
+    {
+      "id": "h3",
+      "statement": "The G_7208 and G_720A word arguments to F_3AE4 are passed in that order.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 89; prediction length_delta 0 confirmed; exact verdict DIFFER"
+    },
+    {
+      "id": "h4",
+      "statement": "The G_71D2 and G_71D4 word arguments to F_3AE4 are passed in that order.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 91; prediction length_delta 0 confirmed; exact verdict DIFFER"
+    },
+    {
+      "id": "h5",
+      "statement": "The G_719C and G_719E word arguments to F_3AE4 are passed in that order.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 93; prediction length_delta 0 confirmed; exact verdict DIFFER"
+    },
+    {
+      "id": "h6",
+      "statement": "The G_7490 and G_7492 word arguments to F_3AE4 are passed in that order.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 94; prediction length_delta 0 confirmed; exact verdict EQUAL"
+    }
+  ],
+  "compile_trials": 7,
+  "ledger_lines": [
+    83,
+    85,
+    89,
+    91,
+    93,
+    94
+  ],
+  "explanation": "The isolated check_function run for candidate-v6.c returned EQUAL at 620/620 bytes. Disassembly and diagnostics establish the two-argument frame, branch structure, helper calls, and four corrected word-argument pairs. The exact comparator verified the complete function contribution; the 7 compiler trials include one counted parent compile. All six machine-checkable length predictions were confirmed.",
+  "proposed_blocker": null
+}

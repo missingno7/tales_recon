@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov10_F_2FA0",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "state2-draw-word-order",
+      "causal_family": "global-word-argument-order",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov10_F_2FA0/candidate-v5.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov10_F_2FA0/candidate-v4.c",
+      "suspected_cause": "The second and third word arguments to the G_71A4 draw call are reversed.",
+      "controlled_change": "Swap only the G_719E and G_719C arguments in the F_3AE4 call for the G_71A4 record.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Reordering equal-width symbol arguments should preserve payload length while correcting both A4 identities."
+      }
+    }
+  ]
+}

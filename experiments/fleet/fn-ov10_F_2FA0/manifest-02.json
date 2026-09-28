@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov10_F_2FA0",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "flag-true-not-zero-call",
+      "causal_family": "flag-branch-polarity",
+      "diagnostic_scope": "branch_condition_or_kind",
+      "source": "experiments/fleet/fn-ov10_F_2FA0/candidate-v2.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov10_F_2FA0/candidate-v1.c",
+      "suspected_cause": "The byte flag enables the F_57D2 call when nonzero, so the source condition polarity is reversed.",
+      "controlled_change": "Change only the F_57D2 guard from flag == 0 to flag != 0.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Only the branch polarity should change; the function payload length should stay fixed."
+      }
+    }
+  ]
+}
