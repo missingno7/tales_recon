@@ -1,65 +1,114 @@
 {
   "schema_version": 1,
   "task_id": "reg-ov11_4790-5CEA",
-  "worker": "luna-reg-ov11_4790-5CEA",
-  "status": "BLOCKED",
+  "worker": "luna-reg-ov11-r2",
+  "status": "NEAR",
   "target": "ov11_F_487E,ov11_F_4EC6,ov11_F_51C0,ov11_F_54F8,ov11_F_55B8,ov11_F_583A,ov11_F_5962,ov11_F_5C42",
-  "best": null,
+  "best": {
+    "source": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_487E.c",
+    "profile": "aztec36",
+    "cache_key": "717ec170386325028c372f670a11a16ea7dcab2ead4d6051e6a870c3ab8cd8cc",
+    "verdict": "DIFFER",
+    "verifier": "check_unit",
+    "entry": "ov11_F_487E",
+    "options": [
+      "separate_objects",
+      "natural_interval"
+    ],
+    "expected_length": 7198,
+    "actual_length": 6936,
+    "members": {
+      "ov11_F_4EC6": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_4EC6.c",
+      "ov11_F_51C0": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_51C0.c",
+      "ov11_F_54F8": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_54F8.c",
+      "ov11_F_55B8": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_55B8.c",
+      "ov11_F_583A": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_583A.c",
+      "ov11_F_5962": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_5962.c",
+      "ov11_F_5C42": "experiments/fleet/reg-ov11_4790-5CEA/v04/ov11_F_5C42.c"
+    }
+  },
   "hypotheses": [
     {
       "id": "h01-487e-baseline",
-      "statement": "Baseline v01 predicts ov11_F_487E emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F487E source would retain the predicted differing state.",
+      "outcome": "partial",
+      "evidence": "build/link-argfile-region/unit_diag.json: F487E differs, delta +38 (predicted length 336; observed 374)."
     },
     {
       "id": "h02-4ec6-baseline",
-      "statement": "Baseline v01 predicts ov11_F_4EC6 emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F4EC6 source would retain the predicted differing state.",
+      "outcome": "partial",
+      "evidence": "build/link-argfile-region/unit_diag.json: F4EC6 differs, delta +22 (predicted length 420; observed 442)."
     },
     {
       "id": "h03-51c0-baseline",
-      "statement": "Baseline v01 predicts ov11_F_51C0 emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F51C0 source would retain the predicted differing state.",
+      "outcome": "partial",
+      "evidence": "build/link-argfile-region/unit_diag.json: F51C0 differs, delta -308 (predicted length 824; observed 516)."
     },
     {
       "id": "h04-54f8-baseline",
-      "statement": "Baseline v01 predicts ov11_F_54F8 emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F54F8 candidate would differ despite matching its 192-byte extent.",
+      "outcome": "partial",
+      "evidence": "build/link-argfile-region/unit_diag.json: F54F8 is same_after_reference_identity at delta 0; predicted same extent but differs state."
     },
     {
       "id": "h05-55b8-baseline",
-      "statement": "Baseline v01 predicts ov11_F_55B8 emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F55B8 source would retain the predicted differing state.",
+      "outcome": "partial",
+      "evidence": "build/link-argfile-region/unit_diag.json: F55B8 differs, delta -52 (predicted length 642; observed 590)."
     },
     {
       "id": "h06-583a-baseline",
-      "statement": "Baseline v01 predicts ov11_F_583A emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F583A source would be 298 bytes and differ.",
+      "outcome": "confirmed",
+      "evidence": "build/link-argfile-region/unit_diag.json: F583A differs at delta +2, observed length 298."
     },
     {
       "id": "h07-5962-baseline",
-      "statement": "Baseline v01 predicts ov11_F_5962 emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F5962 candidate would differ at its 132-byte extent.",
+      "outcome": "partial",
+      "evidence": "build/link-argfile-region/unit_diag.json: F5962 is same_after_reference_identity at delta 0; predicted length matches but state differs."
     },
     {
       "id": "h08-5c42-baseline",
-      "statement": "Baseline v01 predicts ov11_F_5C42 emits its stated member length and differs.",
-      "outcome": "unmeasurable",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+      "statement": "The baseline F5C42 source would be 166 bytes and differ.",
+      "outcome": "refuted",
+      "evidence": "build/link-argfile-region/unit_diag.json: F5C42 is same_after_reference_identity at delta 0, not differing at 166 bytes."
+    },
+    {
+      "id": "h09-583a-void-callee",
+      "statement": "Changing the ignored F5962 result declaration to void would make F583A 296 bytes and same after reference identity.",
+      "outcome": "refuted",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-82209b893bea/receipt.json: unit_diag still reports F583A delta +2, differs."
+    },
+    {
+      "id": "h10-4ec6-long-pointer-tables",
+      "statement": "Widening the three pointer tables to long would make F4EC6 448 bytes and still differ.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-42d91ce38941/receipt.json: F4EC6 remains differing at delta +22 (442 bytes); first divergence moved past pointer-table setup."
+    },
+    {
+      "id": "h11-4ec6-switch-dispatch",
+      "statement": "Switching the state selection would make F4EC6 equal at 420 bytes.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-717ec1703863/receipt.json: F4EC6 improved from +22 to +14 bytes and similarity rose to 0.9633, but it still differs at 434 bytes."
     }
   ],
-  "compile_trials": 1,
-  "ledger_lines": [],
-  "explanation": "The isolated natural-interval run compiled and assembled the source objects, but the final Aztec link returned guest status 10. Its t000-ln.log is empty and no executable was produced. The verifier receipt is BLOCKED/COMPILE_ERROR; unit_diag therefore returns UNSUPPORTED with CACHED_COMPILER_OUTPUT_NOT_COMPILED, so no per-member predictions can be measured. The 44-byte 0x59E6..0x5A12 span remains UNKNOWN_NOT_ASSIGNED. A linker diagnostic or object-level unresolved-symbol report is needed to identify a safe next source change.",
-  "proposed_blocker": {
-    "mechanism": "ISOLATED_LINKER_EXIT_WITHOUT_DIAGNOSTIC",
-    "text": "The isolated Aztec 3.6a natural-interval build for ov11_F_487E and seven --member sources compiled and assembled all source objects, then the final link returned status 10. The retained t000-ln.log is empty, no linked executable exists, and unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED. Provide linker stdout/stderr or an unresolved-symbol report before attributing the failure to a particular source member; the original 0x59E6..0x5A12 gap stays unclaimed."
-  }
+  "compile_trials": 5,
+  "ledger_lines": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "explanation": "The best complete unit is v04: it measures 6936 bytes versus 7198 and remains DIFFER. F54F8, F5962, and F5C42 are same_after_reference_identity and stayed frozen. F4EC6 improved from +22 to +14 bytes after correcting pointer table widths and state dispatch; F487E remains +38, F51C0 -308, F55B8 -52, and F583A +2. Canonical F25F8 is +4 from two cross-object calls to F25D6; F41F6 is unsupported because its extent contains jump-table/data bytes. The 44-byte 0x59E6..0x5A12 gap remains unclaimed and does not block encoding. Four source variants were used, so the remaining member differences need a new variant budget.",
+  "proposed_blocker": null
 }

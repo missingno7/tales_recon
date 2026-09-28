@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_37E4",
+  "attempt": "h6",
+  "parent_cache_key": "cccbb75627ffd77994651d88e0a04cedc662f16888a9e95cd5fb95e1ce1884d4",
+  "source": "experiments/fleet/fn-ov11_F_37E4/candidate-03.c",
+  "profile": "aztec36",
+  "suspected_cause": "The natural-interval compile error may come from separate resident-helper stubs in multiple member objects; joining physically adjacent direct-callee pairs could share those declarations and let the unit compile.",
+  "controlled_change": "Add --join-direct-callees to the prior --separate-objects natural-interval verifier options; retain source, profile and interval.",
+  "options": [
+    "separate_objects",
+    "join_direct_callees",
+    "natural_interval:0x37E4..0x415A"
+  ],
+  "predicted_effect": {
+    "compile_status": "COMPILED",
+    "unit_verdict": "DIFFER",
+    "ov11_F_407C_length_delta": 2,
+    "expected_crossing_class": "GAP_INDEPENDENT_ENCODING",
+    "note": "Natural grouping may clear the resident stub collision, but the F407C/F40E0 unknown 50-byte gap prevents those two functions from joining, so their separate-object call encoding should remain two bytes long."
+  },
+  "outcome": "refuted",
+  "observed": {
+    "verdict": "BLOCKED",
+    "reason": "COMPILE_ERROR",
+    "cache_key": "de2fb3700e13dfefd1b4b15580193739c692c0c19c2e1e5b6b710a43916415e0",
+    "compile_trials": 1,
+    "compile_log": "Adding --join-direct-callees did not clear the duplicate resident-helper definitions F_h00_3674 and F_h00_463E."
+  }
+}

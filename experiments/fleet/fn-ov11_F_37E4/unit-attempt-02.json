@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_37E4",
+  "attempt": "h5",
+  "parent_cache_key": "f3e578c5951d30ddadcda62e28392b0d954dffb79b3581f9663a38891448543b",
+  "source": "experiments/fleet/fn-ov11_F_37E4/candidate-03.c",
+  "profile": "aztec36",
+  "suspected_cause": "The canonical F407C call displacement is 8-bit-safe across its original 50-byte gap to F40E0; linking the full canonical interval should preserve target identity and classify the crossing as gap-independent.",
+  "controlled_change": "Replace compact allow-original-gaps verification with --natural-interval 0x37E4..0x415A while retaining --separate-objects and the same source/profile.",
+  "options": [
+    "separate_objects",
+    "natural_interval:0x37E4..0x415A"
+  ],
+  "predicted_effect": {
+    "unit_length_delta_from_prior_unit_run": null,
+    "target_member_length_delta": 0,
+    "ov11_F_407C_length_delta": 2,
+    "expected_crossing_class": "GAP_INDEPENDENT_ENCODING",
+    "unit_verdict": "DIFFER",
+    "note": "The interval adds canonical members and compacts unknown gaps; separate objects still leave F407C calling F40E0 as an external JSR, so the +2 member excess should persist."
+  },
+  "outcome": "partial",
+  "observed": {
+    "verdict": "BLOCKED",
+    "reason": "COMPILE_ERROR",
+    "cache_key": "cccbb75627ffd77994651d88e0a04cedc662f16888a9e95cd5fb95e1ce1884d4",
+    "compile_trials": 1,
+    "compile_log": "h000-cc.log reports duplicate definitions of resident helpers F_h00_3674 and F_h00_463E.",
+    "prepare_only": "14 compaction-span crossings are GAP_INDEPENDENT_ENCODING; F407C original and compact call classes are both BYTE."
+  }
+}

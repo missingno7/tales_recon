@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_37E4",
+  "worker": "luna-fn-ov11_F_37E4-r2",
+  "status": "NEAR",
+  "target": "ov11_F_37E4",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_37E4/candidate-03.c",
+    "profile": "aztec36",
+    "cache_key": "f3e578c5951d30ddadcda62e28392b0d954dffb79b3581f9663a38891448543b",
+    "verdict": "DIFFER",
+    "verifier": "check_unit",
+    "entry": "ov11_F_37E4",
+    "options": [
+      "separate_objects",
+      "allow_original_gaps"
+    ],
+    "expected_length": 2464,
+    "actual_length": 2466
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Initial semantic baseline follows the closed control flow and recovered call/data identities; no measured parent was available.",
+      "outcome": "unmeasurable",
+      "evidence": "ledger:65; cache 4fec0da615eea227bd4b654157f4ac6f28e94e9019829cb32012aba959b21448; diagnostic member extent 312 bytes."
+    },
+    {
+      "id": "h2",
+      "statement": "Adding object field +0x2c and its 0x12 state write restores the shifted record layout and missing store; body reaches 322 bytes, but predicted delta +8 was measured as +10.",
+      "outcome": "partial",
+      "evidence": "ledger:67; cache 213099578e0eb6360959720ce0d446faafa5782260f771ab8601ff67cc7dec5b; no unmatched instructions."
+    },
+    {
+      "id": "h3",
+      "statement": "Changing the F_h11_262E guard from gate2e == 0 to gate2e != 0 preserves body length and matches the branch; measured delta 0 and diagnostic instruction similarity 1.0.",
+      "outcome": "confirmed",
+      "evidence": "ledger:68; cache f3e578c5951d30ddadcda62e28392b0d954dffb79b3581f9663a38891448543b; member has no diagnostic hypotheses."
+    },
+    {
+      "id": "h4",
+      "statement": "The 2-byte complete-unit excess belongs to canonical ov11_F_407C: its call at member offset 42 is JSR d16(PC) in the candidate and BSR.B in the original.",
+      "outcome": "confirmed",
+      "evidence": "unit-attempt-01.json; unit_diag cache f3e578c5951d30ddadcda62e28392b0d954dffb79b3581f9663a38891448543b; F407C delta +2, caller body delta 0."
+    },
+    {
+      "id": "h5",
+      "statement": "Natural interval 0x37E4..0x415A keeps all 14 compaction-span crossings encoding-class independent, including F407C BSR.B to F40E0, but the 17-object unit compile is blocked by conflicting resident helper stubs.",
+      "outcome": "partial",
+      "evidence": "unit-attempt-02.json; prepared plan confirms F407C BYTE-to-BYTE displacement (56 to 6); cache cccbb75627ffd77994651d88e0a04cedc662f16888a9e95cd5fb95e1ce1884d4 compile log has duplicate F_h00_3674 and F_h00_463E definitions."
+    },
+    {
+      "id": "h6",
+      "statement": "Adding --join-direct-callees to natural-interval grouping would clear the resident stub collision and allow unit comparison.",
+      "outcome": "refuted",
+      "evidence": "unit-attempt-03.json; cache de2fb3700e13dfefd1b4b15580193739c692c0c19c2e1e5b6b710a43916415e0 still returns COMPILE_ERROR for duplicate F_h00_3674 and F_h00_463E definitions."
+    }
+  ],
+  "compile_trials": 5,
+  "ledger_lines": [
+    65,
+    67,
+    68
+  ],
+  "explanation": "The target member compiles to 322 bytes with exact instruction alignment and no unresolved reference identities. Unit diagnostics identify the full +2 bytes in canonical ov11_F_407C: its call at offset 42 is JSR d16(PC), while the original uses BSR.B. The compact separate-object check remains DIFFER at 2466 versus 2464 bytes. Natural interval 0x37E4..0x415A classifies all 14 crossings as gap-independent, but both interval compiles stop on duplicate resident-helper definitions (F_h00_3674 and F_h00_463E), so no EQUAL unit proof is available.",
+  "proposed_blocker": null
+}
