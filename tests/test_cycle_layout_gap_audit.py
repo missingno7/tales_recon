@@ -15,12 +15,12 @@ class CycleLayoutGapAuditTests(unittest.TestCase):
         self.assertFalse(report['promotion_eligible'])
         self.assertEqual(report['schema_version'], 2)
         self.assertEqual(report['interval']['size'], 4562)
-        self.assertEqual(report['summary'], dict(candidate_count=15, canonical_candidate_count=8,
-                         canonical_candidate_bytes=858, unrecovered_candidate_count=7,
-                         unrecovered_candidate_bytes=3664, unclaimed_bytes=0))
+        self.assertEqual(report['summary'], dict(candidate_count=15, canonical_candidate_count=9,
+                         canonical_candidate_bytes=1812, unrecovered_candidate_count=6,
+                         unrecovered_candidate_bytes=2710, unclaimed_bytes=0))
         self.assertEqual(report['unclaimed_spans'], [])
         self.assertEqual([x['id'] for x in report['candidate_spans'] if x['recovery_state']=='DISCOVERED'],
-                         ['ov11_F_487E','ov11_F_4B0C','ov11_F_4EC6','ov11_F_51C0',
+                         ['ov11_F_487E','ov11_F_4EC6','ov11_F_51C0',
                           'ov11_F_54F8','ov11_F_55B8','ov11_F_583A'])
         capsule=report['source_layout_capsule']
         self.assertEqual(capsule['canonical_runs'][0]['members'],['ov11_F_4790','ov11_F_4848'])
