@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_149C",
+  "budget": {
+    "max_variants": 2,
+    "max_unique_compiles": 3
+  },
+  "variants": [
+    {
+      "id": "exit_to_4676",
+      "causal_family": "a4_call_target_identity",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov04_F_149C/fix_exit.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_149C/setup_435e.c",
+      "suspected_cause": "The post-loop call site is bound to F_h00_4676 rather than F_h00_435E.",
+      "controlled_change": "Change only the post-loop no-argument call target from F_h00_435E to F_h00_4676.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Changing the target identity of a no-argument call should retain payload length."
+      }
+    },
+    {
+      "id": "return_to_330e",
+      "causal_family": "a4_call_target_identity",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov04_F_149C/fix_return.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov04_F_149C/fix_exit.c",
+      "suspected_cause": "The final returned call is bound to F_h00_330E rather than F_h00_4676.",
+      "controlled_change": "Change only the final no-argument return call target from F_h00_4676 to F_h00_330E.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Changing the target identity of a no-argument call should retain payload length."
+      }
+    }
+  ]
+}

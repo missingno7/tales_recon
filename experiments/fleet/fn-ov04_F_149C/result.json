@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov04_F_149C",
+  "worker": "luna-fn-ov04_F_149C",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov04_F_149C",
+  "best": {
+    "source": "experiments/fleet/fn-ov04_F_149C/candidate.c",
+    "profile": "aztec36",
+    "cache_key": "72336376e7086c9928aaf42b5d263e37b6d679a4c59849045a062cdcae9e158c",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov04_F_149C",
+    "options": [
+      "owned_code_data"
+    ],
+    "expected_length": 688,
+    "actual_length": 902
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The 14 PC-relative text references form the function's owned 214-byte difficulty-menu literal tail.",
+      "outcome": "confirmed",
+      "evidence": "runs/ov04_F_149C/8c3ea534ee6ae9ed4e1dc4d48c4c5e01ff1812935157199b3974a22fbf5856af-aztec36-72336376e708.json: tail length 214 and actual/expected SHA-256 match."
+    },
+    {
+      "id": "h2",
+      "statement": "The three no-argument call targets are F_h00_435E at setup, F_h00_4676 after the menu loop, and F_h00_330E at return.",
+      "outcome": "confirmed",
+      "evidence": "diag cache key 590c9b18e799fa6d38e39d2604f32ebf18d7ae95ddf661b957eadc5ca9316b83 reported the three expected identities at offsets 180, 664, and 680; corrected candidate cache key 72336376e7086c9928aaf42b5d263e37b6d679a4c59849045a062cdcae9e158c verified EQUAL."
+    },
+    {
+      "id": "h3",
+      "statement": "F_h00_8A46 is called at the start of each menu iteration after the start-button check.",
+      "outcome": "confirmed",
+      "evidence": "ledger line 110 confirms the predicted zero payload-length delta; the resulting owned-code-data comparison is EQUAL."
+    },
+    {
+      "id": "h4",
+      "statement": "The initial call-site assignment (F_h00_330E, F_h00_435E, F_h00_4676) was correct.",
+      "outcome": "refuted",
+      "evidence": "diag cache key 590c9b18e799fa6d38e39d2604f32ebf18d7ae95ddf661b957eadc5ca9316b83 classified all three call identities as different from the original."
+    },
+    {
+      "id": "h5",
+      "statement": "The intermediate one-site callee substitutions can be compared as complete candidates.",
+      "outcome": "unmeasurable",
+      "evidence": "ledger lines 98-105 contain blocked intermediate compiles; the final valid call mapping is captured in manifest-03, ledger line 110."
+    }
+  ],
+  "compile_trials": 13,
+  "ledger_lines": [
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    107,
+    108,
+    109,
+    110
+  ],
+  "explanation": "Recovered the difficulty-selection menu, its input-driven three-state cycle, and all 14 PC-relative literal references. The exact isolated check_function verifier matched the 688-byte function code and its 214-byte owned literal tail with matching relocations. The verifier returned EQUAL from the cached aztec36 compile; intake will reverify the claim.",
+  "proposed_blocker": null
+}
