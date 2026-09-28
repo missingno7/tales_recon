@@ -88,7 +88,9 @@ task to be claimed again.
 
 `packet` writes `PROMPT.md` (target 10 KB, hard limit 12 KB) and `task.json`.
 The prompt starts with a liveness step: run `fleet.py renew TASK --worker W`.
-If the shell does not respond, stop and reply `TASK T BLOCKED
+Commands can take minutes under shared host load, so packets tell workers to
+run one command at a time and avoid reading whole ledgers. Only if `renew`
+has not returned after 10 minutes does a worker stop and reply `TASK T BLOCKED
 HOST_TOOLS_UNRESPONSIVE` without a result.json. The supervisor then runs
 `fleet.py release T --force --note ...`, and the task is claimable again. The
 prompt then holds the AGENTS.md rules and the target. It adds compact facts:

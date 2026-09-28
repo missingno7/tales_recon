@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "task_id": "unit-ov11_F_5962-5C42",
+  "worker": "luna-unit-ov11_F_5962-5C42",
+  "status": "BLOCKED",
+  "target": "ov11_F_5962,ov11_F_5C42",
+  "best": null,
+  "hypotheses": [],
+  "compile_trials": 0,
+  "ledger_lines": [],
+  "explanation": "The cached RP01 unit diagnostic reports both target members differ: F_h11_5C42 emits a 2-byte BSR.B to F_h11_4696 where the original retains a 4-byte JSR.d16(PC), and F_h11_5962 has an unresolved call binding. The recorded blocker requires a natural source-order proof of 0x4790..0x5962 first. That interval contains 858 canonical bytes, 40 unclaimed bytes, and seven unrecovered members totaling 3664 bytes (487E, 4B0C, 4EC6, 51C0, 54F8, 55B8, 583A). Source candidates exist for 54F8 and 583A; source coverage for the other five is absent. No compiler trial was run because the required full interval cannot yet be assembled from retained sources, and compact member retries are explicitly ruled out by the blocker.",
+  "proposed_blocker": {
+    "mechanism": "CYCLIC_INTER_OBJECT_PC_CALL",
+    "text": "CYCLIC_INTER_OBJECT_PC_CALL: the compact cluster still shortens F_h11_5C42 -> F_h11_4696 to BSR.b, but an ordinary earlier-object link now proves the historical backward JSR.d16(PC) form is retained without padding or copied bytes. Its remaining differences are only A4/global placement and PC-relative displacement. Exact displacement requires the full physical 0x4790..0x5962 interval: 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes. Recover that interval in physical source order before another normal layout proof; do not retry isolated members."
+  }
+}

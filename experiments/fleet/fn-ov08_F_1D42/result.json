@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov08_F_1D42",
+  "worker": "luna-fn-ov08_F_1D42",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov08_F_1D42",
+  "best": {
+    "source": "experiments/fleet/fn-ov08_F_1D42/label_x_14.c",
+    "profile": "aztec36",
+    "cache_key": "997b68485c55782dc6d5d5df9dbbfdc55403c32195f1471aac9cb6b002ab3c72",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov08_F_1D42",
+    "options": [],
+    "expected_length": 522,
+    "actual_length": 522
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Changing the loop counter from unsigned int to int preserves the 522-byte generated payload and register roles; the candidate remains DIFFER because the later text-call coordinate is 0x18 rather than 0x0e.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis-ledger.jsonl line 32: length_delta 0 confirmed; isolated comparison DIFFER."
+    },
+    {
+      "id": "h2",
+      "statement": "Changing only the later F_h00_09C0 x coordinate from 0x18 to 0x0e yields the exact 522-byte function.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis-ledger.jsonl line 36; runs/manifest-02-report.json records isolated exact_verdict EQUAL, 522/522."
+    }
+  ],
+  "compile_trials": 3,
+  "ledger_lines": [
+    32,
+    36
+  ],
+  "explanation": "The structured candidate reproduces the target call sequence, state updates, counter loop, and final two-way call. The signed loop-index variant remained 522 bytes but differed at one immediate coordinate. Changing that single coordinate to 0x0e produced an EQUAL result under isolated check_function comparison; the result report records 522 expected and actual bytes.",
+  "proposed_blocker": null
+}

@@ -652,7 +652,7 @@ def unit_diag_summary(members, receipt, max_bytes=1800):
 
 
 LIVENESS = """## First step (host liveness)
-Run `python tools/fleet.py renew {task_id} --worker {worker}` before anything else. If the shell does not return within about two minutes, or keeps failing to start commands, stop immediately and reply with one line: `TASK {task_id} BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
+Run `python tools/fleet.py renew {task_id} --worker {worker}` before anything else. The host is shared and heavily loaded: a single command can take 1-3 minutes to start and finish. Run commands one at a time (never batch several commands in parallel), wait on slow commands instead of terminating them, and keep outputs small. Do not read whole docs/*.json ledgers or long docs; this packet already carries the binding rules and target facts, so use targeted queries. Only if this `renew` command itself has still not returned after 10 minutes, stop and reply with one line: `TASK {task_id} BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
 """
 
 RULES = """## Rules (binding; from AGENTS.md)
