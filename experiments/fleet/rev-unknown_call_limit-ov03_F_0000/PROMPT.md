@@ -2,10 +2,10 @@
 
 You are an autonomous worker on a historical Amiga 68k (Aztec C) reconstruction in `D:/Prog/tales_recon`. You have no memory beyond this prompt. Review UNKNOWN_CALL_LIMIT evidence for 1 ov03 functions
 
-Priority 82. Lease: none recorded.
+Priority 82. Lease: worker `luna-rev-ov03-r2`, expires 2026-09-29T05:11:12+00:00 (renew: `python tools/fleet.py renew rev-unknown_call_limit-ov03_F_0000 --worker luna-rev-ov03-r2`).
 
 ## First step (host liveness)
-Run `python tools/fleet.py renew rev-unknown_call_limit-ov03_F_0000 --worker <your -n name>` before anything else. The host is shared and heavily loaded: a single command can take 1-3 minutes to start and finish. Run commands one at a time (never batch several commands in parallel), wait on slow commands instead of terminating them, and keep outputs small. Do not read whole docs/*.json ledgers or long docs; this packet already carries the binding rules and target facts, so use targeted queries. Only if this `renew` command itself has still not returned after 10 minutes, stop and reply with one line: `TASK rev-unknown_call_limit-ov03_F_0000 BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
+Run `python tools/fleet.py renew rev-unknown_call_limit-ov03_F_0000 --worker luna-rev-ov03-r2` before anything else. The host is shared and heavily loaded: a single command can take 1-3 minutes to start and finish. Run commands one at a time (never batch several commands in parallel), wait on slow commands instead of terminating them, and keep outputs small. Do not read whole docs/*.json ledgers or long docs; this packet already carries the binding rules and target facts, so use targeted queries. Only if this `renew` command itself has still not returned after 10 minutes, stop and reply with one line: `TASK rev-unknown_call_limit-ov03_F_0000 BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
 
 ## Rules (binding; from AGENTS.md)
 - Historical reconstruction, not a source port. `assets/` is immutable oracle evidence. Never relock fixtures and never feed original code bytes into reconstructed outputs (no byte arrays, inline asm, placement directives or copied data standing in for code).

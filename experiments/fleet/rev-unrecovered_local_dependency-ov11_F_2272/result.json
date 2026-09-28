@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "task_id": "rev-unrecovered_local_dependency-ov11_F_2272",
+  "worker": "luna-rev-unrecovered_local_dependency-ov11_F_2272",
+  "status": "NEEDS_EVIDENCE",
+  "target": "ov11_F_2272,ov11_F_2430",
+  "best": null,
+  "hypotheses": [],
+  "compile_trials": 0,
+  "ledger_lines": [],
+  "explanation": "ov11_F_2272 is a 386-byte HIGH-confidence CLOSED_CFG extent with no prior source, trials, or cached compiler key. It calls ov11_F_2430 twice; that dependency is the second review member, and its source contract is not established. Type evidence covers 12 of 17 touched globals, all observed as 16-bit accesses, with five identities omitted and no frame slots; field ownership/layout and a source-shape parent for its state/drawing logic are missing. ov11_F_2430 is a 76-byte CLOSED_CFG extent with one 16-bit stack argument and an established call to matched ov11_F_4696, but also calls ov11_F_247C, whose state is DISCOVERED rather than FUNCTION_CODE_MATCH and has no recovered source/call contract. Neither member has prior hypotheses or cache measurements, so no machine-checkable source-shape prediction has a measured parent. Recover the local helper source/call contract and curate the touched state-field mapping or a provenance-backed candidate before compiling.",
+  "proposed_blocker": null
+}
