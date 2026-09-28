@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -109,6 +110,19 @@ class DeclarationConflictTests(unittest.TestCase):
             (root / 'evidence/executable/instructions.json').write_text('{}', encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'stale'):
                 te.function_evidence('missing_F_0000', root)
+
+    def test_worker_reads_serve_stale_evidence_only_with_an_explicit_flag(self):
+        fresh = te.function_evidence('ov09_F_298E', ROOT)
+        self.assertEqual((fresh['stale'], fresh['stale_reasons']), (False, []))
+        reason = 'type evidence is stale; run tools/type_evidence.py --write'
+        with patch.object(te, 'evidence_staleness', return_value=[reason]):
+            with self.assertRaisesRegex(ValueError, 'stale'):
+                te.function_evidence('ov09_F_298E', ROOT)  # strict by default
+            stale = te.function_evidence('ov09_F_298E', ROOT, allow_stale=True)
+        self.assertTrue(stale['stale'])
+        self.assertEqual(stale['stale_reasons'], [reason])
+        self.assertIn('last generated', stale['stale_note'])
+        self.assertEqual(stale['globals'], fresh['globals'])
 
     def test_function_slice_is_bounded_and_keeps_program_widths(self):
         evidence = te.function_evidence('ov09_F_298E', ROOT)

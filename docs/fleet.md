@@ -14,11 +14,27 @@ python tools/fleet.py claim --worker NAME [--kind function|unit|review|blocker-p
 python tools/fleet.py packet TASK               # experiments/fleet/TASK/PROMPT.md
 python tools/fleet.py renew|release|complete|reopen TASK ...
 python tools/fleet.py intake TASK [--verify-near] [--dry-run]
+python tools/fleet.py intake-all [--verify-near] [--dry-run]
 ```
 
 `launch-plan` prints lines like
-`python ~/.codex-dashboard/cx.py run -n luna-fn-ov11_F_583A -C D:/Prog/tales_recon -m gpt-6-luna -e xhigh < experiments/fleet/fn-ov11_F_583A/PROMPT.md`.
-The supervisor runs them.
+`python ~/.codex-dashboard/cx.py run -n luna-fn-ov11_F_583A -C D:/Prog/tales_recon -m gpt-6-luna -e xhigh < experiments/fleet/fn-ov11_F_583A/PROMPT.md`,
+then PowerShell equivalents. Windows PowerShell 5.1 has no `<`, pipes text to
+native programs in `$OutputEncoding` (BOM or ASCII by default) and does not
+expand `~` in native arguments, so the variant first sets BOM-less UTF-8 once
+per session and uses `Get-Content -Raw -Encoding UTF8 PROMPT.md | python
+$HOME/.codex-dashboard/cx.py run ...`. cx reads the prompt from stdin as UTF-8;
+the pipe was checked byte-for-byte in a `-NoProfile` 5.1 session (PowerShell
+appends one trailing CRLF). The supervisor runs the commands.
+
+Host guard: before claiming, `launch-plan` counts running workers with
+`cx.py ps` (one line per worker, project column) and launches at most
+`min(N, TALES_FLEET_HOST_MAX - running host-wide, TALES_FLEET_MAX - running here)`
+(defaults 20 and 6), printing each cap as a `# host guard:` line. With ~25
+workers from other projects, extra workers only stalled ("exec_command never
+returned"). If cx is missing, the host-wide count is skipped and live leases
+stand in for the repository count. If `cx ps` fails or times out, nothing is
+launched; `--no-host-guard` skips the check.
 
 ## Tasks
 
@@ -38,7 +54,20 @@ become targets, and a task whose targets become canonical later is `obsolete`.
 | review | remaining frontier by first constraint and node, chunks of 8, capped by `--max-review-tasks` | 80+ |
 
 A dependency is satisfied only when the dependency task's targets are canonical
-(`check_function` then builds the caller unit itself). On 2026-09-28, `plan`
+(`check_function` then builds the caller unit itself).
+
+Unlocks: `plan` builds a blocking graph from the frontier's pending local
+dependencies and from NEEDS_EVIDENCE/BLOCKED intake records that name a
+function (evidence id or `F_hNN_XXXX`). Each task records `unlocks` (other
+non-review task targets its recovery would unblock, including tasks waiting on
+it) and `blocked_by`. An unblocked task gains `5 x min(unlocks, 4)` priority
+points (`base_priority` keeps the original). A task that itself waits on an
+unrecovered function is not boosted. Closed leaves that block others but have
+no task (an excluded ABI-profile blocker) are listed under
+`omitted.untasked_blocking_leaves`, not turned into tasks. A leaf in a
+same-hunk cycle, like ov11_F_5962 (calls ov11_F_5C42, which calls it back),
+has an unresolved callee of its own, so `check_function` cannot build it alone.
+It stays in its unit task, which the boost now puts first. On 2026-09-28, `plan`
 produced 53 tasks: 26 function (10 open, 16 waiting), 2 blocker-probe, 1 unit
 and 24 review; 60 further review chunks were omitted by the cap.
 
@@ -57,7 +86,11 @@ task to be claimed again.
 ## Packets
 
 `packet` writes `PROMPT.md` (target 10 KB, hard limit 12 KB) and `task.json`.
-The prompt holds the AGENTS.md rules and the target. It adds compact facts:
+The prompt starts with a liveness step: run `fleet.py renew TASK --worker W`.
+If the shell does not respond, stop and reply `TASK T BLOCKED
+HOST_TOOLS_UNRESPONSIVE` without a result.json. The supervisor then runs
+`fleet.py release T --force --note ...`, and the task is claimable again. The
+prompt then holds the AGENTS.md rules and the target. It adds compact facts:
 extent, calls, data, constraints, blocker text, the last verifier attempts with
 cache keys and retained source paths, the cached `diag` or `unit_diag` summary
 of the best attempt, a type-evidence slice, and prior ledger hypotheses and
@@ -87,6 +120,15 @@ confirmed result, intake prints the normal promoting command, for example
 It does not run that command. BLOCKED and NEEDS_EVIDENCE results are printed
 as a `blocker_curation` summary for manual editing of `docs/blockers.json`.
 Intake never writes them there.
+
+`intake-all` intakes every task directory with a `result.json` that has no
+intake record yet. It groups the outcomes: `confirmed_equal` and
+`unclaimed_equal` (with promote commands, never run), `near`, `needs_evidence`,
+`blocked`, `rejected` (schema reason or failed re-verification),
+`already_intaken`, and `changed_after_intake` (to intake one again, reopen it
+first). Worker type-evidence reads (`type_evidence.py --function`, packets)
+serve the last generated report with `stale: true` and the reasons after a
+promotion changes its inputs. The Python API and `--check` stay strict.
 
 ## Compile concurrency
 

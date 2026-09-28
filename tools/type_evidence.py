@@ -11,7 +11,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from analysis_support import ROOT, K, decoder, game
-from common import require, sha256
+from common import FormatError, require, sha256
 
 OUT = ROOT / 'evidence/types.json'
 LEDGER = ROOT / 'evidence/functions/ledger.json'
@@ -285,22 +285,40 @@ def outputs(root=ROOT):
     return evidence
 
 
-def function_evidence(fid, root=ROOT):
-    """Compact per-function slice for recovery feedback; validates data freshness."""
+def evidence_staleness(document, root=ROOT):
+    """Reasons the generated report no longer matches its inputs (empty when fresh)."""
+    root = Path(root)
+    inputs = document.get('inputs', {})
+    reasons = []
+    if not (isinstance(inputs.get('miner_sha256'), str) and inputs['miner_sha256'] == identity(root / 'tools/type_evidence.py')):
+        reasons.append('stale type evidence: miner changed; run tools/type_evidence.py --write')
+    if not (isinstance(inputs.get('function_ledger_sha256'), str) and inputs['function_ledger_sha256'] == identity(root / 'evidence/functions/ledger.json')):
+        reasons.append('type evidence is stale; run tools/type_evidence.py --write')
+    if not (isinstance(inputs.get('instruction_index_sha256'), str) and inputs['instruction_index_sha256'] == identity(root / 'evidence/executable/instructions.json')):
+        reasons.append('type evidence instruction index is stale; run tools/type_evidence.py --write')
+    current_source_hashes = declaration_source_hashes(root)
+    if current_source_hashes != inputs.get('declaration_source_hashes'):
+        reasons.append('stale type evidence: declaration source inventory changed; run tools/type_evidence.py --write')
+    else:
+        for relative, digest in current_source_hashes.items():
+            if digest != identity(root / relative):
+                reasons.append('type evidence declaration source is stale; run tools/type_evidence.py --write')
+                break
+    return reasons
+
+
+def function_evidence(fid, root=ROOT, allow_stale=False):
+    """Compact per-function slice for recovery feedback; validates data freshness.
+
+    Strict by default. ``allow_stale`` (worker-facing reads) serves the last
+    generated report with an explicit ``stale: true`` flag and the reasons
+    instead of refusing; it never hides staleness and never rewrites the file.
+    """
     root = Path(root)
     document = json.loads((root / 'evidence/types.json').read_text(encoding='utf-8'))
-    inputs = document.get('inputs', {})
-    require(isinstance(inputs.get('miner_sha256'), str) and inputs['miner_sha256'] == identity(root / 'tools/type_evidence.py'),
-            'stale type evidence: miner changed; run tools/type_evidence.py --write')
-    require(isinstance(inputs.get('function_ledger_sha256'), str) and inputs['function_ledger_sha256'] == identity(root / 'evidence/functions/ledger.json'),
-            'type evidence is stale; run tools/type_evidence.py --write')
-    require(isinstance(inputs.get('instruction_index_sha256'), str) and inputs['instruction_index_sha256'] == identity(root / 'evidence/executable/instructions.json'),
-            'type evidence instruction index is stale; run tools/type_evidence.py --write')
-    current_source_hashes = declaration_source_hashes(root)
-    require(current_source_hashes == inputs.get('declaration_source_hashes'),
-            'stale type evidence: declaration source inventory changed; run tools/type_evidence.py --write')
-    for relative, digest in current_source_hashes.items():
-        require(digest == identity(root / relative), 'type evidence declaration source is stale; run tools/type_evidence.py --write')
+    stale = evidence_staleness(document, root)
+    if stale and not allow_stale:
+        raise FormatError(stale[0])
     touched = []
     for g in document['globals']:
         current = [a for a in g['accesses'] if a['function'] == fid]
@@ -331,7 +349,10 @@ def function_evidence(fid, root=ROOT):
             extension_sites=[a['load_offset'] for a in p['extension_context'][:2]]))
     touched_names = {'G_h01_%04X' % row['data_hunk_offset'] for row in touched}
     conflicts = [c for c in document['declaration_conflicts']['conflicts'] if c['symbol'] in touched_names]
-    return dict(function=fid, global_identity_count=len(touched), omitted_global_identities=max(0, len(touched)-12),
+    return dict(function=fid, stale=bool(stale), stale_reasons=stale,
+        stale_note=('served from the last generated evidence/types.json; inputs changed since (e.g. a promotion); '
+                    'advisory only' if stale else None),
+        global_identity_count=len(touched), omitted_global_identities=max(0, len(touched)-12),
         globals=touched[:12], frame_slot_count=len(frame_rows), omitted_frame_slots=max(0, len(frame_rows)-8),
         frame_accesses=frame_rows[:8],
         declaration_conflict_summary=dict(
@@ -350,9 +371,11 @@ def main(argv=None):
     mode.add_argument('--write', action='store_true')
     mode.add_argument('--check', action='store_true')
     mode.add_argument('--function')
+    ap.add_argument('--strict', action='store_true',
+                    help='with --function: refuse stale evidence instead of serving it flagged stale')
     args = ap.parse_args(argv)
     if args.function:
-        print(json.dumps(function_evidence(args.function), indent=2))
+        print(json.dumps(function_evidence(args.function, allow_stale=not args.strict), indent=2))
         return
     result = outputs()
     raw = (json.dumps(result, indent=2, sort_keys=True) + '\n').encode('utf-8')

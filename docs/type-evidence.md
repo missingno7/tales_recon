@@ -33,7 +33,10 @@ Run `python tools/type_evidence.py --write` to regenerate the measured report,
 `python tools/type_evidence.py --function ov07_F_03CC` for a compact per-function
 slice. The Python API `function_evidence(fid, root=ROOT)` applies the same
 ledger, instruction-index, miner, and declaration-source freshness checks
-before returning that slice. It includes program-wide observed widths for globals
+before returning that slice. A promotion changes those inputs. Worker-facing
+reads (`--function`, fleet packets, `allow_stale=True`) then still return the
+last generated slice, with `stale: true`, `stale_reasons` and a note, and never
+rewrite the report. `--function ... --strict` and `--check` refuse stale evidence. It includes program-wide observed widths for globals
 the function touches, plus compact declaration-conflict totals; declaration
 examples are filtered only when their mechanical `G_h01_HEX` suffix identifies
 the same DATA-hunk offset. Each slice caps globals at 12, frame slots at 8,

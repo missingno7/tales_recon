@@ -114,12 +114,50 @@ def _blocker_class(reason):
     return _profile_class(reason)
 
 
+UNLOCK_BOOST = 5
+UNLOCK_CAP = 4
+EVIDENCE_INTAKES = ("NEEDS_EVIDENCE_FOR_CURATION", "BLOCKED_FOR_CURATION")
+
+
+def mentioned_functions(text, by_id):
+    """Evidence ids named in free text, directly or as mechanical F_hNN_XXXX symbols."""
+    text = str(text or "")
+    found = {m for m in re.findall(r"\b(?:ov\d\d|resident)_F_[0-9A-F]{4}\b", text) if m in by_id}
+    mechanical = {"F_h%02d_%04X" % (f.get("hunk", -1), f.get("start", -1)): fid for fid, f in by_id.items()}
+    found.update(mechanical[m] for m in re.findall(r"\bF_h\d\d_[0-9A-F]{4}\b", text) if m in mechanical)
+    return found
+
+
+def blocking_graph(items, by_id, intakes=()):
+    """{unrecovered function: functions whose recovery waits on it}.
+
+    Edges come from the ranked frontier's pending local dependencies and from
+    NEEDS_EVIDENCE/BLOCKED intake records that name a function in their
+    explanation or proposed blocker.
+    """
+    graph = {}
+    for item in items.values():
+        for dep in item.get("pending_local_dependencies") or []:
+            graph.setdefault(dep, set()).add(item["id"])
+    for record in intakes:
+        if record.get("intake_status") not in EVIDENCE_INTAKES:
+            continue
+        text = " ".join([str(record.get("explanation") or "")] +
+                        [str(v) for v in (record.get("proposed_blocker") or {}).values()])
+        targets = set(record.get("targets") or [])
+        for fid in mentioned_functions(text, by_id) - targets:
+            graph.setdefault(fid, set()).update(targets)
+    return graph
+
+
 def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=1024, max_review_tasks=24,
-                include_abi_blockers=False, hypothesis_functions=()):
+                include_abi_blockers=False, hypothesis_functions=(), intakes=()):
     """Deterministic task list from supplied ledgers (pure helper).
 
     Each function target appears in at most one task; canonical exact
-    recoveries never become targets. Priority: lower runs first.
+    recoveries never become targets. Priority: lower runs first. A task whose
+    recovery would unblock other non-review tasks (``unlocks``) is boosted by
+    UNLOCK_BOOST per unlocked target, at most UNLOCK_CAP targets.
     """
     from recovery_plan import _constraints
     canonical = {fid for fid, item in recovery_ledger.get("functions", {}).items()
@@ -198,6 +236,25 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
             dict(source="ranked_frontier", constraints=_constraints(item, max_bytes, 99, 999)),
             verifier="check_function")
 
+    # Closed dependency leaves that block other work. Every workable leaf is
+    # already a task above; a leaf whose own local callees are unresolved (for
+    # example a same-hunk cycle member) cannot be compiled alone and stays in
+    # its unit. Leaves held back only by an excluded ABI-profile blocker are
+    # reported, never silently turned into tasks.
+    graph = blocking_graph(items, by_id, intakes)
+    untasked_leaves = []
+    for fid in sorted(graph):
+        item = items.get(fid)
+        blocks = sorted(graph[fid] - {fid})
+        if item is None or fid in assigned or not blocks:
+            continue
+        closed = (item["extent"] == "CLOSED_CFG" and item.get("confidence") == "HIGH" and item["node"] != "resident"
+                  and not item.get("indirect") and item["size"] <= max_bytes)
+        if closed and not item.get("pending_local_dependencies"):
+            untasked_leaves.append(dict(id=fid, blocks=blocks, size=item["size"],
+                                        blocker_class=_blocker_class(blockers[fid].get("reason"))
+                                        if fid in blockers else None))
+
     # Callers whose unrecovered local callees are all tasks themselves. The
     # dependency is satisfied only when those callees become canonical.
     target_task = {t: task["id"] for task in tasks for t in task["targets"]}
@@ -236,8 +293,39 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
             "Review %s evidence for %d %s functions" % (constraint, len(members), node),
             dict(source="grinder_frontier", constraint=constraint, node=node,
                  constraints={m: _constraints(items[m], max_bytes, 1, 40) for m in members}))
+    apply_unlocks(tasks, graph, canonical)
     tasks.sort(key=lambda t: (t["priority"], t["id"]))
-    return tasks, dict(omitted_review_chunks=omitted)
+    return tasks, dict(omitted_review_chunks=omitted, untasked_blocking_leaves=untasked_leaves)
+
+
+def apply_unlocks(tasks, graph, canonical=()):
+    """Count, per task, the other non-review task targets its recovery would unblock; boost priority."""
+    target_task = {t: task for task in tasks for t in task["targets"]}
+    waiting_on = {}
+    for task in tasks:
+        for dep in task.get("dependencies", []):
+            waiting_on.setdefault(dep, set()).update(task["targets"])
+    needs = {}
+    for dep, dependents in graph.items():
+        for fid in dependents:
+            needs.setdefault(fid, set()).add(dep)
+    for task in tasks:
+        own = set(task["targets"])
+        unlocked = set(waiting_on.get(task["id"], ()))
+        for target in own:
+            unlocked.update(graph.get(target, ()))
+        unlocked = {u for u in unlocked - own if u not in canonical and u in target_task
+                    and target_task[u]["kind"] != "review"}
+        blocked_by = sorted({d for t in own for d in needs.get(t, ())} - own - set(canonical))
+        task["unlocks"] = len(unlocked)
+        task["unlocks_targets"] = sorted(unlocked)[:12]
+        task["blocked_by"] = blocked_by[:12]
+        # A task that itself waits on an unrecovered function is not boosted
+        # past that function's own task.
+        if unlocked and not blocked_by:
+            task["base_priority"] = task["priority"]
+            task["priority"] = max(1, task["priority"] - UNLOCK_BOOST * min(len(unlocked), UNLOCK_CAP))
+    return tasks
 
 
 def plan(fleet, max_bytes=1024, max_review_tasks=24, include_abi_blockers=False):
@@ -249,11 +337,16 @@ def plan(fleet, max_bytes=1024, max_review_tasks=24, include_abi_blockers=False)
     report = build_plan(functions, items, rec, limit=max_bytes, max_packages=1000)
     try:
         from shape_search import read_ledger
-        hyp = {r.get("function_id") for _, r in read_ledger(fleet.ledger()) if r["record_type"] == "trial"}
+        records = read_ledger(fleet.ledger())
     except FormatError:
-        hyp = set()
+        records = []
+    hyp = {r.get("function_id") for _, r in records if r["record_type"] == "trial"}
+    latest = {}
+    for _, r in records:
+        if r["record_type"] == "fleet_intake":
+            latest[r.get("task_id")] = r
     tasks, extra = build_tasks(functions, items, rec, report["packages"], max_bytes, max_review_tasks,
-                               include_abi_blockers, hyp)
+                               include_abi_blockers, hyp, list(latest.values()))
     frontier = dict(recovery_ledger_sha256=sha256((ROOT / "recovery/ledger.json").read_bytes()),
                     function_ledger_sha256=sha256((ROOT / "evidence/functions/ledger.json").read_bytes()))
     document = dict(schema_version=1, generated=iso(now_epoch()), frontier=frontier,
@@ -497,10 +590,12 @@ def compact_diag(summary):
 def type_summary(fid):
     try:
         from type_evidence import function_evidence
-        t = function_evidence(fid)
+        t = function_evidence(fid, allow_stale=True)
     except Exception as exc:
         return dict(status="UNAVAILABLE", reason=_clip(exc, 160))
-    return dict(globals=["G_h01_%04X w=%s rw=%s" % (g["data_hunk_offset"], g["observed_widths_bytes"],
+    stale = dict(stale=True, stale_reason=_clip("; ".join(t["stale_reasons"]), 160)) if t.get("stale") else {}
+    return dict(stale,
+                globals=["G_h01_%04X w=%s rw=%s" % (g["data_hunk_offset"], g["observed_widths_bytes"],
                                                     g["program_read_write_counts"]) for g in t["globals"][:8]],
                 frame=["%+d w=%s n=%d" % (p["frame_offset"], p["observed_widths_bytes"], p["access_count"])
                        for p in t["frame_accesses"][:6]],
@@ -553,6 +648,10 @@ def unit_diag_summary(members, receipt, max_bytes=1800):
     except Exception as exc:
         return dict(status="UNAVAILABLE", reason=_clip(exc, 200))
 
+
+LIVENESS = """## First step (host liveness)
+Run `python tools/fleet.py renew {task_id} --worker {worker}` before anything else. If the shell does not return within about two minutes, or keeps failing to start commands, stop immediately and reply with one line: `TASK {task_id} BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
+"""
 
 RULES = """## Rules (binding; from AGENTS.md)
 - Historical reconstruction, not a source port. `assets/` is immutable oracle evidence. Never relock fixtures and never feed original code bytes into reconstructed outputs (no byte arrays, inline asm, placement directives or copied data standing in for code).
@@ -654,10 +753,11 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
     else:
         record = ("Write a schema v2 manifest `%s/manifest-NN.json` (docs/source-shape-search.md): every variant has "
                   "parent, suspected_cause, controlled_change and predicted_effect {length_delta, removed_candidate_only, "
-                  "register_role_diffs, note}. Sources: `%s/*.c` (self-contained K&R C defining `recovered(...)`, "
+                  "register_role_diffs, note}. Name a measured parent (an earlier variant, a compiled .c path, `ledger:N` or a 64-hex cache key); "
+                  "parent `none` leaves every prediction unmeasurable. Sources: `%s/*.c` (self-contained K&R C defining `recovered(...)`, "
                   "mechanical G_hNN_XXXX/F_hNN_XXXX externs)." % (directory, directory))
         run = ("`python tools/shape_search.py %s/manifest-NN.json --output-dir %s/runs --json` (isolated; records the "
-               "ledger). For owned CODE data or m.lib only: `python tools/fleet.py verify-function ID SRC --profile P "
+               "ledger; add `--measure-parents` to compile an unmeasured parent as a counted trial). For owned CODE data or m.lib only: `python tools/fleet.py verify-function ID SRC --profile P "
                "[--owned-code-data] [--with-m-lib] --output-dir %s/runs`." % (directory, directory, directory))
         options = "\"owned_code_data\",\"with_m_lib\""
         unit_doc = ""
@@ -667,6 +767,7 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
             "Priority %s. Lease: %s.\n" % (task["priority"], ("worker `%s`, expires %s (renew: `python tools/fleet.py renew %s --worker %s`)"
                                                              % (lease["worker"], lease["expires"], task["id"], lease["worker"]))
                                           if lease else "none recorded"),
+            LIVENESS.format(task_id=task["id"], worker=lease["worker"] if lease else "<your -n name>"),
             RULES.format(dir=directory)]
     if task["kind"] == "review":
         head.append("## Review task\nRead-only evidence review of the members below. Do not compile unless one member "
@@ -883,13 +984,143 @@ def intake(fleet, task_id, verify_near=False, record=True, verifier=reverify):
                 note="Nothing was promoted. Review the source, then run promote_command yourself if accepted.")
 
 
+def intake_all(fleet, verify_near=False, record=True, verifier=reverify):
+    """Intake every task directory holding a result.json that has not been taken in yet."""
+    with fleet.locked("intake-all"):
+        state = fleet.load_state()
+    taken = {}
+    for _, r in intake_records(fleet):
+        tid = r.get("task_id")
+        if tid and r.get("timestamp_epoch", 0) > state["reopened"].get(tid, 0):
+            taken[tid] = max(taken.get(tid, 0), r.get("timestamp_epoch", 0))
+    for tid, item in state["completed"].items():
+        if item.get("at", 0) > state["reopened"].get(tid, 0):
+            taken[tid] = max(taken.get(tid, 0), item["at"])
+    groups = dict(confirmed_equal=[], unclaimed_equal=[], near=[], needs_evidence=[], blocked=[], rejected=[],
+                  already_intaken=[], changed_after_intake=[])
+    directories = sorted(p for p in fleet.packets.iterdir() if p.is_dir()) if fleet.packets.is_dir() else []
+    for directory in directories:
+        path = directory / "result.json"
+        tid = directory.name
+        if not path.is_file() or TASK_ID.fullmatch(tid) is None:
+            continue
+        if tid in taken:
+            key = "changed_after_intake" if path.stat().st_mtime > taken[tid] + 1 else "already_intaken"
+            groups[key].append(dict(task=tid, note="reopen the task, then intake it" if key != "already_intaken" else None))
+            continue
+        try:
+            out = intake(fleet, tid, verify_near, record, verifier)
+        except (FormatError, OSError, ValueError) as exc:
+            groups["rejected"].append(dict(task=tid, reason=_clip(exc, 300)))
+            continue
+        row = dict(task=tid, intake_status=out["intake_status"], ledger_line=out["ledger_line"])
+        status = out["intake_status"]
+        if status == "CONFIRMED_EQUAL":
+            groups["confirmed_equal"].append(dict(row, promote_command=out["promote_command"],
+                                                  already_canonical=out["already_canonical"]))
+        elif status == "UNCLAIMED_EQUAL_FOUND":
+            groups["unclaimed_equal"].append(dict(row, promote_command=out["promote_command"]))
+        elif status == "EQUAL_CLAIM_REJECTED":
+            v = out["verification"] or {}
+            groups["rejected"].append(dict(row, reason="re-verification verdict %s: %s" % (v.get("verdict"),
+                                                                                           _clip(v.get("reason"), 200))))
+        elif status == "NEAR_RECORDED":
+            groups["near"].append(row)
+        else:
+            curation = out["blocker_curation"] or {}
+            groups["needs_evidence" if status == "NEEDS_EVIDENCE_FOR_CURATION" else "blocked"].append(
+                dict(row, mechanism=curation.get("mechanism"), explanation=curation.get("explanation")))
+    counts = {k: len(v) for k, v in groups.items()}
+    return dict(counts=counts, recorded=record, promotion="NONE_SUPERVISOR_REVIEW_REQUIRED", **groups)
+
+
 # ---------------------------------------------------------------------------
 # Launch plan and verifier wrappers
 
 
+CX_DEFAULT = "~/.codex-dashboard/cx.py"
+HOST_MAX_DEFAULT = 20
+REPO_MAX_DEFAULT = 6
+PS_UTF8 = "$OutputEncoding = [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)"
+
+
+def parse_cx_ps(text, project=None):
+    """(running workers host-wide, running in this repository) from `cx ps` output."""
+    project = project or ROOT.name
+    total = here = 0
+    for line in (text or "").splitlines():
+        m = re.search(r"\sup\s+\S+\s+idle\s+\S+\s+cmds-failed\s+\d+/\d+\s+(\S+)", line)
+        if m:
+            total += 1
+            here += m.group(1) == project
+    return total, here
+
+
+def running_workers(cx=CX_DEFAULT, timeout=45, runner=None):
+    """Count running cx workers. Returns dict(total, here, status, detail)."""
+    import os
+    import subprocess
+    path = Path(os.path.expanduser(cx))
+    if not path.is_file():
+        return dict(total=None, here=None, status="CX_MISSING", detail="cx not found at " + str(path))
+    try:
+        proc = (runner or subprocess.run)([sys.executable, str(path), "ps"], capture_output=True, text=True,
+                                          encoding="utf-8", errors="replace", timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return dict(total=None, here=None, status="CX_PS_FAILED", detail=_clip(exc, 200))
+    if proc.returncode != 0:
+        return dict(total=None, here=None, status="CX_PS_FAILED",
+                    detail="exit %s: %s" % (proc.returncode, _clip(proc.stderr or proc.stdout, 200)))
+    total, here = parse_cx_ps(proc.stdout)
+    return dict(total=total, here=here, status="COUNTED", detail=None)
+
+
+def host_cap(count, workers, leased_here=0, env=None):
+    """Cap a launch count by host-wide and per-repository worker limits; returns (n, reasons)."""
+    import os
+    env = os.environ if env is None else env
+    host_max = int(env.get("TALES_FLEET_HOST_MAX", HOST_MAX_DEFAULT))
+    repo_max = int(env.get("TALES_FLEET_MAX", REPO_MAX_DEFAULT))
+    reasons = []
+    if workers["status"] == "CX_PS_FAILED":
+        return 0, ["host guard: could not count running workers (%s); launching nothing. Retry, or pass "
+                   "--no-host-guard after checking the host yourself." % workers["detail"]]
+    n = count
+    if workers["status"] == "CX_MISSING":
+        reasons.append("host guard: %s; host-wide count skipped, repository count uses %d live lease(s)"
+                       % (workers["detail"], leased_here))
+        here = leased_here
+    else:
+        here = workers["here"]
+        host_room = max(0, host_max - workers["total"])
+        if host_room < n:
+            reasons.append("host guard: %d cx workers running host-wide, TALES_FLEET_HOST_MAX=%d -> at most %d"
+                           % (workers["total"], host_max, host_room))
+        n = min(n, host_room)
+    repo_room = max(0, repo_max - here)
+    if repo_room < n:
+        reasons.append("host guard: %d running for %s, TALES_FLEET_MAX=%d -> at most %d"
+                       % (here, ROOT.name, repo_max, repo_room))
+    n = min(n, repo_room)
+    return n, reasons
+
+
 def launch_plan(fleet, count, kinds=None, prefix="luna", model="gpt-6-luna", effort="xhigh",
-                lease_hours=DEFAULT_LEASE_HOURS, dry_run=False, cx="~/.codex-dashboard/cx.py"):
-    lines, claimed = [], []
+                lease_hours=DEFAULT_LEASE_HOURS, dry_run=False, cx=CX_DEFAULT, guard=True, workers=None, env=None):
+    lines, claimed, commands, ps_commands = [], [], [], []
+    if guard:
+        if workers is None:
+            workers = running_workers(cx)
+        with fleet.locked("launch-plan"):
+            state = fleet.load_state()
+        leased_here = sum(1 for lease in state["leases"].values() if lease["expires_at"] > now_epoch())
+        capped, reasons = host_cap(count, workers, leased_here, env)
+        lines.extend("# " + r for r in reasons)
+        if workers["status"] == "COUNTED":
+            lines.append("# host: %d cx workers running, %d in %s; launching %d of %d requested"
+                         % (workers["total"], workers["here"], ROOT.name, capped, count))
+        count = capped
+    ps_cx = cx.replace("~/", "$HOME/", 1) if cx.startswith("~/") else cx
     for _ in range(count):
         task, lease = claim(fleet, None, kinds, lease_hours=lease_hours, dry_run=dry_run,
                             name_for=lambda t: (prefix + "-" + t["id"])[:80])
@@ -902,8 +1133,17 @@ def launch_plan(fleet, count, kinds=None, prefix="luna", model="gpt-6-luna", eff
             break
         packet, size = write_packet(fleet, task["id"])
         claimed.append(task["id"])
-        lines.append("python %s run -n %s -C %s -m %s -e %s < %s   # %s, %d bytes" % (
-            cx, lease["worker"], ROOT.as_posix(), model, effort, rel(packet), task["kind"], size))
+        args = "run -n %s -C %s -m %s -e %s" % (lease["worker"], ROOT.as_posix(), model, effort)
+        commands.append("python %s %s < %s   # %s, %d bytes" % (cx, args, rel(packet), task["kind"], size))
+        ps_commands.append("Get-Content -Raw -Encoding UTF8 %s | python %s %s" % (rel(packet), ps_cx, args))
+    lines.extend(commands)
+    if ps_commands:
+        # Windows PowerShell 5.1 has no `<` redirection and pipes text to native
+        # programs in $OutputEncoding (a BOM or ASCII by default), and does not
+        # expand `~` in native arguments. Set BOM-less UTF-8 once per session.
+        lines.append("# PowerShell equivalents (run the first line once per session):")
+        lines.append(PS_UTF8)
+        lines.extend(ps_commands)
     return lines, claimed
 
 
@@ -951,11 +1191,17 @@ def main(argv=None):
     p = sub.add_parser("intake", help="validate and re-verify a worker result; never promotes")
     p.add_argument("task"); p.add_argument("--verify-near", action="store_true")
     p.add_argument("--dry-run", action="store_true", help="validate/verify without recording or completing")
+    p = sub.add_parser("intake-all", help="intake every task with a result.json not yet taken in; never promotes")
+    p.add_argument("--verify-near", action="store_true")
+    p.add_argument("--dry-run", action="store_true", help="validate/verify without recording or completing")
     p = sub.add_parser("launch-plan", help="claim N tasks, write packets, print cx commands (launches nothing)")
     p.add_argument("count", type=int); p.add_argument("--kind", action="append", choices=KINDS)
     p.add_argument("--prefix", default="luna"); p.add_argument("--model", default="gpt-6-luna")
     p.add_argument("--effort", default="xhigh"); p.add_argument("--lease-hours", type=float, default=DEFAULT_LEASE_HOURS)
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--no-host-guard", action="store_true",
+                   help="skip the cx ps worker count (TALES_FLEET_HOST_MAX/TALES_FLEET_MAX caps)")
+    p.add_argument("--cx", default=CX_DEFAULT, help="path to cx.py (default %(default)s)")
     for name in ("verify-function", "verify-unit"):
         p = sub.add_parser(name, help="isolated check_%s run through the compile queue" % name.split("-")[1])
         p.add_argument("args", nargs=argparse.REMAINDER)
@@ -992,9 +1238,11 @@ def main(argv=None):
             print(_j(dict(packet=rel(path), bytes=size)))
         elif args.command == "intake":
             print(json.dumps(intake(fleet, args.task, args.verify_near, not args.dry_run), indent=2, sort_keys=True))
+        elif args.command == "intake-all":
+            print(json.dumps(intake_all(fleet, args.verify_near, not args.dry_run), indent=2, sort_keys=True))
         elif args.command == "launch-plan":
             lines, _ = launch_plan(fleet, args.count, args.kind, args.prefix, args.model, args.effort,
-                                   args.lease_hours, args.dry_run)
+                                   args.lease_hours, args.dry_run, args.cx, not args.no_host_guard)
             print("\n".join(lines))
         elif args.command in ("verify-function", "verify-unit"):
             module = "check_function" if args.command == "verify-function" else "check_unit"

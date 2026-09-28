@@ -4,6 +4,7 @@ This utility is a bounded diagnostic front end to ``check_function``. It never
 generates source text, updates recovery state, or promotes an exact comparison.
 """
 import argparse
+from collections import Counter
 from datetime import datetime, timezone
 import json
 import os
@@ -143,7 +144,12 @@ def _parent(value, where, earlier_ids):
         return dict(kind="none", value=value)
     if value in earlier_ids:
         return dict(kind="variant", value=value)
-    require(value.endswith(".c"), where + " must be an earlier variant id, a repository .c path, or none")
+    if re.fullmatch(r"ledger:[1-9][0-9]{0,8}", value):
+        return dict(kind="ledger", value=value, line=int(value.split(":")[1]))
+    if re.fullmatch(r"[0-9a-f]{64}", value):
+        return dict(kind="cache_key", value=value)
+    require(value.endswith(".c"), where + " must be an earlier variant id, a repository .c path, "
+                                          "ledger:N, a 64-hex cache key, or none")
     path = _source_path(value)
     return dict(kind="source", value=value, source_path=path,
                 source=path.read_text(encoding="ascii"))
@@ -486,9 +492,20 @@ def release_reservations(markers):
 
 
 def diagnostic_metrics(diagnostic):
-    """Extract the few quantities predictions are scored against."""
+    """Extract the few quantities predictions are scored against.
+
+    An unsupported diagnostic keeps only ``candidate_bytes`` when the diagnostic
+    itself measured the compiled single-object code payload (for example when
+    the original has PC-relative data whose boundary cannot be aligned). That
+    length is the same quantity a supported diagnostic reports; alignment and
+    register-role counts stay unavailable.
+    """
     if not isinstance(diagnostic, dict) or diagnostic.get("status") != "DIAGNOSTIC_ONLY":
-        return dict(status="UNSUPPORTED", reason=str((diagnostic or {}).get("reason", "UNSUPPORTED")))
+        out = dict(status="UNSUPPORTED", reason=str((diagnostic or {}).get("reason", "UNSUPPORTED")))
+        extent = diagnostic.get("candidate_extent") if isinstance(diagnostic, dict) else None
+        if isinstance(extent, dict) and type(extent.get("bytes")) is int:
+            out.update(candidate_bytes=extent["bytes"], candidate_bytes_basis="COMPILED_CODE_PAYLOAD")
+        return out
     align = diagnostic.get("alignment") or {}
     extent = diagnostic.get("candidate_extent") or diagnostic.get("actual_extent") or {}
     size, actual_only, expected_only = extent.get("bytes"), align.get("actual_only"), align.get("expected_only")
@@ -505,22 +522,33 @@ def diagnostic_metrics(diagnostic):
 def score_prediction(predicted, child, parent):
     """Compare a structured prediction with the observed child-parent delta.
 
-    A field is ``unmeasurable`` whenever either diagnostic is unsupported or
-    no parent measurement exists; it is never guessed from other signals.
+    A field is ``unmeasurable`` whenever no parent measurement exists or the
+    quantity is unavailable on either side; it is never guessed from other
+    signals. Alignment and register-role fields need supported diagnostics on
+    both sides. ``length_delta`` needs only both compiled code-payload lengths,
+    which an unsupported diagnostic still reports when it measured them.
     """
-    measurable = (isinstance(child, dict) and child.get("status") == "DIAGNOSTIC_ONLY" and
-                  isinstance(parent, dict) and parent.get("status") == "DIAGNOSTIC_ONLY")
+    full = (isinstance(child, dict) and child.get("status") == "DIAGNOSTIC_ONLY" and
+            isinstance(parent, dict) and parent.get("status") == "DIAGNOSTIC_ONLY")
+    sized = (isinstance(child, dict) and isinstance(parent, dict) and
+             type(child.get("candidate_bytes")) is int and type(parent.get("candidate_bytes")) is int)
     observed = None
-    if measurable:
+    measurable = {name: False for name in PREDICTED_FIELDS}
+    if full:
         roles = child["register_role_diffs"] - parent["register_role_diffs"]
         observed = dict(length_delta=child["candidate_bytes"] - parent["candidate_bytes"],
                         removed_candidate_only=parent["candidate_only"] - child["candidate_only"],
                         register_role_diffs="fewer" if roles < 0 else "more" if roles > 0 else "same")
+        measurable = {name: True for name in PREDICTED_FIELDS}
+    elif sized:
+        observed = dict(length_delta=child["candidate_bytes"] - parent["candidate_bytes"],
+                        removed_candidate_only=None, register_role_diffs=None)
+        measurable["length_delta"] = True
     fields = {}
     for name in PREDICTED_FIELDS:
         if predicted.get(name) is None:
             fields[name] = "not_predicted"
-        elif not measurable:
+        elif not measurable[name]:
             fields[name] = "unmeasurable"
         else:
             fields[name] = "confirmed" if observed[name] == predicted[name] else "refuted"
@@ -534,7 +562,8 @@ def score_prediction(predicted, child, parent):
         outcome = "refuted"
     else:
         outcome = "partial"
-    return dict(observed_delta=observed, fields=fields, outcome=outcome)
+    basis = "FULL_DIAGNOSTIC" if full else "PAYLOAD_LENGTH_ONLY" if sized else None
+    return dict(observed_delta=observed, fields=fields, outcome=outcome, measurement=basis)
 
 
 def _rel(path):
@@ -550,32 +579,133 @@ def _pointer(number, record):
                 cache_key=record.get("cache_key"))
 
 
-def _parent_metrics(function_id, function, variant, metrics, prior):
-    """Measure the declared parent without ever compiling it implicitly."""
+def _cached(key):
+    if not isinstance(key, str) or re.fullmatch(r"[0-9a-f]{64}", key) is None:
+        return None
+    from compiler_oracle import cached
+    return cached(key)
+
+
+def measure_key(function_id, key, scope):
+    """Metrics of one cached compile, re-diagnosed now; never compiles."""
+    if _cached(key) is None:
+        return dict(status="UNSUPPORTED", reason="PARENT_NOT_IN_COMPILER_CACHE")
+    return diagnostic_metrics(_diagnostic(function_id, dict(cache_key=key), scope))
+
+
+def _retained_attempt_key(function_id, parent, profile):
+    """Cache key of a retained verifier attempt with byte-identical source."""
+    try:
+        from recovery_state import recovery
+        rows = recovery().get("attempts", {}).get(function_id, [])
+    except Exception:  # advisory lookup only
+        return None
+    path = parent.get("source_path")
+    digest = (sha256(Path(path).read_bytes()) if path and Path(path).is_file()
+              else sha256(parent["source"].encode("ascii", "replace")))
+    for row in reversed(rows):
+        if row.get("source_sha256") == digest and row.get("profile") == profile and _cached(row.get("cache_key")):
+            return row["cache_key"]
+    return None
+
+
+def _ledger_trial(prior, function_id, line=None, digest=None, profile=None):
+    for number, record in reversed(prior):
+        if record["record_type"] != "trial" or record.get("function_id") != function_id:
+            continue
+        if line is not None and number == line:
+            return number, record
+        if digest is not None and record.get("normalized_sha256") == digest and record.get("profile") == profile:
+            return number, record
+    return None, None
+
+
+def _from_record(function_id, record, scope):
+    """Prefer a fresh measurement of the record's cached compile over its stored metrics."""
+    if _cached(record.get("cache_key")) is not None:
+        return measure_key(function_id, record["cache_key"], scope)
+    return record.get("observed")
+
+
+def parent_key(function_id, function, variant, prior):
+    """Resolve (cache_key or None, basis) for a source/ledger/cache-key parent without compiling."""
     parent = variant["parent"]
+    if parent["kind"] == "cache_key":
+        return parent["value"], "PARENT_CACHE_KEY"
+    if parent["kind"] == "ledger":
+        number, record = _ledger_trial(prior, function_id, line=parent["line"])
+        return (record.get("cache_key") if record else None), "LEDGER_LINE_" + str(parent["line"])
+    digest = normalized_sha256(parent["source"])
+    number, record = _ledger_trial(prior, function_id, digest=digest, profile=variant["profile"])
+    if record is not None:
+        return record.get("cache_key"), "LEDGER_LINE_" + str(number)
+    try:
+        key, _, _ = identity(parent["source"], variant["profile"], _node(function))
+    except (KeyError, FormatError):
+        key = None
+    if key and _cached(key) is not None:
+        return key, "CACHED_PARENT_COMPILE"
+    retained = _retained_attempt_key(function_id, parent, variant["profile"])
+    if retained:
+        return retained, "RETAINED_ATTEMPT_CACHE"
+    return None, "NOT_COMPILED" if key else "IDENTITY_REJECTED"
+
+
+def _parent_metrics(function_id, function, variant, metrics, prior, compiled_parents=None):
+    """Measure the declared parent; compiles only through the explicit counted-parent path."""
+    parent = variant["parent"]
+    scope = variant["diagnostic_scope"]
     if parent["kind"] == "none":
         return None, "NO_PARENT"
     if parent["kind"] == "variant":
         return metrics.get(parent["value"]), "MANIFEST_VARIANT"
+    if parent["kind"] == "ledger":
+        number, record = _ledger_trial(prior, function_id, line=parent["line"])
+        if record is None:
+            return dict(status="UNSUPPORTED", reason="PARENT_LEDGER_LINE_NOT_A_TRIAL_FOR_FUNCTION"), parent["value"]
+        return _from_record(function_id, record, scope), "LEDGER_LINE_" + str(number)
+    if parent["kind"] == "cache_key":
+        return measure_key(function_id, parent["value"], scope), "PARENT_CACHE_KEY"
     digest = normalized_sha256(parent["source"])
-    for number, record in reversed(prior):
-        if (record["record_type"] == "trial" and record.get("function_id") == function_id and
-                record.get("normalized_sha256") == digest and record.get("profile") == variant["profile"]):
-            return record.get("observed"), "LEDGER_LINE_" + str(number)
+    number, record = _ledger_trial(prior, function_id, digest=digest, profile=variant["profile"])
+    if record is not None:
+        return _from_record(function_id, record, scope), "LEDGER_LINE_" + str(number)
+    compiled = (compiled_parents or {}).get((digest, variant["profile"]))
+    if compiled is not None:
+        return compiled["metrics"], compiled["basis"]
     try:
-        from compiler_oracle import cached
         key, _, _ = identity(parent["source"], variant["profile"], _node(function))
-        if cached(key) is None:
-            return dict(status="UNSUPPORTED", reason="PARENT_NOT_IN_COMPILER_CACHE"), "NOT_COMPILED"
     except (KeyError, FormatError) as exc:
         return dict(status="UNSUPPORTED", reason="parent identity rejected: " + str(exc)), "NOT_COMPILED"
-    return diagnostic_metrics(_diagnostic(function_id, dict(cache_key=key), variant["diagnostic_scope"])), \
-        "CACHED_PARENT_COMPILE"
+    if _cached(key) is not None:
+        return measure_key(function_id, key, scope), "CACHED_PARENT_COMPILE"
+    retained = _retained_attempt_key(function_id, parent, variant["profile"])
+    if retained:
+        return measure_key(function_id, retained, scope), "RETAINED_ATTEMPT_CACHE"
+    return dict(status="UNSUPPORTED", reason="PARENT_NOT_IN_COMPILER_CACHE"), "NOT_COMPILED"
+
+
+def _parents_to_compile(function_id, function, variants, prior, duplicates):
+    """Source parents with no ledger, cache or retained-attempt measurement."""
+    todo = {}
+    for variant in variants:
+        parent = variant["parent"]
+        if variant["id"] in duplicates or parent["kind"] != "source":
+            continue
+        key, basis = parent_key(function_id, function, variant, prior)
+        if basis == "NOT_COMPILED":
+            todo.setdefault((normalized_sha256(parent["source"]), variant["profile"]), variant)
+    return todo
 
 
 def evaluate_hypotheses(function_id, variants, cached_only=False, output_dir=None, ledger=None,
-                        manifest=None, now=None):
-    """Run non-duplicate v2 variants and append one ledger record per variant."""
+                        manifest=None, now=None, measure_parents=False, budget=None):
+    """Run non-duplicate v2 variants and append one ledger record per variant.
+
+    ``measure_parents`` compiles a source parent that has no ledger, cache or
+    retained-attempt measurement, as an explicitly counted extra compile inside
+    ``budget.max_unique_compiles``; the child record marks it as such.
+    """
     path = ledger_path(ledger)
     # The duplicate check is repeated under the ledger lock immediately before
     # compiling, with in-flight reservations, so parallel workers cannot both
@@ -583,20 +713,59 @@ def evaluate_hypotheses(function_id, variants, cached_only=False, output_dir=Non
     prior, duplicates, reserved, stale = reserve_hypotheses(path, function_id, variants)
     try:
         return _evaluate_reserved(function_id, variants, cached_only, output_dir, path, manifest, now,
-                                  prior, duplicates, stale)
+                                  prior, duplicates, stale, measure_parents, budget)
     finally:
         release_reservations(reserved)
 
 
+def _parent_compiles(function_id, function, variants, to_run, prior, duplicates, cached_only, budget):
+    """Pseudo-variants for counted parent measurement compiles, and over-budget refusals."""
+    todo = _parents_to_compile(function_id, function, variants, prior, duplicates)
+    limit = (budget or {}).get("max_unique_compiles", MAX_UNIQUE_COMPILES)
+    used = len({(sha256(v["source"].encode("ascii")), v["profile"]) for v in to_run})
+    pseudo, refused = [], {}
+    for index, (slot, variant) in enumerate(sorted(todo.items(), key=lambda kv: kv[1]["id"])):
+        if cached_only:
+            refused[slot] = "PARENT_COMPILE_REFUSED_CACHED_ONLY"
+        elif used + len(pseudo) >= limit:
+            refused[slot] = "PARENT_COMPILE_OVER_BUDGET"
+        else:
+            parent = variant["parent"]
+            pseudo.append(dict(id="parent-measurement-%02d" % index, causal_family="parent_measurement",
+                               diagnostic_scope=variant["diagnostic_scope"], profile=variant["profile"],
+                               source_path=parent["source_path"], source=parent["source"],
+                               manifest_source=parent["value"], slot=slot))
+    return pseudo, refused
+
+
 def _evaluate_reserved(function_id, variants, cached_only, output_dir, path, manifest, now,
-                       prior, duplicates, stale):
+                       prior, duplicates, stale, measure_parents=False, budget=None):
     to_run = [v for v in variants if v["id"] not in duplicates]
-    base = evaluate(function_id, to_run, cached_only, output_dir) if to_run else dict(evaluated=[], ranking=[])
     function = next((f for f in evidence()["functions"] if f["id"] == function_id), None)
     require(function is not None, "unknown function " + function_id)
+    pseudo, refused = ([], {})
+    if measure_parents:
+        pseudo, refused = _parent_compiles(function_id, function, variants, to_run, prior, duplicates,
+                                           cached_only, budget)
+    run = to_run + pseudo
+    base = evaluate(function_id, run, cached_only, output_dir) if run else dict(evaluated=[], ranking=[])
+    compiled_parents = {slot: dict(metrics=dict(status="UNSUPPORTED", reason=reason), basis="NOT_COMPILED",
+                                   compile=None) for slot, reason in refused.items()}
+    pseudo_ids = {p["id"]: p for p in pseudo}
+    for item in base["evaluated"]:
+        if item["id"] in pseudo_ids:
+            report = item["report"]
+            compiled_parents[pseudo_ids[item["id"]]["slot"]] = dict(
+                metrics=diagnostic_metrics(item["diagnostic"]), basis="PARENT_COMPILED_COUNTED_TRIAL",
+                compile=dict(source=item.get("source"), cache_key=report.get("cache_key"),
+                             cache_hit=report.get("cache_hit"), exact_verdict=report.get("verdict"),
+                             counted_trial=True))
+    base = dict(base, evaluated=[e for e in base["evaluated"] if e["id"] not in pseudo_ids],
+                ranking=[r for r in base["ranking"] if r not in pseudo_ids])
     by_id = {item["id"]: item for item in base["evaluated"]}
     metrics = {item_id: diagnostic_metrics(item["diagnostic"]) for item_id, item in by_id.items()}
-    metrics.update({item_id: record.get("observed") for item_id, (_, record) in duplicates.items()})
+    metrics.update({item_id: _from_record(function_id, record, record.get("diagnostic_scope"))
+                    for item_id, (_, record) in duplicates.items()})
     stamp = now or datetime.now(timezone.utc).isoformat(timespec="seconds")
     records, rejected = [], []
     for variant in variants:
@@ -614,12 +783,15 @@ def _evaluate_reserved(function_id, variants, cached_only, output_dir, path, man
             continue
         item = by_id[variant["id"]]
         report = item["report"]
-        parent, basis = _parent_metrics(function_id, function, variant, metrics, prior)
+        parent, basis = _parent_metrics(function_id, function, variant, metrics, prior, compiled_parents)
         score = score_prediction(variant["predicted_effect"], metrics[variant["id"]], parent)
         record = dict(common, record_type="trial", cache_key=report.get("cache_key"),
                       cache_hit=report.get("cache_hit"), exact_verdict=report.get("verdict"),
                       observed=metrics[variant["id"]], parent_observed=parent, parent_basis=basis,
                       observed_delta=score["observed_delta"], prediction=score)
+        if basis == "PARENT_COMPILED_COUNTED_TRIAL" and variant["parent"]["kind"] == "source":
+            slot = (normalized_sha256(variant["parent"]["source"]), variant["profile"])
+            record["parent_compile"] = compiled_parents[slot]["compile"]
         records.append(record)
         item["hypothesis"] = dict(parent=common["parent"], parent_basis=basis,
                                   suspected_cause=variant["suspected_cause"],
@@ -637,11 +809,87 @@ def _evaluate_reserved(function_id, variants, cached_only, output_dir, path, man
                 stale_reservations_replaced=stale)
 
 
-def ledger_summary(path, function_id=None):
+def _record_parent_key(function_id, number, record, prior):
+    """Cache key of a recorded trial's parent, resolved read-only from the ledger and caches."""
+    basis = record.get("parent_basis") or ""
+    parent = record.get("parent")
+    if basis == "NO_PARENT" or parent in (None, "none"):
+        return None, "NO_PARENT"
+    if (record.get("parent_compile") or {}).get("cache_key"):
+        return record["parent_compile"]["cache_key"], "PARENT_COMPILED_COUNTED_TRIAL"
+    if basis.startswith("LEDGER_LINE_"):
+        line = int(basis.split("_")[-1])
+        _, prev = _ledger_trial(prior, function_id, line=line)
+        return (prev or {}).get("cache_key"), basis
+    if basis == "MANIFEST_VARIANT":
+        for n, prev in reversed(prior):
+            if (n < number and prev["record_type"] == "trial" and prev.get("function_id") == function_id
+                    and prev.get("manifest") == record.get("manifest") and prev.get("variant") == parent):
+                return prev.get("cache_key"), basis
+        return None, basis
+    if basis == "PARENT_CACHE_KEY":
+        return parent, basis
+    if isinstance(parent, str) and parent.endswith(".c"):
+        try:
+            path = _source_path(parent)
+            variant = dict(parent=dict(kind="source", value=parent, source_path=path,
+                                       source=path.read_text(encoding="ascii")),
+                           profile=record.get("profile"))
+            function = next(f for f in evidence()["functions"] if f["id"] == function_id)
+        except (FormatError, OSError, UnicodeError, StopIteration):
+            return None, "PARENT_SOURCE_UNAVAILABLE"
+        return parent_key(function_id, function, variant, [(n, r) for n, r in prior if n < number])
+    return None, basis or "UNKNOWN_PARENT"
+
+
+def _unmeasurable_reason(score, child, parent):
+    if score["outcome"] != "unmeasurable":
+        return None
+    if parent is None:
+        return "NO_PARENT"
+    for side, value in (("child", child), ("parent", parent)):
+        if not isinstance(value, dict) or type(value.get("candidate_bytes")) is not int:
+            return side + ":" + str((value or {}).get("reason", "NO_MEASUREMENT"))
+    return "PREDICTED_FIELDS_NEED_SUPPORTED_DIAGNOSTIC"
+
+
+def rescore_ledger(path, function_id=None):
+    """Read-only re-measurement of recorded predictions from cached compiles.
+
+    The ledger is append-only and is never rewritten; this reports what the
+    current scorer and diagnostics measure for each recorded trial.
+    """
+    prior = read_ledger(path)
+    rows = []
+    for number, record in prior:
+        if record["record_type"] != "trial" or function_id not in (None, record.get("function_id")):
+            continue
+        fid, scope = record.get("function_id"), record.get("diagnostic_scope")
+        child = _from_record(fid, record, scope)
+        key, basis = _record_parent_key(fid, number, record, prior)
+        parent = None if basis == "NO_PARENT" else measure_key(fid, key, scope) if key else \
+            dict(status="UNSUPPORTED", reason="PARENT_NOT_RESOLVED_" + basis)
+        score = score_prediction(record.get("predicted_effect") or {}, child, parent)
+        rows.append(dict(line=number, function_id=fid, variant=record.get("variant"), parent_basis=basis,
+                         recorded=(record.get("prediction") or {}).get("outcome"), rescored=score["outcome"],
+                         measurement=score["measurement"], fields=score["fields"],
+                         reason=_unmeasurable_reason(score, child, parent)))
+    outcomes = ("confirmed", "partial", "refuted", "unmeasurable")
+    return dict(recorded={k: sum(r["recorded"] == k for r in rows) for k in outcomes},
+                rescored={k: sum(r["rescored"] == k for r in rows) for k in outcomes},
+                unmeasurable_reasons=dict(sorted(Counter(r["reason"] for r in rows
+                                                         if r["rescored"] == "unmeasurable").items())),
+                trials=rows, note="read-only; the ledger is not rewritten")
+
+
+def ledger_summary(path, function_id=None, rescore=False):
     """Convergence counts: exact matches per compiler trial and prediction outcomes."""
     records = [r for _, r in read_ledger(path) if function_id in (None, r.get("function_id"))]
     trials = [r for r in records if r["record_type"] == "trial"]
     compiled = {r.get("cache_key") for r in trials if r.get("cache_hit") is False}
+    parent_compiles = {(r.get("parent_compile") or {}).get("cache_key") for r in trials
+                       if (r.get("parent_compile") or {}).get("cache_hit") is False}
+    compiled |= parent_compiles
     exact = sum(r.get("exact_verdict") == "EQUAL" for r in trials)
     # The ratio counts only exact matches produced by a real compile in this
     # ledger, so replaying cached identities cannot inflate convergence.
@@ -652,13 +900,21 @@ def ledger_summary(path, function_id=None):
         outcome = (r.get("prediction") or {}).get("outcome")
         if outcome in outcomes:
             outcomes[outcome] += 1
-    return dict(ledger=_rel(path), function_id=function_id, evaluations=len(trials),
-                compiler_trials=len(compiled), cache_hits=sum(r.get("cache_hit") is True for r in trials),
-                exact_matches=exact, exact_matches_from_compiler_trials=fresh,
-                exact_matches_per_compiler_trial=round(fresh / len(compiled), 4) if compiled else None,
-                predictions=outcomes, duplicates_rejected=sum(r["record_type"] == "duplicate_rejected"
-                                                              for r in records),
-                functions=sorted({r.get("function_id") for r in records}))
+    summary = dict(ledger=_rel(path), function_id=function_id, evaluations=len(trials),
+                   compiler_trials=len(compiled), parent_measurement_compiles=len(parent_compiles),
+                   cache_hits=sum(r.get("cache_hit") is True for r in trials),
+                   exact_matches=exact, exact_matches_from_compiler_trials=fresh,
+                   exact_matches_per_compiler_trial=round(fresh / len(compiled), 4) if compiled else None,
+                   predictions=outcomes, duplicates_rejected=sum(r["record_type"] == "duplicate_rejected"
+                                                                 for r in records),
+                   functions=sorted({r.get("function_id") for r in records}))
+    if rescore:
+        rescored = rescore_ledger(path, function_id)
+        summary["predictions_rescored"] = rescored["rescored"]
+        summary["rescored_unmeasurable_reasons"] = rescored["unmeasurable_reasons"]
+        summary["rescored_trials"] = [{k: r[k] for k in ("line", "variant", "recorded", "rescored", "measurement",
+                                                         "reason")} for r in rescored["trials"]]
+    return summary
 
 
 def main(argv=None):
@@ -673,14 +929,19 @@ def main(argv=None):
                         help="schema v2 hypothesis ledger (default " + DEFAULT_LEDGER.as_posix() + ")")
     parser.add_argument("--ledger-summary", nargs="?", const="*", metavar="FUNCTION",
                         help="print convergence counts from the ledger, optionally for one function")
+    parser.add_argument("--rescore", action="store_true",
+                        help="with --ledger-summary: re-measure recorded predictions from cached compiles (read-only)")
+    parser.add_argument("--measure-parents", action="store_true",
+                        help="compile an unmeasured source parent as a counted trial within max_unique_compiles")
     args = parser.parse_args(argv)
     try:
         if args.ledger_summary is not None:
             function = None if args.ledger_summary == "*" else args.ledger_summary
-            print(json.dumps(ledger_summary(ledger_path(args.ledger), function), indent=2, sort_keys=True))
+            print(json.dumps(ledger_summary(ledger_path(args.ledger), function, args.rescore), indent=2, sort_keys=True))
             return 0
         require(args.manifest is not None, "a manifest path is required")
-        function_id, _budget, variants = load_manifest(args.manifest)
+        require(not args.rescore, "--rescore applies only to --ledger-summary")
+        function_id, budget, variants = load_manifest(args.manifest)
         output_dir = args.output_dir
         if output_dir is not None:
             output_dir = output_dir.resolve()
@@ -689,9 +950,11 @@ def main(argv=None):
                     "output directory must be under experiments/ or build/")
         if variants and "predicted_effect" in variants[0]:
             result = evaluate_hypotheses(function_id, variants, args.cached_only, output_dir,
-                                         args.ledger, args.manifest)
+                                         args.ledger, args.manifest, measure_parents=args.measure_parents,
+                                         budget=budget)
         else:
-            require(args.ledger is None, "--ledger applies only to schema_version 2 manifests")
+            require(args.ledger is None and not args.measure_parents,
+                    "--ledger and --measure-parents apply only to schema_version 2 manifests")
             result = evaluate(function_id, variants, args.cached_only, output_dir)
         print(json.dumps(result, indent=2 if args.json else None, sort_keys=True))
         return 0

@@ -223,6 +223,145 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(len(targets), len(set(targets)))
 
 
+class PlannerUnlockTests(unittest.TestCase):
+    @staticmethod
+    def item(fid, **kw):
+        base = dict(id=fid, node="ov11", size=130, extent="CLOSED_CFG", confidence="HIGH", indirect=0,
+                    unknown_calls=0, data_references=0, pending_local_dependencies=[], pc_relative_data=0,
+                    same_node_unit_ready=True, state="DISCOVERED")
+        base.update(kw)
+        return base
+
+    def test_intake_mentions_and_dependencies_boost_the_blocking_unit(self):
+        functions = [dict(id=x, hunk=11, start=s, end=s + 40) for x, s in
+                     (("ov11_F_5962", 0x5962), ("ov11_F_5C42", 0x5C42), ("ov11_F_54F8", 0x54F8),
+                      ("ov11_F_583A", 0x583A), ("ov11_F_1000", 0x1000))]
+        items = [self.item("ov11_F_5962", pending_local_dependencies=["ov11_F_5C42"]),
+                 self.item("ov11_F_5C42", pending_local_dependencies=["ov11_F_5962"]),
+                 self.item("ov11_F_54F8"), self.item("ov11_F_583A", pending_local_dependencies=["ov11_F_5962"]),
+                 self.item("ov11_F_1000")]
+        ledger = dict(functions={}, attempts={"ov11_F_54F8": [dict(mnemonic_similarity=0.9)],
+                                              "ov11_F_583A": [dict(mnemonic_similarity=0.9)]}, blockers={})
+        packages = [dict(kind="DEPENDENCY_SCC_REVIEW", members_complete=True,
+                         members=["ov11_F_5962", "ov11_F_5C42"], metadata={})]
+        # 54F8 has no pending dependency in the frontier; only its NEEDS_EVIDENCE intake names F_h11_5962.
+        intakes = [dict(record_type="fleet_intake", task_id="fn-ov11_F_54F8", targets=["ov11_F_54F8"],
+                        intake_status="NEEDS_EVIDENCE_FOR_CURATION",
+                        explanation="Missing evidence is an independently recovered F_h11_5962.", proposed_blocker=None)]
+        tasks, extra = fleet.build_tasks(functions, items, ledger, packages, intakes=intakes)
+        by_id = {t["id"]: t for t in tasks}
+        unit = by_id["unit-ov11_F_5962-5C42"]
+        self.assertEqual(unit["unlocks_targets"], ["ov11_F_54F8", "ov11_F_583A"])
+        self.assertEqual((unit["base_priority"], unit["priority"]), (30, 30 - 2 * fleet.UNLOCK_BOOST))
+        self.assertEqual(by_id["fn-ov11_F_583A"]["blocked_by"], ["ov11_F_5962"])
+        self.assertEqual(by_id["fn-ov11_F_54F8"]["blocked_by"], ["ov11_F_5962"])
+        self.assertLess(unit["priority"], by_id["fn-ov11_F_1000"]["priority"])
+        self.assertEqual(by_id["fn-ov11_F_583A"]["priority"], 15)  # blocked tasks are not boosted
+        self.assertEqual(extra["untasked_blocking_leaves"], [])
+        without, _ = fleet.build_tasks(functions, items, ledger, packages)
+        self.assertEqual({t["id"]: t for t in without}["unit-ov11_F_5962-5C42"]["unlocks"], 1)
+
+    def test_blocked_task_is_not_boosted_and_waiting_tasks_count(self):
+        tasks = [task("leaf", targets=["L"], priority=40), task("mid", targets=["M"], priority=44),
+                 task("top", targets=["T"], priority=55, deps=["mid"]), task("rev", "review", ["R"], 80)]
+        graph = {"L": {"M", "R"}, "M": {"T"}}
+        fleet.apply_unlocks(tasks, graph)
+        by_id = {t["id"]: t for t in tasks}
+        self.assertEqual((by_id["leaf"]["unlocks"], by_id["leaf"]["priority"]), (1, 40 - fleet.UNLOCK_BOOST))
+        # Review targets never count; a task that itself waits keeps its priority.
+        self.assertEqual((by_id["mid"]["unlocks"], by_id["mid"]["priority"], by_id["mid"]["blocked_by"]),
+                         (1, 44, ["L"]))
+        self.assertEqual(by_id["top"]["unlocks"], 0)
+
+    def test_blocked_leaf_without_task_is_reported(self):
+        functions = [dict(id=x, hunk=14, start=s, end=s + 40) for x, s in (("ov14_F_0000", 0), ("ov14_F_0412", 0x412))]
+        items = [self.item("ov14_F_0000", node="ov14", pending_local_dependencies=["ov14_F_0412"]),
+                 self.item("ov14_F_0412", node="ov14")]
+        ledger = dict(functions={}, attempts={}, blockers={"ov14_F_0412": dict(reason="CHAR_RETURN_EXTENSION: x")})
+        with patch.object(fleet, "_blocker_class", return_value="ABI_OR_CODEGEN_PROFILE"):
+            tasks, extra = fleet.build_tasks(functions, items, ledger, [])
+        self.assertNotIn("fn-ov14_F_0412", {t["id"] for t in tasks})
+        self.assertEqual(extra["untasked_blocking_leaves"][0]["id"], "ov14_F_0412")
+        self.assertEqual(extra["untasked_blocking_leaves"][0]["blocker_class"], "ABI_OR_CODEGEN_PROFILE")
+
+
+CX_PS = """f2-author-1   01a0  gpt-6-luna/xhigh   up   4h25m  idle   0m08s  cmds-failed 0/8  simantw_recon  | thinking
+luna-fn-x     01a1  gpt-6-luna/xhigh   up  49m19s  idle   0m02s  cmds-failed 0/20  tales_recon  | $ python tools/x.py
+luna-fn-y     01a2  gpt-6-luna/xhigh   up   8m12s  idle   0m20s  cmds-failed 1/9  tales_recon  | thinking
+"""
+
+
+class HostGuardTests(unittest.TestCase):
+    def test_parse_cx_ps(self):
+        self.assertEqual(fleet.parse_cx_ps(CX_PS, "tales_recon"), (3, 2))
+        self.assertEqual(fleet.parse_cx_ps("no running codex exec workers\n", "tales_recon"), (0, 0))
+
+    def test_caps_and_reasons(self):
+        counted = dict(status="COUNTED", total=18, here=2, detail=None)
+        self.assertEqual(fleet.host_cap(8, counted, env={})[0], 2)  # host room 20-18
+        n, reasons = fleet.host_cap(8, counted, env={"TALES_FLEET_HOST_MAX": "40"})
+        self.assertEqual(n, 4)  # repository room 6-2
+        self.assertIn("TALES_FLEET_MAX=6", reasons[-1])
+        self.assertEqual(fleet.host_cap(3, dict(counted, total=30), env={})[0], 0)
+        n, reasons = fleet.host_cap(8, dict(status="CX_MISSING", total=None, here=None, detail="cx not found"),
+                                    leased_here=5, env={})
+        self.assertEqual(n, 1)
+        self.assertIn("cx not found", reasons[0])
+        n, reasons = fleet.host_cap(2, dict(status="CX_PS_FAILED", total=None, here=None, detail="timeout"), env={})
+        self.assertEqual(n, 0)
+        self.assertIn("launching nothing", reasons[0])
+
+    def test_running_workers_handles_missing_cx_and_failures(self):
+        self.assertEqual(fleet.running_workers("~/definitely-missing-cx.py")["status"], "CX_MISSING")
+
+        class Proc:
+            returncode, stdout, stderr = 0, CX_PS, ""
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as handle:
+            path = handle.name
+        try:
+            counted = fleet.running_workers(path, runner=lambda *a, **k: Proc())
+            self.assertEqual((counted["status"], counted["total"]), ("COUNTED", 3))
+
+            def hang(*a, **k):
+                raise subprocess.TimeoutExpired("cx", 1)
+            self.assertEqual(fleet.running_workers(path, runner=hang)["status"], "CX_PS_FAILED")
+        finally:
+            os.unlink(path)
+
+
+class LaunchPlanTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.dir = Path(self.temp.name)
+        self.fleet = fleet.Fleet(self.dir / "fleet", "build/test-fleet-" + uuid.uuid4().hex + ".jsonl",
+                                 ROOT / "build" / ("test-packets-" + uuid.uuid4().hex))
+        self.fleet.dir.mkdir(parents=True)
+        self.fleet.tasks.write_text(json.dumps(dict(schema_version=1, tasks=[task("a"), task("b"), task("c")])))
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.fleet.packets, ignore_errors=True)
+        self.temp.cleanup()
+
+    def test_launch_plan_caps_and_prints_both_shells(self):
+        workers = dict(status="COUNTED", total=19, here=0, detail=None)
+        with patch.object(fleet, "canonical_ids", return_value=set()), \
+             patch.object(fleet, "write_packet", side_effect=lambda f, tid: (f.task_dir(tid) / "PROMPT.md", 100)):
+            lines, claimed = fleet.launch_plan(self.fleet, 3, workers=workers, env={})
+        self.assertEqual(claimed, ["a"])
+        self.assertTrue(any("TALES_FLEET_HOST_MAX=20 -> at most 1" in l for l in lines))
+        bash = [l for l in lines if l.startswith("python ~/.codex-dashboard/cx.py run -n luna-a ")]
+        self.assertEqual(len(bash), 1)
+        self.assertIn(" < ", bash[0])
+        self.assertIn(fleet.PS_UTF8, lines)
+        ps = [l for l in lines if l.startswith("Get-Content -Raw -Encoding UTF8 ")]
+        self.assertEqual(len(ps), 1)
+        self.assertIn("| python $HOME/.codex-dashboard/cx.py run -n luna-a ", ps[0])
+        with patch.object(fleet, "canonical_ids", return_value=set()):
+            lines, claimed = fleet.launch_plan(self.fleet, 3, workers=dict(workers, total=25), env={})
+        self.assertEqual(claimed, [])
+
+
 class PacketAndIntakeTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -252,8 +391,37 @@ class PacketAndIntakeTests(unittest.TestCase):
         text = fleet.render_packet(self.fleet, t, dict(worker="luna-fn-x", expires="2026-01-01T00:00:00+00:00"))
         self.assertLessEqual(len(text.encode()), fleet.PACKET_MAX_BYTES)
         for needle in ("assets/` is immutable", "Never promote", fid, "result.json", "schema v2 manifest",
-                       "swap the loop test", "--isolated", "luna-fn-x", "NEEDS_EVIDENCE", "BEFORE compiling"):
+                       "swap the loop test", "--isolated", "luna-fn-x", "NEEDS_EVIDENCE", "BEFORE compiling",
+                       "BLOCKED HOST_TOOLS_UNRESPONSIVE", "python tools/fleet.py renew fn-x --worker luna-fn-x"):
             self.assertIn(needle, text)
+        # The liveness check is the first instruction after the header.
+        self.assertLess(text.index("First step (host liveness)"), text.index("## Rules"))
+
+    def test_intake_all_summarizes_and_skips_already_intaken(self):
+        self.fleet.dir.mkdir(parents=True, exist_ok=True)
+        tasks = [task("eq", targets=["t_eq"]), task("bad", targets=["t_bad"]), task("ne", targets=["t_ne"]),
+                 task("old", targets=["t_old"]), task("none", targets=["t_none"])]
+        self.fleet.tasks.write_text(json.dumps(dict(schema_version=1, tasks=tasks)))
+        self.result("eq", "t_eq")
+        self.result("bad", "t_bad", status="WIN")
+        self.result("ne", "t_ne", status="NEEDS_EVIDENCE", best=None, explanation="needs ov11_F_5962")
+        self.result("old", "t_old", status="NEAR")
+        self.fleet.task_dir("none").mkdir(parents=True, exist_ok=True)  # no result.json yet
+        confirmed = lambda f, t, b: dict(verdict="EQUAL", cache_key="a" * 64)
+        with patch.object(fleet, "canonical_ids", return_value=set()), \
+             patch("recovery_state.recovery", return_value=dict(functions={})):
+            fleet.intake(self.fleet, "old")
+            out = fleet.intake_all(self.fleet, verifier=confirmed)
+            again = fleet.intake_all(self.fleet, verifier=confirmed)
+        self.assertEqual(out["counts"]["confirmed_equal"], 1)
+        self.assertTrue(out["confirmed_equal"][0]["promote_command"].startswith("python tools/check_function.py t_eq"))
+        self.assertEqual([r["task"] for r in out["rejected"]], ["bad"])
+        self.assertIn("status must be", out["rejected"][0]["reason"])
+        self.assertEqual([r["task"] for r in out["needs_evidence"]], ["ne"])
+        self.assertEqual([r["task"] for r in out["already_intaken"]], ["old"])
+        self.assertEqual(out["promotion"], "NONE_SUPERVISOR_REVIEW_REQUIRED")
+        self.assertEqual(again["counts"]["already_intaken"], 3)  # eq, ne, old; bad stays rejected
+        self.assertEqual([r["task"] for r in again["rejected"]], ["bad"])
 
     def result(self, tid, target, **kw):
         directory = self.fleet.task_dir(tid)

@@ -82,7 +82,9 @@ scope.
 each compile trial answers one recorded, non-duplicate hypothesis:
 
 - `parent`: an earlier variant id in the same manifest, a `.c` path under
-  `experiments/` or `recovery/candidates/`, or `"none"`.
+  `experiments/` or `recovery/candidates/`, `ledger:N` (a prior trial line),
+  a 64-hex compiler cache key, or `"none"` (every prediction is then
+  unmeasurable).
 - `suspected_cause` and `controlled_change`: text; the change should be one edit.
 - `predicted_effect`: exactly `{"length_delta", "removed_candidate_only",
   "register_role_diffs", "note"}`. `length_delta` is the predicted candidate
@@ -93,12 +95,24 @@ each compile trial answers one recorded, non-duplicate hypothesis:
 
 After the exact comparison, the observed child-minus-parent delta is computed
 from both diagnostics. Each predicted field is `confirmed` (exact equality),
-`refuted`, `unmeasurable` (either diagnostic is `UNSUPPORTED` or no parent
-measurement exists) or `not_predicted`. The overall outcome is `confirmed`,
+`refuted`, `unmeasurable` or `not_predicted`. `removed_candidate_only` and
+`register_role_diffs` need supported diagnostics on both sides. `length_delta`
+needs only both compiled code-payload lengths. `diag` still reports that length
+when it refuses alignment, for example for an original with PC-relative data
+(`ORIGINAL_DATA_BOUNDARY_HAS_NO_MAPPED_CANDIDATE_BOUNDARY`). A failed compile
+or a missing parent stays unmeasurable. The record's `prediction.measurement` is
+`FULL_DIAGNOSTIC` or `PAYLOAD_LENGTH_ONLY`. The overall outcome is `confirmed`,
 `partial`, `refuted` or `unmeasurable`. A parent variant uses its measurement
-from the same run or its prior ledger record; a parent path uses its latest
-ledger record, else an existing compiler-cache entry. Parents are never
-compiled implicitly. None of this affects `EQUAL`/`DIFFER`/`BLOCKED`.
+from the same run or its prior ledger record. A parent path, `ledger:N` or
+cache key is re-measured from its cached compile. For a path, the lookup order
+is the latest ledger record, the current compiler identity, then a retained
+`recovery/ledger.json` attempt with byte-identical source. Parents are compiled
+only with `--measure-parents`. That flag compiles an unmeasured path parent in
+the same batch, inside `budget.max_unique_compiles`. The child record marks it
+`parent_basis: PARENT_COMPILED_COUNTED_TRIAL` with `parent_compile`, and the
+summary counts it as a compiler trial. Over budget or with `--cached-only`, the
+parent stays unmeasurable with the reason. None of this affects
+`EQUAL`/`DIFFER`/`BLOCKED`.
 
 Duplicate detection hashes a shallow normalization: comments become one
 space, literals are kept verbatim, whitespace runs outside literals collapse to
@@ -130,7 +144,18 @@ count as compiler trials. v1 manifests do not use the ledger.
 ```powershell
 python tools/shape_search.py manifest-v2.json --cached-only
 python tools/shape_search.py --ledger-summary ov09_F_298E
+python tools/shape_search.py --ledger-summary --rescore   # read-only re-measurement
 ```
+
+`--rescore` re-measures every recorded trial from cached compiles with the
+current scorer and reports `predictions_rescored` plus the reasons for the
+remaining unmeasurable trials. The ledger is not rewritten. On 2026-09-28 the
+25 recorded trials showed 7 measurable predictions (6 confirmed, 1 refuted) and
+18 unmeasurable. Fifteen of the unmeasurable trials were ov04_F_0536, whose
+original has PC-relative data. `diag` refused the alignment there, and the
+scorer discarded the payload length that `diag` had measured. Rescored, 17
+are measurable: 6 confirmed, 6 partial and 5 refuted. The 8 still unmeasurable
+are 4 with parent `none`, 3 failed compiles and 1 alignment-only prediction.
 
 The summary reports compiler trials (distinct cache keys actually compiled),
 cache hits, exact matches, exact matches from compiled trials per compiler

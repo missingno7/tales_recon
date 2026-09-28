@@ -262,6 +262,41 @@ class PredictionScoringTests(unittest.TestCase):
                                        expected_only=0, register_role_diffs=3))
 
 
+class PayloadLengthMeasurementTests(unittest.TestCase):
+    """An unsupported diagnostic that measured the compiled payload scores length only."""
+
+    def test_unsupported_with_payload_keeps_only_length(self):
+        metrics = shape_search.diagnostic_metrics(dict(status="UNSUPPORTED", reason="ORIGINAL_DATA_BOUNDARY",
+                                                       candidate_extent=dict(bytes=720)))
+        self.assertEqual(metrics, dict(status="UNSUPPORTED", reason="ORIGINAL_DATA_BOUNDARY", candidate_bytes=720,
+                                       candidate_bytes_basis="COMPILED_CODE_PAYLOAD"))
+        self.assertNotIn("candidate_bytes", shape_search.diagnostic_metrics(
+            dict(status="UNSUPPORTED", reason="CACHED_COMPILER_OUTPUT_NOT_COMPILED", candidate_extent=None)))
+
+    def test_payload_only_scoring_is_per_field(self):
+        parent = dict(status="UNSUPPORTED", reason="r", candidate_bytes=720)
+        child = dict(status="UNSUPPORTED", reason="r", candidate_bytes=716)
+        score = shape_search.score_prediction(_prediction(length_delta=-4, register_role_diffs=None), child, parent)
+        self.assertEqual((score["outcome"], score["measurement"]), ("confirmed", "PAYLOAD_LENGTH_ONLY"))
+        score = shape_search.score_prediction(_prediction(length_delta=-4, removed_candidate_only=1), child, parent)
+        self.assertEqual(score["outcome"], "partial")
+        self.assertEqual(score["fields"]["removed_candidate_only"], "unmeasurable")
+        self.assertIsNone(score["observed_delta"]["removed_candidate_only"])
+        score = shape_search.score_prediction(_prediction(length_delta=None, removed_candidate_only=1), child, parent)
+        self.assertEqual(score["outcome"], "unmeasurable")  # alignment fields need supported diagnostics
+        full = dict(status="DIAGNOSTIC_ONLY", candidate_bytes=700, candidate_only=1, expected_only=0,
+                    register_role_diffs=0)
+        score = shape_search.score_prediction(_prediction(length_delta=20, register_role_diffs=None), parent, full)
+        self.assertEqual((score["outcome"], score["measurement"]), ("confirmed", "PAYLOAD_LENGTH_ONLY"))
+
+    def test_parent_may_name_a_ledger_line_or_cache_key(self):
+        self.assertEqual(shape_search._parent("ledger:12", "p", set()), dict(kind="ledger", value="ledger:12", line=12))
+        self.assertEqual(shape_search._parent("a" * 64, "p", set())["kind"], "cache_key")
+        for bad in ("ledger:0", "ledger:x", "A" * 64):
+            with self.subTest(bad=bad), self.assertRaises(FormatError):
+                shape_search._parent(bad, "p", set())
+
+
 class HypothesisLedgerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -341,6 +376,75 @@ class HypothesisLedgerTests(unittest.TestCase):
         self.assertEqual(summary["exact_matches_per_compiler_trial"], 0.5)
         self.assertEqual(summary["duplicates_rejected"], 1)
         self.assertEqual(summary["predictions"], dict(confirmed=1, partial=0, refuted=1, unmeasurable=1))
+
+    def test_parent_measurement_compile_is_counted_and_budgeted(self):
+        (self.root / "experiments").mkdir(exist_ok=True)
+        parent_path = self.root / "experiments" / "p.c"
+        parent_path.write_text("recovered() { return 0; }", encoding="ascii")
+        source_parent = dict(kind="source", value="experiments/p.c", source_path=parent_path,
+                             source="recovered() { return 0; }")
+        child = self.variant("kid", "recovered() { return 5; }", source_parent)
+        child["predicted_effect"] = _prediction(length_delta=-2, register_role_diffs=None)
+        diagnostics = {"kid": self.diagnostic(18, 1, 1), "parent-measurement-00": self.diagnostic(20, 1, 1)}
+        seen = []
+
+        def fake_evaluate(function_id, run, cached_only=False, output_dir=None):
+            seen.append([v["id"] for v in run])
+            return dict(evaluated=[dict(id=v["id"], source=v["manifest_source"], diagnostic=diagnostics[v["id"]],
+                                        report=dict(cache_key=("%02d" % len(v["id"])) * 32, cache_hit=False,
+                                                    verdict="DIFFER")) for v in run],
+                        ranking=[v["id"] for v in run])
+        with patch.object(shape_search, "ROOT", self.root), \
+             patch.object(shape_search, "evidence", return_value={"functions": [dict(id="f", hunk=3, node="ov01")]}), \
+             patch.object(shape_search, "identity", return_value=("c" * 64, {}, "")), \
+             patch.object(shape_search, "_cached", return_value=None), \
+             patch.object(shape_search, "_retained_attempt_key", return_value=None), \
+             patch.object(shape_search, "evaluate", side_effect=fake_evaluate):
+            over = shape_search.evaluate_hypotheses("f", [child], ledger=self.ledger, measure_parents=True,
+                                                    budget=dict(max_unique_compiles=1))
+            self.assertEqual(seen[-1], ["kid"])
+            self.assertEqual(over["evaluated"][0]["hypothesis"]["parent_observed"]["reason"],
+                             "PARENT_COMPILE_OVER_BUDGET")
+            other = self.variant("kid2", "recovered() { return 6; }", source_parent)
+            other["predicted_effect"] = _prediction(length_delta=-2, register_role_diffs=None)
+            diagnostics["kid2"] = self.diagnostic(18, 1, 1)
+            result = shape_search.evaluate_hypotheses("f", [other], ledger=self.ledger, measure_parents=True,
+                                                      budget=dict(max_unique_compiles=2))
+            self.assertEqual(seen[-1], ["kid2", "parent-measurement-00"])
+            self.assertEqual([e["id"] for e in result["evaluated"]], ["kid2"])  # parent is not a hypothesis
+            hyp = result["evaluated"][0]["hypothesis"]
+            self.assertEqual((hyp["parent_basis"], hyp["prediction"]["outcome"]),
+                             ("PARENT_COMPILED_COUNTED_TRIAL", "confirmed"))
+            record = shape_search.read_ledger(shape_search.ledger_path(self.ledger))[-1][1]
+            self.assertTrue(record["parent_compile"]["counted_trial"])
+            summary = shape_search.ledger_summary(shape_search.ledger_path(self.ledger), "f")
+        self.assertEqual(summary["parent_measurement_compiles"], 1)
+        self.assertEqual(summary["compiler_trials"], 3)
+
+    def test_rescore_is_read_only_and_resolves_parents_from_cache(self):
+        with patch.object(shape_search, "ROOT", self.root):
+            path = shape_search.ledger_path(self.ledger)
+            base = dict(ledger_schema=1, record_type="trial", function_id="f", manifest="m.json", profile="aztec36",
+                        diagnostic_scope="register_assignment")
+            records = [dict(base, variant="p", parent="none", parent_basis="NO_PARENT", cache_key="1" * 64,
+                            predicted_effect=_prediction(length_delta=0), prediction=dict(outcome="unmeasurable")),
+                       dict(base, variant="c", parent="p", parent_basis="MANIFEST_VARIANT", cache_key="2" * 64,
+                            predicted_effect=_prediction(length_delta=-4, register_role_diffs=None),
+                            observed=dict(status="UNSUPPORTED", reason="old"),
+                            prediction=dict(outcome="unmeasurable"))]
+            shape_search.append_ledger(path, records)
+            before = path.read_bytes()
+            sizes = {"1" * 64: 720, "2" * 64: 716}
+            with patch.object(shape_search, "_cached", side_effect=lambda k: {} if k in sizes else None), \
+                 patch.object(shape_search, "measure_key", side_effect=lambda f, k, s: dict(
+                     status="UNSUPPORTED", reason="DATA", candidate_bytes=sizes[k])):
+                report = shape_search.rescore_ledger(path)
+                summary = shape_search.ledger_summary(path, None, rescore=True)
+            self.assertEqual(path.read_bytes(), before)
+        self.assertEqual(report["recorded"]["unmeasurable"], 2)
+        self.assertEqual(report["rescored"], dict(confirmed=1, partial=0, refuted=0, unmeasurable=1))
+        self.assertEqual(report["unmeasurable_reasons"], {"NO_PARENT": 1})
+        self.assertEqual(summary["predictions_rescored"]["confirmed"], 1)
 
     def test_malformed_ledger_and_outside_path_are_refused(self):
         with patch.object(shape_search, "ROOT", self.root):
