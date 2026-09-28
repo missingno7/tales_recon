@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_415A",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "common-exit",
+      "causal_family": "branch-and-local-layout",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov11_F_415A/common_exit.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_415A/guarded_update.c",
+      "suspected_cause": "An explicit reset-path return makes the compiler share an epilogue before the update block.",
+      "controlled_change": "Move the update condition into an else arm and let both arms fall through to the terminal epilogue.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Expect only branch and epilogue placement changes; total member size should remain 156 bytes."
+      }
+    }
+  ]
+}

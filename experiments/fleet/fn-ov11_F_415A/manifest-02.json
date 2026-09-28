@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_415A",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "guarded-update",
+      "causal_family": "branch-and-local-layout",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov11_F_415A/guarded_update.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_415A/base.c",
+      "suspected_cause": "The early return inside the second guard costs an extra forward branch in the candidate.",
+      "controlled_change": "Rewrite the G_h01_A15A early return as a zero-test guarding the existing update block.",
+      "predicted_effect": {
+        "length_delta": -2,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Expect the direct exit branch to save two bytes."
+      }
+    }
+  ]
+}
