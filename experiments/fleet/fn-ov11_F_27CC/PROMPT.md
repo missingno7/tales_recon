@@ -2,7 +2,7 @@
 
 You are an autonomous worker on a historical Amiga 68k (Aztec C) reconstruction in `D:/Prog/tales_recon`. You have no memory beyond this prompt. Recover closed function ov11_F_27CC (622 bytes)
 
-Priority 44. Lease: worker `luna-fn-ov11_F_27CC`, expires 2026-09-29T03:52:45+00:00 (renew: `python tools/fleet.py renew fn-ov11_F_27CC --worker luna-fn-ov11_F_27CC`).
+Priority 44. Lease: worker `luna-fn-ov11_F_27CC`, expires 2026-09-29T04:11:17+00:00 (renew: `python tools/fleet.py renew fn-ov11_F_27CC --worker luna-fn-ov11_F_27CC`).
 
 ## First step (host liveness)
 Run `python tools/fleet.py renew fn-ov11_F_27CC --worker luna-fn-ov11_F_27CC` before anything else. The host is shared and heavily loaded: a single command can take 1-3 minutes to start and finish. Run commands one at a time (never batch several commands in parallel), wait on slow commands instead of terminating them, and keep outputs small. Do not read whole docs/*.json ledgers or long docs; this packet already carries the binding rules and target facts, so use targeted queries. Only if this `renew` command itself has still not returned after 10 minutes, stop and reply with one line: `TASK fn-ov11_F_27CC BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
@@ -48,12 +48,13 @@ extern int F_h11_25D6(); /* 4x */
 
 ## Prior hypotheses (do not repeat)
 `{"summary":{"predictions":{},"shown":0,"trials":0,"verdicts":{}},"trials":[]}`
+Prior fleet outcomes: `[{"explanation":"The required full disassembly/CFG/relocation package is unavailable: grinder facts ov11_F_27CC returned BLOCKED because the function exceeds the bounded grinder budget. The task packet supplies only call/global summar...","line":96,"status":"NEEDS_EVIDENCE_FOR_CURATION","task":"fn-ov11_F_27CC"}]`
 
 ## Type evidence ov11_F_27CC (advisory)
 `{"declaration_conflicts":31,"frame":[],"globals":["G_h01_0018 w=[] rw={'UNKNOWN': 40}","G_h01_0054 w=[] rw={'UNKNOWN': 277}","G_h01_0162 w=[] rw={'UNKNOWN': 66}","G_h01_01A4 w=[] rw={'UNKNOWN': 67}","G_h01_01B6 w=[] rw={'UNKNOWN': 2}","G_h01_01BC w=[] rw={'UNKNOWN': 76}","G_h01_46CA w=[4] rw={'READ': 244}","G_h01_46E1 w=[1] rw={'READ': 21, 'READ_WRITE': 8, 'UNKNOWN': 21, 'WRITE': 4}"]}`
 
 ## Protocol
-1. Inspect evidence (read-only): `python tools/grinder.py facts ID` (full disassembly/CFG/relocations), `python tools/diag.py ID --cache-key KEY` for any cached key, `python tools/type_evidence.py --function ID`, `python tools/shape_search.py --ledger-summary ID`, docs/source-shape-search.md, docs/m68k-diagnostics.md.
+1. Inspect evidence (read-only): `python tools/grinder.py facts ID --max-instructions 2000` (full disassembly/CFG/relocations), `python tools/diag.py ID --cache-key KEY` for any cached key, `python tools/type_evidence.py --function ID`, `python tools/shape_search.py --ledger-summary ID`, docs/source-shape-search.md, docs/m68k-diagnostics.md.
 2. BEFORE compiling, record each hypothesis with a machine-checkable prediction. Write a schema v2 manifest `experiments/fleet/fn-ov11_F_27CC/manifest-NN.json` (docs/source-shape-search.md): every variant has parent, suspected_cause, controlled_change and predicted_effect {length_delta, removed_candidate_only, register_role_diffs, note}. Name a measured parent (an earlier variant, a compiled .c path, `ledger:N` or a 64-hex cache key); parent `none` leaves every prediction unmeasurable. Sources: `experiments/fleet/fn-ov11_F_27CC/*.c` (self-contained K&R C defining `recovered(...)`, mechanical G_hNN_XXXX/F_hNN_XXXX externs).
 3. Each variant makes ONE controlled change from its parent. Do not resubmit a hypothesis listed under prior hypotheses; the ledger rejects normalized duplicates and returns the earlier record, which you must read instead.
 4. Compile via: `python tools/shape_search.py experiments/fleet/fn-ov11_F_27CC/manifest-NN.json --output-dir experiments/fleet/fn-ov11_F_27CC/runs --json` (isolated; records the ledger; add `--measure-parents` to compile an unmeasured parent as a counted trial). For owned CODE data or m.lib only: `python tools/fleet.py verify-function ID SRC --profile P [--owned-code-data] [--with-m-lib] --output-dir experiments/fleet/fn-ov11_F_27CC/runs`.

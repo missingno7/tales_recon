@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_27CC",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "loop-bound-global-identity",
+      "causal_family": "global-identity",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov11_F_27CC/candidate-03.c",
+      "profile": "aztec36",
+      "parent": "ledger:111",
+      "suspected_cause": "The loop-count subtraction reads G_h01_94AC, while the preceding gate independently reads G_h01_94AE.",
+      "controlled_change": "Change the loop-bound global from G_h01_94AE to G_h01_94AC.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The parent diagnostic shows one A4 identity mismatch at the loop subtraction and identical 622-byte instruction shape."
+      }
+    }
+  ]
+}

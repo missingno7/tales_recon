@@ -2,12 +2,45 @@
   "schema_version": 1,
   "task_id": "fn-ov11_F_27CC",
   "worker": "luna-fn-ov11_F_27CC",
-  "status": "NEEDS_EVIDENCE",
+  "status": "EQUAL_CANDIDATE",
   "target": "ov11_F_27CC",
-  "best": null,
-  "hypotheses": [],
-  "compile_trials": 0,
-  "ledger_lines": [],
-  "explanation": "The required full disassembly/CFG/relocation package is unavailable: grinder facts ov11_F_27CC returned BLOCKED because the function exceeds the bounded grinder budget. The task packet supplies only call/global summaries, not instruction flow or memory operands. The shape-search ledger has 0 compiler trials and 0 cache hits, so no candidate cache key exists for diagnostics. Needed: a facts extractor that can process this target, or equivalent instruction-level facts (per-block disassembly, CFG edges, and relocations) before a source hypothesis can be grounded.",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_27CC/candidate-03.c",
+    "profile": "aztec36",
+    "cache_key": "3b828e450ade5ce245662dde24d0d03e6af88d4d28528c47db6898d8157c8215",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov11_F_27CC",
+    "options": [],
+    "expected_length": 622,
+    "actual_length": 622
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The initial K&R source hypothesis follows the closed instruction flow, calls, and global accesses.",
+      "outcome": "unmeasurable",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 106: parent none; 602-byte baseline DIFFER."
+    },
+    {
+      "id": "h2",
+      "statement": "The five drawing-helper bottom-coordinate arguments are widened from int to long, adding 20 bytes.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 111: measured length delta +20; 622-byte instruction shape, with one remaining global identity difference."
+    },
+    {
+      "id": "h3",
+      "statement": "The loop bound subtracts G_h01_94AC rather than G_h01_94AE.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 113: isolated exact EQUAL, 622 bytes, relocation identities equal."
+    }
+  ],
+  "compile_trials": 3,
+  "ledger_lines": [
+    106,
+    111,
+    113
+  ],
+  "explanation": "An isolated aztec36 check_function comparison returned EQUAL for candidate-03.c at 622 bytes. It reproduces the complete closed contribution, including resolved relocation identities. The initial baseline was 20 bytes short because five coordinate arguments were passed as 16-bit ints; after widening them, the remaining mismatch identified the loop-bound access as G_h01_94AC. The final diagnostic is advisory, with full instruction similarity and matching extents.",
   "proposed_blocker": null
 }

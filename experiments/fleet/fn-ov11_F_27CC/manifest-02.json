@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_27CC",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "wide-coordinate-arguments",
+      "causal_family": "argument-width",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov11_F_27CC/candidate-02.c",
+      "profile": "aztec36",
+      "parent": "ledger:106",
+      "suspected_cause": "Drawing API calls require four-byte coordinates even where the computed local coordinate is a 16-bit int.",
+      "controlled_change": "Cast each of the five bottom-coordinate arguments to the drawing helpers from int to long.",
+      "predicted_effect": {
+        "length_delta": 20,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The parent diagnostic is 20 bytes short and aligns five local-coordinate argument sites with target long extensions and long pushes."
+      }
+    }
+  ]
+}
