@@ -160,6 +160,21 @@ compact, not the natural layout. Regions therefore use the opt-in
   with `--allow-original-gaps`. Without spans, one combined object is
   accepted: this is the ordinary contiguous unit, with the same cache key.
   Other option sets keep their exact trials and cache keys.
+- With `--separate-objects`, canonical members that their own proof's
+  complete-unit receipt shows in one ordinary source object stay in one
+  object here (`natural_interval.proven_object_groups`). The partition comes
+  from the receipt: no object partition means one object; otherwise the
+  hash-checked compile-cache assembler output names each object's functions.
+  A group applies only when every member is canonical, has its proved source
+  hash, and is consecutive in this unit. Otherwise it is listed in
+  `proven_object_groups_not_applied`. Example: ov11_F_25D6+25F8 or
+  ov11_F_407C+40E0 keep their proved short local calls.
+- Member objects keep their own `extern` declarations. The one link harness
+  defines each external stand-in once. When objects declare one external
+  differently (`void`/`int F_h00_3674()`), the first declaration defines the
+  stand-in, and the receipt lists `merged_external_declarations`. Stand-ins
+  are harness code, never claimed bytes. The prepare-only plan reports
+  `duplicate_stand_in_definitions` for each trial.
 
 For intake, `natural_interval` is a region-only option. `reverify` and the
 promote command take the interval from the region task.

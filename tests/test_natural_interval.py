@@ -1,4 +1,5 @@
 """Natural-interval units: order, compaction spans and gap-dependent encodings."""
+import json
 import sys
 import tempfile
 import unittest
@@ -236,6 +237,123 @@ class NaturalPositiveControlTests(unittest.TestCase):
         self.assertEqual([c['verdict'] for c in report['canonical_regressions']],['EQUAL','EQUAL'])
         self.assertEqual(report['natural_interval']['compaction_spans'],[])
         self.assertEqual(report['verification_policy'],check_unit.NATURAL_POLICY)
+
+
+class ExternalStandInTests(unittest.TestCase):
+    """Separate objects may declare one external differently; the harness defines it once."""
+
+    def test_conflicting_views_share_one_stand_in(self):
+        from compiler_oracle import harness
+        combined=('extern int F_h00_3674(); extern long F_h00_463E(); recovered() { F_h00_3674(); }\n'
+                  'extern void F_h00_3674(); extern int F_h00_463E(); F_h11_0010() { F_h00_463E(); }\n')
+        source,merged=check_unit.external_stand_in_source(combined,['F_h11_0010'],9)
+        self.assertEqual(merged,{'F_h00_3674':dict(defined='int F_h00_3674()',merged=['void F_h00_3674()']),
+                                 'F_h00_463E':dict(defined='long F_h00_463E()',merged=['int F_h00_463E()'])})
+        h=harness(source,9,['F_h11_0010'])
+        self.assertEqual(h.count('F_h00_3674()'),1);self.assertEqual(h.count('F_h00_463E()'),1)
+        self.assertIn('int F_h00_3674() { return 0; }',h);self.assertIn('long F_h00_463E() { return 0; }',h)
+        summary=check_unit.stand_in_summary(dict(source=source,target_node=9,local_functions=['F_h11_0010'],
+                                                 merged_external_declarations=merged))
+        self.assertEqual(summary['duplicate_stand_in_definitions'],[])
+        self.assertEqual(summary['harness_function_stand_ins'],2)
+
+    def test_consistent_declarations_keep_the_source_identity(self):
+        combined=('extern int F_h00_3674(); extern int F_h11_0010(); recovered() { F_h00_3674(); }\n'
+                  'extern int F_h00_3674(); extern void F_h11_0010(); F_h11_0010() { F_h00_3674(); }\n'
+                  'extern void F_h03_154E(); extern int F_h03_154E(); F_h11_0020() { F_h03_154E(); }\n')
+        # Identical repeats, local members and overlay proxies are never rewritten.
+        source,merged=check_unit.external_stand_in_source(combined,['F_h11_0010','F_h11_0020'],9)
+        self.assertIs(source,combined);self.assertEqual(merged,{})
+
+
+class ProvenGroupingTests(unittest.TestCase):
+    """Canonical members proved as one natural object stay one object."""
+
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
+        self.a=fn(0x10,'4e71'*3+'4e75');self.b=fn(0x18,'4e71'*3+'4e75')
+        self.c=fn(0x20,'4e71'*3+'4e75');self.n=fn(0x28,'4e71'*3+'4e75')
+        self.ledger=dict(functions={})
+        (self.root/'units').mkdir()
+
+    def tearDown(self):self.tmp.cleanup()
+
+    def prove(self,fid,ordered,labels=None,source_sha='s'):
+        receipt=dict(id=fid,verdict='EQUAL',source_sha256=source_sha,cache_key='k'+fid,
+                     dependency_sources={x['id']:'s' for x in ordered if x['id']!=fid},
+                     ordered_members=[{k:x[k] for k in ('id','hunk','start','end','size')} for x in ordered],
+                     compiler={} if labels is None else dict(object_labels=labels))
+        path=self.root/'units'/(fid+'.json');path.write_text(json.dumps(receipt))
+        proof=self.root/(fid+'.proof.json')
+        proof.write_text(json.dumps(dict(comparison=dict(complete_unit_receipt='units/'+fid+'.json',
+                                                         complete_unit_receipt_sha256=check_unit.sha256(path.read_bytes())))))
+        for x in ordered:self.ledger['functions'].setdefault(x['id'],dict(source_sha256='s'))
+        self.ledger['functions'][fid]=dict(source_sha256=source_sha,proof=fid+'.proof.json')
+
+    def groups(self,members,new_ids=()):
+        with patch.object(check_unit,'ROOT',self.root):
+            return check_unit.proven_unit_groups(members,set(new_ids),self.ledger)
+
+    def test_single_object_receipt_groups_its_members(self):
+        self.prove(self.b['id'],[self.a,self.b])
+        members=[self.a,self.b,self.c,self.n]
+        groups,skipped=self.groups(members,[self.n['id']])
+        self.assertEqual((groups,skipped),([[self.a['id'],self.b['id']]],[]))
+        names={m['id']:check_unit.mechanical_name(m) for m in members}
+        parts={self.a['id']:'F_h09_0010() {}',self.b['id']:'extern int F_h09_0010();\nF_h09_0018() { F_h09_0010(); }',
+               self.c['id']:'F_h09_0020() {}',self.n['id']:'recovered() {}'}
+        objects=check_unit.grouped_objects(members,names,parts,False,groups)
+        self.assertEqual([o['source'] for o in objects],
+                         ['F_h09_0010() {}\n\nF_h09_0018() { F_h09_0010(); }','F_h09_0020() {}','recovered() {}'])
+        # Without proven groups the historical one-object-per-member partition is unchanged.
+        self.assertEqual(check_unit.grouped_objects(members,names,parts,False,[]),[dict(source=parts[m['id']]) for m in members])
+
+    def test_partitioned_receipt_groups_only_its_shared_objects(self):
+        self.prove(self.a['id'],[self.a,self.b,self.c],labels=['candidate','part001'])
+        cache=self.root/'cache';cache.mkdir()
+        (cache/'t000.asm').write_text('_recovered:\n\trts\n_F_h09_0018:\n\trts\n')
+        (cache/'t000_part001.asm').write_text('_F_h09_0020:\n\trts\n')
+        compiled=dict(status='COMPILED',identity=dict(object_labels=['candidate','part001']),directory=str(cache),prefix='t000')
+        with patch('compiler_oracle.cached',return_value=compiled):
+            groups,skipped=self.groups([self.a,self.b,self.c,self.n],[self.n['id']])
+        self.assertEqual((groups,skipped),([[self.a['id'],self.b['id']]],[]))
+        with patch('compiler_oracle.cached',return_value=None):
+            groups,skipped=self.groups([self.a,self.b,self.c,self.n],[self.n['id']])
+        self.assertEqual((groups,[s['reason'] for s in skipped]),([],['PROVEN_OBJECT_PARTITION_UNAVAILABLE']))
+
+    def test_grouping_needs_canonical_unchanged_consecutive_members(self):
+        self.prove(self.b['id'],[self.a,self.b])
+        groups,skipped=self.groups([self.a,self.b,self.n],[self.a['id']])
+        self.assertEqual((groups,[s['reason'] for s in skipped]),([],['PROVEN_MEMBERS_NOT_ALL_CANONICAL_IN_UNIT']))
+        groups,skipped=self.groups([self.a,self.n,self.b],[self.n['id']])
+        self.assertEqual((groups,[s['reason'] for s in skipped]),([],['PROVEN_MEMBERS_NOT_CONSECUTIVE_HERE']))
+        self.ledger['functions'][self.a['id']]['source_sha256']='changed'
+        groups,skipped=self.groups([self.a,self.b,self.n],[self.n['id']])
+        self.assertEqual((groups,[s['reason'] for s in skipped]),([],['PROVEN_SOURCE_CHANGED']))
+
+
+class NaturalSeparateObjectControlTests(unittest.TestCase):
+    """ov11_F_37E4 in its natural interval: one stand-in per external, proven groups kept."""
+
+    def test_ov11_37e4_interval_from_cache(self):
+        from test_multi_member_unit import cache_only
+        source=ROOT/'experiments/fleet/fn-ov11_F_37E4/candidate-03.c'
+        if not source.is_file():self.skipTest('candidate absent')
+        key='5dab6f1ce2e106c1a4ba6315e604e8940240348a74906030a37a3ab044b94be7'
+        with patch.object(check_unit,'compile_many',side_effect=cache_only), \
+             patch.object(check_unit,'promote') as promote,patch.object(check_unit,'save_rank') as save_rank:
+            dry=check_unit.check('ov11_F_37E4',source,['aztec36'],separate_objects=True,isolated=True,
+                                 natural_interval='0x37E4..0x415A',prepare_only=True)[0]
+            if dry['natural_interval']['proven_object_groups']!=[['ov11_F_25D6','ov11_F_25F8'],['ov11_F_407C','ov11_F_40E0']]:
+                self.skipTest('proven partition evidence (compile cache) absent')
+            report=check_unit.check('ov11_F_37E4',source,['aztec36'],separate_objects=True,isolated=True,
+                                    natural_interval='0x37E4..0x415A')[0]
+        promote.assert_not_called();save_rank.assert_not_called()
+        self.assertEqual(dry['trials'][0]['cache_key'],key)
+        self.assertEqual(dry['trials'][0]['duplicate_stand_in_definitions'],[])
+        self.assertEqual(sorted(dry['trials'][0]['merged_external_declarations']),['F_h00_3674','F_h00_463E'])
+        self.assertEqual((report['cache_key'],report['verdict']),(key,'EQUAL'))
+        self.assertEqual({c['verdict'] for c in report['canonical_regressions']},{'EQUAL'})
 
 
 if __name__=='__main__':

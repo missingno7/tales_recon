@@ -419,8 +419,10 @@ NATURAL_POLICY=('Every linked byte comes from a recovered or candidate source ob
                 'when their displacement class is gap-independent')
 
 
-def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None,natural=None):
+def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None,natural=None,merged_externals=None):
     report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined,natural=natural)
+    # Differing per-object views of one external share one harness stand-in.
+    if merged_externals:report['merged_external_declarations']=merged_externals
     member_sources=dict(member_sources or {})
     new_ids={fid,*member_sources}
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
@@ -524,6 +526,121 @@ def partitioned_objects(members,names,parts,join_direct_callees=False):
     return result
 
 
+def proven_object_partition(receipt):
+    """Ordinary source objects of an EQUAL unit receipt, as ordered member-id lists.
+
+    A receipt compiled without an object partition was one object.  A
+    partitioned receipt is read from its own hash-checked compile-cache
+    artifacts: each object's assembler output names the functions it defines.
+    Returns ``None`` when that evidence is unavailable.
+    """
+    ids=[x['id'] for x in receipt.get('ordered_members') or []]
+    labels=(receipt.get('compiler') or {}).get('object_labels')
+    if labels is None:return [ids]
+    from compiler_oracle import cached
+    compiled=cached(receipt.get('cache_key',''))
+    if compiled is None or compiled.get('status')!='COMPILED' or compiled['identity'].get('object_labels')!=labels:return None
+    by_symbol={'_'+('recovered' if x['id']==receipt['id'] else 'F_h%02d_%04X'%(x['hunk'],x['start'])):x['id']
+               for x in receipt['ordered_members']}
+    directory=Path(compiled['directory']);objects=[];placed=[]
+    for label in labels:
+        name=compiled['prefix'] if label=='candidate' else compiled['prefix']+'_'+label
+        path=directory/(name+'.asm')
+        if not path.is_file():return None
+        defined=[by_symbol[n] for n in re.findall(r'^(_\w+):',path.read_text(errors='replace'),re.M) if n in by_symbol]
+        objects.append(sorted(defined,key=ids.index));placed+=defined
+    if sorted(placed)!=sorted(ids):return None
+    return objects
+
+
+def proven_unit_groups(members,new_ids,ledger=None):
+    """Canonical member runs that were proved together in one natural object.
+
+    Evidence comes only from a canonical member's own proof: its
+    ``complete_unit_receipt`` (hash-checked, verdict EQUAL) and that receipt's
+    ordinary object partition (``proven_object_partition``).  Every object of
+    two or more members becomes a group here when all of its members are
+    canonical in this unit, still have the proved source hashes, and are
+    consecutive in this unit's address order (so no other linked function
+    would have to enter that object).  Returns ``(groups, skipped)``;
+    ``skipped`` lists receipts or objects not applied and why.
+    """
+    ledger=ledger or recovery();functions=ledger['functions']
+    order=[m['id'] for m in members]
+    groups=[];skipped=[];seen=set()
+    for m in members:
+        item=functions.get(m['id'])
+        if m['id'] in new_ids or not item or not item.get('proof'):continue
+        proof_path=ROOT/item['proof']
+        if not proof_path.is_file():continue
+        comparison=json.loads(proof_path.read_text()).get('comparison') or {}
+        receipt_path=comparison.get('complete_unit_receipt')
+        if not receipt_path or receipt_path in seen:continue
+        seen.add(receipt_path)
+        def skip(reason,ids=None):
+            skipped.append(dict(receipt=receipt_path,reason=reason,**({'object':ids} if ids else {})))
+        path=ROOT/receipt_path
+        if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):
+            skip('RECEIPT_MISSING_OR_CHANGED');continue
+        receipt=json.loads(path.read_text())
+        if receipt.get('verdict')!='EQUAL' or len(receipt.get('ordered_members') or [])<2:continue
+        partition=proven_object_partition(receipt)
+        if partition is None:
+            skip('PROVEN_OBJECT_PARTITION_UNAVAILABLE');continue
+        proved={**receipt.get('dependency_sources',{}),receipt['id']:receipt.get('source_sha256')}
+        for ids in partition:
+            if len(ids)<2:continue
+            if any(x not in order or x in new_ids for x in ids):
+                skip('PROVEN_MEMBERS_NOT_ALL_CANONICAL_IN_UNIT',ids);continue
+            if any((functions.get(x) or {}).get('source_sha256')!=proved.get(x) for x in ids):
+                skip('PROVEN_SOURCE_CHANGED',ids);continue
+            at=order.index(ids[0])
+            if order[at:at+len(ids)]!=ids:
+                skip('PROVEN_MEMBERS_NOT_CONSECUTIVE_HERE',ids);continue
+            if ids not in groups:groups.append(ids)
+    # Overlapping proven objects describe one source object here.
+    merged=[]
+    for ids in sorted(groups,key=lambda g:order.index(g[0])):
+        if merged and order.index(ids[0])<=order.index(merged[-1][-1]):
+            merged[-1]=merged[-1]+[x for x in ids if x not in merged[-1]]
+        else:merged.append(list(ids))
+    return merged,skipped
+
+
+def grouped_objects(members,names,parts,join_direct_callees,proven_groups):
+    """Ordinary objects in original order, keeping proven natural units together.
+
+    Without ``proven_groups`` this is exactly the historical partition (one
+    object per member, or ``partitioned_objects`` with joined callees).
+    """
+    if not proven_groups:
+        return partitioned_objects(members,names,parts,True) if join_direct_callees else [dict(source=parts[m['id']]) for m in members]
+    owner={}
+    for index,ids in enumerate(proven_groups):
+        for x in ids:owner[x]=('proven',index)
+    callees={m['id']:{c['id'] for c in m['direct_callees'] if c['hunk']==m['hunk']} for m in members}
+    groups=[];current=[]
+    for member in members:
+        if current:
+            previous=current[-1]
+            same=owner.get(member['id']) is not None and owner.get(member['id'])==owner.get(previous['id'])
+            joined=(join_direct_callees and previous['end']==member['start'] and
+                    (member['id'] in callees[previous['id']] or previous['id'] in callees[member['id']]))
+            if not (same or joined):groups.append(current);current=[]
+        current.append(member)
+    if current:groups.append(current)
+    result=[]
+    for group in groups:
+        if len(group)==1:
+            result.append(dict(source=parts[group[0]['id']]));continue
+        text=joined_source(parts,group)
+        for member in group:
+            pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(names[member['id']])+r'\s*\(\s*\)\s*;'
+            text=re.sub(pattern,'',text)
+        result.append(dict(source=text))
+    return result
+
+
 def gap_partitioned_objects(members,names,parts):
     """Keep a gap proof in ordinary objects when no adjacent pair can join.
 
@@ -575,7 +692,44 @@ def promote_unit_members(fid,source,member_sources,members,report,comparison,com
             for member_id,text,member_report,member_state in plan]
 
 
-def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources):
+EXTERN_FUNCTION=r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)'
+
+
+def external_stand_in_source(combined,local_functions,target_node):
+    """Harness input defining each external stand-in exactly once.
+
+    With separate objects, every member object keeps its own ``extern``
+    declarations (``void F_h00_3674()`` in one, ``int F_h00_3674()`` in
+    another).  The oracle harness defines one naturally allocated stand-in per
+    distinct declaration, so differing views of one external identity would
+    become duplicate definitions.  Keep only the first declaration of each such
+    name for the harness input; the member objects still compile their own
+    declarations, the linker binds all of them to the one stand-in symbol, and
+    comparison maps that symbol to the original external by its mechanical
+    name.  Stand-ins are harness code and never claimed bytes.  Without a
+    conflicting declaration the combined source is returned unchanged, so every
+    previously compiling unit keeps its cache identity.
+    """
+    from compiler_oracle import overlay_proxies
+    skip=set(local_functions)|{p['name'] for p in overlay_proxies(combined,target_node)}
+    first={};drop=[];merged={}
+    for m in re.finditer(r'\bextern\s+([^;{}]+);',combined):
+        decl=m[1].strip();match=re.fullmatch(EXTERN_FUNCTION,decl)
+        if match is None or match[1] in skip:continue
+        name=match[1]
+        if name not in first:first[name]=decl
+        elif decl!=first[name]:
+            drop.append(m.span());merged.setdefault(name,[first[name]]).append(decl)
+    if not drop:return combined,{}
+    pieces=[];cursor=0
+    for a,b in drop:pieces.append(combined[cursor:a]);cursor=b
+    pieces.append(combined[cursor:])
+    return ''.join(pieces),{name:dict(defined=decls[0],merged=decls[1:]) for name,decls in sorted(merged.items())}
+
+
+def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups=()):
+    """``proven_groups`` (natural-interval only) keeps canonical runs that
+    were proved as one natural object in that one object."""
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
     trials=[]
@@ -584,18 +738,32 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
         if separate_objects:
             # Preserve historical module boundaries when their ordinary link
             # codegen matters (for example JSR instead of an intra-object BSR).
-            if join_direct_callees:
-                trial['objects']=partitioned_objects(members,names,parts,True)
-            else:
-                trial['objects']=[dict(source=parts[m['id']]) for m in members]
+            trial['objects']=grouped_objects(members,names,parts,join_direct_callees,proven_groups)
+            if proven_groups:trial['proven_object_groups']=[list(g) for g in proven_groups]
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
             # A new member's extern for the entry is a real cross-object call
             # into this unit; the harness must not define a stand-in for it.
             # Added only when present, so ordinary unit cache keys are stable.
             if member_sources and re.search(r'\bextern\s+(?:int|long|short|char|void)\s+recovered\s*\(\s*\)\s*;',combined):
                 trial['local_functions'].append('recovered')
+            # Each object keeps its own declarations; the shared harness
+            # defines every external stand-in once.
+            trial['source'],merged=external_stand_in_source(combined,trial['local_functions'],node)
+            if merged:trial['merged_external_declarations']=merged
         trials.append(trial)
     return trials
+
+
+def stand_in_summary(trial):
+    """Harness stand-in definitions of one trial: merged views and any duplicate name."""
+    from compiler_oracle import harness
+    text=harness(trial['source'],trial.get('target_node',1),trial.get('local_functions',()))
+    defined=re.findall(r'^'+EXTERN_FUNCTION+r'\s*\{',text,re.M)
+    counts={}
+    for name in defined:counts[name]=counts.get(name,0)+1
+    return dict(harness_function_stand_ins=len(defined),
+                duplicate_stand_in_definitions=sorted(n for n,c in counts.items() if c>1),
+                merged_external_declarations=trial.get('merged_external_declarations',{}))
 
 
 def trial_cache_key(trial):
@@ -635,8 +803,14 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         # where the natural interval is the ordinary contiguous unit.
         require(separate_objects or not natural['compaction_spans'],
                 'natural-interval proof across compaction spans requires separate ordinary source objects')
-    reports=[]
-    trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources)
+    reports=[];proven_groups=[]
+    if natural is not None and separate_objects:
+        # Canonical members proved together as one natural object stay one
+        # object; splitting them would change their proved local call forms.
+        proven_groups,skipped=proven_unit_groups(members,{fid,*member_sources},ledger=recovery())
+        natural['proven_object_groups']=proven_groups
+        if skipped:natural['proven_object_groups_not_applied']=skipped
+    trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups)
     if prepare_only:
         keys=[trial_cache_key(t) for t in trials]
         plan=dict(verdict='PREPARED_NOT_COMPILED',id=fid,
@@ -644,13 +818,14 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                                         role='new' if m['id']==fid or m['id'] in member_sources else 'canonical',
                                         linked_name=names[m['id']]) for m in members],
                   objects=len(trials[0].get('objects') or [None]) if trials else 0,
-                  trials=[dict(profile=t['profile'],cache_key=k,cached=c) for t,(k,c) in zip(trials,keys)],
+                  trials=[dict(profile=t['profile'],cache_key=k,cached=c,**stand_in_summary(t)) for t,(k,c) in zip(trials,keys)],
                   combined_source_sha256=sha256(combined.encode()))
         if natural is not None:plan['natural_interval']=natural
         return [plan]
-    for compiled in compile_many(trials):
+    for trial,compiled in zip(trials,compile_many(trials)):
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,
-                                      member_sources=member_sources,natural=natural)
+                                      member_sources=member_sources,natural=natural,
+                                      merged_externals=trial.get('merged_external_declarations'))
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
