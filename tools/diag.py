@@ -883,8 +883,85 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
     return base
 
 
+ENTRY_SYMBOLS = ('_recovered', 'recovered')
+# Standalone-extent refusals that a prepared unit (the target compiled as
+# ``recovered`` beside its bundled recovered callees) can still resolve by
+# bounding the entry member at the candidate's own symbols and object sizes.
+UNIT_MEMBER_REASONS = frozenset({'CANDIDATE_ENTRY_NOT_AT_OBJECT_START', 'MULTI_OBJECT_UNIT_UNBOUNDED',
+                                 'MULTIPLE_OR_UNIDENTIFIED_CODE_SYMBOLS'})
+
+
+def unit_member_extent(compiled):
+    """Bound the entry member of a prepared unit by the candidate's own output.
+
+    The member starts at the unique linked entry symbol (``_recovered``) and
+    ends at the next linked symbol or object boundary, using object CODE sizes
+    read from the candidate's own object files (``unit_diag``). Original
+    lengths are never consulted. Returns ``(bound, None)`` or ``(None, reason)``;
+    the member is refused whenever its bytes could include an unsymboled
+    function (a label in its object listing with no linked symbol).
+    """
+    from unit_diag import candidate_contributions, _member_compiled
+    c = compiled.get('contribution') or {}
+    size = len(bytes.fromhex(c.get('code_hex', '')))
+    hunk = c.get('hunk')
+    entry = sorted({int(s['offset']) for s in c.get('symbols', []) if s.get('hunk') == hunk
+                    and s.get('name') in ENTRY_SYMBOLS and 0 <= int(s.get('offset', -1)) < size})
+    if len(entry) != 1:
+        return None, 'UNIT_ENTRY_SYMBOL_ABSENT_OR_AMBIGUOUS'
+    start = entry[0]
+    if int(c.get('entry_offset', 0)) != start:
+        return None, 'UNIT_ENTRY_OFFSET_DISAGREES_WITH_ENTRY_SYMBOL'
+    segs, meta = candidate_contributions(compiled)
+    if not meta.get('objects'):
+        return None, 'UNIT_OBJECT_SIZES_UNAVAILABLE'
+    seg = next((s for s in segs if s['start'] == start), None)
+    if seg is None or seg['length'] <= 0:
+        return None, 'UNIT_ENTRY_SEGMENT_ABSENT'
+    if any(n not in ENTRY_SYMBOLS for n in seg['names']):
+        return None, 'UNIT_ENTRY_SHARES_OFFSET_WITH_OTHER_SYMBOL'
+    lo = 0
+    obj = None
+    for o in meta['objects']:
+        if lo <= start < lo + o['bytes']:
+            obj = dict(label=o['label'], start=lo, end=lo + o['bytes'])
+            break
+        lo += o['bytes']
+    if obj is None or obj['label'] != seg['object']:
+        return None, 'UNIT_ENTRY_OBJECT_UNMAPPED'
+    # Every function label of the member's object must be a linked symbol,
+    # otherwise an unsymboled (e.g. static) function could sit in the segment.
+    prefix = compiled.get('prefix') or ''
+    asm = Path(compiled.get('directory') or '.') / ((prefix if obj['label'] == 'candidate' else prefix + '_' + obj['label']) + '.asm')
+    if not compiled.get('directory') or not asm.is_file():
+        return None, 'UNIT_MEMBER_OBJECT_LISTING_UNAVAILABLE'
+    linked = {s['name'] for s in c.get('symbols', []) if s.get('hunk') == hunk
+              and obj['start'] <= int(s.get('offset', -1)) < obj['end']}
+    labels = set(re.findall(r'^(_\w+):', asm.read_text(errors='replace'), re.M))
+    if labels - linked:
+        return None, 'UNIT_MEMBER_OBJECT_HAS_UNSYMBOLED_LABELS:' + ','.join(sorted(labels - linked))
+    symbol_offsets = {int(s['offset']) for s in c.get('symbols', []) if s.get('hunk') == hunk
+                      and not re.fullmatch(r'__H\d+_(?:org|end)', s.get('name', ''))}
+    end_basis = ('object_end_and_next_linked_symbol' if seg['end'] in symbol_offsets and seg['end'] == obj['end'] else
+                 'next_linked_symbol' if seg['end'] in symbol_offsets else
+                 'object_end' if seg['end'] == obj['end'] else
+                 'code_payload_end' if seg['end'] == size else None)
+    if end_basis is None:
+        return None, 'UNIT_MEMBER_END_UNBOUNDED'
+    piece = _member_compiled(compiled, seg)
+    piece['contribution']['entry_offset'] = 0
+    return dict(piece=piece, start=seg['start'], end=seg['end'], bytes=seg['length'], object=obj['label'],
+                symbol=seg['names'][0], end_basis=end_basis, unit_code_bytes=size,
+                objects=[dict(o) for o in meta['objects']]), None
+
+
 def diagnose(function_id: str, cache_key: str):
-    """Load a closed original function and a validated cached standalone compile."""
+    """Load a closed original function and a validated cached standalone compile.
+
+    A prepared unit (the target compiled as ``recovered`` among bundled
+    recovered callees) is diagnosed on the entry member only, bounded by the
+    candidate's own symbols (``bounded_by: unit_member_symbol``).
+    """
     f, ledger = validated_function(function_id)
     compiled = cached(cache_key)
     if compiled is None:
@@ -908,13 +985,33 @@ def diagnose(function_id: str, cache_key: str):
                  and not re.fullmatch(r'__H\d+_(?:org|end)', s.get('name', ''))
                  and 0 <= s.get('offset', -1) < c.get('code_size', 0) for s in c.get('symbols', [])):
             reason = 'MULTIPLE_OR_UNIDENTIFIED_CODE_SYMBOLS'
+    member = None
+    if reason in UNIT_MEMBER_REASONS:
+        member, why = unit_member_extent(compiled)
+        if member is None:
+            report['unit_member_reason'] = why
+        else:
+            report['unit_standalone_reason'] = reason
+            reason = None
     if reason:
         report.update(status='UNSUPPORTED', reason=reason, candidate_extent=None)
         return report
-    raw = bytes.fromhex(compiled['contribution']['code_hex'])
-    report['candidate_extent'] = dict(bytes=len(raw), hunk=compiled['contribution'].get('hunk'),
-                                      entry_offset=compiled['contribution'].get('entry_offset', 0),
-                                      boundary='ENTIRE_SINGLE_OBJECT_CODE_PAYLOAD; may include compiler-owned code data')
+    if member is None:
+        raw = bytes.fromhex(compiled['contribution']['code_hex'])
+        report['candidate_extent'] = dict(bytes=len(raw), hunk=compiled['contribution'].get('hunk'),
+                                          entry_offset=compiled['contribution'].get('entry_offset', 0),
+                                          boundary='ENTIRE_SINGLE_OBJECT_CODE_PAYLOAD; may include compiler-owned code data')
+    else:
+        compiled = member['piece']
+        raw = bytes.fromhex(compiled['contribution']['code_hex'])
+        report['bounded_by'] = 'unit_member_symbol'
+        report['candidate_extent'] = dict(
+            bytes=len(raw), hunk=compiled['contribution'].get('hunk'), entry_offset=0,
+            bounded_by='unit_member_symbol', unit_offset=member['start'], unit_end=member['end'],
+            unit_code_bytes=member['unit_code_bytes'], object=member['object'], symbol=member['symbol'],
+            end_basis=member['end_basis'], objects=member['objects'],
+            boundary='UNIT_MEMBER_AT_CANDIDATE_ENTRY_SYMBOL_AND_OWN_OBJECT_SIZES; original lengths not used; '
+                     'may include compiler-owned code data')
     if f.get('jump_tables') or any(r.get('kind') == 'PC_RELATIVE_DATA' for r in f.get('referenced_data', [])):
         report.update(status='UNSUPPORTED', reason='ORIGINAL_DATA_BOUNDARY_HAS_NO_MAPPED_CANDIDATE_BOUNDARY',
                       alignment=None, blocks=None, hypotheses=[dict(category='data_ownership_review', count=1,
@@ -942,7 +1039,14 @@ def compact_summary(result, max_bytes=6000):
                    function=result.get('function'), cache_key=result.get('cache_key'))
     if result.get('status') != 'DIAGNOSTIC_ONLY':
         summary['reason'] = result.get('reason', 'UNSUPPORTED')
+        if result.get('unit_member_reason'):
+            summary['unit_member_reason'] = result['unit_member_reason']
         return summary
+    if result.get('bounded_by'):
+        summary['bounded_by'] = result['bounded_by']
+        ext = result.get('candidate_extent') or {}
+        summary['unit_member'] = {k: ext[k] for k in ('unit_offset', 'unit_end', 'unit_code_bytes', 'object', 'end_basis')
+                                  if k in ext}
     align = result.get('alignment') or {}
     blocks = result.get('blocks') or {}
     summary['extents'] = dict(expected=(result.get('original_extent') or {}).get('bytes',

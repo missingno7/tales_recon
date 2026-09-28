@@ -2,6 +2,7 @@ import json
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -230,6 +231,100 @@ class ReferenceIdentityTests(unittest.TestCase):
         self.assertEqual(report['hypotheses'], [])
         summary = diag.compact_summary(report)
         self.assertEqual(summary['reference_identity']['counts']['unresolved'], 0)
+
+
+class UnitMemberBoundTests(unittest.TestCase):
+    """Synthetic prepared units: the target is ``_recovered`` beside bundled callees."""
+
+    HELPER_A = '70004e75'        # moveq #0,d0; rts
+    MEMBER = '72014e714e75'      # moveq #1,d1; nop; rts
+    HELPER_B = '74024e75'        # moveq #2,d2; rts
+
+    def unit(self, *, objects=True, member_labels=('_recovered',), extra_symbols=(), entry_offset=4):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        parts = [('candidate', self.HELPER_A, '_F_h11_0010'), ('part001', self.MEMBER, '_recovered'),
+                 ('part002', self.HELPER_B, '_F_h11_0200')]
+        for label, code, name in parts:
+            stem = 't000' if label == 'candidate' else 't000_' + label
+            if objects:
+                (root / (stem + '.o')).write_bytes(b'AJ' + bytes(8) + (len(code) // 2).to_bytes(4, 'big') + bytes(8))
+            labels = member_labels if name == '_recovered' else (name,)
+            (root / (stem + '.asm')).write_text(''.join('\tpublic\t%s\n%s:\n' % (n, n) for n in labels) + '\trts\n')
+        code = ''.join(p[1] for p in parts)
+        symbols = [dict(hunk=3, name='__H3_org', offset=0), dict(hunk=3, name='_F_h11_0010', offset=0),
+                   dict(hunk=3, name='_recovered', offset=4), dict(hunk=3, name='_F_h11_0200', offset=10),
+                   dict(hunk=3, name='__H3_end', offset=14)] + list(extra_symbols)
+        contribution = dict(hunk=3, code_hex=code, code_size=len(code) // 2, symbols=symbols, relocations=[],
+                            all_relocations=[], hunks=[], data_size=0, bss_size=0)
+        if entry_offset is not None:
+            contribution['entry_offset'] = entry_offset
+        return dict(status='COMPILED', directory=str(root), prefix='t000', cache_key='k' * 64,
+                    identity=dict(profile='aztec36', object_labels=[p[0] for p in parts]), contribution=contribution)
+
+    def test_entry_member_is_bounded_by_its_own_symbols_and_objects(self):
+        bound, why = diag.unit_member_extent(self.unit())
+        self.assertIsNone(why)
+        self.assertEqual((bound['start'], bound['end'], bound['bytes'], bound['object']), (4, 10, 6, 'part001'))
+        self.assertEqual(bound['end_basis'], 'object_end_and_next_linked_symbol')
+        self.assertEqual(bound['piece']['contribution']['code_hex'], self.MEMBER)
+        self.assertEqual(bound['piece']['contribution']['code_offset'], 4)
+
+    def test_member_that_cannot_be_bounded_independently_is_refused(self):
+        self.assertEqual(diag.unit_member_extent(self.unit(objects=False))[1], 'UNIT_OBJECT_SIZES_UNAVAILABLE')
+        # A static helper label with no linked symbol could sit inside the segment.
+        _, why = diag.unit_member_extent(self.unit(member_labels=('_recovered', '_helper')))
+        self.assertEqual(why, 'UNIT_MEMBER_OBJECT_HAS_UNSYMBOLED_LABELS:_helper')
+        _, why = diag.unit_member_extent(self.unit(entry_offset=0))
+        self.assertEqual(why, 'UNIT_ENTRY_OFFSET_DISAGREES_WITH_ENTRY_SYMBOL')
+        unit = self.unit()
+        unit['contribution']['symbols'] = [s for s in unit['contribution']['symbols'] if s['name'] != '_recovered']
+        self.assertEqual(diag.unit_member_extent(unit)[1], 'UNIT_ENTRY_SYMBOL_ABSENT_OR_AMBIGUOUS')
+        _, why = diag.unit_member_extent(self.unit(extra_symbols=[dict(hunk=3, name='_F_h11_0104', offset=4)]))
+        self.assertEqual(why, 'UNIT_ENTRY_SHARES_OFFSET_WITH_OTHER_SYMBOL')
+
+    def diagnose(self, unit):
+        f = dict(id='ov11_F_0100', hunk=13, start=0x100, end=0x106, size=6, extent_status='CLOSED_CFG',
+                 raw_bytes=self.MEMBER, referenced_data=[], direct_callees=[], relocations=[])
+        ledger = dict(game_sha256='0' * 64, a4=dict(bias=32766, evidence=dict(relocation=dict(target_hunk=1, addend_raw=32766))))
+        with mock.patch.object(diag, 'validated_function', return_value=(f, ledger)), \
+                mock.patch.object(diag, 'cached', return_value=unit):
+            return diag.diagnose(f['id'], unit['cache_key'])
+
+    def test_prepared_unit_member_is_diagnosed_not_the_whole_unit(self):
+        report = self.diagnose(self.unit())
+        self.assertEqual(report['status'], 'DIAGNOSTIC_ONLY', report.get('unit_member_reason'))
+        self.assertEqual(report['bounded_by'], 'unit_member_symbol')
+        self.assertEqual(report['unit_standalone_reason'], 'CANDIDATE_ENTRY_NOT_AT_OBJECT_START')
+        ext = report['candidate_extent']
+        self.assertEqual((ext['bytes'], ext['unit_offset'], ext['unit_code_bytes']), (6, 4, 14))
+        self.assertEqual((report['alignment']['expected_only'], report['alignment']['actual_only']), ([], []))
+        self.assertEqual(report['hypotheses'], [])
+        summary = diag.compact_summary(report)
+        self.assertEqual(summary['bounded_by'], 'unit_member_symbol')
+        self.assertEqual(summary['extents'], dict(expected=6, candidate=6))
+
+    def test_unbounded_member_keeps_the_standalone_refusal(self):
+        report = self.diagnose(self.unit(member_labels=('_recovered', '_helper')))
+        self.assertEqual((report['status'], report['reason']), ('UNSUPPORTED', 'CANDIDATE_ENTRY_NOT_AT_OBJECT_START'))
+        self.assertTrue(report['unit_member_reason'].startswith('UNIT_MEMBER_OBJECT_HAS_UNSYMBOLED_LABELS'))
+        self.assertIsNone(report['candidate_extent'])
+        self.assertNotIn('bounded_by', report)
+
+    def test_cached_prepared_unit_equal_keys_align_fully(self):
+        for fid, key, size in (('ov11_F_415A', '652f00b4c6a427f60aea26a5177817679599139e4c154c0831edbd28e39b1e6d', 156),
+                               ('ov11_F_6486', 'cc5bc703820070aa3a6bf394a025b98c7cfb1a7b476d904c864eba7969acb75b', 252)):
+            if cached(key) is None:
+                self.skipTest('cached prepared-unit compiler artifact unavailable')
+            report = diag.diagnose(fid, key)
+            self.assertEqual(report['status'], 'DIAGNOSTIC_ONLY', report.get('unit_member_reason'))
+            self.assertEqual(report['bounded_by'], 'unit_member_symbol')
+            self.assertEqual(report['candidate_extent']['bytes'], size)
+            self.assertEqual((report['alignment']['expected_only'], report['alignment']['actual_only']), ([], []))
+            self.assertEqual(report['hypotheses'], [])
+            self.assertEqual(report['reference_identity']['counts']['unresolved'], 0)
+            self.assertEqual(report['reference_identity']['counts']['different_identity'], 0)
 
 
 if __name__ == '__main__':

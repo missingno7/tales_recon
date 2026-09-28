@@ -25,6 +25,26 @@ data boundaries without mapped candidate boundaries. It does not slice an
 object to the original function length. A candidate payload can include
 compiler-owned code data; the report says so explicitly.
 
+Prepared units are the exception to the first three refusals. When
+`check_function` bundles recovered same-node callees, the target is compiled as
+`_recovered` among them (for example `ov11_F_415A` at offset 236 of 1420
+bytes). `unit_member_extent` then bounds the entry member by the candidate's
+own output: the unique `_recovered` symbol (it must agree with `entry_offset`)
+up to the next linked symbol or object boundary. The object CODE sizes come
+from the candidate `.o` files (`unit_diag.candidate_contributions`). Every
+function label in the member's object listing must be a linked symbol, so an
+unsymboled static function cannot sit inside the segment. The normal function
+diagnostic then runs on that member, and the report carries
+`bounded_by: "unit_member_symbol"`, `unit_standalone_reason` and a
+`candidate_extent` with `unit_offset`, `unit_end`, `object` and `end_basis`.
+If the member cannot be bounded independently, the original refusal reason is
+kept and `unit_member_reason` names the missing evidence. Measured on
+2026-09-28: the EQUAL keys for `ov11_F_415A` (`652f00b4…`), `ov11_F_4B0C`
+(`5872c112…`) and `ov11_F_6486` (`cc5bc703…`) align fully, with 0 hypotheses
+and 0 unresolved or different references. The DIFFER key `cf0c6b55…` for
+`ov11_F_415A` is 158 against 156 bytes, with 3 expected-only and 4
+candidate-only instructions.
+
 Cached examples used by the regression tests are a 20-byte `ov14_F_03AE`
 exact-verifier control (`f25f68d19e2811fa7533a18a206ec128d932d9de16c8f6cf7e6c96009b0e9456`)
 and the retained 672-byte `ov09_F_298E` near-match (`5d74128b28b30c647f3528921a6bca6ac9f28bab31c5128da77f1c4cb132c580`).
