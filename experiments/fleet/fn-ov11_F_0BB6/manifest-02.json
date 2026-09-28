@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_0BB6",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "grid-two-dimensional-index",
+      "causal_family": "grid-address-arithmetic",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov11_F_0BB6/grid_2d.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_0BB6/boundary_gte.c",
+      "suspected_cause": "Flattened 16-bit index arithmetic differs from the original's long column offset plus long row offset.",
+      "controlled_change": "Represent the same row-major grid accesses with a two-dimensional array and x then row subscripting.",
+      "predicted_effect": {
+        "length_delta": 6,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Three grid subscripts should widen the column scale from word shift-by-two to long shift-by-three."
+      }
+    }
+  ]
+}
