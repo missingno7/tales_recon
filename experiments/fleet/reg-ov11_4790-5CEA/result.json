@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "task_id": "reg-ov11_4790-5CEA",
+  "worker": "luna-reg-ov11_4790-5CEA",
+  "status": "BLOCKED",
+  "target": "ov11_F_487E,ov11_F_4EC6,ov11_F_51C0,ov11_F_54F8,ov11_F_55B8,ov11_F_583A,ov11_F_5962,ov11_F_5C42",
+  "best": null,
+  "hypotheses": [
+    {
+      "id": "h01-487e-baseline",
+      "statement": "Baseline v01 predicts ov11_F_487E emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    },
+    {
+      "id": "h02-4ec6-baseline",
+      "statement": "Baseline v01 predicts ov11_F_4EC6 emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    },
+    {
+      "id": "h03-51c0-baseline",
+      "statement": "Baseline v01 predicts ov11_F_51C0 emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    },
+    {
+      "id": "h04-54f8-baseline",
+      "statement": "Baseline v01 predicts ov11_F_54F8 emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    },
+    {
+      "id": "h05-55b8-baseline",
+      "statement": "Baseline v01 predicts ov11_F_55B8 emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    },
+    {
+      "id": "h06-583a-baseline",
+      "statement": "Baseline v01 predicts ov11_F_583A emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    },
+    {
+      "id": "h07-5962-baseline",
+      "statement": "Baseline v01 predicts ov11_F_5962 emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    },
+    {
+      "id": "h08-5c42-baseline",
+      "statement": "Baseline v01 predicts ov11_F_5C42 emits its stated member length and differs.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-94cbb29bb1e6/receipt.json: COMPILE_ERROR; unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED"
+    }
+  ],
+  "compile_trials": 1,
+  "ledger_lines": [],
+  "explanation": "The isolated natural-interval run compiled and assembled the source objects, but the final Aztec link returned guest status 10. Its t000-ln.log is empty and no executable was produced. The verifier receipt is BLOCKED/COMPILE_ERROR; unit_diag therefore returns UNSUPPORTED with CACHED_COMPILER_OUTPUT_NOT_COMPILED, so no per-member predictions can be measured. The 44-byte 0x59E6..0x5A12 span remains UNKNOWN_NOT_ASSIGNED. A linker diagnostic or object-level unresolved-symbol report is needed to identify a safe next source change.",
+  "proposed_blocker": {
+    "mechanism": "ISOLATED_LINKER_EXIT_WITHOUT_DIAGNOSTIC",
+    "text": "The isolated Aztec 3.6a natural-interval build for ov11_F_487E and seven --member sources compiled and assembled all source objects, then the final link returned status 10. The retained t000-ln.log is empty, no linked executable exists, and unit_diag reports CACHED_COMPILER_OUTPUT_NOT_COMPILED. Provide linker stdout/stderr or an unresolved-symbol report before attributing the failure to a particular source member; the original 0x59E6..0x5A12 gap stays unclaimed."
+  }
+}
