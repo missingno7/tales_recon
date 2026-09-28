@@ -133,11 +133,16 @@ def _alignment(expected, actual):
     return pairs, expected_only, actual_only, matcher.ratio()
 
 
-def _blocks(insns):
+def _blocks(insns, extra_leaders=()):
     if not insns:
         return [], dict(reason='EMPTY_CODE')
     by_off = {int(i.address): i for i in insns}
     leaders = {int(insns[0].address)}
+    for target in extra_leaders:
+        # Proven jump-table entries are control targets like branch targets.
+        if target not in by_off:
+            return None, dict(offset=target, target=target, reason='JUMP_TABLE_TARGET_OUTSIDE_DECODED_EXTENT')
+        leaders.add(target)
     for idx, ins in enumerate(insns):
         mn = _mnemonic(ins)
         target = _branch_target(ins)
@@ -378,6 +383,11 @@ class ReferenceResolver:
         self.f = f
         self.start = int(f['start'])
         self.notes = []
+        # Independently established CODE-data windows, (start, end, basis):
+        # original hunk offsets and candidate stream offsets. A PC-relative
+        # operand into both at the same data offset is one data identity.
+        self.expected_data_window = None
+        self.actual_data_window = None
         a4 = (ledger or {}).get('a4') or {}
         rel = (a4.get('evidence') or {}).get('relocation') or {}
         self.a4_bias = a4.get('bias') if rel.get('target_hunk') == 1 and rel.get('addend_raw') == a4.get('bias') else None
@@ -508,6 +518,11 @@ class ReferenceResolver:
             return None, 'ORIGINAL_ABSOLUTE_RELOCATION_NOT_UNIQUE'
         if kind == 'call_pc':
             return None, 'ORIGINAL_CALL_SITE_NOT_IN_LEDGER'
+        window = self.expected_data_window
+        if kind == 'pc' and window is not None:
+            t = self.start + int(ins.address) + 2 + int(op.mem.disp)
+            if window[0] <= t < window[1]:
+                return dict(key=('code_data', t - window[0]), symbol=None, basis=window[2]), None
         return None, 'PC_RELATIVE_DATA_IDENTITY_NOT_ESTABLISHED'
 
     def actual(self, ins, i, kind):
@@ -545,6 +560,11 @@ class ReferenceResolver:
                     return dict(key=(int(call['hunk']), int(call['offset'])), symbol='SELF_ENTRY',
                                 basis='candidate_link_map:self_entry'), None
             return self._bind(self.c['hunk'], target, function=True)
+        window = self.actual_data_window
+        if kind == 'pc' and window is not None:
+            t = int(ins.address) + 2 + int(op.mem.disp)
+            if window[0] <= t < window[1]:
+                return dict(key=('code_data', t - window[0]), symbol=None, basis=window[2]), None
         return None, 'PC_RELATIVE_DATA_IDENTITY_NOT_ESTABLISHED'
 
 
@@ -765,7 +785,56 @@ def _reference_summary(log, resolver, max_examples=12):
     return out
 
 
-def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), resolver=None):
+def _table_spans(tables):
+    return [(int(t['table_start']), int(t['table_end'])) for t in tables or ()]
+
+
+def _table_targets(tables):
+    return sorted({int(e['target']) for t in tables or () for e in t['entries']})
+
+
+def _jump_table_mapping(exp_tables, act_tables, exp, act, idx_map, paired_starts):
+    """Pair tables by dispatch alignment and check every entry maps to a paired block.
+
+    Entry ``i`` is consistent when the expected target's aligned candidate
+    instruction is the candidate entry ``i`` target and both targets start a
+    paired block. Nothing here compares table bytes (they are layout
+    dependent); the table is data evidence, never decoded as code.
+    """
+    exp_index = {int(x.address): i for i, x in enumerate(exp)}
+    act_by_dispatch = {int(t['dispatch_offset']): t for t in act_tables or ()}
+    used, rows = set(), []
+    for et in exp_tables or ():
+        ei = exp_index.get(int(et['dispatch_offset']))
+        ai = idx_map.get(ei) if ei is not None else None
+        at = act_by_dispatch.get(int(act[ai].address)) if ai is not None else None
+        row = dict(expected_dispatch=int(et['dispatch_offset']), expected_entries=len(et['entries']),
+                   actual_dispatch=int(at['dispatch_offset']) if at else None,
+                   actual_entries=len(at['entries']) if at else None, mismatched_entries=[])
+        if at is None:
+            row['state'] = 'dispatch_unpaired'
+            rows.append(row)
+            continue
+        used.add(int(at['dispatch_offset']))
+        for ee, ae in zip(et['entries'], at['entries']):
+            ti = exp_index.get(int(ee['target']))
+            mapped = idx_map.get(ti) if ti is not None else None
+            mapped_target = int(act[mapped].address) if mapped is not None else None
+            if mapped_target != int(ae['target']) or paired_starts.get(int(ee['target'])) != int(ae['target']):
+                row['mismatched_entries'].append(dict(index=int(ee['index']), expected_target=int(ee['target']),
+                                                      actual_target=int(ae['target']), mapped_target=mapped_target))
+        row['state'] = ('consistent' if not row['mismatched_entries'] and len(et['entries']) == len(at['entries'])
+                        else 'different_or_unresolved')
+        rows.append(row)
+    for at in act_tables or ():
+        if int(at['dispatch_offset']) not in used:
+            rows.append(dict(expected_dispatch=None, expected_entries=None, actual_dispatch=int(at['dispatch_offset']),
+                             actual_entries=len(at['entries']), mismatched_entries=[], state='dispatch_unpaired'))
+    return rows
+
+
+def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), resolver=None,
+                 expected_tables=None, actual_tables=None):
     """Compare two explicit extents for diagnostic guidance only.
 
     ``data_spans`` applies only to the expected stream. Candidate literal/data
@@ -774,6 +843,12 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
     the unsupported result. ``resolver`` optionally supplies established
     reference identities (see ``ReferenceResolver``); without it every
     reference remains ``unresolved``.
+
+    ``expected_tables``/``actual_tables`` are independently established
+    PC-relative word jump tables inside each stream (census proof for the
+    original, ``candidate_code_data_boundary`` for the candidate). Their
+    bytes are excluded from decoding, their entries are CFG targets, and each
+    entry is checked against the paired candidate block.
     """
     if data_spans:
         return dict(schema_version=SCHEMA_VERSION, status='UNSUPPORTED',
@@ -781,8 +856,8 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
                     reason='DATA_SPAN_MAPPING_REQUIRED_FOR_BOTH_STREAMS',
                     expected_extent=dict(bytes=len(expected_bytes)), actual_extent=dict(bytes=len(actual_bytes)),
                     alignment=None, blocks=None, hypotheses=[])
-    exp, exp_bad = _decode(expected_bytes)
-    act, act_bad = _decode(actual_bytes)
+    exp, exp_bad = _decode(expected_bytes, _table_spans(expected_tables))
+    act, act_bad = _decode(actual_bytes, _table_spans(actual_tables))
     base = dict(schema_version=SCHEMA_VERSION, claim='DIAGNOSTIC_ONLY_NO_EQUALITY_OR_SEMANTIC_CLAIM',
                 expected_extent=dict(bytes=len(expected_bytes)), actual_extent=dict(bytes=len(actual_bytes)))
     if exp_bad or act_bad:
@@ -790,10 +865,11 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
                     decode=dict(expected=exp_bad, actual=act_bad), alignment=None, blocks=None, hypotheses=[])
         return base
     pairs, eo, ao, ratio = _alignment(exp, act)
-    exp_blocks, ebad = _blocks(exp)
-    act_blocks, abad = _blocks(act)
+    exp_blocks, ebad = _blocks(exp, _table_targets(expected_tables))
+    act_blocks, abad = _blocks(act, _table_targets(actual_tables))
     idx_map = {p['expected_index']: p['actual_index'] for p in pairs}
     bpair, bunpaired = [], {'expected': [], 'actual': []}
+    paired_starts = {}
     if exp_blocks is None or act_blocks is None:
         bunpaired['expected'] = [b['start'] for b in exp_blocks or []]
         bunpaired['actual'] = [b['start'] for b in act_blocks or []]
@@ -802,7 +878,6 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
         actual_starts = set(actual_by_start)
         by_exp_start = {b['start']: b for b in exp_blocks}
         by_act_start = {b['start']: b for b in act_blocks}
-        paired_starts = {}
         for bi, eb in enumerate(exp_blocks):
             ei = next((i for i, x in enumerate(exp) if int(x.address) == eb['start']), None)
             mapped = idx_map.get(ei) if ei is not None else None
@@ -845,12 +920,28 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
             b.get('target_check') == 'different_or_unresolved' for b in bpair), confidence='low',
             evidence=[dict(note='Paired block targets, branch conditions, or fallthrough edges do not map cleanly.')]))
         hypotheses.sort(key=lambda h: h['category'])
+    tables = None
+    if expected_tables or actual_tables:
+        tables = _jump_table_mapping(expected_tables, actual_tables, exp, act, idx_map, paired_starts)
+        bad = [t for t in tables if t['state'] != 'consistent']
+        if bad:
+            hyp = next((h for h in hypotheses if h['category'] == 'control_flow_target_or_edge'), None)
+            if hyp is None:
+                hyp = dict(category='control_flow_target_or_edge', count=0, confidence='low', evidence=[])
+                hypotheses.append(hyp)
+                hypotheses.sort(key=lambda h: h['category'])
+            hyp['count'] += len(bad)
+            hyp['evidence'].append(dict(note='Jump-table dispatches or entries do not map to paired candidate blocks.'))
     hypothesis_groups = _group_hypotheses(hypotheses)
     # Unresolved indirect transfers are surfaced instead of counted as CFG proof.
+    # A dispatch whose table is independently established is not unresolved.
+    dispatches = {'expected': {int(t['dispatch_offset']) for t in expected_tables or ()},
+                  'actual': {int(t['dispatch_offset']) for t in actual_tables or ()}}
     indirect = []
     for side, stream in (('expected', exp), ('actual', act)):
         for ins in stream:
-            if _stem(ins) in ('jmp', 'jsr') and _branch_target(ins) is None:
+            if (_stem(ins) in ('jmp', 'jsr') and _branch_target(ins) is None
+                    and int(ins.address) not in dispatches[side]):
                 indirect.append(dict(side=side, offset=int(ins.address), instruction=_insn_record(ins)))
     base.update(status='DIAGNOSTIC_ONLY', alignment=dict(instruction_similarity=round(ratio, 4),
         pairs=[dict(expected_offset=int(exp[p['expected_index']].address), actual_offset=int(act[p['actual_index']].address),
@@ -861,6 +952,8 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
         hypotheses=hypotheses, hypothesis_groups=hypothesis_groups,
         reference_identity=_reference_summary(reference_log, resolver),
         register_trace=register_trace(exp, act, pairs))
+    if tables is not None:
+        base['blocks']['jump_tables'] = tables
     first_shape = next((p for p in pairs if p['kind'] == 'substitution' or
                         _mnemonic(exp[p['expected_index']]) != _mnemonic(act[p['actual_index']])), None)
     first_unpaired = min([int(exp[i].address) for i in eo] + [int(act[i].address) for i in ao], default=None)
@@ -881,6 +974,343 @@ def compare_code(expected_bytes: bytes, actual_bytes: bytes, *, data_spans=(), r
     else:
         base['first_nonreference_divergence'] = None
     return base
+
+
+# ---------------------------------------------------------------------------
+# CODE-data boundaries, established independently on each side.
+#
+# Original: the census jump-table proof and owned_code_data's strict string
+# tail proof only. Candidate: its own compiler listing (literal pool dc.b
+# bytes, dc.w switch tables, pool references) cross-checked against its own
+# decoded bytes and PC-relative targets. Original lengths are never used to
+# place the candidate boundary.
+# ---------------------------------------------------------------------------
+
+_LISTING_NONEMITTING = frozenset({'public', 'global', 'xref', 'xdef', 'entry', 'far', 'near', 'end'})
+_SWITCH_ENTRY = re.compile(r'^(\.\d+)-(\.\d+)-2$')
+
+
+def _listing_section(text, symbol):
+    """Code-segment statements from ``symbol:`` to the next global function label.
+
+    Returns ``(statements, next_label, None)`` or ``(None, None, reason)``.
+    Statements are ``(kind, word, args, line)`` with kind ``label``, ``data``
+    (dc/ds directives) or ``insn`` (everything else that may emit bytes).
+    """
+    seg, inside, out, next_label = 'code', False, [], None
+    for n, line in enumerate(text.splitlines(), 1):
+        s = line.rstrip()
+        if not s.strip() or s.lstrip().startswith(';'):
+            continue
+        rest = None
+        if not s[0].isspace():
+            m = re.match(r'^([A-Za-z_.][\w.]*):?(?:\s+(.*))?$', s)
+            if not m:
+                return None, None, 'LISTING_LINE_UNPARSED:%d' % n
+            name, rest = m[1], (m[2] or '').strip()
+            if rest and rest.split(None, 1)[0].lower() in ('equ', 'reg', 'set'):
+                continue
+            if seg == 'code':
+                if name.startswith('_'):
+                    if inside:
+                        next_label = name
+                        break
+                    inside = name == symbol
+                    if inside and rest:
+                        return None, None, 'LISTING_ENTRY_LABEL_HAS_INLINE_STATEMENT:%d' % n
+                    continue
+                if inside:
+                    out.append(('label', name, '', n))
+            if not rest:
+                continue
+        stmt = (rest if rest is not None else s).strip().split(';', 1)[0].strip()
+        parts = stmt.split(None, 1)
+        word, args = parts[0].lower(), (parts[1].strip() if len(parts) > 1 else '')
+        if word == 'dseg':
+            seg = 'data'
+            continue
+        if word == 'cseg':
+            seg = 'code'
+            continue
+        if seg != 'code' or not inside or word in _LISTING_NONEMITTING:
+            continue
+        out.append(('data' if word.split('.', 1)[0] in ('dc', 'ds') else 'insn', word, args, n))
+    if not inside and next_label is None:
+        return None, None, 'LISTING_ENTRY_LABEL_ABSENT:' + symbol
+    return out, next_label, None
+
+
+def _dc_bytes(args):
+    out = bytearray()
+    for item in (x.strip() for x in args.split(',')):
+        m = re.fullmatch(r'(-?\d+)|\$([0-9a-fA-F]+)', item)
+        if not m:
+            return None
+        value = int(m[1]) if m[1] is not None else int(m[2], 16)
+        if not -128 <= value <= 255:
+            return None
+        out.append(value & 255)
+    return bytes(out)
+
+
+def listing_code_data(statements):
+    """Literal pool and switch tables declared in one listing section.
+
+    A pool is a local label followed only by ``dc.b`` byte lists and an
+    optional trailing ``ds 0``; it must be the last emitting content of the
+    section. A switch table is a local label followed only by ``dc.w
+    .T-.B-2`` entries with one base. Any other CODE dc/ds is refused.
+    Returns ``(dict(pool=..., tables=[...]), None)`` or ``(None, reason)``.
+    """
+    pool, tables, k = None, [], 0
+    while k < len(statements):
+        kind, word, args, n = statements[k]
+        if kind == 'data':
+            return None, 'LISTING_UNLABELLED_CODE_DATA:%d' % n
+        if kind == 'label' and k + 1 < len(statements) and statements[k + 1][0] == 'data':
+            j, block = k + 1, []
+            while j < len(statements) and statements[j][0] == 'data':
+                block.append(statements[j])
+                j += 1
+            words = [b[1] for b in block]
+            if all(w == 'dc.b' for w in words[:-1]) and (words[-1] == 'dc.b' or (words[-1] == 'ds' and block[-1][2] == '0')) \
+                    and words[0] == 'dc.b':
+                if pool is not None:
+                    return None, 'LISTING_HAS_MULTIPLE_LITERAL_POOLS:%d' % n
+                data = b''
+                for b in block:
+                    if b[1] == 'dc.b':
+                        chunk = _dc_bytes(b[2])
+                        if chunk is None:
+                            return None, 'LISTING_POOL_BYTES_UNPARSED:%d' % b[3]
+                        data += chunk
+                pool = dict(label=word, bytes=data, align_even=words[-1] == 'ds', line=n, end_index=j)
+            elif all(w == 'dc.w' for w in words):
+                entries = [_SWITCH_ENTRY.match(b[2]) for b in block]
+                if not all(entries) or len({e[2] for e in entries}) != 1:
+                    return None, 'LISTING_UNCLASSIFIED_CODE_WORDS:%d' % n
+                tables.append(dict(label=word, entries=[e[1] for e in entries], base=entries[0][2], line=n))
+            else:
+                return None, 'LISTING_UNCLASSIFIED_CODE_DATA:%d' % n
+            k = j
+            continue
+        k += 1
+    if pool is not None and any(s[0] == 'insn' for s in statements[pool['end_index']:]):
+        return None, 'LISTING_LITERAL_POOL_NOT_AT_SECTION_END:%d' % pool['line']
+    if pool is not None:
+        pat = re.compile(r'(?<![\w.])' + re.escape(pool['label']) + r'(?:\+(\d+))?(?![\w.])')
+        pool['references'] = sorted({int(m[1] or 0) for s in statements if s[0] == 'insn' for m in pat.finditer(s[2])})
+    for t in tables:
+        pat = re.compile(r'(?<![\w.])' + re.escape(t['label']) + r'\(pc,')
+        t['referenced'] = any(s[0] == 'insn' and pat.search(s[2]) for s in statements)
+    return dict(pool=pool, tables=tables), None
+
+
+def _signed16(value):
+    return value - 0x10000 if value & 0x8000 else value
+
+
+def _dispatch_table(md, raw, pc, limit):
+    """The narrow Aztec switch dispatch the census proves, read from ``raw``.
+
+    ``cmp.l #N,d0; bcc default; asl #1,d0; move.w table(pc,d0.w),d0;
+    jmp (pc,d0.w)``; every entry must be an aligned decodable target outside
+    the table. Mirrors ``function_census`` on a candidate stream.
+    """
+    jmp, load, shift = instruction(md, raw, pc), instruction(md, raw, pc - 4), instruction(md, raw, pc - 6)
+    bound, compare = instruction(md, raw, pc - 8), instruction(md, raw, pc - 14)
+    if not all((jmp, load, shift, bound, compare)):
+        return None
+    if (_stem(jmp), _stem(load), _stem(shift), _stem(bound), _stem(compare)) != ('jmp', 'move', 'asl', 'bcc', 'cmp'):
+        return None
+    if len(jmp.operands) != 1 or len(load.operands) != 2 or len(shift.operands) != 2 or len(compare.operands) != 2:
+        return None
+    jo, (lo, ld), (si, sd), (ci, cd) = jmp.operands[0], load.operands, shift.operands, compare.operands
+    if not (jo.type == lo.type == K.M68K_OP_MEM and jo.mem.base_reg == lo.mem.base_reg == K.M68K_REG_PC and
+            jo.mem.index_reg == lo.mem.index_reg == K.M68K_REG_D0 and ld.type == sd.type == cd.type == K.M68K_OP_REG and
+            ld.reg == sd.reg == cd.reg == K.M68K_REG_D0 and si.type == K.M68K_OP_IMM and si.imm == 1 and
+            ci.type == K.M68K_OP_IMM and compare.mnemonic.endswith('.l') and load.mnemonic.endswith('.w') and
+            bound.operands and bound.operands[-1].type == K.M68K_OP_BR_DISP and
+            bound.address + 2 + bound.operands[-1].br_disp.disp == jmp.address + 4):
+        return None
+    count = int(ci.imm)
+    if count <= 0 or count > 256:
+        return None
+    start = int(load.address) + 2 + int(lo.mem.disp)
+    end = start + 2 * count
+    base = int(jmp.address) + 2 + int(jo.mem.disp)
+    if start < 0 or end > limit or start & 1:
+        return None
+    entries = []
+    for i in range(count):
+        target = base + _signed16(int.from_bytes(raw[start + 2 * i:start + 2 * i + 2], 'big'))
+        if not 0 <= target < limit or target & 1 or start <= target < end or instruction(md, raw, target) is None:
+            return None
+        entries.append(dict(index=i, offset=start + 2 * i, target=target))
+    return dict(kind='PC_RELATIVE_WORD_JUMP_TABLE', dispatch_offset=pc, table_start=start, table_end=end,
+                index_register='d0', entries=entries)
+
+
+def _reachable_jump_tables(raw):
+    """Jump tables reached by recursive descent from the stream entry."""
+    md, seen, todo, tables = decoder(), set(), [0], {}
+    while todo:
+        pc = todo.pop()
+        while 0 <= pc < len(raw) and pc not in seen:
+            ins = instruction(md, raw, pc)
+            if ins is None:
+                return None, 'CANDIDATE_REACHABLE_CODE_UNDECODABLE:%d' % pc
+            seen.add(pc)
+            if _stem(ins) == 'jmp' and _branch_target(ins) is None:
+                t = _dispatch_table(md, raw, pc, len(raw))
+                if t is not None and pc not in tables:
+                    tables[pc] = t
+                    todo.extend(e['target'] for e in t['entries'])
+                break
+            target = _branch_target(ins)
+            if target is not None:
+                todo.append(target)
+            if _is_return(ins) or _is_unconditional(ins):
+                break
+            pc += ins.size
+    return sorted(tables.values(), key=lambda t: t['table_start']), None
+
+
+def original_code_data_boundary(f):
+    """Original CODE data from existing strict proofs only; ``(bound, None)`` or ``(None, reason)``."""
+    start, size = int(f['start']), int(f['size'])
+    tables, basis = [], []
+    for t in f.get('jump_tables') or ():
+        if t.get('kind') != 'PC_RELATIVE_WORD_JUMP_TABLE':
+            return None, 'ORIGINAL_JUMP_TABLE_KIND_UNSUPPORTED'
+        rel = dict(kind=t['kind'], dispatch_offset=int(t['dispatch_offset']) - start,
+                   table_start=int(t['table_start']) - start, table_end=int(t['table_end']) - start,
+                   entries=[dict(index=int(e['index']), offset=int(e['offset']) - start, target=int(e['target']) - start)
+                            for e in t['entries']])
+        if not 0 <= rel['table_start'] < rel['table_end'] <= size or \
+                any(not 0 <= e['target'] < size for e in rel['entries']):
+            return None, 'ORIGINAL_JUMP_TABLE_OUTSIDE_CLOSED_EXTENT'
+        tables.append(rel)
+    if tables:
+        basis.append('census_pc_relative_word_jump_table')
+    tail, ownership = b'', None
+    if any(r.get('kind') == 'PC_RELATIVE_DATA' for r in f.get('referenced_data', [])):
+        from owned_code_data import expected_string_tail
+        try:
+            tail, ownership = expected_string_tail(f)
+        except FormatError as exc:
+            return None, 'ORIGINAL_CODE_DATA_NOT_STRICTLY_PROVEN: ' + str(exc)
+        basis.append('owned_code_data.expected_string_tail')
+    padding = int((ownership or {}).get('alignment_padding', 0))
+    targets = sorted({int(r['offset']) - int(f['end']) for r in f.get('referenced_data', [])
+                      if r.get('kind') == 'PC_RELATIVE_DATA'})
+    return dict(basis=basis, tables=tables, tail=tail, padding=padding, literal_bytes=len(tail) - padding,
+                pc_targets=targets), None
+
+
+def candidate_code_data_boundary(compiled, symbol, object_label, next_symbols=()):
+    """Candidate CODE data from its own listing, cross-checked on its own bytes.
+
+    ``compiled`` is the (possibly unit-member) contribution being diagnosed;
+    ``symbol`` its linked entry label; ``next_symbols`` the linked names at its
+    end (empty when it ends at its object end). The literal pool must be the
+    listing section's final content and must equal the payload's final bytes;
+    every in-stream PC-relative data target must fall inside that pool and
+    match the listing's pool references; every listed switch table must be a
+    reachable proven dispatch table. Returns ``(bound, None)`` or ``(None, reason)``.
+    """
+    c = compiled.get('contribution') or {}
+    raw = bytes.fromhex(c.get('code_hex', ''))
+    prefix = compiled.get('prefix') or ''
+    if not compiled.get('directory'):
+        return None, 'CANDIDATE_LISTING_UNAVAILABLE'
+    asm = Path(compiled['directory']) / ((prefix if object_label == 'candidate' else prefix + '_' + object_label) + '.asm')
+    if not asm.is_file():
+        return None, 'CANDIDATE_LISTING_UNAVAILABLE'
+    statements, next_label, why = _listing_section(asm.read_text(errors='replace'), symbol)
+    if statements is None:
+        return None, why
+    if next_label is not None and next_label not in set(next_symbols):
+        return None, 'CANDIDATE_LISTING_SECTION_DOES_NOT_END_AT_SEGMENT_END:' + next_label
+    if next_label is None and next_symbols:
+        return None, 'CANDIDATE_LISTING_SECTION_ENDS_BEFORE_NEXT_LINKED_SYMBOL'
+    declared, why = listing_code_data(statements)
+    if declared is None:
+        return None, why
+    pool = declared['pool']
+    literal = len(pool['bytes']) if pool else 0
+    padding = literal & 1 if pool and pool['align_even'] else 0
+    code_end = len(raw) - literal - padding
+    if code_end <= 0:
+        return None, 'CANDIDATE_POOL_EXCEEDS_SEGMENT'
+    basis = ['candidate_listing_section:' + asm.name]
+    if pool:
+        if raw[code_end:code_end + literal] != pool['bytes'] or raw[code_end + literal:] != bytes(padding):
+            return None, 'CANDIDATE_LISTING_POOL_BYTES_DISAGREE_WITH_PAYLOAD'
+        basis.append('candidate_listing_dc_b_literal_pool')
+    tables = []
+    if declared['tables']:
+        if not all(t['referenced'] for t in declared['tables']):
+            return None, 'CANDIDATE_LISTING_SWITCH_TABLE_UNREFERENCED'
+        tables, why = _reachable_jump_tables(raw[:code_end])
+        if tables is None:
+            return None, why
+        if [len(t['entries']) for t in tables] != [len(t['entries']) for t in declared['tables']]:
+            return None, 'CANDIDATE_SWITCH_TABLES_DISAGREE_WITH_LISTING'
+        basis.append('candidate_listing_dc_w_switch_table+reachable_dispatch_form')
+    insns, bad = _decode(raw[:code_end], _table_spans(tables))
+    if insns is None:
+        return None, 'CANDIDATE_CODE_PART_UNDECODABLE:%s@%d' % (bad['reason'], bad['offset'])
+    targets, outside = set(), 0
+    for ins in insns:
+        if _stem(ins) in ('bsr', 'jsr', 'jmp'):
+            continue
+        for op in ins.operands:
+            if op.type == K.M68K_OP_MEM and op.address_mode == K.M68K_AM_PCI_DISP:
+                t = int(ins.address) + 2 + int(op.mem.disp)
+                if code_end <= t < code_end + literal:
+                    targets.add(t - code_end)
+                elif 0 <= t < len(raw):
+                    return None, 'CANDIDATE_PC_RELATIVE_DATA_TARGET_OUTSIDE_POOL:%d' % int(ins.address)
+                else:
+                    outside += 1
+    if sorted(targets) != (pool['references'] if pool else []):
+        return None, 'CANDIDATE_POOL_TARGETS_DISAGREE_WITH_LISTING_REFERENCES'
+    if pool:
+        basis.append('candidate_pc_relative_targets_match_listing_pool_references')
+    relocs = [r for r in c.get('relocations', []) if code_end <= int(r.get('relative_offset', -1)) < len(raw)]
+    if relocs:
+        return None, 'CANDIDATE_CODE_DATA_HAS_RELOCATIONS'
+    return dict(basis=basis, code_end=code_end, tables=tables, literal_bytes=literal, padding=padding,
+                data=raw[code_end:], pc_targets=sorted(targets), pc_targets_outside_stream=outside,
+                listing=asm.name), None
+
+
+def _first_difference(a, b):
+    return next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), None if len(a) == len(b) else min(len(a), len(b)))
+
+
+def compare_code_data(original, candidate):
+    """Separate advisory comparison of the two independently bounded data parts."""
+    otail = original['tail']
+    literal = None
+    if otail or candidate['literal_bytes']:
+        cdata = candidate['data']
+        literal = dict(original_bytes=original['literal_bytes'], original_padding=original['padding'],
+                       candidate_bytes=candidate['literal_bytes'], candidate_padding=candidate['padding'],
+                       bytes_equal=otail == cdata, first_difference=_first_difference(otail, cdata),
+                       original_pc_targets=original['pc_targets'], candidate_pc_targets=candidate['pc_targets'],
+                       pc_targets_equal=original['pc_targets'] == candidate['pc_targets'],
+                       candidate_relocations_in_data=0)
+    tables = None
+    if original['tables'] or candidate['tables']:
+        tables = dict(original=[dict(dispatch_offset=t['dispatch_offset'], table_start=t['table_start'],
+                                     entries=len(t['entries'])) for t in original['tables']],
+                      candidate=[dict(dispatch_offset=t['dispatch_offset'], table_start=t['table_start'],
+                                      entries=len(t['entries'])) for t in candidate['tables']],
+                      entry_counts_equal=[len(t['entries']) for t in original['tables']] ==
+                                         [len(t['entries']) for t in candidate['tables']])
+    return literal, tables
 
 
 ENTRY_SYMBOLS = ('_recovered', 'recovered')
@@ -950,8 +1380,11 @@ def unit_member_extent(compiled):
         return None, 'UNIT_MEMBER_END_UNBOUNDED'
     piece = _member_compiled(compiled, seg)
     piece['contribution']['entry_offset'] = 0
+    next_symbols = sorted(s['name'] for s in c.get('symbols', []) if s.get('hunk') == hunk
+                          and int(s.get('offset', -1)) == seg['end'] and seg['end'] < obj['end']
+                          and not re.fullmatch(r'__H\d+_(?:org|end)', s.get('name', '')))
     return dict(piece=piece, start=seg['start'], end=seg['end'], bytes=seg['length'], object=obj['label'],
-                symbol=seg['names'][0], end_basis=end_basis, unit_code_bytes=size,
+                symbol=seg['names'][0], end_basis=end_basis, unit_code_bytes=size, next_symbols=next_symbols,
                 objects=[dict(o) for o in meta['objects']]), None
 
 
@@ -1012,18 +1445,58 @@ def diagnose(function_id: str, cache_key: str):
             end_basis=member['end_basis'], objects=member['objects'],
             boundary='UNIT_MEMBER_AT_CANDIDATE_ENTRY_SYMBOL_AND_OWN_OBJECT_SIZES; original lengths not used; '
                      'may include compiler-owned code data')
+    obound = cbound = None
     if f.get('jump_tables') or any(r.get('kind') == 'PC_RELATIVE_DATA' for r in f.get('referenced_data', [])):
-        report.update(status='UNSUPPORTED', reason='ORIGINAL_DATA_BOUNDARY_HAS_NO_MAPPED_CANDIDATE_BOUNDARY',
-                      alignment=None, blocks=None, hypotheses=[dict(category='data_ownership_review', count=1,
-                      confidence='high', evidence=[dict(note='Original contains separately evidenced data; candidate boundary is not independently mapped.')])])
-        return report
+        # Both sides need an independently established code/data boundary.
+        obound, why = original_code_data_boundary(f)
+        if obound is not None:
+            if member is None:
+                cc = compiled['contribution']
+                names = [s['name'] for s in cc.get('symbols', []) if s.get('hunk') == cc.get('hunk')
+                         and int(s.get('offset', -1)) == 0 and s.get('name') in ENTRY_SYMBOLS]
+                cbound, why = ((None, 'CANDIDATE_ENTRY_SYMBOL_ABSENT') if not names else
+                               candidate_code_data_boundary(compiled, names[0], 'candidate'))
+            else:
+                cbound, why = candidate_code_data_boundary(compiled, member['symbol'], member['object'],
+                                                           member.get('next_symbols', ()))
+        if cbound is None:
+            report.update(status='UNSUPPORTED', reason='ORIGINAL_DATA_BOUNDARY_HAS_NO_MAPPED_CANDIDATE_BOUNDARY',
+                          data_boundary_reason=why,
+                          alignment=None, blocks=None, hypotheses=[dict(category='data_ownership_review', count=1,
+                          confidence='high', evidence=[dict(note='Original contains separately evidenced data; candidate boundary is not independently mapped.')])])
+            return report
     resolver_error = None
     try:
         resolver = ReferenceResolver(f, ledger, compiled)
     except (OSError, ValueError, KeyError, TypeError, StopIteration) as exc:
         resolver, resolver_error = None, type(exc).__name__ + ': ' + str(exc)
-    core = compare_code(bytes.fromhex(f['raw_bytes']), raw, resolver=resolver)
-    if resolver_error:
+    if cbound is None:
+        core = compare_code(bytes.fromhex(f['raw_bytes']), raw, resolver=resolver)
+    else:
+        if resolver is not None:
+            if obound['literal_bytes']:
+                resolver.expected_data_window = (int(f['end']), int(f['end']) + obound['literal_bytes'],
+                                                 'owned_code_data_string_tail')
+            if cbound['literal_bytes']:
+                resolver.actual_data_window = (cbound['code_end'], cbound['code_end'] + cbound['literal_bytes'],
+                                               'candidate_listing_literal_pool')
+        core = compare_code(bytes.fromhex(f['raw_bytes']), raw[:cbound['code_end']], resolver=resolver,
+                            expected_tables=obound['tables'], actual_tables=cbound['tables'])
+        literal, tables = compare_code_data(obound, cbound)
+        report['data_boundary'] = dict(
+            claim='ADVISORY_INDEPENDENT_CODE_DATA_BOUNDARIES_NO_OWNERSHIP_OR_EQUALITY_CLAIM',
+            original_basis=obound['basis'], candidate_basis=cbound['basis'],
+            code=dict(original_bytes=int(f['size']), candidate_bytes=cbound['code_end']),
+            literal=literal, jump_tables=tables,
+            candidate_pc_targets_outside_stream=cbound['pc_targets_outside_stream'])
+        report['candidate_extent'].update(code_bytes=cbound['code_end'], data_bytes=len(raw) - cbound['code_end'],
+                                          data_boundary='CANDIDATE_OWN_LISTING_AND_BYTES; original lengths not used')
+        if core.get('status') == 'DIAGNOSTIC_ONLY' and literal and not (literal['bytes_equal'] and literal['pc_targets_equal']):
+            core['hypotheses'].append(dict(category='data_ownership_review', count=1, confidence='medium', group='binding_or_layout',
+                                           evidence=[dict(note='Independently bounded CODE data parts differ in bytes or PC-relative targets.')]))
+            core['hypotheses'].sort(key=lambda h: h['category'])
+            core['hypothesis_groups'] = _group_hypotheses(core['hypotheses'])
+    if resolver_error and isinstance(core.get('reference_identity'), dict):
         core['reference_identity']['resolver_error'] = resolver_error
     report.update(core)
     report['provenance'] = dict(original_game_sha256=ledger['game_sha256'], cache_key=cache_key,
@@ -1041,12 +1514,24 @@ def compact_summary(result, max_bytes=6000):
         summary['reason'] = result.get('reason', 'UNSUPPORTED')
         if result.get('unit_member_reason'):
             summary['unit_member_reason'] = result['unit_member_reason']
+        if result.get('data_boundary_reason'):
+            summary['data_boundary_reason'] = result['data_boundary_reason']
         return summary
     if result.get('bounded_by'):
         summary['bounded_by'] = result['bounded_by']
         ext = result.get('candidate_extent') or {}
         summary['unit_member'] = {k: ext[k] for k in ('unit_offset', 'unit_end', 'unit_code_bytes', 'object', 'end_basis')
                                   if k in ext}
+    bound = result.get('data_boundary')
+    if isinstance(bound, dict):
+        lit, tables = bound.get('literal') or {}, bound.get('jump_tables') or {}
+        summary['data_boundary'] = dict(
+            original_basis=bound.get('original_basis'), candidate_basis=bound.get('candidate_basis'), code=bound.get('code'),
+            literal={k: lit[k] for k in ('original_bytes', 'candidate_bytes', 'bytes_equal', 'first_difference',
+                                         'pc_targets_equal') if k in lit} or None,
+            jump_tables=[dict(state=t.get('state'), entries=[t.get('expected_entries'), t.get('actual_entries')],
+                              mismatched=len(t.get('mismatched_entries', [])))
+                         for t in ((result.get('blocks') or {}).get('jump_tables') or [])] if tables else None)
     align = result.get('alignment') or {}
     blocks = result.get('blocks') or {}
     summary['extents'] = dict(expected=(result.get('original_extent') or {}).get('bytes',

@@ -21,7 +21,8 @@ prove symbol identity by themselves; see reference identity below.
 The candidate extent is the complete standalone object CODE payload. The tool
 returns `UNSUPPORTED` for multi-object units, a nonzero entry offset, additional
 CODE symbols, DATA/BSS contributions, non-closed original extents, or original
-data boundaries without mapped candidate boundaries. It does not slice an
+CODE data whose candidate boundary cannot be established independently (see
+below). It does not slice an
 object to the original function length. A candidate payload can include
 compiler-owned code data; the report says so explicitly.
 
@@ -44,6 +45,50 @@ kept and `unit_member_reason` names the missing evidence. Measured on
 and 0 unresolved or different references. The DIFFER key `cf0c6b55…` for
 `ov11_F_415A` is 158 against 156 bytes, with 3 expected-only and 4
 candidate-only instructions.
+
+An original with CODE data (a census-proved PC-relative word jump table, or
+PC-relative literals) is aligned only when both sides have an independently
+established code/data boundary. The original side uses existing strict proofs
+only: `jump_tables` from the census and `owned_code_data.expected_string_tail`.
+The candidate side uses its own compile. The function's section of its
+assembler listing must declare the literal pool (a local label followed only
+by `dc.b` bytes and an optional `ds 0`, and nothing that emits code after it)
+and any switch tables (`dc.w .T-.B-2`). The pool must equal the final payload
+bytes, so the code part ends at `payload - pool - padding`. Every in-stream
+PC-relative data target must fall in the pool and match the listing's
+`.N+k` references. Each listed table must be a dispatch that recursive descent
+from the entry reaches, with the census's form and the same entry counts. The
+candidate must carry no relocations in the data part. Original lengths are
+never used.
+
+The two code parts then go through the normal comparison. Table spans are
+not decoded, and table entries are CFG targets. `blocks.jump_tables` checks
+that each entry's aligned target is the candidate entry and a paired block
+start. PC-relative operands at the same pool offset resolve to one
+`code_data` identity. `data_boundary` reports `original_basis`,
+`candidate_basis`, code lengths, the literal comparison (lengths, padding,
+byte equality, first difference, PC-relative targets), and the table counts.
+Differing literal bytes or targets add one `data_ownership_review`
+hypothesis. `candidate_extent.bytes` stays the whole payload, and
+`code_bytes`/`data_bytes` are added. If either boundary cannot be
+established, the report keeps `UNSUPPORTED` with
+`ORIGINAL_DATA_BOUNDARY_HAS_NO_MAPPED_CANDIDATE_BOUNDARY` and adds a specific
+`data_boundary_reason`, for example `CANDIDATE_LISTING_UNAVAILABLE`,
+`CANDIDATE_LISTING_POOL_BYTES_DISAGREE_WITH_PAYLOAD` or
+`ORIGINAL_CODE_DATA_NOT_STRICTLY_PROVEN: ...`. None of this claims data
+ownership. FUNCTION_WITH_DATA_MATCH still comes only from `check_function`.
+
+Measured on 2026-09-28, the exact-verified controls have zero differences:
+all 16 FUNCTION_WITH_DATA_MATCH proofs except `ov04_F_26F0` and
+`ov04_F_27FE` (for example `ov04_F_18A6` `55be4b1e…`, a 164-byte pool, and the
+unit member `ov07_F_03CC` `616b5b9b…`), and the jump-table functions
+`ov08_F_3DF4` (`4d019117…`, 11 entries) and `ov11_F_41F6` (`ff6e3163…`, 8
+entries). For those two exceptions the data parts are equal, but absolute-long
+references remain unresolved. Their relocation identities are not yet mapped
+by the resolver, which is a separate limitation. All 15 retained
+`ov04_F_0536` keys in the hypothesis ledger are now measurable. The literal
+pools are 38 bytes against 38 and byte-equal. The code parts are 600–682
+bytes against 622.
 
 Cached examples used by the regression tests are a 20-byte `ov14_F_03AE`
 exact-verifier control (`f25f68d19e2811fa7533a18a206ec128d932d9de16c8f6cf7e6c96009b0e9456`)

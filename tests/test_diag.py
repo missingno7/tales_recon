@@ -327,5 +327,186 @@ class UnitMemberBoundTests(unittest.TestCase):
             self.assertEqual(report['reference_identity']['counts']['different_identity'], 0)
 
 
+class CodeDataBoundaryTests(unittest.TestCase):
+    """Synthetic original/candidate pairs whose extents carry CODE data."""
+
+    # cmp.l #2,d0; bcc.s default; asl.l #1,d0; move.w table(pc,d0.w),d0;
+    # jmp (pc,d0.w); default: rts; table: 8,12; case0: moveq #1,d0; rts;
+    # case1: moveq #2,d0; rts.
+    SWITCH = 'b0bc00000002' '640a' 'e380' '303b0008' '4efb0000' '4e75' '0008000c' '70014e75' '70024e75'
+    LISTING_TABLE = ('\tpublic\t_recovered\n_recovered:\n\tcmp.l\t#2,d0\n\tbcc\t.8\n\tasl.l\t#1,d0\n'
+                     '\tmove.w\t.19(pc,d0.w),d0\n.20\n\tjmp\t(pc,d0.w)\n.8\n\trts\n.19\n'
+                     '\tdc.w\t.9-.20-2\n\tdc.w\t.10-.20-2\n.9\n\tmoveq\t#1,d0\n\trts\n.10\n\tmoveq\t#2,d0\n\trts\n'
+                     '.2\tequ\t0\n.3\treg\t\n\tend\n')
+    # pea .1(pc); rts; .1: "abc\0"
+    POOL_CODE = '487a0004' '4e75'
+    LISTING_POOL = ('\tpublic\t_recovered\n_recovered:\n\tpea\t.1+0\n\trts\n.2\tequ\t0\n.3\treg\t\n.1\n'
+                    '\tdc.b\t97,98,99,0\n\tds\t0\n\tpublic\t_F_h00_1234\n\tdseg\n\tpublic\t_G_h01_0010\n\tend\n')
+
+    def table(self, raw):
+        tables, why = diag._reachable_jump_tables(bytes.fromhex(raw))
+        self.assertIsNone(why)
+        return tables
+
+    def test_listing_declares_pool_tables_and_refuses_unclassified_code_data(self):
+        stmts, nxt, why = diag._listing_section(self.LISTING_POOL, '_recovered')
+        self.assertIsNone(why)
+        self.assertIsNone(nxt)
+        declared, why = diag.listing_code_data(stmts)
+        self.assertEqual((declared['pool']['bytes'], declared['pool']['references'], declared['tables']),
+                         (b'abc\0', [0], []))
+        stmts, _, _ = diag._listing_section(self.LISTING_TABLE, '_recovered')
+        declared, _ = diag.listing_code_data(stmts)
+        self.assertEqual([len(t['entries']) for t in declared['tables']], [2])
+        self.assertTrue(declared['tables'][0]['referenced'])
+        for text, reason in (
+                ('_recovered:\n\trts\n\tdc.w\t1\n', 'LISTING_UNLABELLED_CODE_DATA'),
+                ('_recovered:\n\trts\n.1\n\tdc.w\t3\n', 'LISTING_UNCLASSIFIED_CODE_WORDS'),
+                ('_recovered:\n\trts\n.1\n\tdc.l\t3\n', 'LISTING_UNCLASSIFIED_CODE_DATA'),
+                ('_recovered:\n.1\n\tdc.b\t1,0\n\trts\n', 'LISTING_LITERAL_POOL_NOT_AT_SECTION_END'),
+                ('_recovered:\n\trts\n.1\n\tdc.b\t1,0\n.4\n\tdc.b\t2,0\n', 'LISTING_HAS_MULTIPLE_LITERAL_POOLS')):
+            stmts, _, _ = diag._listing_section(text, '_recovered')
+            declared, why = diag.listing_code_data(stmts)
+            self.assertIsNone(declared)
+            self.assertTrue(why.startswith(reason), why)
+        self.assertTrue(diag._listing_section('_other:\n\trts\n', '_recovered')[2].startswith('LISTING_ENTRY_LABEL_ABSENT'))
+
+    def test_jump_table_entries_are_targets_that_must_map_to_paired_blocks(self):
+        tables = self.table(self.SWITCH)
+        self.assertEqual([(t['dispatch_offset'], t['table_start'], [e['target'] for e in t['entries']]) for t in tables],
+                         [(14, 20, [24, 28])])
+        same = diag.compare_code(bytes.fromhex(self.SWITCH), bytes.fromhex(self.SWITCH),
+                                 expected_tables=tables, actual_tables=tables)
+        self.assertEqual(same['status'], 'DIAGNOSTIC_ONLY')
+        self.assertEqual([t['state'] for t in same['blocks']['jump_tables']], ['consistent'])
+        self.assertEqual(same['hypotheses'], [])
+        self.assertEqual(same['blocks']['indirect_transfers'], [])
+        # Swapped entries: the table decodes, but entry targets no longer map.
+        swapped = self.SWITCH.replace('0008000c', '000c0008')
+        report = diag.compare_code(bytes.fromhex(self.SWITCH), bytes.fromhex(swapped),
+                                   expected_tables=tables, actual_tables=self.table(swapped))
+        row = report['blocks']['jump_tables'][0]
+        self.assertEqual((row['state'], [m['index'] for m in row['mismatched_entries']]),
+                         ('different_or_unresolved', [0, 1]))
+        self.assertIn('control_flow_target_or_edge', {h['category'] for h in report['hypotheses']})
+        # Without table evidence the table bytes are never accepted as a data span.
+        self.assertEqual(diag.compare_code(bytes.fromhex(self.SWITCH), bytes.fromhex(self.SWITCH),
+                                           data_spans=((20, 24),))['status'], 'UNSUPPORTED')
+
+    def candidate(self, code_hex, listing, *, write_listing=True):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        if write_listing:
+            (Path(tmp.name) / 't000.asm').write_text(listing)
+        symbols = [dict(hunk=3, name='__H3_org', offset=0), dict(hunk=3, name='_recovered', offset=0),
+                   dict(hunk=3, name='__H3_end', offset=len(code_hex) // 2)]
+        contribution = dict(hunk=3, code_hex=code_hex, code_size=len(code_hex) // 2, symbols=symbols, relocations=[],
+                            all_relocations=[], hunks=[], data_size=0, bss_size=0, entry_offset=0)
+        return dict(status='COMPILED', directory=tmp.name, prefix='t000', cache_key='d' * 64,
+                    identity=dict(profile='aztec36', object_labels=['candidate']), contribution=contribution)
+
+    def original(self, raw, *, pool_text=None, tables=()):
+        start = 0x100
+        f = dict(id='ov04_F_0100', hunk=9, start=start, end=start + len(raw) // 2, size=len(raw) // 2,
+                 extent_status='CLOSED_CFG', raw_bytes=raw, referenced_data=[], referenced_strings=[],
+                 direct_callees=[], relocations=[], jump_tables=list(tables))
+        if pool_text is not None:
+            f['referenced_data'] = [dict(kind='PC_RELATIVE_DATA', hunk=9, offset=f['end'], instruction_offset=start)]
+            f['referenced_strings'] = [dict(hunk=9, offset=f['end'], text=pool_text)]
+        return f
+
+    def diagnose(self, f, unit):
+        ledger = dict(game_sha256='0' * 64, a4=dict(bias=32766, evidence=dict(relocation=dict(target_hunk=1, addend_raw=32766))))
+        with mock.patch.object(diag, 'validated_function', return_value=(f, ledger)), \
+                mock.patch.object(diag, 'cached', return_value=unit):
+            return diag.diagnose(f['id'], unit['cache_key'])
+
+    def test_literal_pool_boundaries_come_from_each_side_independently(self):
+        f = self.original(self.POOL_CODE, pool_text='abc')
+        report = self.diagnose(f, self.candidate(self.POOL_CODE + '61626300', self.LISTING_POOL))
+        self.assertEqual(report['status'], 'DIAGNOSTIC_ONLY', report.get('data_boundary_reason'))
+        bound = report['data_boundary']
+        self.assertEqual(bound['original_basis'], ['owned_code_data.expected_string_tail'])
+        self.assertIn('candidate_listing_dc_b_literal_pool', bound['candidate_basis'])
+        self.assertEqual(bound['code'], dict(original_bytes=6, candidate_bytes=6))
+        self.assertTrue(bound['literal']['bytes_equal'] and bound['literal']['pc_targets_equal'])
+        self.assertEqual((report['candidate_extent']['bytes'], report['candidate_extent']['code_bytes']), (10, 6))
+        self.assertEqual(report['hypotheses'], [])
+        self.assertEqual(report['reference_identity']['counts']['same_identity'], 1)
+        summary = diag.compact_summary(report)
+        self.assertTrue(summary['data_boundary']['literal']['bytes_equal'])
+        # Different literal bytes: the boundary still stands; the data part differs.
+        other = self.diagnose(f, self.candidate(self.POOL_CODE + '61626400',
+                                                self.LISTING_POOL.replace('97,98,99', '97,98,100')))
+        self.assertEqual(other['status'], 'DIAGNOSTIC_ONLY')
+        self.assertEqual(other['data_boundary']['literal']['first_difference'], 2)
+        self.assertEqual({h['category'] for h in other['hypotheses']}, {'data_ownership_review'})
+
+    def test_candidate_boundary_that_is_not_independently_established_stays_unsupported(self):
+        f = self.original(self.POOL_CODE, pool_text='abc')
+        for unit, why in (
+                (self.candidate(self.POOL_CODE + '61626300', self.LISTING_POOL, write_listing=False),
+                 'CANDIDATE_LISTING_UNAVAILABLE'),
+                (self.candidate(self.POOL_CODE + '61626400', self.LISTING_POOL),
+                 'CANDIDATE_LISTING_POOL_BYTES_DISAGREE_WITH_PAYLOAD'),
+                (self.candidate(self.POOL_CODE + '61626300', self.LISTING_POOL.replace('.1+0', '.1+1')),
+                 'CANDIDATE_POOL_TARGETS_DISAGREE_WITH_LISTING_REFERENCES')):
+            report = self.diagnose(f, unit)
+            self.assertEqual((report['status'], report['reason']),
+                             ('UNSUPPORTED', 'ORIGINAL_DATA_BOUNDARY_HAS_NO_MAPPED_CANDIDATE_BOUNDARY'))
+            self.assertEqual(report['data_boundary_reason'], why)
+            self.assertEqual(diag.compact_summary(report)['data_boundary_reason'], why)
+        # The original side needs the strict owned-string proof as well.
+        report = self.diagnose(self.original(self.POOL_CODE, pool_text='abcd'),
+                               self.candidate(self.POOL_CODE + '61626300', self.LISTING_POOL))
+        self.assertTrue(report['data_boundary_reason'].startswith('ORIGINAL_CODE_DATA_NOT_STRICTLY_PROVEN'))
+
+    def test_original_and_candidate_jump_tables_are_paired_end_to_end(self):
+        start = 0x100
+        tables = [dict(t, dispatch_offset=t['dispatch_offset'] + start, table_start=t['table_start'] + start,
+                       table_end=t['table_end'] + start,
+                       entries=[dict(e, offset=e['offset'] + start, target=e['target'] + start) for e in t['entries']])
+                  for t in self.table(self.SWITCH)]
+        report = self.diagnose(self.original(self.SWITCH, tables=tables), self.candidate(self.SWITCH, self.LISTING_TABLE))
+        self.assertEqual(report['status'], 'DIAGNOSTIC_ONLY', report.get('data_boundary_reason'))
+        self.assertEqual(report['data_boundary']['original_basis'], ['census_pc_relative_word_jump_table'])
+        self.assertIsNone(report['data_boundary']['literal'])
+        self.assertEqual([t['state'] for t in report['blocks']['jump_tables']], ['consistent'])
+        self.assertEqual(report['hypotheses'], [])
+        # A listing that declares a different table shape is not a boundary.
+        bad = self.LISTING_TABLE.replace('\tdc.w\t.10-.20-2\n', '')
+        report = self.diagnose(self.original(self.SWITCH, tables=tables), self.candidate(self.SWITCH, bad))
+        self.assertEqual(report['data_boundary_reason'], 'CANDIDATE_SWITCH_TABLES_DISAGREE_WITH_LISTING')
+
+    def test_cached_code_data_controls_have_zero_differences(self):
+        for fid, key in (('ov04_F_18A6', '55be4b1eedcb2030015091a69451d955253bc849b2188ea83da221400c2d538a'),
+                         ('ov07_F_03CC', '616b5b9bfbedc1dd58aa3f760dc99e86429d878f17e42139e485c5389870b403'),
+                         ('ov08_F_3DF4', '4d019117a0643cde05fa42afd6d381323c5a41f3135f52e6dcac30726ac5df76')):
+            if cached(key) is None:
+                self.skipTest('cached exact-verified compiler artifact unavailable')
+            report = diag.diagnose(fid, key)
+            self.assertEqual(report['status'], 'DIAGNOSTIC_ONLY', report.get('data_boundary_reason'))
+            self.assertEqual((report['alignment']['expected_only'], report['alignment']['actual_only']), ([], []))
+            self.assertEqual(report['hypotheses'], [])
+            self.assertEqual(report['reference_identity']['counts']['unresolved'], 0)
+            bound = report['data_boundary']
+            self.assertEqual(bound['code']['original_bytes'], bound['code']['candidate_bytes'])
+            if bound['literal']:
+                self.assertTrue(bound['literal']['bytes_equal'] and bound['literal']['pc_targets_equal'])
+            for row in report['blocks'].get('jump_tables', []):
+                self.assertEqual(row['state'], 'consistent')
+
+    def test_cached_ov04_0536_candidate_is_measurable(self):
+        key = '8c7d483d046e0d37e94c64e73f60751d537551a569a39dcbe2f8a6b412c605ac'
+        if cached(key) is None:
+            self.skipTest('cached ov04_F_0536 compiler artifact unavailable')
+        report = diag.diagnose('ov04_F_0536', key)
+        self.assertEqual(report['status'], 'DIAGNOSTIC_ONLY', report.get('data_boundary_reason'))
+        self.assertEqual(report['data_boundary']['code'], dict(original_bytes=622, candidate_bytes=682))
+        self.assertEqual((report['data_boundary']['literal']['original_bytes'],
+                          report['data_boundary']['literal']['candidate_bytes']), (38, 38))
+        self.assertEqual(report['candidate_extent']['bytes'], 720)
+
+
 if __name__ == '__main__':
     unittest.main()
