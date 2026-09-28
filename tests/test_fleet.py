@@ -396,7 +396,8 @@ class RegionTests(unittest.TestCase):
                 self.assertLessEqual(len(text.encode()), fleet.PACKET_MAX_BYTES)
                 for needle in ("Region protocol", "verify-region reg-ov11_0100-0280", "GAP UNKNOWN_NOT_ASSIGNED",
                                "NEW ov11_F_0120 scc", "independent", "canonical (reused)", "best.members",
-                               "at most 40 compiler trials", '"member"', "entry `ov11_F_0120`"):
+                               "at most 40 compiler trials", '"member"', "entry `ov11_F_0120`",
+                               "Declarations already used by canonical sources"):
                     self.assertIn(needle, text)
                 variant = f.task_dir(region["id"]) / "v01"
                 variant.mkdir(parents=True)
@@ -534,7 +535,9 @@ class PacketAndIntakeTests(unittest.TestCase):
         self.assertLessEqual(len(text.encode()), fleet.PACKET_MAX_BYTES)
         for needle in ("assets/` is immutable", "Never promote", fid, "result.json", "schema v2 manifest",
                        "swap the loop test", "--isolated", "luna-fn-x", "NEEDS_EVIDENCE", "BEFORE compiling",
-                       "BLOCKED HOST_TOOLS_UNRESPONSIVE", "python tools/fleet.py renew fn-x --worker luna-fn-x"):
+                       "BLOCKED HOST_TOOLS_UNRESPONSIVE", "python tools/fleet.py renew fn-x --worker luna-fn-x",
+                       "Declarations already used by canonical sources (candidate views, not provenance)",
+                       fleet.DECLARATIONS_SIDECAR):
             self.assertIn(needle, text)
         # The liveness check is the first instruction after the header.
         self.assertLess(text.index("First step (host liveness)"), text.index("## Rules"))

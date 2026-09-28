@@ -35,6 +35,10 @@ TASK_ID = re.compile(r"[A-Za-z0-9_.+-]{1,80}")
 PACKET_TARGET_BYTES = 10240
 PACKET_MAX_BYTES = 12288
 DEFAULT_LEASE_HOURS = 6.0
+DECLARATIONS_SIDECAR = "canonical-declarations.h"
+# Fallback clipping when a packet exceeds PACKET_MAX_BYTES: history and notes
+# first (full copies live in the ledger and task.json), then every section.
+CLIP_STEPS = (("ledger", 700), ("note", 320), ("decls", 420), (None, 1500), (None, 1000), (None, 700))
 BUDGETS = {"function": dict(max_compile_trials=24, max_variants_per_manifest=6),
            "blocker-probe": dict(max_compile_trials=16, max_variants_per_manifest=4),
            "unit": dict(max_compile_trials=12, max_variants_per_manifest=4),
@@ -740,6 +744,63 @@ def type_summary(fid):
                 declaration_conflicts=t["declaration_conflict_summary"]["relevant_total"])
 
 
+def declaration_views(task, functions):
+    """Canonical declaration views for the task's targets (advisory; never blocks a packet)."""
+    if task["kind"] == "review":
+        return None
+    try:
+        import declaration_views as dv
+        return dv.views_for(task["targets"], functions=functions)
+    except Exception as exc:
+        return dict(status="UNAVAILABLE", reason=_clip(exc, 160))
+
+
+def declaration_section(views, directory):
+    """Required pointer section text and the optional inline paste block."""
+    title = "## Declarations already used by canonical sources (candidate views, not provenance)\n"
+    if views.get("status") == "UNAVAILABLE":
+        return title + "Unavailable: %s\n" % views["reason"], ""
+    import declaration_views as dv
+    conflicts, structs = views["conflicting_symbols"], views["struct_conflicts"]
+    differing = ""
+    if conflicts:
+        differing = ": " + ", ".join(conflicts[:6]) + (" ..." if len(conflicts) > 6 else "")
+    if structs:
+        differing += "; struct bodies differ: " + ", ".join(structs[:4])
+    # Instruction first: a fallback clip keeps the head of the section.
+    text = (title + "Paste-ready block: `%s/%s` (details: task.json `declaration_views`). Reuse these names, views "
+            "and struct definitions unless a hypothesis needs another view; that view change is then the "
+            "recorded controlled change. They compiled exactly elsewhere; they are not historical types, and "
+            "access widths do not determine a type. %d referenced symbols have canonical views (%d differ%s); "
+            "%d have none.\n" % (directory, DECLARATIONS_SIDECAR, len(views["symbols"]), len(conflicts), differing,
+                                 len(views["without_canonical_view"])))
+    return text, dv.extern_block(views)
+
+
+def _clip_section(text, limit):
+    """Clip a packet section to ``limit`` bytes, at a line end when one is near."""
+    if len(text) <= limit:
+        return text
+    cut = text.rfind("\n", 0, limit)
+    cut = cut + 1 if cut >= limit // 2 else limit
+    return text[:cut] + "... (clipped; full facts in task.json / the ledger)\n"
+
+
+def _clip_block(block, room):
+    """Whole lines of ``block`` fenced as C within ``room`` bytes (empty when too small)."""
+    lines, used, kept = block.splitlines(), 0, []
+    reserve = len("```c\n```\n(999 more lines in the sidecar)\n")
+    for line in lines:
+        if used + len(line) + 1 + reserve > room:
+            break
+        kept.append(line)
+        used += len(line) + 1
+    if len(kept) < 3:
+        return ""
+    more = len(lines) - len(kept)
+    return "```c\n" + "\n".join(kept) + "\n```\n" + ("(%d more lines in the sidecar)\n" % more if more else "")
+
+
 def ledger_history(fleet, targets, task_id, limit=12):
     try:
         from shape_search import read_ledger
@@ -949,10 +1010,11 @@ def _task_body(fleet, task, rec, functions, rank):
     return sections, optional
 
 
-def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
+def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None, views=None):
     from recovery_state import evidence, ranked, recovery
     rec = recovery() if rec is None else rec
     functions = {f["id"]: f for f in evidence()["functions"]} if functions is None else functions
+    views = declaration_views(task, functions) if views is None else views
     rank = {x["id"]: x for x in ranked()} if rank is None else rank
     directory = rel(fleet.task_dir(task["id"]))
     budget = task["budget"]
@@ -1011,6 +1073,11 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
     sections, optional = _task_body(fleet, task, rec, functions, rank)
     for note in task.get("notes", []):
         sections.append(("note", "Note: " + note + "\n", False))
+    block = ""
+    if views:
+        pointer, block = declaration_section(views, directory)
+        at = next((i for i, s in enumerate(sections) if s[0] == "ledger"), len(sections))
+        sections.insert(at, ("decls", pointer, False))
 
     def assemble(opt):
         return "\n".join(head + [s[1] for s in sections] + [o[1] for o in opt] + tail)
@@ -1019,8 +1086,16 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None):
     while len(text.encode("utf-8")) > PACKET_TARGET_BYTES and optional:
         optional.pop(0)
         text = assemble(optional)
-    if len(text.encode("utf-8")) > PACKET_MAX_BYTES:
-        sections = [(n, t[:1500] + ("...\n" if len(t) > 1500 else ""), o) for n, t, o in sections]
+    # The paste block goes inline only into room left below the target size;
+    # the complete block is always in the sidecar file.
+    inline = _clip_block(block, PACKET_TARGET_BYTES - len(text.encode("utf-8"))) if block else ""
+    if inline:
+        sections = [(n, t + inline if n == "decls" else t, o) for n, t, o in sections]
+        text = assemble(optional)
+    for name, limit in CLIP_STEPS:
+        if len(text.encode("utf-8")) <= PACKET_MAX_BYTES:
+            break
+        sections = [(n, _clip_section(t, limit) if name is None or n == name else t, o) for n, t, o in sections]
         text = assemble(optional)
     require(len(text.encode("utf-8")) <= PACKET_MAX_BYTES, "packet exceeds %d bytes" % PACKET_MAX_BYTES)
     return text
@@ -1043,11 +1118,19 @@ def write_packet(fleet, task_id):
     task = find_task(fleet, task_id)
     with fleet.locked("packet"):
         lease = fleet.load_state()["leases"].get(task_id)
-    text = render_packet(fleet, task, lease)
+    from recovery_state import evidence
+    functions = {f["id"]: f for f in evidence()["functions"]}
+    views = declaration_views(task, functions)
+    text = render_packet(fleet, task, lease, functions=functions, views=views)
     directory = fleet.task_dir(task_id)
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "PROMPT.md").write_text(text, encoding="utf-8", newline="\n")
     extra = {}
+    if views:
+        extra["declaration_views"] = views
+        if views.get("status") != "UNAVAILABLE":
+            import declaration_views as dv
+            (directory / DECLARATIONS_SIDECAR).write_text(dv.extern_block(views), encoding="ascii", newline="\n")
     if task["kind"] == "region":
         import fleet_regions
         extra["commands"] = fleet_regions.region_commands(task["origin"]["region"], rel(directory))

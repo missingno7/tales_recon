@@ -274,6 +274,28 @@ budgets, and writing only under `experiments/fleet/<task>/`. It ends with the
 closed `result.json` schema. Advisory sections are dropped first when the size
 target is exceeded.
 
+Function, unit and region packets (not review packets) also carry a section
+"Declarations already used by canonical sources (candidate views, not
+provenance)" from `tools/declaration_views.py` (docs/type-evidence.md). It
+lists the extern views and struct definitions that canonical sources already
+use for the symbols the targets reference. `packet` writes the complete
+paste-ready block to `experiments/fleet/<task>/canonical-declarations.h` and
+the full views, with counts, alternatives, sources and access widths, to
+`task.json` under `declaration_views`. The prompt always names both files. It
+inlines the block only in room left under the 10 KB target. Workers reuse
+these names and views unless a hypothesis needs another view. That view
+change is then the variant's recorded controlled change. The views reduce
+trials spent on off-by-two extern names (as for ov11_F_14BA) and on differing
+per-worker views that make multi-member units harder to join. They are not
+historical types.
+
+When a packet still exceeds 12 KB, sections are clipped in steps, at line
+ends where possible: prior hypotheses (700 bytes), notes (320), the
+declaration pointer (420), then every section (1500, 1000, 700). Before this,
+the `reg-ov11_4790-5CEA` packet (13.2 KB with v10 candidates) could not be
+rendered at all. It now renders at about 12 KB, but its member list is
+clipped after 54F8, so the rest of the list is only in `task.json`.
+
 Workers compile only through isolated paths that use the compile queue:
 `shape_search.py` and `fleet.py verify-function|verify-unit ARGS` (wrappers
 that always add `--isolated`). A unit task names every unrecovered member. The
