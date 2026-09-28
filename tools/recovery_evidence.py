@@ -3,6 +3,52 @@ import json
 from common import require,sha256
 
 
+EXTERN_FUNCTION=r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)'
+
+
+def stand_in_source(combined,skip=()):
+    """Harness input that declares every external stand-in once.
+
+    Separate objects may declare one external differently (``void`` in one,
+    ``int`` in another).  Later differing ``extern`` function declarations of
+    a name are removed (names in ``skip``, i.e. unit members and overlay
+    proxies, are never touched); identical repeats stay.  Returns the text
+    and ``{name: {defined, merged}}``; without a conflict the text is
+    ``combined`` itself.  Shared by the verifier and this evidence check, so
+    a retained ``unit.c`` re-derives exactly what was compiled.
+    """
+    import re
+    skip=set(skip);first={};drop=[];merged={}
+    for m in re.finditer(r'\bextern\s+([^;{}]+);',combined):
+        decl=m[1].strip();match=re.fullmatch(EXTERN_FUNCTION,decl)
+        if match is None or match[1] in skip:continue
+        name=match[1]
+        if name not in first:first[name]=decl
+        elif decl!=first[name]:
+            drop.append(m.span());merged.setdefault(name,[first[name]]).append(decl)
+    if not drop:return combined,{}
+    pieces=[];cursor=0
+    for a,b in drop:pieces.append(combined[cursor:a]);cursor=b
+    pieces.append(combined[cursor:])
+    return ''.join(pieces),{name:dict(defined=decls[0],merged=decls[1:]) for name,decls in sorted(merged.items())}
+
+
+def compiled_unit_source_sha256(unit,unit_text,compiler):
+    """Hash of the source the oracle compiled for a retained complete unit.
+
+    Ordinarily that is ``unit.c`` itself.  A separate-object unit whose
+    receipt lists ``merged_external_declarations`` compiled the stand-in
+    harness input re-derived here from ``unit.c``, the identity's local
+    functions and overlay proxies; the receipt's merge list must match.
+    """
+    merged=unit.get('merged_external_declarations')
+    if merged is None:return sha256(unit_text.encode('ascii'))
+    skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
+    derived,actual=stand_in_source(unit_text,skip)
+    require(merged and actual==merged,'merged external declarations do not re-derive from unit.c')
+    return sha256(derived.encode('ascii'))
+
+
 def owned_tail_boundary(h,fid,end,owned_end,analysis,blob):
     """Prove a literal tail ends at the next entry or final HUNK alignment."""
     starts=sorted(x['start'] for x in analysis['functions']
@@ -65,7 +111,9 @@ def load_promotions(root,blob,model,analysis):
             require(unit_path.is_relative_to(root.resolve()) and unit_path.is_file(),'combined source requires complete unit receipt')
             require(sha256(unit_path.read_bytes())==comparison['complete_unit_receipt_sha256'],'complete unit receipt changed')
             unit=json.loads(unit_path.read_text());unit_source=unit_path.parent/'unit.c'
-            require(sha256(unit_source.read_bytes())==unit['combined_source_sha256']==proof['compiler']['source_sha256'],'combined source hash differs')
+            require(sha256(unit_source.read_bytes())==unit['combined_source_sha256'] and
+                    compiled_unit_source_sha256(unit,unit_source.read_bytes().decode('ascii'),proof['compiler'])==proof['compiler']['source_sha256'],
+                    'combined source hash differs')
             # A multi-member unit names every new member's authored source.
             # Its receipt proves them together, so each must be canonical
             # with exactly that source (all members or none).

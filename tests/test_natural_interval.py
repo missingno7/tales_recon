@@ -356,5 +356,55 @@ class NaturalSeparateObjectControlTests(unittest.TestCase):
         self.assertEqual({c['verdict'] for c in report['canonical_regressions']},{'EQUAL'})
 
 
+class NaturalPromotionEvidenceTests(unittest.TestCase):
+    """A promoted natural-interval unit with merged stand-ins passes the evidence check."""
+
+    def test_ov11_37e4_promotion_reloads_in_a_temporary_root(self):
+        import shutil
+        import check_function
+        import recovery_state
+        from analysis_support import game
+        from recovery_evidence import load_promotions
+        from test_multi_member_unit import cache_only
+        source=ROOT/'experiments/fleet/fn-ov11_F_37E4/candidate-03.c'
+        if not source.is_file():self.skipTest('candidate absent')
+        if 'ov11_F_37E4' in recovery_state.recovery()['functions']:self.skipTest('already canonical')
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            shutil.copytree(ROOT/'recovery',root/'recovery');shutil.copytree(ROOT/'src/recovered',root/'src/recovered')
+            (root/'tools').mkdir()
+            for p in (ROOT/'tools').glob('*.py'):shutil.copyfile(p,root/'tools'/p.name)
+            ledger=root/'recovery/ledger.json'
+            with patch.object(check_unit,'ROOT',root),patch.object(check_function,'ROOT',root), \
+                 patch.object(check_function,'LEDGER',ledger),patch.object(recovery_state,'LEDGER',ledger), \
+                 patch.object(check_unit,'compile_many',side_effect=cache_only), \
+                 patch.object(check_function,'regression_receipt',return_value=dict(command='test',passed=True,output_sha256='0'*64)), \
+                 patch.object(check_unit,'save_rank'):
+                report=check_unit.check('ov11_F_37E4',source,['aztec36'],separate_objects=True,
+                                        natural_interval='0x37E4..0x415A')[0]
+                if report['natural_interval']['proven_object_groups']!=[['ov11_F_25D6','ov11_F_25F8'],['ov11_F_407C','ov11_F_40E0']]:
+                    self.skipTest('proven partition evidence (compile cache) absent')
+            self.assertEqual(report['verdict'],'EQUAL')
+            self.assertEqual(sorted(report['merged_external_declarations']),['F_h00_3674','F_h00_463E'])
+            item=json.loads(ledger.read_text())['functions']['ov11_F_37E4']
+            proof=json.loads((root/item['proof']).read_text())
+            unit_dir=(root/proof['comparison']['complete_unit_receipt']).parent
+            # The compiled (stand-in) source differs from the retained unit.c
+            # and is re-derived from it by the evidence check.
+            self.assertNotEqual(check_unit.sha256((unit_dir/'unit.c').read_bytes()),proof['compiler']['source_sha256'])
+            b,m,_=game();l=check_unit.evidence()
+            self.assertIn('ov11_F_37E4',[p['id'] for p in load_promotions(root,b,m,l)])
+            unit_path=unit_dir/'receipt.json';unit=json.loads(unit_path.read_text())
+            # A forged merge list no longer re-derives from unit.c.
+            unit['merged_external_declarations']['F_h00_3674']['merged']=['char F_h00_3674()']
+            check_unit.write_json(unit_path,unit)
+            proof['comparison']['complete_unit_receipt_sha256']=check_unit.sha256(unit_path.read_bytes())
+            check_unit.write_json(root/item['proof'],proof)
+            ledger_data=json.loads(ledger.read_text())
+            ledger_data['functions']['ov11_F_37E4']['proof_sha256']=check_unit.sha256((root/item['proof']).read_bytes())
+            check_unit.write_json(ledger,ledger_data)
+            with self.assertRaisesRegex(FormatError,'merged external declarations'):load_promotions(root,b,m,l)
+
+
 if __name__=='__main__':
     unittest.main()

@@ -174,7 +174,12 @@ compact, not the natural layout. Regions therefore use the opt-in
   differently (`void`/`int F_h00_3674()`), the first declaration defines the
   stand-in, and the receipt lists `merged_external_declarations`. Stand-ins
   are harness code, never claimed bytes. The prepare-only plan reports
-  `duplicate_stand_in_definitions` for each trial.
+  `duplicate_stand_in_definitions` for each trial. The oracle then compiled
+  this stand-in text, not `unit.c`. The promotion evidence check
+  (`recovery_evidence.compiled_unit_source_sha256`) re-derives it from the
+  retained `unit.c`, plus the local functions and overlay proxies of the
+  compile identity. It requires the receipt's merge list and the proof's
+  compiler source hash to match.
 
 For intake, `natural_interval` is a region-only option. `reverify` and the
 promote command take the interval from the region task.

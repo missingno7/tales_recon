@@ -15,6 +15,7 @@ from recovery_state import recovery,evidence,save_rank
 from check_function import validated_function,promote
 from compiler_oracle import compile_many,PROFILES
 from function_compare import compare_function
+from recovery_evidence import stand_in_source,EXTERN_FUNCTION
 
 
 def stable_receipt(value):
@@ -692,9 +693,6 @@ def promote_unit_members(fid,source,member_sources,members,report,comparison,com
             for member_id,text,member_report,member_state in plan]
 
 
-EXTERN_FUNCTION=r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)'
-
-
 def external_stand_in_source(combined,local_functions,target_node):
     """Harness input defining each external stand-in exactly once.
 
@@ -703,28 +701,16 @@ def external_stand_in_source(combined,local_functions,target_node):
     another).  The oracle harness defines one naturally allocated stand-in per
     distinct declaration, so differing views of one external identity would
     become duplicate definitions.  Keep only the first declaration of each such
-    name for the harness input; the member objects still compile their own
-    declarations, the linker binds all of them to the one stand-in symbol, and
-    comparison maps that symbol to the original external by its mechanical
-    name.  Stand-ins are harness code and never claimed bytes.  Without a
-    conflicting declaration the combined source is returned unchanged, so every
-    previously compiling unit keeps its cache identity.
+    name for the harness input (``recovery_evidence.stand_in_source``, which
+    also re-derives it from a retained ``unit.c``); member objects still
+    compile their own declarations and the linker binds them to the one
+    stand-in symbol.  Stand-ins are harness code and never claimed bytes.
+    Without a conflicting declaration the combined source is returned
+    unchanged, so every previously compiling unit keeps its cache identity.
     """
     from compiler_oracle import overlay_proxies
     skip=set(local_functions)|{p['name'] for p in overlay_proxies(combined,target_node)}
-    first={};drop=[];merged={}
-    for m in re.finditer(r'\bextern\s+([^;{}]+);',combined):
-        decl=m[1].strip();match=re.fullmatch(EXTERN_FUNCTION,decl)
-        if match is None or match[1] in skip:continue
-        name=match[1]
-        if name not in first:first[name]=decl
-        elif decl!=first[name]:
-            drop.append(m.span());merged.setdefault(name,[first[name]]).append(decl)
-    if not drop:return combined,{}
-    pieces=[];cursor=0
-    for a,b in drop:pieces.append(combined[cursor:a]);cursor=b
-    pieces.append(combined[cursor:])
-    return ''.join(pieces),{name:dict(defined=decls[0],merged=decls[1:]) for name,decls in sorted(merged.items())}
+    return stand_in_source(combined,skip)
 
 
 def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups=()):
