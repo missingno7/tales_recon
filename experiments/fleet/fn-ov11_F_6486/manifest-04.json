@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_6486",
+  "budget": {
+    "max_variants": 6,
+    "max_unique_compiles": 24
+  },
+  "variants": [
+    {
+      "id": "f41f6-word-argument-order-v1",
+      "causal_family": "callee-argument-order",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov11_F_6486/argument-order-fixed.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_6486/state-switch-no-default.c",
+      "suspected_cause": "The remaining mismatch is the order of the last two word arguments passed to F_h11_41F6.",
+      "controlled_change": "Swap field22 and field24 in the last two F_h11_41F6 arguments.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Swapping same-width call arguments should preserve function length while matching the target stack push order."
+      }
+    }
+  ]
+}
