@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2E26",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "state-seven-helper-path",
+      "causal_family": "record-view-and-state-guard",
+      "diagnostic_scope": "branch_condition_or_kind",
+      "source": "experiments/fleet/fn-ov11_F_2E26/state-seven.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2E26/offsets.c",
+      "suspected_cause": "The target enters helper processing only when the input state equals 7; the initial candidate used the inverse predicate.",
+      "controlled_change": "Change only the helper-processing guard from state != 7 to state == 7.",
+      "predicted_effect": {"length_delta": 0, "removed_candidate_only": 0, "register_role_diffs": "same", "note": "This should invert the final conditional branch while preserving instruction count and register assignments."}
+    }
+  ]
+}

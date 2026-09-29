@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_2E26",
+  "worker": "luna-fn-ov11_F_2E26",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov11_F_2E26",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_2E26/state-seven.c",
+    "profile": "aztec36",
+    "cache_key": "50c6ce50378588f9d176d0e62dcfc25d3a627e2933d0b34688165c3dcee84943",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov11_F_2E26",
+    "options": [],
+    "expected_length": 196,
+    "actual_length": 196
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The 64-byte indexed Record view, byte-offset field accesses, and short-circuit state update form the target code shape.",
+      "outcome": "unmeasurable",
+      "evidence": "Hypothesis ledger line 121; first candidate has no measured parent, so its declared prediction was unmeasurable."
+    },
+    {
+      "id": "h2",
+      "statement": "Using declared Record fields at offsets 24, 26, and 28 preserves the byte-offset candidate's generated instruction shape.",
+      "outcome": "confirmed",
+      "evidence": "Hypothesis ledger line 122 confirms zero length delta, zero candidate-only instruction delta, and unchanged register roles; exact candidate comparison remained DIFFER."
+    },
+    {
+      "id": "h3",
+      "statement": "The helper path is entered when state equals 7, not when state differs from 7.",
+      "outcome": "confirmed",
+      "evidence": "Hypothesis ledger line 126 confirms predicted deltas; isolated check_function EQUAL report in the shape-search result for manifest-02."
+    }
+  ],
+  "compile_trials": 3,
+  "ledger_lines": [
+    121,
+    122,
+    126
+  ],
+  "explanation": "The state-seven candidate matches all 196 bytes under isolated check_function verification. Relocation proof binds the A4-relative global access to DATA HUNK 1 offset 40910 and resolves F_h11_4696 once plus F_h11_5962 three times to their same-overlay identities. The named-field variant compiled identically to the byte-offset parent; changing the helper guard to state == 7 produced the exact match.",
+  "proposed_blocker": null
+}

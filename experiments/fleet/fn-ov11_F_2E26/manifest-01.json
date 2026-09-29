@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2E26",
+  "budget": {"max_variants": 2, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "offset-access-baseline",
+      "causal_family": "record-view-and-state-guard",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_2E26/offsets.c",
+      "profile": "aztec36",
+      "parent": "none",
+      "suspected_cause": "A 64-byte indexed Record view, explicit byte offsets, and short-circuit state guard may recover the target's accesses and control flow.",
+      "controlled_change": "Initial candidate spelling from the target flow; no measured source parent is available.",
+      "predicted_effect": {"length_delta": 0, "removed_candidate_only": null, "register_role_diffs": null, "note": "Unmeasurable without a source parent; 0 is retained as the explicit length prediction field."}
+    },
+    {
+      "id": "named-helper-fields",
+      "causal_family": "record-view-and-state-guard",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_2E26/named-fields.c",
+      "profile": "aztec36",
+      "parent": "offset-access-baseline",
+      "suspected_cause": "The compiler may emit the same helper-flag loads when accessed through their declared Record members.",
+      "controlled_change": "Replace only the three byte-offset expressions for offsets 24, 26, and 28 with the supplied Record members field24, field26, and field28.",
+      "predicted_effect": {"length_delta": 0, "removed_candidate_only": 0, "register_role_diffs": "same", "note": "Named members should preserve all instruction and register roles relative to the byte-offset parent."}
+    }
+  ]
+}

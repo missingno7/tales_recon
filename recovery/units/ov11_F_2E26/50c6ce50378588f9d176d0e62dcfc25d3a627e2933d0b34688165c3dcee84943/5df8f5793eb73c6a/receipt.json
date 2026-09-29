@@ -1,0 +1,992 @@
+{
+  "actual_length": 810,
+  "actual_sha256": "c3643638ea53870a41325e6126695054b8fd96bbe121a3966354a926ddf8f510",
+  "cache_key": "50c6ce50378588f9d176d0e62dcfc25d3a627e2933d0b34688165c3dcee84943",
+  "combined_source_sha256": "4886dfda02516c92bcebe06bf130bd30b7bb64b2b566c364209b73ef708d2ac4",
+  "compiler": {
+    "candidate_overlay_node": 9,
+    "compiler_version": "3.6a",
+    "flags": [],
+    "harness_sha256": "90f376bad5b4d9959f3f985d358fc0dd9e5412a09cd6553fa8cc188f3711bb3e",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o +o9 candidate.o part001.o part002.o part003.o part004.o +o0 c.lib; -m -t",
+    "local_functions": [
+      "F_h11_4696",
+      "F_h11_5962",
+      "F_h11_5C42",
+      "F_h11_66FE"
+    ],
+    "object_labels": [
+      "candidate",
+      "part001",
+      "part002",
+      "part003",
+      "part004"
+    ],
+    "partitioned_object_sources": [
+      {
+        "label": "candidate",
+        "source_sha256": "bc5bc2ed1e32eb93f2289f86b0022034f2aa5f39b2faa5c084a1965404a02705"
+      },
+      {
+        "label": "part001",
+        "source_sha256": "95578c2efbfa78369e3455385b65cbed4ec8ae6ceb3a2b8c4eb3579f322dae12"
+      },
+      {
+        "label": "part002",
+        "source_sha256": "a0609d567d11269afbf0bf2ace1d3d6e8cf7c6f91aff6d7df6686e29271f16cd"
+      },
+      {
+        "label": "part003",
+        "source_sha256": "7aecbf1da0384954d3501a76f100d149c63adfa9e413c9f28ed76b1e22cf0664"
+      },
+      {
+        "label": "part004",
+        "source_sha256": "3dba530138c5be7c93b474e2892bae5be2281b926b201fc5f64df5e07fabd832"
+      }
+    ],
+    "profile": "aztec36",
+    "service_version": 1,
+    "source_sha256": "4886dfda02516c92bcebe06bf130bd30b7bb64b2b566c364209b73ef708d2ac4",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "a6c1e4123851e8585b09ee6340d566edb5c4cb014fedbe608feaf1f07ccd6889"
+  },
+  "dependency_sources": {
+    "ov11_F_4696": "48dde5f7da5e0e8e1bd0eb214d283261de032ab6c56e673a157eb4e2491dc21a",
+    "ov11_F_5962": "8d3790a0e92d4d6ea7df923f32ed94f0f9e93705806eb8ad638f4f6e79c18e06",
+    "ov11_F_5C42": "3c46ec2addc544249d0a6951ce2fc22b0cf913916ff70a10a5244383243d57e1",
+    "ov11_F_66FE": "1ca7bd95aa6d005b99b84a0ed8ebcae33301bb817ead88f5d097f4f36d6acbd1"
+  },
+  "expected_compiled_length": 810,
+  "expected_compiled_sha256": "b08247c6112f4924977528d69201224263cd4a2feee37dd679e006f14cfa431b",
+  "expected_length": 810,
+  "expected_sha256": "b08247c6112f4924977528d69201224263cd4a2feee37dd679e006f14cfa431b",
+  "id": "ov11_F_2E26",
+  "members": [
+    {
+      "actual_length": 196,
+      "actual_sha256": "9eb87c615164d7d04b843118a2949e2e72c0aa5963fdcd70bdf5a571c8dc2763",
+      "cache_key": "50c6ce50378588f9d176d0e62dcfc25d3a627e2933d0b34688165c3dcee84943",
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 190,
+            "operands": "#$4, a7",
+            "raw": "584f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 192,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 194,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 190,
+            "operands": "#$4, a7",
+            "raw": "584f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 192,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 194,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 196,
+      "expected_sha256": "27032029cfcbe1a2fb2e202e8266497215004939bda874e6594fdd5ca83bf152",
+      "first_structural_instruction_difference": null,
+      "flags": [],
+      "id": "ov11_F_2E26",
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "27032029cfcbe1a2fb2e202e8266497215004939bda874e6594fdd5ca83bf152",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "ext.l",
+            "offset": 8,
+            "operands": "d0",
+            "raw": "48c0",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "ext.l",
+            "offset": 8,
+            "operands": "d0",
+            "raw": "48c0",
+            "size": 2
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "802ad0882b40fffc206dfffc317c0002",
+        "actual_size": 196,
+        "expected": "1fd0d0882b40fffc206dfffc317c0002",
+        "expected_size": 196,
+        "offset": 14
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [
+        {
+          "expected": [
+            1,
+            40910
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 40910,
+            "symbol": "_G_h01_9FCE"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 14
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 18070,
+            "symbol": "_F_h11_4696"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 102,
+          "width": 2
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 22882,
+            "symbol": "_F_h11_5962"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 132,
+          "width": 2
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 22882,
+            "symbol": "_F_h11_5962"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 160,
+          "width": 2
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 22882,
+            "symbol": "_F_h11_5962"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 188,
+          "width": 2
+        }
+      ],
+      "verdict": "EQUAL"
+    },
+    {
+      "actual_length": 250,
+      "actual_sha256": "e3f5dd63d0b3e096ad02a141112d0649fbf84e203298872210ae68b90673ed44",
+      "cache_key": "50c6ce50378588f9d176d0e62dcfc25d3a627e2933d0b34688165c3dcee84943",
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "movea.l",
+            "offset": 236,
+            "operands": "-$4(a5), a0",
+            "raw": "206dfffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 240,
+            "operands": "$10(a5), $a(a0)",
+            "raw": "316d0010000a",
+            "size": 6
+          },
+          {
+            "mnemonic": "bra.w",
+            "offset": 246,
+            "operands": "$3c",
+            "raw": "6000ff44",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "movea.l",
+            "offset": 236,
+            "operands": "-$4(a5), a0",
+            "raw": "206dfffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 240,
+            "operands": "$10(a5), $a(a0)",
+            "raw": "316d0010000a",
+            "size": 6
+          },
+          {
+            "mnemonic": "bra.w",
+            "offset": 246,
+            "operands": "$3c",
+            "raw": "6000ff44",
+            "size": 4
+          }
+        ]
+      },
+      "expected_length": 250,
+      "expected_sha256": "2bf9732e798c4eef793095c7712e9144b98dc031872ec4890712e9902c8864bb",
+      "first_structural_instruction_difference": null,
+      "flags": [],
+      "id": "ov11_F_4696",
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "2bf9732e798c4eef793095c7712e9144b98dc031872ec4890712e9902c8864bb",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$10(a5), d0",
+            "raw": "302d0010",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$e, d0",
+            "raw": "c1fc000e",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$10(a5), d0",
+            "raw": "302d0010",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$e, d0",
+            "raw": "c1fc000e",
+            "size": 4
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "806ad0882b40fffc0c6c0002829a6c00",
+        "actual_size": 250,
+        "expected": "b4eed0882b40fffc0c6c00020a3e6c00",
+        "expected_size": 250,
+        "offset": 14
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [
+        {
+          "expected": [
+            1,
+            13548
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 13548,
+            "symbol": "_G_h01_34EC"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 14
+        },
+        {
+          "expected": [
+            1,
+            35388
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 35388,
+            "symbol": "_G_h01_8A3C"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 26
+        },
+        {
+          "expected": [
+            1,
+            35390
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 35390,
+            "symbol": "_G_h01_8A3E"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 34
+        }
+      ],
+      "verdict": "EQUAL"
+    },
+    {
+      "actual_length": 132,
+      "actual_sha256": "2b2ed758ea463b59787758c86dfd2250030126754e9a699ed985391832107dc3",
+      "cache_key": "50c6ce50378588f9d176d0e62dcfc25d3a627e2933d0b34688165c3dcee84943",
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 126,
+            "operands": "#$4, a7",
+            "raw": "584f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 128,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 130,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 126,
+            "operands": "#$4, a7",
+            "raw": "584f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 128,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 130,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 132,
+      "expected_sha256": "5c86a324eca9407ce958eea2a6ce0351d064baecd4d3223870d3d5a73d42e5ee",
+      "first_structural_instruction_difference": null,
+      "flags": [],
+      "id": "ov11_F_5962",
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "5c86a324eca9407ce958eea2a6ce0351d064baecd4d3223870d3d5a73d42e5ee",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$34, d0",
+            "raw": "c1fc0034",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$34, d0",
+            "raw": "c1fc0034",
+            "size": 4
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "829ed0882b40fffc206dfffc317c0002",
+        "actual_size": 132,
+        "expected": "0beed0882b40fffc206dfffc317c0002",
+        "expected_size": 132,
+        "offset": 14
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [
+        {
+          "expected": [
+            1,
+            35820
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 35820,
+            "symbol": "_G_h01_8BEC"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 14
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 23618,
+            "symbol": "_F_h11_5C42"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 88,
+          "width": 2
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 26366,
+            "symbol": "_F_h11_66FE"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 124,
+          "width": 2
+        }
+      ],
+      "verdict": "EQUAL"
+    },
+    {
+      "actual_length": 168,
+      "actual_sha256": "093a7b58bf452477ac0a10ba3e6d6028fa7c43626eb5e932cbb6f45485d342a2",
+      "cache_key": "50c6ce50378588f9d176d0e62dcfc25d3a627e2933d0b34688165c3dcee84943",
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 162,
+            "operands": "#$4, a7",
+            "raw": "584f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 164,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 166,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 162,
+            "operands": "#$4, a7",
+            "raw": "584f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 164,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 166,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 168,
+      "expected_sha256": "df17ea30cbc16020ce146a22159cde3904a1947ca418f69edc3346d667ea4201",
+      "first_structural_instruction_difference": null,
+      "flags": [],
+      "id": "ov11_F_5C42",
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "df17ea30cbc16020ce146a22159cde3904a1947ca418f69edc3346d667ea4201",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$34, d0",
+            "raw": "c1fc0034",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$34, d0",
+            "raw": "c1fc0034",
+            "size": 4
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "829ed0882b40fffc206dfffc317c0002",
+        "actual_size": 168,
+        "expected": "0beed0882b40fffc206dfffc317c0002",
+        "expected_size": 168,
+        "offset": 14
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [
+        {
+          "expected": [
+            1,
+            35820
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 35820,
+            "symbol": "_G_h01_8BEC"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 14
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 18070,
+            "symbol": "_F_h11_4696"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 102,
+          "width": 2
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 22882,
+            "symbol": "_F_h11_5962"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 132,
+          "width": 2
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 11,
+            "offset": 22882,
+            "symbol": "_F_h11_5962"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 160,
+          "width": 2
+        }
+      ],
+      "verdict": "EQUAL"
+    },
+    {
+      "actual_length": 64,
+      "actual_sha256": "c986200b1025aed7d6b46a1dd9d91016bdff828d8ee78bc6e43a7c4dc7cb77f3",
+      "cache_key": "50c6ce50378588f9d176d0e62dcfc25d3a627e2933d0b34688165c3dcee84943",
+      "compiler": "aztec36",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "move.w",
+            "offset": 54,
+            "operands": "$a(a5), $18(a0)",
+            "raw": "316d000a0018",
+            "size": 6
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 60,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 62,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "move.w",
+            "offset": 54,
+            "operands": "$a(a5), $18(a0)",
+            "raw": "316d000a0018",
+            "size": 6
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 60,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 62,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 64,
+      "expected_sha256": "5fd081309419a482855f78694d603fd0535b3bd0fce4ee0eb6f0b2e6558e5f42",
+      "first_structural_instruction_difference": null,
+      "flags": [],
+      "id": "ov11_F_66FE",
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "5fd081309419a482855f78694d603fd0535b3bd0fce4ee0eb6f0b2e6558e5f42",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$28, d0",
+            "raw": "c1fc0028",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "move.w",
+            "offset": 4,
+            "operands": "$8(a5), d0",
+            "raw": "302d0008",
+            "size": 4
+          },
+          {
+            "mnemonic": "muls.w",
+            "offset": 8,
+            "operands": "#$28, d0",
+            "raw": "c1fc0028",
+            "size": 4
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "82d2d0882b40fffc206dfffc317c0002",
+        "actual_size": 64,
+        "expected": "2466d0882b40fffc206dfffc317c0002",
+        "expected_size": 64,
+        "offset": 14
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [
+        {
+          "expected": [
+            1,
+            42084
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 42084,
+            "symbol": "_G_h01_A464"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 14
+        }
+      ],
+      "verdict": "EQUAL"
+    }
+  ],
+  "normalized_sha256": "b08247c6112f4924977528d69201224263cd4a2feee37dd679e006f14cfa431b",
+  "object_sha256": "2f1baf651d7550670f59fa76d9379bbe9a617b9b774e4c593cfdfc1f8450a7f4",
+  "ordered_members": [
+    {
+      "end": 12010,
+      "hunk": 11,
+      "id": "ov11_F_2E26",
+      "sha256": "27032029cfcbe1a2fb2e202e8266497215004939bda874e6594fdd5ca83bf152",
+      "size": 196,
+      "start": 11814
+    },
+    {
+      "end": 18320,
+      "hunk": 11,
+      "id": "ov11_F_4696",
+      "sha256": "2bf9732e798c4eef793095c7712e9144b98dc031872ec4890712e9902c8864bb",
+      "size": 250,
+      "start": 18070
+    },
+    {
+      "end": 23014,
+      "hunk": 11,
+      "id": "ov11_F_5962",
+      "sha256": "5c86a324eca9407ce958eea2a6ce0351d064baecd4d3223870d3d5a73d42e5ee",
+      "size": 132,
+      "start": 22882
+    },
+    {
+      "end": 23786,
+      "hunk": 11,
+      "id": "ov11_F_5C42",
+      "sha256": "df17ea30cbc16020ce146a22159cde3904a1947ca418f69edc3346d667ea4201",
+      "size": 168,
+      "start": 23618
+    },
+    {
+      "end": 26430,
+      "hunk": 11,
+      "id": "ov11_F_66FE",
+      "sha256": "5fd081309419a482855f78694d603fd0535b3bd0fce4ee0eb6f0b2e6558e5f42",
+      "size": 64,
+      "start": 26366
+    }
+  ],
+  "profile": "aztec36",
+  "reason": "ENTIRE_OBJECT_AND_ALL_MEMBER_CONTRIBUTIONS",
+  "source_sha256": "bc5bc2ed1e32eb93f2289f86b0022034f2aa5f39b2faa5c084a1965404a02705",
+  "unclaimed_bytes": 0,
+  "verdict": "EQUAL",
+  "verification_policy": "Every compact linked byte belongs to a recovered source object; original gaps remain unclaimed",
+  "verifier_identity": {
+    "check_unit.py": "30a95c3231897009d059e2db8c90eb3a345ad2d9490e09e1a6dd12f5f18da2f8",
+    "compiler_oracle.py": "5c18ea1220d34c880c6c31c27da637ce12951130ed4de95f0009c33a63de24aa",
+    "function_compare.py": "850fe1a1d9d051b6751595d7cde9dd379c8cdcd7970371e12aee7efc75f421cf",
+    "runtime_arithmetic.py": "ac504401940c27a97ab314de6f711f7bdb0dd861dc1937ec988681fc11043d68"
+  }
+}
