@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_2EEA",
+  "worker": "luna-fn-ov11_F_2EEA",
+  "status": "NEAR",
+  "target": "ov11_F_2EEA",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v14.c",
+    "profile": "aztec36",
+    "cache_key": "fdaac77e2cd1887a023fb879c2bf5ca0d5517ef0fd6920f090d92dac57caf7d4",
+    "verdict": "DIFFER",
+    "verifier": "check_function",
+    "entry": "ov11_F_2EEA",
+    "options": [],
+    "expected_length": 1608,
+    "actual_length": 1608
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The baseline reconstructed state machine yields the target instruction layout.",
+      "outcome": "partial",
+      "evidence": "ledger:185; v14 diag reports 1608 bytes and instruction_similarity 1.0, but exact verdict DIFFER."
+    },
+    {
+      "id": "h2",
+      "statement": "Reordering the changed flag around the timer decrement accounts for the entry mismatch.",
+      "outcome": "refuted",
+      "evidence": "ledger:187,189; both variants changed candidate length by only +2 or 0 against predictions."
+    },
+    {
+      "id": "h3",
+      "statement": "Strict zero checks for the four timer-gated states match the original branches.",
+      "outcome": "confirmed",
+      "evidence": "ledger:194; predicted length delta 0 confirmed."
+    },
+    {
+      "id": "h4",
+      "statement": "Preserving both callback branches in state 15 matches the original call structure.",
+      "outcome": "confirmed",
+      "evidence": "ledger:207; predicted +20 bytes confirmed."
+    },
+    {
+      "id": "h5",
+      "statement": "Explicit state 12 and state 11 path factoring reproduces their branch layout.",
+      "outcome": "refuted",
+      "evidence": "ledger:212,216,222; predicted length deltas were refuted by actual deltas +40, +44, and -16."
+    },
+    {
+      "id": "h6",
+      "statement": "Explicit timer body and exit gotos reproduce the state 17, 12, and 11 branch forms.",
+      "outcome": "refuted",
+      "evidence": "ledger:226; predicted +10, actual +6."
+    },
+    {
+      "id": "h7",
+      "statement": "Reversing the state 13 comparison operands restores branch width.",
+      "outcome": "refuted",
+      "evidence": "ledger:232; predicted +2, actual -2."
+    },
+    {
+      "id": "h8",
+      "statement": "State 13 hitbox constants are x+44 and y+22.",
+      "outcome": "confirmed",
+      "evidence": "ledger:234; predicted +4 confirmed; candidate reaches target length."
+    },
+    {
+      "id": "h9",
+      "statement": "State 16 must emit the x+8 stores before the y+28 stores.",
+      "outcome": "confirmed",
+      "evidence": "ledger:244; predicted length delta 0 confirmed and instruction similarity reached 1.0."
+    },
+    {
+      "id": "h10",
+      "statement": "A contiguous int-array view of globals G_h01_94B0, G_h01_94BE, and G_h01_94C0 matches the target bindings.",
+      "outcome": "refuted",
+      "evidence": "ledger:248; unchanged length but A4 mismatch count increased from 10 to 21."
+    },
+    {
+      "id": "h11",
+      "statement": "The aztec36-large-data profile preserves target A4 identities while retaining the target extent.",
+      "outcome": "refuted",
+      "evidence": "ledger:255; candidate extent 1670 vs 1608, instruction similarity 0.9287."
+    },
+    {
+      "id": "h12",
+      "statement": "Remaining exact differences arise from unresolved candidate A4 object layout and symbol bindings.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/fn-ov11_F_2EEA/runs/diag-v14.json: ten A4 mismatches (one different identity, nine unresolved); diagnostic is advisory only."
+    }
+  ],
+  "compile_trials": 16,
+  "ledger_lines": [
+    185,
+    187,
+    189,
+    194,
+    198,
+    204,
+    207,
+    212,
+    216,
+    222,
+    226,
+    232,
+    234,
+    244,
+    248,
+    255
+  ],
+  "explanation": "The v14 aztec36 source reproduces the 1608-byte extent and all aligned instructions (diagnostic similarity 1.0), but isolated check_function returns DIFFER because A4-relative references bind to a different candidate layout. Diagnostics count ten such references, with one different established identity and nine unresolved. The large-data profile worsens extent and instruction shape. Exact equality was not achieved.",
+  "proposed_blocker": null
+}

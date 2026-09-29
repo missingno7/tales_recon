@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "state12-explicit-exits-v8",
+      "causal_family": "state12-branch-exit-structure",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v8.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v7.c",
+      "suspected_cause": "The target emits state and local flag stores in separate state-12 paths; v7 folds the paths into a combined condition and shared writes.",
+      "controlled_change": "Replace only the state-12 combined near-path condition with two ordered tests and explicit branches to a local exit label.",
+      "predicted_effect": {
+        "length_delta": 38,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The distinct state-13 and flags-only paths should restore their duplicated stores and branch exits."
+      }
+    }
+  ]
+}

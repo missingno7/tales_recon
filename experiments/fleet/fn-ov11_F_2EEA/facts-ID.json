@@ -1,0 +1,3991 @@
+{
+  "schema_version": 1,
+  "id": "ov11_F_2EEA",
+  "extent": {
+    "node": "ov11",
+    "hunk": 11,
+    "start": 12010,
+    "end": 13618,
+    "size": 1608,
+    "sha256": "4f6755c18ec16c1fc0506c9d299bbaa18627d8be3f7f9021079c9a5ac4876fa8",
+    "extent_status": "CLOSED_CFG",
+    "confidence": "HIGH"
+  },
+  "entry_evidence": [
+    {
+      "basis": "PC_RELATIVE",
+      "caller": "ov11_F_0000",
+      "kind": "DIRECT_CALL",
+      "site": 580
+    }
+  ],
+  "instructions": [
+    {
+      "mnemonic": "link.w",
+      "offset": 12010,
+      "operands": "a5, #$fff6",
+      "raw": "4e55fff6",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12014,
+      "operands": "$8(a5), d0",
+      "raw": "302d0008",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 12018,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "asl.l",
+      "offset": 12020,
+      "operands": "#$6, d0",
+      "raw": "ed80",
+      "size": 2
+    },
+    {
+      "mnemonic": "lea.l",
+      "offset": 12022,
+      "operands": "$1fd0(a4), a0",
+      "raw": "41ec1fd0",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.l",
+      "offset": 12026,
+      "operands": "a0, d0",
+      "raw": "d088",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 12028,
+      "operands": "d0, -$4(a5)",
+      "raw": "2b40fffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "clr.w",
+      "offset": 12032,
+      "operands": "-$6(a5)",
+      "raw": "426dfffa",
+      "size": 4
+    },
+    {
+      "mnemonic": "clr.w",
+      "offset": 12036,
+      "operands": "-$8(a5)",
+      "raw": "426dfff8",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12040,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 12044,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 12046,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12048,
+      "operands": "$45ec(pc)",
+      "raw": "4eba16da",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 12052,
+      "operands": "#$4, a7",
+      "raw": "584f",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12054,
+      "operands": "d0, -$a(a5)",
+      "raw": "3b40fff6",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12058,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "subq.w",
+      "offset": 12062,
+      "operands": "#$1, $3e(a0)",
+      "raw": "5368003e",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12066,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12072,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12076,
+      "operands": "$2c(a0), d0",
+      "raw": "3028002c",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 12080,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12082,
+      "operands": "$34b6",
+      "raw": "60000582",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12086,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12090,
+      "operands": "$3e(a0)",
+      "raw": "4a68003e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bne.w",
+      "offset": 12094,
+      "operands": "$3000",
+      "raw": "660000c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12098,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12102,
+      "operands": "$1e(a0), d0",
+      "raw": "3028001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12106,
+      "operands": "$14c0(a4), d0",
+      "raw": "b06c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "ble.b",
+      "offset": 12110,
+      "operands": "$2f82",
+      "raw": "6f32",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12112,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12116,
+      "operands": "(a0)",
+      "raw": "4a50",
+      "size": 2
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 12118,
+      "operands": "$2f82",
+      "raw": "672a",
+      "size": 2
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12120,
+      "operands": "-$7f56(a4)",
+      "raw": "4eac80aa",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 12124,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "divs.w",
+      "offset": 12126,
+      "operands": "#$64, d0",
+      "raw": "81fc0064",
+      "size": 4
+    },
+    {
+      "mnemonic": "swap",
+      "offset": 12130,
+      "operands": "d0",
+      "raw": "4840",
+      "size": 2
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12132,
+      "operands": "#$4b, d0",
+      "raw": "b07c004b",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 12136,
+      "operands": "$2f82",
+      "raw": "6c18",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12138,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12142,
+      "operands": "#$c, $2c(a0)",
+      "raw": "317c000c002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12148,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12154,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12160,
+      "operands": "$3000",
+      "raw": "607e",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12162,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "moveq",
+      "offset": 12166,
+      "operands": "#$8, d0",
+      "raw": "7008",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12168,
+      "operands": "$14b2(a4), d1",
+      "raw": "322c14b2",
+      "size": 4
+    },
+    {
+      "mnemonic": "asr.w",
+      "offset": 12172,
+      "operands": "d1, d0",
+      "raw": "e260",
+      "size": 2
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12174,
+      "operands": "$14c0(a4), d0",
+      "raw": "d06c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "sub.w",
+      "offset": 12178,
+      "operands": "#$20, d0",
+      "raw": "907c0020",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12182,
+      "operands": "$1e(a0), d1",
+      "raw": "3228001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12186,
+      "operands": "d0, d1",
+      "raw": "b240",
+      "size": 2
+    },
+    {
+      "mnemonic": "ble.b",
+      "offset": 12188,
+      "operands": "$3000",
+      "raw": "6f62",
+      "size": 2
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12190,
+      "operands": "-$7f56(a4)",
+      "raw": "4eac80aa",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 12194,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "divs.w",
+      "offset": 12196,
+      "operands": "#$64, d0",
+      "raw": "81fc0064",
+      "size": 4
+    },
+    {
+      "mnemonic": "swap",
+      "offset": 12200,
+      "operands": "d0",
+      "raw": "4840",
+      "size": 2
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12202,
+      "operands": "#$4b, d0",
+      "raw": "b07c004b",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 12206,
+      "operands": "$3000",
+      "raw": "6c50",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12208,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12212,
+      "operands": "#$10, $2c(a0)",
+      "raw": "317c0010002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12218,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12222,
+      "operands": "#$8, $20(a0)",
+      "raw": "317c00080020",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12228,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12232,
+      "operands": "$14c0(a4), d0",
+      "raw": "302c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "sub.w",
+      "offset": 12236,
+      "operands": "$1e(a0), d0",
+      "raw": "9068001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12240,
+      "operands": "#$c, d0",
+      "raw": "d07c000c",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 12244,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "divs.w",
+      "offset": 12246,
+      "operands": "#$40, d0",
+      "raw": "81fc0040",
+      "size": 4
+    },
+    {
+      "mnemonic": "swap",
+      "offset": 12250,
+      "operands": "d0",
+      "raw": "4840",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12252,
+      "operands": "d0, -$4b14(a4)",
+      "raw": "3940b4ec",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12256,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12260,
+      "operands": "-$4(a5), a1",
+      "raw": "226dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12264,
+      "operands": "$22(a1), d0",
+      "raw": "30290022",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12268,
+      "operands": "-$4b14(a4), d0",
+      "raw": "d06cb4ec",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12272,
+      "operands": "d0, $1e(a0)",
+      "raw": "3140001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12276,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12282,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12288,
+      "operands": "$34ce",
+      "raw": "600004cc",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12292,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "moveq",
+      "offset": 12296,
+      "operands": "#$8, d0",
+      "raw": "7008",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12298,
+      "operands": "$14b2(a4), d1",
+      "raw": "322c14b2",
+      "size": 4
+    },
+    {
+      "mnemonic": "asr.w",
+      "offset": 12302,
+      "operands": "d1, d0",
+      "raw": "e260",
+      "size": 2
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12304,
+      "operands": "$14c0(a4), d0",
+      "raw": "d06c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "sub.w",
+      "offset": 12308,
+      "operands": "#$40, d0",
+      "raw": "907c0040",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12312,
+      "operands": "$1e(a0), d1",
+      "raw": "3228001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12316,
+      "operands": "d0, d1",
+      "raw": "b240",
+      "size": 2
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 12318,
+      "operands": "$3048",
+      "raw": "6c28",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12320,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12324,
+      "operands": "#$e, $2c(a0)",
+      "raw": "317c000e002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12330,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12334,
+      "operands": "-$4(a5), a1",
+      "raw": "226dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12338,
+      "operands": "$22(a0), $1e(a1)",
+      "raw": "33680022001e",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12344,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12350,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12356,
+      "operands": "$30dc",
+      "raw": "60000096",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12360,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12364,
+      "operands": "$2e(a0)",
+      "raw": "4a68002e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bne.w",
+      "offset": 12368,
+      "operands": "$30dc",
+      "raw": "6600008a",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12372,
+      "operands": "-$7f56(a4)",
+      "raw": "4eac80aa",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 12376,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "divs.w",
+      "offset": 12378,
+      "operands": "#$64, d0",
+      "raw": "81fc0064",
+      "size": 4
+    },
+    {
+      "mnemonic": "swap",
+      "offset": 12382,
+      "operands": "d0",
+      "raw": "4840",
+      "size": 2
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12384,
+      "operands": "-$6ce0(a4), d0",
+      "raw": "b06c9320",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 12388,
+      "operands": "$30dc",
+      "raw": "6c76",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12390,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12394,
+      "operands": "#$11, $2c(a0)",
+      "raw": "317c0011002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12400,
+      "operands": "$8(a5), -$56c(a4)",
+      "raw": "396d0008fa94",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12406,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12410,
+      "operands": "#$1, $2e(a0)",
+      "raw": "317c0001002e",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12416,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12420,
+      "operands": "#$3, $30(a0)",
+      "raw": "317c00030030",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12426,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12430,
+      "operands": "-$4(a5), a1",
+      "raw": "226dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12434,
+      "operands": "$1e(a1), d0",
+      "raw": "3029001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 12438,
+      "operands": "#$8, d0",
+      "raw": "5040",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12440,
+      "operands": "d0, $36(a0)",
+      "raw": "31400036",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12444,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12448,
+      "operands": "d0, $38(a0)",
+      "raw": "31400038",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12452,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12456,
+      "operands": "d0, $32(a0)",
+      "raw": "31400032",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12460,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12464,
+      "operands": "-$4(a5), a1",
+      "raw": "226dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12468,
+      "operands": "$20(a1), d0",
+      "raw": "30290020",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12472,
+      "operands": "#$1c, d0",
+      "raw": "d07c001c",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12476,
+      "operands": "d0, $3a(a0)",
+      "raw": "3140003a",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12480,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12484,
+      "operands": "d0, $3c(a0)",
+      "raw": "3140003c",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12488,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12492,
+      "operands": "d0, $34(a0)",
+      "raw": "31400034",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12496,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12502,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12508,
+      "operands": "$34ce",
+      "raw": "600003f0",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12512,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12516,
+      "operands": "$3e(a0)",
+      "raw": "4a68003e",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 12520,
+      "operands": "$30ec",
+      "raw": "6702",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12522,
+      "operands": "$3132",
+      "raw": "6046",
+      "size": 2
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12524,
+      "operands": "-$a(a5)",
+      "raw": "4a6dfff6",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 12528,
+      "operands": "$310a",
+      "raw": "6718",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12530,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12534,
+      "operands": "#$e, $2c(a0)",
+      "raw": "317c000e002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12540,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12546,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12552,
+      "operands": "$3132",
+      "raw": "6028",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12554,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmpi.w",
+      "offset": 12558,
+      "operands": "#$2, $8(a0)",
+      "raw": "0c6800020008",
+      "size": 6
+    },
+    {
+      "mnemonic": "bne.b",
+      "offset": 12564,
+      "operands": "$3120",
+      "raw": "660a",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12566,
+      "operands": "#$60, -(a7)",
+      "raw": "3f3c0060",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12570,
+      "operands": "-$7f32(a4)",
+      "raw": "4eac80ce",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 12574,
+      "operands": "#$2, a7",
+      "raw": "544f",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12576,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 12580,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 12582,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12584,
+      "operands": "#$2, -(a7)",
+      "raw": "3f3c0002",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12588,
+      "operands": "$4474(pc)",
+      "raw": "4eba1346",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 12592,
+      "operands": "#$6, a7",
+      "raw": "5c4f",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12594,
+      "operands": "$34ce",
+      "raw": "6000039a",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12598,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12602,
+      "operands": "$3e(a0)",
+      "raw": "4a68003e",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 12606,
+      "operands": "$3144",
+      "raw": "6704",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12608,
+      "operands": "$31c8",
+      "raw": "60000086",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12612,
+      "operands": "-$a(a5)",
+      "raw": "4a6dfff6",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 12616,
+      "operands": "$31b6",
+      "raw": "676c",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12618,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addi.w",
+      "offset": 12622,
+      "operands": "#$c, $20(a0)",
+      "raw": "0668000c0020",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12628,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmpi.w",
+      "offset": 12632,
+      "operands": "#$50, $20(a0)",
+      "raw": "0c6800500020",
+      "size": 6
+    },
+    {
+      "mnemonic": "ble.b",
+      "offset": 12638,
+      "operands": "$3178",
+      "raw": "6f18",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12640,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12644,
+      "operands": "#$d, $2c(a0)",
+      "raw": "317c000d002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12650,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12656,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12662,
+      "operands": "$31b4",
+      "raw": "603c",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12664,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12668,
+      "operands": "$20(a0), d0",
+      "raw": "30280020",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12672,
+      "operands": "#$1c, d0",
+      "raw": "d07c001c",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12676,
+      "operands": "$14c2(a4), d1",
+      "raw": "322c14c2",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12680,
+      "operands": "#$20, d1",
+      "raw": "d27c0020",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12684,
+      "operands": "d1, d0",
+      "raw": "b041",
+      "size": 2
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 12686,
+      "operands": "$319e",
+      "raw": "6c0e",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12688,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12694,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12700,
+      "operands": "$31b4",
+      "raw": "6016",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12702,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12706,
+      "operands": "#$d, $2c(a0)",
+      "raw": "317c000d002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12712,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12718,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12724,
+      "operands": "$31c8",
+      "raw": "6012",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12726,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 12730,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 12732,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12734,
+      "operands": "#$2, -(a7)",
+      "raw": "3f3c0002",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12738,
+      "operands": "$4474(pc)",
+      "raw": "4eba12b0",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 12742,
+      "operands": "#$6, a7",
+      "raw": "5c4f",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12744,
+      "operands": "$34ce",
+      "raw": "60000304",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12748,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12752,
+      "operands": "$3e(a0)",
+      "raw": "4a68003e",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 12756,
+      "operands": "$31da",
+      "raw": "6704",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12758,
+      "operands": "$326c",
+      "raw": "60000094",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12762,
+      "operands": "-$a(a5)",
+      "raw": "4a6dfff6",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 12766,
+      "operands": "$325a",
+      "raw": "677a",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12768,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "subi.w",
+      "offset": 12772,
+      "operands": "#$c, $20(a0)",
+      "raw": "0468000c0020",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12778,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmpi.w",
+      "offset": 12782,
+      "operands": "#$10, $20(a0)",
+      "raw": "0c6800100020",
+      "size": 6
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 12788,
+      "operands": "$320e",
+      "raw": "6c18",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12790,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12794,
+      "operands": "#$e, $2c(a0)",
+      "raw": "317c000e002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12800,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12806,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12812,
+      "operands": "$3258",
+      "raw": "604a",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12814,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12818,
+      "operands": "$20(a0), d0",
+      "raw": "30280020",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12822,
+      "operands": "#$20, d0",
+      "raw": "d07c0020",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12826,
+      "operands": "$14c2(a4), d1",
+      "raw": "322c14c2",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12830,
+      "operands": "#$20, d1",
+      "raw": "d27c0020",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12834,
+      "operands": "d1, d0",
+      "raw": "b041",
+      "size": 2
+    },
+    {
+      "mnemonic": "bgt.b",
+      "offset": 12836,
+      "operands": "$3234",
+      "raw": "6e0e",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12838,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12842,
+      "operands": "$1e(a0), d0",
+      "raw": "3028001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12846,
+      "operands": "$14c0(a4), d0",
+      "raw": "b06c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 12850,
+      "operands": "$3242",
+      "raw": "6c0e",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12852,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12858,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12864,
+      "operands": "$3258",
+      "raw": "6016",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12866,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12870,
+      "operands": "#$d, $2c(a0)",
+      "raw": "317c000d002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12876,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12882,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 12888,
+      "operands": "$326c",
+      "raw": "6012",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12890,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 12894,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 12896,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12898,
+      "operands": "#$2, -(a7)",
+      "raw": "3f3c0002",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12902,
+      "operands": "$4474(pc)",
+      "raw": "4eba120c",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 12906,
+      "operands": "#$6, a7",
+      "raw": "5c4f",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 12908,
+      "operands": "$34ce",
+      "raw": "60000260",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12912,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12916,
+      "operands": "$3e(a0)",
+      "raw": "4a68003e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bgt.w",
+      "offset": 12920,
+      "operands": "$340a",
+      "raw": "6e000190",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 12924,
+      "operands": "-$7f56(a4)",
+      "raw": "4eac80aa",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 12928,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "divs.w",
+      "offset": 12930,
+      "operands": "#$64, d0",
+      "raw": "81fc0064",
+      "size": 4
+    },
+    {
+      "mnemonic": "swap",
+      "offset": 12934,
+      "operands": "d0",
+      "raw": "4840",
+      "size": 2
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12936,
+      "operands": "-$6ce4(a4), d0",
+      "raw": "b06c931c",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.w",
+      "offset": 12940,
+      "operands": "$3338",
+      "raw": "6c0000aa",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12944,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 12948,
+      "operands": "$2e(a0)",
+      "raw": "4a68002e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bne.w",
+      "offset": 12952,
+      "operands": "$3334",
+      "raw": "6600009a",
+      "size": 4
+    },
+    {
+      "mnemonic": "moveq",
+      "offset": 12956,
+      "operands": "#$8, d0",
+      "raw": "7008",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12958,
+      "operands": "$14b2(a4), d1",
+      "raw": "322c14b2",
+      "size": 4
+    },
+    {
+      "mnemonic": "asr.w",
+      "offset": 12962,
+      "operands": "d1, d0",
+      "raw": "e260",
+      "size": 2
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 12964,
+      "operands": "$14c0(a4), d0",
+      "raw": "d06c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12968,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 12972,
+      "operands": "$1e(a0), d0",
+      "raw": "b068001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bgt.w",
+      "offset": 12976,
+      "operands": "$3334",
+      "raw": "6e000082",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 12980,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12984,
+      "operands": "#$f, $2c(a0)",
+      "raw": "317c000f002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12990,
+      "operands": "#$1, -$6cde(a4)",
+      "raw": "397c00019322",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 12996,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13002,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13008,
+      "operands": "$8(a5), -$56c(a4)",
+      "raw": "396d0008fa94",
+      "size": 6
+    },
+    {
+      "mnemonic": "clr.w",
+      "offset": 13014,
+      "operands": "$2150(a4)",
+      "raw": "426c2150",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13018,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13022,
+      "operands": "#$1, $2e(a0)",
+      "raw": "317c0001002e",
+      "size": 6
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13028,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "clr.w",
+      "offset": 13032,
+      "operands": "$30(a0)",
+      "raw": "42680030",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13036,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13040,
+      "operands": "-$4(a5), a1",
+      "raw": "226dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13044,
+      "operands": "$1e(a1), d0",
+      "raw": "3029001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 13048,
+      "operands": "#$2c, d0",
+      "raw": "d07c002c",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13052,
+      "operands": "d0, $36(a0)",
+      "raw": "31400036",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13056,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13060,
+      "operands": "d0, $38(a0)",
+      "raw": "31400038",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13064,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13068,
+      "operands": "d0, $32(a0)",
+      "raw": "31400032",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13072,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13076,
+      "operands": "-$4(a5), a1",
+      "raw": "226dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13080,
+      "operands": "$20(a1), d0",
+      "raw": "30290020",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 13084,
+      "operands": "#$16, d0",
+      "raw": "d07c0016",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13088,
+      "operands": "d0, $3a(a0)",
+      "raw": "3140003a",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13092,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13096,
+      "operands": "d0, $3c(a0)",
+      "raw": "3140003c",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13100,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13104,
+      "operands": "d0, $34(a0)",
+      "raw": "31400034",
+      "size": 4
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 13108,
+      "operands": "$340a",
+      "raw": "600000d4",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13112,
+      "operands": "-$7f56(a4)",
+      "raw": "4eac80aa",
+      "size": 4
+    },
+    {
+      "mnemonic": "ext.l",
+      "offset": 13116,
+      "operands": "d0",
+      "raw": "48c0",
+      "size": 2
+    },
+    {
+      "mnemonic": "divs.w",
+      "offset": 13118,
+      "operands": "#$64, d0",
+      "raw": "81fc0064",
+      "size": 4
+    },
+    {
+      "mnemonic": "swap",
+      "offset": 13122,
+      "operands": "d0",
+      "raw": "4840",
+      "size": 2
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 13124,
+      "operands": "-$6ce2(a4), d0",
+      "raw": "b06c931e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.w",
+      "offset": 13128,
+      "operands": "$340a",
+      "raw": "6c0000c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13132,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13136,
+      "operands": "$1e(a0), d0",
+      "raw": "3028001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 13140,
+      "operands": "#$20, d0",
+      "raw": "d07c0020",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13144,
+      "operands": "d0, -(a7)",
+      "raw": "3f00",
+      "size": 2
+    },
+    {
+      "mnemonic": "moveq",
+      "offset": 13146,
+      "operands": "#$8, d0",
+      "raw": "7008",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13148,
+      "operands": "$14b2(a4), d1",
+      "raw": "322c14b2",
+      "size": 4
+    },
+    {
+      "mnemonic": "asr.w",
+      "offset": 13152,
+      "operands": "d1, d0",
+      "raw": "e260",
+      "size": 2
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 13154,
+      "operands": "$14c0(a4), d0",
+      "raw": "d06c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13158,
+      "operands": "d0, -(a7)",
+      "raw": "3f00",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13160,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13164,
+      "operands": "$1e(a0), d0",
+      "raw": "3028001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "sub.w",
+      "offset": 13168,
+      "operands": "#$20, d0",
+      "raw": "907c0020",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13172,
+      "operands": "d0, -(a7)",
+      "raw": "3f00",
+      "size": 2
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13174,
+      "operands": "$25d6(pc)",
+      "raw": "4ebaf25e",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 13178,
+      "operands": "#$6, a7",
+      "raw": "5c4f",
+      "size": 2
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13180,
+      "operands": "d0",
+      "raw": "4a40",
+      "size": 2
+    },
+    {
+      "mnemonic": "bne.b",
+      "offset": 13182,
+      "operands": "$338e",
+      "raw": "660e",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13184,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13188,
+      "operands": "$1e(a0), d0",
+      "raw": "3028001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 13192,
+      "operands": "$14c0(a4), d0",
+      "raw": "b06c14c0",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 13196,
+      "operands": "$33a6",
+      "raw": "6c18",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13198,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13202,
+      "operands": "#$b, $2c(a0)",
+      "raw": "317c000b002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13208,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13214,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 13220,
+      "operands": "$340a",
+      "raw": "6064",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13222,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13226,
+      "operands": "$20(a0), d0",
+      "raw": "30280020",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 13230,
+      "operands": "#$14, d0",
+      "raw": "d07c0014",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 13234,
+      "operands": "$14c2(a4), d0",
+      "raw": "b06c14c2",
+      "size": 4
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 13238,
+      "operands": "$33dc",
+      "raw": "6c24",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13240,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmpi.w",
+      "offset": 13244,
+      "operands": "#$50, $20(a0)",
+      "raw": "0c6800500020",
+      "size": 6
+    },
+    {
+      "mnemonic": "bge.b",
+      "offset": 13250,
+      "operands": "$33dc",
+      "raw": "6c18",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13252,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13256,
+      "operands": "#$c, $2c(a0)",
+      "raw": "317c000c002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13262,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13268,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 13274,
+      "operands": "$340a",
+      "raw": "602e",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13276,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13280,
+      "operands": "$20(a0), d0",
+      "raw": "30280020",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 13284,
+      "operands": "#$14, d0",
+      "raw": "d07c0014",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13288,
+      "operands": "$14c2(a4), d1",
+      "raw": "322c14c2",
+      "size": 4
+    },
+    {
+      "mnemonic": "add.w",
+      "offset": 13292,
+      "operands": "#$20, d1",
+      "raw": "d27c0020",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmp.w",
+      "offset": 13296,
+      "operands": "d1, d0",
+      "raw": "b041",
+      "size": 2
+    },
+    {
+      "mnemonic": "ble.b",
+      "offset": 13298,
+      "operands": "$340a",
+      "raw": "6f16",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13300,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13304,
+      "operands": "#$b, $2c(a0)",
+      "raw": "317c000b002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13310,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13316,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.w",
+      "offset": 13322,
+      "operands": "$34ce",
+      "raw": "600000c2",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13326,
+      "operands": "-$a(a5)",
+      "raw": "4a6dfff6",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 13330,
+      "operands": "$342c",
+      "raw": "6718",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13332,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13336,
+      "operands": "#$d, $2c(a0)",
+      "raw": "317c000d002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13342,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13348,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 13354,
+      "operands": "$3472",
+      "raw": "6046",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13356,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "cmpi.w",
+      "offset": 13360,
+      "operands": "#$1, $8(a0)",
+      "raw": "0c6800010008",
+      "size": 6
+    },
+    {
+      "mnemonic": "bne.b",
+      "offset": 13366,
+      "operands": "$3460",
+      "raw": "6628",
+      "size": 2
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13368,
+      "operands": "-$6cde(a4)",
+      "raw": "4a6c9322",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 13372,
+      "operands": "$3460",
+      "raw": "6722",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13374,
+      "operands": "#$60, -(a7)",
+      "raw": "3f3c0060",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13378,
+      "operands": "-$7f32(a4)",
+      "raw": "4eac80ce",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 13382,
+      "operands": "#$2, a7",
+      "raw": "544f",
+      "size": 2
+    },
+    {
+      "mnemonic": "clr.w",
+      "offset": 13384,
+      "operands": "-$6cde(a4)",
+      "raw": "426c9322",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13388,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 13392,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 13394,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13396,
+      "operands": "#$2, -(a7)",
+      "raw": "3f3c0002",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13400,
+      "operands": "$4474(pc)",
+      "raw": "4eba101a",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 13404,
+      "operands": "#$6, a7",
+      "raw": "5c4f",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 13406,
+      "operands": "$3472",
+      "raw": "6012",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13408,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 13412,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 13414,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13416,
+      "operands": "#$2, -(a7)",
+      "raw": "3f3c0002",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13420,
+      "operands": "$4474(pc)",
+      "raw": "4eba1006",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 13424,
+      "operands": "#$6, a7",
+      "raw": "5c4f",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 13426,
+      "operands": "$34ce",
+      "raw": "605a",
+      "size": 2
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13428,
+      "operands": "-$a(a5)",
+      "raw": "4a6dfff6",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 13432,
+      "operands": "$3492",
+      "raw": "6718",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13434,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13438,
+      "operands": "#$d, $2c(a0)",
+      "raw": "317c000d002c",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13444,
+      "operands": "#$1, -$6(a5)",
+      "raw": "3b7c0001fffa",
+      "size": 6
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13450,
+      "operands": "#$1, -$8(a5)",
+      "raw": "3b7c0001fff8",
+      "size": 6
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 13456,
+      "operands": "$34a4",
+      "raw": "6012",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13458,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 13462,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 13464,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13466,
+      "operands": "#$2, -(a7)",
+      "raw": "3f3c0002",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13470,
+      "operands": "$4474(pc)",
+      "raw": "4eba0fd4",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 13474,
+      "operands": "#$6, a7",
+      "raw": "5c4f",
+      "size": 2
+    },
+    {
+      "mnemonic": "bra.b",
+      "offset": 13476,
+      "operands": "$34ce",
+      "raw": "6028",
+      "size": 2
+    },
+    {
+      "mnemonic": "sub.l",
+      "offset": 13494,
+      "operands": "#$b, d0",
+      "raw": "90bc0000000b",
+      "size": 6
+    },
+    {
+      "mnemonic": "cmp.l",
+      "offset": 13500,
+      "operands": "#$8, d0",
+      "raw": "b0bc00000008",
+      "size": 6
+    },
+    {
+      "mnemonic": "bcc.b",
+      "offset": 13506,
+      "operands": "$34ce",
+      "raw": "640a",
+      "size": 2
+    },
+    {
+      "mnemonic": "asl.l",
+      "offset": 13508,
+      "operands": "#$1, d0",
+      "raw": "e380",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13510,
+      "operands": "$34a6(pc, d0.w), d0",
+      "raw": "303b00de",
+      "size": 4
+    },
+    {
+      "mnemonic": "jmp",
+      "offset": 13514,
+      "operands": "$34cc(pc,d0.w)",
+      "raw": "4efb0000",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13518,
+      "operands": "$a3e(a4)",
+      "raw": "4a6c0a3e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bne.b",
+      "offset": 13522,
+      "operands": "$34da",
+      "raw": "6606",
+      "size": 2
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13524,
+      "operands": "-$6(a5)",
+      "raw": "4a6dfffa",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 13528,
+      "operands": "$34e8",
+      "raw": "670e",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13530,
+      "operands": "#$7, -(a7)",
+      "raw": "3f3c0007",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13534,
+      "operands": "$8(a5), -(a7)",
+      "raw": "3f2d0008",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13538,
+      "operands": "$2e26(pc)",
+      "raw": "4ebaf942",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.w",
+      "offset": 13542,
+      "operands": "#$4, a7",
+      "raw": "584f",
+      "size": 2
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13544,
+      "operands": "-$8(a5)",
+      "raw": "4a6dfff8",
+      "size": 4
+    },
+    {
+      "mnemonic": "beq.b",
+      "offset": 13548,
+      "operands": "$351a",
+      "raw": "672c",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13550,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13554,
+      "operands": "$20(a0), -(a7)",
+      "raw": "3f280020",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13558,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13562,
+      "operands": "$1e(a0), -(a7)",
+      "raw": "3f28001e",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13566,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13570,
+      "operands": "$2c(a0), -(a7)",
+      "raw": "3f28002c",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13574,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "addq.l",
+      "offset": 13578,
+      "operands": "#$2, a0",
+      "raw": "5488",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.l",
+      "offset": 13580,
+      "operands": "a0, -(a7)",
+      "raw": "2f08",
+      "size": 2
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13582,
+      "operands": "#$2, -(a7)",
+      "raw": "3f3c0002",
+      "size": 4
+    },
+    {
+      "mnemonic": "jsr",
+      "offset": 13586,
+      "operands": "$41f6(pc)",
+      "raw": "4eba0ce2",
+      "size": 4
+    },
+    {
+      "mnemonic": "lea.l",
+      "offset": 13590,
+      "operands": "$c(a7), a7",
+      "raw": "4fef000c",
+      "size": 4
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13594,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "tst.w",
+      "offset": 13598,
+      "operands": "$3e(a0)",
+      "raw": "4a68003e",
+      "size": 4
+    },
+    {
+      "mnemonic": "bgt.b",
+      "offset": 13602,
+      "operands": "$352e",
+      "raw": "6e0a",
+      "size": 2
+    },
+    {
+      "mnemonic": "movea.l",
+      "offset": 13604,
+      "operands": "-$4(a5), a0",
+      "raw": "206dfffc",
+      "size": 4
+    },
+    {
+      "mnemonic": "move.w",
+      "offset": 13608,
+      "operands": "-$4b16(a4), $3e(a0)",
+      "raw": "316cb4ea003e",
+      "size": 6
+    },
+    {
+      "mnemonic": "unlk",
+      "offset": 13614,
+      "operands": "a5",
+      "raw": "4e5d",
+      "size": 2
+    },
+    {
+      "mnemonic": "rts",
+      "offset": 13616,
+      "operands": "",
+      "raw": "4e75",
+      "size": 2
+    }
+  ],
+  "cfg": [
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12082,
+      "target": 13494
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13506,
+      "target": 13518
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13506,
+      "target": 13508
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 12748
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 12598
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 12912
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 12086
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 13326
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 12292
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 12512
+    },
+    {
+      "kind": "JUMP_TABLE",
+      "source": 13514,
+      "target": 13428
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13432,
+      "target": 13458
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13432,
+      "target": 13434
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13456,
+      "target": 13476
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13476,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13522,
+      "target": 13530
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13522,
+      "target": 13524
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13528,
+      "target": 13544
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13528,
+      "target": 13530
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13548,
+      "target": 13594
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13548,
+      "target": 13550
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13602,
+      "target": 13614
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13602,
+      "target": 13604
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12520,
+      "target": 12524
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12520,
+      "target": 12522
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12522,
+      "target": 12594
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12594,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12528,
+      "target": 12554
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12528,
+      "target": 12530
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12552,
+      "target": 12594
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12564,
+      "target": 12576
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12564,
+      "target": 12566
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12318,
+      "target": 12360
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12318,
+      "target": 12320
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12356,
+      "target": 12508
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12508,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12368,
+      "target": 12508
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12368,
+      "target": 12372
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12388,
+      "target": 12508
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12388,
+      "target": 12390
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13330,
+      "target": 13356
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13330,
+      "target": 13332
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13354,
+      "target": 13426
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13426,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13366,
+      "target": 13408
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13366,
+      "target": 13368
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13372,
+      "target": 13408
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13372,
+      "target": 13374
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13406,
+      "target": 13426
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12094,
+      "target": 12288
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12094,
+      "target": 12098
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12110,
+      "target": 12162
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12110,
+      "target": 12112
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12118,
+      "target": 12162
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12118,
+      "target": 12120
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12136,
+      "target": 12162
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12136,
+      "target": 12138
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12160,
+      "target": 12288
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12288,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12188,
+      "target": 12288
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12188,
+      "target": 12190
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12206,
+      "target": 12288
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12206,
+      "target": 12208
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12920,
+      "target": 13322
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12920,
+      "target": 12924
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12940,
+      "target": 13112
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12940,
+      "target": 12944
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12952,
+      "target": 13108
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12952,
+      "target": 12956
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12976,
+      "target": 13108
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12976,
+      "target": 12980
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13108,
+      "target": 13322
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13322,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13128,
+      "target": 13322
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13128,
+      "target": 13132
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13182,
+      "target": 13198
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13182,
+      "target": 13184
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13196,
+      "target": 13222
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13196,
+      "target": 13198
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13220,
+      "target": 13322
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13238,
+      "target": 13276
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13238,
+      "target": 13240
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13250,
+      "target": 13276
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13250,
+      "target": 13252
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 13274,
+      "target": 13322
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 13298,
+      "target": 13322
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 13298,
+      "target": 13300
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12606,
+      "target": 12612
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12606,
+      "target": 12608
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12608,
+      "target": 12744
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12744,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12616,
+      "target": 12726
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12616,
+      "target": 12618
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12638,
+      "target": 12664
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12638,
+      "target": 12640
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12662,
+      "target": 12724
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12724,
+      "target": 12744
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12686,
+      "target": 12702
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12686,
+      "target": 12688
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12700,
+      "target": 12724
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12756,
+      "target": 12762
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12756,
+      "target": 12758
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12758,
+      "target": 12908
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12908,
+      "target": 13518
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12766,
+      "target": 12890
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12766,
+      "target": 12768
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12788,
+      "target": 12814
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12788,
+      "target": 12790
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12812,
+      "target": 12888
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12888,
+      "target": 12908
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12836,
+      "target": 12852
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12836,
+      "target": 12838
+    },
+    {
+      "kind": "CONDITIONAL",
+      "source": 12850,
+      "target": 12866
+    },
+    {
+      "kind": "FALLTHROUGH",
+      "source": 12850,
+      "target": 12852
+    },
+    {
+      "kind": "UNCONDITIONAL",
+      "source": 12864,
+      "target": 12888
+    }
+  ],
+  "calls": [
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_45EC",
+      "offset": 17900,
+      "site": 12048,
+      "name": "F_h11_45EC",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_2E26",
+      "offset": 11814,
+      "site": 13538,
+      "name": "F_h11_2E26",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_41F6",
+      "offset": 16886,
+      "site": 13586,
+      "name": "F_h11_41F6",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_4474",
+      "offset": 17524,
+      "site": 13470,
+      "name": "F_h11_4474",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_57D2",
+      "offset": 22482,
+      "site": 12570,
+      "name": "F_h00_57D2",
+      "current_state": "DISCOVERED"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_4474",
+      "offset": 17524,
+      "site": 12588,
+      "name": "F_h11_4474",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_463E",
+      "offset": 17982,
+      "site": 12372,
+      "name": "F_h00_463E",
+      "current_state": "DISCOVERED"
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_57D2",
+      "offset": 22482,
+      "site": 13378,
+      "name": "F_h00_57D2",
+      "current_state": "DISCOVERED"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_4474",
+      "offset": 17524,
+      "site": 13400,
+      "name": "F_h11_4474",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_4474",
+      "offset": 17524,
+      "site": 13420,
+      "name": "F_h11_4474",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_463E",
+      "offset": 17982,
+      "site": 12120,
+      "name": "F_h00_463E",
+      "current_state": "DISCOVERED"
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_463E",
+      "offset": 17982,
+      "site": 12190,
+      "name": "F_h00_463E",
+      "current_state": "DISCOVERED"
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_463E",
+      "offset": 17982,
+      "site": 12924,
+      "name": "F_h00_463E",
+      "current_state": "DISCOVERED"
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_463E",
+      "offset": 17982,
+      "site": 13112,
+      "name": "F_h00_463E",
+      "current_state": "DISCOVERED"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_25D6",
+      "offset": 9686,
+      "site": 13174,
+      "name": "F_h11_25D6",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_4474",
+      "offset": 17524,
+      "site": 12738,
+      "name": "F_h11_4474",
+      "current_state": "FUNCTION_CODE_MATCH"
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 11,
+      "id": "ov11_F_4474",
+      "offset": 17524,
+      "site": 12902,
+      "name": "F_h11_4474",
+      "current_state": "FUNCTION_CODE_MATCH"
+    }
+  ],
+  "indirect": [
+    {
+      "dispatch_offset": 13514,
+      "entries": [
+        {
+          "index": 0,
+          "offset": 13478,
+          "target": 12748
+        },
+        {
+          "index": 1,
+          "offset": 13480,
+          "target": 12598
+        },
+        {
+          "index": 2,
+          "offset": 13482,
+          "target": 12912
+        },
+        {
+          "index": 3,
+          "offset": 13484,
+          "target": 12086
+        },
+        {
+          "index": 4,
+          "offset": 13486,
+          "target": 13326
+        },
+        {
+          "index": 5,
+          "offset": 13488,
+          "target": 12292
+        },
+        {
+          "index": 6,
+          "offset": 13490,
+          "target": 12512
+        },
+        {
+          "index": 7,
+          "offset": 13492,
+          "target": 13428
+        }
+      ],
+      "index_register": "d0",
+      "kind": "PC_RELATIVE_WORD_JUMP_TABLE",
+      "table_end": 13494,
+      "table_start": 13478
+    }
+  ],
+  "data": [
+    {
+      "hunk": 1,
+      "offset": 168,
+      "name": "G_h01_00A8",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 204,
+      "name": "G_h01_00CC",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 4890,
+      "name": "G_h01_131A",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 4892,
+      "name": "G_h01_131C",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 4894,
+      "name": "G_h01_131E",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 4896,
+      "name": "G_h01_1320",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 13544,
+      "name": "G_h01_34E8",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 13546,
+      "name": "G_h01_34EA",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 31378,
+      "name": "G_h01_7A92",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 35388,
+      "name": "G_h01_8A3C",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 38064,
+      "name": "G_h01_94B0",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 38078,
+      "name": "G_h01_94BE",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 38080,
+      "name": "G_h01_94C0",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 40910,
+      "name": "G_h01_9FCE",
+      "type_status": "INFER_FROM_ACCESSES"
+    },
+    {
+      "hunk": 1,
+      "offset": 41294,
+      "name": "G_h01_A14E",
+      "type_status": "INFER_FROM_ACCESSES"
+    }
+  ],
+  "strings": [],
+  "relocations": [],
+  "stack_frames": [
+    {
+      "local_bytes": 10,
+      "offset": 12010,
+      "register": "a5"
+    }
+  ],
+  "argument_accesses": [
+    {
+      "frame_offset": 8,
+      "instruction_offset": 12014,
+      "width": "w"
+    },
+    {
+      "frame_offset": 8,
+      "instruction_offset": 13534,
+      "width": "w"
+    },
+    {
+      "frame_offset": 8,
+      "instruction_offset": 12400,
+      "width": "w"
+    },
+    {
+      "frame_offset": 8,
+      "instruction_offset": 13008,
+      "width": "w"
+    }
+  ],
+  "abi": {
+    "a4_bias": 32766,
+    "profiles": [
+      "aztec36",
+      "aztec36-x3",
+      "aztec36-large-data",
+      "aztec36-long",
+      "aztec50",
+      "aztec50-short"
+    ],
+    "historical_selection": "AMBIGUOUS",
+    "fingerprints": "evidence/fingerprints/index.json"
+  },
+  "previous_attempts": [],
+  "previous_sources": {},
+  "compiler_examples": [
+    {
+      "name": "varargs_stack_walk",
+      "profile": "aztec36",
+      "source": "/* Independent compiler fingerprint: varargs_stack_walk */\nrecovered(n,a) int n,a; { int *p,s; p=&a; s=0; while(n--) s+=*p++; return s; }\n",
+      "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tlea\t10(a5),a0\n\tmove.l\ta0,-4(a5)\n\tclr.w\t-6(a5)\n.4\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,8(a5)\n\ttst.w\td0\n\tbeq\t.5\n\tmove.l\t-4(a5),a0\n\tadd.l\t#2,-4(a5)\n\tmove.w\t(a0),d0\n\tadd.w\td0,-6(a5)\n\tbra\t.4\n.5\n\tmove.w\t-6(a5),d0\n.6\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-6\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+      "flags": []
+    },
+    {
+      "name": "local_loop",
+      "profile": "aztec36",
+      "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n",
+      "assembly": ";:ts=8\n\tpublic\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.7\n.6\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tasl.l\t#1,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d1\n\tadd.w\td1,-4(a5)\n.4\n\tadd.w\t#1,-2(a5)\n.7\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tblt\t.6\n.5\n\tmove.w\t-4(a5),d0\n.8\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\tpublic\t.begin\n\tdseg\n\tend\n",
+      "flags": []
+    },
+    {
+      "name": "varargs_stack_walk",
+      "profile": "aztec50-short",
+      "source": "/* Independent compiler fingerprint: varargs_stack_walk */\nrecovered(n,a) int n,a; { int *p,s; p=&a; s=0; while(n--) s+=*p++; return s; }\n",
+      "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tlea\t10(a5),a0\n\tmove.l\ta0,-4(a5)\n\tclr.w\t-6(a5)\n.10001\n\tmove.w\t8(a5),d0\n\tsub.w\t#1,8(a5)\n\ttst.w\td0\n\tbeq\t.10002\n\tmove.l\t-4(a5),a0\n\tadd.l\t#2,-4(a5)\n\tmove.w\t(a0),d0\n\tadd.w\td0,-6(a5)\n\tbra\t.10001\n.10002\n\tmove.w\t-6(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-6\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+      "flags": [
+        "-ps"
+      ]
+    },
+    {
+      "name": "local_loop",
+      "profile": "aztec50-short",
+      "source": "/* Independent compiler fingerprint: local_loop */\nrecovered(a,n) int *a,n; { int i,s; s=0; for(i=0;i<n;i++) s+=a[i]; return s; }\n",
+      "assembly": ";:ts=8\n\txdef\t_recovered\n_recovered:\n\tlink\ta5,#.2\n\tmovem.l\t.3,-(sp)\n\tclr.w\t-4(a5)\n\tclr.w\t-2(a5)\n\tbra\t.10002\n.10001\n\tadd.w\t#1,-2(a5)\n.10002\n\tmove.w\t-2(a5),d0\n\tcmp.w\t12(a5),d0\n\tbge\t.10003\n\tmove.w\t-2(a5),d0\n\text.l\td0\n\tadd.l\td0,d0\n\tmove.l\t8(a5),a0\n\tmove.w\t(a0,d0.l),d0\n\tadd.w\td0,-4(a5)\n\tbra\t.10001\n.10003\n\tmove.w\t-4(a5),d0\n.4\n\tmovem.l\t(sp)+,.3\n\tunlk\ta5\n\trts\n.2\tequ\t-4\n.3\treg\t\n\txref\t.begin\n\tdseg\n\tend\n",
+      "flags": [
+        "-ps"
+      ]
+    }
+  ],
+  "recovered_dependencies": [
+    {
+      "id": "ov11_F_45EC",
+      "name": "F_h11_45EC",
+      "state": "FUNCTION_CODE_MATCH",
+      "source": "recovered(p) int *p; { return p[3]>=p[5]-1; }\n"
+    },
+    {
+      "id": "ov11_F_2E26",
+      "name": "F_h11_2E26",
+      "state": "FUNCTION_CODE_MATCH",
+      "source": "struct Record { int field0; char unused0[22]; int field24; int field26; int field28; int field30; int field32; int field34; char unused1[28]; };\nextern struct Record G_h01_9FCE[1];\nextern int F_h11_4696();\nextern int F_h11_5962();\n\nrecovered(index, state)\nint index;\nint state;\n{\n    struct Record *record;\n\n    record = &G_h01_9FCE[index];\n    *(int *)((char *)record + 14) = 2;\n\n    if (*(int *)((char *)record + 16) == 0 || state == 7)\n        *(int *)((char *)record + 16) = state;\n\n    if (state == 7) {\n        F_h11_4696(*(int *)((char *)record + 38),\n                   *(int *)((char *)record + 42), 64, 74, index + 1);\n        if (*(int *)((char *)record + 24))\n            F_h11_5962(*(int *)((char *)record + 24), 7);\n        if (*(int *)((char *)record + 26))\n            F_h11_5962(*(int *)((char *)record + 26), 7);\n        if (*(int *)((char *)record + 28))\n            F_h11_5962(*(int *)((char *)record + 28), 7);\n    }\n}\n\n"
+    },
+    {
+      "id": "ov11_F_41F6",
+      "name": "F_h11_41F6",
+      "state": "FUNCTION_CODE_MATCH",
+      "source": "struct State {\n    int value0;\n    int value2;\n    int unused4;\n    int value6;\n    int value8;\n    int code;\n    int unusedc;\n    int unusede;\n    char *address;\n    int value14;\n};\n\nstruct Target {\n    char padding[6];\n    int value6;\n};\n\nextern char G_h01_9F0C[1];\nextern char G_h01_9C2C[1];\nextern char G_h01_9CBC[1];\nextern char G_h01_9CFC[1];\nextern char G_h01_9CEC[1];\nextern char G_h01_9EBC[1];\nextern char G_h01_9EAC[1];\nextern char G_h01_9D9C[1];\nextern char G_h01_9E5C[1];\nextern char G_h01_9D6C[1];\nextern char G_h01_9D3C[1];\nextern char G_h01_9D4C[1];\nextern char G_h01_9D2C[1];\nextern int F_h00_57D2();\nextern int F_h00_86A8();\n\nrecovered(mode, state, kind, value0, value2)\nint mode;\nstruct State *state;\nint kind;\nint value0;\nint value2;\n{\n    state->value6 = 0;\n    state->value14 = kind;\n    state->value0 = value0;\n    state->value2 = value2;\n\n    switch (mode) {\n    case 33:\n        state->address = G_h01_9F0C;\n        state->code = 4;\n        F_h00_57D2(89);\n        break;\n    case 24:\n        switch (kind) {\n        case 1:\n            state->code = 1;\n            state->address = G_h01_9C2C;\n            break;\n        case 3:\n            state->code = 6;\n            state->address = G_h01_9C2C;\n            break;\n        }\n        break;\n    case 11:\n        switch (kind) {\n        case 14:\n            state->code = 0;\n            state->address = G_h01_9CEC;\n            break;\n        case 18:\n            state->code = 0;\n            state->address = G_h01_9CFC;\n            break;\n        case 19:\n            state->code = 3;\n            state->address = G_h01_9CBC;\n            break;\n        }\n        break;\n    case 8:\n        switch (kind) {\n        case 20:\n            state->code = 1;\n            state->address = G_h01_9EAC;\n            break;\n        case 45:\n            state->code = 5;\n            state->address = G_h01_9EBC;\n            break;\n        }\n        break;\n    case 2:\n        switch (kind) {\n        case 12:\n            state->code = 2;\n            state->address = G_h01_9D4C;\n            break;\n        case 11:\n            state->code = 2;\n            state->address = G_h01_9D2C;\n            break;\n        case 15:\n            state->code = 3;\n            state->address = G_h01_9D6C;\n            break;\n        case 13:\n            state->code = 0;\n            state->address = G_h01_9D3C;\n            break;\n        case 18:\n            state->code = 12;\n            state->address = G_h01_9D9C;\n            F_h00_57D2(0);\n            F_h00_86A8((long)5);\n            F_h00_57D2(97);\n            break;\n        case 17:\n            state->code = 5;\n            state->address = G_h01_9E5C;\n            break;\n        case 16:\n            state->code = 0;\n            state->address = G_h01_9E5C;\n            break;\n        }\n        break;\n    }\n    state->value8 = ((struct Target *)state->address)->value6;\n}"
+    },
+    {
+      "id": "ov11_F_4474",
+      "name": "F_h11_4474",
+      "state": "FUNCTION_CODE_MATCH",
+      "source": "struct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit && state->counter)\n            state->counter += 16;\n        switch (action) {\n        case 33:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        case 24:\n            switch (state->action) {\n            case 1:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 1;\n                    state->counter = &G_h01_9C2C;\n                }\n                break;\n            case 3:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 6;\n                    state->counter = &G_h01_9C2C;\n                    F_h00_57D2(94);\n                } else if (state->index == 3)\n                    F_h00_57D2(87);\n                break;\n            }\n            break;\n        }\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n"
+    },
+    {
+      "id": "ov11_F_4474",
+      "name": "F_h11_4474",
+      "state": "FUNCTION_CODE_MATCH",
+      "source": "struct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit && state->counter)\n            state->counter += 16;\n        switch (action) {\n        case 33:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        case 24:\n            switch (state->action) {\n            case 1:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 1;\n                    state->counter = &G_h01_9C2C;\n                }\n                break;\n            case 3:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 6;\n                    state->counter = &G_h01_9C2C;\n                    F_h00_57D2(94);\n                } else if (state->index == 3)\n                    F_h00_57D2(87);\n                break;\n            }\n            break;\n        }\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n"
+    },
+    {
+      "id": "ov11_F_4474",
+      "name": "F_h11_4474",
+      "state": "FUNCTION_CODE_MATCH",
+      "source": "struct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit && state->counter)\n            state->counter += 16;\n        switch (action) {\n        case 33:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        case 24:\n            switch (state->action) {\n            case 1:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 1;\n                    state->counter = &G_h01_9C2C;\n                }\n                break;\n            case 3:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 6;\n                    state->counter = &G_h01_9C2C;\n                    F_h00_57D2(94);\n                } else if (state->index == 3)\n                    F_h00_57D2(87);\n                break;\n            }\n            break;\n        }\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n"
+    },
+    {
+      "id": "ov11_F_4474",
+      "name": "F_h11_4474",
+      "state": "FUNCTION_CODE_MATCH",
+      "source": "struct Counter {\n    char pad[6];\n    int value;\n};\n\nstruct State {\n    char pad0[6];\n    int index;\n    int countdown;\n    int limit;\n    char pad1[4];\n    char *counter;\n    int action;\n};\n\nextern char G_h01_9F0C;\nextern char G_h01_9C2C;\nextern int F_h00_57D2();\n\nrecovered(action,state)\nint action;\nstruct State *state;\n{\n    if (state->countdown > 0)\n        state->countdown--;\n    else {\n        state->index++;\n        if (state->index < state->limit && state->counter)\n            state->counter += 16;\n        switch (action) {\n        case 33:\n            if (state->action && state->index >= state->limit) {\n                state->index = 0;\n                state->limit = 4;\n                state->counter = &G_h01_9F0C;\n            }\n            break;\n        case 24:\n            switch (state->action) {\n            case 1:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 1;\n                    state->counter = &G_h01_9C2C;\n                }\n                break;\n            case 3:\n                if (state->index >= state->limit) {\n                    state->index = 0;\n                    state->limit = 6;\n                    state->counter = &G_h01_9C2C;\n                    F_h00_57D2(94);\n                } else if (state->index == 3)\n                    F_h00_57D2(87);\n                break;\n            }\n            break;\n        }\n        if (state->index < state->limit && state->counter)\n            state->countdown = ((struct Counter *)state->counter)->value;\n    }\n}\n"
+    }
+  ],
+  "canonical_call_examples": [
+    {
+      "callee": "F_h00_57D2",
+      "caller": "ov04_F_0926",
+      "call": "F_h00_57D2(0);"
+    },
+    {
+      "callee": "F_h00_463E",
+      "caller": "ov04_F_0104",
+      "call": "F_h00_463E();"
+    }
+  ],
+  "contract": "Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.",
+  "advisory_feedback": {
+    "status": "DIAGNOSTIC_ONLY",
+    "promotion_eligible": false,
+    "type_evidence": {
+      "status": "OMITTED_FOR_BUDGET",
+      "command": "python tools/type_evidence.py --function ov11_F_2EEA"
+    }
+  }
+}

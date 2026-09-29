@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "entry-flag-after-timer-v3",
+      "causal_family": "state-switch-and-record-access",
+      "diagnostic_scope": "frame_or_stack_reference",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v3.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v2.c",
+      "suspected_cause": "The changed flag store must follow the record timer decrement to match the observed local assignment site.",
+      "controlled_change": "Move the sole initial changed=1 assignment from before the F_h11_45EC call to immediately after the timer decrement.",
+      "predicted_effect": {
+        "length_delta": 4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Moving the assignment is expected to replace the shortened entry initialization with the observed stack store after the decrement."
+      }
+    }
+  ]
+}

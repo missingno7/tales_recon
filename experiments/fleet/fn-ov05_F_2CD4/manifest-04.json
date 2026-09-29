@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "long-subtype-index",
+      "causal_family": "indexed-buffer-arithmetic-width",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/long-subtype-index.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/reordered-cases.c",
+      "suspected_cause": "The target calls its compiler-generated .mulu helper six times for subtype-scaled byte offsets; the child currently emits inline word multiplication.",
+      "controlled_change": "Cast only the subtype operand to unsigned long in all six subtype-times-54 byte-offset expressions.",
+      "predicted_effect": {
+        "length_delta": 24,
+        "removed_candidate_only": 6,
+        "register_role_diffs": null,
+        "note": "Each of six inline four-byte muls.w instructions is expected to become an eight-byte ext.l/moveq/.mulu sequence."
+      }
+    }
+  ]
+}

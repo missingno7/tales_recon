@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov05_F_2CD4",
+  "worker": "luna-fn-ov05_F_2CD4",
+  "status": "NEAR",
+  "target": "ov05_F_2CD4",
+  "best": {
+    "source": "experiments/fleet/fn-ov05_F_2CD4/union-highword.c",
+    "profile": "aztec36",
+    "cache_key": "73d894fe5eee6111a70b814bd6aa10699c324f35c42cbf85c9414f2eaf633379",
+    "verdict": "DIFFER",
+    "verifier": "check_function",
+    "entry": "ov05_F_2CD4",
+    "options": [
+      "with_m_lib"
+    ],
+    "expected_length": 1050,
+    "actual_length": 1050
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Using plain char for the indexed subtype byte reproduces the target subtype arithmetic width.",
+      "outcome": "refuted",
+      "evidence": "ledger line 190: 1010 bytes; signedness change produced a -20 byte delta."
+    },
+    {
+      "id": "h2",
+      "statement": "Ordering switch arms as 33, 40, 26, 27, 58, 42, 43, 49 reproduces target body layout.",
+      "outcome": "partial",
+      "evidence": "ledger line 192: candidate-only instructions fell by 54; payload remained 1010 bytes."
+    },
+    {
+      "id": "h3",
+      "statement": "Promoting subtype times 54 to unsigned long emits the target .mulu call shape.",
+      "outcome": "refuted",
+      "evidence": "ledger line 195: 1030 bytes; candidate-only instructions fell to 4, but predicted deltas were refuted."
+    },
+    {
+      "id": "h4",
+      "statement": "A 12-byte aggregate frame aligns the record pointer, chance, transformed value, and subtype byte slots.",
+      "outcome": "confirmed",
+      "evidence": "ledger line 214 and runs/manifest-08-shape.json: link frame matched -12 bytes."
+    },
+    {
+      "id": "h5",
+      "statement": "The second coordinate words use the adjacent A4 globals at 54CA, 582E, 5864, and 58F0.",
+      "outcome": "confirmed",
+      "evidence": "ledger line 228: corrected global pair references preserved payload size."
+    },
+    {
+      "id": "h6",
+      "statement": "A union view of the random long and high word reproduces the target extraction sequence.",
+      "outcome": "refuted",
+      "evidence": "ledger line 235: length reached 1050, but the predicted instruction reduction did not occur."
+    },
+    {
+      "id": "h7",
+      "statement": "Register locals with no-argument geometry calls reproduce target d0/d1 setup.",
+      "outcome": "refuted",
+      "evidence": "ledger lines 217 and 220: Aztec allocated d4/d5, added saves, and increased register-role differences."
+    },
+    {
+      "id": "h8",
+      "statement": "A standalone extern-only candidate inherits the target hunk1 A4 placement for G_h01_5E66.",
+      "outcome": "refuted",
+      "evidence": "runs/ov05_F_2CD4/694c1240d7a4b4c8be7fd7b8f301a02e5c946ad7cc87eebeb5327e7bc75626d7-aztec36-73d894fe5eee.json: offset 0x0c differs; relocations are unequal."
+    }
+  ],
+  "compile_trials": 19,
+  "ledger_lines": [
+    188,
+    190,
+    192,
+    195,
+    202,
+    205,
+    211,
+    214,
+    217,
+    220,
+    228,
+    235,
+    239,
+    242,
+    245
+  ],
+  "explanation": "Best isolated source has the exact 1050-byte payload and includes the matched .mulu runtime contribution, but check_function still returns DIFFER. The first raw mismatch is the A4 displacement for G_h01_5E66: candidate - versus target -, with relocation proof false. Diagnostics retain 8 candidate-only and 7 expected-only instructions, including geometry-call stack/register differences. Exact recovery needs the natural hunk1 DATA/A4 placement and a verified register-call source view.",
+  "proposed_blocker": null
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "state11-explicit-exits-v9",
+      "causal_family": "state11-branch-exit-structure",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v9.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v8.c",
+      "suspected_cause": "The target keeps local flag writes and state changes on separate state-11 exits; v8 shares the writes after combined conditions.",
+      "controlled_change": "Replace only the state-11 near-path condition with sequential ordered tests and explicit gotos to its case exit.",
+      "predicted_effect": {
+        "length_delta": 24,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Separate state and flags paths should add duplicated local stores and branch exits."
+      }
+    }
+  ]
+}

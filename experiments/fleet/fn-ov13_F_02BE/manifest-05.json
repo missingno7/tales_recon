@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov13_F_02BE",
+  "budget": {"max_variants": 1, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "unsigned-input-byte",
+      "causal_family": "input-byte-extension",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov13_F_02BE/candidate-v5.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov13_F_02BE/candidate-v4.c",
+      "suspected_cause": "The candidate sign-extends the saved event byte, while the target zero-extends it before bit testing and masking.",
+      "controlled_change": "Change only the local input declaration from char to unsigned char.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The two sign-extension words should become equivalent zero-extension moves of the same width."
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "frame-context-twelve",
+      "causal_family": "local-frame-layout",
+      "diagnostic_scope": "frame_or_stack_reference",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/frame-context-12.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/frame-context.c",
+      "suspected_cause": "The aggregate's ten-byte local size produces link.w #-10; the target reserves twelve bytes and addresses the record pointer at -12(a5).",
+      "controlled_change": "Add only two unused tail padding bytes to the aggregate local frame.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The link displacement and local offsets should change while the instruction payload length remains constant."
+      }
+    }
+  ]
+}

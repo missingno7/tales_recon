@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "historical-arm-order",
+      "causal_family": "switch-arm-layout",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/reordered-cases.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/plain-char-subtype.c",
+      "suspected_cause": "Aztec emits sparse switch bodies in source order; the target lays out case bodies as 33, 40, 26, 27, 58, 42, 43, 49.",
+      "controlled_change": "Reorder only the switch arms to match the observed target body order; keep each arm's contents unchanged.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 20,
+        "register_role_diffs": null,
+        "note": "Arm reordering should preserve total operation size and reduce candidate-only instructions as the body order aligns."
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov13_F_02BE",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 2
+  },
+  "variants": [
+    {
+      "id": "switch-dispatch",
+      "causal_family": "sparse-menu-dispatch",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov13_F_02BE/candidate-v1.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov13_F_02BE/candidate-v0.c",
+      "suspected_cause": "The source form for the sparse 1, 3, 7 menu dispatch may determine the observed subtract-and-branch chain.",
+      "controlled_change": "Replace the parent's switch over low-six-bit values 1, 3, and 7 with an equivalent if/else equality chain.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Both forms express identical dispatch cases; predict no change in generated payload length."
+      }
+    }
+  ]
+}

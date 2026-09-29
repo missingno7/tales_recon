@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov13_F_02BE",
+  "budget": {"max_variants": 1, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "third-screen-field-order",
+      "causal_family": "third-screen-state-initialization",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov13_F_02BE/candidate-v7.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov13_F_02BE/candidate-v6.c",
+      "suspected_cause": "The target clears and sets the two message fields before initializing the adjacent screen descriptor.",
+      "controlled_change": "Move only the writes to G_h01_5338, G_h01_533A, and G_h01_536C before the G_h01_A732/G_h01_A734 writes and descriptor call.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Statement order changes, but the same immediate stores and calls remain."
+      }
+    }
+  ]
+}

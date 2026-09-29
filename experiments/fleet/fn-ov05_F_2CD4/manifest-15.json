@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "comma-sequenced-register-calls",
+      "causal_family": "geometry-register-call-setup",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/macro-geometry.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/correct-global-pairs.c",
+      "suspected_cause": "The target invokes geometry stubs with values in d0/d1 and no stack arguments; C argument calls currently spill them on a7.",
+      "controlled_change": "Replace only geometry calls with comma-sequenced macros that evaluate operand expressions before zero-argument A4 stub calls.",
+      "predicted_effect": {
+        "length_delta": -12,
+        "removed_candidate_only": 4,
+        "register_role_diffs": null,
+        "note": "Discarded register operands should avoid stack argument pushes and move the candidate toward the target's register call shape."
+      }
+    }
+  ]
+}

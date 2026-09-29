@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "divide-by-word-radix-long",
+      "causal_family": "random-highword-extraction",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/divide-highword-L.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/correct-global-pairs.c",
+      "suspected_cause": "The target's swap/clr/swap sequence extracts the high word before 16-bit modulo; division by 65536 may select that word directly in the compiler.",
+      "controlled_change": "Replace only the two constant right shifts by unsigned-long division by 65536L.",
+      "predicted_effect": {
+        "length_delta": 4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "High-word division should use a two-byte-longer word-swap sequence for each of the two random values."
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "union-highword-view",
+      "causal_family": "random-highword-extraction",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/union-highword.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/correct-global-pairs.c",
+      "suspected_cause": "The target takes the high word of the 32-bit random return and performs 16-bit modulo; the candidate currently uses long right shifts.",
+      "controlled_change": "Overlay the random long return with its high and low 16-bit words in the same local scratch slot, then use the high-word member for modulo.",
+      "predicted_effect": {
+        "length_delta": null,
+        "removed_candidate_only": 4,
+        "register_role_diffs": null,
+        "note": "The two long-shift instruction pairs should be replaced by the target's high-word extraction sequence."
+      }
+    }
+  ]
+}

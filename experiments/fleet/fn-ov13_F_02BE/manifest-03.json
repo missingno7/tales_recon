@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov13_F_02BE",
+  "budget": {"max_variants": 1, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "ui-state-struct-view",
+      "causal_family": "ui-state-global-declaration",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov13_F_02BE/candidate-v3.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov13_F_02BE/candidate-v2.c",
+      "suspected_cause": "The candidate int view of G_h01_50E6 conflicts with the prepared same-overlay declaration as struct UiState.",
+      "controlled_change": "Change only G_h01_50E6 from an int extern to an incomplete struct UiState extern while keeping all address arguments unchanged.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Both declarations should address the same data offset; predict no generated payload length change if each compiles."
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "x3-register-geometry",
+      "causal_family": "geometry-register-call-setup",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/register-geometry.c",
+      "profile": "aztec36-x3",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/frame-context-12.c",
+      "suspected_cause": "The target geometry routines consume d0/d1 directly; the x3 profile may allocate the explicit register locals to the same call registers without saves.",
+      "controlled_change": "Add only the two register locals and no-argument sequencing already represented in the candidate, measured under the x3 profile.",
+      "predicted_effect": {
+        "length_delta": null,
+        "removed_candidate_only": 4,
+        "register_role_diffs": "fewer",
+        "note": "The x3 profile should avoid stack argument setup and reduce register-role disagreements for the geometry call sequence."
+      }
+    }
+  ]
+}

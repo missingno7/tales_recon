@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "changed-clear-and-set-v6",
+      "causal_family": "entry-local-initialization",
+      "diagnostic_scope": "frame_or_stack_reference",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v6.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v4.c",
+      "suspected_cause": "The target clears local -6 during prologue and sets it after decrementing the record timer; v4 has only the latter assignment.",
+      "controlled_change": "Restore only the initial changed=0 assignment before the F_h11_45EC call while retaining the zero-timer guards and changed=1 after the decrement.",
+      "predicted_effect": {
+        "length_delta": 4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The added clear should contribute the target's four-byte clr.w -6(a5)."
+      }
+    }
+  ]
+}

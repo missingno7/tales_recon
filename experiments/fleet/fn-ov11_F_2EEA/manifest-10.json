@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "state11-shared-flags-v10",
+      "causal_family": "state11-branch-exit-structure",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v10.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v9.c",
+      "suspected_cause": "V9 duplicates the flags-only block for both vertical-bound and player-x failures, while the target shares that exit and branches positively to state 13.",
+      "controlled_change": "Share one flags-only label for the two failure cases and branch positively to a separate state-13 block.",
+      "predicted_effect": {
+        "length_delta": -12,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "One redundant pair of six-byte local stores should disappear while preserving the target's positive BGE edge."
+      }
+    }
+  ]
+}

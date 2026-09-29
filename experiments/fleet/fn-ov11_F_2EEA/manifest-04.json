@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "zero-timer-guards-v4",
+      "causal_family": "timer-zero-guard-shape",
+      "diagnostic_scope": "branch_condition_or_kind",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v4.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v3.c",
+      "suspected_cause": "Four state handlers test the decremented timer for nonzero; the candidate currently treats negative values as zero too.",
+      "controlled_change": "Change only the four state-handler timer guards from <= 0 to == 0; retain the <= 0 guards for state 13 and the final timer reset.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The observed tst/bne versus candidate signed bgt branches should become condition-code matches without changing instruction lengths."
+      }
+    }
+  ]
+}

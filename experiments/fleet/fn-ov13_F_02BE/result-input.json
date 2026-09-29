@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov13_F_02BE",
+  "worker": "luna-fn-ov13_F_02BE",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov13_F_02BE",
+  "best": {
+    "source": "experiments/fleet/fn-ov13_F_02BE/candidate-v15.c",
+    "profile": "aztec36",
+    "cache_key": "3c5632a0617d95f2a822018ebd33d89586741224b4eeec110f6da3b1e0ae9813",
+    "verdict": "EQUAL",
+    "verifier": "check_unit",
+    "entry": "ov13_F_02BE",
+    "options": ["owned_code_data"],
+    "expected_length": 1788,
+    "actual_length": 1862
+  },
+  "hypotheses": [
+    {"id": "h1", "statement": "Initial sparse menu-dispatch source compiles under the constrained Aztec C dialect.", "outcome": "unmeasurable", "evidence": "hypothesis ledger line 197; initial compile errors"},
+    {"id": "h2", "statement": "Do-while polling structure compiles with the initial declarations.", "outcome": "unmeasurable", "evidence": "hypothesis ledger line 203; compile errors"},
+    {"id": "h3", "statement": "G_h01_50E6 needs the UiState candidate view for the observed accesses.", "outcome": "partial", "evidence": "hypothesis ledger line 206; candidate-v3 compiled, exact comparison DIFFER"},
+    {"id": "h4", "statement": "Moving done initialization to function entry preserves emitted length.", "outcome": "confirmed", "evidence": "hypothesis ledger line 215; candidate-v4"},
+    {"id": "h5", "statement": "Unsigned input has the same emitted length as signed char input.", "outcome": "refuted", "evidence": "hypothesis ledger line 218; candidate-v5 grew by 4 bytes"},
+    {"id": "h6", "statement": "Assigning zero in the default menu arm contributes the target instructions.", "outcome": "confirmed", "evidence": "hypothesis ledger line 221; candidate-v6 grew by 4 bytes"},
+    {"id": "h7", "statement": "The third-state field assignment order matches the target without changing length.", "outcome": "confirmed", "evidence": "hypothesis ledger line 225; candidate-v7"},
+    {"id": "h8", "statement": "A switch for follow-up state dispatch yields the target-shaped layout.", "outcome": "confirmed", "evidence": "hypothesis ledger line 229; candidate-v8 grew by 2 bytes"},
+    {"id": "h9", "statement": "The third-screen setup includes the extra object refresh calls and mode change.", "outcome": "confirmed", "evidence": "hypothesis ledger line 233; candidate-v9 grew by 30 bytes"},
+    {"id": "h10", "statement": "The animation loop calls F_h13_0000 on each iteration.", "outcome": "confirmed", "evidence": "hypothesis ledger line 237; candidate-v10 grew by 12 bytes"},
+    {"id": "h11", "statement": "Six compiler-owned literals form the exact 74-byte target string tail.", "outcome": "confirmed", "evidence": "hypothesis ledger line 240; candidate-v11 diagnostic confirms owned tail bytes and offsets"},
+    {"id": "h12", "statement": "Moving low-path setup before the high-bit state dispatch improves alignment.", "outcome": "refuted", "evidence": "hypothesis ledger line 246; candidate-v12 similarity fell and predicted layout was refuted"},
+    {"id": "h13", "statement": "A forward branch to the later state switch matches the target dispatch order.", "outcome": "refuted", "evidence": "hypothesis ledger line 249; candidate-v13 code bytes and owned data matched, but unit relocation identities differed"},
+    {"id": "h14", "statement": "State-one helper ids 0x11 and 0x12 pass pointers to G_h01_A6C6 and G_h01_A6FC.", "outcome": "confirmed", "evidence": "hypothesis ledger line 258; candidate-v14 preserved diagnostic extent and corrected two A4 identities"},
+    {"id": "h15", "statement": "Third-screen animation on/off assignments address G_h01_1422.", "outcome": "confirmed", "evidence": "hypothesis ledger line 259; isolated unit report unit-3c56.json is EQUAL"}
+  ],
+  "compile_trials": 18,
+  "ledger_lines": [197, 203, 206, 215, 218, 221, 225, 229, 233, 237, 240, 246, 249, 258, 259],
+  "explanation": "The isolated check_unit verifier returned EQUAL for the complete four-member overlay contribution with owned code data enabled. Member ov13_F_02BE has no relocation issues; its 1086 code bytes match and the 74-byte string tail matches the six target strings at the recorded offsets. The three neighboring members also verified EQUAL. Exact comparison remains authoritative; shape-search's function-only full-unit size diagnostics are advisory for this boundary.",
+  "proposed_blocker": null
+}

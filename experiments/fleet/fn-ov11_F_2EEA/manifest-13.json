@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "state13-box-offsets-v13",
+      "causal_family": "state13-launch-box-geometry",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v13.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v12.c",
+      "suspected_cause": "The target state-13 launch box uses x+44 and y+22; v12 incorrectly uses x+8 and y+28.",
+      "controlled_change": "Change only the state-13 launch-box coordinate increments from x+8/y+28 to x+44/y+22.",
+      "predicted_effect": {
+        "length_delta": 4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The x increment grows from an addq to a four-byte add; the longer span should force the target's word branch."
+      }
+    }
+  ]
+}

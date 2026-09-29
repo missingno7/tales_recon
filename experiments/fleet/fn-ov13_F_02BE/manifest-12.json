@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov13_F_02BE",
+  "budget": {"max_variants": 1, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "event-test-before-setup",
+      "causal_family": "event-loop-entry-control-flow",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov13_F_02BE/candidate-v12.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov13_F_02BE/candidate-v11.c",
+      "suspected_cause": "The target tests the saved input byte before performing the low-path display setup.",
+      "controlled_change": "Move only the setup and F_h00_4376 low-path block behind the input high-bit test inside the polling loop.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The same setup and dispatch operations remain; predict unchanged candidate payload length."
+      }
+    }
+  ]
+}

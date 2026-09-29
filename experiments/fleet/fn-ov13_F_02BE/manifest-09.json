@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov13_F_02BE",
+  "budget": {"max_variants": 1, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "third-screen-prelude-calls",
+      "causal_family": "third-screen-descriptor-prelude",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov13_F_02BE/candidate-v9.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov13_F_02BE/candidate-v8.c",
+      "suspected_cause": "The target invokes both message descriptors again and selector 3 before enabling the per-frame animation state.",
+      "controlled_change": "Insert only F_h00_34E0(&G_h01_5338), F_h00_34E0(&G_h01_A732), and F_h00_57D2(3) before setting G_h01_A6C6.",
+      "predicted_effect": {
+        "length_delta": 30,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The three missing calls and their argument cleanup should add thirty code bytes."
+      }
+    }
+  ]
+}

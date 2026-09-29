@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2EEA",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "large-data-profile-v17",
+      "causal_family": "compiler-profile-global-layout",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov11_F_2EEA/ov11_F_2EEA-v17.c",
+      "profile": "aztec36-large-data",
+      "parent": "fdaac77e2cd1887a023fb879c2bf5ca0d5517ef0fd6920f090d92dac57caf7d4",
+      "suspected_cause": "The ordinary aztec36 standalone link places externally declared globals in a local packed DATA table; the large-data profile may preserve target A4 identities differently.",
+      "controlled_change": "Change only the compiler profile from aztec36 to aztec36-large-data while keeping the source bytes identical.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The target-width A4 operands may bind under a profile with a different data model while preserving the 1608-byte payload."
+      }
+    }
+  ]
+}

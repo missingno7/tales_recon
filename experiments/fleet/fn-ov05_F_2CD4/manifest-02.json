@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov05_F_2CD4",
+  "budget": { "max_variants": 6, "max_unique_compiles": 24 },
+  "variants": [
+    {
+      "id": "plain-char-subtype",
+      "causal_family": "record-subtype-signedness",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov05_F_2CD4/plain-char-subtype.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov05_F_2CD4/parent-unsigned.c",
+      "suspected_cause": "The subtype byte is sign-extended before multiplication by 54 in each indexed-buffer path; Aztec C's plain char view may match that behavior.",
+      "controlled_change": "Change only the local subtype declaration from unsigned char to plain char.",
+      "predicted_effect": {
+        "length_delta": 2,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "If plain char is signed in this profile, its indexed multiplication paths should add two payload bytes for sign extension relative to the unsigned parent."
+      }
+    }
+  ]
+}
