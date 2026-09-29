@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "loop-action-argument-width-v1",
+      "causal_family": "call-argument-width",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-05e.c",
+      "profile": "aztec36",
+      "parent": "711de3b1bf00024667c38f298e6674242b6287dcd55b6502746e9892b70dac15",
+      "suspected_cause": "The target pushes the constant 10 as a long-sized immediate PEA, while the candidate currently pushes it as a word MOVE.",
+      "controlled_change": "Change only the F_h00_86A8 argument from the int constant 10 to the long constant 10L.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Both forms are four bytes, but the target PEA.L form should replace MOVE.W immediate push."
+      }
+    }
+  ]
+}

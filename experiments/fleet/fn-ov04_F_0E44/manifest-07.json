@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "loop-refresh-stub-identity-v1",
+      "causal_family": "a4-stub-callee-identity",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-05a.c",
+      "profile": "aztec36",
+      "parent": "832dd00afd3a1dc320d96a871efd47010dabc48b2a6c501ac1d3ae3fb65811dd",
+      "suspected_cause": "The loop continuation calls F_h00_4376 where the target relocation identifies F_h00_307C.",
+      "controlled_change": "Change only the loop-continuation refresh call from F_h00_4376 to F_h00_307C.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Both calls compile to the same A4-relative JSR form; only the relocation target should change."
+      }
+    }
+  ]
+}

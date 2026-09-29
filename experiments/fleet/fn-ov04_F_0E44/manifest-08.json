@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "loop-action-stub-identity-v1",
+      "causal_family": "a4-stub-callee-identity",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-05b.c",
+      "profile": "aztec36",
+      "parent": "891cd540f66a42982cc7b3ac7e833aa0b89539bc8c16fdcb37603eb31a19966a",
+      "suspected_cause": "The ten-frame continuation action uses F_h00_0FDE in the candidate, but its target relocation binds to F_h00_86A8.",
+      "controlled_change": "Change only the loop-continuation action call from F_h00_0FDE(10) to F_h00_86A8(10), adding its mechanical declaration.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Both functions are A4-relative JSR calls with one pushed word argument; only the target relocation should change."
+      }
+    }
+  ]
+}

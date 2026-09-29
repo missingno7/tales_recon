@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "a4-bias-map-v1",
+      "causal_family": "a4-relative-data-identity",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-03.c",
+      "profile": "aztec36",
+      "parent": "e5943f69d8a6317723a4225392114a10774c48956e3fd051a655a224bb1671f2",
+      "suspected_cause": "The first candidate mapped A4 offsets with 0x8000, but the measured startup A4 bias is 0x7ffe, shifting every referenced DATA address by two bytes.",
+      "controlled_change": "Shift every A4-referenced DATA operand back two bytes and express it through the corresponding canonical mechanical offset.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The parent diagnostic had 88 different A4 identities and five unresolved references; the corrected mapping should remove those identity mismatches without changing the payload length."
+      }
+    }
+  ]
+}

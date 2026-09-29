@@ -1,0 +1,44 @@
+{
+  "actual_length": null,
+  "cache_hit": true,
+  "cache_key": "a6e72c550f42191a5c76f3337923c1e54660b5d80296e322b8e64797138e1d25",
+  "comparison_identity": "f4a731c7735b57af9094d678ab0ad445978b653a4bc4e0d24d5ba5306cf59679",
+  "compile_returncodes": [
+    4,
+    0,
+    4,
+    1,
+    10
+  ],
+  "compiler": "aztec36",
+  "compiler_feedback": [
+    {
+      "file": "h000-as.log",
+      "text": "Aztec 68000 Assembler 3.6a  12-18-87\n_F_h00_463E:\n            ^\nFile h000.asm; Line 187 # Multiply defined symbol.\n1 errors\n"
+    },
+    {
+      "file": "h000-cc.log",
+      "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\nint F_h00_463E() { return 0; }\n                  ^\nh000.c:62: ERROR 90: symbol redeclared: F_h00_463E\n1 errors\n"
+    },
+    {
+      "file": "t000-as.log",
+      "text": "Aztec 68000 Assembler 3.6a  12-18-87\n"
+    },
+    {
+      "file": "t000-cc.log",
+      "text": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\nextern int F_h00_463E();\n                        ^\nt000.c:160: ERROR 49: multiply defined symbol: F_h00_463E\n1 errors\n"
+    },
+    {
+      "file": "t000-ln.log",
+      "text": "Aztec C68K Linker 3.6a  12-18-87\nfile: <h000.o> Can't open.\n"
+    }
+  ],
+  "expected_length": 1214,
+  "flags": [],
+  "id": "ov04_F_0E44",
+  "proof_level": null,
+  "reason": "COMPILE_ERROR",
+  "relocation_equal": false,
+  "source_sha256": "9b44e3b2aa0b3c2f4e9d7c5b7383e193dced82f01fcd0db81b8d671afff7a293",
+  "verdict": "BLOCKED"
+}

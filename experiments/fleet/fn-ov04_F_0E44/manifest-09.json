@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "redraw-rectangle-arguments-v1",
+      "causal_family": "screen-copy-call-arguments",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-05c.c",
+      "profile": "aztec36",
+      "parent": "29e3fa7d2c61033cb3241e2ac5febf2ac8005f3485c3b182530814677f5b1820",
+      "suspected_cause": "The two redraw F_h00_8A46 calls use background rectangle constants instead of the target redraw rectangle constants and omit the two 0x14 coordinates.",
+      "controlled_change": "Change only the argument tuples of the frame redraw and post-loop redraw F_h00_8A46 calls to the disassembled target tuple.",
+      "predicted_effect": {
+        "length_delta": 8,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Each call changes two CLR.L pushes into four-byte PEA immediate pushes, adding four bytes per call; the initial background draw remains unchanged."
+      }
+    }
+  ]
+}

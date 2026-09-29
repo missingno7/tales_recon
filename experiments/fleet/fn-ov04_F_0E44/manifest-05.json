@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "sprite-descriptor-order-v1",
+      "causal_family": "sprite-descriptor-pointer-order",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-04b.c",
+      "profile": "aztec36",
+      "parent": "281ff8d63025a3cfc30e89a43551b8f3bdc09d25e11654c2bfb1ea215b9ea9aa",
+      "suspected_cause": "The repeated draw sequence used the descriptor at 50C0 twice and moved the 52A6 descriptor to the wrong phase.",
+      "controlled_change": "Swap the fourth draw descriptor to 52A6 in the five-frame loop and restore 50C0 in the post-loop refresh.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Only pointer identities change; each call retains the same argument count and instruction widths."
+      }
+    }
+  ]
+}

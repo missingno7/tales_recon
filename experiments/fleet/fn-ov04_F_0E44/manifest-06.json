@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "a4-call-identity-map-v1",
+      "causal_family": "a4-stub-callee-identity",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-04c.c",
+      "profile": "aztec36",
+      "parent": "517a25d481991e311d97d9848b27069ac67c34a3712a117fb69d8d55bab625c3",
+      "suspected_cause": "The candidate assigned one-argument pointer setup to F_h00_3AE4 and three-argument descriptor draws to F_h00_31AA, reversing their observed A4 stub identities.",
+      "controlled_change": "Bind the one-argument call to F_h00_31AA, the pointer-plus-two-word calls to F_h00_3AE4, and the post-registration refresh call to F_h00_4376.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "All replaced helper calls remain four-byte JSRs; only their independently established target identities change."
+      }
+    }
+  ]
+}

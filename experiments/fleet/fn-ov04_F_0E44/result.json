@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov04_F_0E44",
+  "worker": "luna-fn-ov04_F_0E44",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov04_F_0E44",
+  "best": {
+    "source": "experiments/fleet/fn-ov04_F_0E44/candidate-05g.c",
+    "profile": "aztec36",
+    "cache_key": "44f0b91f728ce24929dd8c3143c3392f1ee35ab91752f08eb269141db36ede08",
+    "verdict": "EQUAL",
+    "verifier": "check_unit",
+    "entry": "ov04_F_0E44",
+    "options": [
+      "separate_objects"
+    ],
+    "expected_length": 2872,
+    "actual_length": 2872
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The loop continuation refresh call targets F_h00_307C rather than F_h00_4376.",
+      "outcome": "confirmed",
+      "evidence": "ledger:250; isolated unit receipt runs/ov04_F_0E44/aztec36-891cd540f66a/receipt.json"
+    },
+    {
+      "id": "h2",
+      "statement": "The ten-frame continuation action targets F_h00_86A8 rather than F_h00_0FDE.",
+      "outcome": "confirmed",
+      "evidence": "ledger:251; isolated unit receipt runs/ov04_F_0E44/aztec36-29e3fa7d2c61/receipt.json"
+    },
+    {
+      "id": "h3",
+      "statement": "The frame and post-loop redraw calls use the observed 0x14,0x14,0x140,0x82,0xc0,0xff argument sequence.",
+      "outcome": "confirmed",
+      "evidence": "ledger:253; unit length increased by 8 bytes in runs/ov04_F_0E44/aztec36-b8ae853adb11/receipt.json"
+    },
+    {
+      "id": "h4",
+      "statement": "The F_h00_31AA setup pointer is assigned separately and passed as an address, producing PEA.L.",
+      "outcome": "confirmed",
+      "evidence": "ledger:254; unit length increased by 2 bytes in runs/ov04_F_0E44/aztec36-711de3b1bf00/receipt.json"
+    },
+    {
+      "id": "h5",
+      "statement": "F_h00_86A8 receives the constant 10 as a long-sized immediate.",
+      "outcome": "confirmed",
+      "evidence": "ledger:257; diagnostic runs/diag-05e.json no longer reports the MOVE.W versus PEA.L structural mismatch"
+    },
+    {
+      "id": "h6",
+      "statement": "The final asymmetric F_h04_0B50 and F_h04_0926 calls need first/third argument values swapped to match target push order.",
+      "outcome": "confirmed",
+      "evidence": "ledger:264; immediate-constant mismatches fell from 18 to 2 in runs/diag-05f.json"
+    },
+    {
+      "id": "h7",
+      "statement": "Swapping the first and third values of the remaining F_h04_0926(1,13,13) call closes the final two byte mismatches.",
+      "outcome": "confirmed",
+      "evidence": "ledger:266; isolated EQUAL receipt runs/verify-05g.json and runs/ov04_F_0E44/aztec36-44f0b91f728c/receipt.json"
+    }
+  ],
+  "compile_trials": 15,
+  "ledger_lines": [
+    250,
+    251,
+    253,
+    254,
+    257,
+    264,
+    266
+  ],
+  "explanation": "The final candidate reconstructs the 1214-byte target function and verifies the complete naturally ordered 2872-byte overlay unit EQUAL. All five members in the isolated check-unit receipt compare EQUAL, including ov04_F_0E44 at 1214 bytes. The corrected call identities, redraw arguments, pointer push form, long argument width, and tail helper push order account for the remaining differences.",
+  "proposed_blocker": null
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "restore-refresh-sequence-v1",
+      "causal_family": "screen-refresh-call-sequence",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-04a.c",
+      "profile": "aztec36",
+      "parent": "506a60089a0abe36823725b63cdcf26683ce11adaf80aa322e0dd843210b4f34",
+      "suspected_cause": "The original contains a refresh call after the first object activation and another after the background copy, both absent from the candidate.",
+      "controlled_change": "Insert the missing F_h00_4376 call and the F_h00_34E0/F_h00_307C post-copy sequence without changing other statements.",
+      "predicted_effect": {
+        "length_delta": 18,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The additions emit 4 bytes for F_h00_4376, 10 bytes for F_h00_34E0 plus its pointer cleanup, and 4 bytes for F_h00_307C."
+      }
+    }
+  ]
+}

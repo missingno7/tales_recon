@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov04_F_0E44",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "tail-helper-argument-order-v1",
+      "causal_family": "helper-argument-order",
+      "diagnostic_scope": "immediate_constant",
+      "source": "experiments/fleet/fn-ov04_F_0E44/candidate-05f.c",
+      "profile": "aztec36",
+      "parent": "9dc621dd2608aaa245261761f7e1cee9191e86f0d07e77a11c07ff5d7a980e12",
+      "suspected_cause": "The eight asymmetric tail helper calls use source argument order that compiles first/third constants in the reverse stack order from the target disassembly.",
+      "controlled_change": "Swap only the first and third integer arguments in the four final F_h04_0B50 calls and four asymmetric final F_h04_0926 calls; preserve middle arguments and symmetric call.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 0,
+        "register_role_diffs": null,
+        "note": "Each call keeps three word pushes; the change should remove 16 immediate-constant mismatches while preserving instruction positions."
+      }
+    }
+  ]
+}
