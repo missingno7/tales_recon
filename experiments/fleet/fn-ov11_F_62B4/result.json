@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_62B4",
+  "worker": "luna-fn-ov11_F_62B4",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov11_F_62B4",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_62B4/variant-14-mark-base.c",
+    "profile": "aztec36",
+    "cache_key": "81ab3697fb341464b7c3b920c71fe28a492cfb83751b7f1ed556882bc8c1dd32",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov11_F_62B4",
+    "options": [],
+    "expected_length": 426,
+    "actual_length": 426
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Established a first independent source for the observed mode selection, record loop, optional timer path, and final calls.",
+      "outcome": "unmeasurable",
+      "evidence": "ledger:134; no measured parent."
+    },
+    {
+      "id": "h2",
+      "statement": "A switch over the mode byte reduced repeated global loads and changed the dispatch shape.",
+      "outcome": "refuted",
+      "evidence": "ledger:137; observed length delta -16, predicted -14."
+    },
+    {
+      "id": "h3",
+      "statement": "Changing the mode-byte scalar view to a three-byte array removed indirect addressing, with a larger-than-predicted code reduction.",
+      "outcome": "refuted",
+      "evidence": "ledger:141; observed length delta -6, predicted -4."
+    },
+    {
+      "id": "h4",
+      "statement": "Timer work is the zero-record else path; nonzero records branch around it.",
+      "outcome": "confirmed",
+      "evidence": "ledger:143; predicted and observed length delta +2."
+    },
+    {
+      "id": "h5",
+      "statement": "The loop enters through a pretest rather than unconditionally executing its first body.",
+      "outcome": "confirmed",
+      "evidence": "ledger:145; predicted and observed length delta +4."
+    },
+    {
+      "id": "h6",
+      "statement": "A for-loop counter form preserves the instruction count and improves alignment.",
+      "outcome": "confirmed",
+      "evidence": "ledger:148; length delta 0, candidate-only count decreased by 2."
+    },
+    {
+      "id": "h7",
+      "statement": "The F_h11_41F6 return is discarded rather than stored in local -6.",
+      "outcome": "confirmed",
+      "evidence": "ledger:149; predicted and observed length delta -4."
+    },
+    {
+      "id": "h8",
+      "statement": "The record parity expression needs the explicit low-bit toggle to reproduce the word load, mask, toggle, and test.",
+      "outcome": "confirmed",
+      "evidence": "ledger:151; predicted and observed length delta +8."
+    },
+    {
+      "id": "h9",
+      "statement": "Moving the constant word offset into the G_h01_940C base removes the index addq.",
+      "outcome": "confirmed",
+      "evidence": "ledger:154; predicted and observed length delta -2."
+    },
+    {
+      "id": "h10",
+      "statement": "An equivalent equality-to-zero spelling produces the target branch condition and constant order.",
+      "outcome": "confirmed",
+      "evidence": "ledger:156; length delta 0."
+    },
+    {
+      "id": "h11",
+      "statement": "The mode switch reads the base byte at G_h01_46E0, not element two.",
+      "outcome": "confirmed",
+      "evidence": "ledger:157; length delta 0; A4 identity corrected."
+    },
+    {
+      "id": "h12",
+      "statement": "The record status word is at byte offset 48, not 50.",
+      "outcome": "confirmed",
+      "evidence": "ledger:158; length delta 0; A4 identity corrected."
+    },
+    {
+      "id": "h13",
+      "statement": "F_h11_5C42 receives (index, 3), matching the target stack push order.",
+      "outcome": "confirmed",
+      "evidence": "ledger:159; length delta 0; unmatched instructions eliminated."
+    },
+    {
+      "id": "h14",
+      "statement": "The timer mark is G_h01_940C[index] with no extra word offset.",
+      "outcome": "confirmed",
+      "evidence": "ledger:160; exact isolated comparison EQUAL."
+    }
+  ],
+  "compile_trials": 14,
+  "ledger_lines": [
+    134,
+    137,
+    141,
+    143,
+    145,
+    148,
+    149,
+    151,
+    154,
+    156,
+    157,
+    158,
+    159,
+    160
+  ],
+  "explanation": "The final independently authored candidate reproduces the complete 426-byte function and its referenced identities under the aztec36 isolated check_function comparison. It uses the observed switch, for-loop bounds, per-record coordinate updates, zero-record timer path, and final cleanup calls; exact equality was confirmed at cache key 81ab3697fb341464b7c3b920c71fe28a492cfb83751b7f1ed556882bc8c1dd32.",
+  "proposed_blocker": null
+}

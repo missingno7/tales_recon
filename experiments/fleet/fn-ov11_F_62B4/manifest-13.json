@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_62B4",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "refresh-call-argument-order",
+      "causal_family": "callee-argument-order",
+      "diagnostic_scope": "call_target_or_encoding",
+      "source": "experiments/fleet/fn-ov11_F_62B4/variant-13-call-args.c",
+      "profile": "aztec36",
+      "parent": "ledger:158",
+      "suspected_cause": "The target pushes constant three before the loop index for F_h11_5C42, but the current source's argument order produces the reverse stack order.",
+      "controlled_change": "Swap only the two source arguments at the F_h11_5C42 call from (3, i) to (i, 3).",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The call should retain its size while matching the target's right-to-left argument pushes."
+      }
+    }
+  ]
+}

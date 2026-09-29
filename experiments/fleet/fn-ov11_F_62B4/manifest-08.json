@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_62B4",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "explicit-low-bit-toggle",
+      "causal_family": "record-bit-test-expression",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_62B4/variant-08-toggle-bit.c",
+      "profile": "aztec36",
+      "parent": "ledger:149",
+      "suspected_cause": "The current conditional compiles to a direct BTST memory form, while the target loads the word, masks bit zero, toggles it, and tests the result.",
+      "controlled_change": "Change only the ternary predicate from testing field bit zero directly to explicitly XORing that bit with one before choosing the same two values.",
+      "predicted_effect": {
+        "length_delta": 8,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The target's register load, mask, toggle, and test occupy eight more bytes than the direct BTST path."
+      }
+    }
+  ]
+}

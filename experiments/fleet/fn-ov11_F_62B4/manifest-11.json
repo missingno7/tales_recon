@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_62B4",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "mode-byte-base-address",
+      "causal_family": "global-reference-identity",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov11_F_62B4/variant-11-base-byte.c",
+      "profile": "aztec36",
+      "parent": "ledger:156",
+      "suspected_cause": "The exact verifier resolved the candidate mode read as G_h01_46E0 plus two, while the target identity is the G_h01_46E0 base.",
+      "controlled_change": "Change only the selected byte index in the mode switch from element two to element zero.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The access should retain its instruction size while its A4 identity moves from base plus two to the symbol base."
+      }
+    }
+  ]
+}

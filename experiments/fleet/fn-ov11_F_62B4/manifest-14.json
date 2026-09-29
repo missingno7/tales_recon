@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_62B4",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "timer-mark-base-identity",
+      "causal_family": "timer-mark-global-identity",
+      "diagnostic_scope": "a4_global_layout",
+      "source": "experiments/fleet/fn-ov11_F_62B4/variant-14-mark-base.c",
+      "profile": "aztec36",
+      "parent": "ledger:159",
+      "suspected_cause": "The remaining normalized difference is the timer mark's A4 base: the candidate points to G_h01_940C plus one word, but the target points to G_h01_940C.",
+      "controlled_change": "Change only the indexed timer-mark expression from *(G_h01_940C + 1 + i) to G_h01_940C[i].",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The indexed store should keep the same instruction count while its base identity returns to G_h01_940C."
+      }
+    }
+  ]
+}

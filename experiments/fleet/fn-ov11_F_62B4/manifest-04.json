@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_62B4",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "timer-in-record-else-path",
+      "causal_family": "record-timer-control-flow",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_62B4/variant-04-timer-else.c",
+      "profile": "aztec36",
+      "parent": "ledger:141",
+      "suspected_cause": "The target sends zero-value records to the optional timer work and branches around that work after processing nonzero records.",
+      "controlled_change": "Attach the optional timer condition as the else branch of the record-value test; leave the body and loop form unchanged.",
+      "predicted_effect": {
+        "length_delta": 2,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The new else path should add the short branch that skips timer work after record processing."
+      }
+    }
+  ]
+}
