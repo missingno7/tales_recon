@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2272",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "case-zero-join-label",
+      "causal_family": "case-zero-branch-join",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov11_F_2272/ov11_F_2272-case-label.c",
+      "profile": "aztec36",
+      "parent": "ledger:182",
+      "suspected_cause": "The cutoff path and setup-body exit should converge at a case-local label before the switch break, producing the target's short conditional branch and shared long exit branch.",
+      "controlled_change": "Change only the case-zero cutoff's destination from the switch break to a local label immediately before the same break; the setup body and case one stay unchanged.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The conditional and unconditional branch widths are predicted to trade two bytes while preserving the 386-byte member extent."
+      }
+    }
+  ]
+}

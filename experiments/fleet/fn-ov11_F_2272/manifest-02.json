@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2272",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "guarded-case-zero",
+      "causal_family": "case-zero-exit-layout",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov11_F_2272/ov11_F_2272-control.c",
+      "profile": "aztec36",
+      "parent": "ledger:180",
+      "suspected_cause": "The early return inside timer case zero forces a local epilogue; the target branches to the shared function exit after testing the opposite condition.",
+      "controlled_change": "Replace case zero's early-return predicate and trailing return with one positive guard around its existing setup body and a switch break; leave all other statements unchanged.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Moving the shared epilogue to the switch exit should preserve total payload length while changing the initial branch and final return layout."
+      }
+    }
+  ]
+}

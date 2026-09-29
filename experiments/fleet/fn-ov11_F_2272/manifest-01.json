@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2272",
+  "budget": {"max_variants": 1, "max_unique_compiles": 2},
+  "variants": [
+    {
+      "id": "switch-state-machine",
+      "causal_family": "state-machine-control-shape",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov11_F_2272/ov11_F_2272-switch.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2272/ov11_F_2272-if-parent.c",
+      "suspected_cause": "The timer dispatcher is an Aztec switch over the timer word; representing it as a switch should produce the compact two-case dispatch seen at the function tail.",
+      "controlled_change": "Change only the timer-state dispatch from an if/else-if chain in the measured parent to a switch statement; leave both state bodies and the nested menu-state switch unchanged.",
+      "predicted_effect": {
+        "length_delta": -2,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The switch dispatcher is predicted to save one word over the equivalent if/else-if chain."
+      }
+    }
+  ]
+}
