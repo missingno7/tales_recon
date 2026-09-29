@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_5D14",
+  "budget": {"max_variants": 6, "max_unique_compiles": 6},
+  "variants": [
+    {
+      "id": "switch-record-reread",
+      "causal_family": "state-dispatch-source-shape",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_5D14/recovered-v03.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_5D14/recovered-v02.c",
+      "suspected_cause": "The observed switch dispatch reads record->state30 after the value has already been copied to the local state slot; switching on the local incorrectly reuses that slot.",
+      "controlled_change": "Change only the switch expression from the local state to record->state30.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The target and candidate forms are both word reads and should preserve instruction length."
+      }
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_5D14",
+  "worker": "luna-fn-ov11_F_5D14",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov11_F_5D14",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_5D14/recovered-v09.c",
+    "profile": "aztec36",
+    "cache_key": "0fa596c353879e98d69d214d7c7373a64776c8e21faf54c774064bc2e0312c22",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov11_F_5D14",
+    "options": [],
+    "expected_length": 428,
+    "actual_length": 428
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The initial source represented the observed state-machine and shared dispatch paths.",
+      "outcome": "unmeasurable",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 127: no parent measurement; isolated result DIFFER at 420 bytes."
+    },
+    {
+      "id": "h2",
+      "statement": "The record state field belongs at offset 0x30 while the record stride remains 0x34.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 133: measured length delta 0 and field-view change; isolated result DIFFER."
+    },
+    {
+      "id": "h3",
+      "statement": "Switch dispatch rereads record->state30 after saving its value in the local state slot.",
+      "outcome": "partial",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 136: memory access moved to the field and register-role differences fell, but predicted length delta 0 was refuted by observed +4."
+    },
+    {
+      "id": "h4",
+      "statement": "The two switch states are 1 and 3.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 138: changing the second label to 3 preserved length as predicted."
+    },
+    {
+      "id": "h5",
+      "statement": "For state 3, nonzero G_h01_94B6 resets the record and zero reaches F_h11_4474.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 140: branch polarity corrected; candidate-only instruction count fell by 7."
+    },
+    {
+      "id": "h6",
+      "statement": "The dispatch paths converge on one shared epilogue.",
+      "outcome": "partial",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 144: early epilogue instruction removed, but predicted +4 length delta was refuted."
+    },
+    {
+      "id": "h7",
+      "statement": "An explicit switch default break emits the two missing no-match branches.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 147: predicted +4 bytes observed; candidate and target lengths became 428."
+    },
+    {
+      "id": "h8",
+      "statement": "G_h01_8A3C is the early dispatch flag and G_h01_7A92 guards the F_h11_37A0 query.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 152: terminal global identities corrected; length remained 428."
+    },
+    {
+      "id": "h9",
+      "statement": "State 3 resets when its spatial condition fails or G_h01_94B6 is nonzero, otherwise it calls F_h11_4474.",
+      "outcome": "confirmed",
+      "evidence": "evidence/experiments/hypothesis-ledger.jsonl line 153: predicted unchanged length; isolated verifier EQUAL."
+    }
+  ],
+  "compile_trials": 9,
+  "ledger_lines": [
+    127,
+    133,
+    136,
+    138,
+    140,
+    144,
+    147,
+    152,
+    153
+  ],
+  "explanation": "An isolated aztec36 check now matches all 428 function bytes and resolved references. The recovered candidate uses record stride 0x34 with the accessed state word at 0x30, switch states 1 and 3, a default break, and the measured terminal global roles. The exact verifier returned EQUAL; the intake dry-run will reverify that claim.",
+  "proposed_blocker": null
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_5D14",
+  "budget": {"max_variants": 6, "max_unique_compiles": 6},
+  "variants": [
+    {
+      "id": "initial-state-machine",
+      "causal_family": "state-machine-control-flow",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov11_F_5D14/recovered-v01.c",
+      "profile": "aztec36",
+      "parent": "none",
+      "suspected_cause": "The branch tree implements two updates selected by the record state, followed by a common collision and dispatch path.",
+      "controlled_change": "Initial source candidate transcribed from the closed disassembly control flow.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Initial baseline; there is no measured parent, so this prediction is retained but unmeasurable."
+      }
+    }
+  ]
+}

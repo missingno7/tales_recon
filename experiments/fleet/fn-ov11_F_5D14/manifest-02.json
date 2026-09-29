@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_5D14",
+  "budget": {"max_variants": 6, "max_unique_compiles": 6},
+  "variants": [
+    {
+      "id": "record-view-v02",
+      "causal_family": "record-view-layout",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_5D14/recovered-v02.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_5D14/recovered-v01.c",
+      "suspected_cause": "The inherited record view places state30 at byte 30, while the observed field access is at offset 0x30; the accessed tail members must retain the observed 0x2c and 0x2e offsets and the 0x34 stride.",
+      "controlled_change": "Move the record view's two accessed initial words and state field to the offsets measured in this function, preserving the record's 0x34-byte stride.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Changing field offsets alters encoded displacements without changing operand widths or the record stride."
+      }
+    }
+  ]
+}

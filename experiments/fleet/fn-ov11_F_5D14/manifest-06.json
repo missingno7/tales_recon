@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_5D14",
+  "budget": {"max_variants": 6, "max_unique_compiles": 6},
+  "variants": [
+    {
+      "id": "shared-return-chain",
+      "causal_family": "shared-return-control-flow",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov11_F_5D14/recovered-v06.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_5D14/recovered-v05.c",
+      "suspected_cause": "The candidate's return statements place a complete epilogue in the first dispatch path, while the target branches to one shared epilogue after the collision path.",
+      "controlled_change": "Replace the two early returns with a mutually exclusive if/else-if chain ending at one function epilogue.",
+      "predicted_effect": {
+        "length_delta": 4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The target carries a four-byte payload surplus over the candidate, including a long branch to its common epilogue."
+      }
+    }
+  ]
+}

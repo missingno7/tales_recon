@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_5D14",
+  "budget": {"max_variants": 6, "max_unique_compiles": 6},
+  "variants": [
+    {
+      "id": "explicit-switch-default",
+      "causal_family": "switch-default-control-flow",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_5D14/recovered-v07.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_5D14/recovered-v06.c",
+      "suspected_cause": "The target switch sends unmatched states through a default stub to the switch exit; the candidate currently falls directly into the following common path.",
+      "controlled_change": "Add only an explicit default case containing break.",
+      "predicted_effect": {
+        "length_delta": 4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The target has two two-byte branches on the no-match edge that are absent from the candidate."
+      }
+    }
+  ]
+}
