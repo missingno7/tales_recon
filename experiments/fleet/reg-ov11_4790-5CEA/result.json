@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "task_id": "reg-ov11_4790-5CEA",
-  "worker": "luna-reg-ov11-r5",
+  "worker": "luna-reg-ov11-r6",
   "status": "NEAR",
   "target": "ov11_F_487E,ov11_F_4EC6,ov11_F_51C0,ov11_F_54F8,ov11_F_55B8,ov11_F_583A,ov11_F_5962,ov11_F_5C42",
   "best": {
-    "source": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_487E.c",
+    "source": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_487E.c",
     "profile": "aztec36",
-    "cache_key": "0fee7d66ddd5df3e357e0fe8c5509e482cfba4fcffa364f693babe428ccb2cc6",
+    "cache_key": "8c5140f219f8c5a30045f58f3d8ef749bdc6c76ce1602cce3b787cab94c63936",
     "verdict": "DIFFER",
     "verifier": "check_unit",
     "entry": "ov11_F_487E",
@@ -16,15 +16,15 @@
       "natural_interval"
     ],
     "expected_length": 7198,
-    "actual_length": 7200,
+    "actual_length": 7238,
     "members": {
-      "ov11_F_4EC6": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_4EC6.c",
-      "ov11_F_51C0": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_51C0.c",
-      "ov11_F_54F8": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_54F8.c",
-      "ov11_F_55B8": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_55B8.c",
-      "ov11_F_583A": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_583A.c",
-      "ov11_F_5962": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_5962.c",
-      "ov11_F_5C42": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_5C42.c"
+      "ov11_F_4EC6": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_4EC6.c",
+      "ov11_F_51C0": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_51C0.c",
+      "ov11_F_54F8": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_54F8.c",
+      "ov11_F_55B8": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_55B8.c",
+      "ov11_F_583A": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_583A.c",
+      "ov11_F_5962": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_5962.c",
+      "ov11_F_5C42": "experiments/fleet/reg-ov11_4790-5CEA/v73/ov11_F_5C42.c"
     },
     "object_groups": [
       [
@@ -34,102 +34,6 @@
     ]
   },
   "hypotheses": [
-    {
-      "id": "h01-487e-baseline",
-      "statement": "The baseline F487E source would retain the predicted differing state.",
-      "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F487E differs, delta +38 (predicted 336 bytes; observed 374)."
-    },
-    {
-      "id": "h02-4ec6-baseline",
-      "statement": "The baseline F4EC6 source would retain the predicted differing state.",
-      "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F4EC6 differs, delta +22 (predicted 420 bytes; observed 442)."
-    },
-    {
-      "id": "h03-51c0-baseline",
-      "statement": "The baseline F51C0 source would retain the predicted differing state.",
-      "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F51C0 differs, delta -308 (predicted 824 bytes; observed 516)."
-    },
-    {
-      "id": "h04-54f8-baseline",
-      "statement": "The baseline F54F8 candidate would differ despite matching its 192-byte extent.",
-      "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F54F8 is same_after_reference_identity at delta 0; predicted length matched but state did not."
-    },
-    {
-      "id": "h05-55b8-baseline",
-      "statement": "The baseline F55B8 source would retain the predicted differing state.",
-      "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F55B8 differs, delta -52 (predicted 642 bytes; observed 590)."
-    },
-    {
-      "id": "h06-583a-baseline",
-      "statement": "The baseline F583A source would be 298 bytes and differ.",
-      "outcome": "confirmed",
-      "evidence": "build/link-argfile-region/unit_diag.json: F583A differs at delta +2, observed 298 bytes."
-    },
-    {
-      "id": "h07-5962-baseline",
-      "statement": "The baseline F5962 candidate would differ at its 132-byte extent.",
-      "outcome": "partial",
-      "evidence": "build/link-argfile-region/unit_diag.json: F5962 is same_after_reference_identity at delta 0; length matched but state did not."
-    },
-    {
-      "id": "h08-5c42-baseline",
-      "statement": "The baseline F5C42 source would be 166 bytes and differ.",
-      "outcome": "refuted",
-      "evidence": "build/link-argfile-region/unit_diag.json: F5C42 is same_after_reference_identity at delta 0, not differing at 166 bytes."
-    },
-    {
-      "id": "h09-583a-void-callee",
-      "statement": "Changing the ignored F5962 result declaration to void would make F583A 296 bytes and same after reference identity.",
-      "outcome": "refuted",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-82209b893bea/receipt.json: F583A remains +2 and differs; the sole call mismatch is expected BSR.B versus candidate external JSR."
-    },
-    {
-      "id": "h10-4ec6-long-pointer-tables",
-      "statement": "Widening three pointer tables to long would make F4EC6 448 bytes and still differ.",
-      "outcome": "partial",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-42d91ce38941/receipt.json: F4EC6 remains +22, but its first divergence moved past the table setup."
-    },
-    {
-      "id": "h11-4ec6-switch-dispatch",
-      "statement": "Switching the state selection would make F4EC6 equal at 420 bytes.",
-      "outcome": "partial",
-      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/runs/ov11_F_487E/aztec36-717ec1703863/receipt.json: F4EC6 improved to +14 and similarity 0.9633, but still differs."
-    },
-    {
-      "id": "h12-4ec6-long-byte-offsets",
-      "statement": "Long byte-pointer offsets would produce a 428-byte differing F4EC6 member.",
-      "outcome": "confirmed",
-      "evidence": "unit_diag explicit member form, cache ac76b4b8cf5f: F4EC6 is 428 bytes, delta +8, differs; similarity 0.9767."
-    },
-    {
-      "id": "h13-487e-resident-call-long-arguments",
-      "statement": "A prototype with eleven long F8A46 parameters and long G46D2/G46CE declarations would make F487E 402 bytes and differ.",
-      "outcome": "unmeasurable",
-      "evidence": "v06 verify-region was rejected before compilation: unsupported extern declaration; recovery source format requires an old-style empty parameter list."
-    },
-    {
-      "id": "h14-487e-long-call-argument-casts",
-      "statement": "Casting all resident F8A46 arguments to long and widening G46D2/G46CE would make F487E 402 bytes and differ.",
-      "outcome": "partial",
-      "evidence": "unit_diag explicit member form, cache 75145561e27c: F487E is 410 bytes, delta +74, differs; similarity improved to 0.7137 from 0.3732."
-    },
-    {
-      "id": "h15-55b8-gated-parity-positioning",
-      "statement": "The G37F2-gated parity position phase would make F55B8 608 bytes and differ.",
-      "outcome": "partial",
-      "evidence": "unit_diag explicit member form, cache 3df273ebf41a: F55B8 is 616 bytes, delta -26, differs; similarity improved to 0.6648."
-    },
-    {
-      "id": "h16-51c0-read-mode-field",
-      "statement": "Reading record->mode instead of record->frame would leave F51C0 at 516 bytes and differing.",
-      "outcome": "confirmed",
-      "evidence": "unit_diag explicit member form, cache 4779b631f6ad: F51C0 is 516 bytes, delta -308, differs."
-    },
     {
       "id": "h17-51c0-mode18-transition-path",
       "statement": "Adding the recovered mode-18 path would make F51C0 708 bytes and still differ.",
@@ -315,9 +219,207 @@
       "statement": "The sole actual-only move.w d0,-6(a5) is a local spill caused by the current local declaration order. Controlled change: Move step to the end of the local declaration list so Aztec C assigns its stack slot after local_y and progress. Prediction: F487E remains 336 bytes and the actual-only stack store pairs with the expected loop branch, yielding same_after_reference_identity.",
       "outcome": "refuted",
       "evidence": "unit_diag/receipt cache 36070652: F487E remained 340 bytes (+4), 1/1 unpaired; local declaration reordering had no effect."
+    },
+    {
+      "id": "h48",
+      "statement": "The target CFG has an unconditional branch at relative 198 to the loop test at 252 before entering the table-scan body; the do-while candidate skips this pre-test edge. Controlled change: Change only the table scan from do-while to a pre-test while loop, keeping its body and last increment unchanged.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 48; variant parent v32"
+    },
+    {
+      "id": "h49",
+      "statement": "With row/y at +0x2c and column/x at +0x2e, the initializer still emits the x store before the y store, opposite the target sequence at offsets 138-152. Controlled change: Reorder only the first-pass record coordinate assignments to store vertical/y first and horizontal/x second.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 49; variant parent v33"
+    },
+    {
+      "id": "h50",
+      "statement": "The facts CFG dispatches original mode 19 to relative 386, where F25F8 success updates G94C2/G94B8/G94B0 and then calls F4B0C, F45EC, or F4474; the draft instead has unrelated mode-14 and mode-4 branches. Controlled change: Replace only the mode-14 and mode-4 blocks with the decoded mode-19 state transition and call sequence; leave mode-18 and shared logic unchanged.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 50; variant parent v32"
+    },
+    {
+      "id": "h51",
+      "statement": "The expected relative-62 case-14 block is absent from v43; it tests G371E and sets record mode 18 plus two local flags before the shared exit. Controlled change: Insert only the decoded mode-14 case block before the existing mode-18 handling: on G371E==0 set record->mode=18, changed=1, and step=1.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 51; variant parent v46"
+    },
+    {
+      "id": "h52",
+      "statement": "The current two-arm if assigns step separately, generating a candidate-only move.w store at offset 68; target control flow selects the value in registers and stores it once after a short branch. Controlled change: Replace only the two-branch step assignment with a ternary expression assigning the selected value once.",
+      "outcome": "refuted",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 52; variant parent v43"
+    },
+    {
+      "id": "h53",
+      "statement": "After sharing the step store, 487E is two bytes shorter than target and still lacks only target BRA.B at offset 198, which initializes the table scan through its test before its body. Controlled change: Change only the table scan from do-while to a pre-test while, retaining the ternary step assignment from v44.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 53; variant parent v44"
+    },
+    {
+      "id": "h54",
+      "statement": "Target instructions 208-214 implement a signed negative-base clamp through a branch and shared base store, while the candidate if-statement does not pair that joined value path. Controlled change: Rewrite only the base clamp as a ternary assignment so both selected values flow through one base store.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 54; variant parent v45"
+    },
+    {
+      "id": "h55",
+      "statement": "Target-only movea.l instructions at offsets 138, 332, and 346 reload the saved object pointer before separate field accesses; the candidate keeps the pointer cached across these statements. Controlled change: Qualify only the local object pointer as volatile so each dereference reloads its saved stack value.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 55; variant parent v46"
+    },
+    {
+      "id": "h56",
+      "statement": "Facts show a subtract-and-branch dispatcher for exactly modes 14, 18, and 19 at relative 566-584, followed by those case blocks in address order and one shared post-switch path at 588. The current independent if chain emits unrelated comparisons and misorders default logic. Controlled change: Rewrite only F51C0 as a switch with cases 14, 18, 19 in CFG order, then place flags/mode-zero/modes-1-to-3 handling in a shared post-switch tail. Preserve each recovered case body and call sequence.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 56; variant parent v48"
+    },
+    {
+      "id": "h57",
+      "statement": "Facts start with two initialized local flags at offsets 22 and 26, but F51C0 only initializes changed; its step local corresponds to the absent clr.w -(a5). Controlled change: Initialize only step to zero immediately after changed=0.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 57; variant parent v49"
+    },
+    {
+      "id": "h58",
+      "statement": "Facts in case18 set both changed and step flags on the mode-14 and mode-19 transition paths; the first path also multiplies G371C by three into G371E. Current source omits those step writes and stores the product to different globals. Controlled change: Correct only the two case18 transition side-effect sequences: set step=1 on each success and write G371E=G371C*3 on the first path.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 58; variant parent v50"
+    },
+    {
+      "id": "h59",
+      "statement": "Target CFG offsets 588-824 implement one shared path: F54F8(0,index), conditional F2562 with F54F8(5,index), a G8A6E row/previous-row test that increments record+0x0c, conditional F41F6(11,record,mode,x,y), and a G371E reset. The current mode-0/1/2/3 tail does not implement these blocks. Controlled change: Replace only the post-switch common tail with the statements decoded from facts CFG offsets 588-824, representing the word at record+0x0c explicitly.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 59; variant parent v51"
+    },
+    {
+      "id": "h60",
+      "statement": "Facts use a 14-byte row stride at 720/740 and test the previous row unconditionally; the candidate int array uses a two-byte stride and adds an unsupported row_index>0 guard. Controlled change: Change only the row-table access construct to a 14-byte RowEntry element and test current/previous entries without a bounds guard.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 60; variant parent v52"
+    },
+    {
+      "id": "h61",
+      "statement": "Candidate-only instruction at relative 52 saves record->mode to local -, shifting the later row index to -; target loads mode directly into d0 at 48 and later reuses - for x/104. Controlled change: Remove only the saved mode local and switch directly on record->mode, retaining all case and tail bodies.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 61; variant parent v52"
+    },
+    {
+      "id": "h62",
+      "statement": "With target size matched, the two remaining unpaired instructions are the loop condition pair: target branches back with BLE at 260 and jumps initially to that bottom test, while candidate while emits BGT at entry. Controlled change: Change only the table scan from while to a for loop with the same initialization, condition, body, and increment.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 62; variant parent v52"
+    },
+    {
+      "id": "h63",
+      "statement": "The only 487E identity conflict is actual offset 326: candidate references hunk-1 data offset 38062 through G94AE, while expected facts bind that site to hunk-1 offset 35390, G8A3E. Controlled change: Change only the mode/state guard global in the table scan from G94AE to G8A3E.",
+      "outcome": "unmeasurable",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 63; variant parent v55"
+    },
+    {
+      "id": "h64",
+      "statement": "The G8A3E guard corrected the measured A4 identity, but the new source reference lacked a declaration and the isolated compile failed. Controlled change: Add only the extern declaration for the already-proven hunk-1 global G_h01_8A3E.",
+      "outcome": "refuted",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 64; variant parent v56"
+    },
+    {
+      "id": "h65",
+      "statement": "The identity report separates the two similar global references: the later G_A45E assignment is the site expected to read G8A3E; the loop guard site expects G94AE. Controlled change: Change only the source global of the final G_A45E assignment from G94AE to G8A3E.",
+      "outcome": "confirmed",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 65; variant parent v57"
+    },
+    {
+      "id": "h66",
+      "statement": "After the final assignment was corrected, diagnostics leave only the loop-guard reference at relative 218: candidate G8A3E versus expected G94AE. Controlled change: Restore only the table-loop guard global to G_h01_94AE, preserving G_h01_8A3E in the final assignment.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 66; variant parent v58"
+    },
+    {
+      "id": "h67",
+      "statement": "The latest reference report maps the target row-table base at expected relative 744 to hunk-1 data offset 35434 (0x8A6A), while the candidate points at offset 35438 (0x8A6E). Controlled change: Change only the row-table global identity from G_h01_8A6E to G_h01_8A6A, leaving element width and row expression unchanged.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 67; variant parent v59"
+    },
+    {
+      "id": "h68",
+      "statement": "Candidate assembly writes directly to symbols G9F5E/G9FA2, but target offsets 364, 574, and 588 first load the pointer values and then store through them. Controlled change: Change only G_h01_9F5E and G_h01_9FA2 declarations from one-element arrays to pointers, retaining all assignments and calls.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 68; variant parent v60"
+    },
+    {
+      "id": "h69",
+      "statement": "The only unmatched block is the first coordinate initialization. Facts compute x into local - first, then store y to record+0x2c and x to record+0x2e; the candidate computes and stores horizontal directly before vertical. Controlled change: Change only the first-pass coordinate tuple: map vertical to +0x2c and horizontal to +0x2e, precompute horizontal into the existing local, then store vertical followed by horizontal.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 69; variant parent v61"
+    },
+    {
+      "id": "h70",
+      "statement": "Facts use a 14-byte row stride from G8A6A at relative 720/740 and read the previous row without a bounds check; current source indexes a two-byte int array and checks row_index>0. Controlled change: Replace only the current/previous row predicate with explicit byte-addressed reads at index*14 and (index-1)*14, without a guard.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 70; variant parent v62"
+    },
+    {
+      "id": "h71",
+      "statement": "The final draw call uses local_y and height although the original instructions read the original y and width arguments. Controlled change: Change only the final draw call arguments from local_y/height to y/width.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 71; variant parent v63"
+    },
+    {
+      "id": "h72",
+      "statement": "The only remaining source-shape mismatch is the compiler frame size: candidate allocates 10 local bytes and target allocates 12, while all used slots already match. Controlled change: Add one unused int local at the end of the local declaration, without changing any expression or call.",
+      "outcome": "confirmed",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 72; variant parent v64"
+    },
+    {
+      "id": "h73",
+      "statement": "The member?s first remaining instruction divergence is a row-parity branch: candidate emits BEQ at relative 34 while target emits BNE, with the arms laid out oppositely. Controlled change: Replace only the parity ternary assignment with an explicit if/else using the same predicate and values.",
+      "outcome": "refuted",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 73; variant parent v65"
+    },
+    {
+      "id": "h74",
+      "statement": "The exact-size candidate?s parity ternary has the inverse branch polarity from the target; explicit if/else changed layout and added 12 bytes. Controlled change: Negate the ternary predicate and swap its two equivalent result arms, leaving the row calculation and stores unchanged.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 74; variant parent v65"
+    },
+    {
+      "id": "h75",
+      "statement": "Target instructions load record->mode directly into d0 before dispatch; candidate stores it to a local and reloads, adding six bytes before the case-18 block. Controlled change: Remove only the mode temporary and switch directly on record->mode, retaining case order and bodies.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 75; variant parent v67"
+    },
+    {
+      "id": "h76",
+      "statement": "Facts branch failed case-18 row/column/status predicates to the shared G371E gate at rel168. Candidate nests the timer/random path inside all three predicates and branches to the later case exit. Controlled change: Close the row/column/status match block immediately after setting mode and calling F4B0C; move the existing G371E random-transition block to run independently within case 18.",
+      "outcome": "confirmed",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 76; variant parent v68"
+    },
+    {
+      "id": "h77",
+      "statement": "Facts at rel392 branch when G94B0==10 directly to the shared F45EC continuation at rel506. Candidate instead places F45EC inside the G94B0==10 and F25F8-success blocks. Controlled change: Guard only the F25F8 transition and its state updates with G94B0!=10, then move the existing F45EC/F4474 outcome after that guard as the shared continuation.",
+      "outcome": "confirmed",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 77; variant parent v69"
+    },
+    {
+      "id": "h78",
+      "statement": "At rel188 target compares the random result in d0 directly against G371C; candidate stores d0 to local kind then reloads it, producing the next candidate-only instruction and extra stack slot. Controlled change: Remove the kind local and inline the first F00_463E()%100 comparison directly into its if condition.",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 78; variant parent v70"
+    },
+    {
+      "id": "h79",
+      "statement": "The next candidate divergence at rel550 is a reversed fallback call argument sequence: target pushes record then 11, which means its first argument is 11; candidate currently calls F4474(record,11). Controlled change: Reverse only the F_h11_4474 fallback call arguments to (11,record).",
+      "outcome": "partial",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 79; variant parent v71"
+    },
+    {
+      "id": "h80",
+      "statement": "The receipt identifies the only different relocation identity at instruction offset 288: target data offset 0x8A3C, candidate symbol G_h01_8A3E at 0x8A3E. Controlled change: Change only the external global identity used by the F5962 guard from G_h01_8A3E to G_h01_8A3C, keeping other uses of G_h01_8A3E unchanged.",
+      "outcome": "confirmed",
+      "evidence": "experiments/fleet/reg-ov11_4790-5CEA/hypotheses.jsonl line 80; variant parent v72"
     }
   ],
-  "compile_trials": 40,
+  "compile_trials": 70,
   "ledger_lines": [
     1,
     2,
@@ -365,8 +467,41 @@
     44,
     45,
     46,
-    47
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80
   ],
-  "explanation": "The best complete-unit run is v32 (cache 0fee7d66...). Five of eight new members are EQUAL or same_after_reference_identity: 4EC6, 54F8, 583A, 5962, and 5C42. F487E remains +4 bytes (340 vs 336; 1/1 unpaired, similarity 0.9901), F51C0 remains -12 (812 vs 824; 56/41 unpaired, similarity 0.6411), and F55B8 remains -30 (612 vs 642; 10/1 unpaired, similarity 0.9341). The 44-byte gap remains unclaimed and all 12 crossing encodings are GAP_INDEPENDENT_ENCODING. The exact complete-unit verdict is DIFFER, 7200 vs 7198 bytes. All 40 trials are exhausted.",
+  "explanation": "The v73 complete unit links 7,238 bytes, matching the harness expected compiled length (7,198 owned bytes plus the proved 40-byte code tail), but check_unit returns MEMBER_DIFFERS. Six of eight new members are same_after_reference_identity. 51C0 is 824 bytes with 19 unpaired instructions on each side and remaining CFG/layout differences; 55B8 is 642 bytes with no unpaired instructions and its different-identity reference cleared, but two source-shape groups remain. The 44-byte gap remains unclaimed and all natural-interval crossings are GAP_INDEPENDENT_ENCODING. The reopened 30-trial budget is exhausted.",
   "proposed_blocker": null
 }
