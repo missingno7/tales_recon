@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_13DC",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "dispatch-object-pointer-views",
+      "causal_family": "identity-operand-register-class",
+      "diagnostic_scope": "register_assignment",
+      "source": "experiments/fleet/fn-ov11_F_13DC/dispatch-pointer.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_13DC/dispatch.c",
+      "suspected_cause": "Integer views of the identity globals lower comparisons through d0, while the oracle uses address-register pointer comparisons.",
+      "controlled_change": "Change only G_h01_94CE and the four compared identity globals from long to struct Object pointer views.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 0,
+        "register_role_diffs": null,
+        "note": "Same 222-byte branch and call structure is expected; this change targets comparison operand roles."
+      }
+    }
+  ]
+}

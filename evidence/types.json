@@ -3015,6 +3015,36 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
+          "declaration": "extern long G_h01_94CE;",
+          "line": 8,
+          "path": "src/recovered/ov11/ov11_F_1372.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern struct Object *G_h01_94CE;",
+          "line": 4,
+          "path": "src/recovered/ov11/ov11_F_13DC.c",
+          "shape": {
+            "array": false,
+            "base": "struct Object",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_94CE"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
           "declaration": "extern int G_h01_94D4;",
           "line": 19,
           "path": "src/recovered/ov11/ov11_F_14BA.c",
@@ -3251,6 +3281,96 @@
           }
         },
         "symbol": "G_h01_9F0C"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_9F4E;",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_049C.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern struct Object *G_h01_9F4E;",
+          "line": 5,
+          "path": "src/recovered/ov11/ov11_F_13DC.c",
+          "shape": {
+            "array": false,
+            "base": "struct Object",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_9F4E"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_9F52;",
+          "line": 3,
+          "path": "src/recovered/ov11/ov11_F_049C.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern struct Object *G_h01_9F52;",
+          "line": 6,
+          "path": "src/recovered/ov11/ov11_F_13DC.c",
+          "shape": {
+            "array": false,
+            "base": "struct Object",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_9F52"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_9F56;",
+          "line": 4,
+          "path": "src/recovered/ov11/ov11_F_049C.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern struct Object *G_h01_9F56;",
+          "line": 7,
+          "path": "src/recovered/ov11/ov11_F_13DC.c",
+          "shape": {
+            "array": false,
+            "base": "struct Object",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_9F56"
       },
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
@@ -3521,6 +3641,36 @@
           }
         },
         "symbol": "G_h01_9F8A"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_9F8E;",
+          "line": 14,
+          "path": "src/recovered/ov11/ov11_F_049C.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern struct Object *G_h01_9F8E;",
+          "line": 8,
+          "path": "src/recovered/ov11/ov11_F_13DC.c",
+          "shape": {
+            "array": false,
+            "base": "struct Object",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_9F8E"
       },
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
@@ -5293,7 +5443,7 @@
         "symbol": "G_h01_A6A8"
       }
     ],
-    "declarations_scanned": 598,
+    "declarations_scanned": 605,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
@@ -5301,7 +5451,7 @@
       "ARRAY_EXTENT_CONFLICT": 1,
       "ARRAY_SCALAR_VIEW_CONFLICT": 4,
       "DECLARATION_VIEW_REVIEW": 15,
-      "POINTER_SCALAR_VIEW_CONFLICT": 8,
+      "POINTER_SCALAR_VIEW_CONFLICT": 13,
       "STRUCT_VIEW_DIFFERENCE_REVIEW": 67
     },
     "schema_version": 1,
@@ -5352,6 +5502,7 @@
       "src/recovered/ov11/ov11_F_0558.c": "59574ca053255857fae860b466ec9411abe37f5b163726e62f54a03d72ca241a",
       "src/recovered/ov11/ov11_F_0BB6.c": "9cb52a6ffee00508cd69b1d7ea8cdf7e5d37e46e63c49a16085eb3008eb81b19",
       "src/recovered/ov11/ov11_F_1372.c": "ecf339729d655127ba8710ff0e5c64f8a61c18edb5dc210221637964a1632e56",
+      "src/recovered/ov11/ov11_F_13DC.c": "b6dfd08ca4ee11646350cba504f79f9ce637977ca1bbdfc93ce1b93203aa713a",
       "src/recovered/ov11/ov11_F_14BA.c": "9fa3634b1da8a9ecb700d810f47bfa4547316b2a023adfcf69d65534c32cf499",
       "src/recovered/ov11/ov11_F_20F2.c": "1c7f380f309f5a21b01f97605232c6d99564c9312593b2a391b3239fdb93943e",
       "src/recovered/ov11/ov11_F_21F8.c": "06e9a9b4dda38979c20606e7b2126181938ac4afd2e54de016d906c802800a2d",
@@ -5422,7 +5573,7 @@
       "src/recovered/ov15/ov15_F_08B0.c": "4136434dc8c871e1e8731e062d3968fc94588745c4808b19fbf50293c2cfd6a7",
       "src/recovered/ov15/ov15_F_0A80.c": "a0e4679a60eb1f4c35d3227dd95537b71370a7dbf3f2da8f9208e1cb1064b441"
     },
-    "symbols_with_multiple_views": 92
+    "symbols_with_multiple_views": 97
   },
   "frame_access_candidates": [
     {
@@ -139946,6 +140097,7 @@
       "src/recovered/ov11/ov11_F_0558.c": "59574ca053255857fae860b466ec9411abe37f5b163726e62f54a03d72ca241a",
       "src/recovered/ov11/ov11_F_0BB6.c": "9cb52a6ffee00508cd69b1d7ea8cdf7e5d37e46e63c49a16085eb3008eb81b19",
       "src/recovered/ov11/ov11_F_1372.c": "ecf339729d655127ba8710ff0e5c64f8a61c18edb5dc210221637964a1632e56",
+      "src/recovered/ov11/ov11_F_13DC.c": "b6dfd08ca4ee11646350cba504f79f9ce637977ca1bbdfc93ce1b93203aa713a",
       "src/recovered/ov11/ov11_F_14BA.c": "9fa3634b1da8a9ecb700d810f47bfa4547316b2a023adfcf69d65534c32cf499",
       "src/recovered/ov11/ov11_F_20F2.c": "1c7f380f309f5a21b01f97605232c6d99564c9312593b2a391b3239fdb93943e",
       "src/recovered/ov11/ov11_F_21F8.c": "06e9a9b4dda38979c20606e7b2126181938ac4afd2e54de016d906c802800a2d",

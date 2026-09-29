@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_13DC",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "dispatch-baseline",
+      "causal_family": "pointer-dispatch-structure",
+      "diagnostic_scope": "control_flow_shape",
+      "source": "experiments/fleet/fn-ov11_F_13DC/dispatch.c",
+      "profile": "aztec36",
+      "parent": "none",
+      "suspected_cause": "The closed CFG is a three-way pointer identity dispatch with a shared first body and fixed helper-call argument sets.",
+      "controlled_change": "Initial self-contained K and R style C transcription of the three branches and their matched helper calls.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "No measured source parent exists yet; prediction is retained for audit and will be unmeasurable."
+      }
+    }
+  ]
+}
