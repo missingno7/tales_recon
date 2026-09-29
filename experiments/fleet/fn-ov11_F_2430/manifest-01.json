@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_2430",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 2
+  },
+  "variants": [
+    {
+      "id": "unconditional-followup-call",
+      "causal_family": "unconditional-followup-call",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov11_F_2430/v01-unconditional-followup.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_2430/parent-conditional-first-call.c",
+      "suspected_cause": "The target has a second unconditional five-word-argument call after the conditional call.",
+      "controlled_change": "Add only the trailing F_h11_247C(12, G_h01_9FCA, G_h01_9FC8, 40, 32) call.",
+      "predicted_effect": {
+        "length_delta": 26,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The added call sequence should add 20 bytes of argument pushes, a 2-byte call, and 4 bytes of stack cleanup."
+      }
+    }
+  ]
+}

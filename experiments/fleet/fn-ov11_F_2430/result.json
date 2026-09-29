@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_2430",
+  "worker": "luna-fn-ov11_F_2430",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov11_F_2430",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_2430/v02-swapped-global-arguments.c",
+    "profile": "aztec36",
+    "cache_key": "e8b5efbda7b37f56c931dacaa20fad271cd18750934e2a24155001ea869e4cd0",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov11_F_2430",
+    "options": [],
+    "expected_length": 76,
+    "actual_length": 76
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "The second F_h11_247C call is unconditional after the conditional F_h11_4696 call.",
+      "outcome": "confirmed",
+      "evidence": "Hypothesis ledger line 175: adding the five word arguments and call increased candidate length by the predicted 26 bytes; exact comparison otherwise differed only in global identities."
+    },
+    {
+      "id": "h2",
+      "statement": "Both calls pass G_h01_9FC8 before G_h01_9FCA in their first two global argument positions.",
+      "outcome": "confirmed",
+      "evidence": "Hypothesis ledger line 177 and isolated exact check: swapped global arguments produced EQUAL at 76 bytes."
+    }
+  ],
+  "compile_trials": 3,
+  "ledger_lines": [
+    175,
+    177
+  ],
+  "explanation": "A direct K&R C reconstruction matches the complete 76-byte closed function under aztec36. The target writes 2 to G_h01_9FB6, conditionally calls F_h11_4696 for argument 12, and always calls F_h11_247C. Swapping the adjacent G_h01_9FC8 and G_h01_9FCA arguments at both calls resolved the only mismatch. shape_search returned EQUAL in an isolated check_function comparison; no promotion was performed.",
+  "proposed_blocker": null
+}
