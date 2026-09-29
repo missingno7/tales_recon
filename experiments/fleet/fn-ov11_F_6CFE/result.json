@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_6CFE",
+  "worker": "luna-fn-ov11_F_6CFE",
+  "status": "NEAR",
+  "target": "ov11_F_6CFE",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_6CFE/candidate_06.c",
+    "profile": "aztec36",
+    "cache_key": "9d5a99b001cf612397de8b5fff7c3993cafc47c90c6c1cf36c53c9b6faacbee9",
+    "verdict": "DIFFER",
+    "verifier": "check_function",
+    "entry": "ov11_F_6CFE",
+    "options": [],
+    "expected_length": 472,
+    "actual_length": 472
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Seed transcription of the observed record update, map lookups, rectangle call, and two notifications.",
+      "outcome": "unmeasurable",
+      "evidence": "hypothesis ledger line 163; parent none."
+    },
+    {
+      "id": "h2",
+      "statement": "Explicit multiplication by -1 could reproduce the target step negation code.",
+      "outcome": "refuted",
+      "evidence": "hypothesis ledger line 164; candidate length delta 0, same emitted shape as unary negation."
+    },
+    {
+      "id": "h3",
+      "statement": "The lower-bound branch guards reversal/notification and continues processing rather than returning.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 166; length delta -4 and two candidate-only instructions removed."
+    },
+    {
+      "id": "h4",
+      "statement": "Reordering F_h11_4696 arguments to right, initial_y, dx, dy, index+28 matches target push order.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 168; length delta 0 and five candidate-only instructions removed."
+    },
+    {
+      "id": "h5",
+      "statement": "Compound multiplication by -1 expands both step reversals to the target load/multiply/store form.",
+      "outcome": "refuted",
+      "evidence": "hypothesis ledger line 170; observed length delta +8, not predicted +16."
+    },
+    {
+      "id": "h6",
+      "statement": "Separate width assignment and increment produce the target local store followed by ADDI.W.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 172; observed length delta +2."
+    },
+    {
+      "id": "h7",
+      "statement": "Emit the low-x rectangle branch first to match target BGT edge and layout.",
+      "outcome": "confirmed",
+      "evidence": "hypothesis ledger line 174; length delta 0, seven candidate-only instructions removed, full diagnostic alignment."
+    },
+    {
+      "id": "h8",
+      "statement": "The aztec36-large-data profile needed by lookup callees can be applied to the entire prepared unit without changing the caller.",
+      "outcome": "refuted",
+      "evidence": "hypothesis ledger line 176; caller grew to 482 bytes and unit to 1176 bytes."
+    }
+  ],
+  "compile_trials": 8,
+  "ledger_lines": [
+    163,
+    164,
+    166,
+    168,
+    170,
+    172,
+    174,
+    176
+  ],
+  "explanation": "candidate_06.c under aztec36 is 472 bytes and has full diagnostic instruction alignment (1.0, with no expected-only or candidate-only instructions and no first nonreference divergence). The isolated exact verifier still returns DIFFER because the prepared noncontiguous unit is 1,150 bytes versus 1,154 (COMPLETE_UNIT_SIZE_DIFFERS). The exact lookup-helper proofs use aztec36-large-data; compiling the whole unit under that profile grows the caller to 482 bytes and the unit to 1,176. A mixed per-member profile build or another unit-level proof is still needed.",
+  "proposed_blocker": null
+}

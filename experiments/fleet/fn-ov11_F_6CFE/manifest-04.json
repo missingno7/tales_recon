@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_6CFE",
+  "budget": {
+    "max_variants": 6,
+    "max_unique_compiles": 24
+  },
+  "variants": [
+    {
+      "id": "rectangle-argument-order",
+      "causal_family": "rectangle-call-argument-order",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov11_F_6CFE/candidate_03.c",
+      "profile": "aztec36",
+      "parent": "3d726aa0ff020495cf5e4f1697dbd1e2ced410dc96db1df855fd4ef75570cd6e",
+      "suspected_cause": "The target pushes index+28, dy, dx, initial_y, right, while the candidate pushes the same values in a different order.",
+      "controlled_change": "Reorder the five F_h11_4696 C arguments so right, initial_y, dx, dy, index+28 are pushed in the target sequence.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Argument evaluation order should change call-site operand order without changing payload length."
+      }
+    }
+  ]
+}

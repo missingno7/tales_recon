@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_6CFE",
+  "budget": {
+    "max_variants": 6,
+    "max_unique_compiles": 24
+  },
+  "variants": [
+    {
+      "id": "lookup-proofs-large-data-profile",
+      "causal_family": "local-unit-profile-selection",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov11_F_6CFE/candidate_06.c",
+      "profile": "aztec36-large-data",
+      "parent": "9d5a99b001cf612397de8b5fff7c3993cafc47c90c6c1cf36c53c9b6faacbee9",
+      "suspected_cause": "The exact proofs for F_h11_727A and F_h11_729C use aztec36-large-data, but this prepared unit was built with aztec36.",
+      "controlled_change": "Change only the compiler profile from aztec36 to aztec36-large-data.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "Expect the 472-byte caller to remain unchanged while the two lookup members match their proven profile and restore four unit bytes."
+      }
+    }
+  ]
+}
