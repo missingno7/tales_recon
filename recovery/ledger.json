@@ -8209,20 +8209,6 @@
     ]
   },
   "blockers": {
-    "ov11_F_5962": {
-      "attempts": [],
-      "next_action": "Recover and link the 0x4790..0x5962 physical ov11 source interval in order as a normal source-layout proof. Ordinary earlier-object linking is proven to retain F_h11_5C42 -> F_h11_4696 as JSR, but the complete interval is still needed for its exact PC displacement and A4/global placement; do not retry either isolated member.",
-      "ownership_unchanged": true,
-      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: the compact cluster still shortens F_h11_5C42 -> F_h11_4696 to BSR.b, but an ordinary earlier-object link now proves the historical backward JSR.d16(PC) form is retained without padding or copied bytes. Its remaining differences are only A4/global placement and PC-relative displacement. Exact displacement requires the full physical 0x4790..0x5962 interval: 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes. Recover that interval in physical source order before another normal layout proof; do not retry isolated members.",
-      "state": "BLOCKED"
-    },
-    "ov11_F_5C42": {
-      "attempts": [],
-      "next_action": "Recover and link the 0x4790..0x5962 physical ov11 source interval in order as a normal source-layout proof. Ordinary earlier-object linking is proven to retain F_h11_5C42 -> F_h11_4696 as JSR, but the complete interval is still needed for its exact PC displacement and A4/global placement; do not retry either isolated member.",
-      "ownership_unchanged": true,
-      "reason": "CYCLIC_INTER_OBJECT_PC_CALL: the compact cluster still shortens F_h11_5C42 -> F_h11_4696 to BSR.b, but an ordinary earlier-object link now proves the historical backward JSR.d16(PC) form is retained without padding or copied bytes. Its remaining differences are only A4/global placement and PC-relative displacement. Exact displacement requires the full physical 0x4790..0x5962 interval: 858 canonical bytes, seven discovered unrecovered candidates totaling 3664 bytes, and 40 unclaimed bytes. Recover that interval in physical source order before another normal layout proof; do not retry isolated members.",
-      "state": "BLOCKED"
-    },
     "ov11_F_5FB2": {
       "attempts": [
         {
@@ -9961,6 +9947,22 @@
       "source_sha256": "ecce6898c9f1ba0a74c810553b6d33a3d7b8fa4f332da0b01f94e9fb7d487079",
       "state": "FUNCTION_CODE_MATCH"
     },
+    "ov11_F_487E": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 18894,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "9de3b91e8c800a49b893355024a4aabfb5a04125aa95c30a8bd058176a1e3a7a",
+        "size": 336,
+        "start": 18558
+      },
+      "proof": "recovery/proofs/ov11_F_487E.json",
+      "proof_sha256": "86422d800cf2cbce26443d6cfb3843667ea3de380403bd9467a33e3fcf500a74",
+      "source": "src/recovered/ov11/ov11_F_487E.c",
+      "source_sha256": "04a34d72f51f504fee96f385ba677bed67d84076944e8ca8a377c3709225579d",
+      "state": "FUNCTION_CODE_MATCH"
+    },
     "ov11_F_49CE": {
       "compiler_selection": "Matching candidate; historical release remains ambiguous",
       "evidence_extent": {
@@ -10041,6 +10043,22 @@
       "source_sha256": "c51a27ea5e4c348657e2df3fbe5204193d7353b02aedd959ff494704f5f29ca0",
       "state": "FUNCTION_CODE_MATCH"
     },
+    "ov11_F_4EC6": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 20586,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "3a268f3dc8e430a10e096b21957645141d13a51e581b3ac3fda33329edeb213d",
+        "size": 420,
+        "start": 20166
+      },
+      "proof": "recovery/proofs/ov11_F_4EC6.json",
+      "proof_sha256": "fd73da9becdce2b5aa4057d81ca36b36f7e43210dba8ac59c0361a81fe5e7e34",
+      "source": "src/recovered/ov11/ov11_F_4EC6.c",
+      "source_sha256": "31711aaaa192307cb01ac81a09e051be48b2bb7db53bfd1e176d524c606de42e",
+      "state": "FUNCTION_CODE_MATCH"
+    },
     "ov11_F_506A": {
       "compiler_selection": "Matching candidate; historical release remains ambiguous",
       "evidence_extent": {
@@ -10071,6 +10089,86 @@
       "proof_sha256": "16c9f01f63cc2df943de27e7a9ccd2a590abf260fcf000c5c4e186be0141b16f",
       "source": "src/recovered/ov11/ov11_F_519C.c",
       "source_sha256": "8f2206d9f1e0f37893dc717b3fe38141e24e82469793dde25bb232e7c6fe3e4e",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_51C0": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 21752,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "cc490f32ed5cdf2edc51cedb4883e2cbc489ad147e8825d573b0d9365e30f81a",
+        "size": 824,
+        "start": 20928
+      },
+      "proof": "recovery/proofs/ov11_F_51C0.json",
+      "proof_sha256": "e70e4492e02dff1fffd7c228b88e7e89ddf36afba13f2b6a80b5fccf049c134a",
+      "source": "src/recovered/ov11/ov11_F_51C0.c",
+      "source_sha256": "5ba9cf1af6e087e0d1317bab2f7890c3d761623e7eb6a71ba38c0929797421ba",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_54F8": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 21944,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "f1f9d1f6b7711014369fb42c9cab2b1461ba394d396efd80e44d5a9343ad1035",
+        "size": 192,
+        "start": 21752
+      },
+      "proof": "recovery/proofs/ov11_F_54F8.json",
+      "proof_sha256": "b0da2714f00aa7950226f3a235bd7a162a5c2937047136c13578d0ef5538687a",
+      "source": "src/recovered/ov11/ov11_F_54F8.c",
+      "source_sha256": "b8251ae6e1ecb6a64e65d4a01575cc7cf23d6016d6dd87dc394adf98eab30728",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_55B8": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 22586,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "f0d7792767ff6ccc3d8541a2f96a59d27db0b55b99609b5c5283c131dc86af25",
+        "size": 642,
+        "start": 21944
+      },
+      "proof": "recovery/proofs/ov11_F_55B8.json",
+      "proof_sha256": "e5e5ea2f287f118786a5087933c7f0f8c5a47eeded115b06f0f8b808264a1c1f",
+      "source": "src/recovered/ov11/ov11_F_55B8.c",
+      "source_sha256": "6c8d1e0ae1bc2e46e1e5c737a9b684fac276d48c141bb9b241eb41d15b8eb21a",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_583A": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 22882,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "51a74a20f425eaf16c028d664738d8daa92f651af4216c7ec7af88173a79332c",
+        "size": 296,
+        "start": 22586
+      },
+      "proof": "recovery/proofs/ov11_F_583A.json",
+      "proof_sha256": "29bfa4cca32caf874431301ceb39c55992dce688334f602d153fdb1ae6680d3a",
+      "source": "src/recovered/ov11/ov11_F_583A.c",
+      "source_sha256": "bbfbe0c84142e979dd6baa2ac559ec6cad4c9281611e12bdda3ce28d8bbb0587",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_5962": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 23014,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "5c86a324eca9407ce958eea2a6ce0351d064baecd4d3223870d3d5a73d42e5ee",
+        "size": 132,
+        "start": 22882
+      },
+      "proof": "recovery/proofs/ov11_F_5962.json",
+      "proof_sha256": "8110b2be74c3f17c20713c3454f057495c14e0224c3d4e09f8f1c9c010130710",
+      "source": "src/recovered/ov11/ov11_F_5962.c",
+      "source_sha256": "8d3790a0e92d4d6ea7df923f32ed94f0f9e93705806eb8ad638f4f6e79c18e06",
       "state": "FUNCTION_CODE_MATCH"
     },
     "ov11_F_5A12": {
@@ -10151,6 +10249,22 @@
       "proof_sha256": "e31d6fffaa7b37b06a20823a9fad4339c9009c04c530feaca8536b92612f9300",
       "source": "src/recovered/ov11/ov11_F_5C1A.c",
       "source_sha256": "2bbcceb03505bfc3b57465743905c4d2bee45d8da490f8206f76af0130801367",
+      "state": "FUNCTION_CODE_MATCH"
+    },
+    "ov11_F_5C42": {
+      "compiler_selection": "Matching candidate; historical release remains ambiguous",
+      "evidence_extent": {
+        "end": 23786,
+        "extent_status": "CLOSED_CFG",
+        "hunk": 11,
+        "sha256": "df17ea30cbc16020ce146a22159cde3904a1947ca418f69edc3346d667ea4201",
+        "size": 168,
+        "start": 23618
+      },
+      "proof": "recovery/proofs/ov11_F_5C42.json",
+      "proof_sha256": "40792c4456c797dfb9837f1798397217c507b68cd55bb63edc4a6e34a550ed11",
+      "source": "src/recovered/ov11/ov11_F_5C42.c",
+      "source_sha256": "3c46ec2addc544249d0a6951ce2fc22b0cf913916ff70a10a5244383243d57e1",
       "state": "FUNCTION_CODE_MATCH"
     },
     "ov11_F_6080": {
