@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "neighbor-miss-fallthrough",
+      "causal_family": "case1-fallback-control-flow",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-13.c",
+      "profile": "aztec36",
+      "parent": "ledger:236",
+      "suspected_cause": "The key-1 fallback has an extra branch after the row+1 miss; the target falls through to the direction-0 test before the shared state-19 block.",
+      "controlled_change": "Remove only the goto to the invalid label after the row+1 test.",
+      "predicted_effect": {
+        "length_delta": -2,
+        "removed_candidate_only": 1,
+        "register_role_diffs": "same",
+        "note": "The redundant short branch should disappear while preserving the shared state-19 fallthrough."
+      }
+    }
+  ]
+}

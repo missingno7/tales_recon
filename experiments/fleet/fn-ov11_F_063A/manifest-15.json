@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "key7-grid-test-fallback-join",
+      "causal_family": "key7-grid-fallback-edge",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-19.c",
+      "profile": "aztec36",
+      "parent": "ledger:265",
+      "suspected_cause": "When G_h01_94B4 is set but the grid test fails, the nested conditional skips the fallback; the target joins that failure to the fallback test.",
+      "controlled_change": "Combine the G_h01_94B4 flag and record-column grid test into one short-circuit condition before the fallback.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "The grid-test false branch should reach the fallback test directly, extending its displacement by the intervening branch size."
+      }
+    }
+  ]
+}

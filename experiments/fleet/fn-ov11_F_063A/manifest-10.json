@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "key7-fallback-clear-order",
+      "causal_family": "state8-key7-fallback-order",
+      "diagnostic_scope": "instruction_layout",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-14.c",
+      "profile": "aztec36",
+      "parent": "ledger:243",
+      "suspected_cause": "After a failed state-8 key-7 animation, the target clears G_h01_94D8 before comparing the new X coordinate with the boundary.",
+      "controlled_change": "Move only the G_h01_94D8 clear ahead of the coordinate boundary test in that fallback.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "The same clear and compare instructions remain, with only their order changed."
+      }
+    }
+  ]
+}

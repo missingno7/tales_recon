@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "key7-boundary-direct-exit",
+      "causal_family": "key7-boundary-exit-edge",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-18.c",
+      "profile": "aztec36",
+      "parent": "ledger:263",
+      "suspected_cause": "The compiler merges the key-7 boundary failure with the normal case exit before branching, so the target direct handler-exit edge is lost.",
+      "controlled_change": "Move the handler-exit goto into only the key-7 boundary-failure arm and restore the normal case break.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "The failed-boundary branch should target the explicit handler skip branch without passing through the case exit join."
+      }
+    }
+  ]
+}

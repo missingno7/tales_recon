@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "row-missing-block-order",
+      "causal_family": "case1-fallback-control-flow",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-09.c",
+      "profile": "aztec36",
+      "parent": "ledger:219",
+      "suspected_cause": "The target places the row-missing state-19 block after the current-row directional paths; candidate-08 emits it before them.",
+      "controlled_change": "Reverse the current-row presence condition so the present-row paths fall through and the missing-row state assignment is laid out last.",
+      "predicted_effect": {
+        "length_delta": 2,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The reordered current-row branch should add the remaining two payload bytes while aligning its branch edge with the target."
+      }
+    }
+  ]
+}

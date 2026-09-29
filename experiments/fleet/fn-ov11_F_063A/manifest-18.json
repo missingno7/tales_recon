@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "key1-missing-after-exit-trampoline",
+      "causal_family": "key1-fallback-exit-trampoline",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-22.c",
+      "profile": "aztec36",
+      "parent": "ledger:267",
+      "suspected_cause": "The row-missing state-19 store is emitted before the key-1 completion branch, while the target keeps that store after the completion trampoline.",
+      "controlled_change": "Invert only the row-presence guard so the missing-row path targets a label after a key-1 completion break; route the present-row outcomes through the completion label.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "The G_h01_94B6 and valid-neighbor paths should land on the branch before the separate row-missing store."
+      }
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "task_id": "fn-ov11_F_063A",
+  "worker": "luna-fn-ov11_F_063A",
+  "status": "EQUAL_CANDIDATE",
+  "target": "ov11_F_063A",
+  "best": {
+    "source": "experiments/fleet/fn-ov11_F_063A/candidate-23.c",
+    "profile": "aztec36",
+    "cache_key": "f6ecc7cf79799ae1e355c1bc4c417489174494513f09cf01e06c7b1a86ecd773",
+    "verdict": "EQUAL",
+    "verifier": "check_function",
+    "entry": "ov11_F_063A",
+    "options": [],
+    "expected_length": 1298,
+    "actual_length": 1298
+  },
+  "hypotheses": [
+    {
+      "id": "h1",
+      "statement": "Moving the state-8 key-7 animation-counter clear before the coordinate bound test matches the target order.",
+      "outcome": "confirmed",
+      "evidence": "ledger line 247; exact mismatch narrowed after this change."
+    },
+    {
+      "id": "h2",
+      "statement": "The cooldown timer check runs after the key high-bit conditional on both bit values.",
+      "outcome": "confirmed",
+      "evidence": "ledger line 256; first differing branch moved to the state-5 key-7 boundary."
+    },
+    {
+      "id": "h3",
+      "statement": "The key-7 boundary failure jumps directly to the state-5 handler exit, and the record-column grid miss joins the fallback test.",
+      "outcome": "confirmed",
+      "evidence": "ledger lines 265 and 267; successive first differences advanced to the key-1 fallback."
+    },
+    {
+      "id": "h4",
+      "statement": "The key-1 fallback completion uses a local branch trampoline before the row-missing default and switch exit.",
+      "outcome": "confirmed",
+      "evidence": "ledger line 272; exact isolated check_function verdict EQUAL."
+    },
+    {
+      "id": "h5",
+      "statement": "Placing an explicit exit transfer at the prior key-1 completion label reproduces the target join.",
+      "outcome": "refuted",
+      "evidence": "ledger line 268; candidate grew to 1300 bytes and lacked bounded body alignment."
+    }
+  ],
+  "compile_trials": 23,
+  "ledger_lines": [
+    193,
+    199,
+    200,
+    201,
+    208,
+    209,
+    210,
+    219,
+    224,
+    227,
+    231,
+    236,
+    243,
+    247,
+    256,
+    261,
+    263,
+    265,
+    267,
+    268,
+    270,
+    271,
+    272
+  ],
+  "explanation": "Candidate-23 passed shape_search isolated verification through check_function as exact EQUAL. Its recovered body is 1298 bytes, matching the target extent, with no normalized instruction difference. Candidate-23 expresses the key-1 fallback exit as a short local branch to the switch-break trampoline, after correcting the state-8 clear order, cooldown branch, key-7 boundary exit, and grid-fallback join.",
+  "proposed_blocker": null
+}

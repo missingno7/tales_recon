@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "key5-range-edge-layout",
+      "causal_family": "key5-range-branch-lowering",
+      "diagnostic_scope": "branch_condition_or_kind",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-11.c",
+      "profile": "aztec36",
+      "parent": "ledger:227",
+      "suspected_cause": "The state-21 path is emitted before the state-13 path, so the compiler branches bge to state 13 instead of blt to state 21.",
+      "controlled_change": "Invert only the key-5 range if/else layout, keeping the record update conditional and the state transition behavior unchanged.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "The branch target and block order should change while preserving the same operations and payload length."
+      }
+    }
+  ]
+}

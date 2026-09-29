@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "key1-fallback-join-before-missing",
+      "causal_family": "key1-fallback-default-layout",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-21.c",
+      "profile": "aztec36",
+      "parent": "ledger:267",
+      "suspected_cause": "The shared key-1 fallback completion label follows the row-missing default, but the target places its exit trampoline before that separate default store.",
+      "controlled_change": "Move the row-missing state-19 path after the key-1 completion label and make the completion label break out to the state-5 switch exit.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "The G_h01_94B6 branch should land on the switch-exit trampoline before the row-missing state-19 store."
+      }
+    }
+  ]
+}

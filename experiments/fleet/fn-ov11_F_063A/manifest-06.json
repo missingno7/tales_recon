@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_063A",
+  "budget": {"max_variants": 1, "max_unique_compiles": 1},
+  "variants": [
+    {
+      "id": "key5-optional-record-update",
+      "causal_family": "key5-state-transition",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_063A/candidate-10.c",
+      "profile": "aztec36",
+      "parent": "ledger:224",
+      "suspected_cause": "The target sets state 13 whether G_h01_94B4 is clear or set; only the record update and call are conditional.",
+      "controlled_change": "After the range check, gate only the record update on G_h01_94B4 and place state 13 on the shared path.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": "same",
+        "note": "The existing state-13 store is shared; only the branch edge changes, so the payload length should remain stable."
+      }
+    }
+  ]
+}
