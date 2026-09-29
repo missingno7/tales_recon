@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "task_id": "reg-ov11_4790-5CEA",
-  "worker": "luna-reg-ov11-r4",
+  "worker": "luna-reg-ov11-r5",
   "status": "NEAR",
   "target": "ov11_F_487E,ov11_F_4EC6,ov11_F_51C0,ov11_F_54F8,ov11_F_55B8,ov11_F_583A,ov11_F_5962,ov11_F_5C42",
   "best": {
-    "source": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_487E.c",
+    "source": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_487E.c",
     "profile": "aztec36",
-    "cache_key": "3d2d2983ab4c18a285738e0080f679ef6c4b0e8c6184c96c215a4c06d121b917",
+    "cache_key": "0fee7d66ddd5df3e357e0fe8c5509e482cfba4fcffa364f693babe428ccb2cc6",
     "verdict": "DIFFER",
     "verifier": "check_unit",
     "entry": "ov11_F_487E",
@@ -16,22 +16,22 @@
       "natural_interval"
     ],
     "expected_length": 7198,
-    "actual_length": 7242,
+    "actual_length": 7200,
+    "members": {
+      "ov11_F_4EC6": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_4EC6.c",
+      "ov11_F_51C0": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_51C0.c",
+      "ov11_F_54F8": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_54F8.c",
+      "ov11_F_55B8": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_55B8.c",
+      "ov11_F_583A": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_583A.c",
+      "ov11_F_5962": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_5962.c",
+      "ov11_F_5C42": "experiments/fleet/reg-ov11_4790-5CEA/v32/ov11_F_5C42.c"
+    },
     "object_groups": [
       [
         "ov11_F_583A",
         "ov11_F_5962"
       ]
-    ],
-    "members": {
-      "ov11_F_4EC6": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_4EC6.c",
-      "ov11_F_51C0": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_51C0.c",
-      "ov11_F_54F8": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_54F8.c",
-      "ov11_F_55B8": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_55B8.c",
-      "ov11_F_583A": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_583A.c",
-      "ov11_F_5962": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_5962.c",
-      "ov11_F_5C42": "experiments/fleet/reg-ov11_4790-5CEA/v14/ov11_F_5C42.c"
-    }
+    ]
   },
   "hypotheses": [
     {
@@ -171,9 +171,153 @@
       "statement": "Gating F5962(tile,2) on G94AE before the active-object test and removing the final G37F2 call should yield 600 bytes and still differ.",
       "outcome": "refuted",
       "evidence": "unit_diag receipt runs/ov11_F_487E/aztec36-6344aa450653: F55B8 is 602 bytes (-40), sim fell to 0.5217 from 0.6991."
+    },
+    {
+      "id": "h24-487e-rederived-cfg-source",
+      "statement": "The prior F487E source paired only 46 instructions (55 expected-only, 62 candidate-only): it uses wrong x/y column bounds and loop condition, word-sized F8A46 arguments, wrong second-call operands, and writes A460 instead of the fact-referenced A45E. Controlled change: Replace only F487E with a fresh K&R body following target CFG order: progress-bounded horizontal draw loop, F55B8, x/104 through (x+320)/104 cell scan with F645E, conditional long-argument vertical F8A46 call, and A45E word update. Prediction: member ov11_F_487E length=336,state=same_after_reference_identity",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache 8a691130: F487E 338 bytes (+2), 13 paired coarse blocks versus 9 before rewrite; still differs."
+    },
+    {
+      "id": "h25-487e-cfg-step-branch-order",
+      "statement": "The remaining first divergence is the min-step branch: target compares (104-last) with (width-progress), branches BGE to the assigned remainder and recomputes 104-last on fallthrough; v17 spills step and emits the inverse BLT edge. Controlled change: Change only step selection to if (104-last < width-progress) step=104-last; else step=width-progress, keeping all calls and other blocks unchanged. Prediction: member ov11_F_487E length=336,state=differs",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache dc8dd47: F487E 344 bytes (+8), 97 paired instructions and similarity 0.9223; still differs."
+    },
+    {
+      "id": "h26-4ec6-byte-offset-word-arrays",
+      "statement": "unit_diag pairs 106 instructions with zero expected-only and exactly two candidate-only; both are caused by the two int-array subscripts emitting asl.w #3 / asl.l #1, while target emits one asl.l #4 byte offset for each spaced word table. Controlled change: Change only G9C92/G9CC2 to byte-pointer offsets i*16 followed by int-pointer stores, preserving their word widths and all other F4EC6 code. Prediction: member ov11_F_4EC6 length=420,state=same_after_reference_identity",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache 67eef540: F4EC6 reached target extent 420 bytes but local-frame instruction differences remained."
+    },
+    {
+      "id": "h27",
+      "statement": "The loop index and record pointer occupy opposite stack slots from the target; frame references show expected i at -6(a5) versus candidate i at -2(a5). Controlled change: Declare the record pointer before the loop index, leaving all statements unchanged. Prediction: ov11_F_4EC6 remains 420 bytes and becomes same_after_reference_identity with zero frame_or_stack_reference hypotheses.",
+      "outcome": "confirmed",
+      "evidence": "unit_diag/receipt cache fb7f2839: F4EC6 became same_after_reference_identity and was frozen."
+    },
+    {
+      "id": "h28",
+      "statement": "Target block at relative 0x236 dispatches the saved mode through ordered cases 14, 4, and 1-3; the source emits three independent if statements. Controlled change: Replace only the three independent mode tests for cases 14, 4, 1-3 with one switch(mode), preserving each case body and statement order. Prediction: ov11_F_51C0 becomes 824 bytes and same_after_reference_identity; its expected-only and candidate-only instruction counts fall below 56 and 41.",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache d0f5d354: F51C0 reached 824 bytes but alignment worsened to 66/57 unpaired and similarity 0.637."
+    },
+    {
+      "id": "h29",
+      "statement": "The reconstructed table accesses use int indexing by seven, generating muls.w #7 plus ext.l/asl.l #1 twice; target uses a byte offset with muls.w #14. Controlled change: Express both table reads as int loads at byte offset last*14 from G_h01_8A6E; preserve the loop and guard. Prediction: ov11_F_487E shrinks from 344 to 336 bytes and actual_only instructions fall from 8 to 4; expected_only remains 4 and state remains differs.",
+      "outcome": "confirmed",
+      "evidence": "unit_diag/receipt cache 9dd5e391: F487E reached 336 bytes; prediction confirmed, but 4/4 instructions remained unpaired."
+    },
+    {
+      "id": "h30",
+      "statement": "The target prologue copies y to local -8(a5) and clears progress at -10(a5), while the candidate updates the parameter and uses different local slots. Controlled change: Add a local y copy, declare locals in target slot order (last, step, column, local_y, progress), initialize local_y and progress first, and use local_y in both calls and updates. Prediction: ov11_F_487E becomes 342 bytes with two expected-only and two actual-only instructions; it remains differs pending loop branch polarity.",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache 4828fea3: F487E 342 bytes, 2/3 unpaired, similarity 0.9557; partial improvement."
+    },
+    {
+      "id": "h31",
+      "statement": "After adding target y/progress locals, step and column remain reversed: target uses column at -4(a5) and step at -6(a5), candidate uses the opposite slots. Controlled change: Swap only step and column in the local declaration order to int last,column,step,local_y,progress. Prediction: ov11_F_487E stays 342 bytes; actual_only drops from 3 to 1 while expected_only stays 2, and state remains differs.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache 3bd099e6: F487E remained 342 bytes with the same 2/3 unpaired; declaration swap did not help."
+    },
+    {
+      "id": "h32",
+      "statement": "The target table scan is body-first: setup branches to the body, then the bottom cmp/ble returns to it; the source uses a pre-test while loop. Controlled change: Convert only the table scan from while(last<=column) to do/while with the same guard, call, and increment. Prediction: ov11_F_487E stays 342 bytes; expected_only falls from 2 to 0 and actual_only from 3 to 1, while state remains differs.",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache 8f5955a4: F487E 340 bytes, 1/1 unpaired and similarity 0.9901; best F487E source remains this branch's source."
+    },
+    {
+      "id": "h33",
+      "statement": "The target computes 104-last once, then clamps that value to width-progress when step>=remaining; source expresses two separate ternary-style calculations, leaving an extra step store. Controlled change: Assign step=104-last before the conditional and only overwrite it when step>=width-progress. Prediction: ov11_F_487E becomes 338 bytes with expected_only=1 and actual_only=0; state remains differs due the target setup branch.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache 91c72395: F487E shrank to 334 bytes but worsened to 4/2 unpaired and similarity 0.96."
+    },
+    {
+      "id": "h34",
+      "statement": "After a successful F25F8, the target updates G94C0 and conditionally clears G94B6, sets G94AE=2, and calls F4B0C(2); the source instead writes mode 19 and calls F57D2(99). Controlled change: Replace only that F25F8 success body with the target global update and conditional F4B0C(2), preserving the call arguments and surrounding control flow. Prediction: ov11_F_51C0 grows from 812 to 814 bytes, expected_only and actual_only both decrease, and state remains differs.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache d501377c: F51C0 fell to 810 bytes and similarity 0.5914 after the speculative success-body replacement."
+    },
+    {
+      "id": "h35",
+      "statement": "The expected first initialization loop compares row against 0x18 (24); source currently stops at 18. Controlled change: Change only the first row<18 bound, in the G37F2 initialization pass, to row<24. Prediction: ov11_F_55B8 remains 616 bytes and differs; the first-pass bound emits #24 instead of #18 and expected_only stays at 43.",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache 17b7f99f: F55B8 row-bound change did not materially improve its block alignment; size 616 bytes."
+    },
+    {
+      "id": "h36",
+      "statement": "Target parity selection performs row&1 then toggles bit 0 with BCHG before testing; the source ternary compiles a different branch shape. Controlled change: Rewrite only the parity selector as ((row&1)^1) ? -24 : -4, keeping the resulting even=-24 and odd=-4 offsets. Prediction: ov11_F_55B8 becomes 624 bytes, expected_only falls from 43 to 40, actual_only stays 34, and state remains differs.",
+      "outcome": "confirmed",
+      "evidence": "unit_diag/receipt cache 6ebc18db: F55B8 reached 624 bytes and similarity 0.7159 after parity expression change."
+    },
+    {
+      "id": "h37",
+      "statement": "The source misses the target’s clamped G940C-derived row base, two descending 7x3 passes, conditional F5962 call, and distinct record fields at offsets 0x28/0x2a/0x2c/0x2e and 0x0a. Controlled change: Rewrite only F55B8 in target block order from its disassembly, preserving the first 24-row initialization and adding the two clamped-base passes with the 52-byte record layout. Prediction: ov11_F_55B8 becomes 642 bytes and same_after_reference_identity with zero expected-only and actual-only instructions.",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache 3993fd98: Fresh F55B8 rewrite reduced unpaired instructions to 10/7 and raised similarity to 0.9183, at 624 bytes."
+    },
+    {
+      "id": "h38",
+      "statement": "Target block stores row position to record+0x2c and column position to +0x2e; the fresh source reverses those fields and also reverses the F34E0 argument values. Controlled change: Swap only the record coordinate field order and corresponding first-pass stores and G9F5E callback values. Prediction: ov11_F_55B8 remains 624 bytes; expected_only falls from 10 to 8, actual_only stays 7, and state remains differs.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache 9c43b751: F55B8 coordinate-field swap worsened alignment to 12/9 unpaired, with no extent change."
+    },
+    {
+      "id": "h39",
+      "statement": "Three candidate-only ext.l/asl.l pairs come from indexing a 52-byte record through an int array; the target uses a single word multiply by 0x34. Controlled change: Use byte-based record addressing (tile*52) at all three G8BEC record-pointer sites, leaving the reconstructed statements unchanged. Prediction: ov11_F_55B8 shrinks from 624 to 612 bytes; actual_only falls from 7 to 1, expected_only stays 10, and state remains differs.",
+      "outcome": "confirmed",
+      "evidence": "unit_diag/receipt cache 0fee7d66: F55B8 byte-based record indexing reached 612 bytes and reduced actual-only instructions to 1; expected-only remained 10."
+    },
+    {
+      "id": "h40",
+      "statement": "The expected row-coordinate store targets record offset +0x2c, but the candidate field order puts vertical at +0x2e. Controlled change: Swap only the horizontal and vertical field declarations in GridRecord; leave all expressions and indexing unchanged. Prediction: F55B8 remains 612 bytes and its expected move.w to +0x2c pairs; expected-only instruction count falls from 10 to at most 9 while the member remains differs.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache 9950c12a: F55B8 field declaration swap kept 612 bytes and the 10/1 unpaired counts."
+    },
+    {
+      "id": "h41",
+      "statement": "The remaining four-byte excess appears tied to the chunk loop conditional storing the selected step before the call. Controlled change: Invert the chunk-size conditional, assigning width-progress in the true branch and 104-last in the else branch. Prediction: F487E shrinks from 340 to 336 bytes and its remaining expected-only BRA.B and actual-only step store become paired, making the member same_after_reference_identity.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache e2447373: F487E conditional inversion worsened to 4/4 unpaired and similarity 0.9406."
+    },
+    {
+      "id": "h42",
+      "statement": "The final candidate-only instruction is the stack store for a step temporary used only as the last renderer argument. Controlled change: Remove the step local and pass the selected minimum of 104-last and width-progress as the renderer argument expression. Prediction: F487E shrinks from 340 to 336 bytes; the actual-only move.w to -6(a5) disappears and the member becomes same_after_reference_identity.",
+      "outcome": "unmeasurable",
+      "evidence": "unit_diag/receipt cache 40bddb77: Compilation returned COMPILE_ERROR; no member measurement was available."
+    },
+    {
+      "id": "h43",
+      "statement": "The expected-only block at offsets 470-490 performs global state updates after the F25F8 result, which the source omits. Controlled change: On F25F8 success, subtract 24 from G94C2; if G94B8 is set, clear it, set G94B0 to 2, and call F4B0C(2), then retain the prior mode-19 update. Prediction: F51C0 grows from 812 bytes by at least 10 bytes toward 824, and the expected-only instructions for offsets 474-490 become paired; member remains differs.",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache 2203ceb8: F51C0 expected global updates at offsets 474-490 paired, but extent rose to 846 bytes and similarity fell to 0.5809."
+    },
+    {
+      "id": "h44",
+      "statement": "The prior insertion matched the target global update instructions but separate nested guards added excess branches and bytes. Controlled change: Place the G94C2/G94B8/G94B0 updates inside the original F25F8-success-and-G94AE-not-8 condition, preserving the original mode-19 statements. Prediction: F51C0 extent falls from 846 to 824-834 bytes while the expected global updates at offsets 474-490 stay paired; unpaired expected instructions fall below 84.",
+      "outcome": "partial",
+      "evidence": "unit_diag/receipt cache f814b539: F51C0 stayed 846 bytes; unpaired counts improved slightly to 82/75 but prediction of 824-834 bytes was false."
+    },
+    {
+      "id": "h45",
+      "statement": "The chunk loop accumulator uses a progress temporary whose stack update does not match the expected loop back edge. Controlled change: Replace progress with remaining width, compare remaining to zero, and subtract the chosen step after each chunk. Prediction: F487E shrinks from 340 to 336 bytes and the residual branch/store alignment falls to at most two unpaired instructions per side.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache 7f625229: F487E became 324 bytes (-12) with 8/3 unpaired and similarity 0.8934."
+    },
+    {
+      "id": "h46",
+      "statement": "The target enters the first initialization body on a BNE while the candidate guard compiles to BEQ, disrupting its first CFG block pairing. Controlled change: Rewrite only the G37F2 guard as an explicit conditional goto to the initialization block followed by a goto to the next section. Prediction: F55B8 remains 612 bytes and differs, but the entry condition pairs as the expected BNE and expected-only count falls from 10 to at most 9.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache 03bde3a5: F55B8 became 614 bytes (-28) with 10/2 unpaired; entry-guard prediction was not met."
+    },
+    {
+      "id": "h47",
+      "statement": "The sole actual-only move.w d0,-6(a5) is a local spill caused by the current local declaration order. Controlled change: Move step to the end of the local declaration list so Aztec C assigns its stack slot after local_y and progress. Prediction: F487E remains 336 bytes and the actual-only stack store pairs with the expected loop branch, yielding same_after_reference_identity.",
+      "outcome": "refuted",
+      "evidence": "unit_diag/receipt cache 36070652: F487E remained 340 bytes (+4), 1/1 unpaired; local declaration reordering had no effect."
     }
   ],
-  "compile_trials": 16,
+  "compile_trials": 40,
   "ledger_lines": [
     1,
     2,
@@ -197,8 +341,32 @@
     20,
     21,
     22,
-    23
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
   ],
-  "explanation": "Best complete grouped run is v14: DIFFER, 7242 vs 7198 bytes. F54F8, F583A, F5962, and F5C42 are same_after_reference_identity; F583A/F5962 require the recorded object group. Remaining deltas: F487E +38 (sim 0.3732), F4EC6 +4 (0.9907), F51C0 -12 (0.6411; expected-only instructions fell to 26), and F55B8 -26 (0.6991). No canonical regressions were reported. The 44-byte gap 0x59E6..0x5A12 remains unknown and unclaimed. F41F6 remains unsupported by advisory diagnostics because its extent includes jump-table/data.",
+  "explanation": "The best complete-unit run is v32 (cache 0fee7d66...). Five of eight new members are EQUAL or same_after_reference_identity: 4EC6, 54F8, 583A, 5962, and 5C42. F487E remains +4 bytes (340 vs 336; 1/1 unpaired, similarity 0.9901), F51C0 remains -12 (812 vs 824; 56/41 unpaired, similarity 0.6411), and F55B8 remains -30 (612 vs 642; 10/1 unpaired, similarity 0.9341). The 44-byte gap remains unclaimed and all 12 crossing encodings are GAP_INDEPENDENT_ENCODING. The exact complete-unit verdict is DIFFER, 7200 vs 7198 bytes. All 40 trials are exhausted.",
   "proposed_blocker": null
 }
