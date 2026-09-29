@@ -203,6 +203,47 @@ compact, not the natural layout. Regions therefore use the opt-in
 For intake, `natural_interval` is a region-only option. `reverify` and the
 promote command take the interval from the region task.
 
+### Per-member compiler profiles
+
+`--per-member-profiles` (opt-in; `check_unit.py --separate-objects`, the
+`check_function.py` prepared dependency unit, and `fleet.py verify-function`,
+`verify-unit` and `verify-region`) compiles each canonical member object with
+the profile recorded in its own proof receipt (hash-checked against the
+ledger; a member proved in a mixed unit uses that unit's `member_profiles`).
+New members use `--profile`, or a recorded hypothesis
+`--member-profile ID=PROFILE` for a non-entry `--member` (it implies the
+option). `--profile` also links the unit and compiles the harness.
+
+- Profiles mix only inside one established link-compatibility class
+  (`tools/profile_compat.py`). Today that is `aztec36` with
+  `aztec36-large-data` (`+D`): the same 3.6a cc/as/ln and `c.lib`, and the
+  original executable links both forms. Every other pair is refused with
+  `PROFILES_NOT_LINK_COMPATIBLE`. One object never mixes profiles
+  (`OBJECT_MIXES_MEMBER_PROFILES`), and a single combined object is refused
+  when its members' profiles differ.
+- When every object uses `--profile`, the trial and its cache key are the
+  ordinary ones. Otherwise `tools/mixed_profile_oracle.py` compiles it (same
+  worker, harness, link and receipt format; `compiler_oracle.py` is unchanged)
+  under a distinct cache identity that adds `object_profiles`,
+  `member_profiles` and `link_compatibility`. Runs without the option keep
+  their exact trials and keys.
+- The unit receipt records `member_profiles`, `member_profile_basis`
+  (canonical proof path and hash, requested profile, or hypothesis),
+  `object_profile_partition`, `object_profiles` and `link_compatibility`.
+  At promotion `recovery_evidence.member_profile_evidence` re-derives each
+  canonical member's profile from its own proof. It also checks the link
+  class, and that every compiled object has the profile and flags of its
+  members.
+- A per-object profile is an option hypothesis, not source-file provenance.
+
+ov11_F_6CFE: its lookup callees `727A`/`729C` are proved under `+D`. Under one
+aztec36 profile the gap-partitioned unit was 1150 vs 1154 bytes, because
+those two members used A4-relative instead of absolute `lea`. With
+`--per-member-profiles` (key `59e9bb00…`) the unit is 1154 bytes. Every
+canonical member is then EQUAL. The remaining difference was the caller's
+`bra.b` join target, `dx += 0x10` after the if/else rather than inside it.
+Natural-interval grouping was not needed.
+
 On 2026-09-28 the frontier had 4 regions:
 
 | Region | New members | New / canonical / gap bytes | Unlocks | Member tasks blocked | State |

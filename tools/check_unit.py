@@ -440,7 +440,7 @@ def write_parts(base,parts):
 
 
 def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None,natural=None,merged_externals=None,
-                object_record=None,parts=None):
+                object_record=None,parts=None,profile_record=None):
     report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined,natural=natural)
     # Differing per-object views of one external share one harness stand-in.
     if merged_externals:report['merged_external_declarations']=merged_externals
@@ -466,7 +466,13 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         report['member_sources']={f['id']:sha256((source if f['id']==fid else member_sources[f['id']]).encode())
                                   for f in members if f['id'] in new_ids}
         report['acceptance']='ALL_NEW_MEMBERS_EQUAL_IN_ONE_COMPLETE_UNIT'
-    verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')}
+    verifier_files=('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')
+    if profile_record:
+        # Per-member profiles: each object's profile, its basis (canonical
+        # proof receipt or requested/hypothesis) and the link class.
+        report.update(profile_record)
+        verifier_files+=('profile_compat.py','mixed_profile_oracle.py')
+    verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in verifier_files}
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
     base=None
@@ -504,14 +510,15 @@ def joined_source(parts,members):
     return joined_texts([parts[m['id']] for m in members])
 
 
-def partitioned_objects(members,names,parts,join_direct_callees=False):
+def partitioned_objects(members,names,parts,join_direct_callees=False,with_members=False):
     """Return ordinary source objects in original CODE order.
 
     With ``join_direct_callees``, only adjacent functions with a proven
     same-node direct edge share an object.  This is enough for Manx to retain
     its normal short local branches without claiming bytes across a gap.
     """
-    if not join_direct_callees:return [dict(source=parts[m['id']]) for m in members]
+    if not join_direct_callees:
+        return [dict(source=parts[m['id']],**({'members':[m['id']]} if with_members else {})) for m in members]
     callees={m['id']:{c['id'] for c in m['direct_callees'] if c['hunk']==m['hunk']}
               for m in members}
     groups=[];current=[]
@@ -528,8 +535,9 @@ def partitioned_objects(members,names,parts,join_direct_callees=False):
             'joined local source proof requires an adjacent direct-call pair')
     result=[]
     for group in groups:
+        extra={'members':[m['id'] for m in group]} if with_members else {}
         if len(group)==1:
-            result.append(dict(source=parts[group[0]['id']]))
+            result.append(dict(source=parts[group[0]['id']],**extra))
             continue
         text=joined_source(parts,group)
         # Declarations for definitions in this source object force external
@@ -538,7 +546,7 @@ def partitioned_objects(members,names,parts,join_direct_callees=False):
             name=names[member['id']]
             pattern=r'\bextern\s+(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)\s*;'
             text=re.sub(pattern,'',text)
-        result.append(dict(source=text))
+        result.append(dict(source=text,**extra))
     return result
 
 
@@ -661,7 +669,7 @@ def validate_object_groups(members,object_groups,new_ids,proven_groups=(),tails=
     return sorted(result,key=lambda g:order.index(g[0]))
 
 
-def grouped_objects(members,names,parts,join_direct_callees,proven_groups,object_groups=()):
+def grouped_objects(members,names,parts,join_direct_callees,proven_groups,object_groups=(),with_members=False):
     """Ordinary objects in original order, keeping proven natural units together.
 
     Without ``proven_groups`` or ``object_groups`` this is exactly the
@@ -671,7 +679,7 @@ def grouped_objects(members,names,parts,join_direct_callees,proven_groups,object
     ``recovery_evidence.group_object_source``; its objects carry ``members``.
     """
     if not proven_groups and not object_groups:
-        return partitioned_objects(members,names,parts,True) if join_direct_callees else [dict(source=parts[m['id']]) for m in members]
+        return partitioned_objects(members,names,parts,join_direct_callees,with_members)
     owner={}
     for index,ids in enumerate(proven_groups):
         for x in ids:owner[x]=('proven',index)
@@ -697,12 +705,12 @@ def grouped_objects(members,names,parts,join_direct_callees,proven_groups,object
             text,merged=group_object_source(texts,own);obj=dict(source=text)
             if merged:obj['merged_external_declarations']=merged
         else:obj=dict(source=proven_object_source(texts,own))
-        if object_groups:obj['members']=ids
+        if object_groups or with_members:obj['members']=ids
         result.append(obj)
     return result
 
 
-def gap_partitioned_objects(members,names,parts):
+def gap_partitioned_objects(members,names,parts,with_members=False):
     """Keep a gap proof in ordinary objects when no adjacent pair can join.
 
     Joining an adjacent direct caller and callee preserves Manx's short local
@@ -712,11 +720,11 @@ def gap_partitioned_objects(members,names,parts):
     there is no eligible pair to join.
     """
     try:
-        return partitioned_objects(members,names,parts,True)
+        return partitioned_objects(members,names,parts,True,with_members)
     except FormatError as exc:
         if str(exc)!='joined local source proof requires an adjacent direct-call pair':
             raise
-        return partitioned_objects(members,names,parts,False)
+        return partitioned_objects(members,names,parts,False,with_members)
 
 
 def promote_unit_members(fid,source,member_sources,members,report,comparison,compiled,state):
@@ -773,11 +781,93 @@ def external_stand_in_source(combined,local_functions,target_node):
     return stand_in_source(combined,skip)
 
 
+def canonical_member_profile(member_id,ledger=None):
+    """Profile of a canonical member, read from its own hash-checked proof."""
+    from profile_compat import proof_profile
+    ledger=ledger or recovery();item=ledger['functions'].get(member_id)
+    require(item is not None and item.get('proof'),'canonical member has no proof receipt: '+member_id)
+    path=ROOT/item['proof']
+    require(path.is_file() and sha256(path.read_bytes())==item.get('proof_sha256'),
+            'canonical proof receipt missing or changed: '+member_id)
+    proof=json.loads(path.read_text())
+    require(proof.get('id')==member_id and proof.get('source_sha256')==item['source_sha256'],
+            'canonical proof identity differs: '+member_id)
+    return dict(profile=proof_profile(proof,member_id),basis='CANONICAL_PROOF',proof=item['proof'],
+                proof_sha256=item['proof_sha256'],proof_cache_key=proof.get('cache_key'))
+
+
+def member_profile_plan(members,profile,new_ids,hypotheses=None,ledger=None):
+    """``({id: {profile, basis, ...}}, link class)`` for a per-member profile unit.
+
+    Canonical members take the profile of their own proof; new members take
+    the requested ``profile`` or a recorded ``--member-profile`` hypothesis.
+    Every profile must share one established ``profile_compat`` link class.
+    """
+    from profile_compat import link_class
+    hypotheses=dict(hypotheses or {});ids={m['id'] for m in members}
+    for member_id,p in hypotheses.items():
+        require(member_id in ids and member_id in new_ids,'--member-profile names no new member of this unit: '+member_id)
+        require(p in PROFILES,'unsupported --member-profile profile: '+str(p))
+    plan={}
+    for m in members:
+        if m['id'] not in new_ids:plan[m['id']]=canonical_member_profile(m['id'],ledger)
+        elif m['id'] in hypotheses:plan[m['id']]=dict(profile=hypotheses[m['id']],basis='MEMBER_PROFILE_HYPOTHESIS')
+        else:plan[m['id']]=dict(profile=profile,basis='REQUESTED_PROFILE')
+    return plan,link_class([profile,*(v['profile'] for v in plan.values())])
+
+
+def apply_member_profiles(trial,plan,link_compatibility,single_object=None):
+    """Give every source object the one profile of its members.
+
+    ``trial['objects']`` must carry ``members`` (``with_members``); a single
+    combined object is described by ``single_object`` (its member ids).  Only
+    when some object differs from the trial profile does the trial gain
+    ``object_profiles``/``member_profiles`` (and a distinct cache identity in
+    ``mixed_profile_oracle``); otherwise it is the ordinary trial.  Returns
+    the receipt record.
+    """
+    from profile_compat import POLICY
+    objects=trial.get('objects')
+    if objects is None:
+        require(single_object is not None,'per-member profiles require separate ordinary source objects')
+        partition=[list(single_object)]
+    else:
+        require(all(o.get('members') for o in objects),'per-member profiles need the member ids of every source object')
+        partition=[list(o['members']) for o in objects]
+    object_profiles=[]
+    for ids in partition:
+        found=sorted({plan[x]['profile'] for x in ids})
+        require(len(found)==1,('OBJECT_MIXES_MEMBER_PROFILES: one source object joins %s with profiles %s'
+                               +('' if objects is not None else '; per-member profiles need separate ordinary objects'))
+                %(','.join(ids),','.join(found)))
+        object_profiles.append(found[0])
+    member_profiles={x:v['profile'] for x,v in plan.items()}
+    mixed=any(p!=trial['profile'] for p in object_profiles)
+    if mixed:
+        trial['object_profiles']=object_profiles;trial['member_profiles']=member_profiles
+    return dict(per_member_profiles=True,member_profiles=member_profiles,
+                member_profile_basis={x:{k:v for k,v in item.items() if k!='profile'} for x,item in plan.items()},
+                member_profile_hypotheses={x:v['profile'] for x,v in plan.items() if v['basis']=='MEMBER_PROFILE_HYPOTHESIS'},
+                object_profile_partition=partition,object_profiles=object_profiles,link_profile=trial['profile'],
+                link_compatibility=link_compatibility,mixed_object_profiles=mixed,member_profile_policy=POLICY)
+
+
+def compile_trials(trials):
+    """Ordinary trials keep ``compile_many`` (oracle or queue) and their keys;
+    per-object profile trials are compiled by ``mixed_profile_oracle``."""
+    if not any(t.get('object_profiles') for t in trials):return compile_many(trials)
+    import mixed_profile_oracle
+    return mixed_profile_oracle.compile_many(trials,base=compile_many)
+
+
 def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups=(),
-                object_groups=()):
+                object_groups=(),per_member_profiles=False,profile_hypotheses=None):
     """``proven_groups`` (natural-interval only) keeps canonical runs that
     were proved as one natural object in that one object; ``object_groups``
-    (validated ``--object-group`` hypotheses) compiles each group as one."""
+    (validated ``--object-group`` hypotheses) compiles each group as one.
+    ``per_member_profiles`` (separate objects only) compiles each object with
+    its members' profile (``member_profile_plan``); the receipt record is
+    kept in ``trial['profile_record']``."""
     target,_=validated_function(fid)
     node=target['hunk']-2 if target['node']!='resident' else 1
     trials=[]
@@ -786,7 +876,8 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
         if separate_objects:
             # Preserve historical module boundaries when their ordinary link
             # codegen matters (for example JSR instead of an intra-object BSR).
-            trial['objects']=grouped_objects(members,names,parts,join_direct_callees,proven_groups,object_groups)
+            trial['objects']=grouped_objects(members,names,parts,join_direct_callees,proven_groups,object_groups,
+                                             with_members=per_member_profiles)
             if proven_groups:trial['proven_object_groups']=[list(g) for g in proven_groups]
             if object_groups:
                 trial['object_groups']=[list(g) for g in object_groups]
@@ -804,6 +895,9 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
             # defines every external stand-in once.
             trial['source'],merged=external_stand_in_source(combined,trial['local_functions'],node)
             if merged:trial['merged_external_declarations']=merged
+            if per_member_profiles:
+                plan,klass=member_profile_plan(members,p,{fid,*(member_sources or ())},profile_hypotheses)
+                trial['profile_record']=apply_member_profiles(trial,plan,klass)
         trials.append(trial)
     return trials
 
@@ -823,13 +917,16 @@ def stand_in_summary(trial):
 def trial_cache_key(trial):
     """The compile-cache identity of one trial, computed without compiling."""
     from compiler_oracle import identity,object_specs,cached
+    if trial.get('object_profiles'):
+        from mixed_profile_oracle import trial_key
+        key=trial_key(trial);return key,cached(key) is not None
     objects=object_specs(trial) if trial.get('objects') is not None else None
     key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()))[0]
     return key,cached(key) is not None
 
 
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
-          object_groups=None):
+          object_groups=None,per_member_profiles=False,member_profiles=None):
     """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
     members authored with the entry; acceptance is then the complete unit.
 
@@ -837,8 +934,15 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     interval in original order; ``prepare_only`` returns the planned unit
     (members, spacing, gap crossings, trial cache keys) without compiling.
     ``object_groups`` (lists of member ids) compiles each group as one
-    ordinary object: a translation-unit hypothesis, never provenance."""
+    ordinary object: a translation-unit hypothesis, never provenance.
+    ``per_member_profiles`` (separate objects) compiles canonical members with
+    their own proof's profile and new members with the requested profile or
+    ``member_profiles`` ({id: profile}, a recorded hypothesis)."""
     if isolated or prepare_only:promote_equal=False
+    member_profiles=dict(member_profiles or {})
+    per_member_profiles=bool(per_member_profiles or member_profiles)
+    require(not per_member_profiles or separate_objects,'--per-member-profiles requires --separate-objects')
+    require(fid not in member_profiles,'the entry member compiles with --profile, not --member-profile')
     require(not allow_gaps or separate_objects,'original-gap proof requires separate ordinary source objects')
     require(not join_direct_callees or separate_objects,'joined local source proof requires separate ordinary source objects')
     if natural_interval is not None:
@@ -876,7 +980,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             current=recovery();tails={f['id']:len(proven_tail(f,current)[0]) for f in members}
         object_groups=validate_object_groups(members,object_groups,{fid,*member_sources},proven_groups,tails)
     trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups,
-                       object_groups or ())
+                       object_groups or (),per_member_profiles,member_profiles)
     if prepare_only:
         keys=[trial_cache_key(t) for t in trials]
         plan=dict(verdict='PREPARED_NOT_COMPILED',id=fid,
@@ -884,17 +988,23 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                                         role='new' if m['id']==fid or m['id'] in member_sources else 'canonical',
                                         linked_name=names[m['id']]) for m in members],
                   objects=len(trials[0].get('objects') or [None]) if trials else 0,
-                  trials=[dict(profile=t['profile'],cache_key=k,cached=c,**stand_in_summary(t)) for t,(k,c) in zip(trials,keys)],
+                  trials=[dict(profile=t['profile'],cache_key=k,cached=c,**stand_in_summary(t),
+                               **({'member_profiles':t['profile_record']['member_profiles'],
+                                   'object_profiles':t['profile_record']['object_profiles'],
+                                   'mixed_object_profiles':t['profile_record']['mixed_object_profiles']}
+                                  if t.get('profile_record') else {}))
+                          for t,(k,c) in zip(trials,keys)],
                   combined_source_sha256=sha256(combined.encode()))
         if natural is not None:plan['natural_interval']=natural
         if object_groups:plan.update(object_group_record(trials[0]))
         return [plan]
-    for trial,compiled in zip(trials,compile_many(trials)):
+    for trial,compiled in zip(trials,compile_trials(trials)):
         record=object_group_record(trial)
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,
                                       member_sources=member_sources,natural=natural,
                                       merged_externals=trial.get('merged_external_declarations'),
-                                      object_record=record,parts=parts if record else None)
+                                      object_record=record,parts=parts if record else None,
+                                      profile_record=trial.get('profile_record'))
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
@@ -947,15 +1057,26 @@ def main():
                     help='with --separate-objects, compile these address-consecutive unit members (no original byte '
                          'between them) as ONE ordinary object; all new, or canonical only inside their whole proven '
                          'object group. A translation-unit hypothesis, not provenance; repeat for several groups')
+    ap.add_argument('--per-member-profiles',action='store_true',
+                    help='with --separate-objects, compile each canonical member with the profile of its own proof and '
+                         'each new member with --profile (or --member-profile); only link-compatible profiles mix')
+    ap.add_argument('--member-profile',action='append',default=[],metavar='ID=PROFILE',
+                    help='recorded profile hypothesis for a new --member (implies --per-member-profiles); repeat')
     a=ap.parse_args()
     require(a.output_dir is None or a.isolated,'--output-dir requires --isolated')
+    member_profiles={}
+    for item in a.member_profile:
+        member_id,sep,profile=item.partition('=')
+        require(sep and member_id and profile in PROFILES and member_id not in member_profiles,
+                '--member-profile expects a unique ID=PROFILE with a known profile')
+        member_profiles[member_id]=profile
     member_sources={}
     for item in a.member:
         member_id,sep,member_path=item.partition('=')
         require(sep and member_id and member_path and member_id not in member_sources,'--member expects a unique ID=SOURCE')
         member_sources[member_id]=Path(member_path)
     reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
-                  a.natural_interval,a.prepare_only,parse_object_groups(a.object_group))
+                  a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles)
     for r in reports:print(json.dumps(r))
     if a.prepare_only:return 0
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1

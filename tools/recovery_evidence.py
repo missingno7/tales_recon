@@ -132,6 +132,58 @@ def compiled_unit_source_sha256(unit,unit_text,compiler):
     return sha256(derived.encode('ascii'))
 
 
+def member_profile_evidence(root,ledger,unit,compiler):
+    """Re-derive and validate the per-member profiles of a complete unit receipt.
+
+    Every unit member has one recorded profile.  A canonical dependency's
+    profile must re-derive from its own hash-checked proof; a new member's is
+    the link (requested) profile or a recorded ``member_profile_hypotheses``
+    entry.  All profiles share one established ``profile_compat`` link class,
+    every source object has one profile, and a per-object compile identity
+    (``mixed_profile_oracle``) names exactly these object profiles and flags.
+    Returns ``{member id: profile}``.
+    """
+    from profile_compat import link_class,proof_profile,PROFILE_FLAGS
+    ids=[m['id'] for m in unit['ordered_members']];recorded=unit.get('member_profiles')
+    require(unit.get('per_member_profiles') is True and isinstance(recorded,dict) and sorted(recorded)==sorted(ids),
+            'per-member profiles do not name every unit member')
+    link=compiler.get('profile')
+    require(unit.get('link_profile')==link==unit.get('profile'),'per-member link profile differs from the compile identity')
+    klass=link_class([link,*recorded.values()])
+    require(unit.get('link_compatibility')==klass,'per-member link-compatibility class does not re-derive')
+    partition=unit.get('object_profile_partition');object_profiles=unit.get('object_profiles')
+    require(isinstance(partition,list) and all(isinstance(o,list) and o for o in partition) and
+            [x for o in partition for x in o]==ids and isinstance(object_profiles,list) and len(object_profiles)==len(partition),
+            'per-member object partition is not the ordered unit')
+    for ids_in_object,profile in zip(partition,object_profiles):
+        require(all(recorded[x]==profile for x in ids_in_object),'a source object mixes member profiles: '+','.join(ids_in_object))
+    compiled=compiler.get('object_profiles')
+    if compiled is None:
+        require(unit.get('mixed_object_profiles') is False and all(p==link for p in object_profiles) and
+                'member_profiles' not in compiler,'per-member profiles differ from a single-profile compile identity')
+    else:
+        labels=compiler.get('object_labels') or []
+        require(unit.get('mixed_object_profiles') is True and compiler.get('member_profiles')==recorded and
+                compiler.get('link_compatibility')==klass,'compiled member profiles differ from the unit receipt')
+        require(isinstance(compiled,list) and [c.get('label') for c in compiled]==labels and
+                [c.get('profile') for c in compiled]==object_profiles,'compiled object profiles do not re-derive from the partition')
+        require(all(c.get('flags')==PROFILE_FLAGS.get(c.get('profile')) for c in compiled),
+                'compiled object flags disagree with their profiles')
+    new=set(unit.get('member_sources') or ())|{unit['id']}
+    hypotheses=unit.get('member_profile_hypotheses') or {}
+    require(isinstance(hypotheses,dict) and set(hypotheses)<=new-{unit['id']},'member profile hypotheses name no new member')
+    for x in ids:
+        if x in new:
+            require(recorded[x]==hypotheses.get(x,link),'new member profile is neither requested nor a recorded hypothesis: '+x)
+            continue
+        item=ledger['functions'].get(x) or {}
+        path=(root/item.get('proof','')).resolve() if item.get('proof') else None
+        require(path is not None and path.is_relative_to(root.resolve()) and path.is_file() and
+                sha256(path.read_bytes())==item.get('proof_sha256'),'canonical member proof missing or changed: '+x)
+        require(proof_profile(json.loads(path.read_text()),x)==recorded[x],'canonical member profile differs from its own proof: '+x)
+    return dict(recorded)
+
+
 def owned_tail_boundary(h,fid,end,owned_end,analysis,blob):
     """Prove a literal tail ends at the next entry or final HUNK alignment."""
     starts=sorted(x['start'] for x in analysis['functions']
@@ -203,6 +255,10 @@ def load_promotions(root,blob,model,analysis):
                 compiled_objects=proof['compiler'].get('partitioned_object_sources') or []
                 require(derived==[o.get('source_sha256') for o in compiled_objects],
                         'object group sources do not re-derive from unit.c')
+            if (unit.get('per_member_profiles') or proof['compiler'].get('object_profiles') is not None or
+                    proof['compiler'].get('member_profiles') is not None):
+                # Separately compiled objects with per-member profiles.
+                member_profile_evidence(root,ledger,unit,proof['compiler'])
             # A multi-member unit names every new member's authored source.
             # Its receipt proves them together, so each must be canonical
             # with exactly that source (all members or none).

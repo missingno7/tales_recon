@@ -134,6 +134,9 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
     prepared=[];trials=[]
     for req in requests:
         f,l=validated_function(req['id']);source=Path(req['source']).read_text()
+        # Opt-in: canonical unit members compile with their own proof's
+        # profile (separate objects only; see check_unit.member_profile_plan).
+        per_member=bool(req.get('per_member_profiles'))
         target_node=f['hunk']-2 if f.get('node')!='resident' and f.get('hunk',0)>=3 else 1
         source_hash=sha256(source.encode())
         if not isolated:
@@ -155,7 +158,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                     from check_unit import gap_partitioned_objects
                     members,names,parts,compile_source,_=prepare_unit(
                         f['id'],source,True,allow_gaps=True,remove_stale_externs=False)
-                    objects=gap_partitioned_objects(members,names,parts)
+                    objects=gap_partitioned_objects(members,names,parts,with_members=per_member)
                     local_functions=tuple(names[m['id']] for m in members if m['id']!=f['id'])
                     unit=(members,names,compile_source,True)
                     unit_blocker=None
@@ -168,16 +171,28 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                 # assigns stable object labels to the optional partition.
                 extra_libraries=req.get('extra_libraries',())
                 identity(compile_source,profile,target_node,extra_libraries=extra_libraries)
-                slot=len(trials);trials.append(dict(source=compile_source,profile=profile,target_node=target_node,
-                                                    objects=objects,local_functions=local_functions,
-                                                    extra_libraries=extra_libraries))
+                trial=dict(source=compile_source,profile=profile,target_node=target_node,
+                           objects=objects,local_functions=local_functions,extra_libraries=extra_libraries)
+                if per_member and unit is not None:
+                    from check_unit import member_profile_plan,apply_member_profiles
+                    plan,klass=member_profile_plan(unit[0],profile,{f['id']})
+                    trial['profile_record']=apply_member_profiles(trial,plan,klass,
+                                                                  single_object=[m['id'] for m in unit[0]])
+                    if trial.get('object_profiles'):
+                        from mixed_profile_oracle import mixed_identity
+                        mixed_identity(trial)
+                slot=len(trials);trials.append(trial)
             except FormatError as exc:
                 slot=dict(status='SOURCE_REJECTED',identity=dict(profile=profile,flags=PROFILES[profile]['flags'],
                                                                   extra_libraries=list(req.get('extra_libraries',()))),
                           cache_key=sha256((source_hash+profile+str(exc)+repr(req.get('extra_libraries',()))).encode()),cache_hit=False,
                           guest_returncodes=[],directory=str(ROOT/'build/source-rejections'),error=str(exc))
             prepared.append((req,f,l,source,profile,slot,unit,unit_blocker))
-    results=compile_many(trials);reports=[]
+    if any(t.get('object_profiles') for t in trials):
+        import mixed_profile_oracle
+        results=mixed_profile_oracle.compile_many(trials,base=compile_many)
+    else:results=compile_many(trials)
+    reports=[]
     for req,f,l,source,profile,slot,unit,unit_blocker in prepared:
         compiled=results[slot] if isinstance(slot,int) else slot
         if req.get('owned_code_data'):
@@ -190,7 +205,8 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
             from check_unit import retain_unit
             members,names,combined,*unit_options=unit
             _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'],
-                                 allow_gaps=bool(unit_options and unit_options[0]),isolated=isolated)
+                                 allow_gaps=bool(unit_options and unit_options[0]),isolated=isolated,
+                                 profile_record=trials[slot].get('profile_record') if isinstance(slot,int) else None)
         else:report=compare_function(f,compiled,l['a4']['bias'])
         report['id']=f['id'];report['source_sha256']=sha256(source.encode())
         if unit_blocker:report['unit_blocker']=unit_blocker
@@ -254,9 +270,12 @@ def main():
     ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
     ap.add_argument('--no-promote',action='store_true');ap.add_argument('--replace-canonical',action='store_true',
         help='replace an already promoted source only after this exact proof succeeds')
+    ap.add_argument('--per-member-profiles',action='store_true',
+        help='in a separate-object dependency unit, compile each canonical member with the profile of its own proof '
+             '(only link-compatible profiles mix)')
     ap.add_argument('--json',action='store_true');args=ap.parse_args()
     require(args.output_dir is None or args.isolated,'--output-dir requires --isolated')
-    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or (['aztec36'] if args.with_m_lib else ['aztec36','aztec50-short']),owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical)]
+    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or (['aztec36'] if args.with_m_lib else ['aztec36','aztec50-short']),owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical,**({'per_member_profiles':True} if args.per_member_profiles else {}))]
     if args.with_m_lib:
         for item in req:
             profiles=item.setdefault('profiles',['aztec36'])

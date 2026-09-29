@@ -44,8 +44,9 @@ BUDGETS = {"function": dict(max_compile_trials=24, max_variants_per_manifest=6),
            "unit": dict(max_compile_trials=12, max_variants_per_manifest=4),
            "region": dict(max_compile_trials=40, max_variants_per_manifest=4),
            "review": dict(max_compile_trials=4, max_variants_per_manifest=2)}
-UNIT_OPTIONS = ("separate_objects", "allow_original_gaps", "join_direct_callees", "owned_code_data", "natural_interval")
-FUNCTION_OPTIONS = ("owned_code_data", "with_m_lib")
+UNIT_OPTIONS = ("separate_objects", "allow_original_gaps", "join_direct_callees", "owned_code_data", "natural_interval",
+                "per_member_profiles")
+FUNCTION_OPTIONS = ("owned_code_data", "with_m_lib", "per_member_profiles")
 
 
 def now_epoch():
@@ -1180,9 +1181,9 @@ def validate_result(fleet, task, result):
         require(isinstance(blocker["text"], str) and 0 < len(blocker["text"]) <= 2000, "proposed_blocker.text 1..2000 chars")
     best = result["best"]
     if best is not None:
-        require(isinstance(best, dict) and BEST_KEYS <= set(best) <= BEST_KEYS | {"members", "object_groups"},
+        require(isinstance(best, dict) and BEST_KEYS <= set(best) <= BEST_KEYS | {"members", "object_groups", "member_profiles"},
                 "best keys must be exactly " + ", ".join(sorted(BEST_KEYS)) +
-                " (optional members and object_groups for check_unit)")
+                " (optional members, object_groups and member_profiles for check_unit)")
         path = (ROOT / best["source"]).resolve() if isinstance(best["source"], str) else None
         require(path is not None and "\\" not in best["source"] and path.is_relative_to(fleet.task_dir(task["id"]).resolve())
                 and path.suffix == ".c" and path.is_file(), "best.source must be an existing .c file in the task directory")
@@ -1221,6 +1222,12 @@ def validate_result(fleet, task, result):
                     and groups and all(isinstance(g, list) and len(g) > 1 and all(isinstance(x, str) for x in g)
                                        for g in groups),
                     "best.object_groups is a non-empty list of member-id lists (check_unit with separate_objects)")
+        if "member_profiles" in best:
+            # Recorded per-member profile hypotheses for new non-entry members.
+            profiles = best["member_profiles"]
+            require(best["verifier"] == "check_unit" and "per_member_profiles" in best["options"] and isinstance(profiles, dict)
+                    and profiles and all(k in best.get("members", {}) and v in PROFILES for k, v in profiles.items()),
+                    "best.member_profiles is a {best.members id: profile} map for check_unit with per_member_profiles")
     if result["status"] == "EQUAL_CANDIDATE":
         require(best is not None and best["verdict"] == "EQUAL", "EQUAL_CANDIDATE requires best.verdict EQUAL")
     if result["status"] == "NEAR":
@@ -1246,13 +1253,17 @@ def reverify(fleet, task, best):
                                    "separate_objects" in options, "allow_original_gaps" in options,
                                    "join_direct_callees" in options, isolated=True, output_dir=output,
                                    member_sources={k: ROOT / v for k, v in best.get("members", {}).items()},
-                                   object_groups=best.get("object_groups"), **extra)
+                                   object_groups=best.get("object_groups"),
+                                   per_member_profiles="per_member_profiles" in options,
+                                   member_profiles=best.get("member_profiles"), **extra)
     else:
         import check_function
         request = dict(id=best["entry"], source=str(source), profiles=[best["profile"]],
                        owned_code_data="owned_code_data" in options)
         if "with_m_lib" in options:
             request["extra_libraries"] = ["m.lib"]
+        if "per_member_profiles" in options:
+            request["per_member_profiles"] = True
         reports = check_function.check_many([request], promote_equal=False, isolated=True, output_dir=output)
     require(len(reports) == 1, "verifier returned an unexpected report count")
     report = reports[0]
@@ -1277,8 +1288,10 @@ def promote_command(best, task=None):
             flags += " --natural-interval 0x%04X..0x%04X" % natural_interval(task)
         flags += "".join(" --member %s=%s" % item for item in sorted(best.get("members", {}).items()))
         flags += "".join(" --object-group " + ",".join(g) for g in best.get("object_groups") or ())
+        flags += "".join(" --member-profile %s=%s" % item for item in sorted((best.get("member_profiles") or {}).items()))
         return "python tools/check_unit.py %s %s --profile %s%s" % (best["entry"], best["source"], best["profile"], flags)
     flags = (" --owned-code-data" if "owned_code_data" in options else "") + (" --with-m-lib" if "with_m_lib" in options else "")
+    flags += " --per-member-profiles" if "per_member_profiles" in options else ""
     return "python tools/check_function.py %s %s --profile %s%s" % (best["entry"], best["source"], best["profile"], flags)
 
 
@@ -1518,7 +1531,7 @@ def _run_wrapped(module_name, argv):
 
 
 def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_direct_callees=False, canonical=None,
-                       prepare_only=False, object_groups=()):
+                       prepare_only=False, object_groups=(), per_member_profiles=False, member_profiles=()):
     """Isolated check_unit argv for a region variant directory (see fleet_regions.region_check_args)."""
     import fleet_regions
     task = find_task(fleet, task_id)
@@ -1535,6 +1548,10 @@ def region_verify_argv(fleet, task_id, sources=None, profile="aztec36", join_dir
     for group in object_groups or ():
         # One translation-unit hypothesis per group; check_unit validates it.
         extra += ["--object-group", group]
+    # Canonical members compile with their own proof's profile (opt-in).
+    extra += ["--per-member-profiles"] if per_member_profiles else []
+    for item in member_profiles or ():
+        extra += ["--member-profile", item]
     return fleet_regions.region_check_args(task["origin"]["region"], rel(directory), rel(source_dir), members, profile,
                                            extra)
 
@@ -1593,6 +1610,10 @@ def main(argv=None):
                    help="print the planned natural-interval unit (order, spacing, gap crossings, cache keys); no compile")
     p.add_argument("--object-group", action="append", default=[], metavar="ID,ID,...",
                    help="compile these address-consecutive members as one object (a hypothesis; repeatable)")
+    p.add_argument("--per-member-profiles", action="store_true",
+                   help="compile canonical members with their own proof's profile (link-compatible profiles only)")
+    p.add_argument("--member-profile", action="append", default=[], metavar="ID=PROFILE",
+                   help="recorded profile hypothesis for a new member (implies --per-member-profiles; repeatable)")
     args = ap.parse_args(argv)
     if args.packets_dir is not None:
         packets = args.packets_dir.resolve()
@@ -1639,7 +1660,8 @@ def main(argv=None):
             print("\n".join(lines))
         elif args.command == "verify-region":
             argv = region_verify_argv(fleet, args.task, args.sources, args.profile, args.join_direct_callees,
-                                      prepare_only=args.prepare_only, object_groups=args.object_group)
+                                      prepare_only=args.prepare_only, object_groups=args.object_group,
+                                      per_member_profiles=args.per_member_profiles, member_profiles=args.member_profile)
             if args.print:
                 print(" ".join(argv + ["--isolated"]))
                 return 0
