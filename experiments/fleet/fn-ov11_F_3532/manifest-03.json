@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_3532",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "explicit-block-order",
+      "causal_family": "explicit-control-flow-layout",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_3532/explicit-block-order.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_3532/shared-epilogue.c",
+      "suspected_cause": "Structured nested conditionals reverse the upper-threshold branch and force long branch encodings compared with the observed block order.",
+      "controlled_change": "Rewrite equivalent guards as explicit gotos with labels ordered to follow the observed basic blocks.",
+      "predicted_effect": {
+        "length_delta": -4,
+        "removed_candidate_only": 2,
+        "register_role_diffs": null,
+        "note": "The target's short threshold and state branches should return after matching the observed control-flow direction."
+      }
+    }
+  ]
+}

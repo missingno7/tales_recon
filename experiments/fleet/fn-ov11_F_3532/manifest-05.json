@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_3532",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "branch-trampoline",
+      "causal_family": "local-branch-layout",
+      "diagnostic_scope": "operand_width",
+      "source": "experiments/fleet/fn-ov11_F_3532/branch-trampoline.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_3532/exclusive-state-path.c",
+      "suspected_cause": "Two direct branches to the draw block exceed the byte-branch range, while the observed code routes them through a nearby byte-branch trampoline.",
+      "controlled_change": "Route position-path exits through a nearby position_join label that branches once to the shared draw block.",
+      "predicted_effect": {
+        "length_delta": -4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "The two word-sized branches are predicted to become byte-sized, reducing the candidate payload by four bytes."
+      }
+    }
+  ]
+}

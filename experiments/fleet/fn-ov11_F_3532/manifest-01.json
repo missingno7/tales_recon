@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_3532",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 2
+  },
+  "variants": [
+    {
+      "id": "named-offset-view",
+      "causal_family": "record-view-codegen",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_3532/named-offset-view.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_3532/canonical-offset-view.c",
+      "suspected_cause": "Named field accesses may generate different addressing code than fixed byte-offset lvalues through the supplied canonical record view.",
+      "controlled_change": "Replace fixed-offset member lvalues with named members in a 64-byte record view while keeping all field offsets and statements unchanged.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 0,
+        "register_role_diffs": null,
+        "note": "The field displacements and record stride remain identical, so this view-only change is predicted to preserve payload length and candidate-only instruction count."
+      }
+    }
+  ]
+}

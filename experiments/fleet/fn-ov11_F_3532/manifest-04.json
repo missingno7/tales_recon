@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_3532",
+  "budget": {
+    "max_variants": 1,
+    "max_unique_compiles": 1
+  },
+  "variants": [
+    {
+      "id": "exclusive-state-path",
+      "causal_family": "mutually-exclusive-state-paths",
+      "diagnostic_scope": "control_flow_target_or_edge",
+      "source": "experiments/fleet/fn-ov11_F_3532/exclusive-state-path.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_3532/explicit-block-order.c",
+      "suspected_cause": "The candidate executes the timer branch after position adjustment and sends failed state checks past rectangle calls; the observed CFG sends each path to the common rectangle-call block.",
+      "controlled_change": "Make position adjustment and timer update mutually exclusive, and place the two rectangle calls at their shared join before the table lookup.",
+      "predicted_effect": {
+        "length_delta": -4,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "State-check branches should target the rectangle-call join and become short, while position branches skip the timer block."
+      }
+    }
+  ]
+}
