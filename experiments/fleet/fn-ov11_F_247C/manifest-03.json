@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_247C",
+  "budget": {"max_variants": 6, "max_unique_compiles": 24},
+  "variants": [
+    {
+      "id": "for-loop-tail-test",
+      "causal_family": "loop-test-code-layout",
+      "diagnostic_scope": "branch_condition_or_kind",
+      "source": "experiments/fleet/fn-ov11_F_247C/trial03-for.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_247C/trial02-long.c",
+      "suspected_cause": "Aztec's for-loop lowering may place the range comparison after the loop body and use an initial branch to that test, matching the target's tail-tested control flow.",
+      "controlled_change": "Replace the while loop with an equivalent for loop that moves only p++ into the for increment clause.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": 2,
+        "register_role_diffs": null,
+        "note": "The target's initial branch and trailing unsigned pointer test should replace the candidate's head test and back edge, removing two candidate-only instructions without changing payload length."
+      }
+    }
+  ]
+}

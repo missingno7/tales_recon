@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "function_id": "ov11_F_247C",
+  "budget": {"max_variants": 6, "max_unique_compiles": 24},
+  "variants": [
+    {
+      "id": "indexed-record-fields",
+      "causal_family": "record-field-access-shape",
+      "diagnostic_scope": "memory_reference_or_layout",
+      "source": "experiments/fleet/fn-ov11_F_247C/trial01-indexed.c",
+      "profile": "aztec36",
+      "parent": "experiments/fleet/fn-ov11_F_247C/baseline-named.c",
+      "suspected_cause": "The original's constant word offsets may arise from indexing a seven-word record rather than named member access.",
+      "controlled_change": "Change only the five record accesses from named members to constant indices through an int pointer; retain declarations, bounds, calls, and loop.",
+      "predicted_effect": {
+        "length_delta": 0,
+        "removed_candidate_only": null,
+        "register_role_diffs": null,
+        "note": "All indexed constants name the same 16-bit offsets as the named members, so Aztec should emit the same payload length."
+      }
+    }
+  ]
+}
