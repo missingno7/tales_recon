@@ -8,6 +8,25 @@
     }
   ],
   "assembler": null,
+  "bounded_evidence_snapshots": {
+    "acceptance_policy": "Existing strict derivation and compiler artifact validation remain authoritative. Advisory images never satisfy strict reads. No cached verdicts, fixture relocking, original-code output, or new proof level.",
+    "evidence": "experiments/evidence-snapshot/report.json",
+    "experiments_retained": [
+      "Initial full-result deep-copy implementation was slower on five real image reads: about 2.63 seconds versus 1.91 seconds baseline. Local memory-only serialization replaced recursive copying.",
+      "Initial benchmark selection encountered uncached current standalone recipes and stopped without compiler launch or publication; corrected preflight exclusions are recorded in report.json."
+    ],
+    "implementation": "tools/evidence_snapshot.py",
+    "input_policy": "Every reuse hashes fixture bytes/lock, tools, function analysis, canonical sources/proofs, referenced unit files and runtime/topology evidence; additions, deletions and content edits invalidate. Canonical functions only are taken from the recovery ledger, so diagnostic attempts/blockers do not invalidate.",
+    "limitations": [
+      "Host-only cached verification control, not a guest compilation or sustained fleet throughput benchmark.",
+      "Content hashing remains in every reuse; a single image read adds snapshot setup work.",
+      "Snapshots are process-local and do not replace the supervisor publication input checks or regression gate."
+    ],
+    "live_control": "Twelve real isolated cached candidates, three repetitions per mode: median 6.730 seconds baseline versus 4.106 seconds snapshot (1.639x). All complete exact reports identical and EQUAL, one strict derivation with thirteen reuses, zero guest compiler jobs, canonical recovery unchanged.",
+    "reconstruction_proof_level": null,
+    "scope": "Function batches, dependency-unit preparation and unit checks; process/context-local, discarded after the outer call.",
+    "status": "LIVE_ISOLATED_REPORT_EQUIVALENCE_CONTROL_PASSED"
+  },
   "candidate_libraries": [
     {
       "format": "MANX_OBJECT_OR_LIBRARY_CANDIDATE",
@@ -210,17 +229,17 @@
     "status": "EXECUTED"
   },
   "compiler_flags": {
-    "aztec36-x3": {
-      "flags": [
-        "+X3"
-      ],
-      "meaning": "Documented 3.6-era code-generator mode that delays stack cleanup across adjacent calls; the adjacent_calls fingerprint emits one four-byte cleanup instead of two two-byte cleanups, so it is retained as an alternate rather than the default recovery profile."
-    },
     "aztec36-large-data": {
       "flags": [
         "+D"
       ],
       "meaning": "Documented 3.6a large-data memory-model mode. It makes data references position-dependent and is tested only for evidence that requires an absolute HUNK_RELOC32 data address; the normal inner-loop profile remains aztec36."
+    },
+    "aztec36-x3": {
+      "flags": [
+        "+X3"
+      ],
+      "meaning": "Documented 3.6-era code-generator mode that delays stack cleanup across adjacent calls; the adjacent_calls fingerprint emits one four-byte cleanup instead of two two-byte cleanups, so it is retained as an alternate rather than the default recovery profile."
     }
   },
   "compiler_version": null,
@@ -260,67 +279,6 @@
     ],
     "status": "NOT_RUN"
   },
-  "linker": null,
-  "observations": [
-    {
-      "file_offset": 30462,
-      "hunk": 0,
-      "kind": "marker",
-      "meaning": "MANX marker, not a version string",
-      "offset": 30422,
-      "raw_hex": "4d414e58"
-    },
-    {
-      "evidence": "evidence/executable/overlay-tree.json",
-      "kind": "overlay_abi",
-      "limitations": "ABI identification does not select compiler release or individual library objects",
-      "status": "OBSERVED"
-    },
-    {
-      "evidence_sha256": "46e8c83fee86b038129602c0d970ef6ce690cb69de178a73edf6f6ec3b1c4929",
-      "kind": "candidate_abi_change",
-      "meaning": "5.0a release notes document changed register conventions and default int width, plus incompatibility with earlier objects/libraries; compare 3.6-era candidates.",
-      "source": "Aztec1:read.me"
-    }
-  ],
-  "overlay_link_experiment": {
-    "command_recipe": "ln -m -t -o output root.o +o1 node01.o ... +o14 node14.o +o0 c.lib (omit +o4 inputs)",
-    "evidence": "evidence/experiments/overlay-topology.json",
-    "placement_policy": "No fixed placement or post-link edits",
-    "shared_runtime_counterexample": "3.6a and 5.0a segload contributions both match 244 bytes and two relocations",
-    "status": "NATURAL_SHAPE_AND_EXECUTION_VERIFIED"
-  },
-  "provenance_classes": [
-    "PROVEN_HISTORICAL",
-    "LIKELY_HISTORICAL",
-    "COMPATIBLE_TOOL",
-    "ANALYSIS_ONLY"
-  ],
-  "runtime_libraries": [],
-  "runtime_worker": {
-    "command_line_alternative": "vamos: CPU/API emulator, not native execution; isolated Windows attempt failed before loading cc",
-    "discovery_scope": "Initial bounded host inventory followed by isolated compile/assemble/link/run experiments",
-    "installed_emulator": "C:/Program Files/WinUAE/winuae64.exe",
-    "policy": "Windows orchestration; WinUAE only as oracle or historical tool worker",
-    "status": "VERIFIED_CANDIDATE_SMOKE",
-    "vamos_probe": {
-      "evidence": "experiments/vamos/availability-probe.md",
-      "installed_versions": "amitools 0.8.1; machine68k 0.3.0 in build/vamos-probe-venv",
-      "result": "Work:/ current-directory lock creation failed before cc loaded; no ASM/object produced",
-      "byte_identical_to_winuae": null,
-      "preferred_backend": "WinUAE"
-    }
-  },
-  "schema_version": 1,
-  "selected_historical_toolchain": null,
-  "windows_host_evidence": "evidence/toolchain/windows-host.json",
-  "windows_tools_report": "docs/windows-tools.md",
-  "worker_experiment": {
-    "evidence": "evidence/experiments/smoke-004.json",
-    "historical_selection_proven": false,
-    "repeat_binary_identical": true,
-    "status": "COMPILE_ASSEMBLE_LINK_EXECUTE_PASSED"
-  },
   "link_command_line_limit": {
     "cache_identity_impact": "0 of 1029 cached identities gain the new field except the shell-rejected 94cbb29bb1e6 failure. Editing compiler_oracle.py changes its file hash, which is in named-entry/proxy identities: 1 cached entry carried the prior hash (28 already carried older hashes).",
     "experiments": [
@@ -357,5 +315,102 @@
     "status": "MEASURED_AND_WORKED_AROUND",
     "symptom": "reg-ov11_4790-5CEA natural-interval link (33 source objects): 580-character ln command, guest status 10, empty t000-ln.log, no executable (cache 94cbb29bb1e6..., worker job compile-d8d519375561)",
     "verification": "Region rerun via compile queue: cache e653318e690d..., worker job compile-89766e447d1f, all guest steps 0, executable linked; verdict DIFFER (draft member sources)."
+  },
+  "linker": null,
+  "observations": [
+    {
+      "file_offset": 30462,
+      "hunk": 0,
+      "kind": "marker",
+      "meaning": "MANX marker, not a version string",
+      "offset": 30422,
+      "raw_hex": "4d414e58"
+    },
+    {
+      "evidence": "evidence/executable/overlay-tree.json",
+      "kind": "overlay_abi",
+      "limitations": "ABI identification does not select compiler release or individual library objects",
+      "status": "OBSERVED"
+    },
+    {
+      "evidence_sha256": "46e8c83fee86b038129602c0d970ef6ce690cb69de178a73edf6f6ec3b1c4929",
+      "kind": "candidate_abi_change",
+      "meaning": "5.0a release notes document changed register conventions and default int width, plus incompatibility with earlier objects/libraries; compare 3.6-era candidates.",
+      "source": "Aztec1:read.me"
+    }
+  ],
+  "overlay_link_experiment": {
+    "command_recipe": "ln -m -t -o output root.o +o1 node01.o ... +o14 node14.o +o0 c.lib (omit +o4 inputs)",
+    "evidence": "evidence/experiments/overlay-topology.json",
+    "placement_policy": "No fixed placement or post-link edits",
+    "shared_runtime_counterexample": "3.6a and 5.0a segload contributions both match 244 bytes and two relocations",
+    "status": "NATURAL_SHAPE_AND_EXECUTION_VERIFIED"
+  },
+  "provenance_classes": [
+    "PROVEN_HISTORICAL",
+    "LIKELY_HISTORICAL",
+    "COMPATIBLE_TOOL",
+    "ANALYSIS_ONLY"
+  ],
+  "queued_compiler_scheduling": {
+    "changes": [
+      "Ordinary and mixed trials share one queue and guest batch when installed.",
+      "Round-robin selection caps all requests at 48 trials and 512 guest commands; an oversized single unit runs alone.",
+      "A configurable 100 ms collection window admits simultaneous arrivals; cache hits bypass it."
+    ],
+    "evidence": "experiments/compile-queue-unified/report.json",
+    "identity_policy": "Legacy compiler_oracle.py and mixed_profile_oracle.py are unchanged; queued trials reuse their exact identity functions and validated cache entries.",
+    "limitations": [
+      "Small synthetic control, not a sustained throughput benchmark.",
+      "Direct oracle callers retain legacy scheduling.",
+      "Batch emulator failures can still affect multiple queued requests."
+    ],
+    "live_control": "One ordinary aztec36 function and a two-object aztec36/+D unit compiled together in one 2.44-second guest invocation. Candidate objects, complete executables, code and relocation lists equal unchanged legacy-path outputs; cache replay used no guest invocation.",
+    "prior_limitation": "Per-object-profile trials bypassed compile-queue coalescing and waited directly on the exclusive compiler lock; ordinary and mixed misses used separate guest invocations.",
+    "reconstruction_proof_level": null,
+    "runner": "tools/queued_oracle.py",
+    "status": "LIVE_COMBINED_RECIPE_CONTROL_PASSED"
+  },
+  "runtime_libraries": [],
+  "runtime_worker": {
+    "command_line_alternative": "vamos: CPU/API emulator, not native execution; isolated Windows attempt failed before loading cc",
+    "discovery_scope": "Initial bounded host inventory followed by isolated compile/assemble/link/run experiments",
+    "installed_emulator": "C:/Program Files/WinUAE/winuae64.exe",
+    "policy": "Windows orchestration; WinUAE only as oracle or historical tool worker",
+    "status": "VERIFIED_CANDIDATE_SMOKE",
+    "vamos_probe": {
+      "byte_identical_to_winuae": null,
+      "evidence": "experiments/vamos/availability-probe.md",
+      "installed_versions": "amitools 0.8.1; machine68k 0.3.0 in build/vamos-probe-venv",
+      "preferred_backend": "WinUAE",
+      "result": "Work:/ current-directory lock creation failed before cc loaded; no ASM/object produced"
+    }
+  },
+  "schema_version": 1,
+  "selected_historical_toolchain": null,
+  "supervisor_batch_promotion": {
+    "audit_revision": "The initial control passed before suite-input binding was added. Its receipt is retained separately; concurrent test/tool edits are now explicitly rejected.",
+    "command": "python tools/promote_batch.py MANIFEST.json",
+    "evidence": "experiments/promotion-batch/report.json",
+    "initial_control": "experiments/promotion-batch/report-initial.json",
+    "input_binding": "Candidates, canonical sources/proofs, oracle evidence, tools/tests, selected compiler inputs and compiled/dependency artifacts are hash-checked; the regression receipt also independently binds its suite/tool inventory.",
+    "limitations": [
+      "Filesystem publication is recoverable, not simultaneous across every file; readers may see a hash-validation failure before the ledger commit.",
+      "Diagnostic attempts may be retained even when a batch cannot promote.",
+      "Generated type/census/ranking maintenance and required post-change checks remain separate."
+    ],
+    "live_control": "Two real cached function comparisons published in a retained scratch workspace with one real 61.09-second regression gate; independent census proof loading accepted both. Canonical repository hashes were unchanged.",
+    "policy": "All requested independent functions must pass fresh exact verification before one shared complete host regression gate. New cyclic members still require check_unit.",
+    "publication": "Shared ledger writer lock, source/proof staging, previous-content backups, final ledger commit and explicit interrupted-transaction recovery. Failed or interrupted publication does not grant partial new canonical ownership.",
+    "reconstruction_proof_level": null,
+    "status": "LIVE_SHARED_REGRESSION_CONTROL_PASSED"
+  },
+  "windows_host_evidence": "evidence/toolchain/windows-host.json",
+  "windows_tools_report": "docs/windows-tools.md",
+  "worker_experiment": {
+    "evidence": "evidence/experiments/smoke-004.json",
+    "historical_selection_proven": false,
+    "repeat_binary_identical": true,
+    "status": "COMPILE_ASSEMBLE_LINK_EXECUTE_PASSED"
   }
 }

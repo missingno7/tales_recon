@@ -15,6 +15,7 @@ from common import require,write_json,sha256,FormatError
 from recovery_state import ROOT,LEDGER,recovery,ranked,facts,save_rank
 from check_function import check_many
 from compiler_oracle import PROFILES
+from recovery_transaction import ledger_lock
 
 
 def blocker_next_action(reason):
@@ -48,9 +49,10 @@ def compact_blocker_facts(package):
 
 
 def block(fid,reason):
-    r=recovery();r['blockers'][fid]=dict(state='BLOCKED',reason=reason,attempts=r['attempts'].get(fid,[])[-5:],
-                                       ownership_unchanged=True,next_action=blocker_next_action(reason))
-    write_json(LEDGER,r)
+    with ledger_lock(LEDGER):
+        r=recovery();r['blockers'][fid]=dict(state='BLOCKED',reason=reason,attempts=r['attempts'].get(fid,[])[-5:],
+                                           ownership_unchanged=True,next_action=blocker_next_action(reason))
+        write_json(LEDGER,r)
     try:package=compact_blocker_facts(facts(fid))
     except FormatError:package=dict(id=fid)
     write_json(ROOT/'recovery/blockers'/(fid+'.json'),dict(blocker=r['blockers'][fid],facts=package))
@@ -239,7 +241,8 @@ def main():
         print(json.dumps(result,indent=2))
     elif args.action=='frontier':print(json.dumps(frontier(args.node,args.max_bytes,max_data_references=args.max_data_references),indent=2))
     elif args.action=='retry':
-        r=recovery();r['blockers'].pop(args.id,None);write_json(LEDGER,r)
+        with ledger_lock(LEDGER):
+            r=recovery();r['blockers'].pop(args.id,None);write_json(LEDGER,r)
     elif args.action=='block':
         require(args.reason.strip() and '\n' not in args.reason,'block reason must be one nonempty line')
         block(args.id,args.reason.strip());save_rank()

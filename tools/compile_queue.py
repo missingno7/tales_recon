@@ -9,17 +9,21 @@ process coordination around it:
 * Cache hits return at once and never wait for or touch any lock.
 * A request with cache misses is spooled under ``build/compile-queue/requests``.
   One process at a time becomes the *leader* (``leader.lock``, owner-annotated),
-  sweeps every live spooled request into a single oracle batch, and compiles it
-  with one emulator boot.  Other requesters wait until their keys are cached.
+  collects live spooled requests into capped, round-robin batches, and compiles
+  ordinary and mixed-profile trials with one emulator boot per batch. Other
+  requesters wait until their keys are cached.
 * Waiting is bounded (``TALES_COMPILE_WAIT_SECONDS``, default 1800 s).  A lock
   whose owner process is gone is reported, never removed or taken over.
 
 ``compiler_oracle.py`` is deliberately not edited: its file hash is part of the
-cache identity of cross-overlay proxy and named-entry trials.  ``install()``
+cache identity of cross-overlay proxy and named-entry trials. The legacy mixed
+runner is also kept unchanged; ``queued_oracle`` reuses both identities.
+``install()``
 routes ``check_function``/``check_unit`` through this queue for the current
 process only (used by ``shape_search.py`` and ``fleet.py``).
 """
 import json
+import math
 import os
 from pathlib import Path
 import time
@@ -34,6 +38,7 @@ ROOT = compiler_oracle.ROOT
 QUEUE = ROOT / "build/compile-queue"
 INNER_LOCK = ROOT / "build/compiler-oracle.lock"
 MAX_BATCH_TRIALS = 48
+MAX_BATCH_COMMANDS = 512
 STALE_AFTER = 3600
 _original_compile_many = compiler_oracle.compile_many
 
@@ -47,6 +52,9 @@ def wait_timeout():
 
 def trial_key(trial):
     """The unchanged oracle identity for one trial (same arguments as compile_many)."""
+    if trial.get("object_profiles"):
+        from mixed_profile_oracle import trial_key as mixed_key
+        return mixed_key(trial)
     objects = compiler_oracle.object_specs(trial)
     key, _, _ = compiler_oracle.identity(
         trial["source"], trial["profile"], trial.get("target_node", 1),
@@ -100,21 +108,57 @@ def pending_requests():
     return live, stale
 
 
+def command_count(trial):
+    """cc/as for each object, harness and proxy, then one ordinary link."""
+    objects = len(trial.get("objects") or [None])
+    proxies = len(compiler_oracle.overlay_proxies(trial["source"], trial.get("target_node", 1)))
+    return 2 * (objects + 1 + proxies) + 1
+
+
+def coalesce_seconds():
+    try:
+        milliseconds = float(os.environ.get("TALES_COMPILE_COALESCE_MS", "100"))
+    except ValueError:
+        milliseconds = 100
+    require(math.isfinite(milliseconds) and 0 <= milliseconds <= 1000,
+            "TALES_COMPILE_COALESCE_MS must be between 0 and 1000")
+    return milliseconds / 1000
+
+
 def _batch(own):
-    """Own misses first, then other live spooled misses, deduplicated and capped."""
-    chosen, seen = [], set()
-    for key, trial in own:
-        if key not in seen and not is_cached(key):
-            seen.add(key); chosen.append(trial)
+    """Round-robin live requests, bounded by trials and guest commands.
+
+    A single oversized unit runs alone so a command budget cannot starve it.
+    Own requests are also capped; callers drain larger requests over batches.
+    """
+    chosen, seen, commands = [], set(), 0
     live, _ = pending_requests()
-    for _, request in live:
-        for item in request.get("trials", []):
-            key = item.get("key")
-            if len(chosen) >= MAX_BATCH_TRIALS:
-                return chosen
-            if isinstance(key, str) and key not in seen and not is_cached(key):
-                seen.add(key); chosen.append(item["trial"])
+    queued_keys = {item["key"] for _, request in live for item in request.get("trials", [])}
+    streams = [iter((item["key"], item["trial"]) for item in request.get("trials", []))
+               for _, request in live] + [iter((key, trial) for key, trial in own if key not in queued_keys)]
+    while streams:
+        remaining = []
+        for stream in streams:
+            for key, trial in stream:
+                if key in seen or is_cached(key):
+                    continue
+                cost = command_count(trial)
+                if chosen and commands + cost > MAX_BATCH_COMMANDS:
+                    return chosen
+                seen.add(key); chosen.append(trial); commands += cost
+                if len(chosen) >= MAX_BATCH_TRIALS or commands >= MAX_BATCH_COMMANDS:
+                    return chosen
+                remaining.append(stream)
+                break
+        streams = remaining
     return chosen
+
+
+def _compile_batch(trials):
+    if any(t.get("object_profiles") for t in trials):
+        from queued_oracle import compile_many as combined_compile
+        return combined_compile(trials)
+    return _original_compile_many(trials)
 
 
 def _inner_lock_report():
@@ -127,6 +171,7 @@ def _inner_lock_report():
 def compile_many(trials, timeout=None, poll=0.25):
     """Drop-in replacement for ``compiler_oracle.compile_many`` (same results)."""
     trials = list(trials)
+    collection_delay = coalesce_seconds()
     keys = [trial_key(t) for t in trials]
     initially_cached = {k for k in set(keys) if is_cached(k)}
     if len(initially_cached) == len(set(keys)):
@@ -138,16 +183,16 @@ def compile_many(trials, timeout=None, poll=0.25):
     spool = _write_spool([t for _, t in own], [k for k, _ in own])
     deadline = time.monotonic() + (wait_timeout() if timeout is None else timeout)
     leader = QUEUE / "leader.lock"
-    unproductive = 0
     try:
         while any(not is_cached(k) for k, _ in own):
             owner = file_lock.try_acquire(leader, "compile-queue leader")
             if owner is not None:
                 try:
+                    time.sleep(min(collection_delay, max(0, deadline - time.monotonic())))
                     batch = _batch(own)
                     if batch:
                         try:
-                            _original_compile_many(batch)
+                            _compile_batch(batch)
                         except FormatError as exc:
                             if "compiler worker already active" not in str(exc):
                                 raise
@@ -159,8 +204,8 @@ def compile_many(trials, timeout=None, poll=0.25):
                             if any(not is_cached(k) for k, _ in own):
                                 raise
                         else:
-                            unproductive += any(not is_cached(k) for k, _ in own)
-                            require(unproductive < 2, "compiler oracle returned without caching requested trials")
+                            require(any(is_cached(trial_key(t)) for t in batch),
+                                    "compiler oracle returned without caching requested trials")
                 finally:
                     file_lock.release(leader, owner)
                 if not any(not is_cached(k) for k, _ in own):
@@ -186,6 +231,10 @@ def compile_many(trials, timeout=None, poll=0.25):
         require(item is not None, "compiled cache entry is missing or invalid: " + key)
         results.append(dict(item, cache_hit=key in initially_cached))
     return results
+
+
+# Verifiers can pass all trial kinds together instead of splitting by profile.
+compile_many.supports_object_profiles = True
 
 
 def install():

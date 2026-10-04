@@ -130,6 +130,63 @@ class CompileQueueTests(unittest.TestCase):
         self.assertTrue(leader.exists())
         self.assertEqual(self.calls, [])
 
+    def test_large_request_drains_capped_batches_and_preserves_result_order(self):
+        trials = [dict(source=str(i)) for i in range(7)]
+        trials.append(trials[0])  # duplicate requests retain their result slots
+        with patch.object(compile_queue, "MAX_BATCH_TRIALS", 2):
+            result = compile_queue.compile_many(trials, timeout=10)
+        self.assertEqual([r["cache_key"] for r in result], ["k-" + t["source"] for t in trials])
+        self.assertEqual([len(c) for c in self.calls], [2, 2, 2, 1])
+        self.assertFalse(any(r["cache_hit"] for r in result))
+
+    def test_command_budget_and_oversized_unit_make_progress(self):
+        trials = [dict(source="a"), dict(source="b"), dict(source="c")]
+        with patch.object(compile_queue, "MAX_BATCH_COMMANDS", 6), \
+             patch.object(compile_queue, "command_count", side_effect=lambda t: 10 if t["source"] == "a" else 4):
+            compile_queue.compile_many(trials, timeout=10)
+        self.assertEqual(self.calls, [["a"], ["b"], ["c"]])
+
+    def test_ordinary_and_mixed_waiters_share_one_backend_batch(self):
+        leader = compile_queue.QUEUE / "leader.lock"
+        write_owner(leader, os.getpid())
+        results, failures = {}, []
+        def request(name, mixed):
+            try:
+                trial = dict(source=name)
+                if mixed: trial["object_profiles"] = ["aztec36", "aztec36-large-data"]
+                results[name] = compile_queue.compile_many([trial], timeout=10, poll=0.02)
+            except Exception as exc:
+                failures.append(exc)
+        with patch("queued_oracle.compile_many", side_effect=self.fake_compile) as combined:
+            threads = [threading.Thread(target=request, args=("a", False)),
+                       threading.Thread(target=request, args=("b", True))]
+            for thread in threads: thread.start()
+            deadline = time.monotonic() + 5
+            while compile_queue.status()["pending_requests"] < 2 and time.monotonic() < deadline:
+                time.sleep(0.02)
+            self.assertEqual(compile_queue.status()["pending_requests"], 2)
+            leader.unlink()
+            for thread in threads: thread.join(10)
+        self.assertEqual(failures, [])
+        self.assertFalse(any(thread.is_alive() for thread in threads))
+        self.assertEqual(combined.call_count, 1)
+        self.assertEqual(self.calls, [["a", "b"]])
+        self.assertEqual(set(results), {"a", "b"})
+
+    def test_round_robin_gives_other_requests_a_slot(self):
+        compile_queue._write_spool([dict(source=x) for x in "abcd"], ["k-" + x for x in "abcd"])
+        compile_queue._write_spool([dict(source="e")], ["k-e"])
+        with patch.object(compile_queue, "MAX_BATCH_TRIALS", 2):
+            batch = compile_queue._batch([("k-a", dict(source="a"))])
+        self.assertEqual([t["source"] for t in batch], ["a", "e"])
+
+    def test_invalid_collection_window_rejected_before_spooling(self):
+        for value in ("-1", "1001", "nan", "inf"):
+            with self.subTest(value=value), patch.dict(os.environ, TALES_COMPILE_COALESCE_MS=value), \
+                 self.assertRaisesRegex(FormatError, "COALESCE_MS"):
+                compile_queue.compile_many([dict(source="a")])
+        self.assertFalse((compile_queue.QUEUE / "requests").exists())
+
 
 def task(tid, kind="function", targets=None, priority=50, deps=()):
     return dict(id=tid, kind=kind, targets=targets or ["t_" + tid], priority=priority, title=tid,

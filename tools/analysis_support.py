@@ -16,6 +16,10 @@ def decoder():
     return md
 
 def game():
+    from evidence_snapshot import game_read
+    return game_read(ROOT,_game)
+
+def _game():
     verify_lock(ROOT)
     outputs,files,model=derive(ROOT)
     return files['DT1:DuckTales'],model,outputs

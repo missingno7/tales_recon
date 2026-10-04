@@ -17,6 +17,7 @@ from compiler_oracle import compile_many,PROFILES
 from function_compare import compare_function
 from recovery_evidence import stand_in_source,EXTERN_FUNCTION,proven_object_source,group_object_source
 from recovery_evidence import joined_source as joined_texts
+from evidence_snapshot import scoped
 
 
 def stable_receipt(value):
@@ -195,6 +196,7 @@ def natural_interval_plan(members,interval,new_ids,owned_code_data=False,target_
     return layout
 
 
+@scoped
 def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True,member_sources=None,natural_interval=None):
     """Build one complete unit around ``fid`` (compiled as ``recovered``).
 
@@ -853,9 +855,10 @@ def apply_member_profiles(trial,plan,link_compatibility,single_object=None):
 
 
 def compile_trials(trials):
-    """Ordinary trials keep ``compile_many`` (oracle or queue) and their keys;
-    per-object profile trials are compiled by ``mixed_profile_oracle``."""
-    if not any(t.get('object_profiles') for t in trials):return compile_many(trials)
+    """A capable queue takes all trials together; direct callers retain the
+    legacy per-object-profile dispatcher and unchanged identities."""
+    if not any(t.get('object_profiles') for t in trials) or getattr(compile_many,'supports_object_profiles',False) is True:
+        return compile_many(trials)
     import mixed_profile_oracle
     return mixed_profile_oracle.compile_many(trials,base=compile_many)
 
@@ -925,6 +928,7 @@ def trial_cache_key(trial):
     return key,cached(key) is not None
 
 
+@scoped
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
           object_groups=None,per_member_profiles=False,member_profiles=None):
     """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new

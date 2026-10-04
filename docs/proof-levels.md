@@ -1,8 +1,11 @@
 # Reconstruction proof policy
 
 Evidence extraction is not source reconstruction. `current_proof_level: null`
-means no reconstructed artifact has met a source-match level. A topology census
-cannot be promoted to HUNK_CONTENT_MATCH by copying the oracle.
+means no aggregate reconstructed executable proof has been established.
+Individual contribution proofs are recorded separately in `recovery/ledger.json`
+and summarized by `highest_individual_contribution_proof`; they do not establish
+complete overlay or executable reconstruction. A topology census cannot be
+promoted to HUNK_CONTENT_MATCH by copying the oracle.
 
 | Level | Required evidence |
 | --- | --- |

@@ -4,11 +4,13 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-from common import require,sha256,write_json,FormatError
+from common import require,sha256,write_json,FormatError,json_bytes
 from analysis_support import ROOT,game
 from recovery_state import evidence,recovery,LEDGER,save_rank
 from compiler_oracle import compile_many,PROFILES,identity
+from recovery_transaction import ledger_lock
 from function_compare import compare_function
+from evidence_snapshot import scoped
 
 
 def validated_function(fid):
@@ -44,9 +46,32 @@ def validated_function(fid):
 
 def regression_receipt():
     """Run the host-only regression suite once; no nested compilation or emulator launch."""
+    def inputs():
+        paths=sorted(list((ROOT/'tools').glob('*.py'))+list((ROOT/'tests').rglob('*.py')))
+        return {p.relative_to(ROOT).as_posix():sha256(p.read_bytes()) for p in paths}
+    before=inputs()
     tests=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests'],cwd=ROOT,capture_output=True,text=True)
     require(tests.returncode==0,'promotion regression tests failed: '+tests.stdout+tests.stderr)
-    return dict(command='python -m unittest discover -s tests',passed=True,output_sha256=sha256((tests.stdout+tests.stderr).encode()))
+    require(inputs()==before,'regression suite inputs changed during execution; rerun verification')
+    return dict(command='python -m unittest discover -s tests',passed=True,
+                output_sha256=sha256((tests.stdout+tests.stderr).encode()),input_sha256=sha256(json_bytes(before)))
+
+
+def promotion_proof(fid,source,report,compiled,f,state,regression):
+    """Construct the existing individual proof without canonical writes."""
+    source_hash=sha256(source.encode('ascii'))
+    path=ROOT/'src/recovered'/f['node']/(fid+'.c')
+    proof=dict(schema_version=1,id=fid,state=state,source=str(path.relative_to(ROOT)).replace('\\','/'),source_sha256=source_hash,
+        evidence_extent={k:f[k] for k in ('hunk','start','end','size','sha256','extent_status')},
+        compiler=compiled['identity'],object_hash=compiled['contribution']['object_sha256'],
+        artifacts=compiled['artifacts'],cache_key=compiled['cache_key'],
+        verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')},
+        comparison=report,relocation_proof=report['relocation_proof'],dependencies=f['direct_callees'],
+        data_ownership=(report['owned_code_data'] if state=='FUNCTION_WITH_DATA_MATCH'
+                        else 'External references only; no candidate-owned data or padding omitted'),
+        compiler_selection='Matching candidate; historical release remains ambiguous',
+        regression=regression)
+    return proof
 
 
 def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_canonical=False,regression=None):
@@ -64,28 +89,31 @@ def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_can
             'already promoted with another source; preserve canonical source')
     require(not prior or prior['state']!='FUNCTION_WITH_DATA_MATCH' or state=='FUNCTION_WITH_DATA_MATCH',
             'replacement may not discard an existing owned CODE-data proof')
-    path=ROOT/'src/recovered'/f['node']/(fid+'.c');path.parent.mkdir(parents=True,exist_ok=True)
-    path.write_text(source,encoding='ascii',newline='\n')
+    proof=promotion_proof(fid,source,report,compiled,f,state,regression)
+    path=ROOT/proof['source']
     receipt_path=ROOT/'recovery/proofs'/(fid+'.json')
-    proof=dict(schema_version=1,id=fid,state=state,source=str(path.relative_to(ROOT)).replace('\\','/'),source_sha256=source_hash,
-        evidence_extent={k:f[k] for k in ('hunk','start','end','size','sha256','extent_status')},
-        compiler=compiled['identity'],object_hash=compiled['contribution']['object_sha256'],
-        artifacts=compiled['artifacts'],cache_key=compiled['cache_key'],
-        verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')},
-        comparison=report,relocation_proof=report['relocation_proof'],dependencies=f['direct_callees'],
-        data_ownership=(report['owned_code_data'] if state=='FUNCTION_WITH_DATA_MATCH'
-                        else 'External references only; no candidate-owned data or padding omitted'),
-        compiler_selection='Matching candidate; historical release remains ambiguous',
-        regression=regression)
-    write_json(receipt_path,proof)
-    r['functions'][fid]={k:proof[k] for k in ('state','source','source_sha256','evidence_extent','compiler_selection')}
-    r['functions'][fid]['proof']=receipt_path.relative_to(ROOT).as_posix()
-    r['functions'][fid]['proof_sha256']=sha256(receipt_path.read_bytes())
-    # The immutable blocker package remains historical evidence; it must no
-    # longer appear as an active queue blocker once a verified source owns it.
-    r['blockers'].pop(fid,None)
-    write_json(LEDGER,r)
-    return r['functions'][fid]
+    with ledger_lock(LEDGER):
+        r=recovery()
+        prior=r['functions'].get(fid)
+        require(not prior or prior['source_sha256']==source_hash or replace_canonical,
+                'already promoted with another source; preserve canonical source')
+        require(not prior or prior['state']!='FUNCTION_WITH_DATA_MATCH' or state=='FUNCTION_WITH_DATA_MATCH',
+                'replacement may not discard an existing owned CODE-data proof')
+        for other,item in r['functions'].items():
+            e=item['evidence_extent']
+            require(other==fid or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
+                    'promotion would overlap canonical source ownership: '+other)
+        path.parent.mkdir(parents=True,exist_ok=True)
+        path.write_text(source,encoding='ascii',newline='\n')
+        write_json(receipt_path,proof)
+        r['functions'][fid]={k:proof[k] for k in ('state','source','source_sha256','evidence_extent','compiler_selection')}
+        r['functions'][fid]['proof']=receipt_path.relative_to(ROOT).as_posix()
+        r['functions'][fid]['proof_sha256']=sha256(receipt_path.read_bytes())
+        # The immutable blocker package remains historical evidence; it must no
+        # longer appear as an active queue blocker once a verified source owns it.
+        r['blockers'].pop(fid,None)
+        write_json(LEDGER,r)
+        return r['functions'][fid]
 
 
 def owned_code_data_boundary(f,ledger,report):
@@ -128,6 +156,7 @@ def isolated_output_root(output_dir):
     return path
 
 
+@scoped
 def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
     if isolated:promote_equal=False
     output_root=isolated_output_root(output_dir) if isolated else None
@@ -188,7 +217,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                           cache_key=sha256((source_hash+profile+str(exc)+repr(req.get('extra_libraries',()))).encode()),cache_hit=False,
                           guest_returncodes=[],directory=str(ROOT/'build/source-rejections'),error=str(exc))
             prepared.append((req,f,l,source,profile,slot,unit,unit_blocker))
-    if any(t.get('object_profiles') for t in trials):
+    if any(t.get('object_profiles') for t in trials) and getattr(compile_many,'supports_object_profiles',False) is not True:
         import mixed_profile_oracle
         results=mixed_profile_oracle.compile_many(trials,base=compile_many)
     else:results=compile_many(trials)
@@ -233,16 +262,17 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
         else:
             path=ROOT/'recovery/attempts'/f['id']/(report['source_sha256']+'-'+profile+'-'+report['cache_key'][:12]+'-'+report['comparison_identity'][:12]+'.json')
             write_json(path,report)
-            r=recovery();attempts=r['attempts'].setdefault(f['id'],[])
-            short=dict(source_sha256=report['source_sha256'],profile=profile,verdict=report['verdict'],receipt=path.relative_to(ROOT).as_posix(),
-                       expected_length=report['expected_length'],actual_length=report['actual_length'],first_difference=report.get('normalized_first_difference'),mnemonic_similarity=report.get('mnemonic_similarity'))
-            if report['verdict']=='EQUAL':
-                short['state']=report.get('proof_level','CODEGEN_SIMILAR')
-            else:
-                short['state']='CODEGEN_SIMILAR' if (report.get('mnemonic_similarity') or 0)>=0.75 else 'CANDIDATE_C'
-            short.update(cache_key=report['cache_key'],comparison_identity=report['comparison_identity'])
-            if not any(a.get('cache_key')==short['cache_key'] and a.get('comparison_identity')==short['comparison_identity'] for a in attempts):attempts.append(short)
-            write_json(LEDGER,r)
+            with ledger_lock(LEDGER):
+                r=recovery();attempts=r['attempts'].setdefault(f['id'],[])
+                short=dict(source_sha256=report['source_sha256'],profile=profile,verdict=report['verdict'],receipt=path.relative_to(ROOT).as_posix(),
+                           expected_length=report['expected_length'],actual_length=report['actual_length'],first_difference=report.get('normalized_first_difference'),mnemonic_similarity=report.get('mnemonic_similarity'))
+                if report['verdict']=='EQUAL':
+                    short['state']=report.get('proof_level','CODEGEN_SIMILAR')
+                else:
+                    short['state']='CODEGEN_SIMILAR' if (report.get('mnemonic_similarity') or 0)>=0.75 else 'CANDIDATE_C'
+                short.update(cache_key=report['cache_key'],comparison_identity=report['comparison_identity'])
+                if not any(a.get('cache_key')==short['cache_key'] and a.get('comparison_identity')==short['comparison_identity'] for a in attempts):attempts.append(short)
+                write_json(LEDGER,r)
         # Compiler-owned CODE data is promoted only when its independently
         # proved tail ends at the next discovered entry, so no unowned bytes
         # can be absorbed between the function and its natural literal bundle.

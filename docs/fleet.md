@@ -376,18 +376,106 @@ first). Worker type-evidence reads (`type_evidence.py --function`, packets)
 serve the last generated report with `stale: true` and the reasons after a
 promotion changes its inputs. The Python API and `--check` stay strict.
 
+## Supervisor batch promotions
+
+Independent confirmed function candidates can share one regression run:
+
+```powershell
+python tools/promote_batch.py experiments/promotions.json --verify-only
+python tools/promote_batch.py experiments/promotions.json
+```
+
+The manifest is an array of normal function requests, with exactly one explicit
+profile per entry, for example
+`[{"id":"ov14_F_03AE","source":"src/recovered/ov14/ov14_F_03AE.c","profiles":["aztec36"]}]`.
+Each request can carry the existing `owned_code_data`, `per_member_profiles`,
+`extra_libraries` or explicit `replace_canonical` options. Initialized DATA
+proofs cannot promote alone. Newly mutually dependent functions still use
+`check_unit.py --member`; another batch entry is never treated as a canonical
+callee. This command is for the supervisor, not fleet workers.
+
+Every candidate is freshly verified with the existing exact comparator. Failed
+attempts may be retained, but every requested function must have a promotable
+EQUAL proof before any canonical source/proof is written. `--verify-only`
+retains diagnostic attempts and verifies the full plan without running the
+promotion regression suite or publishing canonical source/proofs.
+
+Before publication, the shared ledger writer lock protects the read-modify-write.
+The plan rejects source conflicts and overlapping function/literal contributions.
+Hashes of candidates, canonical sources/proofs, oracle evidence, tooling/tests,
+compiler inputs and dependency receipts are frozen across verification and the
+single full host regression run. Each individual proof keeps its existing
+schema plus the shared regression receipt's batch members and input hash.
+The regression gate also independently binds its test/tool source inventory,
+so an edit while the suite runs invalidates that receipt. The retained control
+in `experiments/promotion-batch/report.json` uses two real cached function
+comparisons, one real suite, disposable canonical publication and independent
+proof-loader acceptance; the repository's canonical recovery remains unchanged.
+
+Publication stages all canonical files under ignored
+`build/promotion-transactions/ID`, saves previous contents, and commits the ledger
+last. Ordinary write failures roll back. An interruption leaves a PREPARED
+journal that blocks other ledger writers until explicit recovery:
+
+```powershell
+python tools/promote_batch.py --recover TRANSACTION_ID
+```
+
+Recovery restores an uncommitted batch or recognizes a completed ledger commit.
+It refuses to overwrite a later edit. Readers may briefly see staged files before
+the ledger commit; hash validation fails closed during that interval. This is
+recoverable publication, not simultaneous replacement of all filesystem files.
+After successful promotion or recovery, regenerate type evidence, census and
+ranking as usual; required post-change checks still apply. No higher overlay or
+executable proof is granted by batching.
+
+## Bounded evidence snapshots
+
+Function batches, dependency-unit preparation and unit checks now reuse their
+read-only game derivation within one call. Nested checks share the same scope;
+the outer call discards it. Each process has its own snapshot, so independent
+workers can use it without acquiring a shared cache lock. Single reads outside
+these scopes still derive afresh.
+
+Every reuse hashes the current fixtures, fixture lock, tool inventory, function
+analysis, canonical sources/proofs, referenced unit receipts/sources/parts, and
+runtime/topology evidence. Content changes invalidate the snapshot and trigger
+the existing strict derivation. Edits during snapshot creation reject that read.
+Changes to diagnostic attempts or queue blockers alone do not invalidate it:
+census depends only on the recovery ledger's canonical functions. Advisory
+images occupy a separate entry and cannot satisfy a strict read. Returned model
+and census objects are independent copies; no verdict is cached.
+
+The retained `experiments/evidence-snapshot/report.json` control checks twelve
+real cached sources three times per mode. Median host verification time falls
+from 6.73 to 4.11 seconds; all exact reports are identical, every verdict remains
+EQUAL, no guest compiler runs, and canonical recovery is unchanged. Hashing stays
+in the reuse path, so this measurement does not establish guest compilation or
+sustained fleet throughput gains. Compiler identities, artifact validation and
+promotion regression gates retain their existing requirements.
+
 ## Compile concurrency
 
 `compiler_oracle.compile_many` still fails fast when `build/compiler-oracle.lock`
-exists. `tools/compile_queue.py` wraps it without changing that file. The
-file's hash is part of proxy and named-entry cache identities. Behavior:
+exists. `tools/compile_queue.py` wraps it without changing that file or
+`mixed_profile_oracle.py`; their hashes are part of retained cache identities.
+When the queue is installed, verifiers submit ordinary and per-object-profile
+trials together. `tools/queued_oracle.py` runs combined batches with the same
+identity functions, compiler flags, object order, link recipes and extraction.
+Direct oracle calls retain their previous behavior. Behavior:
 
 - Cache hits return at once and never touch any lock.
 - Each cache-miss request is spooled in `build/compile-queue/requests/`. One
-  process holds `build/compile-queue/leader.lock` and compiles its own misses
-  plus every live spooled miss (up to 48 trials) in one oracle batch, so one
-  WinUAE boot serves many workers. Waiters return when their keys are cached.
+  process holds `build/compile-queue/leader.lock` and selects misses round-robin
+  from live requests, up to 48 trials and 512 guest compiler/assembler/linker
+  commands. Both bounds apply to its own request too. A single oversized unit
+  runs alone; larger requests drain over multiple batches. One WinUAE boot
+  serves both ordinary and mixed-profile trials. Waiters return when their keys are cached.
   `cache_hit` is false for keys compiled on their behalf.
+- A leader collects arrivals for 100 ms before selecting a batch. Set
+  `TALES_COMPILE_COALESCE_MS=0` to disable the window, or choose 0..1000 ms.
+  Cache hits bypass the window. Requesters keep their original result order,
+  including duplicate keys.
 - Waits are bounded by `TALES_COMPILE_WAIT_SECONDS` (default 1800). If a
   lock's owner pid is not running, or an unannotated lock is more than an hour
   old, the error reports it and names the file. The lock is never removed or
@@ -400,6 +488,14 @@ already-cached candidate. Measured guest time from retained worker jobs:
 a one-trial batch takes about 2.2-3.1 s (median about 2.5 s). A 36-step batch
 (about 5 trials) takes 3.3 s, and a 480-step batch (about 80 trials) takes
 11 s. The fixed boot cost dominates, so coalescing is the main gain.
+
+The live combined-runner control in
+`experiments/compile-queue-unified/report.json` compiled an ordinary function
+and a two-object mixed aztec36/+D unit in one guest invocation (2.44 s in that
+run). Their candidate objects, complete executables, code and relocations are
+identical to outputs from the unchanged legacy paths. Replay validates the
+existing cache with no guest invocation. This small control establishes recipe
+equivalence, not a throughput benchmark or reconstruction proof.
 
 `shape_search` now repeats its duplicate check under the ledger lock just
 before compiling. It reserves each hypothesis in `build/hypothesis-inflight/`.
