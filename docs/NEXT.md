@@ -147,10 +147,14 @@ Scratch and new attempts go under ignored `build/`; retirements go under
 `to_delete/`. The user manually deleted the historical quarantine before this
 push. No deleted archive is reintroduced in the active project or pushed.
 
-Recommended next wave: one bounded Sol high task on the complete ov04 natural
-interval, terminal-padding proof and remaining whole-node/root-binding gates.
-Preparation finds 24 members in 15 objects with two existing proved groups,
-no interior compaction span and only the final two bytes unassigned; preparation
-is not a linked result. Keep Amiga ov04 closure ahead of
-unrelated targets. Exact compiler-release archaeology, broad asset-format
-recovery and unrelated easy-function grinding are intentionally deferred.
+Recommended next wave: resident graphics library dependencies and real root
+DATA/COMMON ownership. The full ov04 interval is linked and padding is now
+strictly accounted. Five pinned graphics wrappers plus the separate OpenLibrary frontend/helper
+and independently assembled SDK source match 88 resident bytes, with a two-DATA-order address
+control; this remains experimental until a strict runtime consumer accepts it.
+See `../evidence/experiments/graphics-wrappers.json`. The OpenLibrary
+producer also matches exactly; next, derive and mutation-test these bindings
+inside the existing strict runtime consumer, then count complete contributions
+without inferring COMMON order or original TUs. Keep Amiga ov04 closure ahead
+of unrelated targets; broad asset-format work and unrelated easy-function
+grinding remain deferred.

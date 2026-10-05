@@ -1,0 +1,11 @@
+[
+  "Old2:bin/lb >extract.log Old1:lib/c.lib -x openlibr _openlib",
+  "Old1:bin/as >root1-as.log -o root1.o root1.asm",
+  "Old1:bin/as >root2-as.log -o root2.o root2.asm",
+  "Old1:bin/as >openlibr-as.log -o openlibr-source.o openlibr.asm",
+  "Old1:bin/as >_openlib-as.log -o _openlib-source.o _openlib.asm",
+  "Old1:bin/ln >open-root1-lib.log -m -t -o open-root1-lib openlibr.o _openlib.o root1.o",
+  "Old1:bin/ln >open-root1-source.log -m -t -o open-root1-source openlibr-source.o _openlib-source.o root1.o",
+  "Old1:bin/ln >open-root2-lib.log -m -t -o open-root2-lib openlibr.o _openlib.o root2.o",
+  "Old1:bin/ln >open-root2-source.log -m -t -o open-root2-source openlibr-source.o _openlib-source.o root2.o"
+]
