@@ -1,0 +1,3 @@
+	xdef .begin
+.begin
+	rts

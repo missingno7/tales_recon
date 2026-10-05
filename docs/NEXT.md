@@ -147,15 +147,14 @@ Scratch and new attempts go under ignored `build/`; retirements go under
 `to_delete/`. The user manually deleted the historical quarantine before this
 push. No deleted archive is reintroduced in the active project or pushed.
 
-Recommended next wave: resident graphics library dependencies and real root
-DATA/COMMON ownership. The full ov04 interval is linked and padding is now
-strictly accounted. Five pinned graphics wrappers plus the separate OpenLibrary frontend/helper
-and independently assembled SDK source match 88 resident bytes, with a two-DATA-order address
-control. The strict consumer now counts these complete units as PINNED_RUNTIME.
-See `../evidence/experiments/graphics-wrappers.json`. The OpenLibrary
-producer also matches exactly. Eleven retained-fixture mutation controls pass;
-no Common order or original TUs are inferred. Next, extract the real pinned
-vars.o and independently compile SDK vars.c to establish actual initialized
-DATA and COMMON contributions and field order. Keep Amiga ov04 closure ahead
-of unrelated targets; broad asset-format work and unrelated easy-function
-grinding remain deferred.
+Recommended next wave: bind the original resident runtime DATA consumers.
+Independent SDK compilation reproduces the tested 3.6a/5.0a vars layouts,
+but none of their complete ten-byte initialized contributions occurs in the
+original. Do not reuse them as original providers or clip a two-byte match.
+See `../evidence/experiments/runtime-vars.json`. The terminal word has three
+original consumers; resident766C is a closed 310-byte startup CFG, while the
+pinned complete object emits312 bytes including the same nonzero trailing
+two bytes. Verify that whole unit's callee/global bindings before identifying
+the original runtime DATA variant and its COMMON ownership. Natural COMMON
+merging controls are measured; they do not select original object order or
+compiler release. Keep ov04 closure ahead of unrelated targets.

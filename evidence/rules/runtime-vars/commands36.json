@@ -1,0 +1,17 @@
+[
+  "C:FailAt 1000000",
+  "Old2:bin/lb >extract.log Old1:lib/c.lib -x vars",
+  "Old1:bin/cc <compiler-input.txt >vars-source-cc.log -a -I Old1:include vars-source.c",
+  "Old1:bin/as <compiler-input.txt >vars-source-as.log -o vars-source.o vars-source.asm",
+  "Old1:bin/as >root1-as.log -o root1.o root1.asm",
+  "Old1:bin/as >root2-as.log -o root2.o root2.asm",
+  "Old1:bin/as >root3-as.log -o root3.o root3.asm",
+  "Old1:bin/ln >vars-root1-lib.log -m -t -o vars-root1-lib root1.o vars.o",
+  "Old1:bin/ln >vars-root2-lib.log -m -t -o vars-root2-lib root2.o vars.o",
+  "Old1:bin/ln >vars-root3-lib.log -m -t -o vars-root3-lib root3.o vars.o",
+  "Old1:bin/ln >vars-reversed-lib.log -m -t -o vars-reversed-lib vars.o root2.o",
+  "Old1:bin/ln >vars-root1-source.log -m -t -o vars-root1-source root1.o vars-source.o",
+  "Old1:bin/ln >vars-root2-source.log -m -t -o vars-root2-source root2.o vars-source.o",
+  "Old1:bin/ln >vars-root3-source.log -m -t -o vars-root3-source root3.o vars-source.o",
+  "Old1:bin/ln >vars-reversed-source.log -m -t -o vars-reversed-source vars-source.o root2.o"
+]

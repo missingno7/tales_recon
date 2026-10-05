@@ -1,0 +1,140 @@
+[
+  {
+    "errors": {
+      "vars-source-cc.log": "Aztec C68K 3.6a  12-18-87  (C) 1982-1987 by Manx Software Systems, Inc.\n#include <fcntl.h>\n                  ^\nvars-source.c:3: ERROR 47: open failure on include file: \n"
+    },
+    "failed_steps": [
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >vars-source-cc.log -a vars-source.c",
+        "index": 3,
+        "returncode": 10,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >vars-source-as.log -o vars-source.o vars-source.asm",
+        "index": 4,
+        "returncode": 2,
+        "returncode_file": "step-04.rc"
+      },
+      {
+        "command": "Old1:bin/ln >vars-root1-source.log -m -t -o vars-root1-source root1.o vars-source.o",
+        "index": 10,
+        "returncode": 10,
+        "returncode_file": "step-10.rc"
+      },
+      {
+        "command": "Old1:bin/ln >vars-root2-source.log -m -t -o vars-root2-source root2.o vars-source.o",
+        "index": 11,
+        "returncode": 10,
+        "returncode_file": "step-11.rc"
+      },
+      {
+        "command": "Old1:bin/ln >vars-reversed-source.log -m -t -o vars-reversed-source vars-source.o root2.o",
+        "index": 12,
+        "returncode": 10,
+        "returncode_file": "step-12.rc"
+      }
+    ],
+    "job": "wave9-vars-001",
+    "receipt_sha256": "add696809c51d580063e9ab9fe9e7e5ea7698a51518a350def495e66d0e7b883"
+  },
+  {
+    "errors": {
+      "vars-reversed-lib16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root2.o> (16)Not an object file root2.o!\n",
+      "vars-reversed-lib32.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root2.o> (16)Not an object file root2.o!\n",
+      "vars-reversed-source16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root2.o> (16)Not an object file root2.o!\n",
+      "vars-root1-lib16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root1.o> (16)Not an object file root1.o!\n",
+      "vars-root1-lib32.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root1.o> (16)Not an object file root1.o!\n",
+      "vars-root1-source16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root1.o> (16)Not an object file root1.o!\n",
+      "vars-root2-lib16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root2.o> (16)Not an object file root2.o!\n",
+      "vars-root2-lib32.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root2.o> (16)Not an object file root2.o!\n",
+      "vars-root2-source16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root2.o> (16)Not an object file root2.o!\n",
+      "vars-root3-lib16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root3.o> (16)Not an object file root3.o!\n",
+      "vars-root3-lib32.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root3.o> (16)Not an object file root3.o!\n",
+      "vars-root3-source16.log": "Aztec C68K Linker Version 5.0a  Jan  9 1990  8:06:09\nfile: <root3.o> (16)Not an object file root3.o!\n",
+      "vars16-source-cc.log": "Aztec C Version 5.0a  Jan  9 1990  7:57:19\n\tCopyright 1989 by Manx Software Systems, Inc.\n#endif !EXEC_TYPES_H\n       ^\nOld1:include/workbench/startup.h:3: ERROR 149: invalid character on control line: \n#endif !EXEC_NODES_H\n       ^\nOld1:include/exec/ports.h:5: ERROR 149: invalid character on control line: \n#endif !EXEC_NODES_H\n       ^\nOld1:include/exec/lists.h:5: ERROR 149: invalid character on control line: \n#endif !EXEC_LISTS_H\n       ^\nOld1:include/exec/ports.h:8: ERROR 149: invalid character on control line: \n#endif !EXEC_NODES_H\n       ^\nOld1:include/exec/tasks.h:5: ERROR 149: invalid character on control line: \n#endif !EXEC_LISTS_H\n       ^\nOld1:include/exec/tasks.h:8: ERROR 149: invalid character on control line: \n#endif !EXEC_TASKS_H\n       ^\nOld1:include/exec/ports.h:11: ERROR 149: invalid character on control line: \n#endif !EXEC_PORTS_H\n       ^\nOld1:include/workbench/startup.h:6: ERROR 149: invalid character on control line: \n#endif LIBRARIES_DOS_H\n       ^\nOld1:include/libraries/dos.h:117: ERROR 149: invalid character on control line: \n#endif !LIBRARIES_DOS_H\n       ^\nOld1:include/workbench/startup.h:9: ERROR 149: invalid character on control line: \n10 errors\n"
+    },
+    "failed_steps": [
+      {
+        "command": "Tools2:bin/cc <compiler-input.txt >vars16-source-cc.log -a -ps -I Old1:include vars16-source.c",
+        "index": 5,
+        "returncode": 254,
+        "returncode_file": "step-05.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root1-lib16.log -m -t -o vars-root1-lib16 root1.o vars16.o",
+        "index": 10,
+        "returncode": 10,
+        "returncode_file": "step-10.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root2-lib16.log -m -t -o vars-root2-lib16 root2.o vars16.o",
+        "index": 11,
+        "returncode": 10,
+        "returncode_file": "step-11.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root3-lib16.log -m -t -o vars-root3-lib16 root3.o vars16.o",
+        "index": 12,
+        "returncode": 10,
+        "returncode_file": "step-12.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-reversed-lib16.log -m -t -o vars-reversed-lib16 vars16.o root2.o",
+        "index": 13,
+        "returncode": 10,
+        "returncode_file": "step-13.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root1-source16.log -m -t -o vars-root1-source16 root1.o vars16-source.o",
+        "index": 14,
+        "returncode": 10,
+        "returncode_file": "step-14.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root2-source16.log -m -t -o vars-root2-source16 root2.o vars16-source.o",
+        "index": 15,
+        "returncode": 10,
+        "returncode_file": "step-15.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root3-source16.log -m -t -o vars-root3-source16 root3.o vars16-source.o",
+        "index": 16,
+        "returncode": 10,
+        "returncode_file": "step-16.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-reversed-source16.log -m -t -o vars-reversed-source16 vars16-source.o root2.o",
+        "index": 17,
+        "returncode": 10,
+        "returncode_file": "step-17.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root1-lib32.log -m -t -o vars-root1-lib32 root1.o vars32.o",
+        "index": 18,
+        "returncode": 10,
+        "returncode_file": "step-18.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root2-lib32.log -m -t -o vars-root2-lib32 root2.o vars32.o",
+        "index": 19,
+        "returncode": 10,
+        "returncode_file": "step-19.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-root3-lib32.log -m -t -o vars-root3-lib32 root3.o vars32.o",
+        "index": 20,
+        "returncode": 10,
+        "returncode_file": "step-20.rc"
+      },
+      {
+        "command": "Tools2:bin/ln >vars-reversed-lib32.log -m -t -o vars-reversed-lib32 vars32.o root2.o",
+        "index": 21,
+        "returncode": 10,
+        "returncode_file": "step-21.rc"
+      }
+    ],
+    "job": "wave9-vars-003",
+    "receipt_sha256": "421a01b06b0870d78701c1fe8b017c8ad2bc094c4f2e96a780755ca06824ca5e"
+  }
+]
