@@ -338,20 +338,36 @@
         "Two actual DATA orders move only the GfxBase displacement; all twenty links and all guest steps pass.",
         "InitView has another structural candidate using a different base; the graphics base/call binding is required.",
         "No canonical runtime accounting promotion; ownership and original release remain unproved.",
-        "evidence/experiments/openlibrary-wrappers.json: separate pinned frontend/helper and exec.arc assembly reproduce all 20 bytes with PC helper identity and A4 SysBase binding; 88 experimental bytes total."
+        "evidence/experiments/openlibrary-wrappers.json: separate pinned frontend/helper and exec.arc assembly reproduce all 20 bytes with PC helper identity and A4 SysBase binding; 88 experimental bytes total.",
+        "tools/library_a4.py strictly re-derives the retained complete objects, unique membership in the pinned library, SDK input bytes, source/object/link receipts, actual symbol maps and current accepted caller bindings. All 88 bytes are PINNED_RUNTIME accounting contributions."
       ],
       "experiments_tried": [
         "TOOLCHAIN: cc without -a emitted object bytes where assembly was expected; failed links retained in wave7-graphics-001.",
         "TOOLCHAIN: CRLF authored assembly rejected by as; failed job retained in wave7-graphics-002.",
         "RUNTIME/LIBRARY: corrected LF authored DATA controls and unchanged SDK assembly/source/library objects passed in wave7-graphics-003.",
-        "RUNTIME/LIBRARY: OpenLibrary 4+16-byte separate objects linked in natural order with two DATA orders; all four links and nine steps passed in wave7-openlibrary-001."
+        "RUNTIME/LIBRARY: OpenLibrary 4+16-byte separate objects linked in natural order with two DATA orders; all four links and nine steps passed in wave7-openlibrary-001.",
+        "Eleven actual retained-fixture tests pass, including wrong-base same-shape InitView, stale caller dependencies, SDK/object/recipe mutations, and consistently rehashed library/body/base/CODE-allocation tampering."
       ],
       "first_mismatch": null,
       "id": "RESIDENT-GRAPHICS-LIBRARY-001",
-      "missing_artifact": "Strict mutation-tested runtime consumer re-deriving pinned object/source/link receipts and original base/call dependencies; ownership/order of SysBase/GfxBase remains unknown.",
-      "next_experiment": "Extend the existing runtime accounting boundary for these complete A4-bound library objects; derive original call/base identities from accepted F1E36 and the exact OpenLibrary unit. Test same-shape wrong-base, source/object/link mutation and stale canonical dependencies before counting 88 bytes.",
-      "status": "OPEN",
+      "missing_artifact": null,
+      "next_experiment": "Retain strict current-dependency and artifact replay; recover real resident DATA/COMMON contributions next.",
+      "status": "RESOLVED",
       "target": "strict pinned runtime acceptance for the five ov04 graphics wrapper dependencies"
+    },
+    {
+      "current_evidence": [
+        "Pinned sysio.arc contains vars.c (line2092 onward), initialized _numdev/_detach_name/_detach_curdir and uninitialized system/runtime globals.",
+        "Exact pinned OpenLibrary helper independently binds original SysBase at DATA+B3A2; SDK crt0 source explicitly stores Exec base from address4 into SysBase.",
+        "No vars object storage size/order or original contribution boundary is accepted."
+      ],
+      "experiments_tried": [],
+      "first_mismatch": null,
+      "id": "RESIDENT-VARS-LAYOUT-001",
+      "missing_artifact": "Pinned vars.o extraction and independently compiled vars.c controls with natural DATA/COMMON sizes, field order and original reference/initializer evidence.",
+      "next_experiment": "Extract vars.o from the pinned library and compile the pinned SDK vars.c independently. Link as separate objects with authored root controls, then inspect real initialized and COMMON contributions. Reject dummy storage or forced addresses.",
+      "status": "OPEN",
+      "target": "pinned vars object and resident DATA/COMMON frontier"
     }
   ],
   "function_blockers": {

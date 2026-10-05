@@ -42,4 +42,14 @@ helper's A4 load binds SysBase at DATA+B3A2. The two wrappers were split into
 UNCERTAIN extents by static CFG analysis; their pinned object boundaries and
 natural call binding now establish the complete 20-byte library unit. See
 `../../experiments/openlibrary-wrappers.json` and the retained openlibrary
-inputs. This makes 88 experimental matched resident bytes, still unpromoted.
+inputs. This established 88 experimental matched resident bytes.
+
+Strict acceptance follow-up: tools/library_a4.py now re-derives complete
+membership in the pinned c.lib, SDK bytes, producing tool/source/object
+receipts, ordinary commands, actual symbol maps, control DATA and current
+accepted caller dependencies. Eleven retained-fixture controls reject changed
+bodies/bases, same-shape wrong-base InitView, stale source/proof dependencies,
+SDK/object/recipe changes and rehashed library/allocation edits. The 88 complete
+CODE bytes now count as PINNED_RUNTIME. Serialization padding and the four-byte
+empty BSS sentinel are excluded. acceptance.json records current status;
+storage order, compiler release and full resident/overlay layout remain open.

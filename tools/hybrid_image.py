@@ -17,6 +17,7 @@ from common import FormatError, require, sha256, write_json
 from hunk import parse, manx_overlay
 from recovery_evidence import load_promotions,load_terminal_padding
 from repo_paths import canonical_path
+from library_a4 import load_library_a4
 
 CATEGORIES = ('RECOVERED_C', 'RECOVERED_ASM', 'COMPILER_OWNED_DATA',
               'PINNED_RUNTIME', 'CLASSIFIED_PADDING', 'RAW_ORACLE_DEBT')
@@ -260,6 +261,7 @@ def build(root=ROOT):
         raw=bytes.fromhex(s['actual_hex']);require(sha256(raw)==s['actual_sha256'],'runtime specimen changed')
         contributions.append(dict(id=s['id'],hunk=s['hunk'],start=s['offset'],end=s['offset']+s['size'],bytes=raw,category='PINNED_RUNTIME'))
     contributions.extend(load_terminal_padding(root,blob,model,analysis,promoted,ledger))
+    contributions.extend(load_library_a4(root,blob,model,analysis,promoted,ledger))
     return account(blob,model,contributions)
 
 

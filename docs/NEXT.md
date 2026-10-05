@@ -6,7 +6,7 @@ the remaining legacy workflow/documentation audit still have open gates.
 
 Canonical coverage is 152 functions / 41,420 C bytes. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,470
-compiler-owned data bytes, 430 pinned runtime bytes, 2 classified padding bytes and 149,682 file bytes of
+compiler-owned data bytes, 518 pinned runtime bytes, 2 classified padding bytes and 149,594 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -122,7 +122,7 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-Latest full regression: 398 tests, 9 skipped (local compilation-cache controls
+Latest full regression: 409 tests, 9 skipped (local compilation-cache controls
 and an already-canonical promotion control). Census
 validates all 152 canonical proofs. Hybrid accounting has zero overlap and zero
 unaccounted file bytes, and refresh replays all 152 retained exact artifacts.
@@ -151,10 +151,11 @@ Recommended next wave: resident graphics library dependencies and real root
 DATA/COMMON ownership. The full ov04 interval is linked and padding is now
 strictly accounted. Five pinned graphics wrappers plus the separate OpenLibrary frontend/helper
 and independently assembled SDK source match 88 resident bytes, with a two-DATA-order address
-control; this remains experimental until a strict runtime consumer accepts it.
+control. The strict consumer now counts these complete units as PINNED_RUNTIME.
 See `../evidence/experiments/graphics-wrappers.json`. The OpenLibrary
-producer also matches exactly; next, derive and mutation-test these bindings
-inside the existing strict runtime consumer, then count complete contributions
-without inferring COMMON order or original TUs. Keep Amiga ov04 closure ahead
+producer also matches exactly. Eleven retained-fixture mutation controls pass;
+no Common order or original TUs are inferred. Next, extract the real pinned
+vars.o and independently compile SDK vars.c to establish actual initialized
+DATA and COMMON contributions and field order. Keep Amiga ov04 closure ahead
 of unrelated targets; broad asset-format work and unrelated easy-function
 grinding remain deferred.

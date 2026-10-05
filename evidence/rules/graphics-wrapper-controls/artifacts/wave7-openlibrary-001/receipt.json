@@ -1,0 +1,180 @@
+{
+  "artifacts": [
+    {
+      "path": "_openlib-source.o",
+      "sha256": "1e3fd890b75bac2f2d0f8df629d6cbae21f692509e093a9868c45e7cc952b234",
+      "size": 92
+    },
+    {
+      "path": "_openlib.o",
+      "sha256": "b4d3f7f21a1516943f81f27de280144f898e0724720f8e2ab0ac10282371955c",
+      "size": 92
+    },
+    {
+      "path": "open-root1-lib",
+      "sha256": "e0332cc7bfec60d1ab061efb247a337657794afef20ac6f4784db4803935f36f",
+      "size": 92
+    },
+    {
+      "path": "open-root1-lib.sym",
+      "sha256": "2201ea120afbd450ad31e2535b1a00794ee0eb00f403a8fa098003b190cb4d74",
+      "size": 249
+    },
+    {
+      "path": "open-root1-source",
+      "sha256": "e0332cc7bfec60d1ab061efb247a337657794afef20ac6f4784db4803935f36f",
+      "size": 92
+    },
+    {
+      "path": "open-root1-source.sym",
+      "sha256": "2201ea120afbd450ad31e2535b1a00794ee0eb00f403a8fa098003b190cb4d74",
+      "size": 249
+    },
+    {
+      "path": "open-root2-lib",
+      "sha256": "e6e122c1585dfc1d2507ab53d50cd1b38cd792f809b26d9d79f939ce3fd6545b",
+      "size": 100
+    },
+    {
+      "path": "open-root2-lib.sym",
+      "sha256": "d798fddb0d27264e8e551c73ddba9f426903cb1227c6e95c12fcea48369808e0",
+      "size": 249
+    },
+    {
+      "path": "open-root2-source",
+      "sha256": "e6e122c1585dfc1d2507ab53d50cd1b38cd792f809b26d9d79f939ce3fd6545b",
+      "size": 100
+    },
+    {
+      "path": "open-root2-source.sym",
+      "sha256": "d798fddb0d27264e8e551c73ddba9f426903cb1227c6e95c12fcea48369808e0",
+      "size": 249
+    },
+    {
+      "path": "openlibr-source.o",
+      "sha256": "7189823d0390edc985780e72b9a85823efd18c4f0b56f87ada6ed5e5efd874c6",
+      "size": 80
+    },
+    {
+      "path": "openlibr.o",
+      "sha256": "cbf69416b9ca4b3ff875571531f3ef817c8ed098efddab1632b70e538dd6e502",
+      "size": 80
+    },
+    {
+      "path": "root1.o",
+      "sha256": "f59752d3dcc36b93ceb960e9ee1d70fa6450bfad87712daa8290fc823fe65f52",
+      "size": 60
+    },
+    {
+      "path": "root2.o",
+      "sha256": "b4e8bd861d05f0a1480f1b1771105f542be9cc5412d5d7ad28dbc6f7af24744c",
+      "size": 68
+    }
+  ],
+  "original_job_receipt_sha256": "3ebd326df2ae64f6181858225736af1ad7f8d47265c05ac26486451b2f3cc531",
+  "schema_version": 1,
+  "source_files": [
+    {
+      "path": "_openlib.asm",
+      "sha256": "de3a1678b1d072693479404b10d75138d761e448877bac1076019e7214ce7b1a"
+    },
+    {
+      "path": "openlibr.asm",
+      "sha256": "f77fa0a8f49a3f0434098ff4506afeda66550df3460ee766c41cf858b255338f"
+    },
+    {
+      "path": "root1.asm",
+      "sha256": "338d324c5b8eec39f357805a5954b8e1cb140b23220344aa7e6161beb737b2e2"
+    },
+    {
+      "path": "root2.asm",
+      "sha256": "5582949110615cb93c0531468ac5a79852c44d17d82d6b513c26f436e647e46a"
+    }
+  ],
+  "steps": [
+    {
+      "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x openlibr _openlib",
+      "index": 0,
+      "returncode": 0,
+      "returncode_file": "step-00.rc"
+    },
+    {
+      "command": "Old1:bin/as >root1-as.log -o root1.o root1.asm",
+      "index": 1,
+      "returncode": 0,
+      "returncode_file": "step-01.rc"
+    },
+    {
+      "command": "Old1:bin/as >root2-as.log -o root2.o root2.asm",
+      "index": 2,
+      "returncode": 0,
+      "returncode_file": "step-02.rc"
+    },
+    {
+      "command": "Old1:bin/as >openlibr-as.log -o openlibr-source.o openlibr.asm",
+      "index": 3,
+      "returncode": 0,
+      "returncode_file": "step-03.rc"
+    },
+    {
+      "command": "Old1:bin/as >_openlib-as.log -o _openlib-source.o _openlib.asm",
+      "index": 4,
+      "returncode": 0,
+      "returncode_file": "step-04.rc"
+    },
+    {
+      "command": "Old1:bin/ln >open-root1-lib.log -m -t -o open-root1-lib openlibr.o _openlib.o root1.o",
+      "index": 5,
+      "returncode": 0,
+      "returncode_file": "step-05.rc"
+    },
+    {
+      "command": "Old1:bin/ln >open-root1-source.log -m -t -o open-root1-source openlibr-source.o _openlib-source.o root1.o",
+      "index": 6,
+      "returncode": 0,
+      "returncode_file": "step-06.rc"
+    },
+    {
+      "command": "Old1:bin/ln >open-root2-lib.log -m -t -o open-root2-lib openlibr.o _openlib.o root2.o",
+      "index": 7,
+      "returncode": 0,
+      "returncode_file": "step-07.rc"
+    },
+    {
+      "command": "Old1:bin/ln >open-root2-source.log -m -t -o open-root2-source openlibr-source.o _openlib-source.o root2.o",
+      "index": 8,
+      "returncode": 0,
+      "returncode_file": "step-08.rc"
+    }
+  ],
+  "tool_inputs": [
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/cc",
+      "sha256": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/mclk",
+      "sha256": "b3692888bb0faf7bec5daf2bcfaab5a28f6dda72fc0ba877be2f5aeabddbaac7"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/set",
+      "sha256": "cbfb7688c08e9765edad4462f40fd27b7a92f0d1c32eb6f977a534e4156daae8"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/setdat",
+      "sha256": "651f7e1a1bd1a303fce663573fe6a38bae5c69e2fb6568828231d3cca7bd03fe"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS2/bin/lb",
+      "sha256": "a1bf3e25b67d9da333671c72b2e4e125f5f3b0ed74adef6dabf354c8ede21ac1"
+    }
+  ]
+}
