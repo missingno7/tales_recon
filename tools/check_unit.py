@@ -36,13 +36,13 @@ def stable_receipt(value):
     return value
 
 
-def proven_tail(f,ledger):
+def proven_tail(f,ledger,*,context=None):
     """Return a canonical member's separately proven adjacent CODE tail."""
     item=ledger['functions'].get(f['id'])
     if not item or item['state']!='FUNCTION_WITH_DATA_MATCH':return b'',None
     from owned_code_data import expected_string_tail
-    tail,ownership=expected_string_tail(f)
-    proof=json.loads((ROOT/item['proof']).read_text())
+    tail,ownership=expected_string_tail(f,context=context) if context is not None else expected_string_tail(f)
+    proof=json.loads(((context['root'] if context is not None else ROOT)/item['proof']).read_text())
     claimed=proof.get('data_ownership',{})
     require(claimed.get('start')==ownership['start'] and claimed.get('end')==ownership['end'] and
             claimed.get('expected_tail_sha256')==sha256(tail),'canonical owned CODE-data proof changed')
@@ -306,7 +306,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     return (ordered,names,parts,combined,l) if with_parts else (ordered,names,combined,l)
 
 
-def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None,natural=None):
+def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None,natural=None,*,context=None):
     """Exact comparison of a complete linked unit.
 
     ``natural`` is a ``natural_interval_plan`` layout.  Members are then
@@ -315,8 +315,8 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
     gap-independent; otherwise it is BLOCKED with the layout's reason.
     """
     if natural is None:
-        return _compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,source_text)
-    result=_compare_unit(members,names,compiled,a4_bias,owned_code_data,True,source_text)
+        return _compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,source_text,context=context)
+    result=_compare_unit(members,names,compiled,a4_bias,owned_code_data,True,source_text,context=context)
     new_ids={r['id'] for r in natural['members'] if r['role'].startswith('new')}
     result['canonical_regressions']=[dict(id=m['id'],verdict=m.get('verdict'),reason=m.get('reason'))
                                      for m in result.get('members',[]) if m['id'] not in new_ids]
@@ -326,17 +326,17 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
     return result
 
 
-def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None):
+def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None,*,context=None):
     if compiled['status']!='COMPILED':return dict(verdict='BLOCKED',reason=compiled['status'],members=[])
     c=compiled['contribution'];raw=bytes.fromhex(c['code_hex']);expected=b''.join(bytes.fromhex(f['raw_bytes']) for f in members)
     result=dict(verdict='BLOCKED',expected_length=len(expected),actual_length=len(raw),members=[],object_sha256=c['object_sha256'])
     if c['data_size'] or c['bss_size']:
         result['reason']='UNIT_DATA_OWNERSHIP_UNPROVEN';return result
-    ledger=recovery();tails={};tail_receipts=[]
+    ledger=context['ledger'] if context is not None else recovery();tails={};tail_receipts=[]
     try:
         target_id=next(fid for fid,name in names.items() if name=='recovered')
         for f in members:
-            tail,ownership=proven_tail(f,ledger)
+            tail,ownership=proven_tail(f,ledger,context=context) if context is not None else proven_tail(f,ledger)
             # A source object's literal bundle is emitted directly after its
             # own function, even when a separately linked local callee follows
             # it in this compact proof.  The requested tail always belongs to
@@ -344,7 +344,7 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             # original address.
             if owned_code_data and f['id']==target_id and not tail:
                 from owned_code_data import expected_string_tail
-                tail,ownership=expected_string_tail(f)
+                tail,ownership=expected_string_tail(f,context=context) if context is not None else expected_string_tail(f)
             tails[f['id']]=tail
             if tail:tail_receipts.append(dict(id=f['id'],**ownership,expected_tail_sha256=sha256(tail)))
     except FormatError as exc:
@@ -383,7 +383,9 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
         stop=cursor+f['size'];piece=copy.deepcopy(compiled);pc=piece['contribution']
         owned_tail=tails[f['id']]
         code_offset=cursor if allow_gaps else original_base+cursor
-        pc.update(code_hex=raw[cursor:stop].hex()+owned_tail.hex(),code_size=f['size']+len(owned_tail),code_offset=code_offset,entry_offset=0)
+        # Compare the linked literal bytes themselves. Appending the expected
+        # tail here would conceal a same-size source literal corruption.
+        pc.update(code_hex=raw[cursor:stop+len(owned_tail)].hex(),code_size=f['size']+len(owned_tail),code_offset=code_offset,entry_offset=0)
         pc['hunk']=original_hunk
         pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset'] if allow_gaps else s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
                        for s in symbols]
@@ -399,9 +401,9 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             pc['relocations'].append(dict(relocation,relative_offset=at-cursor))
         if owned_tail:
             from owned_code_data import compare_owned_code_data
-            report=compare_owned_code_data(f,piece,a4_bias,source_text)
+            report=compare_owned_code_data(f,piece,a4_bias,source_text,**({'context':context} if context is not None else {}))
         else:
-            report=compare_function(f,piece,a4_bias,source_text=source_text)
+            report=compare_function(f,piece,a4_bias,source_text=source_text,**({'context':context} if context is not None else {}))
         report['id']=f['id'];result['members'].append(report)
         cursor=stop+len(owned_tail)
     require(cursor==len(raw),'unclaimed code bytes in unit')

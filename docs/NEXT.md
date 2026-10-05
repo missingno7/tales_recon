@@ -1,4 +1,4 @@
-# Current handoff - 2026-10-05
+# Current handoff - 2026-10-06
 
 This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
@@ -6,19 +6,23 @@ the remaining legacy workflow/documentation audit still have open gates.
 
 Canonical coverage is 152 functions / 41,420 C bytes. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,470
-compiler-owned data bytes, 430 pinned runtime bytes and 149,684 file bytes of
+compiler-owned data bytes, 430 pinned runtime bytes, 2 classified padding bytes and 149,682 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
 ## First closure campaign: ov04
 
 All 24 known closed-CFG functions are canonical: 9,758 C bytes,
-1,008 compiler-owned data bytes and 2 initialized debt bytes.
+1,008 compiler-owned data bytes, 2 proved terminal padding bytes and zero initialized debt bytes.
 `../evidence/closure/ov04.json` lists canonical and remaining function identities;
 `../evidence/hybrid/accounting.json` contains the complete ownership partition.
 
-The only unowned initialized range is 2A0E..2A10, the two-byte terminal pad.
-The accounting partition does not grant padding ownership merely from adjacency.
+The strict curated claim in `../evidence/contributions/padding.json` explains
+2A0E..2A10 using the actual full-link output. Its loader re-derives all source,
+proof, object-group, profile, compiler and retained unit inputs, replays all
+24 members including actual literal bytes, and rejects incoming references,
+changed allocation or stale dependencies. Zero accounting debt grants no
+natural node or whole-file proof.
 No ov04 pinned runtime contribution is proved.
 Resolve relocations against independently established target identities, and
 review separately compiled source/object ordering. Existing accepted grouping
@@ -59,13 +63,17 @@ image assembled with oracle debt cannot satisfy this gate.
 
 ## Top five blockers by leverage
 
-1. ov04 terminal padding: retain a strict independent natural-link proof for the
-   two bytes, then make accounting consume that curated proof without granting
-   overlay closure. Category DATA_OWNERSHIP.
-2. ov04 natural node link: verify all 24 functions, literals, relocations and
-   export identities in original order with canonical profiles and only existing
-   proved object groups. Reproduce CHIP allocation with the measured +ccd rule;
-   keep root DATA/BSS binding/layout obligations explicit. Category OBJECT/TU_LAYOUT.
+1. Resident DATA/COMMON: recover real initialized contributions and intervening
+   allocations. SDK-compatible RasInfo/BitMap views now pass exact source
+   verification, but establish no original ownership or TU order. Their first
+   92-byte COMMON cluster covers only 16 of ov04's 185 root relocation sites.
+   Categories DATA_OWNERSHIP / OBJECT/TU_LAYOUT.
+2. ov04 natural node link: the refreshed 15-object link matches all 24 functions,
+   literals, 185 relocation layouts and 10 ordered exports. Its 1,496 raw byte
+   differences are confined to independently proved address fields. Root CODE
+   is 2,744 versus 36,260 bytes; root DATA initializes 556 versus 11,956 and
+   allocates 4,960 versus 46,044. Preserve these open obligations and the full
+   14-slot topology requirement. Category OBJECT/TU_LAYOUT.
 3. AJ/FFP external identities: controlled AJ specimens now establish a bounded
    external-word grammar and natural PC binding. The real FFP object still uses
    unsupported records. Extend only with positive/negative specimens, consume
@@ -114,10 +122,10 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-Latest full regression: 385 tests, 9 skipped (local compilation-cache controls
+Latest full regression: 398 tests, 9 skipped (local compilation-cache controls
 and an already-canonical promotion control). Census
-validates all 151 canonical proofs. Hybrid accounting has zero overlap and zero
-unaccounted file bytes, and refresh replays all 151 retained exact artifacts.
+validates all 152 canonical proofs. Hybrid accounting has zero overlap and zero
+unaccounted file bytes, and refresh replays all 152 retained exact artifacts.
 Queue/batch regression tests remain active; fresh compilation of the skipped
 controls is still due. The automatic-unit producer now retains raw conflicting
 TU declarations and derives only the harness's filtered view. The strict

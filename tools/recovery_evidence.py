@@ -5,6 +5,171 @@ from repo_paths import canonical_path
 
 
 EXTERN_FUNCTION=r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)'
+PADDING_INPUT='evidence/contributions/padding.json'
+
+
+def terminal_padding_recipe(root,blob,model,analysis,promotions,ledger,entry):
+    """Re-derive the bounded ov04 full-node source recipe, without game reads."""
+    import re
+    from check_unit import proven_object_partition
+    from compiler_oracle import object_specs,identity,cached,overlay_proxies
+    from mixed_profile_oracle import mixed_identity
+    from profile_compat import proof_profile,link_class
+    from owned_code_data import expected_string_tail
+    root=root.resolve();context=dict(root=root,blob=blob,model=model,analysis=analysis,ledger=ledger)
+    require(analysis['game_sha256']==sha256(blob),'padding analysis belongs to another game')
+    h=next((h for h in model['hunks'] if h['number']==4),None)
+    require(h and h['node']=='ov04' and h['type']=='CODE','padding requires original ov04 CODE')
+    members=sorted((f for f in analysis['functions'] if f['hunk']==4),key=lambda f:f['start'])
+    ids=[f['id'] for f in members];accepted={p['id']:p for p in promotions}
+    require(entry in ids and all(fid in ledger['functions'] and fid in accepted for fid in ids),
+            'padding requires every discovered member to be canonical')
+    names={fid:'recovered' if fid==entry else 'F_h04_%04X'%f['start'] for fid,f in zip(ids,members)}
+    parts={};proofs={};dependencies=[];units={};profiles={};cursor=0
+    for f in members:
+        fid=f['id'];item=ledger['functions'][fid]
+        require(f['extent_status']=='CLOSED_CFG' and accepted[fid]['hunk']==4 and
+                all(accepted[fid][k]==f[k] for k in ('start','end','size','sha256')),'padding member extent differs')
+        source=canonical_path(root,item['source']).read_bytes();rawproof=canonical_path(root,item['proof']).read_bytes()
+        require(sha256(source)==item['source_sha256'] and sha256(rawproof)==item['proof_sha256'],
+                'padding canonical source/proof changed: '+fid)
+        proof=json.loads(rawproof);proofs[fid]=proof
+        require(proof['source_sha256']==item['source_sha256'] and proof['comparison']['verdict']=='EQUAL',
+                'padding member source proof differs')
+        parts[fid]=source.decode('ascii') if fid==entry else re.sub(r'\brecovered\b',names[fid],source.decode('ascii'))
+        profiles[fid]=proof_profile(proof,fid)
+        dependencies.append(dict(id=fid,source=item['source'],source_sha256=item['source_sha256'],
+                                 proof=item['proof'],proof_sha256=item['proof_sha256']))
+        tail=b''
+        if item['state']=='FUNCTION_WITH_DATA_MATCH':
+            tail,owned=expected_string_tail(f,context=context)
+            require(all(proof['data_ownership'].get(k)==v for k,v in owned.items()),'padding literal ownership differs')
+        require(f['start']==cursor,'padding requires full coverage without compaction')
+        cursor=f['end']+len(tail)
+        unit_name=proof['comparison'].get('complete_unit_receipt')
+        if unit_name and unit_name not in units:
+            rawunit=canonical_path(root,unit_name).read_bytes()
+            require(sha256(rawunit)==proof['comparison']['complete_unit_receipt_sha256'],'padding group receipt changed')
+            unit=json.loads(rawunit)
+            require(unit['verdict']=='EQUAL','padding group receipt is not exact')
+            raw_unit_source=canonical_path(root,unit_name).with_name('unit.c').read_bytes()
+            require(sha256(raw_unit_source)==unit['combined_source_sha256'],'padding group raw source changed')
+            unit_export_evidence(unit,raw_unit_source.decode('ascii'),unit['compiler'],blob,model)
+            specimen=cached(unit['cache_key'])
+            require(specimen and specimen['identity']==unit['compiler'],'padding group compiler identity differs')
+            units[unit_name]=(unit,sha256(rawunit))
+    require(0<h['initialized_size']-cursor<=3 and h['initialized_size']==(cursor+3)//4*4,
+            'padding is not terminal HUNK rounding')
+    groups=[]
+    for unit,digest in units.values():
+        partition=proven_object_partition(unit)
+        require(partition is not None,'padding proved object partition unavailable')
+        proved={**unit.get('dependency_sources',{}),**unit.get('member_sources',{}),unit['id']:unit['source_sha256']}
+        for group in partition:
+            if len(group)<2 or entry in group or any(fid not in ids for fid in group):continue
+            at=ids.index(group[0])
+            require(ids[at:at+len(group)]==group and all(ledger['functions'][fid]['source_sha256']==proved.get(fid) for fid in group),
+                    'padding proved group source/order differs')
+            if group not in groups:groups.append(group)
+    merged=[]
+    for group in sorted(groups,key=lambda g:ids.index(g[0])):
+        if merged and ids.index(group[0])<=ids.index(merged[-1][-1]):merged[-1]+=[x for x in group if x not in merged[-1]]
+        else:merged.append(list(group))
+    objects=[];partition=[];i=0
+    while i<len(ids):
+        group=next((g for g in merged if g[0]==ids[i]),[ids[i]])
+        texts=[parts[fid] for fid in group];own=[names[fid] for fid in group]
+        objects.append(dict(source=texts[0] if len(group)==1 else proven_object_source(texts,own)))
+        partition.append(group);i+=len(group)
+    combined='\n'.join(parts[fid] for fid in ids)+'\n';local=[names[fid] for fid in ids if fid!=entry]
+    require(not overlay_proxies(combined,2),'padding recipe requires one actual overlay node')
+    source,externs=stand_in_source(combined,local)
+    trial=dict(source=source,profile=profiles[entry],target_node=2,objects=objects,local_functions=local)
+    roots=same_overlay_exports(members,names,entry,blob,model)
+    if roots is not None:trial['same_overlay_exports']=roots
+    object_profiles=[]
+    for group in partition:
+        found={profiles[fid] for fid in group};require(len(found)==1,'padding object mixes canonical profiles')
+        object_profiles.append(next(iter(found)))
+    link_class([trial['profile'],*object_profiles])
+    if any(p!=trial['profile'] for p in object_profiles):
+        trial.update(object_profiles=object_profiles,member_profiles=profiles)
+        key,compiler,_,_=mixed_identity(trial)
+    else:key,compiler,_=identity(source,trial['profile'],2,object_specs(trial),local,same_overlay_exports=roots)
+    recipe=dict(entry=entry,hunk=4,node='ov04',interval=[0,h['initialized_size']],start=cursor,end=h['initialized_size'],
+        member_dependencies=dependencies,unit_dependencies=[dict(path=p,sha256=d) for p,(_,d) in units.items()],
+        proven_groups=merged,object_partition=partition,combined_source_sha256=sha256(combined.encode('ascii')),
+        merged_external_declarations=externs,cache_key=key,compiler=compiler)
+    return recipe,members,names,combined,context
+
+
+def load_terminal_padding(root,blob,model,analysis,promotions,ledger,*,document=None):
+    """Only independently produced terminal serialization bytes become padding.
+
+    Absence preserves legacy accounting. Supplied contexts prevent recursive
+    game/census reads; no cached verdict or recorded hash replaces derivation.
+    """
+    from pathlib import Path
+    from compiler_oracle import cached
+    from check_unit import compare_unit
+    from hunk import parse,manx_overlay
+    root=Path(root).resolve()
+    if document is None:
+        path=canonical_path(root,PADDING_INPUT)
+        if not path.exists():return []
+        document=json.loads(path.read_bytes())
+    require(document.get('schema_version')==1 and document.get('game_sha256')==sha256(blob),
+            'padding input belongs to another game/schema')
+    require(isinstance(document.get('claims'),list) and len(document['claims'])<=1,'padding requires at most one ov04 claim')
+    out=[]
+    for claim in document['claims']:
+        recipe,members,names,combined,context=terminal_padding_recipe(root,blob,model,analysis,promotions,ledger,claim.get('entry'))
+        require(claim.get('recipe')==recipe,'padding recipe does not re-derive')
+        unit_source=claim.get('unit_source') or {}
+        rawsource=canonical_path(root,unit_source.get('path','')).read_bytes()
+        require(rawsource==combined.encode('ascii') and sha256(rawsource)==unit_source.get('sha256'),
+                'padding retained raw unit source does not re-derive')
+        compiled=cached(recipe['cache_key'])
+        require(compiled and compiled['status']=='COMPILED' and compiled['identity']==recipe['compiler'],
+                'padding compiler artifacts/identity unavailable or changed')
+        c=compiled['contribution'];directory=Path(compiled['directory']);prefix=compiled['prefix'];hashes=[];code_sum=0
+        for label in c.get('object_labels',recipe['compiler']['object_labels']):
+            name=prefix if label=='candidate' else prefix+'_'+label
+            obj=(directory/(name+'.o')).read_bytes()
+            require(obj[:2] in (b'AJ',b'CJ') and int.from_bytes(obj[14:22],'big')==0,'padding object has DATA/BSS')
+            code_sum+=int.from_bytes(obj[10:14],'big');hashes.append(sha256(obj))
+        require(hashes==claim.get('object_sha256s'),'padding object hashes differ')
+        executable=(directory/(prefix+'.exe')).read_bytes();produced=parse(executable)
+        require(sha256(executable)==claim.get('executable_sha256'),'padding executable hash differs')
+        h=next(h for h in produced['hunks'] if h['number']==c['hunk'])
+        require(h['type']=='CODE' and h['node']!='resident' and len(produced['nodes'])==2 and
+                len(produced['nodes'][1]['hunks'])==1 and code_sum==c['code_size']==recipe['start'] and
+                h['allocated_size']==h['initialized_size']==recipe['end']==(code_sum+3)//4*4 and
+                h['zero_fill_size']==0,'padding produced hunk/bounds differ')
+        verdict=compare_unit(members,names,compiled,analysis['a4']['bias'],owned_code_data=True,
+                             source_text=combined,context=context)
+        require(verdict['verdict']=='EQUAL' and verdict['unclaimed_bytes']==0,'padding complete member verification failed')
+        original_h=next(h for h in model['hunks'] if h['number']==4)
+        start,end=recipe['start'],recipe['end'];payload=executable[h['content_offset']+start:h['content_offset']+end]
+        require(payload==bytes(end-start) and sha256(payload)==claim.get('padding_sha256') and
+                payload==blob[original_h['content_offset']+start:original_h['content_offset']+end],
+                'padding emitted/original bytes differ')
+        for m,number in ((produced,c['hunk']),(model,4)):
+            require(not any(r['source_hunk']==number and r['source_offset']<end and r['source_offset']+r['width']>start
+                            for r in m['relocations']),'padding intersects relocation')
+            require(not any(r['target_hunk']==number and start<=r['addend_raw']<end for r in m['relocations']),
+                    'padding has an incoming relocation reference')
+        require(not any(start<=r['offset']<end and r['hunk']==4 for f in analysis['functions']
+                        for r in f.get('referenced_data',[])+f.get('direct_callees',[])),'padding has an incoming analyzed reference')
+        tree=manx_overlay(produced,executable);original_tree=manx_overlay(model,blob)
+        actual=[s['target_offset'] for slot in tree['slots'] for s in slot['symbols'] if s['target_hunk']==c['hunk']]
+        expected=[s['target_offset'] for slot in original_tree['slots'] for s in slot['symbols'] if s['target_hunk']==4]
+        require(actual==expected,'padding complete-node export identities/order differ')
+        require(all(s['encoded_node_id']==2 for slot in tree['slots'] for s in slot['symbols']
+                    if s['target_hunk']==c['hunk']),'padding produced overlay node differs')
+        out.append(dict(id='ov04_terminal_hunk_padding',hunk=4,start=start,end=end,category='CLASSIFIED_PADDING',
+                        bytes=payload,relocations=[]))
+    return out
 
 
 def same_overlay_exports(members,names,target_id,blob,model):

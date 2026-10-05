@@ -18,7 +18,7 @@ def alignment_padding(tail):
     return b'\0' if len(tail)&1 else b''
 
 
-def expected_string_tail(f):
+def expected_string_tail(f,*,context=None):
     """Return the contiguous printable-string tail independently evidenced for f.
 
     The ledger records printable strings from executable data references.  A
@@ -49,7 +49,8 @@ def expected_string_tail(f):
         tail.append(raw);cursor+=len(raw)
     literals=b''.join(tail);padding=alignment_padding(literals)
     if padding:
-        blob,model,_=game()
+        if context is None:blob,model,_=game()
+        else:blob,model=context['blob'],context['model']
         hunk=next((h for h in model['hunks'] if h['number']==f['hunk']),None)
         if hunk is None:
             raise FormatError('owned string tail hunk is absent from immutable game model')
@@ -94,7 +95,7 @@ def pc_relative_tail_proof(f,prefix,tail_start):
     return proof
 
 
-def compare_owned_code_data(f,compiled,a4_bias,source_text=None):
+def compare_owned_code_data(f,compiled,a4_bias,source_text=None,*,context=None):
     """Compare a closed function plus a separately proven compiler CODE tail.
 
     The returned verdict is intentionally an intermediate proof level.  It is
@@ -109,7 +110,7 @@ def compare_owned_code_data(f,compiled,a4_bias,source_text=None):
     c=compiled['contribution'];actual=bytes.fromhex(c['code_hex']);report['actual_length']=len(actual)
     tail=None
     try:
-        tail,ownership=expected_string_tail(f)
+        tail,ownership=expected_string_tail(f,context=context) if context is not None else expected_string_tail(f)
         if c.get('entry_offset',0):raise FormatError('multi-function object requires complete unit proof')
         if c['data_size'] or c['bss_size']:raise FormatError('candidate has separate DATA/BSS contribution')
         if len(actual)!=f['size']+len(tail):raise FormatError('candidate CODE contribution has unclaimed bytes')
@@ -125,7 +126,8 @@ def compare_owned_code_data(f,compiled,a4_bias,source_text=None):
     # base so same-overlay PC calls can be proved against the full natural
     # unit.  A standalone candidate still has the ordinary zero default.
     pc.update(code_hex=actual[:f['size']].hex(),code_size=f['size'],code_offset=pc.get('code_offset',0))
-    code_report=compare_function(f,piece,a4_bias,allow_pc_relative_data=True,source_text=source_text)
+    code_report=compare_function(f,piece,a4_bias,allow_pc_relative_data=True,source_text=source_text,
+                                 **({'context':context} if context is not None else {}))
     report.update(code_comparison=code_report,owned_code_data=dict(**ownership,expected_tail_sha256=sha256(tail),
         actual_tail_sha256=sha256(actual[f['size']:]),actual_tail_length=len(tail),pc_relative_proof=pc_proof))
     for key in ('mnemonic_similarity','prologue','epilogue','relocation_equal','relocation_proof',

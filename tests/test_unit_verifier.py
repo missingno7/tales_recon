@@ -176,3 +176,45 @@ class CompleteUnitTests(unittest.TestCase):
         receipt=stable_receipt(dict(cache_hit=True,members=[dict(cache_hit=False,
             owned_code_data=dict(code_comparison=dict(cache_hit=True,verdict='EQUAL')))]))
         self.assertNotIn('cache_hit',str(receipt))
+
+
+class ActualUnitTailTests(unittest.TestCase):
+    """Both the requested target and canonical callee use actual tail bytes."""
+
+    def test_same_size_target_and_canonical_tail_corruption_rejects_whole_unit(self):
+        from owned_code_data import expected_string_tail
+        target=dict(id='ov09_F_0064',hunk=9,start=100,end=106,size=6,raw_bytes='41fa00044e75',
+            extent_status='CLOSED_CFG',relocations=[],direct_callees=[],
+            referenced_data=[dict(kind='PC_RELATIVE_DATA',hunk=9,offset=106,instruction_offset=100)],
+            referenced_strings=[dict(hunk=9,offset=106,text='X')])
+        callee=dict(id='ov09_F_006C',hunk=9,start=108,end=114,size=6,raw_bytes='41fa00044e75',
+            extent_status='CLOSED_CFG',relocations=[],direct_callees=[],
+            referenced_data=[dict(kind='PC_RELATIVE_DATA',hunk=9,offset=114,instruction_offset=108)],
+            referenced_strings=[dict(hunk=9,offset=114,text='Y')])
+        names={target['id']:'recovered',callee['id']:'F_h09_006C'}
+        def canonical_tail(f,ledger):
+            return expected_string_tail(f) if f['id']==callee['id'] else (b'',None)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'candidate.exe').write_bytes(b'\0'*64)
+            compiled=dict(status='COMPILED',identity=dict(profile='aztec36',flags=[]),cache_key='actual-tails',cache_hit=True,
+                directory=str(root),prefix='candidate',contribution=dict(code_hex='41fa00044e75580041fa00044e755900',
+                code_size=16,hunk=3,data_size=0,bss_size=0,relocations=[],all_relocations=[],object_sha256='test',
+                symbols=[dict(hunk=3,name='_recovered',offset=0),dict(hunk=3,name='_F_h09_006C',offset=8)],
+                hunks=[dict(number=0,content_offset=0),dict(number=1,initialized_size=0,allocated_size=0),dict(number=2,allocated_size=0)]))
+            def check(c):
+                with patch('check_unit.proven_tail',side_effect=canonical_tail):
+                    return compare_unit([target,callee],names,c,32766,owned_code_data=True,source_text='recovered(){}')
+            positive=check(compiled)
+            self.assertEqual(positive['verdict'],'EQUAL')
+            self.assertEqual([t['id'] for t in positive['owned_code_tails']],[target['id'],callee['id']])
+            for offset,fid in [(6,target['id']),(7,target['id']),(14,callee['id']),(15,callee['id'])]:
+                with self.subTest(offset=offset,member=fid):
+                    bad=copy.deepcopy(compiled);raw=bytearray.fromhex(bad['contribution']['code_hex']);raw[offset]^=1
+                    bad['contribution']['code_hex']=raw.hex()
+                    result=check(bad)
+                    self.assertEqual(result['actual_length'],positive['actual_length'])
+                    self.assertEqual(result['verdict'],'DIFFER')
+                    self.assertEqual(result['reason'],'MEMBER_DIFFERS')
+                    member=next(m for m in result['members'] if m['id']==fid)
+                    self.assertEqual(member['verdict'],'BLOCKED')
+                    self.assertEqual(member['reason'],'candidate CODE tail differs from independently evidenced strings')

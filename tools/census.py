@@ -284,7 +284,8 @@ def derive(root, promotion_evidence=None):
         phases={'0':'CENSUS_COMPLETE','1':'CENSUS_COMPLETE','2':'CENSUS_COMPLETE',
                 '3':'STATIC_TOPOLOGY_VALIDATED_RUNTIME_NOT_TRACED','4':'PARTIAL_CONSERVATIVE_MAP',
                 '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'CANDIDATE_OBJECT_MATCHES' if runtime_candidate_bytes else 'OVERLAY_GLUE_ONLY','7':'FINGERPRINT_MATRIX_AND_GAME_LEAF_MATCHES' if promoted else 'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
-        pilot='ov04',next_action=f'Close ov04 naturally: recover its {len(ov04_pending)} remaining closed functions, resolve data ownership and object ordering, and remove all overlay RAW_ORACLE_DEBT before claiming closure.')
+        pilot='ov04',next_action=(f'Close ov04 naturally: recover its {len(ov04_pending)} remaining closed functions, resolve data ownership and object ordering, and remove all overlay RAW_ORACLE_DEBT before claiming closure.' if ov04_pending else
+            'Verify ov04 terminal-padding ownership and the complete natural node link, including allocations, exports, relocations and root bindings; zero accounting debt alone cannot establish closure.'))
     outputs['evidence/executable/pilot.json'] = dict(schema_version=1, node='ov04', hunk=4,
         selection_reason=f'Closure campaign: {len(ov04_owned)} canonical contributions and {len(ov04_pending)} remaining known closed-CFG functions; data and natural linking remain unproved',
         initialized_size=next(h['initialized_size'] for h in model['hunks'] if h['number']==4),

@@ -85,7 +85,7 @@ def runtime_symbol_names(evidence):
             for entry in contribution['entries']}
 
 
-def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text=None):
+def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text=None,*,context=None):
     report=dict(expected_length=f['size'],actual_length=None,compiler=compiled['identity']['profile'],flags=compiled['identity']['flags'],
                 cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],verdict='BLOCKED',relocation_equal=False,proof_level=None)
     if compiled['status']!='COMPILED':
@@ -152,7 +152,7 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
     # from the naturally linked startup's LEA relocation in the actual binary.
     from pathlib import Path
     blob=(Path(compiled['directory'])/(compiled['prefix']+'.exe')).read_bytes()
-    runtime_evidence_path=ROOT/'evidence/experiments/runtime-arithmetic.json'
+    runtime_evidence_path=(context['root'] if context is not None else ROOT)/'evidence/experiments/runtime-arithmetic.json'
     runtime_evidence=None
     if runtime_evidence_path.exists():
         import json
@@ -160,7 +160,8 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
         from runtime_arithmetic import aliases
         runtime_evidence=json.loads(runtime_evidence_path.read_text())
     if runtime_evidence and any(s['name'] in runtime_symbol_names(runtime_evidence) for s in c['symbols']):
-        original,original_model,_=game()
+        if context is None:original,original_model,_=game()
+        else:original,original_model=context['blob'],context['model']
         runtime_symbols,runtime_proof=aliases(compiled,blob,original,original_model,runtime_evidence)
         symbol_map.extend(runtime_symbols)
         report['runtime_contributions']=runtime_proof
