@@ -329,6 +329,17 @@
     "selector": "+ccd",
     "status": "MEASURED_PINNED_AZTEC36_LINKER_RULE"
   },
+  "natural_same_overlay_export_binding": {
+    "control": "Separate caller, exported callee and helper objects are reused unchanged between root-reference variants; complete parsed export target identities and executable hashes are retained.",
+    "effect": "An initialized resident function pointer to a same-overlay exported function changes a separate caller object from PC-relative to the naturally generated A4 trampoline. An unreferenced helper stays PC-relative; the exported self-call stays local.",
+    "evidence": "evidence/rules/ov04-export-routing/proof.json",
+    "failed_experiments": [
+      "Absent resident export reference leaves the separate exported call PC-relative and therefore cannot explain the original F1E36 call route."
+    ],
+    "integration_gate": "Derive resident references from immutable export inventory and unit member identities, bind recipe in cache/receipt identities, and preserve parsed trampoline targets through the established complete-unit mapping.",
+    "scope": "Independent tiny source controls; no original TU claim, full ov04 link, or function acceptance.",
+    "status": "MEASURED_PINNED_AZTEC36_LINKER_RULE"
+  },
   "observations": [
     {
       "file_offset": 30462,

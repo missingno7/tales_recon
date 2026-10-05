@@ -32,9 +32,16 @@ receipts constrain historical hypotheses without establishing original TUs.
 The first bounded wave accepted F0536's 622-byte body and 38-byte literal tail,
 plus F1302's 410-byte body through seven separately compiled dependency objects.
 F1E36's best retained candidate emits 1,778 body bytes and a matching 450-byte
-literal bundle, but remains non-exact. Sol must explain why exported F27FE uses
-an A4 overlay trampoline while F26F0 uses a direct PC-relative call, and reconcile
-the automatic unit's member/tail boundary before further source grinding.
+literal bundle, but remains non-exact. Independent linker controls now explain
+F27FE's A4 overlay trampoline: a resident initialized function-pointer reference
+exports it and changes separate callers' route, while an unreferenced helper
+remains PC-relative. `../evidence/rules/ov04-export-routing/proof.json` retains
+the authored sources and positive/negative controls; it grants no source or TU
+acceptance. Integrate this evidence-rooted recipe into compiler/cache/unit
+identities and strict trampoline re-derivation before further source grinding.
+Owned automatic units currently bypass per-member tail checking. The existing
+unit comparator correctly requires 3,032 bytes against the frozen candidate's
+3,026: 1,778 body + 450 literal bytes, plus accepted 270- and 528-byte callees.
 
 Independent natural interval checks match 07CA..1302 and 26F0..2A10; the latter
 includes the linker's two-byte terminal zero pad. This is evidence for the
@@ -52,8 +59,9 @@ image assembled with oracle debt cannot satisfy this gate.
 
 ## Top five blockers by leverage
 
-1. ov04 F1E36: resolve the concrete export/trampoline binding question above,
-   then resume bounded source-shape work from the retained trial06 candidate.
+1. ov04 F1E36: integrate the measured export recipe and owned-unit dispatch,
+   preserving strict symbolic targets, then resume bounded source-shape work
+   from the retained trial06 candidate's six-byte body deficit.
 2. ov04 data ownership and object order: account for the additional 452 bytes,
    then test a natural overlay link. Categories DATA_OWNERSHIP / OBJECT/TU_LAYOUT.
 3. AJ/FFP external identities: controlled AJ specimens now establish a bounded
@@ -129,8 +137,8 @@ Scratch and new attempts go under ignored `build/`; retirements go under
 `to_delete/`. The user manually deleted the historical quarantine before this
 push. No deleted archive is reintroduced in the active project or pushed.
 
-Recommended next wave: one Sol high task on F1E36's same-overlay exported call
-binding and unit boundary. Resume one Luna xhigh source task only after that
-structural question has a concrete answer. Keep Amiga ov04 closure ahead of
+Recommended next wave: one bounded Sol high infrastructure task for F1E36's
+measured export routing and existing owned-unit verification path, followed by
+one Luna xhigh source task after a fresh exact diagnostic. Keep Amiga ov04 closure ahead of
 unrelated targets. Exact compiler-release archaeology, broad asset-format
 recovery and unrelated easy-function grinding are intentionally deferred.

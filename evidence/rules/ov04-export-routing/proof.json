@@ -1,0 +1,379 @@
+{
+  "command_returncodes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "emulator_sha256": "c3c691589eb67f86712c75f60dda5719d90d7acbb8df58ffd18b115c74758258",
+  "guest_commands": [
+    "Old1:bin/cc <NIL: >rootbase-cc.log -a +D rootbase.c",
+    "Old1:bin/as <NIL: >rootbase-as.log -o rootbase.o rootbase.asm",
+    "Old1:bin/cc <NIL: >rootexport-cc.log -a +D rootexport.c",
+    "Old1:bin/as <NIL: >rootexport-as.log -o rootexport.o rootexport.asm",
+    "Old1:bin/cc <NIL: >caller-cc.log -a +D caller.c",
+    "Old1:bin/as <NIL: >caller-as.log -o caller.o caller.asm",
+    "Old1:bin/cc <NIL: >exported-cc.log -a +D exported.c",
+    "Old1:bin/as <NIL: >exported-as.log -o exported.o exported.asm",
+    "Old1:bin/cc <NIL: >helper-cc.log -a +D helper.c",
+    "Old1:bin/as <NIL: >helper-as.log -o helper.o helper.asm",
+    "Old1:bin/ln <NIL: >rootbase-ln.log -m -t -o rootbase.exe rootbase.o +o2 caller.o exported.o helper.o +o0 Old1:lib/c.lib",
+    "Old1:bin/ln <NIL: >rootexport-ln.log -m -t -o rootexport.exe rootexport.o +o2 caller.o exported.o helper.o +o0 Old1:lib/c.lib"
+  ],
+  "limitations": [
+    "Does not identify original source TU grouping or reproduce full overlay topology/layout.",
+    "No candidate comparison or source acceptance; F1E36 remains six body bytes short.",
+    "Physical isolated target CODE hunk3 must be mapped to original hunk4 only through the established complete-unit mapping."
+  ],
+  "negative_controls": [
+    "Absent root reference: exported caller call stays PC-relative.",
+    "Unreferenced helper call stays PC-relative in both specimens.",
+    "Exported own self-call stays PC-relative in both specimens.",
+    "Caller and both callee input objects reused unchanged across links."
+  ],
+  "original_inventory": {
+    "encoded_node_id": 2,
+    "export_targets": [
+      {
+        "hunk": 4,
+        "offset": 0
+      },
+      {
+        "hunk": 4,
+        "offset": 1334
+      },
+      {
+        "hunk": 4,
+        "offset": 4866
+      },
+      {
+        "hunk": 4,
+        "offset": 5276
+      },
+      {
+        "hunk": 4,
+        "offset": 6714
+      },
+      {
+        "hunk": 4,
+        "offset": 6818
+      },
+      {
+        "hunk": 4,
+        "offset": 7060
+      },
+      {
+        "hunk": 4,
+        "offset": 7474
+      },
+      {
+        "hunk": 4,
+        "offset": 7734
+      },
+      {
+        "hunk": 4,
+        "offset": 10238
+      }
+    ],
+    "path": "evidence/executable/overlay-tree.json",
+    "sha256": "694e619a0524c69a88214f0b1cb32f9e5dcd4aed97f9f42a0013ca329ba8c224",
+    "slot_index": 1
+  },
+  "positive_control": "Only exported caller call becomes A4 through independently parsed trampoline for _exported at hunk3 offset30.",
+  "reconstruction_inference": "A resident reference to actual canonical F_h04_27FE in the same linked node naturally reproduces required call class; F_h04_26F0 lacks original export entry and must remain unrooted.",
+  "reconstruction_proof_level": null,
+  "root_reference_difference": "rootexport adds extern int exported(); int (*export_reference)() = exported;",
+  "same_overlay_input_objects": [
+    "caller.o",
+    "exported.o",
+    "helper.o"
+  ],
+  "schema_version": 1,
+  "separate_object_primary": true,
+  "source_inputs": [
+    {
+      "path": "rootbase.c",
+      "sha256": "c69d01c1170c8a92f2f028ed38a4a6f9f79e04e301ce74e9be8814e77fa75232"
+    },
+    {
+      "path": "rootexport.c",
+      "sha256": "146a071c02c699d60ebf5dd941773e75cbd6ca008ff0b71ed212ed78d1e0f0f8"
+    },
+    {
+      "path": "caller.c",
+      "sha256": "e1cead251cc5593a8ec0c289c0e3b24e02ac668029714c056cf4993ed2bdbeeb"
+    },
+    {
+      "path": "exported.c",
+      "sha256": "a093a77cc5961a83a13c241a1463a340e2a04354a114743928a3111bb4f79cea"
+    },
+    {
+      "path": "helper.c",
+      "sha256": "c2d59ca53445dd3baf1fbeac5c3c8c5a9c4198bee7e5d6542135ae8d4e9ab19a"
+    }
+  ],
+  "source_policy": "Tiny C sources independently authored; original game not mounted/read by compiler worker. No fixed addresses, byte patching or assembly.",
+  "specimens": [
+    {
+      "all_relocations_sha256": "6d586888e001e58f6b0cdef03607fa5dd8389b00b9f7e3bca2a42ede0d46736d",
+      "calls": [
+        {
+          "basis": "PC_RELATIVE",
+          "bytes": "4eba0014",
+          "mnemonic": "jsr",
+          "operand": "$1e(pc)",
+          "source_offset": 8,
+          "target": {
+            "hunk": 3,
+            "name": "_exported",
+            "offset": 30
+          }
+        },
+        {
+          "basis": "PC_RELATIVE",
+          "bytes": "4eba002a",
+          "mnemonic": "jsr",
+          "operand": "$3c(pc)",
+          "source_offset": 16,
+          "target": {
+            "hunk": 3,
+            "name": "_localhelper",
+            "offset": 60
+          }
+        },
+        {
+          "basis": "PC_RELATIVE",
+          "bytes": "61ec",
+          "mnemonic": "bsr.b",
+          "operand": "$1e",
+          "source_offset": 48,
+          "target": {
+            "hunk": 3,
+            "name": "_exported",
+            "offset": 30
+          }
+        }
+      ],
+      "executable_sha256": "b832d0eb868f4f2e82428c099632502b04d46e3d3269802d07db8c9eecc2d226",
+      "exports": [
+        {
+          "bridge_offset": 16,
+          "confidence": "OBSERVED",
+          "encoded_node_id": 2,
+          "manager_hunk": 0,
+          "manager_offset": 52,
+          "name_origin": "RECONSTRUCTED_ADDRESS",
+          "target_hunk": 3,
+          "target_offset": 0,
+          "trampoline_hunk": 1,
+          "trampoline_offset": 8
+        }
+      ],
+      "name": "rootbase",
+      "objects": [
+        {
+          "code_size": 10,
+          "name": "rootbase.o",
+          "sha256": "4a2764ec8a57257069d29fc7c843c8fc73e2021553125162850671ecde16f33a"
+        },
+        {
+          "code_size": 30,
+          "name": "caller.o",
+          "sha256": "76e4d5c8dfba910ddc684a6967e13d61f43ad92a61d8c4b5e31efa1df427973b"
+        },
+        {
+          "code_size": 30,
+          "name": "exported.o",
+          "sha256": "45aaa1f9b18f9d7cf8d4b0a2c1c764dcc009783ac26a5e5772cc841916128e1a"
+        },
+        {
+          "code_size": 10,
+          "name": "helper.o",
+          "sha256": "bb497b9aa3d3f5a7d05c683843a33dd884d9091fb911409c444b5b43c167fb5f"
+        }
+      ],
+      "overlay_initialized_size": 72,
+      "overlay_relocations": [],
+      "overlay_sha256": "b2d3fe8027ba2aa1297814a683ffda2b5298607aa246d60638e0bafd72636018",
+      "symbols": [
+        {
+          "hunk": 1,
+          "name": "_candidate_reference",
+          "offset": 24
+        },
+        {
+          "hunk": 3,
+          "name": "_entry",
+          "offset": 0
+        },
+        {
+          "hunk": 3,
+          "name": "_exported",
+          "offset": 30
+        },
+        {
+          "hunk": 3,
+          "name": "_localhelper",
+          "offset": 60
+        }
+      ]
+    },
+    {
+      "all_relocations_sha256": "3d0f8e3e2037f71ef3d4256124e0d5dcced5341b8985a31d75b23ce722dd56bf",
+      "calls": [
+        {
+          "a4_displacement": -32750,
+          "basis": "A4_OVERLAY_TRAMPOLINE",
+          "bytes": "4eac8012",
+          "encoded_node_id": 2,
+          "mnemonic": "jsr",
+          "operand": "-$7fee(a4)",
+          "source_offset": 8,
+          "target": {
+            "hunk": 3,
+            "name": "_exported",
+            "offset": 30
+          },
+          "trampoline_hunk": 1,
+          "trampoline_offset": 16
+        },
+        {
+          "basis": "PC_RELATIVE",
+          "bytes": "4eba002a",
+          "mnemonic": "jsr",
+          "operand": "$3c(pc)",
+          "source_offset": 16,
+          "target": {
+            "hunk": 3,
+            "name": "_localhelper",
+            "offset": 60
+          }
+        },
+        {
+          "basis": "PC_RELATIVE",
+          "bytes": "61ec",
+          "mnemonic": "bsr.b",
+          "operand": "$1e",
+          "source_offset": 48,
+          "target": {
+            "hunk": 3,
+            "name": "_exported",
+            "offset": 30
+          }
+        }
+      ],
+      "executable_sha256": "b36838de09c736e488494525f68aba51e3895f560bb3fffb2b9965218383915e",
+      "exports": [
+        {
+          "bridge_offset": 24,
+          "confidence": "OBSERVED",
+          "encoded_node_id": 2,
+          "manager_hunk": 0,
+          "manager_offset": 52,
+          "name_origin": "RECONSTRUCTED_ADDRESS",
+          "target_hunk": 3,
+          "target_offset": 0,
+          "trampoline_hunk": 1,
+          "trampoline_offset": 8
+        },
+        {
+          "bridge_offset": 24,
+          "confidence": "OBSERVED",
+          "encoded_node_id": 2,
+          "manager_hunk": 0,
+          "manager_offset": 52,
+          "name_origin": "RECONSTRUCTED_ADDRESS",
+          "target_hunk": 3,
+          "target_offset": 30,
+          "trampoline_hunk": 1,
+          "trampoline_offset": 16
+        }
+      ],
+      "name": "rootexport",
+      "objects": [
+        {
+          "code_size": 10,
+          "name": "rootexport.o",
+          "sha256": "f036970442a23505884b9aeb4842da89662e95678826bd9efb670b122f5d7f45"
+        },
+        {
+          "code_size": 30,
+          "name": "caller.o",
+          "sha256": "76e4d5c8dfba910ddc684a6967e13d61f43ad92a61d8c4b5e31efa1df427973b"
+        },
+        {
+          "code_size": 30,
+          "name": "exported.o",
+          "sha256": "45aaa1f9b18f9d7cf8d4b0a2c1c764dcc009783ac26a5e5772cc841916128e1a"
+        },
+        {
+          "code_size": 10,
+          "name": "helper.o",
+          "sha256": "bb497b9aa3d3f5a7d05c683843a33dd884d9091fb911409c444b5b43c167fb5f"
+        }
+      ],
+      "overlay_initialized_size": 72,
+      "overlay_relocations": [],
+      "overlay_sha256": "1d5dfce52153c5524d650d3e050f530847cfd803067eb17199c88627d623dd47",
+      "symbols": [
+        {
+          "hunk": 1,
+          "name": "_candidate_reference",
+          "offset": 32
+        },
+        {
+          "hunk": 1,
+          "name": "_export_reference",
+          "offset": 36
+        },
+        {
+          "hunk": 3,
+          "name": "_entry",
+          "offset": 0
+        },
+        {
+          "hunk": 3,
+          "name": "_exported",
+          "offset": 30
+        },
+        {
+          "hunk": 3,
+          "name": "_localhelper",
+          "offset": 60
+        }
+      ]
+    }
+  ],
+  "status": "MEASURED_NATURAL_SAME_NODE_EXPORT_ROUTING",
+  "tool_identities": [
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/cc",
+      "sha256": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+      "sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3"
+    }
+  ],
+  "whole_overlay_difference_offsets": [
+    9,
+    10,
+    11
+  ]
+}
