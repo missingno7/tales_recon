@@ -122,6 +122,31 @@ class IsolatedUnitReceiptTests(unittest.TestCase):
             self.assertFalse((root/'recovery/units').exists())
 
 
+class AutomaticOwnedUnitTests(unittest.TestCase):
+    def test_owned_request_dispatches_complete_unit_before_standalone_tail(self):
+        target=dict(id='ov04_F_1E36',hunk=4,node='ov04',direct_callees=[dict(id='ov04_F_26F0',hunk=4,basis='PC_RELATIVE')])
+        dep=dict(id='ov04_F_26F0',hunk=4,start=0x26f0)
+        source='extern int F_h04_26F0(); recovered(){return F_h04_26F0();}\n'
+        names={target['id']:'recovered',dep['id']:'F_h04_26F0'};members=[target,dep]
+        compiled=dict(status='COMPILED',identity=dict(profile='aztec36',flags=[]),cache_key='a'*64,cache_hit=True)
+        comparison=dict(verdict='DIFFER',reason='COMPLETE_UNIT_SIZE_DIFFERS',cache_key='a'*64,
+                        expected_length=2520,actual_length=3026)
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'candidate.c';path.write_text(source)
+            with patch.object(check_function,'ROOT',Path(tmp)), \
+                 patch.object(check_function,'validated_function',return_value=(target,{'a4':{'bias':32766}})), \
+                 patch.object(check_function,'identity'),patch.object(check_function,'compile_many',return_value=[compiled]), \
+                 patch.object(check_unit,'prepare_unit',return_value=(members,names,{target['id']:source,dep['id']:'F_h04_26F0(){}'},source,{})), \
+                 patch.object(check_unit,'proven_unit_groups',return_value=([],[])), \
+                 patch.object(check_unit,'unit_export_roots',return_value=None), \
+                 patch.object(check_unit,'retain_unit',return_value=({},comparison)) as retain, \
+                 patch('owned_code_data.compare_owned_code_data',side_effect=AssertionError('standalone owned dispatch')):
+                result=check_function.check_many([dict(id=target['id'],source=str(path),profiles=['aztec36'],owned_code_data=True)],isolated=True)
+            self.assertEqual(result[0]['verdict'],'DIFFER')
+            self.assertTrue(retain.call_args.kwargs['owned_code_data'])
+            self.assertTrue(retain.call_args.kwargs['isolated'])
+
+
 class AutomaticUnitProvenanceTests(unittest.TestCase):
     """Automatic function units must retain the original conflicting TU views."""
 

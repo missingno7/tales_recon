@@ -37,11 +37,15 @@ F27FE's A4 overlay trampoline: a resident initialized function-pointer reference
 exports it and changes separate callers' route, while an unreferenced helper
 remains PC-relative. `../evidence/rules/ov04-export-routing/proof.json` retains
 the authored sources and positive/negative controls; it grants no source or TU
-acceptance. Integrate this evidence-rooted recipe into compiler/cache/unit
-identities and strict trampoline re-derivation before further source grinding.
-Owned automatic units currently bypass per-member tail checking. The existing
-unit comparator correctly requires 3,032 bytes against the frozen candidate's
+acceptance. The evidence-rooted recipe now propagates through ordinary, queued
+and mixed-profile compiler/cache/unit identities, with strict inventory/member/
+harness re-derivation and complete-unit trampoline mapping. Legacy recipes stay
+valid. Owned automatic units now use existing per-member tail verification.
+The fresh unchanged compile correctly requires 3,032 bytes against the candidate's
 3,026: 1,778 body + 450 literal bytes, plus accepted 270- and 528-byte callees.
+Its five F27FE calls use A4 trampolines and five F26F0 calls stay PC-relative.
+Remaining branch, frame and instruction differences are source hypotheses;
+the advisory resident-callee mismatch needs review against call evidence.
 
 Independent natural interval checks match 07CA..1302 and 26F0..2A10; the latter
 includes the linker's two-byte terminal zero pad. This is evidence for the
@@ -59,8 +63,7 @@ image assembled with oracle debt cannot satisfy this gate.
 
 ## Top five blockers by leverage
 
-1. ov04 F1E36: integrate the measured export recipe and owned-unit dispatch,
-   preserving strict symbolic targets, then resume bounded source-shape work
+1. ov04 F1E36: resume bounded source-shape work under the validated export recipe
    from the retained trial06 candidate's six-byte body deficit.
 2. ov04 data ownership and object order: account for the additional 452 bytes,
    then test a natural overlay link. Categories DATA_OWNERSHIP / OBJECT/TU_LAYOUT.
@@ -112,7 +115,7 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-Latest full regression: 378 tests, 9 skipped (local compilation-cache controls
+Latest full regression: 385 tests, 9 skipped (local compilation-cache controls
 and an already-canonical promotion control). Census
 validates all 151 canonical proofs. Hybrid accounting has zero overlap and zero
 unaccounted file bytes, and refresh replays all 151 retained exact artifacts.
@@ -137,8 +140,7 @@ Scratch and new attempts go under ignored `build/`; retirements go under
 `to_delete/`. The user manually deleted the historical quarantine before this
 push. No deleted archive is reintroduced in the active project or pushed.
 
-Recommended next wave: one bounded Sol high infrastructure task for F1E36's
-measured export routing and existing owned-unit verification path, followed by
-one Luna xhigh source task after a fresh exact diagnostic. Keep Amiga ov04 closure ahead of
+Recommended next wave: one Luna xhigh source task on F1E36 from the fresh exact
+diagnostic and updated blocker. Keep Amiga ov04 closure ahead of
 unrelated targets. Exact compiler-release archaeology, broad asset-format
 recovery and unrelated easy-function grinding are intentionally deferred.

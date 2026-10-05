@@ -1,10 +1,50 @@
 """Validate curated source-proof inputs independently of generated topology metrics."""
 import json
-from common import require,sha256
+from common import require,sha256,json_bytes
 from repo_paths import canonical_path
 
 
 EXTERN_FUNCTION=r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)'
+
+
+def same_overlay_exports(members,names,target_id,blob,model):
+    """Derive resident roots from immutable exports and real unit definitions.
+
+    Only symbol identities cross this boundary; no original CODE enters a
+    compiler input. The entry already has the ordinary candidate reference.
+    """
+    from hunk import manx_overlay
+    tree=manx_overlay(model,blob)
+    inventory=sorted((dict(hunk=s['target_hunk'],start=s['target_offset'],node=s['encoded_node_id'])
+                      for slot in tree['slots'] for s in slot['symbols']),key=lambda s:(s['hunk'],s['start']))
+    target=next(m for m in members if m['id']==target_id)
+    exported={(s['hunk'],s['start']) for s in inventory}
+    roots=[dict(id=m['id'],hunk=m['hunk'],start=m['start'],name=names[m['id']])
+           for m in sorted(members,key=lambda m:(m['hunk'],m['start']))
+           if m['id']!=target_id and m['hunk']==target['hunk'] and (m['hunk'],m['start']) in exported]
+    if not roots:return None
+    return dict(executable_sha256=sha256(blob),inventory_sha256=sha256(json_bytes(inventory)),members=roots)
+
+
+def unit_export_evidence(unit,unit_text,compiler,blob,model):
+    """New root recipes must re-derive; absent recipes retain legacy semantics."""
+    field='same_overlay_exports'
+    expected=None
+    if field in compiler or field in unit:
+        members=unit['ordered_members'];fid=unit['id']
+        names={m['id']:'recovered' if m['id']==fid else 'F_h%02d_%04X'%(m['hunk'],m['start']) for m in members}
+        expected=same_overlay_exports(members,names,fid,blob,model)
+        require(expected is not None and compiler.get(field)==unit.get(field)==expected,
+                'same-overlay export roots do not re-derive from immutable inventory and unit members')
+    from compiler_oracle import harness
+    source_hash=compiled_unit_source_sha256(unit,unit_text,compiler)
+    require(source_hash==compiler['source_sha256'],'export harness source does not re-derive')
+    merged=unit.get('merged_external_declarations')
+    skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
+    source=stand_in_source(unit_text,skip)[0] if merged is not None else unit_text
+    text=harness(source,compiler.get('candidate_overlay_node',1),compiler.get('local_functions',()),
+                 compiler.get('entry_function','recovered'),expected)
+    require(sha256(text.encode('ascii'))==compiler.get('harness_sha256'),'export harness hash does not re-derive')
 
 
 def stand_in_source(combined,skip=()):
@@ -250,6 +290,7 @@ def load_promotions(root,blob,model,analysis):
             require(sha256(unit_source.read_bytes())==unit['combined_source_sha256'] and
                     compiled_unit_source_sha256(unit,unit_source.read_bytes().decode('ascii'),proof['compiler'])==proof['compiler']['source_sha256'],
                     'combined source hash differs')
+            unit_export_evidence(unit,unit_source.read_bytes().decode('ascii'),proof['compiler'],blob,model)
             if unit.get('object_groups') is not None:
                 # An --object-group unit compiled re-derivable object sources.
                 derived=object_partition_sources(unit,unit_source.read_bytes().decode('ascii'),unit_path.parent/'parts')

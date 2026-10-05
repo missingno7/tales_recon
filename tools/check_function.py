@@ -246,6 +246,10 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                 identity(compile_source,profile,target_node,extra_libraries=extra_libraries)
                 trial=dict(source=compile_source,profile=profile,target_node=target_node,
                            objects=objects,local_functions=local_functions,extra_libraries=extra_libraries)
+                if unit is not None:
+                    from check_unit import unit_export_roots
+                    roots=unit_export_roots(unit[0],unit[1],f['id'])
+                    if roots is not None:trial['same_overlay_exports']=roots
                 if per_member and unit is not None:
                     from check_unit import member_profile_plan,apply_member_profiles
                     plan,klass=member_profile_plan(unit[0],profile,{f['id']})
@@ -268,19 +272,20 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
     reports=[]
     for req,f,l,source,profile,slot,unit,unit_blocker in prepared:
         compiled=results[slot] if isinstance(slot,int) else slot
-        if req.get('owned_code_data'):
+        if unit and compiled['status']=='COMPILED' and not req.get('owned_static_data'):
+            from check_unit import retain_unit
+            members,names,combined,*unit_options=unit
+            _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'],
+                                 owned_code_data=bool(req.get('owned_code_data')),
+                                 allow_gaps=bool(unit_options and unit_options[0]),isolated=isolated,
+                                 merged_externals=unit_options[1] if len(unit_options)>1 else None,
+                                 profile_record=trials[slot].get('profile_record') if isinstance(slot,int) else None)
+        elif req.get('owned_code_data'):
             from owned_code_data import compare_owned_code_data
             report=compare_owned_code_data(f,compiled,l['a4']['bias'])
         elif req.get('owned_static_data'):
             from owned_static_data import compare_owned_static_data
             report=compare_owned_static_data(f,compiled,l['a4']['bias'])
-        elif unit and compiled['status']=='COMPILED':
-            from check_unit import retain_unit
-            members,names,combined,*unit_options=unit
-            _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'],
-                                 allow_gaps=bool(unit_options and unit_options[0]),isolated=isolated,
-                                 merged_externals=unit_options[1] if len(unit_options)>1 else None,
-                                 profile_record=trials[slot].get('profile_record') if isinstance(slot,int) else None)
         else:report=compare_function(f,compiled,l['a4']['bias'])
         report['id']=f['id'];report['source_sha256']=sha256(source.encode())
         if unit_blocker:report['unit_blocker']=unit_blocker

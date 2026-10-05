@@ -27,7 +27,7 @@ def trial_plan(trial):
     key,meta,h=identity(trial['source'],trial['profile'],trial.get('target_node',1),
                         objects if trial.get('objects') is not None else None,
                         trial.get('local_functions',()),trial.get('entry_function','recovered'),
-                        trial.get('extra_libraries',()))
+                        trial.get('extra_libraries',()),trial.get('same_overlay_exports'))
     return key,meta,h,objects
 
 
@@ -111,7 +111,7 @@ def compile_many(trials):
             if receipt['status']=='COMPILED':
                 try:
                     receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
-                                                    item['trial'].get('entry_function','recovered'))
+                                                    item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
             write_json(dest/'receipt.json',receipt)

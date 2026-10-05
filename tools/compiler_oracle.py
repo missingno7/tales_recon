@@ -69,9 +69,27 @@ def overlay_proxies(source,target_node=1):
     return [unique[name] for name in sorted(unique)]
 
 
-def harness(source,target_node=1,local_functions=(),entry_function='recovered'):
+def validate_same_overlay_exports(recipe,target_node,local_functions,entry_function='recovered'):
+    if recipe is None:return
+    require(isinstance(recipe,dict) and set(recipe)=={'executable_sha256','inventory_sha256','members'},'invalid same-overlay export recipe')
+    require(all(isinstance(recipe[k],str) and re.fullmatch('[0-9a-f]{64}',recipe[k]) for k in ('executable_sha256','inventory_sha256')),
+            'invalid same-overlay export inventory hash')
+    roots=recipe['members'];seen=set()
+    require(isinstance(roots,list) and roots,'same-overlay exports require real members')
+    for root in roots:
+        require(isinstance(root,dict) and set(root)=={'id','hunk','start','name'},'invalid same-overlay export member')
+        hunk,start,name=root['hunk'],root['start'],root['name']
+        require(type(hunk) is int and type(start) is int and hunk==target_node+2 and start>=0,
+                'same-overlay export member is outside target node')
+        require(name=='F_h%02d_%04X'%(hunk,start) and root['id']=='ov%02d_F_%04X'%(hunk,start) and
+                name in local_functions and name!=entry_function and name not in seen,'same-overlay export is not a unique local member')
+        seen.add(name)
+
+
+def harness(source,target_node=1,local_functions=(),entry_function='recovered',same_overlay_exports=None):
     # Explicit extern declarations become ordinary naturally allocated harness
     # definitions. Mechanical names carry identities for comparison, never layout.
+    validate_same_overlay_exports(same_overlay_exports,target_node,local_functions,entry_function)
     declarations=[]
     struct_tags=set()
     for declaration in re.findall(r'\bstruct\s+\w+\s*\{[^{}]*\}\s*;',source):
@@ -111,9 +129,22 @@ def harness(source,target_node=1,local_functions=(),entry_function='recovered'):
             if name not in emitted_objects:
                 emit(decl+';')
                 emitted_objects.add(name)
+    roots=''
+    if same_overlay_exports is not None:
+        for i,root in enumerate(same_overlay_exports['members']):
+            name=root['name']
+            # Preserve the function's declared return view in this harness.
+            decl=next((m[1].strip() for m in re.finditer(r'\bextern\s+([^;{}]+);',source)
+                       if re.fullmatch(export_declaration_pattern(name),m[1].strip())), 'int '+name+'()')
+            ret=decl[:decl.index(name)].strip()
+            roots+='extern '+decl+';\n'+ret+' (*same_overlay_reference_%d)() = %s;\n'%(i,name)
     return ('/* Independent naturally allocated link harness. */\nextern int '+entry_function+'();\n'
             'int (*candidate_reference)() = '+entry_function+';\nmain() { return 0; }\n'+
-            '\n'.join(declarations)+'\n')
+            '\n'.join(declarations)+'\n'+roots)
+
+
+def export_declaration_pattern(name):
+    return r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+'+re.escape(name)+r'\s*\(\s*\)'
 
 
 def object_specs(trial):
@@ -133,8 +164,8 @@ def object_specs(trial):
     return result
 
 
-def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered',extra_libraries=()):
-    validate_source(source,entry_function);p=PROFILES[profile];h=harness(source,target_node,local_functions,entry_function);proxies=overlay_proxies(source,target_node)
+def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered',extra_libraries=(),same_overlay_exports=None):
+    validate_source(source,entry_function);p=PROFILES[profile];h=harness(source,target_node,local_functions,entry_function,same_overlay_exports);proxies=overlay_proxies(source,target_node)
     require(target_node>=1,'candidate overlay node must be positive')
     extra_libraries=tuple(extra_libraries)
     require(len(set(extra_libraries))==len(extra_libraries),'duplicate additional link library')
@@ -159,6 +190,10 @@ def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_
         headers_sha256=sha256(b''),library=library,library_guest=('Old2:' if profile=='aztec36-long' else p['guest']),library_sha256=sha256(lib.read_bytes()),
         link_recipe=recipe,worker_sha256=sha256((ROOT/'tools/aztec_worker.py').read_bytes()))
     if additional:keydata['additional_libraries']=additional
+    if same_overlay_exports is not None:
+        require(objects is not None,'same-overlay export roots require actual unit objects')
+        keydata['same_overlay_exports']=same_overlay_exports
+        keydata['same_overlay_export_extractor_sha256']=sha256(Path(__file__).read_bytes())
     # Preserve all previous default-node cache identities.  A non-default
     # candidate node is material only when a link must model overlay calls.
     if target_node!=1:keydata['candidate_overlay_node']=target_node
@@ -196,12 +231,12 @@ def cached(key):
         require((dest/a['path']).is_file() and sha256((dest/a['path']).read_bytes())==a['sha256'],'cached artifact changed: '+a['path'])
     if r['status']=='COMPILED':
         require(extract(dest,r['prefix'],r['identity'].get('object_labels'),
-                        r['identity'].get('entry_function','recovered'))==r['contribution'],
+                        r['identity'].get('entry_function','recovered'),r['identity'].get('same_overlay_exports'))==r['contribution'],
                 'cached contribution metadata changed')
     return dict(r,cache_hit=True,directory=str(dest))
 
 
-def extract(directory,prefix,object_labels=None,entry_function='recovered'):
+def extract(directory,prefix,object_labels=None,entry_function='recovered',same_overlay_exports=None):
     blob=(directory/(prefix+'.exe')).read_bytes();model=parse(blob)
     overlay=manx_overlay(model,blob) if model['overlay'] is not None else None
     labels=object_labels or ['candidate']
@@ -228,7 +263,7 @@ def extract(directory,prefix,object_labels=None,entry_function='recovered'):
         all_relocations=model['relocations'],symbols=[dict(hunk=h,name=n,offset=v) for (h,n),v in sym.items()])
     # Old ordinary cache entries intentionally have no overlay-table payload.
     # Only proxy builds need this extra semantic evidence for call resolution.
-    if overlay and any(directory.glob('p*.o')):
+    if overlay and (same_overlay_exports is not None or any(directory.glob('p*.o'))):
         result['overlay_trampolines']=[s for slot in overlay['slots'] for s in slot['symbols']]
     if start:result['entry_offset']=start
     return result
@@ -243,7 +278,8 @@ def compile_many(trials):
         objects=object_specs(trial);local_functions=trial.get('local_functions',());entry_function=trial.get('entry_function','recovered')
         extra_libraries=trial.get('extra_libraries',())
         key,meta,h=identity(trial['source'],trial['profile'],target_node,
-                            objects if trial.get('objects') is not None else None,local_functions,entry_function,extra_libraries)
+                            objects if trial.get('objects') is not None else None,local_functions,entry_function,extra_libraries,
+                            trial.get('same_overlay_exports'))
         requests.append(key)
         if cached(key) is None:
             missing.setdefault(key,dict(trial=trial,meta=meta,harness=h,
@@ -316,7 +352,7 @@ def compile_many(trials):
             if receipt['status']=='COMPILED':
                 try:
                     receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
-                                                    item['trial'].get('entry_function','recovered'))
+                                                    item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
             write_json(dest/'receipt.json',receipt)

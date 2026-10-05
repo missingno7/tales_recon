@@ -17,6 +17,13 @@ from compiler_oracle import compile_many,PROFILES
 from function_compare import compare_function
 from recovery_evidence import stand_in_source,EXTERN_FUNCTION,proven_object_source,group_object_source
 from recovery_evidence import joined_source as joined_texts
+
+
+def unit_export_roots(members,names,fid):
+    from analysis_support import game
+    from recovery_evidence import same_overlay_exports
+    blob,model,_=game()
+    return same_overlay_exports(members,names,fid,blob,model)
 from evidence_snapshot import scoped
 from repo_paths import candidate_path,canonical_path
 
@@ -380,6 +387,10 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
         pc['hunk']=original_hunk
         pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset'] if allow_gaps else s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
                        for s in symbols]
+        if 'overlay_trampolines' in c:
+            pc['overlay_trampolines']=[dict(t,target_hunk=original_hunk,
+                target_offset=t['target_offset'] if allow_gaps else t['target_offset']+original_base)
+                if t['target_hunk']==source_hunk else dict(t) for t in c['overlay_trampolines']]
         pc['relocations']=[]
         for relocation in c['relocations']:
             at=relocation['relative_offset'];end=at+relocation['width']
@@ -447,6 +458,8 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined,natural=natural)
     # Differing per-object views of one external share one harness stand-in.
     if merged_externals:report['merged_external_declarations']=merged_externals
+    if 'same_overlay_exports' in compiled['identity']:
+        report['same_overlay_exports']=compiled['identity']['same_overlay_exports']
     # Object-group hypotheses and the member parts that re-derive unit.c.
     if object_record:
         require(parts is not None,'object groups require the linked member parts')
@@ -892,6 +905,8 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
                                    if o.get('merged_external_declarations') for x in o['members'][:1]}
                 if merged_in_objects:trial['object_group_merged_declarations']=merged_in_objects
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
+            roots=unit_export_roots(members,names,fid)
+            if roots is not None:trial['same_overlay_exports']=roots
             # A new member's extern for the entry is a real cross-object call
             # into this unit; the harness must not define a stand-in for it.
             # Added only when present, so ordinary unit cache keys are stable.
@@ -911,7 +926,8 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
 def stand_in_summary(trial):
     """Harness stand-in definitions of one trial: merged views and any duplicate name."""
     from compiler_oracle import harness
-    text=harness(trial['source'],trial.get('target_node',1),trial.get('local_functions',()))
+    text=harness(trial['source'],trial.get('target_node',1),trial.get('local_functions',()),
+                 same_overlay_exports=trial.get('same_overlay_exports'))
     defined=re.findall(r'^'+EXTERN_FUNCTION+r'\s*\{',text,re.M)
     counts={}
     for name in defined:counts[name]=counts.get(name,0)+1
@@ -927,7 +943,8 @@ def trial_cache_key(trial):
         from mixed_profile_oracle import trial_key
         key=trial_key(trial);return key,cached(key) is not None
     objects=object_specs(trial) if trial.get('objects') is not None else None
-    key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()))[0]
+    key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()),
+                 same_overlay_exports=trial.get('same_overlay_exports'))[0]
     return key,cached(key) is not None
 
 
