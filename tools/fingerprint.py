@@ -61,7 +61,7 @@ CORPUS={
 
 
 def build():
-    base=ROOT/'experiments/fingerprints';base.mkdir(parents=True,exist_ok=True)
+    base=ROOT/'evidence/rules/fingerprints';base.mkdir(parents=True,exist_ok=True)
     trials=[];names=[]
     for name,source in CORPUS.items():
         text='/* Independent compiler fingerprint: '+name+' */\n'+source+'\n';path=base/(name+'.c');path.write_text(text,newline='\n')

@@ -7,7 +7,7 @@ not yet a reconstructed game build or evidence selecting the historical release.
 From the project root:
 
 ```powershell
-python tools/aztec_worker.py prepare smoke-new experiments/aztec-smoke --commands experiments/aztec-smoke/commands.json
+python tools/aztec_worker.py prepare smoke-new evidence/rules/aztec-smoke --commands evidence/rules/aztec-smoke/commands.json
 .\tools\run_worker.ps1 -Job build/worker-jobs/smoke-new
 python tools/aztec_worker.py collect build/worker-jobs/smoke-new
 ```

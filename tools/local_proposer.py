@@ -67,7 +67,7 @@ def propose(package,timeout=180):
     started=time.perf_counter();response=request(state,'/v1/chat/completions',payload,timeout)
     write_json(base/'response.json',response);source=parse_response(response)
     (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
-    public=ROOT/'recovery/proposals'/package['id']/(key+'.json')
+    public=ROOT/'build/recovery/proposals'/package['id']/(key+'.json')
     r=dict(schema_version=1,id=package['id'],identity=identity,source_sha256=sha256(source.encode('ascii')),
            usage=response.get('usage',{}),tool_operations=0,elapsed_seconds=time.perf_counter()-started,
            response_sha256=sha256(json_bytes(response)),public_receipt=public.relative_to(ROOT).as_posix(),

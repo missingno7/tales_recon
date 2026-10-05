@@ -42,6 +42,8 @@ class Snapshot:
         def read(path):
             path = target(path)
             require(path.is_relative_to(root), 'snapshot input escapes workspace: ' + str(path))
+            from repo_paths import canonical_path
+            canonical_path(root, path)
             if str(path) in contents:return contents[str(path)]
             try:raw = path.read_bytes()
             except FileNotFoundError:raw = None

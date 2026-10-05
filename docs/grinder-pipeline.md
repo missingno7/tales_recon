@@ -64,7 +64,7 @@ Run from the repository root with the existing pinned toolchains installed:
 python tools/function_census.py
 python tools/grinder.py rank --limit 12
 python tools/grinder.py facts ov14_F_03AE
-python tools/check_function.py ov14_F_03AE experiments/grinder-bootstrap/ov14_F_03AE.c --json
+python tools/check_function.py ov14_F_03AE tests/fixtures/ov14_F_03AE.c --json
 python tools/check_function.py --batch experiments/grinder-bootstrap/batch.json
 python tools/fingerprint.py --build
 python tools/fingerprint.py --function ov14_F_03C2
@@ -108,7 +108,7 @@ the source and verdict under `experiments/` or ignored `build/`.
 The canonical promotion gate remains a normal verifier run after review.
 
 ```powershell
-python tools/check_function.py ov14_F_03AE experiments/grinder-bootstrap/ov14_F_03AE.c --profile aztec36 --isolated --output-dir build/isolated-trials
+python tools/check_function.py ov14_F_03AE tests/fixtures/ov14_F_03AE.c --profile aztec36 --isolated --output-dir build/isolated-trials
 python tools/check_unit.py ov07_F_03CC src/recovered/ov07/ov07_F_03CC.c --profile aztec36 --separate-objects --allow-original-gaps --owned-code-data --isolated --output-dir build/isolated-trials
 ```
 

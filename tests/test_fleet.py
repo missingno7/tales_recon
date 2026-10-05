@@ -395,13 +395,13 @@ class RegionTests(unittest.TestCase):
         self.assertEqual(r["linked_outside_interval"], [])
         self.assertEqual(r["edge_kinds"]["layout_interval"], 2)  # 0240 needs 0120 and 0160
         cand = r["candidates"]["ov11_F_0120"]
-        self.assertEqual(cand["candidates"][0]["source"], "recovery/candidates/ov11_F_0120/" + "ab" * 32 + ".c")
-        self.assertEqual(cand["experiment_dirs"], ["experiments/fleet/fn-ov11_F_0120"])
-        commands = fleet_regions.region_commands(r, "experiments/fleet/" + r["id"])
-        self.assertIn("verify-unit ov11_F_0120 experiments/fleet/reg-ov11_0100-0280/vNN/ov11_F_0120.c "
+        self.assertEqual(cand["candidates"][0]["source"], "build/recovery/candidates/ov11_F_0120/" + "ab" * 32 + ".c")
+        self.assertEqual(cand["experiment_dirs"], ["build/workers/fn-ov11_F_0120"])
+        commands = fleet_regions.region_commands(r, "build/workers/" + r["id"])
+        self.assertIn("verify-unit ov11_F_0120 build/workers/reg-ov11_0100-0280/vNN/ov11_F_0120.c "
                       "--member ov11_F_0160=", commands["verify"])
         self.assertTrue(commands["verify"].endswith("--separate-objects --natural-interval 0x0100..0x0280 "
-                                                    "--output-dir experiments/fleet/reg-ov11_0100-0280/runs"))
+                                                    "--output-dir build/workers/reg-ov11_0100-0280/runs"))
         self.assertEqual(commands["promote_shape"].count("--member"), 3)
 
     def test_member_tasks_are_blocked_by_region_and_independent_ones_stay_open(self):
@@ -580,9 +580,7 @@ class PacketAndIntakeTests(unittest.TestCase):
 
     def test_packet_is_small_and_self_contained(self):
         from recovery_state import recovery
-        attempts = recovery()["attempts"]
-        fid = next(f for f in attempts if f not in recovery()["functions"]) if any(
-            f not in recovery()["functions"] for f in attempts) else next(iter(attempts))
+        fid = "ov04_F_0536"
         prior = dict(ledger_schema=1, record_type="trial", function_id=fid, variant="v-prior",
                      controlled_change="swap the loop test", exact_verdict="DIFFER",
                      prediction=dict(outcome="refuted"), observed_delta=dict(length_delta=2))

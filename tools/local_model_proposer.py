@@ -49,7 +49,7 @@ def propose(package,endpoint=None,model=None,temperature=0.3,max_tokens=1024,see
                   facts_sha256=sha256(raw),system_sha256=sha256(SYSTEM.encode()),transport='LOCAL_LOOPBACK_ONLY',
                   implementation={n:sha256((ROOT/'tools'/n).read_bytes()) for n in ('local_model_proposer.py','local_fact_pack.py','local_http.py')})
     key=sha256(json_bytes(identity));base=ROOT/'build/local-model-proposals'/key;base.mkdir(parents=True,exist_ok=True)
-    public=ROOT/'recovery/proposals'/package['id']/(key+'.json');receipt=base/'receipt.json'
+    public=ROOT/'build/recovery/proposals'/package['id']/(key+'.json');receipt=base/'receipt.json'
     def metadata(r,hit):
         return dict(proposer_receipt=public.relative_to(ROOT).as_posix(),proposer_cache_hit=hit,
                     local_model_metrics=dict(cache_hit=hit,model_call=not hit and r.get('response_sha256') is not None,

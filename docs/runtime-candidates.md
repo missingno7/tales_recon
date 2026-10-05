@@ -34,7 +34,7 @@ Reproduce after acquiring the archives recorded in `toolchain/aztec36-acquisitio
 
 ```powershell
 python tools/inventory_aztec36.py
-python tools/aztec_worker.py prepare aztec36-new experiments/aztec36-smoke --commands experiments/aztec36-smoke/commands.json --aztec36
+python tools/aztec_worker.py prepare aztec36-new evidence/rules/aztec36-smoke --commands evidence/rules/aztec36-smoke/commands.json --aztec36
 .\tools\run_worker.ps1 -Job build/worker-jobs/aztec36-new
 python tools/aztec_worker.py collect build/worker-jobs/aztec36-new
 python tools/runtime_match.py build/worker-jobs/aztec36-new

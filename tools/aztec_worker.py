@@ -12,6 +12,7 @@ import sys
 import zipfile
 
 from common import FormatError, require, sha256, write_json
+from repo_paths import active_files,candidate_path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,7 +55,8 @@ def prepare(name, source_dir, commands, emulator, aztec36=False):
                 pinned.append(dict(path=p.relative_to(ROOT).as_posix(), sha256=entry['sha256']))
         extra_config = (f'filesystem2=ro,DH4:Old1:{older/"SYS1"},-128\n'
                         f'filesystem2=ro,DH5:Old2:{older/"SYS2"},-128\n')
-    source_files = sorted(p for p in source_dir.rglob('*') if p.is_file())
+    candidate_path(ROOT,source_dir)
+    source_files = sorted(active_files(source_dir))
     require(source_files, 'experiment source directory is empty')
     guest=base/'sys';work=guest/'work';work.mkdir(parents=True)
     (guest/'s').mkdir()
@@ -123,7 +125,7 @@ def collect(base):
         require(raw.isdigit(), f'unparseable guest status {raw!r}')
         steps.append(dict(step,returncode=int(raw)))
     artifacts=[dict(path=p.relative_to(work).as_posix(),size=p.stat().st_size,sha256=sha256(p.read_bytes()))
-               for p in sorted(work.rglob('*')) if p.is_file()]
+               for p in sorted(active_files(work))]
     result=dict(schema_version=1,request=request,steps=steps,all_steps_succeeded=all(s['returncode']==0 for s in steps),
                 artifacts=artifacts,reconstruction_proof_level=None)
     write_json(base/'result.json',result)

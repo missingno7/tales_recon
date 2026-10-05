@@ -74,7 +74,7 @@ class RecoveryFeedbackTests(unittest.TestCase):
         self.assertIn('type_evidence', base['advisory_feedback'])
         self.assertIn('compiler_diagnostic', package['advisory_feedback'])
 
-    def test_prior_candidate_text_is_available_by_hash(self):
+    def test_fresh_context_excludes_prior_candidate_text(self):
         source = 'int recovered() { return 3; }\n'
         digest = sha256(source.encode())
         fid = 'ov14_F_0000'
@@ -100,12 +100,8 @@ class RecoveryFeedbackTests(unittest.TestCase):
                     patch.object(recovery_state, 'recovery', return_value=recovery), \
                     patch.object(recovery_state, 'runtime_dependencies', return_value={}):
                 result = recovery_state.facts(fid)
-        self.assertEqual(result['previous_sources'], {digest: dict(source=source, truncated=False)})
-        self.assertEqual(result['previous_attempts'][0]['verdict'], 'DIFFER')
-        self.assertNotIn('source', result['previous_attempts'][0])
-        _, current, latest = representation(result)
-        self.assertEqual(current, source)
-        self.assertEqual(latest['source_sha256'], digest)
+        self.assertEqual(result['previous_sources'], {})
+        self.assertEqual(result['previous_attempts'], [])
 
 
 if __name__ == '__main__':

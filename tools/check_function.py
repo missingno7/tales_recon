@@ -6,11 +6,12 @@ import subprocess
 import sys
 from common import require,sha256,write_json,FormatError,json_bytes
 from analysis_support import ROOT,game
-from recovery_state import evidence,recovery,LEDGER,save_rank
+from recovery_state import evidence,recovery,LEDGER,save_rank,write_recovery
 from compiler_oracle import compile_many,PROFILES,identity
 from recovery_transaction import ledger_lock
 from function_compare import compare_function
 from evidence_snapshot import scoped
+from repo_paths import candidate_path,active_files
 
 
 def validated_function(fid):
@@ -47,7 +48,7 @@ def validated_function(fid):
 def regression_receipt():
     """Run the host-only regression suite once; no nested compilation or emulator launch."""
     def inputs():
-        paths=sorted(list((ROOT/'tools').glob('*.py'))+list((ROOT/'tests').rglob('*.py')))
+        paths=sorted(list(active_files(ROOT/'tools','.py'))+list(active_files(ROOT/'tests','.py')))
         return {p.relative_to(ROOT).as_posix():sha256(p.read_bytes()) for p in paths}
     before=inputs()
     tests=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests'],cwd=ROOT,capture_output=True,text=True)
@@ -74,6 +75,38 @@ def promotion_proof(fid,source,report,compiled,f,state,regression):
     return proof
 
 
+def durable_unit(report):
+    """Promote only the re-derivable inputs of an accepted unit from scratch."""
+    import shutil
+    report=dict(report)
+    if report.get('proposer'):
+        proposal=dict(report['proposer'])
+        source=(ROOT/proposal['receipt']).resolve()
+        if source.is_relative_to(ROOT/'build/recovery/proposals'):
+            require(sha256(source.read_bytes())==proposal['receipt_sha256'],'proposal receipt changed before retention')
+            dest=ROOT/'recovery/proposals'/source.relative_to(ROOT/'build/recovery/proposals')
+            dest.parent.mkdir(parents=True,exist_ok=True)
+            require(not dest.exists() or dest.read_bytes()==source.read_bytes(),'durable proposal identity collision')
+            if not dest.exists():shutil.copyfile(source,dest)
+            proposal['receipt']=dest.relative_to(ROOT).as_posix();report['proposer']=proposal
+    name=report.get('complete_unit_receipt')
+    if not name:return report
+    path=(ROOT/name).resolve()
+    if not path.is_relative_to(ROOT/'build/recovery/units'):return report
+    require(sha256(path.read_bytes())==report['complete_unit_receipt_sha256'],'unit receipt changed before retention')
+    unit=json.loads(path.read_text());require(unit['verdict']=='EQUAL','only exact units can become durable')
+    destination=ROOT/'recovery/units'/path.parent.relative_to(ROOT/'build/recovery/units')
+    destination.mkdir(parents=True,exist_ok=True)
+    inputs=[path,path.parent/'unit.c']
+    if unit.get('object_groups'):
+        inputs+=list((path.parent/'parts').glob('*.c'))
+    for source in inputs:
+        dest=destination/source.relative_to(path.parent);dest.parent.mkdir(parents=True,exist_ok=True)
+        require(not dest.exists() or dest.read_bytes()==source.read_bytes(),'durable unit identity collision')
+        if not dest.exists():shutil.copyfile(source,dest)
+    return dict(report,complete_unit_receipt=(destination/'receipt.json').relative_to(ROOT).as_posix())
+
+
 def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_canonical=False,regression=None):
     """Write canonical source and proof.  ``regression`` lets a complete
     multi-member unit share one suite run taken before its first write."""
@@ -89,6 +122,7 @@ def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_can
             'already promoted with another source; preserve canonical source')
     require(not prior or prior['state']!='FUNCTION_WITH_DATA_MATCH' or state=='FUNCTION_WITH_DATA_MATCH',
             'replacement may not discard an existing owned CODE-data proof')
+    report=durable_unit(report)
     proof=promotion_proof(fid,source,report,compiled,f,state,regression)
     path=ROOT/proof['source']
     receipt_path=ROOT/'recovery/proofs'/(fid+'.json')
@@ -112,7 +146,7 @@ def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_can
         # The immutable blocker package remains historical evidence; it must no
         # longer appear as an active queue blocker once a verified source owns it.
         r['blockers'].pop(fid,None)
-        write_json(LEDGER,r)
+        write_recovery(r,LEDGER)
         return r['functions'][fid]
 
 
@@ -162,27 +196,34 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
     output_root=isolated_output_root(output_dir) if isolated else None
     prepared=[];trials=[]
     for req in requests:
-        f,l=validated_function(req['id']);source=Path(req['source']).read_text()
+        f,l=validated_function(req['id']);source=candidate_path(ROOT,req['source']).read_text()
         # Opt-in: canonical unit members compile with their own proof's
         # profile (separate objects only; see check_unit.member_profile_plan).
         per_member=bool(req.get('per_member_profiles'))
         target_node=f['hunk']-2 if f.get('node')!='resident' and f.get('hunk',0)>=3 else 1
         source_hash=sha256(source.encode())
         if not isolated:
-            retained=ROOT/'recovery/candidates'/f['id']/(source_hash+'.c')
+            retained=ROOT/'build/recovery/candidates'/f['id']/(source_hash+'.c')
             retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
         unit=None;unit_blocker=None;compile_source=source;objects=None;local_functions=()
         if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id']!=f['id']
                for c in f.get('direct_callees',[])):
             from check_unit import prepare_unit
             try:
-                members,names,compile_source,_=prepare_unit(f['id'],source);unit=(members,names,compile_source)
+                from check_unit import partitioned_objects,proven_unit_groups,grouped_objects,external_stand_in_source
+                members,names,parts,compile_source,_=prepare_unit(
+                    f['id'],source,True,allow_gaps=True,remove_stale_externs=False)
+                groups,_=proven_unit_groups(members,{f['id']})
+                objects=grouped_objects(members,names,parts,False,groups,with_members=per_member)
+                local_functions=tuple(names[m['id']] for m in members if m['id']!=f['id'])
+                compile_source,merged=external_stand_in_source(compile_source,local_functions,target_node)
+                unit=(members,names,compile_source,True,merged)
             except FormatError as exc:unit_blocker=str(exc)
             # A recovered dependency can sit across a real but still
             # unclaimed original gap.  Prove the compact source contribution
             # through normal separate objects, preserving only adjacent local
             # call pairs in one object for Manx BSR shortening.
-            if unit is None:
+            if unit is None and req.get('join_direct_callees',False):
                 try:
                     from check_unit import gap_partitioned_objects
                     members,names,parts,compile_source,_=prepare_unit(
@@ -235,6 +276,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
             members,names,combined,*unit_options=unit
             _,report=retain_unit(f['id'],source,members,names,combined,compiled,l['a4']['bias'],
                                  allow_gaps=bool(unit_options and unit_options[0]),isolated=isolated,
+                                 merged_externals=unit_options[1] if len(unit_options)>1 else None,
                                  profile_record=trials[slot].get('profile_record') if isinstance(slot,int) else None)
         else:report=compare_function(f,compiled,l['a4']['bias'])
         report['id']=f['id'];report['source_sha256']=sha256(source.encode())
@@ -243,7 +285,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
         report['comparison_identity']=sha256(b''.join(Path(__file__).with_name(p).read_bytes() for p in verification_files))
         if req.get('proposer_receipt'):
             proposal_path=(ROOT/req['proposer_receipt']).resolve()
-            require(proposal_path.is_relative_to(ROOT/'recovery/proposals'),'proposer receipt escapes ledger')
+            require(proposal_path.is_relative_to(ROOT/'build/recovery/proposals'),'proposer receipt escapes ledger')
             proposal=json.loads(proposal_path.read_text())
             require(proposal['id']==f['id'] and proposal['source_sha256']==report['source_sha256'],'proposer source identity differs')
             report['proposer']=dict(receipt=req['proposer_receipt'],receipt_sha256=sha256(proposal_path.read_bytes()),model=proposal['identity']['model'])
@@ -260,7 +302,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                 (base/(stem+'.c')).write_text(source,encoding='utf-8',newline='\n')
                 write_json(base/(stem+'.json'),report)
         else:
-            path=ROOT/'recovery/attempts'/f['id']/(report['source_sha256']+'-'+profile+'-'+report['cache_key'][:12]+'-'+report['comparison_identity'][:12]+'.json')
+            path=ROOT/'build/recovery/attempts'/f['id']/(report['source_sha256']+'-'+profile+'-'+report['cache_key'][:12]+'-'+report['comparison_identity'][:12]+'.json')
             write_json(path,report)
             with ledger_lock(LEDGER):
                 r=recovery();attempts=r['attempts'].setdefault(f['id'],[])
@@ -272,7 +314,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                     short['state']='CODEGEN_SIMILAR' if (report.get('mnemonic_similarity') or 0)>=0.75 else 'CANDIDATE_C'
                 short.update(cache_key=report['cache_key'],comparison_identity=report['comparison_identity'])
                 if not any(a.get('cache_key')==short['cache_key'] and a.get('comparison_identity')==short['comparison_identity'] for a in attempts):attempts.append(short)
-                write_json(LEDGER,r)
+                write_recovery(r,LEDGER)
         # Compiler-owned CODE data is promoted only when its independently
         # proved tail ends at the next discovered entry, so no unowned bytes
         # can be absorbed between the function and its natural literal bundle.

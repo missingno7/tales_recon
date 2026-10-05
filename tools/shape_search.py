@@ -36,7 +36,7 @@ LEDGER_SCHEMA = 1
 # ``fleet_intake`` records are appended by tools/fleet.py after supervisor
 # intake of a worker result; they never count as compiler trials.
 RECORD_TYPES = ("trial", "duplicate_rejected", "fleet_intake")
-DEFAULT_LEDGER = Path("evidence/experiments/hypothesis-ledger.jsonl")
+DEFAULT_LEDGER = Path("build/recovery/hypotheses.jsonl")
 DIAGNOSTIC_SCOPES = {"operand_width", "register_assignment", "frame_or_stack_reference",
                      "a4_global_layout", "pc_relative_layout", "memory_reference_or_layout",
                      "call_target_or_encoding", "immediate_constant", "unknown_codegen",
@@ -65,8 +65,10 @@ def _source_path(value):
     path = (ROOT / rel).resolve()
     experiments = (ROOT / "experiments").resolve()
     candidates = (ROOT / "recovery" / "candidates").resolve()
-    require(path.is_relative_to(experiments) or path.is_relative_to(candidates),
-            "variant source must live under experiments/ or recovery/candidates/")
+    from repo_paths import candidate_path
+    candidate_path(ROOT,path)
+    require(path.is_relative_to(experiments) or path.is_relative_to(candidates) or path.is_relative_to(ROOT/'build'),
+            "variant source must live under build/ (or retained experiment inputs)")
     require(path.is_file() and path.suffix.lower() == ".c", "variant source must be an existing .c file")
     return path
 

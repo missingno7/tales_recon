@@ -72,8 +72,8 @@
         "Seventeen candidate 5.0a libraries pinned from validated disks; cj prefix is not generic HUNK object format",
         "evidence/experiments/runtime-matches.json: index, movmem, strcat, strcmp, strcpy, strlen, strncpy candidate objects",
         "Complete segload contribution h00+0x7978..0x7a6c matches 244 bytes and both relocations; eight total candidate contributions cover 470 bytes",
-        "Resident h00+0x8D00..0x8D80 FFP gateway vector offsets, stub pattern, dispatcher behavior, and strings strongly match Aztec 3.6a Library Source/ffp.arc and m.lib private .F* helpers; exact object-byte/relocation provenance remains unproved. See experiments/worker-resident-regabi/report.md.",
-        "Five naturally linked m.lib private FFP entry gates each match one unique 10-byte resident gate at h00+0x8D00..0x8D32. The shared dispatcher differs in seven link-context address operands, so complete runtime object provenance remains UNKNOWN. See experiments/worker-resident-object/report.md."
+        "Resident h00+0x8D00..0x8D80 FFP gateway vector offsets, stub pattern, dispatcher behavior, and strings strongly match Aztec 3.6a Library Source/ffp.arc and m.lib private .F* helpers; exact object-byte/relocation provenance remains unproved. See evidence/blockers/worker-resident-regabi/report.md.",
+        "Five naturally linked m.lib private FFP entry gates each match one unique 10-byte resident gate at h00+0x8D00..0x8D32. The shared dispatcher differs in seven link-context address operands, so complete runtime object provenance remains UNKNOWN. See evidence/blockers/worker-resident-object/report.md."
       ],
       "experiments_tried": [
         "5.0a c.lib/c16.lib isolated strlen/strcmp/memcpy: no exact resident matches",
@@ -252,13 +252,13 @@
         "ov11_F_506A's 40-byte owned CODE-data tail fills the formerly misreported 0x5174..0x519C layout gap; this corrects layout accounting without changing recovery coverage.",
         "Bounded ov14 byte-return variants under 3.6a and 5.0a all differ by return normalization; all three caller results are consumed as D0.b, and void-return trials also differ. See experiments/worker-ov14/abi-mode-report.md.",
         "ov11_F_3B92 compact-unit replay first resolved F25F8's four-byte call-layout excess by natural adjacent-object grouping, then matched F3B92's +84 branch by nesting the switch/count and four history updates under the outer event guard; the complete six-member 1048-byte unit matches and F3B92 is promoted. See experiments/worker-ov11-zero/report.md.",
-        "ov11_F_5FB2 ordinary-call trials differ; the resident D0/D1 targets are private Aztec FFP helpers, so normal C floating-point lowering is the next source hypothesis rather than unsupported register-call syntax. See experiments/worker-resident-regabi/report.md.",
+        "ov11_F_5FB2 ordinary-call trials differ; the resident D0/D1 targets are private Aztec FFP helpers, so normal C floating-point lowering is the next source hypothesis rather than unsupported register-call syntax. See evidence/blockers/worker-resident-regabi/report.md.",
         "Opt-in isolated verifier mode runs the same exact compiler comparison without writing canonical recovery state, enabling parallel bounded worker trials; real function and compact-unit EQUAL cache probes and 180 tests passed.",
         "ov04_F_0536 has a proved 38-byte literal tail but no matching 622-byte body; ov09_F_298E remains a 12-byte table-mask register-allocation near-match; ov11_F_4B0C first switch-shaped probes differ by 20+ bytes. These failed trials remain under experiments/worker-ov04-0536, worker-ov09-298e, and worker-ov11-4b0c.",
         "Pinned Aztec 3.6a m.lib after c.lib lets private FFP candidates link, with a separate cache identity; ov11_F_5FB2 (206/206 bytes) and ov05_F_3836 (616/616 bytes after bounded source fixes) have matching instruction shapes but remain DIFFER because private helper A4 call targets are not independently bound. Final HUNK relocations do not identify those calls; exact five 10-byte runtime gates alone are insufficient. See experiments/worker-ffp-link, worker-ov05-3836, and worker-resident-object.",
         "ov07_F_0000 has a candidate 72-byte compiler-owned CODE tail ending at the recovered 03CC entry, but its 900-byte function still depends on uncertain 1424/0612 indexed-jump extents and unrecovered 0F30; no source promotion. See experiments/worker-ov07-0000-audit.",
         "ov07_F_0F30 is a 1268-byte closed leaf with four repeated drawing blocks. The corrected-arity/word-width candidate is 1256 bytes and still differs; site-by-site evidence finds twelve target +24 word additions, only ten in the candidate, with two at wrong calls. See experiments/worker-ov07-0f30-audit.",
-        "Synthetic AJ one-call/two-call and NOP-shift probes identify named .Fflt presence and a plausible shifting site byte but do not establish a strict per-call external-fixup grammar or linked binding. No FFP call identity is promoted. See experiments/worker-aj-fixup-grammar/audit.md.",
+        "Synthetic AJ one-call/two-call and NOP-shift probes identify named .Fflt presence and a plausible shifting site byte but do not establish a strict per-call external-fixup grammar or linked binding. No FFP call identity is promoted. See evidence/rules/aj-external-fixups/audit.md.",
         "ov09_F_298E resolved by a controlled one-factor hypothesis experiment: register_trace localized the first role split to the (row-14)*6 table index; of 8 predicted variants of v15 (1 confirmed, 6 partial, 1 refuted), casting the index to long before scaling matched all 660 bytes and was promoted through the normal verifier. Declaring row signed (muls.w) and folding row*6-84 remained DIFFER. See experiments/worker-ov09-hyp."
       ],
       "first_mismatch": null,
@@ -287,5 +287,31 @@
       "target": "Qwen3-Coder frontier convergence"
     }
   ],
+  "function_blockers": {
+    "ov11_F_5FB2": {
+      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+      "ownership_unchanged": true,
+      "reason": "UNSUPPORTED_REGISTER_CALL_ABI: resident F_8Dxx vector wrappers require D-register arguments. Aztec 3.6a rejects #pragma regcall before compilation; ordinary stack calls cannot express the observed D0/D1 sequence. Retain three bounded trial receipts; add a historically supported 3.6a register-call mechanism before retrying.",
+      "state": "BLOCKED"
+    },
+    "ov14_F_0412": {
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "ownership_unchanged": true,
+      "reason": "BYTE_RETURN_ABI_MISMATCH: the recovered 3.6a loop body is structurally aligned, but signed/implicit/int byte returns add EXT.W and unsigned-char returns clear D0 before the byte load. The original returns its local byte directly, and the caller consumes only D0.b. aztec36-x3 retains the signed-return extension; defer until the historical return-mode mechanism is identified.",
+      "state": "BLOCKED"
+    },
+    "ov14_F_04A8": {
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "ownership_unchanged": true,
+      "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
+      "state": "BLOCKED"
+    },
+    "ov14_F_0540": {
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "ownership_unchanged": true,
+      "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
+      "state": "BLOCKED"
+    }
+  },
   "schema_version": 1
 }

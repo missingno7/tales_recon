@@ -1,0 +1,16 @@
+[
+  "Old1:bin/cc >compile.log -a probe.c",
+  "Old1:bin/as >assemble.log -o probe.o probe.asm",
+  "Old1:bin/ln >link.log -o probe probe.o Old1:lib/c.lib",
+  "probe >run.log",
+  "Old2:bin/lb >library-list.log Old1:lib/c.lib -t",
+  "Old2:bin/lb >extract.log Old1:lib/c.lib -x index movmem strcat strcmp strcpy strlen strncpy",
+  "Old1:bin/ln >index-link.log -o index-linked index.o",
+  "Old1:bin/ln >movmem-link.log -o movmem-linked movmem.o",
+  "Old1:bin/ln >strcat-link.log -o strcat-linked strcat.o",
+  "Old1:bin/ln >strcmp-link.log -o strcmp-linked strcmp.o",
+  "Old1:bin/ln >strcpy-link.log -o strcpy-linked strcpy.o",
+  "Old1:bin/ln >strlen-link.log -o strlen-linked strlen.o",
+  "Old1:bin/ln >strncpy-link.log -o strncpy-linked strncpy.o",
+  "Old1:bin/ln >combined-link.log -o combined index.o movmem.o strcat.o strcmp.o strcpy.o strlen.o strncpy.o"
+]

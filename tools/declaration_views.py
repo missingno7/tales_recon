@@ -19,6 +19,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from analysis_support import ROOT
+from repo_paths import is_active_repo_path
 
 POLICY = ('candidate source views used by canonical recovered sources; not historical type provenance. '
           'Access widths are original-instruction facts and do not determine a C type uniquely.')
@@ -94,7 +95,8 @@ def canonical_sources(root=ROOT):
     if not path.is_file():
         return []
     ledger = json.loads(path.read_text(encoding='utf-8'))
-    return sorted({item['source'] for item in ledger.get('functions', {}).values() if item.get('source')})
+    return sorted({item['source'] for item in ledger.get('functions', {}).values()
+                   if item.get('source') and is_active_repo_path(root/item['source'],root)})
 
 
 def corpus(root=ROOT):

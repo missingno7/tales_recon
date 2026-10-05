@@ -45,8 +45,8 @@ narrow gate-address mapping, but the candidate final A4 displacements resolve
 to the probe link's helper addresses, not automatically to the original gate
 identities. The current verifier's relocation proof therefore still lacks
 actual per-site external identity. See
-`experiments/worker-resident-object/gate-alias-design.md` and
-`experiments/worker-ffp-link/aj-fixup-audit.md`.
+`evidence/blockers/worker-resident-object/gate-alias-design.md` and
+`evidence/blockers/worker-ffp-link/aj-fixup-audit.md`.
 
 ## Recommended bounded next step
 

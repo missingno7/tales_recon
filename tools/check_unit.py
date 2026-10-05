@@ -18,6 +18,7 @@ from function_compare import compare_function
 from recovery_evidence import stand_in_source,EXTERN_FUNCTION,proven_object_source,group_object_source
 from recovery_evidence import joined_source as joined_texts
 from evidence_snapshot import scoped
+from repo_paths import candidate_path,canonical_path
 
 
 def stable_receipt(value):
@@ -231,7 +232,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             return
         dep=r['functions'].get(dep_id)
         require(dep is not None,'unrecovered same-node dependency: '+dep_id)
-        df,_=validated_function(dep_id);text=(ROOT/dep['source']).read_text()
+        df,_=validated_function(dep_id);text=canonical_path(ROOT,dep['source']).read_text()
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
         name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
@@ -479,7 +480,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     version=sha256(json_bytes(verifier_identity))[:16]
     base=None
     if not isolated:
-        base=ROOT/'recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
+        base=ROOT/'build/recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
         (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
         (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
         for member_id,text in member_sources.items():
@@ -929,7 +930,7 @@ def trial_cache_key(trial):
 
 
 @scoped
-def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=False,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
+def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=True,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
           object_groups=None,per_member_profiles=False,member_profiles=None):
     """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
     members authored with the entry; acceptance is then the complete unit.
@@ -956,8 +957,8 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     if isolated and output_dir is not None:
         from check_function import isolated_output_root
         output_root=isolated_output_root(output_dir)
-    member_sources={k:Path(v).read_text() for k,v in (member_sources or {}).items()}
-    source=Path(path).read_text();members,names,parts,combined,ledger=prepare_unit(
+    member_sources={k:candidate_path(ROOT,v).read_text() for k,v in (member_sources or {}).items()}
+    source=candidate_path(ROOT,path).read_text();members,names,parts,combined,ledger=prepare_unit(
         fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources,
         natural_interval=natural_interval)
     natural=None
@@ -1045,7 +1046,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('id');ap.add_argument('source',type=Path)
     ap.add_argument('--profile',action='append',choices=sorted(PROFILES));ap.add_argument('--no-promote',action='store_true')
     ap.add_argument('--owned-code-data',action='store_true',help='prove only the target function\'s adjacent PC-relative CODE string tail')
-    ap.add_argument('--separate-objects',action='store_true',help='compile each proven unit member as an ordinary object before the normal overlay link')
+    ap.add_argument('--separate-objects',action='store_true',default=True,help='default: compile each proven unit member as an ordinary object before the normal overlay link')
     ap.add_argument('--allow-original-gaps',action='store_true',help='with separate objects, prove compact linked source ownership across known but unreconstructed original gaps')
     ap.add_argument('--join-direct-callees',action='store_true',help='compile the target and its following direct same-node callees as one ordinary source object')
     ap.add_argument('--isolated',action='store_true',help='run exact unit comparison without writing recovery units, proofs, ledger, or ranking')

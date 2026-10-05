@@ -1,5 +1,0 @@
-Good work. 55B8 is now solved by the other split worker (split-55B8/v03/ov11_F_55B8.c is same_after_reference_identity). Next, with a NEW budget of 10 compiler trials:
-1. Merge hypothesis: take v06's ov11_F_51C0.c (correct control-flow/instruction structure: all instructions paired, one branch-edge hypothesis) and port ONLY v18's reference-identity corrections (global/field/extern names and offsets that you confirmed in v04/v05/v11-v14/v16/v18) onto it, without changing v06's statement structure. Record it as one hypothesis with prediction: all instructions paired, 0 different-identity references.
-2. Then address the single remaining branch-edge hypothesis from v06 with one controlled change.
-Build each variant as a full copy of v73 but with split-55B8/v03/ov11_F_55B8.c substituted for 55B8, plus your 51C0. Same compile command as before (verify-region with --object-group ov11_F_583A,ov11_F_5962). If the complete unit becomes EQUAL, stop immediately.
-Update split-51C0/summary.json (one JSON object only, json.dump) with best_variant_dir, cache_key, member_state, unit_verdict; reply with the SPLIT line.

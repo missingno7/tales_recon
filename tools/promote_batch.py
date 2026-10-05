@@ -14,13 +14,15 @@ import compiler_oracle
 import compile_queue
 from common import FormatError, require, sha256, json_bytes
 from recovery_transaction import ledger_lock, digest, publish, recover
+from repo_paths import active_files
+from recovery_state import canonical_state
 
 
 def input_snapshot(root, ledger, requests, compiled):
     paths = {ledger}
     for name, pattern in (('tools', '*.py'), ('tests', '*.py'), ('evidence', '*.json'), ('assets', '*'),
                           ('src/recovered', '*'), ('recovery/proofs', '*'), ('recovery/units', '*')):
-        paths.update(p for p in (root / name).rglob(pattern) if p.is_file())
+        paths.update(p for p in active_files(root/name) if pattern=='*' or p.match(pattern))
     paths.update(Path(r['source']).resolve() for r in requests)
     paths.update(root / name for name in ('docs/toolchain.json', 'docs/blockers.json') if (root / name).is_file())
     for item in compiled:
@@ -115,7 +117,7 @@ def publish_verified(requests, entries, verified_inputs=None):
                           batch_inputs_sha256=sha256(json_bytes(before)))
         artifacts, updated, promoted = {}, copy.deepcopy(ledger), []
         for entry in entries:
-            fid, report = entry['id'], entry['report']
+            fid, report = entry['id'], check_function.durable_unit(entry['report'])
             proof = check_function.promotion_proof(fid, entry['source'], report, entry['compiled'],
                                                    entry['function'], report['proof_level'], regression)
             proof_path = root / 'recovery/proofs' / (fid + '.json')
@@ -127,7 +129,7 @@ def publish_verified(requests, entries, verified_inputs=None):
             updated['functions'][fid] = item
             updated['blockers'].pop(fid, None)
             promoted.append(item)
-        transaction = publish(root, ledger_path, artifacts, updated, before[str(ledger_path)])
+        transaction = publish(root, ledger_path, artifacts, canonical_state(updated), before[str(ledger_path)])
     return dict(status='PROMOTED', transaction=transaction, functions=[e['id'] for e in entries],
                 promotions=promoted, regression=regression)
 

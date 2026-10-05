@@ -145,6 +145,6 @@ def summarize(run,root=ROOT):
 
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--run',type=Path,default=ROOT/'recovery/grinder-last-run.json');a=ap.parse_args()
-    report=summarize(json.loads(a.run.read_text()));write_json(ROOT/'recovery/reports'/(report['run_id']+'.json'),report)
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--run',type=Path,default=ROOT/'build/recovery/grinder-last-run.json');a=ap.parse_args()
+    report=summarize(json.loads(a.run.read_text()));write_json(ROOT/'build/recovery/reports'/(report['run_id']+'.json'),report)
     print(json.dumps(report,indent=2))

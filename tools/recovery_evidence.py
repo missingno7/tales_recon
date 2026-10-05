@@ -1,6 +1,7 @@
 """Validate curated source-proof inputs independently of generated topology metrics."""
 import json
 from common import require,sha256
+from repo_paths import canonical_path
 
 
 EXTERN_FUNCTION=r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(\w+)\s*\(\s*\)'
@@ -177,7 +178,7 @@ def member_profile_evidence(root,ledger,unit,compiler):
             require(recorded[x]==hypotheses.get(x,link),'new member profile is neither requested nor a recorded hypothesis: '+x)
             continue
         item=ledger['functions'].get(x) or {}
-        path=(root/item.get('proof','')).resolve() if item.get('proof') else None
+        path=canonical_path(root,item['proof']) if item.get('proof') else None
         require(path is not None and path.is_relative_to(root.resolve()) and path.is_file() and
                 sha256(path.read_bytes())==item.get('proof_sha256'),'canonical member proof missing or changed: '+x)
         require(proof_profile(json.loads(path.read_text()),x)==recorded[x],'canonical member profile differs from its own proof: '+x)
@@ -202,7 +203,7 @@ def load_promotions(root,blob,model,analysis):
     ledger=json.loads(path.read_text());out=[];occupied=set()
     for fid,item in sorted(ledger['functions'].items()):
         require(item['state'] in ('FUNCTION_CODE_MATCH','FUNCTION_WITH_DATA_MATCH'),'unsupported promotion level: '+fid)
-        source=(root/item['source']).resolve();proof_path=(root/item['proof']).resolve()
+        source=canonical_path(root,item['source']);proof_path=canonical_path(root,item['proof'])
         require(source.is_relative_to(root.resolve()) and proof_path.is_relative_to(root.resolve()),'proof paths escape workspace')
         proof=json.loads(proof_path.read_text());extent=proof['evidence_extent'];comparison=proof['comparison']
         require(sha256(proof_path.read_bytes())==item['proof_sha256'],'promotion receipt changed: '+fid)
@@ -242,7 +243,7 @@ def load_promotions(root,blob,model,analysis):
             require(refs==[s['offset'] for s in strings] and owned_tail_boundary(h,fid,end,owned['end'],analysis,blob),
                     'owned CODE-data lacks contiguous reference or next-entry proof')
         if proof['compiler']['source_sha256']!=proof['source_sha256']:
-            unit_path=(root/comparison.get('complete_unit_receipt','')).resolve()
+            unit_path=canonical_path(root,comparison.get('complete_unit_receipt',''))
             require(unit_path.is_relative_to(root.resolve()) and unit_path.is_file(),'combined source requires complete unit receipt')
             require(sha256(unit_path.read_bytes())==comparison['complete_unit_receipt_sha256'],'complete unit receipt changed')
             unit=json.loads(unit_path.read_text());unit_source=unit_path.parent/'unit.c'

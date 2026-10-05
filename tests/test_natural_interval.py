@@ -225,9 +225,9 @@ class NaturalPositiveControlTests(unittest.TestCase):
         if not receipts:self.skipTest('control receipt absent')
         with patch.object(check_unit,'compile_many',side_effect=cache_only), \
              patch.object(check_unit,'promote') as promote,patch.object(check_unit,'save_rank') as save_rank:
-            dry=check_unit.check('ov10_F_22E6',receipts[0].parent/'candidate.c',['aztec36'],isolated=True,
+            dry=check_unit.check('ov10_F_22E6',ROOT/'src/recovered/ov10/ov10_F_22E6.c',['aztec36'],isolated=True,
                                  natural_interval='0x1FDE..0x25A2',prepare_only=True)[0]
-            report=check_unit.check('ov10_F_22E6',receipts[0].parent/'candidate.c',['aztec36'],isolated=True,
+            report=check_unit.check('ov10_F_22E6',ROOT/'src/recovered/ov10/ov10_F_22E6.c',['aztec36'],isolated=True,
                                     natural_interval='0x1FDE..0x25A2')[0]
         promote.assert_not_called();save_rank.assert_not_called()
         self.assertEqual(dry['verdict'],'PREPARED_NOT_COMPILED')
@@ -337,7 +337,7 @@ class NaturalSeparateObjectControlTests(unittest.TestCase):
 
     def test_ov11_37e4_interval_from_cache(self):
         from test_multi_member_unit import cache_only
-        source=ROOT/'experiments/fleet/fn-ov11_F_37E4/candidate-03.c'
+        source=ROOT/'tests/fixtures/candidate-03.c'
         if not source.is_file():self.skipTest('candidate absent')
         key='5dab6f1ce2e106c1a4ba6315e604e8940240348a74906030a37a3ab044b94be7'
         with patch.object(check_unit,'compile_many',side_effect=cache_only), \
@@ -366,7 +366,7 @@ class NaturalPromotionEvidenceTests(unittest.TestCase):
         from analysis_support import game
         from recovery_evidence import load_promotions
         from test_multi_member_unit import cache_only
-        source=ROOT/'experiments/fleet/fn-ov11_F_37E4/candidate-03.c'
+        source=ROOT/'tests/fixtures/candidate-03.c'
         if not source.is_file():self.skipTest('candidate absent')
         if 'ov11_F_37E4' in recovery_state.recovery()['functions']:self.skipTest('already canonical')
         with tempfile.TemporaryDirectory() as tmp:

@@ -5,12 +5,35 @@ from pathlib import Path
 import re
 from common import require,write_json,sha256
 from analysis_support import ROOT
+from repo_paths import canonical_path,is_active_repo_path
 
 LEDGER=ROOT/'recovery/ledger.json'
 
 
 def recovery():
-    return json.loads(LEDGER.read_text()) if LEDGER.exists() else dict(schema_version=1,functions={},attempts={},blockers={})
+    result=json.loads(LEDGER.read_text()) if LEDGER.exists() else dict(schema_version=1,functions={},attempts={},blockers={})
+    root=LEDGER.parent.parent
+    scratch=root/'build/recovery/state.json'
+    if scratch.exists():result['attempts']=json.loads(scratch.read_text()).get('attempts',{})
+    blockers=root/'docs/blockers.json'
+    if blockers.exists():result['blockers']=json.loads(blockers.read_text()).get('function_blockers',result.get('blockers',{}))
+    return result
+
+
+def canonical_state(value):
+    return dict(schema_version=value.get('schema_version',1),functions=value['functions'],attempts={},blockers={})
+
+
+def write_recovery(value, ledger=None):
+    """Ownership, current blockers, and scratch history have separate homes."""
+    ledger=ledger or LEDGER
+    root=ledger.parent.parent
+    write_json(root/'build/recovery/state.json',dict(attempts=value.get('attempts',{})))
+    path=root/'docs/blockers.json'
+    doc=json.loads(path.read_text()) if path.exists() else dict(schema_version=1,blockers=[])
+    doc['function_blockers']=value.get('blockers',{})
+    write_json(path,doc)
+    write_json(ledger,canonical_state(value))
 
 
 def evidence():
@@ -43,6 +66,10 @@ def runtime_dependencies(ledger):
 
 def ranked(node=None):
     l=evidence();r=recovery();result=[];runtime=runtime_dependencies(l)
+    r['functions']={fid:item for fid,item in r['functions'].items() if
+                    not item.get('source') or is_active_repo_path(ROOT/item['source'],ROOT)}
+    incoming={f['id']:sum(any(c['id']==f['id'] for c in caller['direct_callees'])
+                         for caller in l['functions'] if caller['id'] not in r['functions']) for f in l['functions']}
     known_runtime={x['id'] for x in l['functions'] if x['ownership']=='RUNTIME_CANDIDATE'}
     for f in l['functions']:
         if node and f['node']!=node:continue
@@ -53,7 +80,12 @@ def ranked(node=None):
             state='CODEGEN_SIMILAR' if any((a.get('mnemonic_similarity') or 0)>=0.75 for a in r['attempts'][f['id']]) else 'CANDIDATE_C'
         known=sum(c['id'] in r['functions'] or c['id'] in known_runtime or (c['hunk'],c['offset']) in runtime for c in f['direct_callees'])
         unresolved_indirect=[x for x in f['indirect_control_flow'] if x.get('kind')!='PC_RELATIVE_WORD_JUMP_TABLE']
-        score=f['size']+80*len(f['direct_callees'])-30*known+30*len(f['referenced_data'])+100*len(f['relocations'])+500*len(unresolved_indirect)
+        # Lower cost wins. Closure and dependency unlocks dominate byte size.
+        unlock=10000*(f['node']=='ov04')+400*incoming[f['id']]+200*len(unresolved_indirect)
+        attempts=r['attempts'].get(f['id'],[])
+        unchanged=max(0,len(attempts)-len({(a.get('source_sha256'),a.get('comparison_identity')) for a in attempts}))
+        score=f['size']//8+80*len(f['direct_callees'])-30*known+30*len(f['referenced_data'])+100*len(f['relocations'])+500*len(unresolved_indirect)-unlock+1000*unchanged
+        if f['id'] in r['blockers'] and not r['blockers'][f['id']].get('next_action'):score+=5000
         if f['extent_status']!='CLOSED_CFG':score+=10000
         if f['hunk']==0:score+=20000
         if f['ownership']!='UNKNOWN':continue
@@ -81,8 +113,28 @@ def ranked(node=None):
             unit_ready=unit_ready and cursor==hi
         result.append(dict(id=f['id'],node=f['node'],size=f['size'],score=score,extent=f['extent_status'],calls=len(f['direct_callees']),indirect=len(unresolved_indirect),state=state,
                            confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies,
-                           pc_relative_data=sum(x['kind']=='PC_RELATIVE_DATA' for x in f['referenced_data']),same_node_unit_ready=unit_ready))
+                           pc_relative_data=sum(x['kind']=='PC_RELATIVE_DATA' for x in f['referenced_data']),same_node_unit_ready=unit_ready,
+                           unlock_value=unlock,unlocks_callers=incoming[f['id']],unchanged_hypotheses=unchanged,
+                           campaign='ov04' if f['node']=='ov04' else None,
+                           blocker_category=blocker_category(r['blockers'].get(f['id'],{}).get('reason',''))))
     return sorted(result,key=lambda x:(x['score'],x['id']))
+
+
+BLOCKER_CATEGORIES=('SOURCE_SHAPE','DECLARATION_VIEW','OBJECT/TU_LAYOUT','DATA_OWNERSHIP',
+                    'CALL_BINDING','CFG/BOUNDARY','RUNTIME/LIBRARY','TOOLCHAIN')
+
+
+def blocker_category(reason):
+    text=reason.upper()
+    for words,category in [(('DECLARATION','STRUCT_VIEW'),'DECLARATION_VIEW'),
+                           (('FFP','FIXUP','CALL_BINDING','REGISTER_CALL'),'CALL_BINDING'),
+                           (('CFG','BOUNDARY','INDIRECT','EXTENT'),'CFG/BOUNDARY'),
+                           (('LAYOUT','OBJECT','CYCLIC','GAP'),'OBJECT/TU_LAYOUT'),
+                           (('DATA','LITERAL','TABLE'),'DATA_OWNERSHIP'),
+                           (('RUNTIME','LIBRARY'),'RUNTIME/LIBRARY'),
+                           (('TOOLCHAIN','BYTE_RETURN_ABI','CHAR_RETURN_EXTENSION'),'TOOLCHAIN')]:
+        if any(w in text for w in words):return category
+    return 'SOURCE_SHAPE'
 
 
 def call_excerpt(source,name,limit=900):
@@ -117,7 +169,8 @@ def canonical_call_examples(calls,ledger,limit=4):
         for caller_id,item in sorted(ledger.get('functions',{}).items()):
             path=item.get('source')
             if not path:continue
-            source_path=ROOT/path
+            if not is_active_repo_path(ROOT/path,ROOT):continue
+            source_path=canonical_path(ROOT,path)
             if not source_path.is_file():continue
             excerpt=call_excerpt(source_path.read_text(),name)
             if excerpt:
@@ -135,29 +188,19 @@ def facts(fid,max_instructions=160,max_bytes=65536):
     refs=sorted({(x['hunk'],x['offset']) for x in f['referenced_data']} |
                 {(x['target_hunk'],x['addend_raw']) for x in f['relocations'] if x['target_hunk'] in (1,2)})
     previous=[];previous_sources={}
-    for attempt in r['attempts'].get(fid,[])[-5:]:
-        receipt=json.loads((ROOT/attempt['receipt']).read_text())
-        previous.append({k:receipt[k] for k in ('source_sha256','compiler','flags','verdict','reason','expected_length','actual_length','first_differing_instruction','relocation_issues','mnemonic_similarity','compiler_feedback','unit_feedback','unit_blocker') if k in receipt})
-        cache=ROOT/'build/compile-cache'/receipt['cache_key'];manifest=cache/'receipt.json'
-        candidate=ROOT/'recovery/candidates'/fid/(receipt['source_sha256']+'.c')
-        source=None
-        if candidate.exists():source=candidate.read_text()
-        elif manifest.exists():
-            retained=json.loads(manifest.read_text());source=(cache/(retained['prefix']+'.c')).read_text()
-        if source is not None:
-            require(sha256(source.encode())==receipt['source_sha256'],'previous candidate source hash changed')
-            previous_sources[receipt['source_sha256']]=dict(source=source[:4096],truncated=len(source)>4096)
+    # Fresh packets never import attempt history. Workers use an explicit
+    # current diagnostic/cache key when testing a changed hypothesis.
     fingerprints=[];index=ROOT/'evidence/fingerprints/index.json'
     if index.exists():
         m=[i['mnemonic'] for i in f['instructions']]
         entries=json.loads(index.read_text())['entries']
         for profile in ('aztec36','aztec50-short'):
             closest=sorted((e for e in entries if e['profile']==profile and e['status']=='COMPILED'),key=lambda e:SequenceMatcher(None,m,e['mnemonics']).ratio(),reverse=True)[:2]
-            fingerprints.extend(dict(name=e['name'],profile=profile,source=(ROOT/e['source']).read_text(),assembly=e['assembly'][:2400],flags=e['compiler']['flags']) for e in closest)
+            fingerprints.extend(dict(name=e['name'],profile=profile,source=canonical_path(ROOT,e['source']).read_text(),assembly=e['assembly'][:2400],flags=e['compiler']['flags']) for e in closest if is_active_repo_path(ROOT/e['source'],ROOT))
     dependencies=[]
     for call in f['direct_callees'][:12]:
         dep=r['functions'].get(call['id'])
-        if dep:dependencies.append(dict(id=call['id'],name='F_h%02d_%04X'%(call['hunk'],call['offset']),state=dep['state'],source=(ROOT/dep['source']).read_text()[:3000]))
+        if dep and is_active_repo_path(ROOT/dep['source'],ROOT):dependencies.append(dict(id=call['id'],name='F_h%02d_%04X'%(call['hunk'],call['offset']),state=dep['state'],source=canonical_path(ROOT,dep['source']).read_text()[:3000]))
     call_examples=canonical_call_examples(f['direct_callees'],r)
     packages=dict(schema_version=1,id=fid,extent={k:f[k] for k in ('node','hunk','start','end','size','sha256','extent_status','confidence')},
         entry_evidence=f['entry_evidence'],instructions=f['instructions'],cfg=f['cfg'],
@@ -170,8 +213,7 @@ def facts(fid,max_instructions=160,max_bytes=65536):
         canonical_call_examples=call_examples,
         contract='Return self-contained historical-style C defining recovered(...). Use extern declarations and mechanical G_hNN_OFFSET / F_hNN_OFFSET names for evidence-backed dependencies. No asm, placement directives, binary literal code, or emulator operations. The verifier decides equality.')
     from recovery_feedback import advisory_feedback
-    attempts=r['attempts'].get(fid,[])
-    guidance=advisory_feedback(fid,attempts[-1] if attempts else None,root=ROOT)
+    guidance=advisory_feedback(fid,None,root=ROOT)
     if len(json.dumps(packages).encode())+len(json.dumps(guidance).encode())<max_bytes-536:
         packages['advisory_feedback']=guidance
     else:
@@ -181,5 +223,5 @@ def facts(fid,max_instructions=160,max_bytes=65536):
 
 
 def save_rank():
-    write_json(ROOT/'evidence/functions/ranking.json',dict(schema_version=1,bootstrap='ov14',semantic_pilot='ov07',
-        bootstrap_reason='ov12 has a single 2998-byte closed CFG with 132 calls; ov14 contains 20-byte and 80-byte no-call leaves.',candidates=ranked()))
+    write_json(ROOT/'evidence/functions/ranking.json',dict(schema_version=2,closure_campaign='ov04',
+        policy='Expected closure/dependency/CFG unlock dominates size. Requeue only with a changed hypothesis and a bounded next experiment.',candidates=ranked()))

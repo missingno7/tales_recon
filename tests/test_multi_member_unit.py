@@ -164,7 +164,7 @@ class PositiveControlTests(unittest.TestCase):
         members={o:ROOT/functions[o]['source'] for o in others}
         with patch.object(check_unit,'compile_many',side_effect=cache_only), \
              patch.object(check_unit,'promote') as promote,patch.object(check_unit,'save_rank') as save_rank:
-            reports=check_unit.check(entry,receipts[0].parent/'candidate.c',['aztec36'],isolated=True,
+            reports=check_unit.check(entry,ROOT/functions[entry]['source'],['aztec36'],isolated=True,
                                      member_sources=members,**options)
         promote.assert_not_called();save_rank.assert_not_called()
         report=reports[0]
@@ -175,7 +175,7 @@ class PositiveControlTests(unittest.TestCase):
         self.assertEqual(report['acceptance'],'ALL_NEW_MEMBERS_EQUAL_IN_ONE_COMPLETE_UNIT')
 
     def test_two_member_single_object_unit(self):
-        self.control('ov10_F_2160','af14c54801ae01b91b77bdd8a571641445390950e915f1febc540d5e712ab7d5',['ov10_F_1FDE'])
+        self.control('ov10_F_2160','af14c54801ae01b91b77bdd8a571641445390950e915f1febc540d5e712ab7d5',['ov10_F_1FDE'],separate_objects=False)
 
     def test_six_member_compact_unit(self):
         self.control('ov11_F_3B92','71af3f34444521e9f48df3ce43d629067859ec436d2e989ee6ba7e87a4870ea1',

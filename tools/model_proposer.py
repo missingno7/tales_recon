@@ -86,7 +86,7 @@ def propose(package,model='gpt-5.6-luna',effort='low',timeout=180):
     (base/'stderr.log').write_text(p.stderr,encoding='utf-8',newline='\n')
     require(p.returncode==0,'model service failed; retained diagnostic: '+str((base/'stderr.log').relative_to(ROOT)))
     source,usage=parse_events(p.stdout);(base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
-    public=ROOT/'recovery/proposals'/package['id']/(key+'.json')
+    public=ROOT/'build/recovery/proposals'/package['id']/(key+'.json')
     r=dict(schema_version=1,id=package['id'],identity=identity,source_sha256=sha256(source.encode('ascii')),usage=usage,
            tool_operations=0,elapsed_seconds=time.perf_counter()-started,events_sha256=sha256(p.stdout.encode()),
            public_receipt=public.relative_to(ROOT).as_posix(),retained_directory=base.relative_to(ROOT).as_posix())

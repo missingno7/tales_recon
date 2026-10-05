@@ -3,13 +3,13 @@
 The supervisor plans tasks from the current frontier, leases them to named
 workers, writes self-contained prompt packets, and reviews results through a
 re-verifying intake. Nothing here launches a worker, promotes a proof,
-relocks fixtures or edits curated/generated ledgers. See docs/fleet.md.
+relocks fixtures or edits curated/generated ledgers. See docs/NEXT.md.
 
 Storage: the task list and leases are ephemeral coordination state in ignored
 ``build/fleet/`` (lock-protected, regenerable, per checkout). Durable outcomes
 are append-only ``fleet_intake`` records in the hypothesis ledger
-(``evidence/experiments/hypothesis-ledger.jsonl``); packets and worker outputs
-live under ``experiments/fleet/<task_id>/``.
+(``build/recovery/hypotheses.jsonl``); packets and worker outputs
+live under ``build/workers/<task_id>/``.
 """
 import argparse
 from collections import Counter
@@ -27,7 +27,7 @@ import file_lock
 
 
 FLEET_DIR = ROOT / "build/fleet"
-PACKETS = ROOT / "experiments/fleet"
+PACKETS = ROOT / "build/workers"
 CANONICAL_STATES = ("FUNCTION_CODE_MATCH", "FUNCTION_WITH_DATA_MATCH", "MODULE_MATCH", "OVERLAY_NODE_MATCH")
 KINDS = ("function", "unit", "region", "review", "blocker-probe")
 RESULT_STATUSES = ("EQUAL_CANDIDATE", "NEAR", "BLOCKED", "NEEDS_EVIDENCE")
@@ -694,7 +694,7 @@ def attempt_rows(fid, rec, limit=6):
         if (a.get("cache_key"), a.get("profile")) in seen:
             continue
         seen.add((a.get("cache_key"), a.get("profile")))
-        src = ROOT / "recovery/candidates" / fid / (a.get("source_sha256", "") + ".c")
+        src = ROOT / "build/recovery/candidates" / fid / (a.get("source_sha256", "") + ".c")
         diff = a.get("first_difference") or {}
         out.append(dict(profile=a.get("profile"), verdict=a.get("verdict"), expected=a.get("expected_length"),
                         actual=a.get("actual_length"), similarity=a.get("mnemonic_similarity"),
@@ -1029,7 +1029,7 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None, 
         run = ("the verify command in the Commands section (always isolated; one --member per other new member, exactly "
                "the listed flags), then the per-member diagnostics command with the new cache key.")
         options = "\"separate_objects\",\"natural_interval\",\"join_direct_callees\",\"owned_code_data\""
-        unit_doc = ", docs/unit-diagnostics.md, docs/fleet.md (Regions)"
+        unit_doc = ", docs/unit-diagnostics.md, docs/NEXT.md (Regions)"
     elif task["kind"] == "unit":
         record = ("Append one JSON line per hypothesis to `%s/hypotheses.jsonl`: "
                   "{\"id\",\"parent\",\"suspected_cause\",\"controlled_change\",\"prediction\"} with a concrete length/diff prediction. "
@@ -1560,7 +1560,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--fleet-dir", type=Path, help=argparse.SUPPRESS)
     ap.add_argument("--packets-dir", type=Path, help=argparse.SUPPRESS)
-    ap.add_argument("--ledger", help="hypothesis ledger (default evidence/experiments/hypothesis-ledger.jsonl)")
+    ap.add_argument("--ledger", help="hypothesis ledger (default build/recovery/hypotheses.jsonl)")
     sub = ap.add_subparsers(dest="command", required=True)
     p = sub.add_parser("plan", help="regenerate build/fleet/tasks.json from the current frontier")
     p.add_argument("--max-bytes", type=int, default=1024)
@@ -1583,7 +1583,7 @@ def main(argv=None):
         if name == "renew":
             p.add_argument("--lease-hours", type=float, default=DEFAULT_LEASE_HOURS)
     sub.add_parser("status")
-    p = sub.add_parser("packet", help="write experiments/fleet/<task>/PROMPT.md")
+    p = sub.add_parser("packet", help="write build/workers/<task>/PROMPT.md")
     p.add_argument("task")
     p = sub.add_parser("intake", help="validate and re-verify a worker result; never promotes")
     p.add_argument("task"); p.add_argument("--verify-near", action="store_true")

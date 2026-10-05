@@ -212,8 +212,9 @@ def _type_shape(decl):
 
 
 def _declarations(root):
+    from repo_paths import active_files
     found = defaultdict(list)
-    for path in sorted((Path(root) / 'src').rglob('*.c')):
+    for path in sorted(active_files(Path(root)/'src', '.c')):
         try:
             text = path.read_text(encoding='ascii')
         except (UnicodeDecodeError, OSError):

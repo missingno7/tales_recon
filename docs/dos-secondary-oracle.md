@@ -32,7 +32,7 @@ percentage is claimed.
 
 ## Controlled compiler evidence
 
-The [paired source hypothesis](../experiments/dos/ov10_shared_pair.c) contains
+The [paired source hypothesis](../evidence/rules/dos/ov10_shared_pair.c) contains
 the two expressions already exactly matched on Amiga as `ov10_F_2B8A` and
 `ov10_F_2BAC`. MSC 5.10 with `/AM /Os` emits one 66-byte CODE object with
 publics at offsets 0 and 33. That full 66-byte span matches DOS overlay 6

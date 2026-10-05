@@ -176,7 +176,7 @@ class VerifierContractTests(unittest.TestCase):
 class CachedVerifierRegressionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        source=ROOT/'experiments/grinder-bootstrap/ov14_F_03AE.c'
+        source=ROOT/'tests/fixtures/ov14_F_03AE.c'
         if not source.exists():raise unittest.SkipTest('local historical bootstrap cache absent')
         key=identity(source.read_text(),'aztec36')[0]
         cls.compiled=cached(key)

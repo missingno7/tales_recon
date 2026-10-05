@@ -48,7 +48,7 @@ def _source_state(fid, attempts, blockers):
     if not rows:
         return {'state': 'NO_RETAINED_ATTEMPT_RECEIPT', 'attempts': 0, 'profiles': []}
     latest = rows[-1]
-    source = ROOT / 'recovery' / 'candidates' / fid / (latest.get('source_sha256', '') + '.c')
+    source = ROOT / 'build' / 'recovery' / 'candidates' / fid / (latest.get('source_sha256', '') + '.c')
     available = source.is_file() and sha256(source.read_bytes()) == latest.get('source_sha256')
     return {
         'state': 'RETAINED_CANDIDATE_SOURCE' if available else 'ATTEMPT_RECEIPTS_AVAILABLE',

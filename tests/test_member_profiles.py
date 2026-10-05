@@ -152,7 +152,7 @@ class MemberProfilePromotionEvidenceTests(unittest.TestCase):
                  patch.object(check_function,'regression_receipt',return_value=dict(command='test',passed=True,output_sha256='0'*64)), \
                  patch.object(check_unit,'save_rank'):
                 with self.assertRaisesRegex(FormatError,'requires --separate-objects'):
-                    check_unit.check(a['id'],paths[a['id']],['aztec36'],per_member_profiles=True,
+                    check_unit.check(a['id'],paths[a['id']],['aztec36'],separate_objects=False,per_member_profiles=True,
                                      member_sources={b['id']:paths[b['id']]})
                 with self.assertRaisesRegex(FormatError,'PROFILES_NOT_LINK_COMPATIBLE'):
                     check_unit.check(a['id'],paths[a['id']],['aztec50-short'],separate_objects=True,isolated=True,

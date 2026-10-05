@@ -19,7 +19,7 @@ def run(ids):
         package['previous_attempts']=[];package['previous_sources']={}
         result=propose(package);replay=propose(package)
         require(replay['proposer_cache_hit'] and replay['source']==result['source'],'model replay did not reuse result')
-        path=ROOT/'recovery/candidates'/fid/(sha256(result['source'].encode())+'.c')
+        path=ROOT/'build/recovery/candidates'/fid/(sha256(result['source'].encode())+'.c')
         path.parent.mkdir(parents=True,exist_ok=True);path.write_text(result['source'],encoding='ascii',newline='\n')
         requests.append(dict(id=fid,source=str(path),profiles=['aztec36'],proposer_receipt=result['proposer_receipt']))
         proposals.append(dict(id=fid,receipt=result['proposer_receipt'],model_metrics=result['local_model_metrics'],
@@ -36,7 +36,7 @@ def run(ids):
         proposals=proposals,comparisons=[{k:r.get(k) for k in ('id','verdict','expected_length','actual_length','cache_hit','source_sha256','proposer')} for r in first],
         first_oracle=first_oracle,replay_oracle=replay_oracle,canonical_ownership_unchanged=True,
         newly_recovered_functions=0,newly_recovered_bytes=0,elapsed_seconds=time.time()-started)
-    path=ROOT/'recovery/calibrations'/(uuid.uuid4().hex+'.json');write_json(path,report)
+    path=ROOT/'build/recovery/calibrations'/(uuid.uuid4().hex+'.json');write_json(path,report)
     first_receipt=ROOT/'evidence/experiments/local-grinder-calibration.json'
     if not first_receipt.exists():write_json(first_receipt,report)
     print(json.dumps(dict(report=str(path),results=report['comparisons'],newly_recovered_bytes=0),indent=2))

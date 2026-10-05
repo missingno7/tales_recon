@@ -167,7 +167,7 @@ def member_candidates(fid, attempts, intakes, existing_dirs=(), source_exists=No
                              actual=best.get("actual_length"), entry=best.get("entry")))
     retained = []
     for a in attempts.get(fid) or []:
-        path = "recovery/candidates/%s/%s.c" % (fid, a.get("source_sha256", ""))
+        path = "build/recovery/candidates/%s/%s.c" % (fid, a.get("source_sha256", ""))
         if a.get("source_sha256") and (source_exists is None or source_exists(path)):
             retained.append((a.get("mnemonic_similarity") or 0, path, a))
     for similarity, path, a in sorted(retained, key=lambda x: -x[0])[:2]:
@@ -179,7 +179,7 @@ def member_candidates(fid, attempts, intakes, existing_dirs=(), source_exists=No
     suffix = fid.rsplit("_", 1)[-1]
     dirs = sorted(d for d in existing_dirs if d in ("fn-" + fid, "blk-" + fid)
                   or (d.startswith(("unit-", "reg-")) and (fid in d or "-" + suffix in d)))
-    return dict(candidates=rows[:limit], experiment_dirs=["experiments/fleet/" + d for d in dirs][:4])
+    return dict(candidates=rows[:limit], experiment_dirs=["build/workers/" + d for d in dirs][:4])
 
 
 def build_regions(functions, items, canonical, blockers, attempts=None, intakes=(), tail_ends=None, audits=(),

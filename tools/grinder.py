@@ -12,7 +12,7 @@ import uuid
 import os
 import time
 from common import require,write_json,sha256,FormatError
-from recovery_state import ROOT,LEDGER,recovery,ranked,facts,save_rank
+from recovery_state import ROOT,LEDGER,recovery,ranked,facts,save_rank,write_recovery,blocker_category
 from check_function import check_many
 from compiler_oracle import PROFILES
 from recovery_transaction import ledger_lock
@@ -50,12 +50,12 @@ def compact_blocker_facts(package):
 
 def block(fid,reason):
     with ledger_lock(LEDGER):
-        r=recovery();r['blockers'][fid]=dict(state='BLOCKED',reason=reason,attempts=r['attempts'].get(fid,[])[-5:],
+        r=recovery();r['blockers'][fid]=dict(state='BLOCKED',reason=reason,category=blocker_category(reason),
                                            ownership_unchanged=True,next_action=blocker_next_action(reason))
-        write_json(LEDGER,r)
+        write_recovery(r,LEDGER)
     try:package=compact_blocker_facts(facts(fid))
     except FormatError:package=dict(id=fid)
-    write_json(ROOT/'recovery/blockers'/(fid+'.json'),dict(blocker=r['blockers'][fid],facts=package))
+    write_json(ROOT/'build/recovery/blockers'/(fid+'.json'),dict(blocker=r['blockers'][fid],facts=package))
 
 
 def exhausted(reports,before,after,max_attempts):
@@ -71,10 +71,10 @@ def canonical_promotion(reports):
 
 def checkpoint(totals):
     totals['elapsed_seconds']=time.time()-totals['started_unix']
-    write_json(ROOT/'recovery/runs'/(totals['run_id']+'.json'),totals)
-    write_json(ROOT/'recovery/grinder-last-run.json',totals)
+    write_json(ROOT/'build/recovery/runs'/(totals['run_id']+'.json'),totals)
+    write_json(ROOT/'build/recovery/grinder-last-run.json',totals)
     from grinder_report import summarize
-    write_json(ROOT/'recovery/reports'/(totals['run_id']+'.json'),summarize(totals,ROOT))
+    write_json(ROOT/'build/recovery/reports'/(totals['run_id']+'.json'),summarize(totals,ROOT))
 
 
 def eligible(item,args,limit):
@@ -160,7 +160,7 @@ def run(args):
                 for key in ('proposer_receipt','proposer_cache_hit'):
                     if key in extra:result[key]=extra[key]
                 require(source.isascii() and len(source)<=16384,'proposer source must be bounded ASCII C')
-                p=ROOT/'recovery/candidates'/fid/(sha256(source.encode())+'.c');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(source,newline='\n')
+                p=ROOT/'build/recovery/candidates'/fid/(sha256(source.encode())+'.c');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(source,newline='\n')
                 requests.append(dict(id=fid,source=str(p),profiles=getattr(args,'profile',None) or ['aztec36'],proposer_receipt=result.get('proposer_receipt')))
             except (OSError,subprocess.TimeoutExpired) as exc:
                 service_error='PROPOSER_SERVICE_FAILURE: '+str(exc);break
@@ -242,14 +242,14 @@ def main():
     elif args.action=='frontier':print(json.dumps(frontier(args.node,args.max_bytes,max_data_references=args.max_data_references),indent=2))
     elif args.action=='retry':
         with ledger_lock(LEDGER):
-            r=recovery();r['blockers'].pop(args.id,None);write_json(LEDGER,r)
+            r=recovery();r['blockers'].pop(args.id,None);write_recovery(r,LEDGER)
     elif args.action=='block':
         require(args.reason.strip() and '\n' not in args.reason,'block reason must be one nonempty line')
         block(args.id,args.reason.strip());save_rank()
     else:
         result=run(args)
         print(json.dumps({k:result[k] for k in ('run_id','status','rounds','promoted','blocked','elapsed_seconds')},indent=2))
-        print('Report: recovery/reports/'+result['run_id']+'.json')
+        print('Report: build/recovery/reports/'+result['run_id']+'.json')
 
 if __name__=='__main__':
     try:main()

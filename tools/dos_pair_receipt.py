@@ -13,7 +13,7 @@ from dos_structure import EXE, analyze
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT/'experiments/dos/ov10_shared_pair.c'
+SOURCE = ROOT/'evidence/rules/dos/ov10_shared_pair.c'
 SPAN_START = 0x2390
 SPAN_END = 0x23D2
 

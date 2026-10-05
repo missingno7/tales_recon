@@ -10,7 +10,7 @@
   "assembler": null,
   "bounded_evidence_snapshots": {
     "acceptance_policy": "Existing strict derivation and compiler artifact validation remain authoritative. Advisory images never satisfy strict reads. No cached verdicts, fixture relocking, original-code output, or new proof level.",
-    "evidence": "experiments/evidence-snapshot/report.json",
+    "evidence": "evidence/rules/evidence-snapshot/report.json",
     "experiments_retained": [
       "Initial full-result deep-copy implementation was slower on five real image reads: about 2.63 seconds versus 1.91 seconds baseline. Local memory-only serialization replaced recursive copying.",
       "Initial benchmark selection encountered uncached current standalone recipes and stopped without compiler launch or publication; corrected preflight exclusions are recorded in report.json."
@@ -283,19 +283,19 @@
     "cache_identity_impact": "0 of 1029 cached identities gain the new field except the shell-rejected 94cbb29bb1e6 failure. Editing compiler_oracle.py changes its file hash, which is in named-entry/proxy identities: 1 cached entry carried the prior hash (28 already carried older hashes).",
     "experiments": [
       {
-        "generator": "experiments/link-command-limit/make_001.py",
+        "generator": "evidence/rules/link-command-limit/make_001.py",
         "job": "link-limit-001",
         "observation": "Aztec 3.6a ln linking 1..33 trivial independent objects: direct commands up to 548 characters (31 objects) returned 0; 563 (32) and 578 (33) returned 10 with an empty redirected log and no executable, reproducing the region failure. ln -f argument files (single-line and one-per-line) linked 7 and 33 objects; the 7-object -f executable and .sym are byte-identical to the direct link.",
         "result_sha256": "43cfc5855552ea419944719b83a8412c1002279adf70f925cd0633221b833a3b"
       },
       {
-        "generator": "experiments/link-command-limit/make_002.py",
+        "generator": "evidence/rules/link-command-limit/make_002.py",
         "job": "link-limit-002",
         "observation": "Same 30-object link padded with spaces to 544..571 characters: <=555 linked, >=556 returned 10. Argument text after the command name and redirections was 510 (pass) vs 511 (fail). C:Echo lines fail with 10 at the same argument length (507 ran, 511 failed), so the limit is the guest shell, not ln.",
         "result_sha256": "92c770596ac0a0be7ec0ce14c8654fd14e961ec711058a7d4102671177fabbc4"
       },
       {
-        "generator": "experiments/link-command-limit/make_003.py",
+        "generator": "evidence/rules/link-command-limit/make_003.py",
         "job": "link-limit-003",
         "observation": "ln -f with 96 objects (1462-byte argument file) linked with status 0.",
         "result_sha256": "801d4b2e5a55be3838b99560d80c2d2c1d9212ec3aa5a920a934743918d3169b"
@@ -358,7 +358,7 @@
       "Round-robin selection caps all requests at 48 trials and 512 guest commands; an oversized single unit runs alone.",
       "A configurable 100 ms collection window admits simultaneous arrivals; cache hits bypass it."
     ],
-    "evidence": "experiments/compile-queue-unified/report.json",
+    "evidence": "evidence/rules/compile-queue-unified/report.json",
     "identity_policy": "Legacy compiler_oracle.py and mixed_profile_oracle.py are unchanged; queued trials reuse their exact identity functions and validated cache entries.",
     "limitations": [
       "Small synthetic control, not a sustained throughput benchmark.",
@@ -391,8 +391,8 @@
   "supervisor_batch_promotion": {
     "audit_revision": "The initial control passed before suite-input binding was added. Its receipt is retained separately; concurrent test/tool edits are now explicitly rejected.",
     "command": "python tools/promote_batch.py MANIFEST.json",
-    "evidence": "experiments/promotion-batch/report.json",
-    "initial_control": "experiments/promotion-batch/report-initial.json",
+    "evidence": "evidence/rules/promotion-batch/report.json",
+    "initial_control": "evidence/rules/promotion-batch/report-initial.json",
     "input_binding": "Candidates, canonical sources/proofs, oracle evidence, tools/tests, selected compiler inputs and compiled/dependency artifacts are hash-checked; the regression receipt also independently binds its suite/tool inventory.",
     "limitations": [
       "Filesystem publication is recoverable, not simultaneous across every file; readers may see a hash-validation failure before the ledger commit.",

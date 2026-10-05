@@ -16,7 +16,7 @@ from recovery_state import ROOT
 class CompleteUnitTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        source=ROOT/'experiments/grinder-leaves/ov11_F_25F8-01.c'
+        source=ROOT/'tests/fixtures/ov11_F_25F8-01.c'
         if not source.exists():raise unittest.SkipTest('local unit bootstrap absent')
         cls.members,cls.names,combined,ledger=prepare_unit('ov11_F_25F8',source.read_text())
         cls.compiled=cached(identity(combined,'aztec36')[0]);cls.bias=ledger['a4']['bias']
@@ -121,7 +121,7 @@ class CompleteUnitTests(unittest.TestCase):
         self.assertEqual(report['members'][0]['proof_level'],'FUNCTION_WITH_DATA_MATCH')
 
     def test_recovered_bridge_joins_a_contiguous_local_unit(self):
-        source=ROOT/'experiments/direct-recovery/ov13_F_0190-v1.c'
+        source=ROOT/'tests/fixtures/ov13_F_0190-v1.c'
         if not source.exists():self.skipTest('ov13 bridge candidate absent')
         members,names,combined,_=prepare_unit('ov13_F_0190',source.read_text())
         self.assertEqual([m['id'] for m in members],['ov13_F_0000','ov13_F_012E','ov13_F_0190'])
@@ -129,7 +129,7 @@ class CompleteUnitTests(unittest.TestCase):
         self.assertEqual(names['ov13_F_0000'],'F_h13_0000')
 
     def test_transitive_local_calls_close_the_whole_source_unit(self):
-        source=ROOT/'experiments/direct-recovery/ov04_F_0000-v1.c'
+        source=ROOT/'tests/fixtures/ov04_F_0000-v1.c'
         if not source.exists():self.skipTest('ov04 wrapper candidate absent')
         members,_,_,_=prepare_unit('ov04_F_0000',source.read_text())
         self.assertEqual([m['id'] for m in members],[

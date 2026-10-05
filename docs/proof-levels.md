@@ -53,7 +53,7 @@ sources and must stay EQUAL. Unknown gaps are not linked, so the object is
 compacted only at those spans. A PC-relative reference crossing a span is
 accepted by target identity only when its displacement class (8-bit or 16-bit)
 is the same in the original and compact links. Otherwise the unit is BLOCKED
-(`GAP_DEPENDENT_ENCODING`). See docs/fleet.md.
+(`GAP_DEPENDENT_ENCODING`). See docs/NEXT.md.
 
 With `--separate-objects`, `--object-group` compiles consecutive members, with
 no original byte between them, as one ordinary object. This is a

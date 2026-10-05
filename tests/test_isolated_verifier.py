@@ -21,7 +21,7 @@ from recovery_state import evidence
 class IsolatedFunctionVerifierTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.source_path=ROOT/'experiments/grinder-bootstrap/ov14_F_03AE.c'
+        cls.source_path=ROOT/'tests/fixtures/ov14_F_03AE.c'
         if not cls.source_path.exists():raise unittest.SkipTest('bootstrap source unavailable')
         cls.source=cls.source_path.read_text()
         key=identity(cls.source,'aztec36')[0]

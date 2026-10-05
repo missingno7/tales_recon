@@ -7,7 +7,7 @@ reconstructed game build or a complete linked-layout match.
 
 `+oN` selects the node for subsequent inputs; `+o0` resumes resident input.
 Omitting node 4 while using nodes 1 through 14 leaves the fourth slot empty.
-The tested command is recorded exactly in `experiments/overlay-topology/commands.json`.
+The tested command is recorded exactly in `evidence/rules/overlay-topology/commands.json`.
 `-m -t` produces a symbol map alongside the executable.
 
 The option was identified directly in the pinned 3.6a linker's option parser:
@@ -60,10 +60,10 @@ from reconstructed game-source bytes and final ownership claims.
 Use fresh job names and the already pinned local distributions:
 
 ```powershell
-python tools/aztec_worker.py prepare topology-new experiments/overlay-topology --commands experiments/overlay-topology/commands.json --aztec36
+python tools/aztec_worker.py prepare topology-new evidence/rules/overlay-topology --commands evidence/rules/overlay-topology/commands.json --aztec36
 .\tools\run_worker.ps1 -Job build/worker-jobs/topology-new
 python tools/aztec_worker.py collect build/worker-jobs/topology-new
-python tools/aztec_worker.py prepare overlay50-new experiments/overlay-smoke --commands experiments/overlay-smoke/commands-50.json
+python tools/aztec_worker.py prepare overlay50-new evidence/rules/overlay-smoke --commands evidence/rules/overlay-smoke/commands-50.json
 .\tools\run_worker.ps1 -Job build/worker-jobs/overlay50-new
 python tools/aztec_worker.py collect build/worker-jobs/overlay50-new
 python tools/overlay_experiment.py build/worker-jobs/topology-new --comparison-job build/worker-jobs/overlay50-new

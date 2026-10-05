@@ -545,7 +545,7 @@ Maintain:
 
 ```text
 docs/vision.md
-docs/project-brief.md
+docs/NEXT.md
 docs/progress.json
 docs/blockers.json
 docs/modules.json

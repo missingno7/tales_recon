@@ -95,11 +95,15 @@ class GrinderContinuationTests(unittest.TestCase):
 
     def test_bad_harness_trial_does_not_cancel_valid_trial(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);bad=root/'bad.c';good=root/'good.c';ledger=root/'ledger.json'
+            root=Path(tmp);bad=root/'bad.c';good=root/'good.c';ledger=root/'recovery/ledger.json'
             bad.write_text('extern unsigned G_h01_1234; recovered() {return G_h01_1234;}')
             good.write_text('recovered() {return 0;}')
             initial=dict(functions={},attempts={},blockers={})
-            def state():return json.loads(ledger.read_text()) if ledger.exists() else initial
+            def state():
+                value=json.loads(ledger.read_text()) if ledger.exists() else dict(initial)
+                scratch=root/'build/recovery/state.json'
+                if scratch.exists():value['attempts']=json.loads(scratch.read_text())['attempts']
+                return value
             fs=[({'id':'bad','size':8,'direct_callees':[]},{'a4':{'bias':0}}),({'id':'good','size':8,'direct_callees':[]},{'a4':{'bias':0}})]
             compiled=dict(status='COMPILE_ERROR',identity=dict(profile='aztec36',flags=[]),cache_key='synthetic',cache_hit=False,guest_returncodes=[1],directory=str(root/'logs'))
             with patch.object(check_function,'ROOT',root),patch.object(check_function,'LEDGER',ledger),patch.object(check_function,'recovery',state),patch.object(check_function,'validated_function',side_effect=fs),patch.object(check_function,'compile_many',return_value=[compiled]) as compile_batch,patch.object(check_function,'save_rank'):
