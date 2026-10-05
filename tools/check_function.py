@@ -211,13 +211,16 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
             from check_unit import prepare_unit
             try:
                 from check_unit import partitioned_objects,proven_unit_groups,grouped_objects,external_stand_in_source
-                members,names,parts,compile_source,_=prepare_unit(
+                members,names,parts,combined,_=prepare_unit(
                     f['id'],source,True,allow_gaps=True,remove_stale_externs=False)
                 groups,_=proven_unit_groups(members,{f['id']})
                 objects=grouped_objects(members,names,parts,False,groups,with_members=per_member)
                 local_functions=tuple(names[m['id']] for m in members if m['id']!=f['id'])
-                compile_source,merged=external_stand_in_source(compile_source,local_functions,target_node)
-                unit=(members,names,compile_source,True,merged)
+                compile_source,merged=external_stand_in_source(combined,local_functions,target_node)
+                # Retain every original per-object declaration in unit.c;
+                # only the shared harness input removes conflicting views.
+                # The strict proof consumer re-derives that removal itself.
+                unit=(members,names,combined,True,merged)
             except FormatError as exc:unit_blocker=str(exc)
             # A recovered dependency can sit across a real but still
             # unclaimed original gap.  Prove the compact source contribution

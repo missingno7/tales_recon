@@ -317,6 +317,18 @@
     "verification": "Region rerun via compile queue: cache e653318e690d..., worker job compile-89766e447d1f, all guest steps 0, executable linked; verdict DIFFER (draft member sources)."
   },
   "linker": null,
+  "natural_chip_allocation": {
+    "control": "Same independently authored objects, initialized content, allocation sizes, complete relocations and overlay metadata; only three allocation-flag bytes differ.",
+    "effect": "Ordinary overlay links request CHIP memory for CODE and initialized DATA; BSS stays unrestricted.",
+    "evidence": "evidence/rules/ov04-chip-flags/recipe-proof.json",
+    "failed_experiments": [
+      "Pinned ln with no arguments returns 10 and no input; ln -? returns 10 and rejects that help option.",
+      "Local pinned installation contained no linker option reference; a Manx Amiga 3.2 manual supplied the changed hypothesis."
+    ],
+    "scope": "Two independent control links; no overlay reconstruction or original compiler-release provenance granted.",
+    "selector": "+ccd",
+    "status": "MEASURED_PINNED_AZTEC36_LINKER_RULE"
+  },
   "observations": [
     {
       "file_offset": 30462,

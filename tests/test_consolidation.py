@@ -15,7 +15,7 @@ import declaration_views as dv
 import type_evidence as te
 import recovery_state as rs
 from evidence_snapshot import Snapshot
-from hybrid_image import account,build
+from hybrid_image import account,build,closure_inventory
 from aj import parse_external_words,linked_pc_bindings
 from runtime_cfg import analyze
 
@@ -68,10 +68,29 @@ class QuarantineTests(unittest.TestCase):
 
 class AccountingTests(unittest.TestCase):
     def test_complete_real_file_is_accounted_without_source_increase(self):
+        ledger_path=ROOT/'recovery/ledger.json';before=ledger_path.read_bytes()
+        canonical=json.loads(before)['functions']
         output,report=build();t=report['totals']
-        self.assertEqual((len(output),t['RECOVERED_C'],t['file_RAW_ORACLE_DEBT']),(193004,38604,152988))
+        self.assertEqual(len(output),193004)
+        self.assertEqual(t['RECOVERED_C'],sum(v['evidence_extent']['size'] for v in canonical.values()))
+        self.assertEqual(ledger_path.read_bytes(),before)
+        self.assertGreater(t['file_RAW_ORACLE_DEBT'],0)
         self.assertEqual((t['overlap'],t['unaccounted']),(0,0))
         self.assertIsNone(report['reconstruction_proof_level'])
+
+    def test_campaign_inventory_follows_ownership_without_granting_zero_debt_closure(self):
+        model=dict(hunks=[dict(number=4,node='ov04',initialized_size=8)],relocations=[])
+        analysis=dict(functions=[dict(id='f',hunk=4,start=0,end=8,size=8,extent_status='CLOSED_CFG')])
+        ledger=dict(functions={})
+        report=dict(ranges=[dict(hunk=4,start=0,end=8,category='RAW_ORACLE_DEBT')])
+        before=closure_inventory(report,analysis,ledger,model)
+        self.assertEqual([f['id'] for f in before['remaining_functions']],['f'])
+        ledger['functions']['f']=dict(evidence_extent=dict(hunk=4))
+        after=closure_inventory(dict(ranges=[]),analysis,ledger,model)
+        self.assertEqual(after['recovered_functions'],['f'])
+        self.assertEqual(after['remaining_functions'],[])
+        self.assertEqual(after['debt_ranges'],[])
+        self.assertFalse(after['closure_proved'])
 
     def test_negative_overlap_extent_bytes_and_relocations(self):
         from analysis_support import game

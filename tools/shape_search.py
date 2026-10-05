@@ -588,6 +588,29 @@ def _cached(key):
     return cached(key)
 
 
+def emitted_identity(report):
+    """Search identity only; full object bytes retain even unsupported fixups."""
+    compiled = _cached(report.get("cache_key")) if report.get("cache_key") else None
+    if not compiled or compiled.get("status") != "COMPILED":
+        return None
+    from common import json_bytes
+    contribution, config = compiled["contribution"], compiled["identity"]
+    profile = {k: config.get(k) for k in ("profile", "compiler_version", "tools", "flags",
+               "headers_sha256", "library_sha256", "additional_libraries", "worker_sha256")}
+    objects = [{"size": a["size"], "sha256": a["sha256"]}
+               for a in compiled["artifacts"] if a["path"].endswith(".o")]
+    # Symbols, relocations, allocation sizes, and overlay gates remain distinct
+    # even when linked CODE is identical. Never use this identity for acceptance.
+    binding = {k: v for k, v in contribution.items()
+               if k not in ("code_hex", "object_sha256", "executable_sha256")}
+    result = dict(profile_sha256=sha256(json_bytes(profile)),
+                  code_sha256=sha256(bytes.fromhex(contribution["code_hex"])),
+                  objects_sha256=sha256(json_bytes(objects)),
+                  binding_sha256=sha256(json_bytes(binding)))
+    result["state_sha256"] = sha256(json_bytes(result))
+    return result
+
+
 def measure_key(function_id, key, scope):
     """Metrics of one cached compile, re-diagnosed now; never compiles."""
     if _cached(key) is None:
@@ -791,6 +814,7 @@ def _evaluate_reserved(function_id, variants, cached_only, output_dir, path, man
                       cache_hit=report.get("cache_hit"), exact_verdict=report.get("verdict"),
                       observed=metrics[variant["id"]], parent_observed=parent, parent_basis=basis,
                       observed_delta=score["observed_delta"], prediction=score)
+        record["emitted_identity"] = emitted_identity(report)
         if basis == "PARENT_COMPILED_COUNTED_TRIAL" and variant["parent"]["kind"] == "source":
             slot = (normalized_sha256(variant["parent"]["source"]), variant["profile"])
             record["parent_compile"] = compiled_parents[slot]["compile"]
@@ -910,6 +934,10 @@ def ledger_summary(path, function_id=None, rescore=False):
                    predictions=outcomes, duplicates_rejected=sum(r["record_type"] == "duplicate_rejected"
                                                                  for r in records),
                    functions=sorted({r.get("function_id") for r in records}))
+    emitted = [r["emitted_identity"] for r in trials if r.get("emitted_identity")]
+    summary["emitted_states"] = len({e["state_sha256"] for e in emitted})
+    summary["repeated_emitted_states"] = len(emitted) - summary["emitted_states"]
+    summary["emitted_code_states"] = len({(e["profile_sha256"], e["code_sha256"]) for e in emitted})
     if rescore:
         rescored = rescore_ledger(path, function_id)
         summary["predictions_rescored"] = rescored["rescored"]

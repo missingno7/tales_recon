@@ -12,10 +12,11 @@ sys.path.insert(0,str(ROOT/'tools'))
 
 import check_function
 import check_unit
-from common import write_json
+from common import write_json,sha256,FormatError
 from compiler_oracle import cached,identity
 from function_compare import compare_function
 from recovery_state import evidence
+from recovery_evidence import compiled_unit_source_sha256,stand_in_source
 
 
 class IsolatedFunctionVerifierTests(unittest.TestCase):
@@ -109,7 +110,7 @@ class IsolatedUnitReceiptTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
             tools=root/'tools';tools.mkdir()
-            for name in ('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py'):
+            for name in ('check_unit.py','check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py'):
                 shutil.copy2(ROOT/'tools'/name,tools/name)
             with patch.object(check_unit,'ROOT',root),patch.object(check_unit,'recovery',return_value={'functions':{}}), \
                  patch.object(check_unit,'compare_unit',return_value=report), \
@@ -118,6 +119,78 @@ class IsolatedUnitReceiptTests(unittest.TestCase):
                     f['id'],source,[f],{f['id']:'recovered'},source,compiled,0,isolated=True)
             self.assertEqual(unit['verdict'],'EQUAL')
             self.assertEqual(comparison['verdict'],'EQUAL')
+            self.assertFalse((root/'recovery/units').exists())
+
+
+class AutomaticUnitProvenanceTests(unittest.TestCase):
+    """Automatic function units must retain the original conflicting TU views."""
+
+    def test_automatic_unit_retains_raw_declarations_and_rederives_harness_input(self):
+        target=dict(id='ov04_F_0010',hunk=4,node='ov04',start=16,end=24,size=8,sha256='a'*64,
+                    direct_callees=[dict(id='ov04_F_0000',hunk=4,basis='PC_RELATIVE')])
+        dependency=dict(id='ov04_F_0000',hunk=4,node='ov04',start=0,end=8,size=8,sha256='b'*64)
+        source='extern int F_h00_463E(); recovered() { return F_h00_463E(); }\n'
+        dep_source='extern unsigned int F_h00_463E(); F_h04_0000() { return F_h00_463E(); }\n'
+        members=[dependency,target];names={dependency['id']:'F_h04_0000',target['id']:'recovered'}
+        parts={dependency['id']:dep_source,target['id']:source}
+        combined=dep_source+'\n'+source+'\n'
+        ledger={'a4':{'bias':0}}
+        state={'functions':{dependency['id']:{'source_sha256':sha256(dep_source.encode())}}}
+        compiled=[];retained=[]
+        def compile_trial(trials):
+            self.assertEqual(len(trials),1)
+            trial=trials[0]
+            self.assertEqual([o['source']for o in trial['objects']],[dep_source,source])
+            expected,merged=stand_in_source(combined,trial['local_functions'])
+            self.assertEqual(trial['source'],expected)
+            self.assertNotEqual(expected,combined)
+            result=dict(status='COMPILED',cache_key='c'*64,cache_hit=False,
+                        identity=dict(profile='aztec36',flags=[],source_sha256=sha256(expected.encode()),
+                                      local_functions=list(trial['local_functions'])))
+            compiled.append(result)
+            return [result]
+        original_retain=check_unit.retain_unit
+        def retain(*args,**kwargs):
+            self.assertEqual(args[4],combined)
+            result=original_retain(*args,**kwargs)
+            retained.append(result[0])
+            return result
+        member=dict(id=target['id'],verdict='EQUAL',reason='EXACT',proof_level='FUNCTION_CODE_MATCH',
+                    expected_length=8,actual_length=8)
+        compared=dict(verdict='EQUAL',reason='EXACT',members=[member],expected_length=16,actual_length=16,
+                      unclaimed_bytes=0)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);candidate=root/'candidate.c';candidate.write_text(source)
+            tools=root/'tools';tools.mkdir()
+            for name in ('check_unit.py','check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py'):
+                shutil.copy2(ROOT/'tools'/name,tools/name)
+            with patch.object(check_function,'ROOT',root),patch.object(check_unit,'ROOT',root), \
+                 patch.object(check_function,'validated_function',return_value=(target,ledger)), \
+                 patch.object(check_function,'identity'),patch.object(check_function,'compile_many',side_effect=compile_trial), \
+                 patch.object(check_unit,'prepare_unit',return_value=(members,names,parts,combined,ledger)), \
+                 patch.object(check_unit,'proven_unit_groups',return_value=([],[])), \
+                 patch.object(check_unit,'recovery',return_value=state), \
+                 patch.object(check_unit,'compare_unit',return_value=compared), \
+                 patch.object(check_unit,'retain_unit',side_effect=retain):
+                result=check_function.check_many([dict(id=target['id'],source=str(candidate),profiles=['aztec36'])],
+                                                 isolated=True)
+            self.assertEqual(result[0]['verdict'],'EQUAL')
+            unit=retained[0];meta=compiled[0]['identity']
+            self.assertEqual(unit['combined_source_sha256'],sha256(combined.encode()))
+            self.assertIn('check_function.py',unit['verifier_identity'])
+            self.assertEqual(compiled_unit_source_sha256(unit,combined,meta),meta['source_sha256'])
+            filtered,_=stand_in_source(combined,meta['local_functions'])
+            # Hash-consistent filtered retention must still fail provenance.
+            bad=copy.deepcopy(unit);bad['combined_source_sha256']=sha256(filtered.encode())
+            with self.assertRaisesRegex(FormatError,'merged external declarations'):
+                compiled_unit_source_sha256(bad,filtered,meta)
+            # A forged merge record cannot become authoritative by hashing it.
+            forged=copy.deepcopy(unit)
+            forged['merged_external_declarations']['F_h00_463E']['merged']=['char F_h00_463E()']
+            with self.assertRaisesRegex(FormatError,'merged external declarations'):
+                compiled_unit_source_sha256(forged,combined,meta)
+            omitted=copy.deepcopy(unit);del omitted['merged_external_declarations']
+            self.assertNotEqual(compiled_unit_source_sha256(omitted,combined,meta),meta['source_sha256'])
             self.assertFalse((root/'recovery/units').exists())
 
 

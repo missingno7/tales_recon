@@ -122,7 +122,7 @@ within a manifest, or a variant identical to its parent path, rejects the
 manifest. A (function, normalized source, profile) already present as a trial
 in the ledger is not re-run; the output reports a pointer to the prior record.
 
-The ledger defaults to `evidence/experiments/hypothesis-ledger.jsonl`
+The ledger defaults to ignored `build/recovery/hypotheses.jsonl`
 (override with `--ledger` under `evidence/experiments/`, `experiments/` or
 `build/`). It is a curated experiment record, not a generated census ledger:
 refuted and duplicate hypotheses are retained, and `build/` is not tracked.
@@ -140,6 +140,16 @@ dead process is replaced and reported as `stale_reservations_replaced`. Cache
 misses go through the coalescing compile queue (see [fleet](fleet.md)). The
 ledger also accepts `fleet_intake` records from `tools/fleet.py`. They never
 count as compiler trials. v1 manifests do not use the ledger.
+
+For bounded workers, set `--ledger build/workers/NAME/hypotheses.jsonl`.
+New trials also retain `emitted_identity`: separate profile, complete linked
+CODE, all emitted object, and binding metadata hashes. Raw object hashes retain
+fixup records even where their grammar is unsupported. The summary counts
+distinct complete states and distinct CODE states separately. Syntactically
+different sources with identical output constitute one emitted state; equal
+CODE with different symbols, relocations, data allocation or object records
+remains distinct. Failed compiles have no emitted identity. These hashes guide
+stagnation handling only; promotion always performs the normal exact check.
 
 ```powershell
 python tools/shape_search.py manifest-v2.json --cached-only

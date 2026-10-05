@@ -1,4 +1,5 @@
 import json
+import copy
 import sys
 import tempfile
 import unittest
@@ -10,6 +11,52 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import shape_search
 from common import FormatError
+
+
+class EmittedIdentityTests(unittest.TestCase):
+    def artifact(self):
+        return dict(status="COMPILED", identity=dict(profile="aztec36", tools={"cc": "pinned"}, flags=[]),
+                    contribution=dict(code_hex="4e75", code_size=2, data_size=0,
+                                      symbols=[], relocations=[], all_relocations=[]),
+                    artifacts=[dict(path="candidate.o", size=24, sha256="object-a")])
+
+    def measured(self, artifact):
+        with patch.object(shape_search, "_cached", return_value=artifact):
+            return shape_search.emitted_identity(dict(cache_key="key"))
+
+    def test_same_code_preserves_changed_object_fixups_and_symbol_bindings(self):
+        a = self.artifact()
+        b = copy.deepcopy(a)
+        b["artifacts"][0]["sha256"] = "object-with-different-fixup"
+        c = copy.deepcopy(a)
+        c["contribution"]["symbols"] = [dict(name="target", hunk=1, offset=6)]
+        ia, ib, ic = map(self.measured, (a, b, c))
+        self.assertEqual(ia["code_sha256"], ib["code_sha256"])
+        self.assertEqual(ia["code_sha256"], ic["code_sha256"])
+        self.assertNotEqual(ia["state_sha256"], ib["state_sha256"])
+        self.assertNotEqual(ia["state_sha256"], ic["state_sha256"])
+
+    def test_failure_does_not_reuse_previous_object_and_source_text_is_not_output(self):
+        a = self.artifact()
+        b = copy.deepcopy(a)
+        b["identity"]["source_sha256"] = "syntactically-different"
+        b["artifacts"].append(dict(path="candidate.c", size=90, sha256="source-b"))
+        self.assertEqual(self.measured(a), self.measured(b))
+        a["status"] = "COMPILE_ERROR"
+        self.assertIsNone(self.measured(a))
+
+    def test_profile_changes_are_distinct_and_legacy_records_remain_readable(self):
+        a = self.artifact()
+        b = copy.deepcopy(a)
+        b["identity"]["flags"] = ["+X3"]
+        self.assertNotEqual(self.measured(a)["state_sha256"], self.measured(b)["state_sha256"])
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "legacy.jsonl"
+            path.write_text(json.dumps(dict(ledger_schema=1, record_type="trial",
+                                            function_id="f", exact_verdict="DIFFER")) + "\n")
+            with patch.object(shape_search, "ROOT", Path(folder)):
+                summary = shape_search.ledger_summary(path, "f")
+            self.assertEqual(summary["emitted_states"], 0)
 
 
 class ShapeSearchManifestTests(unittest.TestCase):

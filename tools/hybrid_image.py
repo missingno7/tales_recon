@@ -275,17 +275,37 @@ def human(report):
     return '\n'.join(lines)+'\n'
 
 
+def closure_inventory(report, analysis, ledger, model, node='ov04'):
+    """Current campaign inventory from existing authorities; never closure proof."""
+    hunks={h['number'] for h in model['hunks'] if h['node']==node}
+    owned={fid for fid,item in ledger['functions'].items() if item['evidence_extent']['hunk'] in hunks}
+    pending=[{k:f[k] for k in ('id','start','end','size','extent_status')}
+             for f in analysis['functions'] if f['hunk'] in hunks
+             and f['extent_status']=='CLOSED_CFG' and f['id'] not in owned]
+    return dict(schema_version=1, node=node, closure_proved=False,
+                initialized_bytes=sum(h['initialized_size'] for h in model['hunks'] if h['number'] in hunks),
+                recovered_functions=sorted(owned), remaining_functions=pending,
+                debt_ranges=[r for r in report['ranges'] if r['hunk'] in hunks and r['category']=='RAW_ORACLE_DEBT'],
+                relocation_obligations=[r for r in model['relocations'] if r['source_hunk'] in hunks])
+
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--refresh',action='store_true');ap.add_argument('--write',action='store_true');ap.add_argument('--check',action='store_true');a=ap.parse_args()
     if a.refresh:write_json(ROOT/SPECIMENS,capture())
     output,report=build();text=human(report)
+    _,model,_=game()
+    closure=closure_inventory(report,json.loads((ROOT/'evidence/functions/ledger.json').read_text()),
+                              json.loads((ROOT/'recovery/ledger.json').read_text()),model)
+    closure_path=ROOT/'evidence/closure/ov04.json'
     if a.write:
         write_json(ROOT/'evidence/hybrid/accounting.json',report)
+        write_json(closure_path,closure)
         (ROOT/'docs/ACCOUNTING.md').write_text(text,encoding='ascii',newline='\n')
         dest=ROOT/'build/hybrid';dest.mkdir(parents=True,exist_ok=True);(dest/'validation-only.bin').write_bytes(output)
     if a.check:
         require(json.loads((ROOT/'evidence/hybrid/accounting.json').read_text())==report,'stale accounting report')
         require((ROOT/'docs/ACCOUNTING.md').read_text()==text,'stale human accounting report')
+        require(json.loads(closure_path.read_text())==closure,'stale closure inventory')
     print(text)
 
 

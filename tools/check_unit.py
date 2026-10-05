@@ -469,7 +469,9 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         report['member_sources']={f['id']:sha256((source if f['id']==fid else member_sources[f['id']]).encode())
                                   for f in members if f['id'] in new_ids}
         report['acceptance']='ALL_NEW_MEMBERS_EQUAL_IN_ONE_COMPLETE_UNIT'
-    verifier_files=('check_unit.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')
+    # check_function's automatic-unit path also prepares retained provenance.
+    # Bind its producer identity so fixes cannot overwrite an old unit receipt.
+    verifier_files=('check_unit.py','check_function.py','function_compare.py','compiler_oracle.py','runtime_arithmetic.py')
     if profile_record:
         # Per-member profiles: each object's profile, its basis (canonical
         # proof receipt or requested/hypothesis) and the link class.

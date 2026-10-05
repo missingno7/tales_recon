@@ -97,6 +97,9 @@ def derive(root, promotion_evidence=None):
     analysis_current=bool(analysis) and all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in analysis.get('analysis_identity',{}).items())
     promoted=load_promotions(root,exe,model,analysis)
     matched_source_bytes=sum(f['size'] for f in promoted)
+    ov04_owned={f['id'] for f in promoted if f['hunk']==4}
+    ov04_pending=[f for f in analysis.get('functions',[]) if f['hunk']==4
+                  and f['extent_status']=='CLOSED_CFG' and f['id'] not in ov04_owned]
     runtime_candidate_bytes = 0
     occupied = set()
     natural_overlay_shape_reproduced = False
@@ -281,9 +284,9 @@ def derive(root, promotion_evidence=None):
         phases={'0':'CENSUS_COMPLETE','1':'CENSUS_COMPLETE','2':'CENSUS_COMPLETE',
                 '3':'STATIC_TOPOLOGY_VALIDATED_RUNTIME_NOT_TRACED','4':'PARTIAL_CONSERVATIVE_MAP',
                 '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'CANDIDATE_OBJECT_MATCHES' if runtime_candidate_bytes else 'OVERLAY_GLUE_ONLY','7':'FINGERPRINT_MATRIX_AND_GAME_LEAF_MATCHES' if promoted else 'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
-        pilot='ov04',next_action='Close ov04 naturally: recover its three remaining closed functions, resolve data ownership and object ordering, and remove all overlay RAW_ORACLE_DEBT before claiming closure.')
+        pilot='ov04',next_action=f'Close ov04 naturally: recover its {len(ov04_pending)} remaining closed functions, resolve data ownership and object ordering, and remove all overlay RAW_ORACLE_DEBT before claiming closure.')
     outputs['evidence/executable/pilot.json'] = dict(schema_version=1, node='ov04', hunk=4,
-        selection_reason='Closure campaign: 21 canonical contributions and three remaining known closed-CFG functions; data and natural linking remain unproved',
+        selection_reason=f'Closure campaign: {len(ov04_owned)} canonical contributions and {len(ov04_pending)} remaining known closed-CFG functions; data and natural linking remain unproved',
         initialized_size=next(h['initialized_size'] for h in model['hunks'] if h['number']==4),
         entries=[s for s in symbols if s['hunk']==4],
         candidate_text=[s for s in strings if s['hunk']==4 and len(s['text']) >= 12],

@@ -324,11 +324,12 @@ code, assembly, symbols, identities and artifact hashes.
 - `evidence/executable/instructions.json`: expanded decoded instruction database.
 - `evidence/functions/ranking.json`: generated remaining work order.
 - `evidence/fingerprints/index.json`: measured compiler matrix.
-- `recovery/ledger.json`: canonical promotions, attempts and blockers.
+- `recovery/ledger.json`: canonical promotions only.
 - `recovery/proofs`: source/extent/tool/object hashes, reference proofs, comparisons,
   regression receipts and dependencies.
 - `src/recovered`: canonical C only after EQUAL and host regression success.
-- `recovery/attempts` and `recovery/candidates`: failed or provisional work.
+- `build/recovery/attempts` and `build/recovery/candidates`: ignored failed or provisional work.
+- `docs/blockers.json`: curated current blockers; bulk trial history stays in `build/`.
 
 Failures never change canonical ownership. `census.py` validates promoted source
 and proof hashes, original extents, complete normalized comparison hashes, and

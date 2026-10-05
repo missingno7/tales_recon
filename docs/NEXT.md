@@ -4,32 +4,45 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage remains 149 functions / 38,604 C bytes. The generated
-`progress.json` is the measurement authority. Whole-file accounting has 982
-compiler-owned data bytes, 430 pinned runtime bytes and 152,988 file bytes of
+Canonical coverage is 151 functions / 39,636 C bytes. The generated
+`progress.json` is the measurement authority. Whole-file accounting has 1,020
+compiler-owned data bytes, 430 pinned runtime bytes and 151,918 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
 ## First closure campaign: ov04
 
-There are 24 known closed-CFG functions, 21 canonical functions / 6,942 C bytes,
-520 compiler-owned data bytes and 3,306 initialized debt bytes.
+There are 24 known closed-CFG functions, 23 canonical functions / 7,974 C bytes,
+558 compiler-owned data bytes and 2,236 initialized debt bytes.
 `../evidence/closure/ov04.json` lists canonical and remaining function identities;
 `../evidence/hybrid/accounting.json` contains the complete ownership partition.
 
 | Remaining function | Extent | Size | First blocker experiment |
 | --- | --- | ---: | --- |
-| ov04_F_0536 | 0536..07A4 | 622 | SOURCE_SHAPE / return-width control |
-| ov04_F_1302 | 1302..149C | 410 | SOURCE_SHAPE, then independently bind callers |
-| ov04_F_1E36 | 1E36..252E | 1784 | SOURCE_SHAPE / DATA_OWNERSHIP, bounded literal proof |
+| ov04_F_1E36 | 1E36..252E | 1784 | CALL_BINDING / OBJECT/TU_LAYOUT, then residual SOURCE_SHAPE |
 
-Unowned initialized ranges are 0536..07CA, 1302..149C, 1E36..26F0 and
-2A0E..2A10. Besides the 2,816 known function bytes, 490 bytes still require
-independent data/padding/boundary ownership. The accounting partition does not
+Unowned initialized ranges are 1E36..26F0 and 2A0E..2A10. Besides the 1,784
+known function bytes, 452 bytes still require independent data/padding/boundary
+ownership. The accounting partition does not
 classify these gaps by guessing. No ov04 pinned runtime contribution is proved.
 Resolve relocations against independently established target identities, and
 review separately compiled source/object ordering. Existing accepted grouping
 receipts constrain historical hypotheses without establishing original TUs.
+
+The first bounded wave accepted F0536's 622-byte body and 38-byte literal tail,
+plus F1302's 410-byte body through seven separately compiled dependency objects.
+F1E36's best retained candidate emits 1,778 body bytes and a matching 450-byte
+literal bundle, but remains non-exact. Sol must explain why exported F27FE uses
+an A4 overlay trampoline while F26F0 uses a direct PC-relative call, and reconcile
+the automatic unit's member/tail boundary before further source grinding.
+
+Independent natural interval checks match 07CA..1302 and 26F0..2A10; the latter
+includes the linker's two-byte terminal zero pad. This is evidence for the
+layout hypothesis, not accepted padding ownership or full overlay closure.
+`../evidence/rules/ov04-natural-intervals.json` retains the compact inputs.
+Pinned Aztec 3.6a linker controls establish `+ccd` as a natural CHIP allocation
+selector for CODE and initialized DATA. The retained rule does not establish
+the original release or a complete ov04 link.
 
 Exit gate: every initialized byte independently explained; all game-owned
 C/ASM reconstructed; compiler literals/data proved; runtime contributions
@@ -39,8 +52,9 @@ image assembled with oracle debt cannot satisfy this gate.
 
 ## Top five blockers by leverage
 
-1. ov04 remaining closed functions: recover the three extents above.
-2. ov04 data ownership and object order: account for the additional 490 bytes,
+1. ov04 F1E36: resolve the concrete export/trampoline binding question above,
+   then resume bounded source-shape work from the retained trial06 candidate.
+2. ov04 data ownership and object order: account for the additional 452 bytes,
    then test a natural overlay link. Categories DATA_OWNERSHIP / OBJECT/TU_LAYOUT.
 3. AJ/FFP external identities: controlled AJ specimens now establish a bounded
    external-word grammar and natural PC binding. The real FFP object still uses
@@ -61,7 +75,7 @@ image assembled with oracle debt cannot satisfy this gate.
 
 ```powershell
 python tools/grinder.py rank --node ov04 --limit 5
-python tools/grinder.py facts ov04_F_0536 --max-instructions 1000 --max-bytes 150000
+python tools/grinder.py facts ov04_F_1E36 --max-instructions 1000 --max-bytes 150000
 # Write candidate to build/workers/NAME/candidate.c, then diagnose locally.
 python tools/check_function.py TARGET build/workers/NAME/candidate.c --profile aztec36 --isolated --no-promote
 # After an exact result, promote the unchanged candidate.
@@ -90,12 +104,15 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-Latest check: 373 tests passed, 9 skipped (local compilation-cache controls and
-an already-canonical promotion control). Census validates all 149 canonical
-proofs. Canonical source hashes and ownership are unchanged. Hybrid accounting
-has zero overlap and zero unaccounted file bytes. The prior refresh replayed
-all 149 proofs through their exact compiled artifacts. Queue/batch regression
-tests remain active; fresh compilation of the skipped controls is still due.
+Latest full regression: 378 tests, 9 skipped (local compilation-cache controls
+and an already-canonical promotion control). Census
+validates all 151 canonical proofs. Hybrid accounting has zero overlap and zero
+unaccounted file bytes, and refresh replays all 151 retained exact artifacts.
+Queue/batch regression tests remain active; fresh compilation of the skipped
+controls is still due. The automatic-unit producer now retains raw conflicting
+TU declarations and derives only the harness's filtered view. The strict
+consumer caught the earlier invalid F1302 receipt; it was withdrawn and replaced
+through normal verification and promotion, with negative provenance controls.
 
 Pinned Aztec 3.6a is the primary profile; compatible 5.0a/short-int and existing
 member-specific profiles remain available where receipts justify them. Exact
@@ -112,7 +129,8 @@ Scratch and new attempts go under ignored `build/`; retirements go under
 `to_delete/`. The user manually deleted the historical quarantine before this
 push. No deleted archive is reintroduced in the active project or pushed.
 
-Recommended next wave: one ov04 source task, one ov04 data/object-order task,
-one bounded AJ/FFP grammar task, and one targeted runtime CFG acquisition task.
-No fleet was launched. Exact compiler-release archaeology, broad asset-format
+Recommended next wave: one Sol high task on F1E36's same-overlay exported call
+binding and unit boundary. Resume one Luna xhigh source task only after that
+structural question has a concrete answer. Keep Amiga ov04 closure ahead of
+unrelated targets. Exact compiler-release archaeology, broad asset-format
 recovery and unrelated easy-function grinding are intentionally deferred.

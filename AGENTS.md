@@ -54,3 +54,14 @@ or tooling boundaries. RAW_ORACLE_DEBT is accounting only and grants no proof.
 Do not retry an unchanged failed hypothesis without a smallest next experiment
 and a blocker category: SOURCE_SHAPE, DECLARATION_VIEW, OBJECT/TU_LAYOUT,
 DATA_OWNERSHIP, CALL_BINDING, CFG/BOUNDARY, RUNTIME/LIBRARY or TOOLCHAIN.
+
+Bounded waves assign one target per grinding worker from one canonical HEAD.
+Keep a worker-local task card with HEAD, canonical ledger hash, extent, profile,
+blocker category, trial budget and stagnation limit. The supervisor owns all
+canonical writes and revalidates unchanged submissions against current inputs;
+an old wave cannot publish a cached PASS after canonical dependencies change.
+Use a worker-local `shape_search.py --ledger` for recorded hypotheses, or keep
+compact trials using `shape_search.emitted_identity(report)`. Equal CODE hashes
+do not establish equal objects or bindings. Stop at exactness, the assigned
+budget, repeated emitted states, or a structural dependency. Escalation needs
+a concrete question and smallest changed experiment, never an unchanged retry.

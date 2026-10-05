@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "status": "NATURAL_CHIP_CODE_DATA_FLAGS_PRODUCED",
+  "manual": {
+    "url": "https://manualzz.com/doc/40013059/manx-68k-aztec-c-user-manual",
+    "section": "Linker ln.9..ln.12",
+    "version": "3.2 April 1986",
+    "release_specificity": "Documentation hypothesis; pinned 3.6a execution is measured proof"
+  },
+  "source_inputs": [
+    {
+      "path": "root.c",
+      "sha256": "9931df03c827b044f262cc483c0808f6f3d8da9bb225b99fa4eb166246f72927"
+    },
+    {
+      "path": "overlay.c",
+      "sha256": "6b8519a7cb5fb6f0ddb05aa285b6e713d75f6e7813dbfe85a118353b80df4e72"
+    }
+  ],
+  "guest_commands": [
+    {
+      "command": "C:FailAt 1000000",
+      "index": 0,
+      "returncode_file": "step-00.rc",
+      "returncode": 0
+    },
+    {
+      "command": "Old1:bin/cc <NIL: >root-cc.log -a root.c",
+      "index": 1,
+      "returncode_file": "step-01.rc",
+      "returncode": 0
+    },
+    {
+      "command": "Old1:bin/as <NIL: >root-as.log -o root.o root.asm",
+      "index": 2,
+      "returncode_file": "step-02.rc",
+      "returncode": 0
+    },
+    {
+      "command": "Old1:bin/cc <NIL: >overlay-cc.log -a overlay.c",
+      "index": 3,
+      "returncode_file": "step-03.rc",
+      "returncode": 0
+    },
+    {
+      "command": "Old1:bin/as <NIL: >overlay-as.log -o overlay.o overlay.asm",
+      "index": 4,
+      "returncode_file": "step-04.rc",
+      "returncode": 0
+    },
+    {
+      "command": "Old1:bin/ln <NIL: >baseline-ln.log -m -t -o baseline.exe root.o +o2 overlay.o +o0 Old1:lib/c.lib",
+      "index": 5,
+      "returncode_file": "step-05.rc",
+      "returncode": 0
+    },
+    {
+      "command": "Old1:bin/ln <NIL: >chip-ln.log -m -t -o chip.exe +ccd root.o +o2 overlay.o +o0 Old1:lib/c.lib",
+      "index": 6,
+      "returncode_file": "step-06.rc",
+      "returncode": 0
+    }
+  ],
+  "pinned_tools": {
+    "toolchain/installed/aztec-3.6a/SYS1/bin/as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+    "toolchain/installed/aztec-3.6a/SYS1/bin/cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+    "toolchain/installed/aztec-3.6a/SYS1/bin/ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45",
+    "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3"
+  },
+  "worker_receipt_sha256": "1c4b5078fdf15a0393277ac49aff176d14dd2201d8dd4f5eb7e7a651347d2444",
+  "specimen_count": 2,
+  "max_link_specimens": 4,
+  "initial_help_observations": [
+    {
+      "command": "Old1:bin/ln <NIL: >ln-noargs.log",
+      "returncode": 10,
+      "observation": "No input given!"
+    },
+    {
+      "command": "Old1:bin/ln -? <NIL: >ln-question.log",
+      "returncode": 10,
+      "observation": "unknown - option ?; No input given!"
+    }
+  ],
+  "changed_hypothesis": "+ccd selects CHIP CODE and initialized DATA, without selecting BSS",
+  "results": {
+    "baseline": {
+      "executable_sha256": "cba51505fa23b622406e87a75412de83c8562ce0d8f5dbf581b57178d1864f5d",
+      "size": 2336,
+      "hunks": [
+        {
+          "number": 0,
+          "node": "resident",
+          "type": "CODE",
+          "record_offset": 32,
+          "content_offset": 40,
+          "allocated_size": 2076,
+          "declared_size": 2076,
+          "initialized_size": 2076,
+          "zero_fill_size": 0,
+          "sha256": "bd1204309e127791f0dfae7806997413ef85c9f832bef4b82af2108abeab0695",
+          "memory_flags_raw": 0
+        },
+        {
+          "number": 1,
+          "node": "resident",
+          "type": "DATA",
+          "record_offset": 2156,
+          "content_offset": 2164,
+          "allocated_size": 124,
+          "declared_size": 36,
+          "initialized_size": 36,
+          "zero_fill_size": 88,
+          "sha256": "2969917ef3dbf5dc5ec4850a9dce2e592b069be1532b7b632f2879f2523f5e82",
+          "memory_flags_raw": 0
+        },
+        {
+          "number": 2,
+          "node": "resident",
+          "type": "BSS",
+          "record_offset": 2228,
+          "content_offset": null,
+          "allocated_size": 4,
+          "declared_size": 4,
+          "initialized_size": 0,
+          "zero_fill_size": 4,
+          "sha256": null,
+          "memory_flags_raw": 0
+        },
+        {
+          "number": 3,
+          "node": "ov03",
+          "type": "CODE",
+          "record_offset": 2304,
+          "content_offset": 2312,
+          "allocated_size": 16,
+          "declared_size": 16,
+          "initialized_size": 16,
+          "zero_fill_size": 0,
+          "sha256": "dd148b4b04bd2d937b2cd68391a8c95ec6a05c26101ecabfb19fe59b07b922bf",
+          "memory_flags_raw": 0
+        }
+      ],
+      "allocations": [
+        {
+          "hunk": 0,
+          "size": 2076,
+          "memory_flags_raw": 0,
+          "memory_requirements": null
+        },
+        {
+          "hunk": 1,
+          "size": 124,
+          "memory_flags_raw": 0,
+          "memory_requirements": null
+        },
+        {
+          "hunk": 2,
+          "size": 4,
+          "memory_flags_raw": 0,
+          "memory_requirements": null
+        },
+        {
+          "hunk": 3,
+          "size": 16,
+          "memory_flags_raw": 0,
+          "memory_requirements": null
+        }
+      ],
+      "relocations": [
+        {
+          "source_hunk": 0,
+          "source_offset": 86,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2116,
+          "entry_offset": 2128,
+          "addend_raw": 8
+        },
+        {
+          "source_hunk": 0,
+          "source_offset": 108,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2116,
+          "entry_offset": 2140,
+          "addend_raw": 0
+        },
+        {
+          "source_hunk": 0,
+          "source_offset": 406,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2116,
+          "entry_offset": 2144,
+          "addend_raw": 32766
+        },
+        {
+          "source_hunk": 1,
+          "source_offset": 2,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2200,
+          "entry_offset": 2212,
+          "addend_raw": 290
+        },
+        {
+          "source_hunk": 1,
+          "source_offset": 18,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2200,
+          "entry_offset": 2216,
+          "addend_raw": 64
+        }
+      ]
+    },
+    "chip": {
+      "executable_sha256": "d4eb03b8827faa699a3b9be3de83d1e1f4180e6cb2fe8fc61b07afd8114ca533",
+      "size": 2336,
+      "hunks": [
+        {
+          "number": 0,
+          "node": "resident",
+          "type": "CODE",
+          "record_offset": 32,
+          "content_offset": 40,
+          "allocated_size": 2076,
+          "declared_size": 2076,
+          "initialized_size": 2076,
+          "zero_fill_size": 0,
+          "sha256": "bd1204309e127791f0dfae7806997413ef85c9f832bef4b82af2108abeab0695",
+          "memory_flags_raw": 1
+        },
+        {
+          "number": 1,
+          "node": "resident",
+          "type": "DATA",
+          "record_offset": 2156,
+          "content_offset": 2164,
+          "allocated_size": 124,
+          "declared_size": 36,
+          "initialized_size": 36,
+          "zero_fill_size": 88,
+          "sha256": "2969917ef3dbf5dc5ec4850a9dce2e592b069be1532b7b632f2879f2523f5e82",
+          "memory_flags_raw": 1
+        },
+        {
+          "number": 2,
+          "node": "resident",
+          "type": "BSS",
+          "record_offset": 2228,
+          "content_offset": null,
+          "allocated_size": 4,
+          "declared_size": 4,
+          "initialized_size": 0,
+          "zero_fill_size": 4,
+          "sha256": null,
+          "memory_flags_raw": 0
+        },
+        {
+          "number": 3,
+          "node": "ov03",
+          "type": "CODE",
+          "record_offset": 2304,
+          "content_offset": 2312,
+          "allocated_size": 16,
+          "declared_size": 16,
+          "initialized_size": 16,
+          "zero_fill_size": 0,
+          "sha256": "dd148b4b04bd2d937b2cd68391a8c95ec6a05c26101ecabfb19fe59b07b922bf",
+          "memory_flags_raw": 1
+        }
+      ],
+      "allocations": [
+        {
+          "hunk": 0,
+          "size": 2076,
+          "memory_flags_raw": 1,
+          "memory_requirements": null
+        },
+        {
+          "hunk": 1,
+          "size": 124,
+          "memory_flags_raw": 1,
+          "memory_requirements": null
+        },
+        {
+          "hunk": 2,
+          "size": 4,
+          "memory_flags_raw": 0,
+          "memory_requirements": null
+        },
+        {
+          "hunk": 3,
+          "size": 16,
+          "memory_flags_raw": 1,
+          "memory_requirements": null
+        }
+      ],
+      "relocations": [
+        {
+          "source_hunk": 0,
+          "source_offset": 86,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2116,
+          "entry_offset": 2128,
+          "addend_raw": 8
+        },
+        {
+          "source_hunk": 0,
+          "source_offset": 108,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2116,
+          "entry_offset": 2140,
+          "addend_raw": 0
+        },
+        {
+          "source_hunk": 0,
+          "source_offset": 406,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2116,
+          "entry_offset": 2144,
+          "addend_raw": 32766
+        },
+        {
+          "source_hunk": 1,
+          "source_offset": 2,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2200,
+          "entry_offset": 2212,
+          "addend_raw": 290
+        },
+        {
+          "source_hunk": 1,
+          "source_offset": 18,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4,
+          "record_offset": 2200,
+          "entry_offset": 2216,
+          "addend_raw": 64
+        }
+      ]
+    }
+  },
+  "complete_initial_content_equal": true,
+  "complete_relocations_equal": true,
+  "complete_overlay_metadata_equal": true,
+  "whole_file_byte_differences": [
+    {
+      "file_offset": 20,
+      "baseline": 0,
+      "chip": 64
+    },
+    {
+      "file_offset": 24,
+      "baseline": 0,
+      "chip": 64
+    },
+    {
+      "file_offset": 2300,
+      "baseline": 0,
+      "chip": 64
+    }
+  ],
+  "original_overlay_match_claimed": false,
+  "source_array_note": "resident_space[3] compiles to an ordinary 12-byte common declaration, not root object BSS payload; normal link emits a 4-byte BSS HUNK whose flag stays0.",
+  "unchanged_object_hashes": {
+    "root.o": "c487abeff7217f42ba75eea540654f5af42f6924b3c408bd25909778feefda81",
+    "overlay.o": "7b77be42fea335872ce866aae488a5010fa3ec6ac6a552eeb3e1a7034956979f"
+  }
+}
