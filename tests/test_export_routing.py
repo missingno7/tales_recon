@@ -16,6 +16,7 @@ import check_function
 import check_unit
 import mixed_profile_oracle as mixed
 import queued_oracle as queued
+import compile_queue
 from analysis_support import game,ROOT
 from common import FormatError,sha256,json_bytes
 from recovery_evidence import same_overlay_exports,unit_export_evidence
@@ -51,11 +52,14 @@ class ExportRecipeTests(unittest.TestCase):
         trial=dict(source=self.source,profile='aztec36-large-data',target_node=2,
                    objects=self.objects,local_functions=self.local,same_overlay_exports=self.roots)
         self.assertEqual(queued.trial_plan(trial)[:3],rooted)
+        self.assertEqual(compile_queue.trial_key(trial),rooted[0])
+        self.assertEqual(compile_queue.trial_key({k:v for k,v in trial.items() if k!='same_overlay_exports'}),old[0])
         trial.update(object_profiles=['aztec36','aztec36-large-data'])
         meta=mixed.mixed_identity(trial)
         self.assertEqual(meta[1]['same_overlay_exports'],self.roots)
         self.assertEqual(meta[2],rooted[2])
         self.assertEqual(queued.trial_plan(trial),meta)
+        self.assertEqual(compile_queue.trial_key(trial),meta[0])
 
     def test_strict_inventory_members_and_harness_rederivation(self):
         meta=oracle.identity(self.source,'aztec36-large-data',2,self.objects,self.local,same_overlay_exports=self.roots)[1]

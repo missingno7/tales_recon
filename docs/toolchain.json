@@ -334,7 +334,8 @@
     "effect": "An initialized resident function pointer to a same-overlay exported function changes a separate caller object from PC-relative to the naturally generated A4 trampoline. An unreferenced helper stays PC-relative; the exported self-call stays local.",
     "evidence": "evidence/rules/ov04-export-routing/proof.json",
     "failed_experiments": [
-      "Absent resident export reference leaves the separate exported call PC-relative and therefore cannot explain the original F1E36 call route."
+      "Absent resident export reference leaves the separate exported call PC-relative and therefore cannot explain the original F1E36 call route.",
+      "First canonical batch verification rejected a queue scheduler key that omitted the export recipe although the runner compiled it. No publication occurred. Propagation in compile_queue.trial_key was corrected and rooted/default/mixed key controls now pass."
     ],
     "integration_gate": "Integrated evidence-rooted actual member references across ordinary/queued/mixed compiler recipes, cache extraction and unit receipts; strict inventory/member/harness re-derivation and complete-unit trampoline mapping retain legacy default recipes. Fresh frozen-source diagnostic remains non-exact.",
     "integration_status": "VALIDATED_EXISTING_UNIT_PIPELINE",
