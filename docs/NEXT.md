@@ -312,3 +312,18 @@ see `../evidence/experiments/runtime-vars-variant.json`. Next bind complete
 startup/CRT0 consumers and natural first-reference COMMON order before choosing
 a provider hypothesis. Do not prune unreferenced globals merely because an exit
 cleanup branch is absent.
+
+The complete startup mechanical source now matches with LONG/D0 views for
+the three pointer-returning assembly helpers and aztec36-x3. Pointer-return
+views/default and LONG views/default both emit316 bytes; the one-factor+X3
+control emits312. Decoded operands account for all38 address/literal fields,
+including immediate-to-A4 and two-A4 instructions. Original and candidate
+main/exit routes are checked through the overlay tree and DATA JMP relocation.
+A label-only+X3 control preserves every byte and binding and measures304 C,
+6 SDK ASM and2 compiler literal bytes (`*\0`). The whole object owns no DATA/BSS.
+Retained recipes/replay in `evidence/rules/startup-mechanical/` use canonical
+evidence paths, not ignored build inputs. Separate staged source facts are in
+`evidence/source-facts/resident-startup.json`; no canonical acceptance or coverage
+is granted. Next implement strict complete callee/producer verification and
+mixed code/literal admission, then use startup/CRT0 objects for COMMON ordering.
+See `../evidence/experiments/startup-mechanical.json`.
