@@ -185,20 +185,22 @@ count derive from original allocations. Saved-stack and startup-entry identities
 remain pending. Source/library links equal while object files differ. See
 `../evidence/experiments/crt0-bindings.json`; no runtime acceptance is added.
 
-The bounded CLI parser trial rejects the unmodified456-byte library/SDK object:
-the original has a432-byte CFG and provisional2-byte literal. Removing the
-conditional path absent from the original emits440 bytes. Remaining differences
-localize to argument-stack cleanup and two PC calls where the original uses A4
-string jump stubs. No source, literal or caller binding is accepted. Inspect
-independent compiler/assembler controls for cleanup/routing before retrying;
-see `../evidence/experiments/cliparse-frontier.json`. Worker stopped at2 trials.
+The unmodified456-byte library/SDK CLI object is incompatible with the original
+432-byte CFG plus its provisional2-byte literal. The unconditional SDK-derived
+candidate now emits434 bytes under the existing `aztec36-x3` profile. +X3 fixes
+cleanup; properly named DATA string interfaces fix both A4 call encodings.
+Both DATA orders have388 equal ordinary/literal bytes, with all45 raw differences
+inside46 address-field bytes. Six callees have complete-body bindings. Four
+global-role correspondences remain advisory and storage ownership is UNKNOWN.
+See `../evidence/experiments/cliparse-x3.json`; failed earlier controls remain in
+cliparse-frontier.json. No source, literal or runtime bytes were promoted.
 
-The next CLI compiler experiment is the existing `aztec36-x3` profile (+X3),
-changing only the cleanup mode on the unconditional source. Historical manual
-leads support that hypothesis, but pinned Amiga3.6a behavior must be measured.
-Keep the two A4 string-call routes as independent open obligations.
-
-The attempted CLI jump-root records were unlabeled DATA; actual `_strcpy` and
-`_strlen` imports still resolve to CODE. They do not test named DATA interfaces.
-After the +X3 cleanup control, use named DATA entries to separately assembled
-SDK bodies with distinct labels, and verify payload/relocations before comparison.
+The next concrete gate is normal resident verification: compiler_oracle currently
+requires a positive overlay node and extraction rejects resident symbols, while
+check_function/check_unit place resident targets in node1. Extend that existing
+boundary for root contributions and strict named DATA interfaces, with unchanged
+legacy overlay identities. Then verify self-contained CLI C with independently
+evidenced ABI views. Never publish the worker diagnostic as a cached PASS.
+Curated view candidates live separately in
+`../evidence/contributions/resident-view-candidates.json`; generation must retain
+them without counting original DATA/COMMON ownership.
