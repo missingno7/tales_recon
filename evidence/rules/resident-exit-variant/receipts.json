@@ -1,0 +1,181 @@
+{
+  "compile": {
+    "job": "wave25-exit-variant-001",
+    "result_sha256": "d0eeb5ba56c2dd1acd168818ebc535fff7ce53fad8ef0963a2e55ff916a4c6e3",
+    "request_sha256": "4eeaf9f0646d58517357e5deb27dba20315f730c63c6fcb9a9f265e3d0af5510",
+    "archive_sha256": "983d0e6db077fce59aa74f7b1c608ec400da101c8ca56fafe95e72de1e5dfeb7",
+    "emulator_sha256": "c3c691589eb67f86712c75f60dda5719d90d7acbb8df58ffd18b115c74758258",
+    "rom_sha256": "293beea59d7de4caab3e07223d66e844ad5268eb06a04f405b523a0a1543d64c",
+    "source_policy": "Experiment source supplied independently; original game not mounted or read.",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "af95ce49356c22b3122f506f547b3da0f71b8973f40769c3432cc32ba8157190"
+      },
+      {
+        "path": "exit.c",
+        "sha256": "153b894a6335e7a5bc0d87a15c6f321c7850aa94936512e53b3ef2ed7e50f02e"
+      },
+      {
+        "path": "root.c",
+        "sha256": "fb47adaec93a3deada2beea9963d86867cf2feded40ae211b92111293a126948"
+      }
+    ],
+    "steps": [
+      {
+        "command": "Old1:bin/cc -a +X3 -I Old1:include -o exit.asm exit.c <compiler-input.txt >exit-cc.log",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      },
+      {
+        "command": "Old1:bin/as -o exit.o exit.asm <compiler-input.txt >exit-as.log",
+        "index": 1,
+        "returncode": 0,
+        "returncode_file": "step-01.rc"
+      },
+      {
+        "command": "Old1:bin/cc -a +X3 -I Old1:include -o root.asm root.c <compiler-input.txt >root-cc.log",
+        "index": 2,
+        "returncode": 0,
+        "returncode_file": "step-02.rc"
+      },
+      {
+        "command": "Old1:bin/as -o root.o root.asm <compiler-input.txt >root-as.log",
+        "index": 3,
+        "returncode": 0,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/ln +Q -m -t -o exit-control root.o exit.o Old1:lib/c.lib >exit-control.sym",
+        "index": 4,
+        "returncode": 10,
+        "returncode_file": "step-04.rc"
+      }
+    ],
+    "pinned_inputs": [
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+        "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/bin/cc",
+        "sha256": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+        "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/include/fcntl.h",
+        "sha256": "efe382da20a87e2d279c6ace9b8352183b35876d69691d7575782274c3c9fe45"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+        "sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "exit-control.sym",
+        "sha256": "ac9c900f434cda3c2aa8a1d86528a5ac5f35b4f78ed32e1fdcb405d02df94059",
+        "size": 69
+      },
+      {
+        "path": "exit.asm",
+        "sha256": "0cd1dfee614d3b725e8ce3a0a7270ff3435e1e8e4aeea8b1d053a42fc9966624",
+        "size": 1849
+      },
+      {
+        "path": "exit.c",
+        "sha256": "153b894a6335e7a5bc0d87a15c6f321c7850aa94936512e53b3ef2ed7e50f02e",
+        "size": 1368
+      },
+      {
+        "path": "exit.o",
+        "sha256": "ecb466b2fcfef7773b3c5e3ade4de092bdf8b844bac4e3f3b3c61d0ac0bb1555",
+        "size": 628
+      },
+      {
+        "path": "root.o",
+        "sha256": "f3193f62a928631bc0cbeb89aecf8ff999161a2aba58e6a492c792921805fb16",
+        "size": 76
+      }
+    ]
+  },
+  "link": {
+    "job": "wave26-exit-link-001",
+    "result_sha256": "fb8cf5b901fe45188c85d061f7453d518ca651c9860933c5eb2cdf9c878ffdf5",
+    "request_sha256": "8272ba623f01c24d111b65dfbf5371c0a57eeb3006ea703a830cedf0f5deb283",
+    "archive_sha256": "983d0e6db077fce59aa74f7b1c608ec400da101c8ca56fafe95e72de1e5dfeb7",
+    "emulator_sha256": "c3c691589eb67f86712c75f60dda5719d90d7acbb8df58ffd18b115c74758258",
+    "rom_sha256": "293beea59d7de4caab3e07223d66e844ad5268eb06a04f405b523a0a1543d64c",
+    "source_policy": "Experiment source supplied independently; original game not mounted or read.",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "af95ce49356c22b3122f506f547b3da0f71b8973f40769c3432cc32ba8157190"
+      },
+      {
+        "path": "exit.o",
+        "sha256": "ecb466b2fcfef7773b3c5e3ade4de092bdf8b844bac4e3f3b3c61d0ac0bb1555"
+      },
+      {
+        "path": "root.o",
+        "sha256": "f3193f62a928631bc0cbeb89aecf8ff999161a2aba58e6a492c792921805fb16"
+      }
+    ],
+    "steps": [
+      {
+        "command": "Old1:bin/ln <compiler-input.txt >exit-control-ln.log -m -t -o exit-control.exe root.o exit.o Old1:lib/c.lib",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      }
+    ],
+    "pinned_inputs": [
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+        "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/bin/cc",
+        "sha256": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+        "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/include/fcntl.h",
+        "sha256": "efe382da20a87e2d279c6ace9b8352183b35876d69691d7575782274c3c9fe45"
+      },
+      {
+        "path": "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+        "sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "exit-control.exe",
+        "sha256": "c57e6ef7639c5782a308b93a0a347e3846837cbdb965a3e752e509d6bf4587b2",
+        "size": 1840
+      },
+      {
+        "path": "exit-control.sym",
+        "sha256": "dcb853f8b349831cf15ac7313a2108c0231b754cdb22d32109af70fb7d34562c",
+        "size": 1303
+      },
+      {
+        "path": "exit.o",
+        "sha256": "ecb466b2fcfef7773b3c5e3ade4de092bdf8b844bac4e3f3b3c61d0ac0bb1555",
+        "size": 628
+      },
+      {
+        "path": "root.o",
+        "sha256": "f3193f62a928631bc0cbeb89aecf8ff999161a2aba58e6a492c792921805fb16",
+        "size": 76
+      }
+    ]
+  }
+}

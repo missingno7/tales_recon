@@ -222,3 +222,13 @@ provider or root layout is accepted. See
 `../evidence/experiments/resident-exit-wrapper.json`,
 `../evidence/experiments/resident-exit-boundary.json` and
 `../evidence/experiments/resident-exit-object.json`.
+
+The complete SDK-derived exit variant removes exactly three cleanup branches
+absent from the original CFG and naturally produces238 CODE bytes. All180
+ordinary bytes match, including the FPU thunk and six-byte terminal epilogue.
+The58 address-field bytes have diagnostic source/symbol correspondences only;
+no acceptance, runtime accounting, canonical boundary or provider claim changes.
+Replay: `python evidence/rules/resident-exit-variant/replay.py`. Next independently
+bind complete callees8640/8980/8788/8974/8A12 and cross-routine globals; a strict
+whole-object consumer is still required. Retained newline and symbol-file
+failures are in `../evidence/experiments/resident-exit-variant.json`.
