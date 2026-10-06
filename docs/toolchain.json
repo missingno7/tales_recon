@@ -293,7 +293,7 @@
       "Only complete CODE units are counted. The four-byte empty BSS sentinel and per-link CODE padding are control obligations, never additional claimed bytes.",
       "No original compiler release, storage/TU ownership, resident layout or aggregate executable proof."
     ],
-    "matched_candidate_bytes": 88,
+    "matched_candidate_bytes": 122,
     "openlibrary_evidence": "evidence/experiments/openlibrary-wrappers.json",
     "recipe": "evidence/rules/graphics-wrapper-controls/commands.json",
     "status": "STRICT_PINNED_RUNTIME_CONTRIBUTIONS_ACCEPTED"
@@ -452,6 +452,17 @@
   },
   "schema_version": 1,
   "selected_historical_toolchain": null,
+  "startup_routing_controls": {
+    "evidence": "evidence/experiments/startup-bindings.json",
+    "rejected_hypotheses": [
+      "resident pointer rooting alone",
+      "callee large-code flag",
+      "startup +c/+cd shape",
+      "empty DATA symbol masquerading as callable jump entry"
+    ],
+    "startup_promoted": false,
+    "status": "ORDINARY_BYTES_MATCH_WITH_VALID_ROUTING_CONTEXT_BINDINGS_PENDING"
+  },
   "supervisor_batch_promotion": {
     "audit_revision": "The initial control passed before suite-input binding was added. Its receipt is retained separately; concurrent test/tool edits are now explicitly rejected.",
     "command": "python tools/promote_batch.py MANIFEST.json",

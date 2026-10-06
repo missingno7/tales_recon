@@ -1,0 +1,9 @@
+[
+  "C:FailAt 1000000",
+  "Old2:bin/lb >extract.log Old1:lib/c.lib -x _main",
+  "Old1:bin/as >entry-as.log -o entry.o entry.asm",
+  "Old1:bin/as >exit-data-as.log -o exit-data.o exit-data.asm",
+  "Old1:bin/cc <compiler-input.txt >main-cc.log -a main.c",
+  "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+  "Old1:bin/ln >data-exit.log -m -t -o data-exit entry.o exit-data.o _main.o +o1 main.o +o0 Old1:lib/c.lib"
+]

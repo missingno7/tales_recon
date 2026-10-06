@@ -1,0 +1,3 @@
+	public .begin
+.begin
+	rts

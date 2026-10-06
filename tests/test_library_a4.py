@@ -42,8 +42,8 @@ class LibraryA4Tests(unittest.TestCase):
     def validate(self,**kwargs):
         return load_library_a4(self.root,self.blob,self.model,self.analysis,self.promotions,
             kwargs.get('ledger',self.ledger),document=self.document)
-    def test_real_complete_units_only_count_88_runtime_bytes(self):
-        rows=self.validate();self.assertEqual(len(rows),6);self.assertEqual(sum(len(r['bytes']) for r in rows),88)
+    def test_real_complete_units_only_count_122_runtime_bytes(self):
+        rows=self.validate();self.assertEqual(len(rows),8);self.assertEqual(sum(len(r['bytes']) for r in rows),122)
         self.assertTrue(all(r['category']=='PINNED_RUNTIME' for r in rows))
         for r in rows:
             h=next(x for x in self.model['hunks'] if x['number']==r['hunk'])
@@ -56,7 +56,7 @@ class LibraryA4Tests(unittest.TestCase):
             ledger=copy.deepcopy(self.ledger);ledger['functions']['ov04_F_1E36'][key]='0'*64
             with self.assertRaises(FormatError):self.validate(ledger=ledger)
     def test_wrong_game_group_base_bounds_and_reference_reject(self):
-        mutations=[lambda d:d.update(game_sha256='0'*64),lambda d:d['groups'].pop(),
+        mutations=[lambda d:d.update(game_sha256='0'*64),lambda d:d['groups'].pop(0),
             lambda d:d['groups'][0]['reference'].update(original_offset=21360),
             lambda d:d['groups'][0]['reference'].update(width=4),
             lambda d:d['groups'][0]['original'].update(size=16),
@@ -110,3 +110,12 @@ class LibraryA4Tests(unittest.TestCase):
         next(a for a in receipt['artifacts'] if a['path']==ep.name)['sha256']=sha256(damaged)
         rp.write_text(json.dumps(receipt));r['sha256']=sha256(rp.read_bytes())
         with self.assertRaisesRegex(FormatError,'natural link extent'):self.validate()
+    def test_legacy_six_unit_input_remains_88_bytes(self):
+        self.document['groups']=self.document['groups'][:6];self.document['receipts']=self.document['receipts'][:2]
+        self.assertEqual(sum(len(r['bytes']) for r in self.validate()),88)
+    def test_kernel_private_helper_order_and_identity_reject(self):
+        for mutate in (lambda g:g['definitions'][1].update(offset=6),
+                       lambda g:g['reference'].update(original_offset=45990),
+                       lambda g:g['objects'].reverse()):
+            self.document=copy.deepcopy(self.doc);mutate(self.document['groups'][-1])
+            with self.assertRaises(FormatError):self.validate()

@@ -6,7 +6,7 @@ the remaining legacy workflow/documentation audit still have open gates.
 
 Canonical coverage is 152 functions / 41,420 C bytes. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,470
-compiler-owned data bytes, 518 pinned runtime bytes, 2 classified padding bytes and 149,594 file bytes of
+compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 149,560 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -122,7 +122,7 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-Latest full regression: 409 tests, 9 skipped (local compilation-cache controls
+Latest full regression: 411 tests, 9 skipped (local compilation-cache controls
 and an already-canonical promotion control). Census
 validates all 152 canonical proofs. Hybrid accounting has zero overlap and zero
 unaccounted file bytes, and refresh replays all 152 retained exact artifacts.
@@ -158,3 +158,10 @@ two bytes. Verify that whole unit's callee/global bindings before identifying
 the original runtime DATA variant and its COMMON ownership. Natural COMMON
 merging controls are measured; they do not select original object order or
 compiler release. Keep ov04 closure ahead of unrelated targets.
+
+Startup routing controls now match all ordinary bytes of the complete312-byte
+object. Eight global and eleven PC target bindings remain pending; callback
+main uses logical node1, and exit requires a validated DATA jump entry.
+The allocator/task public-private units add34 strictly accepted runtime bytes.
+See `../evidence/experiments/startup-bindings.json`. No startup DATA or complete
+root layout is accepted.

@@ -1,0 +1,17 @@
+[
+  "Old2:bin/lb >extract.log Old1:lib/c.lib -x allocmem _allocme findtask _findtas",
+  "Old1:bin/as >root1-as.log -o root1.o root1.asm",
+  "Old1:bin/as >root2-as.log -o root2.o root2.asm",
+  "Old1:bin/as >allocmem-as.log -o allocmem-source.o allocmem.asm",
+  "Old1:bin/as >_allocme-as.log -o _allocme-source.o _allocme.asm",
+  "Old1:bin/as >findtask-as.log -o findtask-source.o findtask.asm",
+  "Old1:bin/as >_findtas-as.log -o _findtas-source.o _findtas.asm",
+  "Old1:bin/ln >allocmem-root1-lib.log -m -t -o allocmem-root1-lib allocmem.o _allocme.o root1.o",
+  "Old1:bin/ln >allocmem-root1-source.log -m -t -o allocmem-root1-source allocmem-source.o _allocme-source.o root1.o",
+  "Old1:bin/ln >allocmem-root2-lib.log -m -t -o allocmem-root2-lib allocmem.o _allocme.o root2.o",
+  "Old1:bin/ln >allocmem-root2-source.log -m -t -o allocmem-root2-source allocmem-source.o _allocme-source.o root2.o",
+  "Old1:bin/ln >findtask-root1-lib.log -m -t -o findtask-root1-lib findtask.o _findtas.o root1.o",
+  "Old1:bin/ln >findtask-root1-source.log -m -t -o findtask-root1-source findtask-source.o _findtas-source.o root1.o",
+  "Old1:bin/ln >findtask-root2-lib.log -m -t -o findtask-root2-lib findtask.o _findtas.o root2.o",
+  "Old1:bin/ln >findtask-root2-source.log -m -t -o findtask-root2-source findtask-source.o _findtas-source.o root2.o"
+]

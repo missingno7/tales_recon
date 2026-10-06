@@ -68,7 +68,10 @@ def load_library_a4(root,blob,model,analysis,promotions,ledger,*,document=None):
         require(sum(s['command']==extraction for s in receipt['steps'])==1,'library A4 extraction recipe differs')
     out=[];seen=set()
     groups=document['groups']
-    require(len(groups)==6 and len({g['id'] for g in groups})==6,'library A4 requires complete bounded campaign')
+    base={'initbitm','initview','initvpor','makevpor','mrgcop','openlibrary_unit'}
+    extra={'allocmem_unit':18,'findtask_unit':16}
+    ids={g['id'] for g in groups}
+    require(base<=ids<=base|set(extra) and len(ids)==len(groups),'library A4 requires supported bounded campaign')
     open_group=next((g for g in groups if g['id']=='openlibrary_unit'),None)
     require(open_group and open_group['original']['start']==producer,'library A4 OpenLibrary producer differs')
     for group in groups:
@@ -151,7 +154,7 @@ def load_library_a4(root,blob,model,analysis,promotions,ledger,*,document=None):
             # a control-layout obligation, never part of these CODE claims.
             require(bss['type']=='BSS' and bss['allocated_size']==4 and bss['initialized_size']==0,
                     'library A4 control BSS sentinel differs')
-            if group['id']=='openlibrary_unit':require(actual[:4]==bytes.fromhex('4efa0002') and definitions[1]['offset']==4,
+            if len(definitions)==2:require(actual[:4]==bytes.fromhex('4efa0002') and definitions[1]['offset']==4,
                                                       'library A4 separate helper PC binding differs')
             variants.append(actual[:field]+bytes(2)+actual[field+2:]);targets.append(resolved)
         require(len(set(variants))==1 and targets==[0,0,6,6],'library A4 source/library DATA-order control differs')
@@ -166,5 +169,6 @@ def load_library_a4(root,blob,model,analysis,promotions,ledger,*,document=None):
         payload=variants[0][:field]+(target-bias).to_bytes(2,'big',signed=True)+variants[0][field+2:]
         out.append(dict(id='runtime_'+group['id'],hunk=0,start=start,end=start+size,bytes=payload,
                         category='PINNED_RUNTIME',relocations=[]))
-    require(sum(c['end']-c['start'] for c in out)==88,'library A4 campaign byte count differs')
+    require(sum(c['end']-c['start'] for c in out)==88+sum(n for k,n in extra.items() if k in ids),
+            'library A4 campaign byte count differs')
     return out

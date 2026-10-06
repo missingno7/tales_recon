@@ -363,13 +363,20 @@
         "Independent SDK compilation reproduces 3.6a and 5.0a-short pinned vars layouts in every tested object/data order; evidence/experiments/runtime-vars.json.",
         "3.6a and 5.0a c16 vars have 10 initialized bytes and 64 COMMON bytes; 5.0a c32 has 10 initialized and 72 COMMON. First-reference/declaration merging changes order without duplicate storage.",
         "No full ten-byte pinned vars DATA pattern appears anywhere in original initialized DATA; terminal00140000 alone proves no original _numdev ownership.",
-        "Original DATA+2EB0 is read by resident766C/8552/8640. Normal 3.6a startup-object link reproduces the two bytes after the 310-byte closed CFG; complete 312-byte binding proof remains pending."
+        "Original DATA+2EB0 is read by resident766C/8552/8640. Normal 3.6a startup-object link reproduces the two bytes after the 310-byte closed CFG; complete 312-byte binding proof remains pending.",
+        "Complete 312-byte startup object matches every ordinary byte after diagnostic field correspondence; eight globals and eleven PC targets plus two A4 calls remain explicitly enumerated. No startup acceptance; evidence/experiments/startup-bindings.json.",
+        "Normal linker controls reproduce main via encoded overlay node1 (physical original ov03) and exit via a valid six-byte DATA jump entry with a CODE relocation.",
+        "AllocMem and FindTask public/private complete units pass strict pinned-library/source/current-caller verification: 34 additional PINNED_RUNTIME bytes."
       ],
       "experiments_tried": [
         "TOOLCHAIN: INCLUDE volume assignment did not satisfy 3.6a cc; explicit -I Old1:include succeeds.",
         "TOOLCHAIN: 5.0a rejects old SDK #endif labels and AJ root objects. Contemporary Tools1 headers and CJ-producing assembler succeed in a fresh job.",
         "DATA_OWNERSHIP: all three pinned vars DATA contributions contradict original whole initialized content; no original DATA or COMMON bytes accepted.",
-        "OBJECT/TU_LAYOUT: earlier _MathBase/errno declarations merge into vars COMMON rather than adding duplicate definitions. This is a control, not original ownership."
+        "OBJECT/TU_LAYOUT: earlier _MathBase/errno declarations merge into vars COMMON rather than adding duplicate definitions. This is a control, not original ownership.",
+        "CALL_BINDING: root function-pointer export and large-code callee did not change startup exit to A4.",
+        "SOURCE_SHAPE: SDK startup compiled with +c/+cd emits 338/386 bytes and differs from the original 312-byte object; not accepted.",
+        "DATA_OWNERSHIP: bare jmp in dseg emitted zero DATA and aliased the numdev symbol despite matching call opcode. Rejected as invalid; explicit SDK-recognized jump-table DATA record has a verified relocation and valid payload.",
+        "OBJECT/TU_LAYOUT: corrected control uses logical node1 for the original physical ov03 main callback; source-controlled routing only, not original interface ownership."
       ],
       "first_mismatch": {
         "candidate_initialized_bytes": 10,
@@ -378,7 +385,7 @@
       },
       "id": "RESIDENT-VARS-LAYOUT-001",
       "missing_artifact": "Independently bound original runtime DATA producer/consumer identities and real original provider contribution; tested pinned vars object is incompatible.",
-      "next_experiment": "Verify the complete 312-byte pinned startup unit and its callee/global identities, including the terminal-word consumer. Keep library object extent distinct from its 310-byte closed CFG. Identify a source/runtime variant before claiming DATA ownership; do not clip vars into a two-byte fragment or retry unchanged layouts.",
+      "next_experiment": "Verify remaining startup PC targets and establish independent cross-routine bindings for the eight globals. Use the accepted allocator/task private entries to ground the numdev allocation and current-process roles. Keep the incompatible complete vars DATA provider rejected and the startup object unpromoted until all identities pass.",
       "status": "OPEN",
       "target": "pinned vars object and resident DATA/COMMON frontier"
     }

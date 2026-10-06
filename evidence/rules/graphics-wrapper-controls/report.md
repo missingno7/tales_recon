@@ -53,3 +53,9 @@ SDK/object/recipe changes and rehashed library/allocation edits. The 88 complete
 CODE bytes now count as PINNED_RUNTIME. Serialization padding and the four-byte
 empty BSS sentinel are excluded. acceptance.json records current status;
 storage order, compiler release and full resident/overlay layout remain open.
+
+Kernel follow-up: complete public/private AllocMem and FindTask units also
+pass library membership, SDK assembly, two DATA orders and current accepted
+caller checks. Their 18+16 bytes are counted, bringing this campaign to122
+runtime bytes. All13 focused mutation and legacy controls pass. kernel/ and
+the additional retained artifacts bind the independently produced inputs.

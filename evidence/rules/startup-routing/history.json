@@ -1,0 +1,466 @@
+[
+  {
+    "assessment": "diagnostic control; no original source ownership",
+    "job": "wave10-startup-001",
+    "receipt_sha256": "a81dcd675402fb367eceb0d1743b51980aec85b9e2ff88637dfe9263fdc1918e",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3"
+      },
+      {
+        "path": "entry.asm",
+        "sha256": "639442324b82a8c7327b7340706cfc55b734d301e114cfb43f62ad5e41a88588"
+      },
+      {
+        "path": "exitroot.c",
+        "sha256": "5d45cb5e0b2c906f6cf62b8f7053e36e920c144ed5a97497586dc712dbcf4738"
+      },
+      {
+        "path": "main.c",
+        "sha256": "888e30d173a77ce1d9fb57e4683bd79d1426ec44c41d4993cfaba9e3e1f39ef8"
+      }
+    ],
+    "steps": [
+      {
+        "command": "C:FailAt 1000000",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      },
+      {
+        "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x _main",
+        "index": 1,
+        "returncode": 0,
+        "returncode_file": "step-01.rc"
+      },
+      {
+        "command": "Old1:bin/as >entry-as.log -o entry.o entry.asm",
+        "index": 2,
+        "returncode": 0,
+        "returncode_file": "step-02.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >main-cc.log -a main.c",
+        "index": 3,
+        "returncode": 0,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+        "index": 4,
+        "returncode": 0,
+        "returncode_file": "step-04.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >exitroot-cc.log -a exitroot.c",
+        "index": 5,
+        "returncode": 0,
+        "returncode_file": "step-05.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >exitroot-as.log -o exitroot.o exitroot.asm",
+        "index": 6,
+        "returncode": 0,
+        "returncode_file": "step-06.rc"
+      },
+      {
+        "command": "Old1:bin/ln >overlay.log -m -t -o overlay entry.o _main.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 7,
+        "returncode": 0,
+        "returncode_file": "step-07.rc"
+      },
+      {
+        "command": "Old1:bin/ln >overlay-export.log -m -t -o overlay-export entry.o exitroot.o _main.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 8,
+        "returncode": 0,
+        "returncode_file": "step-08.rc"
+      }
+    ]
+  },
+  {
+    "assessment": "diagnostic control; no original source ownership",
+    "job": "wave10-startup-002",
+    "receipt_sha256": "92703398bbcbfcef276441255b87033a3021947bad99da8e2edafc4a3e5196cf",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3"
+      },
+      {
+        "path": "entry.asm",
+        "sha256": "639442324b82a8c7327b7340706cfc55b734d301e114cfb43f62ad5e41a88588"
+      },
+      {
+        "path": "exit-large.c",
+        "sha256": "33d01f94e154751057a837028757e31717209423e64b09e6009ed99e3a34471c"
+      },
+      {
+        "path": "exit-small.c",
+        "sha256": "33d01f94e154751057a837028757e31717209423e64b09e6009ed99e3a34471c"
+      },
+      {
+        "path": "main.c",
+        "sha256": "888e30d173a77ce1d9fb57e4683bd79d1426ec44c41d4993cfaba9e3e1f39ef8"
+      }
+    ],
+    "steps": [
+      {
+        "command": "C:FailAt 1000000",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      },
+      {
+        "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x _main",
+        "index": 1,
+        "returncode": 0,
+        "returncode_file": "step-01.rc"
+      },
+      {
+        "command": "Old1:bin/as >entry-as.log -o entry.o entry.asm",
+        "index": 2,
+        "returncode": 0,
+        "returncode_file": "step-02.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >main-cc.log -a  main.c",
+        "index": 3,
+        "returncode": 0,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+        "index": 4,
+        "returncode": 0,
+        "returncode_file": "step-04.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >exit-small-cc.log -a  exit-small.c",
+        "index": 5,
+        "returncode": 0,
+        "returncode_file": "step-05.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >exit-small-as.log -o exit-small.o exit-small.asm",
+        "index": 6,
+        "returncode": 0,
+        "returncode_file": "step-06.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >exit-large-cc.log -a +c exit-large.c",
+        "index": 7,
+        "returncode": 0,
+        "returncode_file": "step-07.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >exit-large-as.log -o exit-large.o exit-large.asm",
+        "index": 8,
+        "returncode": 0,
+        "returncode_file": "step-08.rc"
+      },
+      {
+        "command": "Old1:bin/ln >exit-small.log -m -t -o exit-small entry.o exit-small.o _main.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 9,
+        "returncode": 0,
+        "returncode_file": "step-09.rc"
+      },
+      {
+        "command": "Old1:bin/ln >exit-large.log -m -t -o exit-large entry.o exit-large.o _main.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 10,
+        "returncode": 0,
+        "returncode_file": "step-10.rc"
+      }
+    ]
+  },
+  {
+    "assessment": "diagnostic control; no original source ownership",
+    "job": "wave10-startup-003",
+    "receipt_sha256": "e465da1e927d028142106dcf04c25592188a50f5635b843c58f1937e4d7ece6b",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3"
+      },
+      {
+        "path": "entry.asm",
+        "sha256": "639442324b82a8c7327b7340706cfc55b734d301e114cfb43f62ad5e41a88588"
+      },
+      {
+        "path": "main.c",
+        "sha256": "888e30d173a77ce1d9fb57e4683bd79d1426ec44c41d4993cfaba9e3e1f39ef8"
+      },
+      {
+        "path": "startup-c.c",
+        "sha256": "673e14870e04a4bf98620726db4108479ef22176fcd94efca417ec807e16ce10"
+      },
+      {
+        "path": "startup-cd.c",
+        "sha256": "673e14870e04a4bf98620726db4108479ef22176fcd94efca417ec807e16ce10"
+      }
+    ],
+    "steps": [
+      {
+        "command": "C:FailAt 1000000",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      },
+      {
+        "command": "Old1:bin/as >entry-as.log -o entry.o entry.asm",
+        "index": 1,
+        "returncode": 0,
+        "returncode_file": "step-01.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >main-cc.log -a main.c",
+        "index": 2,
+        "returncode": 0,
+        "returncode_file": "step-02.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+        "index": 3,
+        "returncode": 0,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >startup-c-cc.log -a +c +x3,5 -I Old1:include startup-c.c",
+        "index": 4,
+        "returncode": 0,
+        "returncode_file": "step-04.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >startup-c-as.log -o startup-c.o startup-c.asm",
+        "index": 5,
+        "returncode": 0,
+        "returncode_file": "step-05.rc"
+      },
+      {
+        "command": "Old1:bin/ln >startup-c.log -m -t -o startup-c entry.o startup-c.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 6,
+        "returncode": 0,
+        "returncode_file": "step-06.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >startup-cd-cc.log -a +cd +x3,5 -I Old1:include startup-cd.c",
+        "index": 7,
+        "returncode": 0,
+        "returncode_file": "step-07.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >startup-cd-as.log -o startup-cd.o startup-cd.asm",
+        "index": 8,
+        "returncode": 0,
+        "returncode_file": "step-08.rc"
+      },
+      {
+        "command": "Old1:bin/ln >startup-cd.log -m -t -o startup-cd entry.o startup-cd.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 9,
+        "returncode": 0,
+        "returncode_file": "step-09.rc"
+      }
+    ]
+  },
+  {
+    "assessment": "diagnostic control; no original source ownership",
+    "job": "wave10-startup-004",
+    "receipt_sha256": "8c055a6b8a5d507d64529bf1ef2f84c131cee383133b652d87735ab8163a366c",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3"
+      },
+      {
+        "path": "entry.asm",
+        "sha256": "639442324b82a8c7327b7340706cfc55b734d301e114cfb43f62ad5e41a88588"
+      },
+      {
+        "path": "exit-data.asm",
+        "sha256": "5e8bc6664d5dc4f51d7d6e2e3a7ce74931f79000f8d9e25df585894e6b1f4086"
+      },
+      {
+        "path": "main.c",
+        "sha256": "888e30d173a77ce1d9fb57e4683bd79d1426ec44c41d4993cfaba9e3e1f39ef8"
+      }
+    ],
+    "steps": [
+      {
+        "command": "C:FailAt 1000000",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      },
+      {
+        "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x _main",
+        "index": 1,
+        "returncode": 0,
+        "returncode_file": "step-01.rc"
+      },
+      {
+        "command": "Old1:bin/as >entry-as.log -o entry.o entry.asm",
+        "index": 2,
+        "returncode": 0,
+        "returncode_file": "step-02.rc"
+      },
+      {
+        "command": "Old1:bin/as >exit-data-as.log -o exit-data.o exit-data.asm",
+        "index": 3,
+        "returncode": 0,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >main-cc.log -a main.c",
+        "index": 4,
+        "returncode": 0,
+        "returncode_file": "step-04.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+        "index": 5,
+        "returncode": 0,
+        "returncode_file": "step-05.rc"
+      },
+      {
+        "command": "Old1:bin/ln >data-exit.log -m -t -o data-exit entry.o exit-data.o _main.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 6,
+        "returncode": 0,
+        "returncode_file": "step-06.rc"
+      }
+    ]
+  },
+  {
+    "assessment": "diagnostic control; no original source ownership",
+    "job": "wave10-startup-005",
+    "receipt_sha256": "773d1636a18344525f57bda7eb05feb0c538c76161003f38c16c43f354dadb63",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3"
+      },
+      {
+        "path": "entry.asm",
+        "sha256": "639442324b82a8c7327b7340706cfc55b734d301e114cfb43f62ad5e41a88588"
+      },
+      {
+        "path": "exit-data.asm",
+        "sha256": "0b3a83e3c177c00cf45ea4e9dc761fb91bb6c86fc6ffc05c64751e9ccb382126"
+      },
+      {
+        "path": "main.c",
+        "sha256": "888e30d173a77ce1d9fb57e4683bd79d1426ec44c41d4993cfaba9e3e1f39ef8"
+      }
+    ],
+    "steps": [
+      {
+        "command": "C:FailAt 1000000",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      },
+      {
+        "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x _main",
+        "index": 1,
+        "returncode": 0,
+        "returncode_file": "step-01.rc"
+      },
+      {
+        "command": "Old1:bin/as >entry-as.log -o entry.o entry.asm",
+        "index": 2,
+        "returncode": 0,
+        "returncode_file": "step-02.rc"
+      },
+      {
+        "command": "Old1:bin/as >exit-data-as.log -o exit-data.o exit-data.asm",
+        "index": 3,
+        "returncode": 0,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >main-cc.log -a main.c",
+        "index": 4,
+        "returncode": 0,
+        "returncode_file": "step-04.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+        "index": 5,
+        "returncode": 0,
+        "returncode_file": "step-05.rc"
+      },
+      {
+        "command": "Old1:bin/ln >data-exit.log -m -t -o data-exit entry.o exit-data.o _main.o +o3 main.o +o0 Old1:lib/c.lib",
+        "index": 6,
+        "returncode": 0,
+        "returncode_file": "step-06.rc"
+      }
+    ]
+  },
+  {
+    "assessment": "diagnostic control; no original source ownership",
+    "job": "wave10-startup-006",
+    "receipt_sha256": "7dc0f4908222c7b51c6028db5b2feff92068803ff1ec67e61b7530db0a014567",
+    "source_files": [
+      {
+        "path": "compiler-input.txt",
+        "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3"
+      },
+      {
+        "path": "entry.asm",
+        "sha256": "639442324b82a8c7327b7340706cfc55b734d301e114cfb43f62ad5e41a88588"
+      },
+      {
+        "path": "exit-data.asm",
+        "sha256": "0b3a83e3c177c00cf45ea4e9dc761fb91bb6c86fc6ffc05c64751e9ccb382126"
+      },
+      {
+        "path": "main.c",
+        "sha256": "888e30d173a77ce1d9fb57e4683bd79d1426ec44c41d4993cfaba9e3e1f39ef8"
+      }
+    ],
+    "steps": [
+      {
+        "command": "C:FailAt 1000000",
+        "index": 0,
+        "returncode": 0,
+        "returncode_file": "step-00.rc"
+      },
+      {
+        "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x _main",
+        "index": 1,
+        "returncode": 0,
+        "returncode_file": "step-01.rc"
+      },
+      {
+        "command": "Old1:bin/as >entry-as.log -o entry.o entry.asm",
+        "index": 2,
+        "returncode": 0,
+        "returncode_file": "step-02.rc"
+      },
+      {
+        "command": "Old1:bin/as >exit-data-as.log -o exit-data.o exit-data.asm",
+        "index": 3,
+        "returncode": 0,
+        "returncode_file": "step-03.rc"
+      },
+      {
+        "command": "Old1:bin/cc <compiler-input.txt >main-cc.log -a main.c",
+        "index": 4,
+        "returncode": 0,
+        "returncode_file": "step-04.rc"
+      },
+      {
+        "command": "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+        "index": 5,
+        "returncode": 0,
+        "returncode_file": "step-05.rc"
+      },
+      {
+        "command": "Old1:bin/ln >data-exit.log -m -t -o data-exit entry.o exit-data.o _main.o +o1 main.o +o0 Old1:lib/c.lib",
+        "index": 6,
+        "returncode": 0,
+        "returncode_file": "step-06.rc"
+      }
+    ]
+  }
+]
