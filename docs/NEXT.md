@@ -184,3 +184,21 @@ relocation. All differences occupy seven SDK fields; H1 end/BSS start and clear
 count derive from original allocations. Saved-stack and startup-entry identities
 remain pending. Source/library links equal while object files differ. See
 `../evidence/experiments/crt0-bindings.json`; no runtime acceptance is added.
+
+The bounded CLI parser trial rejects the unmodified456-byte library/SDK object:
+the original has a432-byte CFG and provisional2-byte literal. Removing the
+conditional path absent from the original emits440 bytes. Remaining differences
+localize to argument-stack cleanup and two PC calls where the original uses A4
+string jump stubs. No source, literal or caller binding is accepted. Inspect
+independent compiler/assembler controls for cleanup/routing before retrying;
+see `../evidence/experiments/cliparse-frontier.json`. Worker stopped at2 trials.
+
+The next CLI compiler experiment is the existing `aztec36-x3` profile (+X3),
+changing only the cleanup mode on the unconditional source. Historical manual
+leads support that hypothesis, but pinned Amiga3.6a behavior must be measured.
+Keep the two A4 string-call routes as independent open obligations.
+
+The attempted CLI jump-root records were unlabeled DATA; actual `_strcpy` and
+`_strlen` imports still resolve to CODE. They do not test named DATA interfaces.
+After the +X3 cleanup control, use named DATA entries to separately assembled
+SDK bodies with distinct labels, and verify payload/relocations before comparison.
