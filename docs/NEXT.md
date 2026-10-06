@@ -171,3 +171,16 @@ order matches, adding48 experimental target bytes. Strict accepted-caller
 entry checks remain intact and no bytes are counted. The CurrentDir target
 at869C must not be confused with Forbid at8974. Next, bind DOSBase and the
 remaining parser/global relationships; see startup-targets.json.
+
+DOSBase is independently bound at H1+A98E by the CRT0 initializer. Five complete
+DOS library/source leaves match54 candidate bytes in two DATA orders; CurrentDir,
+Input, Output and Open resolve four startup correspondences (42 bytes). These
+remain unpromoted. See `../evidence/experiments/dosbase-bindings.json`. Next verify
+complete CRT0 identities, parser/global relationships and original storage
+providers; preserve strict accepted-caller entry checks.
+
+The bounded complete CRT0 review matches108 ordinary bytes and its one DATA
+relocation. All differences occupy seven SDK fields; H1 end/BSS start and clear
+count derive from original allocations. Saved-stack and startup-entry identities
+remain pending. Source/library links equal while object files differ. See
+`../evidence/experiments/crt0-bindings.json`; no runtime acceptance is added.

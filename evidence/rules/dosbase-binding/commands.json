@@ -1,0 +1,9 @@
+[
+  "C:FailAt 1000000",
+  "Old2:bin/lb >extract.log Old1:lib/c.lib -x crt0",
+  "Old1:bin/as >crt0-source-as.log -o crt0-source.o crt0-source.asm",
+  "Old1:bin/cc <compiler-input.txt >main-cc.log -a main.c",
+  "Old1:bin/as <compiler-input.txt >main-as.log -o main.o main.asm",
+  "Old1:bin/ln >crt0-lib.log -m -t -o crt0-lib crt0.o +o1 main.o +o0 Old1:lib/c.lib",
+  "Old1:bin/ln >crt0-source.log -m -t -o crt0-source crt0-source.o +o1 main.o +o0 Old1:lib/c.lib"
+]
