@@ -262,6 +262,8 @@ def build(root=ROOT):
         contributions.append(dict(id=s['id'],hunk=s['hunk'],start=s['offset'],end=s['offset']+s['size'],bytes=raw,category='PINNED_RUNTIME'))
     contributions.extend(load_terminal_padding(root,blob,model,analysis,promoted,ledger))
     contributions.extend(load_library_a4(root,blob,model,analysis,promoted,ledger))
+    from resident_mixed import accepted_contributions
+    contributions.extend(accepted_contributions(root,blob,model,analysis,promoted,ledger))
     return account(blob,model,contributions)
 
 

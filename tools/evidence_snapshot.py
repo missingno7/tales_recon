@@ -78,7 +78,10 @@ class Snapshot:
             # Census reads canonical functions only. Attempts and queue blockers
             # can change during a batch without changing any derived output.
             if values[str(ledger_path.resolve())] is not None:
-                values[str(ledger_path.resolve())] = sha256(json_bytes(ledger['functions']))
+                values[str(ledger_path.resolve())] = sha256(json_bytes(dict(
+                    functions=ledger['functions'], mixed_source_objects=ledger.get('mixed_source_objects', {}))))
+            for item in ledger.get('mixed_source_objects', {}).values():
+                read(root / item['source']); read(root / item['proof'])
             for item in ledger.get('functions', {}).values():
                 read(root / item['source'])
                 proof = document(root / item['proof'])

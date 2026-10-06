@@ -287,3 +287,15 @@ map byte for byte, and passes the strict verifier. See
 `../evidence/experiments/resident-exit-refresh.json`. Next implement canonical
 mixed-source proof/promotion and language-aware accounting using this separate
 extent basis; keep ordinary C and runtime public-entry guards intact.
+
+The complete SDK-derived resident_F_8552 mixed object is now canonical at
+FUNCTION_CODE_MATCH in the separate recovery `mixed_source_objects` map.
+Its source, complete238-byte extent,29 independent fields and196 C/42 ASM
+partitions rederive on census and accounting reads. Normal C remains CLOSED_CFG
+only and rejects assembly. A fresh unchanged historical compile and unchanged
+validation input graph precede admission; ordinary recovery writes preserve the
+mixed map. Whole-file debt falls by238 to148566, with no aggregate layout proof.
+Forbid/ReplyMsg complete identity controls remain outside runtime accounting.
+Next resolve the original DATA/COMMON provider and natural resident linking
+needed for ov04 closure; original filename/TU/release and provider remain unknown.
+See `../evidence/experiments/resident-exit-admission.json`.

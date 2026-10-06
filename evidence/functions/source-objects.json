@@ -2,7 +2,7 @@
   "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
   "objects": [
     {
-      "acceptance": false,
+      "acceptance": true,
       "c_compiler_bytes": 196,
       "cfg_extent": {
         "confidence": "LOW",
@@ -14,7 +14,7 @@
       "extent_basis": "PINNED_SDK_DERIVATION_AND_COMPLETE_LINKED_OBJECT",
       "fact": {
         "path": "evidence/source-facts/resident-exit.json",
-        "sha256": "eae0c862b89f3ccb068feb854e886c3a9c57d6f5a74d775f4f2f1aa3c721fddc"
+        "sha256": "f13597bd366eb7c579d77f36593717af262924c075958da450757ce13db01ad3"
       },
       "field_identities": [
         {
@@ -199,12 +199,14 @@
           "start": 34362
         }
       ],
+      "proof": "recovery/proofs/resident_F_8552.mixed.json",
       "sdk_asm_bytes": 42,
       "size": 238,
+      "source": "src/recovered/resident/resident_F_8552.c",
       "source_sha256": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
-      "status": "VERIFIED_STAGED_MIXED_OBJECT"
+      "status": "FUNCTION_CODE_MATCH"
     }
   ],
-  "policy": "Verified staged source-object extents are separate from CFG reachability and canonical acceptance; no coverage or ownership is granted.",
+  "policy": "Complete source-object extents remain separate from CFG reachability. Only rederived canonical mixed proofs grant coverage; historical ownership remains unknown.",
   "schema_version": 1
 }

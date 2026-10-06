@@ -106,6 +106,19 @@ class SnapshotTests(unittest.TestCase):
             self.read()
             self.assertEqual(state.invalidations, 1)
 
+    def test_mixed_canonical_map_and_its_source_invalidate(self):
+        self.canonical()
+        with snapshots.snapshot() as state:
+            self.read()
+            path = self.root / 'recovery/ledger.json'
+            ledger = json.loads(path.read_text())
+            ledger['mixed_source_objects'] = {'M': {'source': 'custom/source.c', 'proof': 'custom/proof.json'}}
+            write_json(path, ledger)
+            self.read()
+            (self.root / 'custom/source.c').write_text('changed\n')
+            self.read()
+            self.assertEqual((state.misses, state.invalidations), (3, 2))
+
     def test_analysis_and_optional_runtime_evidence_are_bound(self):
         with snapshots.snapshot() as state:
             self.read()

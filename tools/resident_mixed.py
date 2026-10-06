@@ -17,6 +17,8 @@ from compiler_oracle import harness
 from analysis_support import signed16
 
 FACT = 'evidence/source-facts/resident-exit.json'
+SOURCE = 'src/recovered/resident/resident_F_8552.c'
+PROOF = 'recovery/proofs/resident_F_8552.mixed.json'
 PARTS = [('C_COMPILER', 0, 122), ('ASM', 122, 154),
          ('C_COMPILER', 154, 222), ('ASM', 222, 232), ('C_COMPILER', 232, 238)]
 
@@ -223,6 +225,9 @@ def verify(root, blob, model, analysis, promotions, ledger, *, fact=None):
     require(analysis['game_sha256'] == sha256(blob), 'mixed game identity differs')
     require(fact['schema_version'] == 1 and fact['id'] == 'resident_F_8552' and
             fact['original'] == dict(hunk=0, start=34130, end=34368), 'mixed source extent differs')
+    require(not any(r['source_hunk'] == 0 and r['source_offset'] < 34368 and
+                    r['source_offset'] + r['width'] > 34130 for r in model['relocations']),
+            'mixed original CODE relocation unsupported')
     require([tuple(p) for p in fact['partitions']] == PARTS, 'mixed curated partition differs')
     require(fact['sdk_source'] == 'toolchain/installed/aztec-3.6a/SYS2/crt_src/_exit.c', 'mixed SDK selector differs')
     require(fact['status'] == 'STAGED_SOURCE_OBJECT_FACT' and fact['original_storage_ownership'] ==
@@ -299,6 +304,7 @@ def load_source_objects(root, blob, model, analysis, promotions, ledger):
     """
     path = canonical_path(root, FACT)
     if not path.exists():
+        require(not ledger.get('mixed_source_objects'), 'canonical mixed fact missing')
         return []
     raw = path.read_bytes()
     fact = json.loads(raw)
@@ -318,7 +324,7 @@ def load_source_objects(root, blob, model, analysis, promotions, ledger):
     require(not any(p['hunk'] == cfg['hunk'] and p['start'] < original['end'] and
                     p['end'] > original['start'] for p in promotions),
             'mixed source object overlaps accepted source')
-    return [dict(id=fact['id'], status=report['status'], acceptance=False,
+    row = dict(id=fact['id'], status=report['status'], acceptance=False,
                  fact=dict(path=FACT, sha256=sha256(raw)),
                  source_sha256=report['source_sha256'],
                  original=original, size=report['code_bytes'],
@@ -328,7 +334,75 @@ def load_source_objects(root, blob, model, analysis, promotions, ledger):
                                   end=original['start'] + hi) for language, lo, hi in fact['partitions']],
                  c_compiler_bytes=report['c_compiler_bytes'], sdk_asm_bytes=report['sdk_asm_bytes'],
                  field_identities=report['field_identities'],
-                 original_storage_ownership='UNKNOWN', original_filename='UNKNOWN', original_tu='UNKNOWN')]
+                 original_storage_ownership='UNKNOWN', original_filename='UNKNOWN', original_tu='UNKNOWN')
+    entries = ledger.get('mixed_source_objects', {})
+    require(set(entries) <= {fact['id']}, 'unsupported canonical mixed object')
+    if fact['id'] in entries:
+        item = entries[fact['id']]
+        require(item.get('source') == SOURCE and item.get('proof') == PROOF and
+                item.get('state') == 'FUNCTION_CODE_MATCH', 'mixed canonical identity differs')
+        source = read(root, SOURCE); proof_raw = read(root, PROOF)
+        require(source == expected_source(root).encode('ascii') and
+                sha256(source) == item.get('source_sha256'), 'mixed canonical source differs')
+        require(sha256(proof_raw) == item.get('proof_sha256'), 'mixed canonical proof changed')
+        proof = json.loads(proof_raw)
+        require(proof == source_object_proof(root, blob, model, analysis, ledger, row),
+                'mixed canonical proof does not rederive')
+        row.update(status='FUNCTION_CODE_MATCH', acceptance=True, source=SOURCE, proof=PROOF)
+    return [row]
+
+
+def produced_bytes(root, blob, model, analysis, row):
+    """Comparison-only address normalization, derived from verified identities.
+
+    Every ordinary byte comes from the historical compiler output. Original CODE
+    is consulted only for the final comparison, never copied into the specimen.
+    """
+    fact = json.loads(read(root, FACT))
+    raw, _, _, _ = control(root, fact['mechanical_directory'], expected_source(root))
+    result = bytearray(raw); original = row['original']
+    for field in row['field_identities']:
+        pos = field['site'] + 2
+        base = original['start'] + pos if field['symbol'].startswith('_F') else analysis['a4']['bias']
+        result[pos:pos + 2] = (field['original_offset'] - base).to_bytes(2, 'big', signed=True)
+    require(bytes(result) == contribution(blob, model, original['hunk'], original['start'], row['size']),
+            'mixed produced comparison bytes differ')
+    return raw, bytes(result)
+
+
+def source_object_proof(root, blob, model, analysis, ledger, row):
+    raw, normalized = produced_bytes(root, blob, model, analysis, row)
+    paths = source_object_inputs(root)
+    for fid in ('resident_F_8534', 'resident_F_8640', 'ov04_F_1E36'):
+        paths.extend(ledger['functions'][fid][key] for key in ('source', 'proof'))
+    # Admission artifacts themselves are excluded from their own read graph.
+    paths = sorted(set(paths) - {SOURCE, PROOF})
+    return dict(schema_version=1, id=row['id'], state='FUNCTION_CODE_MATCH',
+                kind='SDK_DERIVED_MIXED_OBJECT', source=SOURCE, source_sha256=row['source_sha256'],
+                game_sha256=sha256(blob), original=row['original'], size=row['size'],
+                extent_basis=row['extent_basis'], partitions=row['partitions'],
+                c_compiler_bytes=row['c_compiler_bytes'], sdk_asm_bytes=row['sdk_asm_bytes'],
+                field_identities=row['field_identities'],
+                comparison=dict(verdict='EQUAL', complete_object=True, actual_sha256=sha256(raw),
+                                normalized_sha256=sha256(normalized), length=len(raw), owned_data=0, owned_bss=0),
+                input_graph=[dict(path=p, sha256=sha256(read(root, p))) for p in paths],
+                original_storage_ownership='UNKNOWN', original_filename='UNKNOWN', original_tu='UNKNOWN',
+                exact_historical_library_release='UNKNOWN', natural_root_layout_proved=False)
+
+
+def accepted_contributions(root, blob, model, analysis, promotions, ledger):
+    rows = load_source_objects(root, blob, model, analysis, promotions, ledger)
+    result = []
+    for row in rows:
+        if not row['acceptance']:
+            continue
+        _, normalized = produced_bytes(root, blob, model, analysis, row)
+        for index, part in enumerate(row['partitions']):
+            lo = part['start'] - row['original']['start']; hi = part['end'] - row['original']['start']
+            result.append(dict(id=row['id'] + '_part%d' % index, hunk=row['original']['hunk'],
+                               start=part['start'], end=part['end'], bytes=normalized[lo:hi], relocations=[],
+                               category='RECOVERED_C' if part['language'] == 'C_COMPILER' else 'RECOVERED_ASM'))
+    return result
 
 
 def source_object_inputs(root):

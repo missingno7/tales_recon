@@ -13,7 +13,7 @@ from common import FormatError, sha256
 from analysis_support import game
 from recovery_state import evidence
 from recovery_evidence import load_promotions
-from resident_mixed import FACT, verify, load_source_objects
+from resident_mixed import FACT, SOURCE, PROOF, verify, load_source_objects, source_object_proof, accepted_contributions
 from compiler_oracle import validate_source
 
 
@@ -22,6 +22,7 @@ class ResidentMixedTests(unittest.TestCase):
     def setUpClass(cls):
         cls.blob, cls.model, _ = game(); cls.analysis = evidence()
         cls.ledger = json.loads((ROOT / 'recovery/ledger.json').read_text())
+        cls.ledger.pop('mixed_source_objects', None)
         cls.promotions = load_promotions(ROOT, cls.blob, cls.model, cls.analysis)
         cls.fact = json.loads((ROOT / FACT).read_text())
         cls.temp = tempfile.TemporaryDirectory(); cls.addClassCleanup(cls.temp.cleanup)
@@ -148,6 +149,66 @@ class ResidentMixedTests(unittest.TestCase):
         (self.root / FACT).unlink()
         snapshot.load(self.root, True, loader)
         self.assertEqual(len(calls), 4)
+
+    def admit(self):
+        from common import write_json
+        ledger = copy.deepcopy(self.ledger)
+        row, = self.source_objects(ledger=ledger)
+        source = (self.root / self.document['mechanical_directory'] / 'candidate.c').read_bytes()
+        path = self.root / SOURCE; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(source)
+        proof = source_object_proof(self.root, self.blob, self.model, self.analysis, ledger, row)
+        path = self.root / PROOF; write_json(path, proof)
+        ledger['mixed_source_objects'] = {row['id']: dict(state='FUNCTION_CODE_MATCH', source=SOURCE,
+            source_sha256=sha256(source), proof=PROOF, proof_sha256=sha256(path.read_bytes()))}
+        return ledger
+
+    def test_canonical_mixed_admission_and_language_accounting(self):
+        from recovery_state import canonical_state
+        ledger = self.admit()
+        row, = self.source_objects(ledger=ledger)
+        self.assertTrue(row['acceptance'])
+        self.assertEqual(row['status'], 'FUNCTION_CODE_MATCH')
+        self.assertEqual(canonical_state(ledger)['mixed_source_objects'], ledger['mixed_source_objects'])
+        parts = accepted_contributions(self.root, self.blob, self.model, self.analysis, self.promotions, ledger)
+        self.assertEqual(sum(len(p['bytes']) for p in parts if p['category'] == 'RECOVERED_C'), 196)
+        self.assertEqual(sum(len(p['bytes']) for p in parts if p['category'] == 'RECOVERED_ASM'), 42)
+        self.assertEqual(b''.join(p['bytes'] for p in parts), self.blob[
+            next(h['content_offset'] for h in self.model['hunks'] if h['number'] == 0) + 34130:
+            next(h['content_offset'] for h in self.model['hunks'] if h['number'] == 0) + 34368])
+
+    def test_rehashed_mixed_proof_cannot_absorb_asm_as_c(self):
+        ledger = self.admit(); path = self.root / PROOF
+        proof = json.loads(path.read_bytes()); proof['partitions'][1]['language'] = 'C_COMPILER'
+        path.write_text(json.dumps(proof))
+        ledger['mixed_source_objects'][self.document['id']]['proof_sha256'] = sha256(path.read_bytes())
+        with self.assertRaisesRegex(FormatError, 'does not rederive'):
+            self.source_objects(ledger=ledger)
+
+    def test_mixed_canonical_source_is_rederived_after_rehash(self):
+        ledger = self.admit(); path = self.root / SOURCE
+        path.write_bytes(path.read_bytes().replace(b'fd = 0', b'fd = 1'))
+        ledger['mixed_source_objects'][self.document['id']]['source_sha256'] = sha256(path.read_bytes())
+        with self.assertRaisesRegex(FormatError, 'canonical source differs'):
+            self.source_objects(ledger=ledger)
+
+    def test_mixed_proof_binds_unchanged_canonical_dependencies(self):
+        ledger = self.admit(); path = self.root / ledger['functions']['resident_F_8534']['source']
+        path.write_bytes(path.read_bytes() + b'\n')
+        ledger['functions']['resident_F_8534']['source_sha256'] = sha256(path.read_bytes())
+        with self.assertRaisesRegex(FormatError, 'does not rederive'):
+            self.source_objects(ledger=ledger)
+
+    def test_canonical_mixed_object_requires_its_curated_fact(self):
+        ledger = self.admit(); (self.root / FACT).unlink()
+        with self.assertRaisesRegex(FormatError, 'fact missing'):
+            self.source_objects(ledger=ledger)
+
+    def test_original_relocation_cannot_be_silently_omitted(self):
+        model = copy.deepcopy(self.model)
+        model['relocations'].append(dict(source_hunk=0, source_offset=34132, width=4,
+                                         target_hunk=1, type='RELOC32', addend_raw=0))
+        with self.assertRaisesRegex(FormatError, 'original CODE relocation unsupported'):
+            verify(self.root, self.blob, model, self.analysis, self.promotions, self.ledger, fact=self.document)
 
     def test_source_edit_with_rehashed_receipt_rejects(self):
         self.change(self.document['mechanical_directory'], 'candidate.c', lambda b: b.replace(b'fd = 0', b'fd = 1'))

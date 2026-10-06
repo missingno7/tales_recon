@@ -70,3 +70,14 @@ Runtime ABI ownership is not exact library object provenance. A known Manx
 trampoline may be classified as runtime glue while the producing linker version
 and library object remain unknown. All other ranges retain unknown ownership
 until supported by independent evidence.
+
+Bounded SDK-derived mixed source objects use the separate
+`mixed_source_objects` map in `recovery/ledger.json`. Their FUNCTION_CODE_MATCH
+proof rederives a complete compiler object from pinned SDK source, independently
+binds every external field and records label-controlled C/ASM partitions. The
+curated source-object extent is separate from recursive CFG reachability; it can
+include an unreachable compiler epilogue and a nested assembly thunk. Ordinary
+C promotion still requires CLOSED_CFG and rejects inline assembly. Accounting
+counts the proved C and ASM spans separately. A modified SDK body establishes
+neither an unmodified library member nor original filename, TU, storage provider
+or natural resident layout. These unknowns remain explicit in the mixed proof.

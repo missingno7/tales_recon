@@ -69,10 +69,16 @@ class QuarantineTests(unittest.TestCase):
 class AccountingTests(unittest.TestCase):
     def test_complete_real_file_is_accounted_without_source_increase(self):
         ledger_path=ROOT/'recovery/ledger.json';before=ledger_path.read_bytes()
-        canonical=json.loads(before)['functions']
+        ledger=json.loads(before);canonical=ledger['functions']
+        mixed=[json.loads(canonical_path(ROOT,item['proof']).read_bytes())
+               for item in ledger.get('mixed_source_objects',{}).values()]
         output,report=build();t=report['totals']
         self.assertEqual(len(output),193004)
-        self.assertEqual(t['RECOVERED_C'],sum(v['evidence_extent']['size'] for v in canonical.values()))
+        self.assertEqual(t['RECOVERED_C'],sum(v['evidence_extent']['size'] for v in canonical.values())+
+                         sum(p['end']-p['start'] for proof in mixed for p in proof['partitions']
+                             if p['language']=='C_COMPILER'))
+        self.assertEqual(t['RECOVERED_ASM'],sum(p['end']-p['start'] for proof in mixed
+                                             for p in proof['partitions'] if p['language']=='ASM'))
         self.assertEqual(ledger_path.read_bytes(),before)
         self.assertGreater(t['file_RAW_ORACLE_DEBT'],0)
         self.assertEqual((t['overlap'],t['unaccounted']),(0,0))

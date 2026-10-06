@@ -21,7 +21,10 @@ def recovery():
 
 
 def canonical_state(value):
-    return dict(schema_version=value.get('schema_version',1),functions=value['functions'],attempts={},blockers={})
+    result = dict(schema_version=value.get('schema_version',1),functions=value['functions'],attempts={},blockers={})
+    if 'mixed_source_objects' in value:
+        result['mixed_source_objects'] = value['mixed_source_objects']
+    return result
 
 
 def write_recovery(value, ledger=None):

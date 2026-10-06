@@ -102,7 +102,8 @@ def derive(root, promotion_evidence=None):
     source_objects = load_source_objects(root, exe, model, analysis, promoted, ledger)
     outputs['evidence/functions/source-objects.json'] = dict(schema_version=1,
         game_sha256=sha256(exe), objects=source_objects,
-        policy='Verified staged source-object extents are separate from CFG reachability and canonical acceptance; no coverage or ownership is granted.')
+        policy='Complete source-object extents remain separate from CFG reachability. Only rederived canonical mixed proofs grant coverage; historical ownership remains unknown.')
+    mixed = [row for row in source_objects if row['acceptance']]
     matched_source_bytes=sum(f['size'] for f in promoted)
     ov04_owned={f['id'] for f in promoted if f['hunk']==4}
     ov04_pending=[f for f in analysis.get('functions',[]) if f['hunk']==4
@@ -207,6 +208,8 @@ def derive(root, promotion_evidence=None):
     for h in model['hunks']:
         spans = list(verified) if h['number'] == 1 else []
         spans += [(f['start'],f['end'],'CODE','GAME_C',f['proof']) for f in promoted if f['hunk']==h['number']]
+        spans += [(p['start'],p['end'],'CODE','UNKNOWN',row['proof']) for row in mixed
+                  if row['original']['hunk']==h['number'] for p in row['partitions']]
         spans += [(a['offset'],a['offset']+a['size'],'STRING','UNKNOWN','exact asset filename anchor')
                   for a in anchors if a['hunk'] == h['number']]
         spans.sort()
@@ -266,6 +269,8 @@ def derive(root, promotion_evidence=None):
             overlay_entries_identified=sum(s['hunk'] in node['hunks'] for s in symbols),
             functions_reconstructed=sum(f['hunk'] in node['hunks'] for f in promoted),
             code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks']),data_matched_bytes=0,
+            mixed_source_objects=sum(row['original']['hunk'] in node['hunks'] for row in mixed),
+            mixed_code_matched_bytes=sum(row['size'] for row in mixed if row['original']['hunk'] in node['hunks']),
             relocation_records=sum(r['source_hunk'] in node['hunks'] for r in model['relocations']),
             relocations_resolved=0, current_proof_level=None, evidence_status='TOPOLOGY_OBSERVED',
             next_blocker='TOOLCHAIN-001' if node['id']=='ov07' else 'OWNERSHIP-001'))
@@ -282,6 +287,9 @@ def derive(root, promotion_evidence=None):
         allocation_sum_bytes=allocated, classification_unknown_bytes=unknown,
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
         reconstructed_functions=len(promoted),matched_source_bytes=matched_source_bytes,current_proof_level=None,
+        reconstructed_mixed_objects=len(mixed),
+        matched_mixed_c_bytes=sum(row['c_compiler_bytes'] for row in mixed),
+        matched_asm_bytes=sum(row['sdk_asm_bytes'] for row in mixed),
         highest_individual_contribution_proof=('FUNCTION_WITH_DATA_MATCH' if any(x['state']=='FUNCTION_WITH_DATA_MATCH' for x in promoted)
                                                else 'FUNCTION_CODE_MATCH' if promoted else None),
         function_analysis=analysis.get('summary'),function_analysis_current=analysis_current,
