@@ -261,3 +261,15 @@ six-byte epilogue belongs to C compiler output. This is source-language evidence
 only; no canonical source extent, historical TU or accounting acceptance. Replay
 `python evidence/rules/resident-exit-mechanical/replay.py`; partition inputs are
 in `../evidence/experiments/resident-exit-partition.json`.
+
+Strict staged verification now lives in `tools/resident_mixed.py`; curated
+source-object facts are separate in `evidence/source-facts/resident-exit.json`.
+It rederives the candidate from pinned SDK source, checks the exact harness and
+producing commands, verifies whole-object bounds and all independent callees,
+and decodes all238 bytes with coprocessor support confined to this SDK recipe.
+The16 focused negative/positive controls preserve normal C rejection of inline
+assembly and the runtime public-entry guard. Run `python tools/resident_mixed.py`.
+Its VERIFIED_STAGED_MIXED_OBJECT result explicitly grants no acceptance. Next
+integrate the curated extent and196 C/42 ASM partitions into canonical proofs
+and accounting, with unchanged-source revalidation at that promotion boundary.
+No generated function extent or coverage metric is hand-edited.
