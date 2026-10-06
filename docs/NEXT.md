@@ -4,9 +4,9 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 154 functions / 42,010 C bytes. The generated
+Canonical coverage is 155 functions / 42,040 C bytes. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,494
-compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 148,946 file bytes of
+compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 148,916 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -123,9 +123,9 @@ python tools/hybrid_image.py --refresh --write
 ```
 
 The normal resident CLI promotion passed the full regression gate.
-Census validates all 154 canonical proofs.
+Census validates all 155 canonical proofs.
 Hybrid accounting has zero overlap and zero unaccounted file bytes, and refresh
-replays all 154 retained exact artifacts.
+replays all 155 retained exact artifacts.
 Queue/batch regression tests remain active; fresh compilation of the skipped
 controls is still due. The automatic-unit producer now retains raw conflicting
 TU declarations and derives only the harness's filtered view. The strict
@@ -210,3 +210,15 @@ evidence and making the queue fairness test independent of timestamp ties.
 Original filenames, TU membership, runtime release and DATA/COMMON ownership
 remain unknown. Next bind remaining startup consumers and the original provider.
 See `../evidence/experiments/resident-workbench-source.json`.
+
+Startup-called exit wrapper resident_F_8534 is now canonical:30 C bytes at
+FUNCTION_CODE_MATCH, with its callback access and deeper exit callee bound.
+The deeper resident_F_8552 CFG ends six bytes before the next entry; that
+epilogue remains unclaimed. A complete unmodified SDK exit compile/assemble/link
+produced284 CODE bytes against the original238-byte complete-object hypothesis.
+Retained toolchain failures and full inputs are in resident-exit-object.json;
+next compare cleanup branches before changing source. No original DATA/COMMON
+provider or root layout is accepted. See
+`../evidence/experiments/resident-exit-wrapper.json`,
+`../evidence/experiments/resident-exit-boundary.json` and
+`../evidence/experiments/resident-exit-object.json`.

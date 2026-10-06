@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "target": "resident_F_8552",
+  "status": "BOUNDARY_OBSERVATION_NOT_ACCEPTANCE",
+  "accounting_promoted": false,
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "current_extent": {
+    "node": "resident",
+    "hunk": 0,
+    "start": 34130,
+    "end": 34362,
+    "size": 232,
+    "sha256": "de846fd6df4012ca5468df907d2033164fc38d37b6654af3adcf9767afed6cab",
+    "extent_status": "UNCERTAIN",
+    "confidence": "LOW"
+  },
+  "next_entry": 34368,
+  "following_unclaimed_span": {
+    "start": 34362,
+    "end": 34368,
+    "size": 6,
+    "sha256": "8bbcf55a7f6c830ce15e36c3f30d7d984eb5aea04986ddb60632db0f3951a942",
+    "instructions": [
+      {
+        "offset": 34362,
+        "size": 2,
+        "mnemonic": "move.l",
+        "operands": "(a7)+, d4",
+        "raw": "281f"
+      },
+      {
+        "offset": 34364,
+        "size": 2,
+        "mnemonic": "unlk",
+        "operands": "a5",
+        "raw": "4e5d"
+      },
+      {
+        "offset": 34366,
+        "size": 2,
+        "mnemonic": "rts",
+        "operands": "",
+        "raw": "4e75"
+      }
+    ]
+  },
+  "terminal_stack_restore": {
+    "site": 34356,
+    "mnemonic": "movea.l",
+    "a4_displacement": 13216,
+    "a4_bias": 32766,
+    "original_data_offset": 45982,
+    "role": "Saved-stack correspondence with complete CRT0 initializer; semantic identity remains a reviewed hypothesis."
+  },
+  "sdk_source": {
+    "path": "toolchain/installed/aztec-3.6a/SYS2/crt_src/_exit.c",
+    "sha256": "42de2b14e8a04dd286e1b06dd1904385c6aa94a81d940a9ff627f65979ee69f2",
+    "asm_fragment": "move.l -4(a5),d0; move.l __savsp#,sp; rts"
+  },
+  "limitations": [
+    "The current CFG ends at the inline return; the following ordinary epilogue is outside the measured extent.",
+    "Do not claim the six-byte span as padding or compiler-owned dead code without an independently compiled complete object.",
+    "Normal candidate-C verifier does not support the SDK inline-assembly routine. No source or runtime contribution accepted."
+  ],
+  "next_experiment": {
+    "category": "CFG/BOUNDARY",
+    "question": "Does a complete independently compiled SDK-derived runtime variant reproduce all238 bytes including the terminal ordinary epilogue?",
+    "smallest_change": "Compile complete SDK _exit source and compare whole-object extent, ordinary instructions and address fields; retain incompatible runtime branches rather than clipping the object."
+  }
+}

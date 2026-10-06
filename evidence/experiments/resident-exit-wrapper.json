@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "target": "resident_F_8534",
+  "status": "PROMOTED",
+  "accounting_promoted": true,
+  "task_card": {
+    "head": "901ac51ecef91a8c5427ef6122ece24571504ced",
+    "canonical_ledger_sha256": "4f66409d2a9c078e0fb37e17372696ae13946fba9838ee580c4c826fc79f2790",
+    "target": "resident_F_8534",
+    "extent": {
+      "node": "resident",
+      "hunk": 0,
+      "start": 34100,
+      "end": 34130,
+      "size": 30,
+      "sha256": "52ffcc566cc8682f3c05e63ca8eb516c0ac25e4fb34c8b1e658bedcba55897f6",
+      "extent_status": "CLOSED_CFG",
+      "confidence": "HIGH"
+    },
+    "profile": "aztec36-x3",
+    "blocker_category": "SOURCE_SHAPE",
+    "trial_budget": 2,
+    "stagnation_limit": 1,
+    "plan": "Prove the complete startup-called ordinary C exit wrapper; no deeper inline-assembly runtime acceptance."
+  },
+  "source": "src/recovered/resident/resident_F_8534.c",
+  "source_sha256": "520325cafe7bd4101bd80b134c3a6b4735e9ef575d1187b8865e8f32fa475c55",
+  "proof": "recovery/proofs/resident_F_8534.json",
+  "proof_sha256": "2f959ef46bd022e01fcfbab5644c73a5811dd04491c200332a0a261cfd45d856",
+  "code_bytes": 30,
+  "proof_level": "FUNCTION_CODE_MATCH",
+  "regression": {
+    "command": "python -m unittest discover -s tests",
+    "input_sha256": "f586d4727645fe245d8a4de3fb646220c60df61d69ec030d6f1a017cad54866d",
+    "output_sha256": "3c3ec9e592e20c0c986cc1f661d3d2be93ff953b95430707f0caefc7b2ad5379",
+    "passed": true
+  },
+  "trials": [
+    {
+      "actual_length": null,
+      "cache_hit": false,
+      "cache_key": "d5713b62e3b346f78c6bf42a048284b286cc490b0fc7099a0a00ffb04b37d0e2",
+      "comparison_identity": "6382841bcd9c46cbf5925394dfa6164718658ad3a0109f6fa3932292e6163bda",
+      "compile_returncodes": [],
+      "compiler": "aztec36-x3",
+      "compiler_feedback": [
+        {
+          "file": "harness-validation",
+          "text": "extern function must use old-style empty parameter list"
+        }
+      ],
+      "expected_length": 30,
+      "flags": [
+        "+X3"
+      ],
+      "id": "resident_F_8534",
+      "proof_level": null,
+      "reason": "SOURCE_REJECTED",
+      "relocation_equal": false,
+      "source_sha256": "ec8a1584dd10f87314bf2d603d701c05b5177c1853612f84dd200871da1fe753",
+      "unit_blocker": "unrecovered same-node dependency: resident_F_8552",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": 30,
+      "actual_sha256": "1950e8efdcd3315674bb80338832b36f371ea48c4395bdb37698ec5440b1b26f",
+      "cache_hit": false,
+      "cache_key": "915a8cbad3d1cd20b6cfa9072a027ba7e509715e66b3d0526eee2a063d72b3d6",
+      "comparison_identity": "6382841bcd9c46cbf5925394dfa6164718658ad3a0109f6fa3932292e6163bda",
+      "compiler": "aztec36-x3",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 24,
+            "operands": "#$2, a7",
+            "raw": "544f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 26,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 28,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "addq.w",
+            "offset": 24,
+            "operands": "#$2, a7",
+            "raw": "544f",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 26,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 28,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 30,
+      "expected_sha256": "52ffcc566cc8682f3c05e63ca8eb516c0ac25e4fb34c8b1e658bedcba55897f6",
+      "first_structural_instruction_difference": null,
+      "flags": [
+        "+X3"
+      ],
+      "id": "resident_F_8534",
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "52ffcc566cc8682f3c05e63ca8eb516c0ac25e4fb34c8b1e658bedcba55897f6",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$0",
+            "raw": "4e550000",
+            "size": 4
+          },
+          {
+            "mnemonic": "tst.l",
+            "offset": 4,
+            "operands": "-$7fee(a4)",
+            "raw": "4aac8012",
+            "size": 4
+          },
+          {
+            "mnemonic": "beq.b",
+            "offset": 8,
+            "operands": "$10",
+            "raw": "6706",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$0",
+            "raw": "4e550000",
+            "size": 4
+          },
+          {
+            "mnemonic": "tst.l",
+            "offset": 4,
+            "operands": "$33c6(a4)",
+            "raw": "4aac33c6",
+            "size": 4
+          },
+          {
+            "mnemonic": "beq.b",
+            "offset": 8,
+            "operands": "$10",
+            "raw": "6706",
+            "size": 2
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "80126706206c80124e903f2d00084eba",
+        "actual_size": 30,
+        "expected": "33c66706206c33c64e903f2d00084eba",
+        "expected_size": 30,
+        "offset": 6
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [],
+        "expected": []
+      },
+      "relocation_proof": [
+        {
+          "expected": [
+            1,
+            46020
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 46020,
+            "symbol": "_G_h01_B3C4"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 6
+        },
+        {
+          "expected": [
+            1,
+            46020
+          ],
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 46020,
+            "symbol": "_G_h01_B3C4"
+          },
+          "kind": "A4_D16_SYMBOL",
+          "offset": 12
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 0,
+            "offset": 34130,
+            "symbol": "_F_h00_8552"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 22,
+          "width": 2
+        }
+      ],
+      "source_sha256": "520325cafe7bd4101bd80b134c3a6b4735e9ef575d1187b8865e8f32fa475c55",
+      "unit_blocker": "unrecovered same-node dependency: resident_F_8552",
+      "verdict": "EQUAL"
+    }
+  ],
+  "limitations": [
+    "Callback slot is a function-proved access view, not original DATA/COMMON ownership.",
+    "Deeper exit body remains unaccepted and its complete boundary unproved.",
+    "Original filenames, TU membership and exact runtime release remain unknown."
+  ]
+}

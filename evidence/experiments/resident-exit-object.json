@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "status": "COMPLETE_SDK_OBJECT_INCOMPATIBLE_SIZE",
+  "accounting_promoted": false,
+  "job": "wave23-exit-object-001",
+  "job_receipt_sha256": "4cf4a6e9832e146e82543f35fbb88624b17cb3b84d0735b4fd19ed149c0d9ca5",
+  "all_steps_succeeded": true,
+  "profile": "aztec36-x3",
+  "sdk_source": "toolchain/installed/aztec-3.6a/SYS2/crt_src/_exit.c",
+  "sdk_source_sha256": "42de2b14e8a04dd286e1b06dd1904385c6aa94a81d940a9ff627f65979ee69f2",
+  "code_bytes": 284,
+  "original_cfg_bytes": 232,
+  "original_complete_object_hypothesis_bytes": 238,
+  "size_difference": 46,
+  "object_dialect": "AJ",
+  "artifacts": [
+    {
+      "path": "evidence/rules/resident-exit-object/exit-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "bytes": 37
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/exit-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "bytes": 72
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/exit-control",
+      "sha256": "2ec2611c25c446289b0f7631af9f18dc489146dca39d5be65d27b8292a0b9d99",
+      "bytes": 1900
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/exit-control.sym",
+      "sha256": "5ec52b9e817b204edb61f04f0104aa1d75d00d2c02a62ffbf51bef694413b3af",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/exit.asm",
+      "sha256": "c2c3f034cb516eeb2e902651604f6813057c7300ae5e17d4a1665f6d55fd9e69",
+      "bytes": 2238
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/exit.c",
+      "sha256": "42de2b14e8a04dd286e1b06dd1904385c6aa94a81d940a9ff627f65979ee69f2",
+      "bytes": 1590
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/exit.o",
+      "sha256": "fef7e42977754ba62a6633e7272e124c64eff23b7f453919ff70eff76c30437b",
+      "bytes": 788
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/root.asm",
+      "sha256": "82d388a718c7afd1e762c1fe6be90aab81a6a4b0e7f5a617520ebb610fa0b968",
+      "bytes": 151
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/root.c",
+      "sha256": "fb47adaec93a3deada2beea9963d86867cf2feded40ae211b92111293a126948",
+      "bytes": 22
+    },
+    {
+      "path": "evidence/rules/resident-exit-object/root.o",
+      "sha256": "f3193f62a928631bc0cbeb89aecf8ff999161a2aba58e6a492c792921805fb16",
+      "bytes": 76
+    }
+  ],
+  "limitations": [
+    "Ordinary source/library identity and address bindings are not accepted.",
+    "Link map switch -m emitted only memory summary, so no linked symbol-bounded slice is claimed.",
+    "Object size alone rejects the unmodified SDK contribution; do not clip its runtime branches or terminal epilogue."
+  ],
+  "failures_retained": [
+    {
+      "category": "TOOLCHAIN",
+      "reason": "Relative preparation source_dir rejected before guest launch."
+    },
+    {
+      "category": "TOOLCHAIN",
+      "reason": "Missing explicit SDK include-path option."
+    },
+    {
+      "category": "TOOLCHAIN",
+      "reason": "Missing -a produced CJ object, not assembly."
+    }
+  ],
+  "next_experiment": {
+    "category": "RUNTIME/LIBRARY",
+    "question": "Which positively evidenced SDK/runtime variant accounts for the46-byte difference and all original global/callee identities?",
+    "smallest_change": "Compare compiler assembly CFG with original to isolate changed cleanup branches before editing source or running another trial."
+  }
+}

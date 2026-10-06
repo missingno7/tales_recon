@@ -1,0 +1,355 @@
+{
+  "artifacts": [
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+      "size": 40
+    },
+    {
+      "path": "h000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "h000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "h000.asm",
+      "sha256": "bf16a74721c476218b6eea2778df94552760cfe553c54320525b1b06f5543c6f",
+      "size": 408
+    },
+    {
+      "path": "h000.c",
+      "sha256": "c22690716ec669980583815f5599e5bdc581371185de29d8e2dced753a25c42f",
+      "size": 187
+    },
+    {
+      "path": "h000.o",
+      "sha256": "0c8e5e543cb8d47286cbfab9bf06e04a6b05cc17b5bd4d89a65bbc01b4773993",
+      "size": 164
+    },
+    {
+      "path": "t000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "t000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "t000-ln.log",
+      "sha256": "81bba6c1e324056fc7538ab6e0889a2143fe6bbe556e4b49ff123bc16fa41977",
+      "size": 105
+    },
+    {
+      "path": "t000.asm",
+      "sha256": "76f5935101b95e3ebf61339c5c11dbd91bc1ba5a31ae37998f5f27876166af9f",
+      "size": 300
+    },
+    {
+      "path": "t000.c",
+      "sha256": "520325cafe7bd4101bd80b134c3a6b4735e9ef575d1187b8865e8f32fa475c55",
+      "size": 297
+    },
+    {
+      "path": "t000.exe",
+      "sha256": "2751fc25d9ab680d7ffe7f8353de43acf60b48745b3a9ec1655ca83141ec68f4",
+      "size": 1964
+    },
+    {
+      "path": "t000.o",
+      "sha256": "e7c303fc203e0466d7fe004942120fc262fa5fc24ff606ee7e79e7dbfbbe3198",
+      "size": 140
+    },
+    {
+      "path": "t000.sym",
+      "sha256": "96652fb1365bf7f5e91892c6cb0ed4324c88e35947ebfa1e965cfc81a4e8579a",
+      "size": 1436
+    }
+  ],
+  "cache_key": "915a8cbad3d1cd20b6cfa9072a027ba7e509715e66b3d0526eee2a063d72b3d6",
+  "comparison": {
+    "actual_length": 30,
+    "actual_sha256": "1950e8efdcd3315674bb80338832b36f371ea48c4395bdb37698ec5440b1b26f",
+    "cache_hit": true,
+    "cache_key": "915a8cbad3d1cd20b6cfa9072a027ba7e509715e66b3d0526eee2a063d72b3d6",
+    "comparison_identity": "6382841bcd9c46cbf5925394dfa6164718658ad3a0109f6fa3932292e6163bda",
+    "compiler": "aztec36-x3",
+    "data_contributions": {
+      "candidate_bss": 0,
+      "candidate_data": 0,
+      "expected_owned_data": "NOT_CLAIMED"
+    },
+    "epilogue": {
+      "actual": [
+        {
+          "mnemonic": "addq.w",
+          "offset": 24,
+          "operands": "#$2, a7",
+          "raw": "544f",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 26,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 28,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "addq.w",
+          "offset": 24,
+          "operands": "#$2, a7",
+          "raw": "544f",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 26,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 28,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ]
+    },
+    "expected_length": 30,
+    "expected_sha256": "52ffcc566cc8682f3c05e63ca8eb516c0ac25e4fb34c8b1e658bedcba55897f6",
+    "first_structural_instruction_difference": null,
+    "flags": [
+      "+X3"
+    ],
+    "id": "resident_F_8534",
+    "mnemonic_similarity": 1.0,
+    "normalized_first_difference": null,
+    "normalized_sha256": "52ffcc566cc8682f3c05e63ca8eb516c0ac25e4fb34c8b1e658bedcba55897f6",
+    "prologue": {
+      "actual": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$0",
+          "raw": "4e550000",
+          "size": 4
+        },
+        {
+          "mnemonic": "tst.l",
+          "offset": 4,
+          "operands": "-$7fee(a4)",
+          "raw": "4aac8012",
+          "size": 4
+        },
+        {
+          "mnemonic": "beq.b",
+          "offset": 8,
+          "operands": "$10",
+          "raw": "6706",
+          "size": 2
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$0",
+          "raw": "4e550000",
+          "size": 4
+        },
+        {
+          "mnemonic": "tst.l",
+          "offset": 4,
+          "operands": "$33c6(a4)",
+          "raw": "4aac33c6",
+          "size": 4
+        },
+        {
+          "mnemonic": "beq.b",
+          "offset": 8,
+          "operands": "$10",
+          "raw": "6706",
+          "size": 2
+        }
+      ]
+    },
+    "proof_level": "FUNCTION_CODE_MATCH",
+    "raw_first_difference": {
+      "actual": "80126706206c80124e903f2d00084eba",
+      "actual_size": 30,
+      "expected": "33c66706206c33c64e903f2d00084eba",
+      "expected_size": 30,
+      "offset": 6
+    },
+    "reason": "COMPLETE_CONTRIBUTION",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_profiles": {
+      "actual": [],
+      "expected": []
+    },
+    "relocation_proof": [
+      {
+        "expected": [
+          1,
+          46020
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 46020,
+          "symbol": "_G_h01_B3C4"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 6
+      },
+      {
+        "expected": [
+          1,
+          46020
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 46020,
+          "symbol": "_G_h01_B3C4"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 12
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 34130,
+          "symbol": "_F_h00_8552"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 22,
+        "width": 2
+      }
+    ],
+    "source_sha256": "520325cafe7bd4101bd80b134c3a6b4735e9ef575d1187b8865e8f32fa475c55",
+    "unit_blocker": "unrecovered same-node dependency: resident_F_8552",
+    "verdict": "EQUAL"
+  },
+  "compiler": {
+    "candidate_overlay_node": 0,
+    "compiler_version": "3.6a",
+    "flags": [
+      "+X3"
+    ],
+    "harness_sha256": "c22690716ec669980583815f5599e5bdc581371185de29d8e2dced753a25c42f",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o candidate.o c.lib; -m -t",
+    "profile": "aztec36-x3",
+    "resident_link_sha256": "5b11675ab8a3a0d134cc831ca12c92d54498b335f82e16b2992fe41ccf05d540",
+    "resident_object_extractor_sha256": "6dd909b9e3bb72ca096c790d9852b8e054d8f88fb4c9b10d04607aff1ad39678",
+    "service_version": 1,
+    "source_sha256": "520325cafe7bd4101bd80b134c3a6b4735e9ef575d1187b8865e8f32fa475c55",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "2bbbdc20815156d038f9f214cfd0318d6f73a29d8c379918a1d7fc7006a68d6f"
+  },
+  "compiler_selection": "Matching candidate; historical release remains ambiguous",
+  "data_ownership": "External references only; no candidate-owned data or padding omitted",
+  "dependencies": [
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_8552",
+      "offset": 34130,
+      "site": 34120
+    }
+  ],
+  "evidence_extent": {
+    "end": 34130,
+    "extent_status": "CLOSED_CFG",
+    "hunk": 0,
+    "sha256": "52ffcc566cc8682f3c05e63ca8eb516c0ac25e4fb34c8b1e658bedcba55897f6",
+    "size": 30,
+    "start": 34100
+  },
+  "id": "resident_F_8534",
+  "object_hash": "e7c303fc203e0466d7fe004942120fc262fa5fc24ff606ee7e79e7dbfbbe3198",
+  "regression": {
+    "command": "python -m unittest discover -s tests",
+    "input_sha256": "f586d4727645fe245d8a4de3fb646220c60df61d69ec030d6f1a017cad54866d",
+    "output_sha256": "3c3ec9e592e20c0c986cc1f661d3d2be93ff953b95430707f0caefc7b2ad5379",
+    "passed": true
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        46020
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 46020,
+        "symbol": "_G_h01_B3C4"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 6
+    },
+    {
+      "expected": [
+        1,
+        46020
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 46020,
+        "symbol": "_G_h01_B3C4"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 12
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 34130,
+        "symbol": "_F_h00_8552"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 22,
+      "width": 2
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/resident/resident_F_8534.c",
+  "source_sha256": "520325cafe7bd4101bd80b134c3a6b4735e9ef575d1187b8865e8f32fa475c55",
+  "state": "FUNCTION_CODE_MATCH",
+  "verifier_identity": {
+    "check_function.py": "7df09bf281c2127c09479b441ca60ecbcb0a4caaed213afb52ed98654bca2833",
+    "compiler_oracle.py": "3f7d4da820be17368a455df315c5ef217902ca276edad1ba4754a460f88a9bb1",
+    "function_compare.py": "e9fcf48c3ebbeefb58ef6be779fdcd9a9a30f881b712eb1132da8609386632bb",
+    "runtime_arithmetic.py": "ac504401940c27a97ab314de6f711f7bdb0dd861dc1937ec988681fc11043d68"
+  }
+}
