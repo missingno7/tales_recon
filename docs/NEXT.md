@@ -273,3 +273,17 @@ Its VERIFIED_STAGED_MIXED_OBJECT result explicitly grants no acceptance. Next
 integrate the curated extent and196 C/42 ASM partitions into canonical proofs
 and accounting, with unchanged-source revalidation at that promotion boundary.
 No generated function extent or coverage metric is hand-edited.
+
+The normal census now revalidates curated mixed source-object facts into
+`evidence/functions/source-objects.json`. It retains both the232-byte uncertain
+CFG and independently proved238-byte complete object, with196 C/42 ASM bytes;
+this staged view grants no canonical acceptance or coverage. Nested entries,
+conflicting descent extents, accepted-source overlaps and attempted substitution
+for a canonical proof are rejected. Scoped census reuse hashes the curated fact,
+SDK source, retained artifact graph and independently checked library inputs;
+edits or removed facts invalidate reuse. A fresh isolated historical-toolchain run
+reproduces the unchanged sources, assembly, objects, linked executable and symbol
+map byte for byte, and passes the strict verifier. See
+`../evidence/experiments/resident-exit-refresh.json`. Next implement canonical
+mixed-source proof/promotion and language-aware accounting using this separate
+extent basis; keep ordinary C and runtime public-entry guards intact.

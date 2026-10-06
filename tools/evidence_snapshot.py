@@ -67,6 +67,8 @@ class Snapshot:
         for path in sorted((root / 'tools').glob('*.py')):read(path)
         read(root / 'evidence/fixture-lock.json')
         if strict:
+            from resident_mixed import source_object_inputs
+            for name in source_object_inputs(root):read(root / name)
             analysis = document(root / 'evidence/functions/ledger.json')
             for name in analysis.get('analysis_identity', {}):read(root / 'tools' / name)
             for name in ('runtime-matches.json', 'overlay-topology.json'):

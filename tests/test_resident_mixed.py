@@ -13,7 +13,7 @@ from common import FormatError, sha256
 from analysis_support import game
 from recovery_state import evidence
 from recovery_evidence import load_promotions
-from resident_mixed import FACT, verify
+from resident_mixed import FACT, verify, load_source_objects
 from compiler_oracle import validate_source
 
 
@@ -83,6 +83,71 @@ class ResidentMixedTests(unittest.TestCase):
         source = (self.root / self.document['mechanical_directory'] / 'candidate.c').read_text()
         with self.assertRaisesRegex(FormatError, 'inline assembly'):
             validate_source(source)
+
+    def source_objects(self, analysis=None, promotions=None, ledger=None):
+        return load_source_objects(self.root, self.blob, self.model, analysis or self.analysis,
+                                   promotions or self.promotions, ledger or self.ledger)
+
+    def test_generated_source_extent_keeps_cfg_and_language_separate(self):
+        before = copy.deepcopy(self.analysis)
+        row, = self.source_objects()
+        self.assertEqual(self.analysis, before)
+        self.assertFalse(row['acceptance'])
+        self.assertEqual((row['cfg_extent']['size'], row['size']), (232, 238))
+        self.assertEqual(row['original']['end'], 34368)
+        self.assertEqual(sum(p['end'] - p['start'] for p in row['partitions']), 238)
+        self.assertEqual(sum(p['end'] - p['start'] for p in row['partitions']
+                             if p['language'] == 'ASM'), 42)
+        self.assertEqual(row['original_tu'], 'UNKNOWN')
+
+    def test_source_extent_rejects_conflicting_cfg(self):
+        analysis = copy.deepcopy(self.analysis)
+        entry = next(f for f in analysis['functions'] if f['id'] == self.document['id'])
+        entry['end'] = self.document['original']['end'] + 2
+        with self.assertRaisesRegex(FormatError, 'descent extent conflicts'):
+            self.source_objects(analysis=analysis)
+
+    def test_source_extent_rejects_nested_entry(self):
+        analysis = copy.deepcopy(self.analysis)
+        analysis['functions'].append(dict(id='nested', hunk=0, start=34362))
+        with self.assertRaisesRegex(FormatError, 'contains another entry'):
+            self.source_objects(analysis=analysis)
+
+    def test_staged_extent_rejects_overlap_with_canonical_source(self):
+        promotions = self.promotions + [dict(id='overlap', hunk=0, start=34362, end=34368)]
+        with self.assertRaisesRegex(FormatError, 'overlaps accepted source'):
+            self.source_objects(promotions=promotions)
+
+    def test_staged_extent_cannot_replace_canonical_proof(self):
+        ledger = copy.deepcopy(self.ledger)
+        ledger['functions'][self.document['id']] = dict(state='FUNCTION_CODE_MATCH')
+        with self.assertRaisesRegex(FormatError, 'already promoted'):
+            self.source_objects(ledger=ledger)
+
+    def test_scoped_census_binds_mixed_artifacts_and_fact_presence(self):
+        from evidence_snapshot import Snapshot
+        (self.root / 'assets').mkdir()
+        (self.root / 'assets/fixture.adf').write_bytes(b'fixture')
+        (self.root / 'tools').mkdir()
+        snapshot = Snapshot()
+        calls = []
+        def loader():
+            calls.append(True)
+            return {'count': len(calls)}
+        snapshot.load(self.root, True, loader)
+        snapshot.load(self.root, True, loader)
+        self.assertEqual(len(calls), 1)
+        artifact = self.root / self.document['partition_directory'] / 'candidate.sym'
+        artifact.write_bytes(artifact.read_bytes() + b'\n')
+        snapshot.load(self.root, True, loader)
+        self.assertEqual(len(calls), 2)
+        sdk = self.root / self.document['sdk_source']
+        sdk.write_bytes(sdk.read_bytes() + b'\n')
+        snapshot.load(self.root, True, loader)
+        self.assertEqual(len(calls), 3)
+        (self.root / FACT).unlink()
+        snapshot.load(self.root, True, loader)
+        self.assertEqual(len(calls), 4)
 
     def test_source_edit_with_rehashed_receipt_rejects(self):
         self.change(self.document['mechanical_directory'], 'candidate.c', lambda b: b.replace(b'fd = 0', b'fd = 1'))

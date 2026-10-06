@@ -96,6 +96,13 @@ def derive(root, promotion_evidence=None):
     if analysis:require(analysis['game_sha256']==sha256(exe),'function census belongs to another game fixture')
     analysis_current=bool(analysis) and all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in analysis.get('analysis_identity',{}).items())
     promoted=load_promotions(root,exe,model,analysis)
+    from resident_mixed import load_source_objects
+    ledger_path = root / 'recovery/ledger.json'
+    ledger = json.loads(ledger_path.read_bytes()) if ledger_path.exists() else dict(functions={})
+    source_objects = load_source_objects(root, exe, model, analysis, promoted, ledger)
+    outputs['evidence/functions/source-objects.json'] = dict(schema_version=1,
+        game_sha256=sha256(exe), objects=source_objects,
+        policy='Verified staged source-object extents are separate from CFG reachability and canonical acceptance; no coverage or ownership is granted.')
     matched_source_bytes=sum(f['size'] for f in promoted)
     ov04_owned={f['id'] for f in promoted if f['hunk']==4}
     ov04_pending=[f for f in analysis.get('functions',[]) if f['hunk']==4

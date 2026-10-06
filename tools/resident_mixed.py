@@ -290,6 +290,86 @@ def verify(root, blob, model, analysis, promotions, ledger, *, fact=None):
                 source_sha256=sha256(source.encode('ascii')), storage_ownership='UNKNOWN')
 
 
+def load_source_objects(root, blob, model, analysis, promotions, ledger):
+    """Reconcile curated whole-object evidence with descent, without promotion.
+
+    CFG reachability and compiler object extent answer different questions.
+    Keep both; a staged source fact cannot enlarge normal C acceptance bounds.
+    No recorded experiment verdict or generated metric is trusted here.
+    """
+    path = canonical_path(root, FACT)
+    if not path.exists():
+        return []
+    raw = path.read_bytes()
+    fact = json.loads(raw)
+    report = verify(root, blob, model, analysis, promotions, ledger, fact=fact)
+    matches = [f for f in analysis['functions'] if f['id'] == fact['id']]
+    require(len(matches) == 1, 'mixed descent entry missing or duplicated')
+    cfg = matches[0]; original = fact['original']
+    require(cfg['hunk'] == original['hunk'] and cfg['start'] == original['start'] and
+            cfg['start'] < cfg['end'] <= original['end'] and cfg['size'] == cfg['end'] - cfg['start'],
+            'mixed descent extent conflicts')
+    require(cfg['sha256'] == sha256(contribution(blob, model, cfg['hunk'], cfg['start'], cfg['size'])),
+            'mixed descent bytes differ')
+    require(cfg['id'] not in ledger['functions'], 'mixed staged object already promoted')
+    require(not any(f['id'] != cfg['id'] and f['hunk'] == cfg['hunk'] and
+                    original['start'] < f['start'] < original['end']
+                    for f in analysis['functions']), 'mixed source object contains another entry')
+    require(not any(p['hunk'] == cfg['hunk'] and p['start'] < original['end'] and
+                    p['end'] > original['start'] for p in promotions),
+            'mixed source object overlaps accepted source')
+    return [dict(id=fact['id'], status=report['status'], acceptance=False,
+                 fact=dict(path=FACT, sha256=sha256(raw)),
+                 source_sha256=report['source_sha256'],
+                 original=original, size=report['code_bytes'],
+                 cfg_extent={k: cfg[k] for k in ('start', 'end', 'size', 'extent_status', 'confidence')},
+                 extent_basis='PINNED_SDK_DERIVATION_AND_COMPLETE_LINKED_OBJECT',
+                 partitions=[dict(language=language, start=original['start'] + lo,
+                                  end=original['start'] + hi) for language, lo, hi in fact['partitions']],
+                 c_compiler_bytes=report['c_compiler_bytes'], sdk_asm_bytes=report['sdk_asm_bytes'],
+                 field_identities=report['field_identities'],
+                 original_storage_ownership='UNKNOWN', original_filename='UNKNOWN', original_tu='UNKNOWN')]
+
+
+def source_object_inputs(root):
+    """Complete extra read graph for scoped census reuse, including absence.
+
+    The verifier still rederives all claims on each cache miss. Hashing this graph
+    only permits reuse while its actual inputs remain unchanged.
+    """
+    from repo_paths import active_files
+    root = Path(root).resolve()
+    paths = {FACT}
+    fact_path = canonical_path(root, FACT)
+    if not fact_path.exists():
+        return sorted(paths)
+    fact = json.loads(fact_path.read_bytes())
+    paths.update([fact['sdk_source'], 'evidence/toolchain/aztec-3.6a.json',
+                  'evidence/contributions/library-a4.json'])
+    for key in ('mechanical_directory', 'partition_directory', 'leaf_directory'):
+        directory = canonical_path(root, fact[key])
+        paths.update(p.relative_to(root).as_posix() for p in active_files(directory))
+        receipt_path = fact[key] + '/receipt.json'; paths.add(receipt_path)
+        if canonical_path(root, receipt_path).exists():
+            receipt = json.loads(read(root, receipt_path))
+            paths.update(t['path'] for t in receipt['tool_inputs'])
+    library = json.loads(read(root, 'evidence/contributions/library-a4.json'))
+    paths.update([library['library']['path'], library['basis']['path']])
+    paths.update(a['path'] for a in library['archives'])
+    for group in library['groups']:
+        for obj in group['objects']:
+            paths.add(obj['source'])
+            paths.update(obj[k]['path'] for k in ('library', 'assembled'))
+        for control_row in group['controls']:
+            paths.add(control_row['root_source'])
+            paths.update(control_row[k]['path'] for k in ('executable', 'symbols', 'root_object'))
+    for claim in library['receipts']:
+        paths.add(claim['path'])
+        receipt = json.loads(read(root, claim['path']))
+        paths.update(t['path'] for t in receipt['tool_inputs'])
+    return sorted(paths)
+
+
 def main():
     from analysis_support import ROOT, game
     from recovery_state import evidence
