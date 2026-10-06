@@ -166,7 +166,8 @@ def object_specs(trial):
 
 def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered',extra_libraries=(),same_overlay_exports=None):
     validate_source(source,entry_function);p=PROFILES[profile];h=harness(source,target_node,local_functions,entry_function,same_overlay_exports);proxies=overlay_proxies(source,target_node)
-    require(target_node>=1,'candidate overlay node must be positive')
+    require(type(target_node) is int and target_node>=0,'candidate node must be nonnegative')
+    require(target_node!=0 or same_overlay_exports is None,'resident objects cannot use same-overlay export roots')
     extra_libraries=tuple(extra_libraries)
     require(len(set(extra_libraries))==len(extra_libraries),'duplicate additional link library')
     additional=[]
@@ -185,11 +186,18 @@ def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_
     recipe='harness.o +o%d '%target_node+' '.join(label+'.o' for label in object_labels)
     if proxies:recipe+=' '+' '.join('+o%d %s.o'%(x['node'],x['name']) for x in proxies)
     recipe+=' +o0 c.lib' + ''.join(' '+x['library'] for x in additional) + '; -m -t'
+    if target_node==0:
+        recipe='harness.o '+' '.join(label+'.o' for label in object_labels)
+        if proxies:recipe+=' '+' '.join('+o%d %s.o'%(x['node'],x['name']) for x in proxies)+' +o0'
+        recipe+=' c.lib'+''.join(' '+x['library'] for x in additional)+'; -m -t'
     keydata=dict(service_version=SERVICE_VERSION,source_sha256=sha256(source.encode('ascii')),
         profile=profile,compiler_version=p['version'],tools=versions,flags=p['flags'],harness_sha256=sha256(h.encode('ascii')),
         headers_sha256=sha256(b''),library=library,library_guest=('Old2:' if profile=='aztec36-long' else p['guest']),library_sha256=sha256(lib.read_bytes()),
         link_recipe=recipe,worker_sha256=sha256((ROOT/'tools/aztec_worker.py').read_bytes()))
     if additional:keydata['additional_libraries']=additional
+    if target_node==0:
+        keydata['resident_object_extractor_sha256']=sha256((ROOT/'tools/resident_object.py').read_bytes())
+        keydata['resident_link_sha256']=sha256((ROOT/'tools/link_line.py').read_bytes())
     if same_overlay_exports is not None:
         require(objects is not None,'same-overlay export roots require actual unit objects')
         keydata['same_overlay_exports']=same_overlay_exports
@@ -231,12 +239,13 @@ def cached(key):
         require((dest/a['path']).is_file() and sha256((dest/a['path']).read_bytes())==a['sha256'],'cached artifact changed: '+a['path'])
     if r['status']=='COMPILED':
         require(extract(dest,r['prefix'],r['identity'].get('object_labels'),
-                        r['identity'].get('entry_function','recovered'),r['identity'].get('same_overlay_exports'))==r['contribution'],
+                        r['identity'].get('entry_function','recovered'),r['identity'].get('same_overlay_exports'),
+                        **({'resident':True} if 'resident_object_extractor_sha256' in r['identity'] else {}))==r['contribution'],
                 'cached contribution metadata changed')
     return dict(r,cache_hit=True,directory=str(dest))
 
 
-def extract(directory,prefix,object_labels=None,entry_function='recovered',same_overlay_exports=None):
+def extract(directory,prefix,object_labels=None,entry_function='recovered',same_overlay_exports=None,*,resident=False):
     blob=(directory/(prefix+'.exe')).read_bytes();model=parse(blob)
     overlay=manx_overlay(model,blob) if model['overlay'] is not None else None
     labels=object_labels or ['candidate']
@@ -253,19 +262,28 @@ def extract(directory,prefix,object_labels=None,entry_function='recovered',same_
     entries=[(h,v) for (h,n),v in sym.items() if n==symbol_name]
     require(len(entries)==1,'expected one '+symbol_name+' symbol')
     hnum,start=entries[0];h=next(h for h in model['hunks'] if h['number']==hnum)
-    require(h['node']!='resident' and 0<=start<code_size,'candidate symbol must lie inside its natural overlay contribution')
-    require(h['initialized_size']==(code_size+3)//4*4,'object/HUNK size mismatch')
-    raw=blob[h['content_offset']:h['content_offset']+code_size]
-    require(blob[h['content_offset']+code_size:h['content_offset']+h['initialized_size']]==bytes((-code_size)%4),'nonzero HUNK padding')
+    base=0;root_bounds=None
+    if resident:
+        require(hnum==0 and same_overlay_exports is None,'resident entry/exports differ')
+        from resident_object import bounds
+        base,start,root_bounds=bounds(directory,prefix,labels,model,sym,entry_function)
+        require(root_bounds['end']-base==code_size,'resident object size differs')
+    else:
+        require(h['node']!='resident' and 0<=start<code_size,'candidate symbol must lie inside its natural overlay contribution')
+        require(h['initialized_size']==(code_size+3)//4*4,'object/HUNK size mismatch')
+        require(blob[h['content_offset']+code_size:h['content_offset']+h['initialized_size']]==bytes((-code_size)%4),'nonzero HUNK padding')
+    raw=blob[h['content_offset']+base:h['content_offset']+base+code_size]
     result=dict(code_hex=raw.hex(),code_size=code_size,data_size=data_size,bss_size=bss_size,hunk=hnum,
         object_sha256=sha256(obj),executable_sha256=sha256(blob),hunks=model['hunks'],
-        relocations=[dict(r,relative_offset=r['source_offset']) for r in model['relocations'] if r['source_hunk']==hnum],
+        relocations=[dict(r,relative_offset=r['source_offset']-base) for r in model['relocations']
+                     if r['source_hunk']==hnum and base<=r['source_offset']<base+code_size],
         all_relocations=model['relocations'],symbols=[dict(hunk=h,name=n,offset=v) for (h,n),v in sym.items()])
     # Old ordinary cache entries intentionally have no overlay-table payload.
     # Only proxy builds need this extra semantic evidence for call resolution.
     if overlay and (same_overlay_exports is not None or any(directory.glob('p*.o'))):
         result['overlay_trampolines']=[s for slot in overlay['slots'] for s in slot['symbols']]
     if start:result['entry_offset']=start
+    if root_bounds is not None:result.update(code_offset=base,resident_bounds=root_bounds)
     return result
 
 
@@ -352,7 +370,8 @@ def compile_many(trials):
             if receipt['status']=='COMPILED':
                 try:
                     receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
-                                                    item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'))
+                                                    item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'),
+                                                    **({'resident':True} if 'resident_object_extractor_sha256' in item['meta'] else {}))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
             write_json(dest/'receipt.json',receipt)

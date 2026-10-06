@@ -200,7 +200,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
         # Opt-in: canonical unit members compile with their own proof's
         # profile (separate objects only; see check_unit.member_profile_plan).
         per_member=bool(req.get('per_member_profiles'))
-        target_node=f['hunk']-2 if f.get('node')!='resident' and f.get('hunk',0)>=3 else 1
+        target_node=f['hunk']-2 if f.get('node')!='resident' and f.get('hunk',0)>=3 else 0
         source_hash=sha256(source.encode())
         if not isolated:
             retained=ROOT/'build/recovery/candidates'/f['id']/(source_hash+'.c')

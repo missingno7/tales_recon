@@ -122,7 +122,7 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-Latest full regression: 411 tests, 9 skipped (local compilation-cache controls
+Latest full regression: 417 tests, 9 skipped (local compilation-cache controls
 and an already-canonical promotion control). Census
 validates all 152 canonical proofs. Hybrid accounting has zero overlap and zero
 unaccounted file bytes, and refresh replays all 152 retained exact artifacts.
@@ -195,12 +195,19 @@ global-role correspondences remain advisory and storage ownership is UNKNOWN.
 See `../evidence/experiments/cliparse-x3.json`; failed earlier controls remain in
 cliparse-frontier.json. No source, literal or runtime bytes were promoted.
 
-The next concrete gate is normal resident verification: compiler_oracle currently
-requires a positive overlay node and extraction rejects resident symbols, while
-check_function/check_unit place resident targets in node1. Extend that existing
-boundary for root contributions and strict named DATA interfaces, with unchanged
-legacy overlay identities. Then verify self-contained CLI C with independently
-evidenced ABI views. Never publish the worker diagnostic as a cached PASS.
-Curated view candidates live separately in
-`../evidence/contributions/resident-view-candidates.json`; generation must retain
-them without counting original DATA/COMMON ownership.
+Normal resident node0 placement and object-bounded extraction now exist in the
+existing oracle/direct/queued/mixed paths. Root-only links omit empty overlay
+markers; extraction tracks DATA-to-CODE switches and rejects neighbouring
+bootstrap symbols, wrong order, wrong root and crossing relocations. Six
+positive/negative controls pass. The successful guest control re-extracts10 CODE
+bytes at offset12; its historical blocked receipt remains unchanged. A fresh
+current-identity calibration is still due. See
+`../evidence/experiments/resident-oracle.json`.
+
+Next verify root unit coordinates separately, then implement strict named DATA
+interfaces and run the self-contained CLI draft through the normal isolated
+verifier. Do not publish an old blocked cache or worker diagnostic as PASS.
+Curated view candidates remain in
+`../evidence/contributions/resident-view-candidates.json`, without original
+DATA/COMMON ownership. The unchanged24-member ov04 full link replays EQUAL;
+its actual0000 padding recipe was refreshed for new tool provenance only.

@@ -165,7 +165,8 @@ def _compile_mixed(trials):
             if receipt['status']=='COMPILED':
                 try:
                     receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
-                                                    item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'))
+                                                    item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'),
+                                                    **({'resident':True} if 'resident_object_extractor_sha256' in item['meta'] else {}))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
             write_json(dest/'receipt.json',receipt)

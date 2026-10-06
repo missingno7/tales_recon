@@ -890,7 +890,7 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
     its members' profile (``member_profile_plan``); the receipt record is
     kept in ``trial['profile_record']``."""
     target,_=validated_function(fid)
-    node=target['hunk']-2 if target['node']!='resident' else 1
+    node=target['hunk']-2 if target['node']!='resident' else 0
     trials=[]
     for p in profiles:
         trial=dict(source=combined,profile=p,target_node=node)
@@ -907,7 +907,7 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
                                    if o.get('merged_external_declarations') for x in o['members'][:1]}
                 if merged_in_objects:trial['object_group_merged_declarations']=merged_in_objects
             trial['local_functions']=[names[m['id']] for m in members if m['id']!=fid]
-            roots=unit_export_roots(members,names,fid)
+            roots=unit_export_roots(members,names,fid) if node else None
             if roots is not None:trial['same_overlay_exports']=roots
             # A new member's extern for the entry is a real cross-object call
             # into this unit; the harness must not define a stand-in for it.

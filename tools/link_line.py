@@ -37,6 +37,11 @@ def _redirections(prefix):
 
 def direct_arguments(prefix, hp, node, object_names, proxy_args, meta):
     """Argument text of the historical single-line form (spacing preserved)."""
+    if node == 0:
+        args = [hp + '.o'] + [name + '.o' for name in object_names] + list(proxy_args)
+        if proxy_args:
+            args.append('+o0')
+        return f'-m -t -o {prefix}.exe ' + ' '.join(args + library_args(meta))
     return (f'-m -t -o {prefix}.exe {hp}.o +o{node} ' + ' '.join(name + '.o' for name in object_names) + ' ' +
             ' '.join(proxy_args) + ' +o0 ' + ' '.join(library_args(meta)))
 
@@ -57,6 +62,11 @@ def argument_file_name(prefix):
 
 def argument_file_text(hp, node, object_names, proxy_args, meta):
     """One ``ln`` argument per line, in exactly the direct form's order."""
+    if node == 0:
+        args = [hp + '.o'] + [name + '.o' for name in object_names] + list(proxy_args)
+        if proxy_args:
+            args.append('+o0')
+        return '\n'.join(args + library_args(meta)) + '\n'
     args = [hp + '.o', f'+o{node}'] + [name + '.o' for name in object_names] + list(proxy_args) + ['+o0'] + library_args(meta)
     return '\n'.join(args) + '\n'
 

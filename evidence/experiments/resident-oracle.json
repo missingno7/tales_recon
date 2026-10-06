@@ -1,0 +1,85 @@
+{
+  "failed_controls": {
+    "category": "OBJECT/TU_LAYOUT",
+    "cause": "Root-only +o0 emitted incomplete overlay file with no final BREAK; strict parser correctly rejected it.",
+    "smallest_changed_experiment": "Remove overlay markers from root-only link; retain +o0 after genuine proxy nodes only.",
+    "trials": [
+      {
+        "cache_key": "acb0a094c1bfc159c2541c06fdc307cd59de7591df7ac6fe4bb9f81825f2c121",
+        "code_offset": null,
+        "code_size": null,
+        "entry_offset": 0,
+        "error": "incomplete overlay file: final BREAK missing",
+        "hunk": null,
+        "profile": "aztec36-x3",
+        "resident_bounds": null,
+        "status": "EXTRACTION_BLOCKED"
+      },
+      {
+        "cache_key": "f62b29bfefdd2b9f5d76effc3e2aae6429453cc7f9ba1e2f46b687bfc9457674",
+        "code_offset": null,
+        "code_size": null,
+        "entry_offset": 0,
+        "error": "incomplete overlay file: final BREAK missing",
+        "hunk": null,
+        "profile": "aztec36-x3",
+        "resident_bounds": null,
+        "status": "EXTRACTION_BLOCKED"
+      }
+    ]
+  },
+  "game_source_promoted": false,
+  "head": "3d5f23e6607b3664f89aafd154c727c5cf7ce91d",
+  "negative_controls": [
+    "Wrong harness CODE size/order",
+    "Leading anonymous CODE",
+    "DATA label mistaken for CODE label",
+    "Inflated object consuming bootstrap CODE",
+    "Wrong root/entry",
+    "Cross-boundary relocation",
+    "Root-only empty overlay marker"
+  ],
+  "original_fixtures_changed": false,
+  "padding_refresh": {
+    "actual_pad": "0000",
+    "cache_key": "7ab033e411bec57b3907cd88df939a87f3a0199d9bac669e2dce87c103e32c2e",
+    "compiler_only_provenance_refresh": true,
+    "executable_sha256": "463303a9ec9904917de543e8521af80c8fc524281435280d69196a76afa62b52",
+    "members": 24,
+    "original_fixture_changed": false,
+    "verdict": "EQUAL"
+  },
+  "remaining_gates": [
+    "Fresh current-identity root calibration after parser repair; old failed receipt is never published as PASS.",
+    "Root unit comparison must account for contribution code_offset and preserve outside harness/library symbol coordinates.",
+    "Strict named DATA interface recipe for the two CLI calls.",
+    "Fresh exact isolated self-contained CLI verification and promotion only on EQUAL."
+  ],
+  "schema_version": 1,
+  "status": "ROOT_EXTRACTION_IMPLEMENTED_CURRENT_CACHE_PRODUCER_RECHECK_PENDING",
+  "successful_guest_artifacts": {
+    "cache_key": "94c447b2866c9cd18c4e92ba68f071260d52fc632cb21d446f1a8102d207c3a7",
+    "compiler_steps_succeeded": true,
+    "current_read_only_extraction": "10 CODE bytes at root offset12; no harness or library bytes included",
+    "historical_receipt_status": "EXTRACTION_BLOCKED",
+    "old_receipt_retained_unchanged": true
+  },
+  "trial_budget": 3,
+  "trials_used": 3,
+  "validation": {
+    "canonical_source_bytes_added": 0,
+    "census_check": "PASS",
+    "census_write": "PASS",
+    "export_tests": 6,
+    "focused_resident_tests": 6,
+    "full_regression": {
+      "log_sha256": "1cb0ec198f0e79d13164f16be2e8cc7c98e44d3322fc980e66e9ddc5c53b79f9",
+      "seconds": 367.575,
+      "skipped": 9,
+      "status": "PASS",
+      "tests": 417
+    },
+    "hybrid_check": "PASS",
+    "legacy_link_tests": 5
+  }
+}
