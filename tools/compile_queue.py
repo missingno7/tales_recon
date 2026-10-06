@@ -60,7 +60,7 @@ def trial_key(trial):
         trial["source"], trial["profile"], trial.get("target_node", 1),
         objects if trial.get("objects") is not None else None, trial.get("local_functions", ()),
         trial.get("entry_function", "recovered"), trial.get("extra_libraries", ()),
-        trial.get("same_overlay_exports"))
+        trial.get("same_overlay_exports"), trial.get("resident_data_interfaces"))
     return key
 
 

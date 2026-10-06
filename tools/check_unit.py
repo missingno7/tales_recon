@@ -365,6 +365,10 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
     # exact ordered extents for the complete object.
     require(len({f['hunk'] for f in members})==1,'unit members cross original CODE hunks')
     source_hunk=c['hunk'];original_hunk=members[0]['hunk'];original_base=members[0]['start']
+    resident='resident_bounds' in c
+    linked_base=c.get('code_offset',0) if resident else 0
+    if resident:
+        require(source_hunk==original_hunk==0,'resident unit must stay in root CODE')
     # The entry member is linked as ``_recovered``.  Its identity is fixed by
     # the verifier's own naming (names[target_id]=='recovered') and its extent
     # by the ordered symbol partition below, so give that linked symbol its
@@ -379,17 +383,17 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
         symbols.append(dict(linked_entry[0],name=entry_alias))
     for f in members:
         symbol=next((s for s in c['symbols'] if s['hunk']==c['hunk'] and s['name']=='_'+names[f['id']]),None)
-        require(symbol is not None and symbol['offset']==cursor,'natural function ordering/extent differs; no slice accepted')
+        require(symbol is not None and symbol['offset']==linked_base+cursor,'natural function ordering/extent differs; no slice accepted')
         stop=cursor+f['size'];piece=copy.deepcopy(compiled);pc=piece['contribution']
         owned_tail=tails[f['id']]
-        code_offset=cursor if allow_gaps else original_base+cursor
+        code_offset=linked_base+cursor if resident else cursor if allow_gaps else original_base+cursor
         # Compare the linked literal bytes themselves. Appending the expected
         # tail here would conceal a same-size source literal corruption.
         pc.update(code_hex=raw[cursor:stop+len(owned_tail)].hex(),code_size=f['size']+len(owned_tail),code_offset=code_offset,entry_offset=0)
         pc['hunk']=original_hunk
-        pc['symbols']=[dict(s,hunk=original_hunk,offset=s['offset'] if allow_gaps else s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
+        pc['symbols']=[dict(s) for s in symbols] if resident else [dict(s,hunk=original_hunk,offset=s['offset'] if allow_gaps else s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
                        for s in symbols]
-        if 'overlay_trampolines' in c:
+        if 'overlay_trampolines' in c and not resident:
             pc['overlay_trampolines']=[dict(t,target_hunk=original_hunk,
                 target_offset=t['target_offset'] if allow_gaps else t['target_offset']+original_base)
                 if t['target_hunk']==source_hunk else dict(t) for t in c['overlay_trampolines']]
@@ -462,6 +466,8 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     if merged_externals:report['merged_external_declarations']=merged_externals
     if 'same_overlay_exports' in compiled['identity']:
         report['same_overlay_exports']=compiled['identity']['same_overlay_exports']
+    if 'resident_data_interfaces' in compiled['identity']:
+        report['resident_data_interfaces']=compiled['identity']['resident_data_interfaces']
     # Object-group hypotheses and the member parts that re-derive unit.c.
     if object_record:
         require(parts is not None,'object groups require the linked member parts')
@@ -921,6 +927,13 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
             if per_member_profiles:
                 plan,klass=member_profile_plan(members,p,{fid,*(member_sources or ())},profile_hypotheses)
                 trial['profile_record']=apply_member_profiles(trial,plan,klass)
+        if node==0:
+            from resident_interfaces import derive
+            from analysis_support import game
+            blob,model,_=game()
+            _,ledger=validated_function(fid)
+            interfaces=derive(members,trial['source'],blob,model,ledger['a4']['bias'])
+            if interfaces is not None:trial['resident_data_interfaces']=interfaces
         trials.append(trial)
     return trials
 
@@ -929,7 +942,7 @@ def stand_in_summary(trial):
     """Harness stand-in definitions of one trial: merged views and any duplicate name."""
     from compiler_oracle import harness
     text=harness(trial['source'],trial.get('target_node',1),trial.get('local_functions',()),
-                 same_overlay_exports=trial.get('same_overlay_exports'))
+                 same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))
     defined=re.findall(r'^'+EXTERN_FUNCTION+r'\s*\{',text,re.M)
     counts={}
     for name in defined:counts[name]=counts.get(name,0)+1
@@ -946,7 +959,7 @@ def trial_cache_key(trial):
         key=trial_key(trial);return key,cached(key) is not None
     objects=object_specs(trial) if trial.get('objects') is not None else None
     key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()),
-                 same_overlay_exports=trial.get('same_overlay_exports'))[0]
+                 same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))[0]
     return key,cached(key) is not None
 
 

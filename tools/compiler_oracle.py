@@ -86,10 +86,13 @@ def validate_same_overlay_exports(recipe,target_node,local_functions,entry_funct
         seen.add(name)
 
 
-def harness(source,target_node=1,local_functions=(),entry_function='recovered',same_overlay_exports=None):
+def harness(source,target_node=1,local_functions=(),entry_function='recovered',same_overlay_exports=None,resident_data_interfaces=None):
     # Explicit extern declarations become ordinary naturally allocated harness
     # definitions. Mechanical names carry identities for comparison, never layout.
     validate_same_overlay_exports(same_overlay_exports,target_node,local_functions,entry_function)
+    import resident_interfaces
+    resident_interfaces.validate(resident_data_interfaces,source,target_node,local_functions)
+    interfaces={m['name']:m for m in (resident_data_interfaces or {}).get('members',[])}
     declarations=[]
     struct_tags=set()
     for declaration in re.findall(r'\bstruct\s+\w+\s*\{[^{}]*\}\s*;',source):
@@ -119,7 +122,8 @@ def harness(source,target_node=1,local_functions=(),entry_function='recovered',s
                 # expression, but rejects ``return 0`` in one.  The harness
                 # must preserve a candidate's ordinary historical declaration
                 # so a valid ignored-return call can reach the oracle.
-                emit(decl+(' { }' if decl.startswith('void ') else ' { return 0; }'))
+                emit(resident_interfaces.definition(decl,interfaces[match[1]]) if match[1] in interfaces
+                     else decl+(' { }' if decl.startswith('void ') else ' { return 0; }'))
         else:
             require(re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(?:char|short|int|long|float|double|struct\s+\w+)\s+\**\s*\w+(?:\s*\[\s*[1-9]\d*\s*\])*',decl) is not None,'unsupported extern declaration; use scalar/pointer/positive-bound array facts')
             # Separate recovered source units may use distinct partial C views
@@ -164,8 +168,8 @@ def object_specs(trial):
     return result
 
 
-def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered',extra_libraries=(),same_overlay_exports=None):
-    validate_source(source,entry_function);p=PROFILES[profile];h=harness(source,target_node,local_functions,entry_function,same_overlay_exports);proxies=overlay_proxies(source,target_node)
+def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_function='recovered',extra_libraries=(),same_overlay_exports=None,resident_data_interfaces=None):
+    validate_source(source,entry_function);p=PROFILES[profile];h=harness(source,target_node,local_functions,entry_function,same_overlay_exports,resident_data_interfaces);proxies=overlay_proxies(source,target_node)
     require(type(target_node) is int and target_node>=0,'candidate node must be nonnegative')
     require(target_node!=0 or same_overlay_exports is None,'resident objects cannot use same-overlay export roots')
     extra_libraries=tuple(extra_libraries)
@@ -198,6 +202,13 @@ def identity(source,profile,target_node=1,objects=None,local_functions=(),entry_
     if target_node==0:
         keydata['resident_object_extractor_sha256']=sha256((ROOT/'tools/resident_object.py').read_bytes())
         keydata['resident_link_sha256']=sha256((ROOT/'tools/link_line.py').read_bytes())
+    if resident_data_interfaces is not None:
+        require(profile in ('aztec36','aztec36-x3','aztec36-large-data','aztec50-short'),
+                'resident DATA interface requires a verified small-int profile')
+        import resident_interfaces
+        keydata['resident_data_interfaces']=resident_data_interfaces
+        keydata['resident_interface_producer_sha256']=resident_interfaces.provenance()
+        keydata['resident_interface_extractor_sha256']=sha256(Path(__file__).read_bytes())
     if same_overlay_exports is not None:
         require(objects is not None,'same-overlay export roots require actual unit objects')
         keydata['same_overlay_exports']=same_overlay_exports
@@ -238,14 +249,21 @@ def cached(key):
     for a in r['artifacts']:
         require((dest/a['path']).is_file() and sha256((dest/a['path']).read_bytes())==a['sha256'],'cached artifact changed: '+a['path'])
     if r['status']=='COMPILED':
+        if 'resident_data_interfaces' in r['identity']:
+            import resident_interfaces
+            require(r['identity'].get('resident_interface_producer_sha256')==resident_interfaces.provenance() and
+                    r['identity'].get('resident_interface_extractor_sha256')==sha256(Path(__file__).read_bytes()) and
+                    r['identity']['resident_data_interfaces']['source_sha256']==r['identity']['source_sha256'],
+                    'stale resident DATA interface producer/source identity')
         require(extract(dest,r['prefix'],r['identity'].get('object_labels'),
                         r['identity'].get('entry_function','recovered'),r['identity'].get('same_overlay_exports'),
+                        **({'resident_data_interfaces':r['identity']['resident_data_interfaces']} if 'resident_data_interfaces' in r['identity'] else {}),
                         **({'resident':True} if 'resident_object_extractor_sha256' in r['identity'] else {}))==r['contribution'],
                 'cached contribution metadata changed')
     return dict(r,cache_hit=True,directory=str(dest))
 
 
-def extract(directory,prefix,object_labels=None,entry_function='recovered',same_overlay_exports=None,*,resident=False):
+def extract(directory,prefix,object_labels=None,entry_function='recovered',same_overlay_exports=None,*,resident=False,resident_data_interfaces=None):
     blob=(directory/(prefix+'.exe')).read_bytes();model=parse(blob)
     overlay=manx_overlay(model,blob) if model['overlay'] is not None else None
     labels=object_labels or ['candidate']
@@ -258,6 +276,8 @@ def extract(directory,prefix,object_labels=None,entry_function='recovered',same_
     data_size=sum(int.from_bytes(obj[14:18],'big') for obj in objects)
     bss_size=sum(int.from_bytes(obj[18:22],'big') for obj in objects)
     sym=symbols((directory/(prefix+'.sym')).read_text())
+    require(resident_data_interfaces is not None or not any(n.startswith('_resident_body_F_h00_') for h,n in sym),
+            'named resident DATA interface bodies require their recipe')
     symbol_name='_'+entry_function
     entries=[(h,v) for (h,n),v in sym.items() if n==symbol_name]
     require(len(entries)==1,'expected one '+symbol_name+' symbol')
@@ -284,6 +304,10 @@ def extract(directory,prefix,object_labels=None,entry_function='recovered',same_
         result['overlay_trampolines']=[s for slot in overlay['slots'] for s in slot['symbols']]
     if start:result['entry_offset']=start
     if root_bounds is not None:result.update(code_offset=base,resident_bounds=root_bounds)
+    if resident_data_interfaces is not None:
+        require(resident,'resident DATA interface extraction needs root object bounds')
+        import resident_interfaces
+        result['resident_data_interfaces']=resident_interfaces.extract(resident_data_interfaces,blob,model,sym)
     return result
 
 
@@ -297,7 +321,7 @@ def compile_many(trials):
         extra_libraries=trial.get('extra_libraries',())
         key,meta,h=identity(trial['source'],trial['profile'],target_node,
                             objects if trial.get('objects') is not None else None,local_functions,entry_function,extra_libraries,
-                            trial.get('same_overlay_exports'))
+                            trial.get('same_overlay_exports'),trial.get('resident_data_interfaces'))
         requests.append(key)
         if cached(key) is None:
             missing.setdefault(key,dict(trial=trial,meta=meta,harness=h,
@@ -371,6 +395,7 @@ def compile_many(trials):
                 try:
                     receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
                                                     item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'),
+                                                    **({'resident_data_interfaces':item['meta']['resident_data_interfaces']} if 'resident_data_interfaces' in item['meta'] else {}),
                                                     **({'resident':True} if 'resident_object_extractor_sha256' in item['meta'] else {}))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]

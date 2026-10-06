@@ -8,6 +8,8 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from common import FormatError, sha256
 from compiler_oracle import extract, identity
+from check_unit import compare_unit
+from analysis_support import decoder, K
 from hunk import parse
 from overlay_experiment import symbols
 from resident_object import bounds, first_function
@@ -80,3 +82,56 @@ class ResidentObjectTests(unittest.TestCase):
         self.assertNotEqual(root[0], overlay[0])
         self.assertIn('resident_object_extractor_sha256', root[1])
         self.assertNotIn('resident_object_extractor_sha256', overlay[1])
+
+    def test_root_unit_uses_physical_base_without_remapping_harness(self):
+        c = extract(self.root, 't000', resident=True)
+        raw = bytes.fromhex(c['code_hex'])
+        f = dict(id='resident_F_0100', hunk=0, node='resident', start=256,
+                 end=266, size=10, raw_bytes=raw.hex(), sha256=sha256(raw),
+                 extent_status='CLOSED_CFG', referenced_data=[], direct_callees=[],
+                 relocations=[], jump_tables=[])
+        compiled = dict(status='COMPILED', identity=dict(profile='aztec36-x3', flags=['+X3']),
+                        cache_key='synthetic-control', cache_hit=True, directory=str(self.root),
+                        prefix='t000', contribution=c)
+        context = dict(root=self.root, ledger=dict(functions={}))
+        for gaps in (False, True):
+            with self.subTest(gaps=gaps):
+                result = compare_unit([f], {f['id']:'recovered'}, compiled, 32766,
+                                      allow_gaps=gaps, source_text='recovered(){return 7;}',
+                                      context=context)
+                self.assertEqual(result['verdict'], 'EQUAL')
+        broken = copy.deepcopy(compiled)
+        broken['contribution']['symbols'] = [dict(s, offset=0) if s['name']=='_recovered' else s
+                                              for s in c['symbols']]
+        with self.assertRaisesRegex(FormatError, 'ordering/extent'):
+            compare_unit([f], {f['id']:'recovered'}, broken, 32766,
+                         source_text='recovered(){return 7;}', context=context)
+
+    def test_root_unit_keeps_external_callee_and_global_coordinates(self):
+        fixture = FIXTURE.parent / 'resident-reference'
+        c = extract(fixture, 't000', resident=True)
+        raw = bytes.fromhex(c['code_hex']); expected = bytearray(raw)
+        calls = []; refs = []
+        for ins in decoder().disasm(raw, 0):
+            if ins.mnemonic == 'jsr':
+                expected[ins.address+2:ins.address+4] = (512-256-ins.address-2).to_bytes(2, 'big', signed=True)
+                calls.append(dict(id='resident_F_0200', hunk=0, offset=512, site=256+ins.address))
+            for operand in ins.operands:
+                if operand.type == K.M68K_OP_MEM and operand.mem.base_reg == K.M68K_REG_A4:
+                    at = bytes(ins.bytes).index((operand.mem.disp & 65535).to_bytes(2, 'big'), 2)
+                    expected[ins.address+at:ins.address+at+2] = (256-32766).to_bytes(2, 'big', signed=True)
+                    refs.append(dict(kind='A4_RELATIVE', hunk=1, offset=256))
+        self.assertEqual(len(calls), 1); self.assertEqual(len(refs), 1)
+        f = dict(id='resident_F_0100', hunk=0, node='resident', start=256,
+                 end=256+len(raw), size=len(raw), raw_bytes=expected.hex(), sha256=sha256(expected),
+                 extent_status='CLOSED_CFG', referenced_data=refs, direct_callees=calls,
+                 relocations=[], jump_tables=[])
+        compiled = dict(status='COMPILED', identity=dict(profile='aztec36-x3', flags=['+X3']),
+                        cache_key='synthetic-reference-control', cache_hit=True, directory=str(fixture),
+                        prefix='t000', contribution=c)
+        source = (fixture / 't000.c').read_text()
+        for gaps in (False, True):
+            result = compare_unit([f], {f['id']:'recovered'}, compiled, 32766, allow_gaps=gaps,
+                                  source_text=source, context=dict(root=fixture, ledger=dict(functions={})))
+            self.assertEqual(result['verdict'], 'EQUAL')
+            self.assertTrue(any(p['kind']=='PC_RELATIVE_CALL_SYMBOL' for p in result['members'][0]['relocation_proof']))

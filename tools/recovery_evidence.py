@@ -207,8 +207,13 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model):
     merged=unit.get('merged_external_declarations')
     skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
     source=stand_in_source(unit_text,skip)[0] if merged is not None else unit_text
+    import resident_interfaces
+    interfaces=None
+    if resident_interfaces.FIELD in compiler or resident_interfaces.FIELD in unit:
+        interfaces=resident_interfaces.evidence(unit['ordered_members'],source,compiler,blob,model,
+                                               resident_interfaces.original_a4_bias(blob,model),unit)
     text=harness(source,compiler.get('candidate_overlay_node',1),compiler.get('local_functions',()),
-                 compiler.get('entry_function','recovered'),expected)
+                 compiler.get('entry_function','recovered'),expected,interfaces)
     require(sha256(text.encode('ascii'))==compiler.get('harness_sha256'),'export harness hash does not re-derive')
 
 
@@ -564,6 +569,15 @@ def load_promotions(root,blob,model,analysis):
                         'complete unit compiled bytes disagree')
             for dep,digest in unit['dependency_sources'].items():
                 require(ledger['functions'].get(dep,{}).get('source_sha256')==digest,'unit dependency source changed')
+        else:
+            from resident_interfaces import evidence as resident_interface_evidence
+            resident_interface_evidence([f],source.read_bytes().decode('ascii'),proof['compiler'],blob,model,analysis['a4']['bias'])
+        if 'resident_data_interfaces' in proof['compiler']:
+            from compiler_oracle import cached
+            artifact=cached(proof['cache_key'])
+            require(artifact is not None and artifact['status']=='COMPILED' and artifact['identity']==proof['compiler'] and
+                    artifact['contribution'].get('resident_data_interfaces'),
+                    'resident DATA interface artifact is absent or differs from its proof')
         locations={(extent['hunk'],offset) for offset in range(start,owned_end)}
         require(not locations & occupied,'overlapping promoted source contributions');occupied.update(locations)
         out.append(dict(id=fid,node=h['node'],**extent,source=item['source'],proof=item['proof'],state=item['state']))

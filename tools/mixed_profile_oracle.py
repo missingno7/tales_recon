@@ -53,9 +53,9 @@ def mixed_identity(trial):
                 'profile %s does not use the %s tool installation'%(p,link))
     require(not trial.get('extra_libraries'),'additional link libraries are not supported with per-object profiles')
     node=trial.get('target_node',1);local=trial.get('local_functions',());entry=trial.get('entry_function','recovered')
-    _,keydata,h=identity(trial['source'],link,node,objects,local,entry,same_overlay_exports=trial.get('same_overlay_exports'))
+    _,keydata,h=identity(trial['source'],link,node,objects,local,entry,same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))
     for p in sorted(set(profiles)-{link}):
-        _,other,_=identity(trial['source'],p,node,objects,local,entry,same_overlay_exports=trial.get('same_overlay_exports'))
+        _,other,_=identity(trial['source'],p,node,objects,local,entry,same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))
         require(all(other.get(k)==keydata.get(k) for k in LINK_FIELDS),
                 'PROFILES_NOT_LINK_COMPATIBLE: %s and %s name different tools or runtime library'%(p,link))
     keydata=dict(keydata,object_profiles=[dict(label=o['label'],profile=p,flags=list(PROFILES[p]['flags']))
@@ -166,6 +166,7 @@ def _compile_mixed(trials):
                 try:
                     receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
                                                     item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'),
+                                                    **({'resident_data_interfaces':item['meta']['resident_data_interfaces']} if 'resident_data_interfaces' in item['meta'] else {}),
                                                     **({'resident':True} if 'resident_object_extractor_sha256' in item['meta'] else {}))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]

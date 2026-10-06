@@ -237,15 +237,20 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
                     unit_blocker=None
                 except FormatError as gap_exc:unit_blocker=str(gap_exc)
         profiles=req.get('profiles',['aztec36'] if 'm.lib' in req.get('extra_libraries',()) else ['aztec36','aztec50-short'])
+        from resident_interfaces import derive as resident_interface_recipe
+        original_blob,original_model,_=game()
+        interfaces=resident_interface_recipe(unit[0] if unit is not None else [f],compile_source,
+                                            original_blob,original_model,l['a4']['bias']) if target_node==0 else None
         for profile in profiles:
             require(profile in PROFILES,'unsupported compiler profile')
             try:
                 # Validate the candidate source before batching.  The oracle
                 # assigns stable object labels to the optional partition.
                 extra_libraries=req.get('extra_libraries',())
-                identity(compile_source,profile,target_node,extra_libraries=extra_libraries)
+                identity(compile_source,profile,target_node,extra_libraries=extra_libraries,resident_data_interfaces=interfaces)
                 trial=dict(source=compile_source,profile=profile,target_node=target_node,
                            objects=objects,local_functions=local_functions,extra_libraries=extra_libraries)
+                if interfaces is not None:trial['resident_data_interfaces']=interfaces
                 if unit is not None:
                     from check_unit import unit_export_roots
                     roots=unit_export_roots(unit[0],unit[1],f['id'])

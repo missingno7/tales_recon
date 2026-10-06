@@ -4,9 +4,9 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 152 functions / 41,420 C bytes. The generated
-`progress.json` is the measurement authority. Whole-file accounting has 1,470
-compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 149,560 file bytes of
+Canonical coverage is 153 functions / 41,852 C bytes. The generated
+`progress.json` is the measurement authority. Whole-file accounting has 1,472
+compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 149,126 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -122,10 +122,10 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-Latest full regression: 417 tests, 9 skipped (local compilation-cache controls
-and an already-canonical promotion control). Census
-validates all 152 canonical proofs. Hybrid accounting has zero overlap and zero
-unaccounted file bytes, and refresh replays all 152 retained exact artifacts.
+The normal resident CLI promotion passed the full regression gate; current
+suite discovery contains 456 cases. Census validates all 153 canonical proofs.
+Hybrid accounting has zero overlap and zero unaccounted file bytes, and refresh
+replays all 153 retained exact artifacts.
 Queue/batch regression tests remain active; fresh compilation of the skipped
 controls is still due. The automatic-unit producer now retains raw conflicting
 TU declarations and derives only the harness's filtered view. The strict
@@ -185,29 +185,19 @@ count derive from original allocations. Saved-stack and startup-entry identities
 remain pending. Source/library links equal while object files differ. See
 `../evidence/experiments/crt0-bindings.json`; no runtime acceptance is added.
 
-The unmodified456-byte library/SDK CLI object is incompatible with the original
-432-byte CFG plus its provisional2-byte literal. The unconditional SDK-derived
-candidate now emits434 bytes under the existing `aztec36-x3` profile. +X3 fixes
-cleanup; properly named DATA string interfaces fix both A4 call encodings.
-Both DATA orders have388 equal ordinary/literal bytes, with all45 raw differences
-inside46 address-field bytes. Six callees have complete-body bindings. Four
-global-role correspondences remain advisory and storage ownership is UNKNOWN.
-See `../evidence/experiments/cliparse-x3.json`; failed earlier controls remain in
-cliparse-frontier.json. No source, literal or runtime bytes were promoted.
+The first resident source contribution is now canonical: resident_F_77A4,
+432 C bytes plus its2-byte compiler-owned literal, at FUNCTION_WITH_DATA_MATCH.
+The unmodified456-byte pinned/SDK object differs; this is a reconstructed runtime
+variant, without original filename, TU, provider or exact release attribution.
+Fresh normal root verification proves all CODE and bindings under aztec36-x3.
+Root-unit comparisons preserve actual root coordinates; strict named DATA
+interfaces rederive source, original call facts, payloads, CODE relocations and
+body mapping. Tampered/stale inputs reject. See
+`../evidence/experiments/resident-cli-source.json`.
 
-Normal resident node0 placement and object-bounded extraction now exist in the
-existing oracle/direct/queued/mixed paths. Root-only links omit empty overlay
-markers; extraction tracks DATA-to-CODE switches and rejects neighbouring
-bootstrap symbols, wrong order, wrong root and crossing relocations. Six
-positive/negative controls pass. The successful guest control re-extracts10 CODE
-bytes at offset12; its historical blocked receipt remains unchanged. A fresh
-current-identity calibration is still due. See
-`../evidence/experiments/resident-oracle.json`.
-
-Next verify root unit coordinates separately, then implement strict named DATA
-interfaces and run the self-contained CLI draft through the normal isolated
-verifier. Do not publish an old blocked cache or worker diagnostic as PASS.
-Curated view candidates remain in
-`../evidence/contributions/resident-view-candidates.json`, without original
-DATA/COMMON ownership. The unchanged24-member ov04 full link replays EQUAL;
-its actual0000 padding recipe was refreshed for new tool provenance only.
+CLI global access views are now function-proved, but original DATA/COMMON
+ownership and natural root placement remain UNKNOWN. The tested vars object
+still contradicts whole original initialized DATA. Next verify the Workbench
+parser and remaining startup/provider identities; use the normal isolated
+verification boundary. All24 ov04 members and actual0000 padding replay under
+the refreshed tool provenance; natural overlay/root/executable closure is open.

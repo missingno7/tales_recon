@@ -27,7 +27,7 @@ def trial_plan(trial):
     key,meta,h=identity(trial['source'],trial['profile'],trial.get('target_node',1),
                         objects if trial.get('objects') is not None else None,
                         trial.get('local_functions',()),trial.get('entry_function','recovered'),
-                        trial.get('extra_libraries',()),trial.get('same_overlay_exports'))
+                        trial.get('extra_libraries',()),trial.get('same_overlay_exports'),trial.get('resident_data_interfaces'))
     return key,meta,h,objects
 
 
@@ -112,6 +112,7 @@ def compile_many(trials):
                 try:
                     receipt['contribution']=extract(dest,prefix,item['meta'].get('object_labels'),
                                                     item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'),
+                                                    **({'resident_data_interfaces':item['meta']['resident_data_interfaces']} if 'resident_data_interfaces' in item['meta'] else {}),
                                                     **({'resident':True} if 'resident_object_extractor_sha256' in item['meta'] else {}))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
