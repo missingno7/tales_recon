@@ -4,9 +4,9 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 153 functions / 41,852 C bytes. The generated
-`progress.json` is the measurement authority. Whole-file accounting has 1,472
-compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 149,126 file bytes of
+Canonical coverage is 154 functions / 42,010 C bytes. The generated
+`progress.json` is the measurement authority. Whole-file accounting has 1,494
+compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 148,946 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -122,10 +122,10 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
-The normal resident CLI promotion passed the full regression gate; current
-suite discovery contains 456 cases. Census validates all 153 canonical proofs.
+The normal resident CLI promotion passed the full regression gate.
+Census validates all 154 canonical proofs.
 Hybrid accounting has zero overlap and zero unaccounted file bytes, and refresh
-replays all 153 retained exact artifacts.
+replays all 154 retained exact artifacts.
 Queue/batch regression tests remain active; fresh compilation of the skipped
 controls is still due. The automatic-unit producer now retains raw conflicting
 TU declarations and derives only the harness's filtered view. The strict
@@ -201,3 +201,12 @@ still contradicts whole original initialized DATA. Next verify the Workbench
 parser and remaining startup/provider identities; use the normal isolated
 verification boundary. All24 ov04 members and actual0000 padding replay under
 the refreshed tool provenance; natural overlay/root/executable closure is open.
+
+Workbench parser resident_F_7B24 is now canonical at FUNCTION_WITH_DATA_MATCH:
+158 C bytes plus22 compiler-owned literal bytes. The bounded failed declaration
+wave is retained; changing only two result declarations and long mode arguments
+closed exactness. Normal promotion regression passed after refreshing stale type
+evidence and making the queue fairness test independent of timestamp ties.
+Original filenames, TU membership, runtime release and DATA/COMMON ownership
+remain unknown. Next bind remaining startup consumers and the original provider.
+See `../evidence/experiments/resident-workbench-source.json`.

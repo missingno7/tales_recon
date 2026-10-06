@@ -174,8 +174,11 @@ class CompileQueueTests(unittest.TestCase):
         self.assertEqual(set(results), {"a", "b"})
 
     def test_round_robin_gives_other_requests_a_slot(self):
-        compile_queue._write_spool([dict(source=x) for x in "abcd"], ["k-" + x for x in "abcd"])
-        compile_queue._write_spool([dict(source="e")], ["k-e"])
+        first = compile_queue._write_spool([dict(source=x) for x in "abcd"], ["k-" + x for x in "abcd"])
+        second = compile_queue._write_spool([dict(source="e")], ["k-e"])
+        # Specify arrival order independently of filesystem timestamp resolution.
+        os.utime(first, (1000, 1000))
+        os.utime(second, (1001, 1001))
         with patch.object(compile_queue, "MAX_BATCH_TRIALS", 2):
             batch = compile_queue._batch([("k-a", dict(source="a"))])
         self.assertEqual([t["source"] for t in batch], ["a", "e"])

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "target": "resident_F_7B24",
+  "status": "PROMOTED_AFTER_CHANGED_DECLARATION_EXPERIMENT",
+  "accounting_promoted": true,
+  "task_card": {
+    "head": "d51518553f18d740d099f054d6cdb3299aec98fe",
+    "canonical_ledger_sha256": "3009d8952310d7e1b258c93d14d4148aa69781fa2810662b3615a1dbf1bafca3",
+    "target": "resident_F_7B24",
+    "extent": {
+      "node": "resident",
+      "hunk": 0,
+      "start": 31524,
+      "end": 31682,
+      "size": 158,
+      "sha256": "f1ab0dbc3819e8e5a172672af0f536cc2b081ea9d48de1c7a6e393f2d62ea691",
+      "extent_status": "CLOSED_CFG",
+      "confidence": "HIGH"
+    },
+    "profile": "aztec36-x3",
+    "blocker_category": "DECLARATION_VIEW",
+    "trial_budget": 3,
+    "stagnation_limit": 1,
+    "plan": "SDK-compatible self-contained views; exact normal root verifier; change only smallest observed declaration/source mismatch."
+  },
+  "trials": [
+    {
+      "actual_length": null,
+      "cache_hit": false,
+      "cache_key": "ae4271f8f3aca7a1067e88f8f559d15deb5352f6b1e8381314b47bbfe435901f",
+      "comparison_identity": "6382841bcd9c46cbf5925394dfa6164718658ad3a0109f6fa3932292e6163bda",
+      "compiler": "aztec36-x3",
+      "compiler_feedback": [
+        {
+          "file": "harness-validation",
+          "text": "unsupported extern declaration; use scalar/pointer/positive-bound array facts"
+        }
+      ],
+      "expected_length": 158,
+      "flags": [
+        "+X3"
+      ],
+      "id": "resident_F_7B24",
+      "owned_code_data": null,
+      "proof_level": null,
+      "reason": "SOURCE_REJECTED",
+      "source_sha256": "06a86d11575626cbac30abaf047c2aec365cee02c3f10544b990a6a47a21e08b",
+      "unit_blocker": "unrecovered same-node dependency: resident_F_89D4",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": null,
+      "cache_hit": false,
+      "cache_key": "b646165ed88ef890664d20e93bb58809e17e8907bb6f8f66d86ead8bf86bf1ff",
+      "comparison_identity": "6382841bcd9c46cbf5925394dfa6164718658ad3a0109f6fa3932292e6163bda",
+      "compiler": "aztec36-x3",
+      "compiler_feedback": [
+        {
+          "file": "harness-validation",
+          "text": "unsupported extern declaration; use scalar/pointer/positive-bound array facts"
+        }
+      ],
+      "expected_length": 158,
+      "flags": [
+        "+X3"
+      ],
+      "id": "resident_F_7B24",
+      "owned_code_data": null,
+      "proof_level": null,
+      "reason": "SOURCE_REJECTED",
+      "source_sha256": "041e004a09e6c30057ee73124cf85ff473a51f1fa40110658126a742b7e7432e",
+      "unit_blocker": "unrecovered same-node dependency: resident_F_89D4",
+      "verdict": "BLOCKED"
+    },
+    {
+      "actual_length": 186,
+      "cache_hit": false,
+      "cache_key": "e6bc346933a99ea98960f62a74da8a3f7eca24a2389012e3682543113d30ed3a",
+      "comparison_identity": "6382841bcd9c46cbf5925394dfa6164718658ad3a0109f6fa3932292e6163bda",
+      "compiler": "aztec36-x3",
+      "expected_length": 158,
+      "flags": [
+        "+X3"
+      ],
+      "id": "resident_F_7B24",
+      "owned_code_data": {
+        "actual_tail_length": 28,
+        "actual_tail_sha256": "5a1d79f896539aa4de8386d015bb44d42c7b70027fc0b37b981c0b62192857fc",
+        "expected_tail_sha256": "2b8287dc7be9d05633fad35231fccbdd5e06be2f6f26da17c885ad3dd3a568c3"
+      },
+      "proof_level": null,
+      "reason": "candidate CODE contribution has unclaimed bytes",
+      "source_sha256": "eca19685e371580d1306e5adeeb58981b729245438247c4e34dd5687f450ad71",
+      "unit_blocker": "unrecovered same-node dependency: resident_F_89D4",
+      "verdict": "BLOCKED"
+    }
+  ],
+  "observed_assembly": {
+    "cache_key": "e6bc346933a99ea98960f62a74da8a3f7eca24a2389012e3682543113d30ed3a",
+    "input": "t000.asm",
+    "sha256": "68e051989d6e67d4eb8e95e4fcb929ac4e1ce3c211d83f7329f63950c9c905c4",
+    "mismatches": [
+      "EXT.L D0 after GetDiskObject and FindToolType versus original full-long results",
+      "MODE_OLDFILE passed as word1005 versus original PEA long1005; stack cleanup6 versus8"
+    ]
+  },
+  "next_experiment": {
+    "category": "DATA_OWNERSHIP",
+    "question": "Which original provider owns IconBase and startup globals?",
+    "smallest_change": "Bind remaining startup consumers before testing provider DATA/COMMON contribution."
+  },
+  "ownership": "Original runtime release, filenames, TU membership and DATA/COMMON provider remain UNKNOWN.",
+  "accepted": {
+    "source": "src/recovered/resident/resident_F_7B24.c",
+    "proof": "recovery/proofs/resident_F_7B24.json",
+    "proof_sha256": "610ae23fa981de7cbcdea78527ab71d003e3d9a95036cdc2f17d8c0fb603ffb4",
+    "cache_key": "55f55e3ec021ffffc7140b8d7adf3dcfcafc5c15dcb3978d54409b04893b4ef4",
+    "code_bytes": 158,
+    "compiler_literal_bytes": 22,
+    "proof_level": "FUNCTION_WITH_DATA_MATCH",
+    "regression": {
+      "command": "python -m unittest discover -s tests",
+      "input_sha256": "f586d4727645fe245d8a4de3fb646220c60df61d69ec030d6f1a017cad54866d",
+      "output_sha256": "b50bfd1e7c8bc15d86a7fe71fa3fad64d87fbd3ab102a5b509a2e70d5ba870ec",
+      "passed": true
+    }
+  },
+  "promotion_failures": [
+    "Stale type evidence after previous canonical source addition: regenerated derived index.",
+    "Queue fairness test timestamp tie: explicit test arrival timestamps; no compiler/queue semantics changed."
+  ]
+}

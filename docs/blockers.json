@@ -424,6 +424,25 @@
       "next_experiment": "Retain strict root/interface regression controls; apply normal isolated verification to the next independently reviewed resident startup dependency.",
       "status": "RESOLVED",
       "target": "normal exact resident C and named DATA interface verification"
+    },
+    {
+      "current_evidence": [
+        "Normal root trial compiled186 bytes; original158 CODE+22 literal. No promotion.",
+        "Candidate assembly shows two unwanted EXT.L return conversions and word MODE_OLDFILE arguments.",
+        "Changed long result declarations and1005L arguments match158 CODE+22 literal; normal promotion regression gate passed."
+      ],
+      "experiments_tried": [
+        "Three bounded source-view hypotheses; first two rejected by harness validation; third compiled but full contribution rejected."
+      ],
+      "first_mismatch": {
+        "category": "DECLARATION_VIEW",
+        "detail": "Full-long pointer results and long DOS mode arguments required by original instructions."
+      },
+      "id": "RESIDENT-WB-DECLARATION-001",
+      "missing_artifact": null,
+      "next_experiment": "Continue startup consumers and original DATA/COMMON provider; source exactness does not prove natural root placement.",
+      "status": "RESOLVED",
+      "target": "resident_F_7B24"
     }
   ],
   "function_blockers": {
