@@ -69,7 +69,7 @@ def load_library_a4(root,blob,model,analysis,promotions,ledger,*,document=None):
     out=[];seen=set()
     groups=document['groups']
     base={'initbitm','initview','initvpor','makevpor','mrgcop','openlibrary_unit'}
-    extra={'allocmem_unit':18,'findtask_unit':16}
+    extra={'allocmem_unit':18,'findtask_unit':16,'freemem_unit':20,'closelib_unit':16}
     ids={g['id'] for g in groups}
     require(base<=ids<=base|set(extra) and len(ids)==len(groups),'library A4 requires supported bounded campaign')
     open_group=next((g for g in groups if g['id']=='openlibrary_unit'),None)

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "status": "PROMOTED",
+  "target": "resident_F_8640",
+  "source": "src/recovered/resident/resident_F_8640.c",
+  "source_sha256": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc",
+  "proof": "recovery/proofs/resident_F_8640.json",
+  "proof_sha256": "9b2075002abf517e50231a81e1cb603f42072d7fb7c0fe5acf9112b900f47257",
+  "proof_level": "FUNCTION_CODE_MATCH",
+  "code_bytes": 76,
+  "task_card": {
+    "head": "f0a63b7e0e63b22936be427dfb1c27c9ebba0355",
+    "canonical_ledger_sha256": "851c5e5e667b75d1553970101a88a67c58c87a715e81dbac5e19fb525ea22b53",
+    "target": "resident_F_8640",
+    "extent": {
+      "node": "resident",
+      "hunk": 0,
+      "start": 34368,
+      "end": 34444,
+      "size": 76,
+      "sha256": "b63e67315263ff4280fabb153be19bb6f72ecc183878b96d9d4a6fa12ecbdd47",
+      "extent_status": "CLOSED_CFG",
+      "confidence": "HIGH"
+    },
+    "profile": "aztec36-x3",
+    "blocker_category": "DECLARATION_VIEW",
+    "trial_budget": 2,
+    "stagnation_limit": 1,
+    "source_archive": "toolchain/installed/aztec-3.6a/Library Source/sysio.arc",
+    "source_archive_sha256": "5fe66196ea8c93d3c043e16c4cc60a814ad91790c7f0657aeb97e6fe5f557028",
+    "plan": "Complete SDK close body with self-contained SDK-compatible DevView and mechanically bound dependencies. Keep unused SDK register declarations and whole object."
+  },
+  "regression": {
+    "command": "python -m unittest discover -s tests",
+    "input_sha256": "6766d054d4c4a2a6082307bc7fac953d62533a904fefd177e82ecc42f61cdc01",
+    "output_sha256": "5a84fd380b4bffd0bf6840e7df0988c1a115ec76f6858d2608d880f791c12aa8",
+    "passed": true
+  },
+  "access_views": [
+    "DevView matches SDK long fd +short mode, size6",
+    "Device table pointer, device count word and errno word are function-proved accesses"
+  ],
+  "limitations": [
+    "Original provider ownership, filenames, TU membership and exact runtime release unknown.",
+    "Complete callee exactness is separate from natural root layout."
+  ]
+}

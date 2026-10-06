@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "THREE_OF_FIVE_EXIT_CALLEES_INDEPENDENTLY_BOUND",
+  "accounting_promoted_variant": false,
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "variant": {
+    "path": "evidence/experiments/resident-exit-variant.json",
+    "sha256": "c395728fefe367765c52069bccc0a47cf9642493fe3b68f7324742bd1cf97952"
+  },
+  "library_contribution": {
+    "path": "evidence/contributions/library-a4.json",
+    "sha256": "052487e3262435308e54d0e729cd454f41a469b0ea2e77fa936da926750d8000"
+  },
+  "strict_consumer": {
+    "path": "tools/library_a4.py",
+    "sha256": "5b156c3c1bdae7fc677cf0b5b2e22d031c61a721b1b5b1755795f3da08c6e796"
+  },
+  "bindings": [
+    {
+      "name": "_close",
+      "original_offset": 34368,
+      "evidence": "FUNCTION_CODE_MATCH",
+      "proof": "recovery/proofs/resident_F_8640.json",
+      "proof_sha256": "9b2075002abf517e50231a81e1cb603f42072d7fb7c0fe5acf9112b900f47257",
+      "exit_sites": [
+        28
+      ]
+    },
+    {
+      "name": "__FreeMem",
+      "original_offset": 35200,
+      "evidence": "STRICT_COMPLETE_PUBLIC_PRIVATE_PINNED_RUNTIME_UNIT",
+      "unit": "freemem_unit",
+      "unit_bytes": 20,
+      "unit_sha256": "0cf253d66082361b45bbb55b655d3577b1e9762250dc2ede919c18903ade2901",
+      "entry_basis": {
+        "path": "evidence/rules/graphics-wrapper-controls/canonical-call-basis.json",
+        "sha256": "4374822d2dd48cf23e40d2ea148bc01f72cec0e88c4dcbb2eb1f9c0c7633800f"
+      },
+      "exit_sites": [
+        56,
+        178,
+        198
+      ]
+    },
+    {
+      "name": "__CloseLibrary",
+      "original_offset": 34696,
+      "evidence": "STRICT_COMPLETE_PUBLIC_PRIVATE_PINNED_RUNTIME_UNIT",
+      "unit": "closelib_unit",
+      "unit_bytes": 16,
+      "unit_sha256": "5186e5b5946b4a79f4b17d0ccc7535b2defec3e63c7a0d207758e630f2ee6259",
+      "entry_basis": {
+        "path": "evidence/rules/graphics-wrapper-controls/canonical-call-basis.json",
+        "sha256": "4374822d2dd48cf23e40d2ea148bc01f72cec0e88c4dcbb2eb1f9c0c7633800f"
+      },
+      "exit_sites": [
+        84,
+        100,
+        116
+      ]
+    }
+  ],
+  "remaining_callees": [
+    {
+      "name": "__Forbid",
+      "original_offset": 35188,
+      "exit_site": 208
+    },
+    {
+      "name": "__ReplyMsg",
+      "original_offset": 35346,
+      "exit_site": 216
+    }
+  ],
+  "new_runtime_bytes": 36,
+  "original_storage_ownership": "UNKNOWN",
+  "limitations": [
+    "The complete exit variant is still unaccepted; global field correspondences and complete runtime consumer remain pending.",
+    "Private entry substitution for the accepted public entry is rejected by a focused regression control.",
+    "Runtime ABI/code membership does not prove exact original library release."
+  ],
+  "next_experiment": {
+    "category": "CALL_BINDING",
+    "question": "Can complete Forbid/ReplyMsg and the mixed runtime object be independently verified from an accepted inbound exit-wrapper anchor?",
+    "smallest_change": "Design a strict joint complete-object source/runtime consumer anchored by accepted resident_F_8534 ->8552, with independently produced complete leaf bytes and mechanical global identities; preserve the existing library_a4 accepted-public-entry guard."
+  }
+}

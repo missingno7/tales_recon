@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "original_job_receipt_sha256": "94f38a07f6bed9140ed5dd94c76edc8e09ce4282f930198c1e890548d99bb632",
+  "source_files": [
+    {
+      "path": "_closeli.asm",
+      "sha256": "cd1f7ec5adb822ececa8424a2a266f4a6bb1189106e08c0efa0ac8de00d719cf"
+    },
+    {
+      "path": "_freemem.asm",
+      "sha256": "5589bdf4190166cf870f219c5787e04ceca4cc4f9a07ea3d2d4a81d77c19a278"
+    },
+    {
+      "path": "closelib.asm",
+      "sha256": "21cf7afcd13c2179d707abf67a38eed940394e8a18439c476b9a61e6a3333458"
+    },
+    {
+      "path": "freemem.asm",
+      "sha256": "df754ca4b398c2663581cfc61dc2e1adce5898bf60b72d6e1c0c3de61f989421"
+    },
+    {
+      "path": "root1.asm",
+      "sha256": "338d324c5b8eec39f357805a5954b8e1cb140b23220344aa7e6161beb737b2e2"
+    },
+    {
+      "path": "root2.asm",
+      "sha256": "5582949110615cb93c0531468ac5a79852c44d17d82d6b513c26f436e647e46a"
+    }
+  ],
+  "steps": [
+    {
+      "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x freemem _freemem closelib _closeli",
+      "index": 0,
+      "returncode": 0,
+      "returncode_file": "step-00.rc"
+    },
+    {
+      "command": "Old1:bin/as >root1-as.log -o root1.o root1.asm",
+      "index": 1,
+      "returncode": 0,
+      "returncode_file": "step-01.rc"
+    },
+    {
+      "command": "Old1:bin/as >root2-as.log -o root2.o root2.asm",
+      "index": 2,
+      "returncode": 0,
+      "returncode_file": "step-02.rc"
+    },
+    {
+      "command": "Old1:bin/as >freemem-as.log -o freemem-source.o freemem.asm",
+      "index": 3,
+      "returncode": 0,
+      "returncode_file": "step-03.rc"
+    },
+    {
+      "command": "Old1:bin/as >_freemem-as.log -o _freemem-source.o _freemem.asm",
+      "index": 4,
+      "returncode": 0,
+      "returncode_file": "step-04.rc"
+    },
+    {
+      "command": "Old1:bin/as >closelib-as.log -o closelib-source.o closelib.asm",
+      "index": 5,
+      "returncode": 0,
+      "returncode_file": "step-05.rc"
+    },
+    {
+      "command": "Old1:bin/as >_closeli-as.log -o _closeli-source.o _closeli.asm",
+      "index": 6,
+      "returncode": 0,
+      "returncode_file": "step-06.rc"
+    },
+    {
+      "command": "Old1:bin/ln >freemem-root1-lib.log -m -t -o freemem-root1-lib freemem.o _freemem.o root1.o",
+      "index": 7,
+      "returncode": 0,
+      "returncode_file": "step-07.rc"
+    },
+    {
+      "command": "Old1:bin/ln >freemem-root1-source.log -m -t -o freemem-root1-source freemem-source.o _freemem-source.o root1.o",
+      "index": 8,
+      "returncode": 0,
+      "returncode_file": "step-08.rc"
+    },
+    {
+      "command": "Old1:bin/ln >freemem-root2-lib.log -m -t -o freemem-root2-lib freemem.o _freemem.o root2.o",
+      "index": 9,
+      "returncode": 0,
+      "returncode_file": "step-09.rc"
+    },
+    {
+      "command": "Old1:bin/ln >freemem-root2-source.log -m -t -o freemem-root2-source freemem-source.o _freemem-source.o root2.o",
+      "index": 10,
+      "returncode": 0,
+      "returncode_file": "step-10.rc"
+    },
+    {
+      "command": "Old1:bin/ln >closelib-root1-lib.log -m -t -o closelib-root1-lib closelib.o _closeli.o root1.o",
+      "index": 11,
+      "returncode": 0,
+      "returncode_file": "step-11.rc"
+    },
+    {
+      "command": "Old1:bin/ln >closelib-root1-source.log -m -t -o closelib-root1-source closelib-source.o _closeli-source.o root1.o",
+      "index": 12,
+      "returncode": 0,
+      "returncode_file": "step-12.rc"
+    },
+    {
+      "command": "Old1:bin/ln >closelib-root2-lib.log -m -t -o closelib-root2-lib closelib.o _closeli.o root2.o",
+      "index": 13,
+      "returncode": 0,
+      "returncode_file": "step-13.rc"
+    },
+    {
+      "command": "Old1:bin/ln >closelib-root2-source.log -m -t -o closelib-root2-source closelib-source.o _closeli-source.o root2.o",
+      "index": 14,
+      "returncode": 0,
+      "returncode_file": "step-14.rc"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "_closeli-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "_closeli-source.o",
+      "sha256": "c3fed8043aaaa43f79323be587117384d007afdf71420b4cd0e69d66cb917ba9",
+      "size": 88
+    },
+    {
+      "path": "_closeli.asm",
+      "sha256": "cd1f7ec5adb822ececa8424a2a266f4a6bb1189106e08c0efa0ac8de00d719cf",
+      "size": 168
+    },
+    {
+      "path": "_closeli.o",
+      "sha256": "5deabd0fce44713dd40f78532b33ef7fbefba137b0fe194e2ea565b77307f6ac",
+      "size": 88
+    },
+    {
+      "path": "_freemem-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "_freemem-source.o",
+      "sha256": "6b1f0d95c5b22e5101935af3cb08df2549fe39e81687db899702388666ad19fb",
+      "size": 88
+    },
+    {
+      "path": "_freemem.asm",
+      "sha256": "5589bdf4190166cf870f219c5787e04ceca4cc4f9a07ea3d2d4a81d77c19a278",
+      "size": 175
+    },
+    {
+      "path": "_freemem.o",
+      "sha256": "a40a176aa85dc113d38ca77b84dd289ec1bc5bf09ec5384219fadda92527ec8b",
+      "size": 88
+    },
+    {
+      "path": "booted.txt",
+      "sha256": "bd0365f9ff33a73c021ad8c16a16e48863d0989106504fa3531511b40bb570bd",
+      "size": 7
+    },
+    {
+      "path": "closelib-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "closelib-root1-lib",
+      "sha256": "bcd32b28722272778ecc21d237c8d60b9df635a17b9eb544a4577aecb8c7c28a",
+      "size": 88
+    },
+    {
+      "path": "closelib-root1-lib.log",
+      "sha256": "ff3b60fc4ead435ff4d5b789a35595b37100c70c4c8edada1e95b597394dada2",
+      "size": 105
+    },
+    {
+      "path": "closelib-root1-lib.sym",
+      "sha256": "62fffe87cb3a248d5c0e1e48c7d10563949228f758bf0811c0b3d33cbb71209e",
+      "size": 251
+    },
+    {
+      "path": "closelib-root1-source",
+      "sha256": "bcd32b28722272778ecc21d237c8d60b9df635a17b9eb544a4577aecb8c7c28a",
+      "size": 88
+    },
+    {
+      "path": "closelib-root1-source.log",
+      "sha256": "ff3b60fc4ead435ff4d5b789a35595b37100c70c4c8edada1e95b597394dada2",
+      "size": 105
+    },
+    {
+      "path": "closelib-root1-source.sym",
+      "sha256": "62fffe87cb3a248d5c0e1e48c7d10563949228f758bf0811c0b3d33cbb71209e",
+      "size": 251
+    },
+    {
+      "path": "closelib-root2-lib",
+      "sha256": "83e1935f6df52b0cc99f686c1c32557156edf3472b8e8233c74b32291b869abe",
+      "size": 96
+    },
+    {
+      "path": "closelib-root2-lib.log",
+      "sha256": "8c6306981d4af0bc8e8e885a34765c6c81813d52bf4f45c65060fce5c11cd9a6",
+      "size": 105
+    },
+    {
+      "path": "closelib-root2-lib.sym",
+      "sha256": "9e1c8e7c5966420258288981cbbb7c3484f1d76d71deac5d7960cd39eb58bd59",
+      "size": 251
+    },
+    {
+      "path": "closelib-root2-source",
+      "sha256": "83e1935f6df52b0cc99f686c1c32557156edf3472b8e8233c74b32291b869abe",
+      "size": 96
+    },
+    {
+      "path": "closelib-root2-source.log",
+      "sha256": "8c6306981d4af0bc8e8e885a34765c6c81813d52bf4f45c65060fce5c11cd9a6",
+      "size": 105
+    },
+    {
+      "path": "closelib-root2-source.sym",
+      "sha256": "9e1c8e7c5966420258288981cbbb7c3484f1d76d71deac5d7960cd39eb58bd59",
+      "size": 251
+    },
+    {
+      "path": "closelib-source.o",
+      "sha256": "554b0e8efaba968a3240b84790efa5a4016a3434b7c3e6daf07915a0c667b64c",
+      "size": 96
+    },
+    {
+      "path": "closelib.asm",
+      "sha256": "21cf7afcd13c2179d707abf67a38eed940394e8a18439c476b9a61e6a3333458",
+      "size": 158
+    },
+    {
+      "path": "closelib.o",
+      "sha256": "dd37031b02a2ee81e6b96936c908e0dee5c24f5d7d6e134cb1ab1a8913cce8e8",
+      "size": 96
+    },
+    {
+      "path": "done.txt",
+      "sha256": "d117fa006ba9208500b2930ce69cbde436c647afa917cb7396a9bc9111a46dd2",
+      "size": 5
+    },
+    {
+      "path": "extract.log",
+      "sha256": "56a082b6400387be9a75be1553042a23f20aecd7072cb010b488898e2c0dc48c",
+      "size": 17
+    },
+    {
+      "path": "freemem-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "freemem-root1-lib",
+      "sha256": "0506ff878993a3e33da42f58e295c16a3744d702d8e886dbcedc7cd0edb31f49",
+      "size": 92
+    },
+    {
+      "path": "freemem-root1-lib.log",
+      "sha256": "964e68fce0a44d116bfc0ebf93f8cfe8f75bfc07b5a6078166b55641454048e6",
+      "size": 105
+    },
+    {
+      "path": "freemem-root1-lib.sym",
+      "sha256": "df832f3bb9e7846b72472aa39188fc567f8a41b57ff68780bac05ffb6a14117d",
+      "size": 241
+    },
+    {
+      "path": "freemem-root1-source",
+      "sha256": "0506ff878993a3e33da42f58e295c16a3744d702d8e886dbcedc7cd0edb31f49",
+      "size": 92
+    },
+    {
+      "path": "freemem-root1-source.log",
+      "sha256": "964e68fce0a44d116bfc0ebf93f8cfe8f75bfc07b5a6078166b55641454048e6",
+      "size": 105
+    },
+    {
+      "path": "freemem-root1-source.sym",
+      "sha256": "df832f3bb9e7846b72472aa39188fc567f8a41b57ff68780bac05ffb6a14117d",
+      "size": 241
+    },
+    {
+      "path": "freemem-root2-lib",
+      "sha256": "dc8f8e08dd6c967f7abc2136a8a4f325b46973574281b99b9de89fdaad993ce5",
+      "size": 100
+    },
+    {
+      "path": "freemem-root2-lib.log",
+      "sha256": "152e0b60e858b4eaadd12daf963e73fe790da66f22575e6a056f143944a56fe1",
+      "size": 105
+    },
+    {
+      "path": "freemem-root2-lib.sym",
+      "sha256": "b4b7b0a53e74e49e02f2dad34a5988164aaaa5f4d212376cee392d39ea384613",
+      "size": 241
+    },
+    {
+      "path": "freemem-root2-source",
+      "sha256": "dc8f8e08dd6c967f7abc2136a8a4f325b46973574281b99b9de89fdaad993ce5",
+      "size": 100
+    },
+    {
+      "path": "freemem-root2-source.log",
+      "sha256": "152e0b60e858b4eaadd12daf963e73fe790da66f22575e6a056f143944a56fe1",
+      "size": 105
+    },
+    {
+      "path": "freemem-root2-source.sym",
+      "sha256": "b4b7b0a53e74e49e02f2dad34a5988164aaaa5f4d212376cee392d39ea384613",
+      "size": 241
+    },
+    {
+      "path": "freemem-source.o",
+      "sha256": "4a24328f4e9ca03a9eb1b284ad7100458bbe80c9e9f83994ce57952d311812bd",
+      "size": 72
+    },
+    {
+      "path": "freemem.asm",
+      "sha256": "df754ca4b398c2663581cfc61dc2e1adce5898bf60b72d6e1c0c3de61f989421",
+      "size": 121
+    },
+    {
+      "path": "freemem.o",
+      "sha256": "b7d4e3cb1554c3fd0a692af9cafd1845e389a587216be2d0b1db5fe749c50439",
+      "size": 72
+    },
+    {
+      "path": "root1-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "root1.asm",
+      "sha256": "338d324c5b8eec39f357805a5954b8e1cb140b23220344aa7e6161beb737b2e2",
+      "size": 40
+    },
+    {
+      "path": "root1.o",
+      "sha256": "f59752d3dcc36b93ceb960e9ee1d70fa6450bfad87712daa8290fc823fe65f52",
+      "size": 60
+    },
+    {
+      "path": "root2-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "root2.asm",
+      "sha256": "5582949110615cb93c0531468ac5a79852c44d17d82d6b513c26f436e647e46a",
+      "size": 52
+    },
+    {
+      "path": "root2.o",
+      "sha256": "b4e8bd861d05f0a1480f1b1771105f542be9cc5412d5d7ad28dbc6f7af24744c",
+      "size": 68
+    },
+    {
+      "path": "step-00.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-01.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-02.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-03.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-04.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-05.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-06.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-07.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-08.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-09.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-10.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-11.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-12.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-13.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-14.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    }
+  ],
+  "tool_inputs": [
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS2/bin/lb",
+      "sha256": "a1bf3e25b67d9da333671c72b2e4e125f5f3b0ed74adef6dabf354c8ede21ac1"
+    }
+  ]
+}

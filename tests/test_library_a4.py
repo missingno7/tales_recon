@@ -42,8 +42,14 @@ class LibraryA4Tests(unittest.TestCase):
     def validate(self,**kwargs):
         return load_library_a4(self.root,self.blob,self.model,self.analysis,self.promotions,
             kwargs.get('ledger',self.ledger),document=self.document)
-    def test_real_complete_units_only_count_122_runtime_bytes(self):
-        rows=self.validate();self.assertEqual(len(rows),8);self.assertEqual(sum(len(r['bytes']) for r in rows),122)
+    def test_private_helper_cannot_replace_accepted_public_entry(self):
+        group=next(g for g in self.document['groups'] if g['id']=='freemem_unit')
+        group['original']['start']+=4
+        with self.assertRaisesRegex(FormatError,'original caller binding missing'):
+            self.validate()
+
+    def test_real_complete_units_only_count_158_runtime_bytes(self):
+        rows=self.validate();self.assertEqual(len(rows),10);self.assertEqual(sum(len(r['bytes']) for r in rows),158)
         self.assertTrue(all(r['category']=='PINNED_RUNTIME' for r in rows))
         for r in rows:
             h=next(x for x in self.model['hunks'] if x['number']==r['hunk'])

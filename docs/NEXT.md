@@ -4,9 +4,9 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 155 functions / 42,040 C bytes. The generated
+Canonical coverage is 156 functions / 42,116 C bytes. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,494
-compiler-owned data bytes, 552 pinned runtime bytes, 2 classified padding bytes and 148,916 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 148,804 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -123,9 +123,9 @@ python tools/hybrid_image.py --refresh --write
 ```
 
 The normal resident CLI promotion passed the full regression gate.
-Census validates all 155 canonical proofs.
+Census validates all 156 canonical proofs.
 Hybrid accounting has zero overlap and zero unaccounted file bytes, and refresh
-replays all 155 retained exact artifacts.
+replays all 156 retained exact artifacts.
 Queue/batch regression tests remain active; fresh compilation of the skipped
 controls is still due. The automatic-unit producer now retains raw conflicting
 TU declarations and derives only the harness's filtered view. The strict
@@ -232,3 +232,13 @@ Replay: `python evidence/rules/resident-exit-variant/replay.py`. Next independen
 bind complete callees8640/8980/8788/8974/8A12 and cross-routine globals; a strict
 whole-object consumer is still required. Retained newline and symbol-file
 failures are in `../evidence/experiments/resident-exit-variant.json`.
+
+Complete resident_F_8640 close source is canonical:76 C bytes. Its SDK-compatible
+6-byte device-record accesses and all mechanical bindings pass normal exact and
+regression checks. Strict FreeMem20 and CloseLibrary16 public/private units add
+36 runtime bytes, using accepted ov04 public entries and both DATA orders. The
+private-entry substitution negative control preserves the existing guard.
+Three of five deeper exit callee identities are now independent; Forbid and
+ReplyMsg, mixed-source whole-object acceptance and global/provider roles remain
+open. See `../evidence/experiments/resident-close-source.json` and
+`../evidence/experiments/resident-exit-bindings.json`.
