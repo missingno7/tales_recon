@@ -1,0 +1,198 @@
+{
+  "job": "wave11-startup-targets-001",
+  "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+  "receipt_sha256": "024cb8500bdcf5df9dd7879bd5c8e34afd9d35ff859727200ab39805ae46d858",
+  "sdk_archive_sha256": "9d6a62b0ddafd602e1563e9141585c89c076f7a50e21e75e850c9bc876556d46",
+  "source_files": [
+    {
+      "path": "_forbid.asm",
+      "sha256": "163c19b1de68253cccec8d2e1e91e9869760257e354ad5cd05ade89a26e87a00"
+    },
+    {
+      "path": "_getmsg.asm",
+      "sha256": "6b63fc99b715e38478facee428e2487f611654f5ed26b8cc3d004d0c4c491295"
+    },
+    {
+      "path": "_waitpor.asm",
+      "sha256": "13826742b286bc5999ca0a8241f21c71bc5f3ab41b214337ef9a614a4bd54dc3"
+    },
+    {
+      "path": "alert.asm",
+      "sha256": "baefe12736e0069eb8c67834961b637cbef682626a5bb4281c398ef8fd2bff18"
+    },
+    {
+      "path": "root1.asm",
+      "sha256": "338d324c5b8eec39f357805a5954b8e1cb140b23220344aa7e6161beb737b2e2"
+    },
+    {
+      "path": "root2.asm",
+      "sha256": "5582949110615cb93c0531468ac5a79852c44d17d82d6b513c26f436e647e46a"
+    }
+  ],
+  "steps": [
+    {
+      "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x alert _waitpor _getmsg _forbid",
+      "index": 0,
+      "returncode": 0,
+      "returncode_file": "step-00.rc"
+    },
+    {
+      "command": "Old1:bin/as >root1-as.log -o root1.o root1.asm",
+      "index": 1,
+      "returncode": 0,
+      "returncode_file": "step-01.rc"
+    },
+    {
+      "command": "Old1:bin/as >root2-as.log -o root2.o root2.asm",
+      "index": 2,
+      "returncode": 0,
+      "returncode_file": "step-02.rc"
+    },
+    {
+      "command": "Old1:bin/as >alert-as.log -o alert-source.o alert.asm",
+      "index": 3,
+      "returncode": 0,
+      "returncode_file": "step-03.rc"
+    },
+    {
+      "command": "Old1:bin/ln >alert-root1-lib.log -m -t -o alert-root1-lib alert.o root1.o",
+      "index": 4,
+      "returncode": 0,
+      "returncode_file": "step-04.rc"
+    },
+    {
+      "command": "Old1:bin/ln >alert-root1-source.log -m -t -o alert-root1-source alert-source.o root1.o",
+      "index": 5,
+      "returncode": 0,
+      "returncode_file": "step-05.rc"
+    },
+    {
+      "command": "Old1:bin/ln >alert-root2-lib.log -m -t -o alert-root2-lib alert.o root2.o",
+      "index": 6,
+      "returncode": 0,
+      "returncode_file": "step-06.rc"
+    },
+    {
+      "command": "Old1:bin/ln >alert-root2-source.log -m -t -o alert-root2-source alert-source.o root2.o",
+      "index": 7,
+      "returncode": 0,
+      "returncode_file": "step-07.rc"
+    },
+    {
+      "command": "Old1:bin/as >_waitpor-as.log -o _waitpor-source.o _waitpor.asm",
+      "index": 8,
+      "returncode": 0,
+      "returncode_file": "step-08.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_waitpor-root1-lib.log -m -t -o _waitpor-root1-lib _waitpor.o root1.o",
+      "index": 9,
+      "returncode": 0,
+      "returncode_file": "step-09.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_waitpor-root1-source.log -m -t -o _waitpor-root1-source _waitpor-source.o root1.o",
+      "index": 10,
+      "returncode": 0,
+      "returncode_file": "step-10.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_waitpor-root2-lib.log -m -t -o _waitpor-root2-lib _waitpor.o root2.o",
+      "index": 11,
+      "returncode": 0,
+      "returncode_file": "step-11.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_waitpor-root2-source.log -m -t -o _waitpor-root2-source _waitpor-source.o root2.o",
+      "index": 12,
+      "returncode": 0,
+      "returncode_file": "step-12.rc"
+    },
+    {
+      "command": "Old1:bin/as >_getmsg-as.log -o _getmsg-source.o _getmsg.asm",
+      "index": 13,
+      "returncode": 0,
+      "returncode_file": "step-13.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_getmsg-root1-lib.log -m -t -o _getmsg-root1-lib _getmsg.o root1.o",
+      "index": 14,
+      "returncode": 0,
+      "returncode_file": "step-14.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_getmsg-root1-source.log -m -t -o _getmsg-root1-source _getmsg-source.o root1.o",
+      "index": 15,
+      "returncode": 0,
+      "returncode_file": "step-15.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_getmsg-root2-lib.log -m -t -o _getmsg-root2-lib _getmsg.o root2.o",
+      "index": 16,
+      "returncode": 0,
+      "returncode_file": "step-16.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_getmsg-root2-source.log -m -t -o _getmsg-root2-source _getmsg-source.o root2.o",
+      "index": 17,
+      "returncode": 0,
+      "returncode_file": "step-17.rc"
+    },
+    {
+      "command": "Old1:bin/as >_forbid-as.log -o _forbid-source.o _forbid.asm",
+      "index": 18,
+      "returncode": 0,
+      "returncode_file": "step-18.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root1-lib.log -m -t -o _forbid-root1-lib _forbid.o root1.o",
+      "index": 19,
+      "returncode": 0,
+      "returncode_file": "step-19.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root1-source.log -m -t -o _forbid-root1-source _forbid-source.o root1.o",
+      "index": 20,
+      "returncode": 0,
+      "returncode_file": "step-20.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root2-lib.log -m -t -o _forbid-root2-lib _forbid.o root2.o",
+      "index": 21,
+      "returncode": 0,
+      "returncode_file": "step-21.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root2-source.log -m -t -o _forbid-root2-source _forbid-source.o root2.o",
+      "index": 22,
+      "returncode": 0,
+      "returncode_file": "step-22.rc"
+    }
+  ],
+  "tools": [
+    {
+      "path": "toolchain/installed/aztec-5.0a/Aztec2/bin/as",
+      "sha256": "9ad50b42b7c17b91193f701911c0ab222bdb9bb73cde73c4ba512cd4a15bf721"
+    },
+    {
+      "path": "toolchain/installed/aztec-5.0a/Aztec2/bin/lb",
+      "sha256": "1518be4032247b6b9ad78596a8e26212a7b4d8e7afd8cc073f1885423c8955d2"
+    },
+    {
+      "path": "toolchain/installed/aztec-5.0a/Aztec2/bin/ln",
+      "sha256": "a5b9ed9e22cc6818d0df2137fa7cd452b072166f26dd6a65536eb03f8d762345"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS2/bin/lb",
+      "sha256": "a1bf3e25b67d9da333671c72b2e4e125f5f3b0ed74adef6dabf354c8ede21ac1"
+    }
+  ]
+}

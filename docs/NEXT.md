@@ -165,3 +165,9 @@ main uses logical node1, and exit requires a validated DATA jump entry.
 The allocator/task public-private units add34 strictly accepted runtime bytes.
 See `../evidence/experiments/startup-bindings.json`. No startup DATA or complete
 root layout is accepted.
+
+Alert, WaitPort and GetMsg now have independent complete-object/source/two-DATA-
+order matches, adding48 experimental target bytes. Strict accepted-caller
+entry checks remain intact and no bytes are counted. The CurrentDir target
+at869C must not be confused with Forbid at8974. Next, bind DOSBase and the
+remaining parser/global relationships; see startup-targets.json.

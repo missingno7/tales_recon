@@ -366,7 +366,8 @@
         "Original DATA+2EB0 is read by resident766C/8552/8640. Normal 3.6a startup-object link reproduces the two bytes after the 310-byte closed CFG; complete 312-byte binding proof remains pending.",
         "Complete 312-byte startup object matches every ordinary byte after diagnostic field correspondence; eight globals and eleven PC targets plus two A4 calls remain explicitly enumerated. No startup acceptance; evidence/experiments/startup-bindings.json.",
         "Normal linker controls reproduce main via encoded overlay node1 (physical original ov03) and exit via a valid six-byte DATA jump entry with a CODE relocation.",
-        "AllocMem and FindTask public/private complete units pass strict pinned-library/source/current-caller verification: 34 additional PINNED_RUNTIME bytes."
+        "AllocMem and FindTask public/private complete units pass strict pinned-library/source/current-caller verification: 34 additional PINNED_RUNTIME bytes.",
+        "Complete Alert/WaitPort/GetMsg objects, independently assembled SDK source and both DATA orders match48 startup-target bytes uniquely with the already bound SysBase atB3A2; evidence/experiments/startup-targets.json. They remain experimental because current strict entry policy requires an accepted caller binding."
       ],
       "experiments_tried": [
         "TOOLCHAIN: INCLUDE volume assignment did not satisfy 3.6a cc; explicit -I Old1:include succeeds.",
@@ -376,7 +377,8 @@
         "CALL_BINDING: root function-pointer export and large-code callee did not change startup exit to A4.",
         "SOURCE_SHAPE: SDK startup compiled with +c/+cd emits 338/386 bytes and differs from the original 312-byte object; not accepted.",
         "DATA_OWNERSHIP: bare jmp in dseg emitted zero DATA and aliased the numdev symbol despite matching call opcode. Rejected as invalid; explicit SDK-recognized jump-table DATA record has a verified relocation and valid payload.",
-        "OBJECT/TU_LAYOUT: corrected control uses logical node1 for the original physical ov03 main callback; source-controlled routing only, not original interface ownership."
+        "OBJECT/TU_LAYOUT: corrected control uses logical node1 for the original physical ov03 main callback; source-controlled routing only, not original interface ownership.",
+        "CALL_BINDING: initial list incorrectly associated resident869C with Forbid. Complete object plus known-base matching rejected this, located Forbid at8974 and preserved869C as the CurrentDir target. No incorrect claim or guard relaxation was published."
       ],
       "first_mismatch": {
         "candidate_initialized_bytes": 10,
@@ -385,7 +387,7 @@
       },
       "id": "RESIDENT-VARS-LAYOUT-001",
       "missing_artifact": "Independently bound original runtime DATA producer/consumer identities and real original provider contribution; tested pinned vars object is incompatible.",
-      "next_experiment": "Verify remaining startup PC targets and establish independent cross-routine bindings for the eight globals. Use the accepted allocator/task private entries to ground the numdev allocation and current-process roles. Keep the incompatible complete vars DATA provider rejected and the startup object unpromoted until all identities pass.",
+      "next_experiment": "Bind DOSBase independently through startup/provider code, then check CurrentDir/Input/Output/Open as complete pinned objects. Establish CLI/Workbench parser and eight global cross-routine bindings. Resolve the strict entry-binding gate without counting diagnostic field correspondence as proof.",
       "status": "OPEN",
       "target": "pinned vars object and resident DATA/COMMON frontier"
     }
