@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "status": "COMPLETE_SOURCE_LIBRARY_UNIQUE_KNOWN_BASE_CALLEES_MATCH",
+  "accounting_promoted": false,
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "library": {
+    "path": "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+    "sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3"
+  },
+  "sdk_archive": {
+    "path": "toolchain/installed/aztec-3.6a/Library Source/exec.arc",
+    "sha256": "9d6a62b0ddafd602e1563e9141585c89c076f7a50e21e75e850c9bc876556d46"
+  },
+  "known_base_basis": {
+    "contribution": "closelib_unit",
+    "document": "evidence/contributions/library-a4.json",
+    "document_sha256": "052487e3262435308e54d0e729cd454f41a469b0ea2e77fa936da926750d8000",
+    "strict_consumer_sha256": "5b156c3c1bdae7fc677cf0b5b2e22d031c61a721b1b5b1755795f3da08c6e796",
+    "accepted_public_entry": 34692,
+    "original_sys_base": {
+      "hunk": 1,
+      "offset": 45986
+    }
+  },
+  "objects": [
+    {
+      "member": "_forbid",
+      "symbol": "__Forbid",
+      "code_bytes": 8,
+      "base_field": 2,
+      "original_base": {
+        "hunk": 1,
+        "offset": 45986
+      },
+      "library_object_sha256": "1f6c3da0b9cebf34fdd533d5ded317f086b8969476c9ed9d09fde03968b4f118",
+      "assembled_object_sha256": "8e3888a81c17cd069cf545c4c96e14265776ebe08b5ddd9831ffc7148723a4aa",
+      "unique_original_matches": [
+        {
+          "hunk": 0,
+          "offset": 35188
+        }
+      ],
+      "controls": [
+        {
+          "root": "root1",
+          "kind": "lib",
+          "executable": "evidence/rules/resident-exit-message-leaves/_forbid-root1-lib",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_forbid-root1-lib.sym",
+          "base_offset": 0
+        },
+        {
+          "root": "root1",
+          "kind": "source",
+          "executable": "evidence/rules/resident-exit-message-leaves/_forbid-root1-source",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_forbid-root1-source.sym",
+          "base_offset": 0
+        },
+        {
+          "root": "root2",
+          "kind": "lib",
+          "executable": "evidence/rules/resident-exit-message-leaves/_forbid-root2-lib",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_forbid-root2-lib.sym",
+          "base_offset": 6
+        },
+        {
+          "root": "root2",
+          "kind": "source",
+          "executable": "evidence/rules/resident-exit-message-leaves/_forbid-root2-source",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_forbid-root2-source.sym",
+          "base_offset": 6
+        }
+      ],
+      "accounting_promoted": false
+    },
+    {
+      "member": "_replyms",
+      "symbol": "__ReplyMsg",
+      "code_bytes": 12,
+      "base_field": 6,
+      "original_base": {
+        "hunk": 1,
+        "offset": 45986
+      },
+      "library_object_sha256": "a863f17db9bfa6172608f4e6eda52a6734714c6560bbd49451480716175c1e3e",
+      "assembled_object_sha256": "3ccd3f93d64ea302baa742b3e44f72226668f59786f4c18a5f53fca38ab8ddb6",
+      "unique_original_matches": [
+        {
+          "hunk": 0,
+          "offset": 35346
+        }
+      ],
+      "controls": [
+        {
+          "root": "root1",
+          "kind": "lib",
+          "executable": "evidence/rules/resident-exit-message-leaves/_replyms-root1-lib",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_replyms-root1-lib.sym",
+          "base_offset": 0
+        },
+        {
+          "root": "root1",
+          "kind": "source",
+          "executable": "evidence/rules/resident-exit-message-leaves/_replyms-root1-source",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_replyms-root1-source.sym",
+          "base_offset": 0
+        },
+        {
+          "root": "root2",
+          "kind": "lib",
+          "executable": "evidence/rules/resident-exit-message-leaves/_replyms-root2-lib",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_replyms-root2-lib.sym",
+          "base_offset": 6
+        },
+        {
+          "root": "root2",
+          "kind": "source",
+          "executable": "evidence/rules/resident-exit-message-leaves/_replyms-root2-source",
+          "symbols": "evidence/rules/resident-exit-message-leaves/_replyms-root2-source.sym",
+          "base_offset": 6
+        }
+      ],
+      "accounting_promoted": false
+    }
+  ],
+  "task_cards": [
+    {
+      "head": "e9798b03369e6320ec57f90038334a68cc4f38e6",
+      "canonical_ledger_sha256": "6f032aa89c8d50e7fc62823e3ce8b06525f62a0e5166c3c799380fcb52fcea0f",
+      "target": "_forbid",
+      "extent": {
+        "hunk": 0,
+        "start": 35188,
+        "end": 35196,
+        "size": 8
+      },
+      "profile": "aztec36",
+      "blocker_category": "CALL_BINDING",
+      "trial_budget": 1,
+      "stagnation_limit": 1,
+      "plan": "Complete pinned object and independent SDK assembly in two DATA orders; bind unique original known-SysBase match independently of exit call-slot projection. No runtime acceptance without joint complete-object consumer."
+    },
+    {
+      "head": "e9798b03369e6320ec57f90038334a68cc4f38e6",
+      "canonical_ledger_sha256": "6f032aa89c8d50e7fc62823e3ce8b06525f62a0e5166c3c799380fcb52fcea0f",
+      "target": "_replyms",
+      "extent": {
+        "hunk": 0,
+        "start": 35346,
+        "end": 35358,
+        "size": 12
+      },
+      "profile": "aztec36",
+      "blocker_category": "CALL_BINDING",
+      "trial_budget": 1,
+      "stagnation_limit": 1,
+      "plan": "Complete pinned object and independent SDK assembly in two DATA orders; bind unique original known-SysBase match independently of exit call-slot projection. No runtime acceptance without joint complete-object consumer."
+    }
+  ],
+  "limitations": [
+    "Unique complete callee matches do not bypass library_a4 accepted-public-entry guards.",
+    "No new runtime bytes or mixed exit object acceptance.",
+    "Original storage ownership, filenames, TU membership and exact library release remain unknown."
+  ],
+  "retained_inputs": [
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "bytes": 37
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root1-lib",
+      "sha256": "66f68eb3e74c593a4205fe64e27b54cad8d83f43b7f165acdd6a1c8ffb7f84bd",
+      "bytes": 80
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root1-lib.log",
+      "sha256": "f6521c5b22edabc5d959ef364dd4e811cd1c8684348549175d54078a00e273aa",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root1-lib.sym",
+      "sha256": "bf720e70b624ff5d75c0daf7f4e1c18deb66a04106ba00ee8f2a40c59858de79",
+      "bytes": 221
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root1-source",
+      "sha256": "66f68eb3e74c593a4205fe64e27b54cad8d83f43b7f165acdd6a1c8ffb7f84bd",
+      "bytes": 80
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root1-source.log",
+      "sha256": "f6521c5b22edabc5d959ef364dd4e811cd1c8684348549175d54078a00e273aa",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root1-source.sym",
+      "sha256": "bf720e70b624ff5d75c0daf7f4e1c18deb66a04106ba00ee8f2a40c59858de79",
+      "bytes": 221
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root2-lib",
+      "sha256": "01ff7658995a6dd97920e147de7971a0ca6b97d1a3164e27a643eaa0f4fed355",
+      "bytes": 88
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root2-lib.log",
+      "sha256": "9f7992e4c30cf7b69832e85741c78ca63b249e6efa78b8cdeadb19d744f19ac8",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root2-lib.sym",
+      "sha256": "0d53043561659b18d6143090ccacb7bd42845d4a88d0256b75696272ff03f066",
+      "bytes": 221
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root2-source",
+      "sha256": "01ff7658995a6dd97920e147de7971a0ca6b97d1a3164e27a643eaa0f4fed355",
+      "bytes": 88
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root2-source.log",
+      "sha256": "9f7992e4c30cf7b69832e85741c78ca63b249e6efa78b8cdeadb19d744f19ac8",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-root2-source.sym",
+      "sha256": "0d53043561659b18d6143090ccacb7bd42845d4a88d0256b75696272ff03f066",
+      "bytes": 221
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid-source.o",
+      "sha256": "8e3888a81c17cd069cf545c4c96e14265776ebe08b5ddd9831ffc7148723a4aa",
+      "bytes": 80
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid.asm",
+      "sha256": "163c19b1de68253cccec8d2e1e91e9869760257e354ad5cd05ade89a26e87a00",
+      "bytes": 139
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_forbid.o",
+      "sha256": "1f6c3da0b9cebf34fdd533d5ded317f086b8969476c9ed9d09fde03968b4f118",
+      "bytes": 80
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "bytes": 37
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root1-lib",
+      "sha256": "b8aa78ea7d9ba3c62d912bf667210f2b84dc287d85335ca69528479b82235356",
+      "bytes": 84
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root1-lib.log",
+      "sha256": "24391a10744c28931bd50ba768defa989b0c5964519e12bbf10d7796921fd6b3",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root1-lib.sym",
+      "sha256": "1c3f1f1b405ce99a0d679eb83f5c610388d412a370fbe030370c8a1baf1cbefa",
+      "bytes": 223
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root1-source",
+      "sha256": "b8aa78ea7d9ba3c62d912bf667210f2b84dc287d85335ca69528479b82235356",
+      "bytes": 84
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root1-source.log",
+      "sha256": "24391a10744c28931bd50ba768defa989b0c5964519e12bbf10d7796921fd6b3",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root1-source.sym",
+      "sha256": "1c3f1f1b405ce99a0d679eb83f5c610388d412a370fbe030370c8a1baf1cbefa",
+      "bytes": 223
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root2-lib",
+      "sha256": "db98ebc7e00ae59859f58f77a9d5454169386bcb6c3dc1e6bc2d27b5c986bf6d",
+      "bytes": 92
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root2-lib.log",
+      "sha256": "fdf48aa85d72ab31e5b1cbe0bd4bbb654faefeae4a40006d3a0edafc1341fca9",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root2-lib.sym",
+      "sha256": "e81d6ee4ff8c9353dde7d85b08fc310ba572313e58f2e99c2b3e666351e0b051",
+      "bytes": 223
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root2-source",
+      "sha256": "db98ebc7e00ae59859f58f77a9d5454169386bcb6c3dc1e6bc2d27b5c986bf6d",
+      "bytes": 92
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root2-source.log",
+      "sha256": "fdf48aa85d72ab31e5b1cbe0bd4bbb654faefeae4a40006d3a0edafc1341fca9",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-root2-source.sym",
+      "sha256": "e81d6ee4ff8c9353dde7d85b08fc310ba572313e58f2e99c2b3e666351e0b051",
+      "bytes": 223
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms-source.o",
+      "sha256": "3ccd3f93d64ea302baa742b3e44f72226668f59786f4c18a5f53fca38ab8ddb6",
+      "bytes": 84
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms.asm",
+      "sha256": "a7d70c0a5c185e3aa3d41d0cdf14825b381e6ebb9683f4904434345e3099f94e",
+      "bytes": 160
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/_replyms.o",
+      "sha256": "a863f17db9bfa6172608f4e6eda52a6734714c6560bbd49451480716175c1e3e",
+      "bytes": 84
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/extract.log",
+      "sha256": "56a082b6400387be9a75be1553042a23f20aecd7072cb010b488898e2c0dc48c",
+      "bytes": 17
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/receipt.json",
+      "sha256": "7b26ee1168f21d533240dab86f4e6c3ac6c13c86bd13b4042bc6820558e86a29",
+      "bytes": 11587
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/root1-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "bytes": 37
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/root1.asm",
+      "sha256": "338d324c5b8eec39f357805a5954b8e1cb140b23220344aa7e6161beb737b2e2",
+      "bytes": 40
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/root1.o",
+      "sha256": "f59752d3dcc36b93ceb960e9ee1d70fa6450bfad87712daa8290fc823fe65f52",
+      "bytes": 60
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/root2-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "bytes": 37
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/root2.asm",
+      "sha256": "5582949110615cb93c0531468ac5a79852c44d17d82d6b513c26f436e647e46a",
+      "bytes": 52
+    },
+    {
+      "path": "evidence/rules/resident-exit-message-leaves/root2.o",
+      "sha256": "b4e8bd861d05f0a1480f1b1771105f542be9cc5412d5d7ad28dbc6f7af24744c",
+      "bytes": 68
+    }
+  ]
+}

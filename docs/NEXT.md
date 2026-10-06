@@ -242,3 +242,22 @@ Three of five deeper exit callee identities are now independent; Forbid and
 ReplyMsg, mixed-source whole-object acceptance and global/provider roles remain
 open. See `../evidence/experiments/resident-close-source.json` and
 `../evidence/experiments/resident-exit-bindings.json`.
+
+All five exit callee identities now have independent source/library or canonical
+source evidence. Forbid8 and ReplyMsg12 match uniquely at the proved SysBase
+identity in both DATA orders; they remain outside runtime accounting. A complete
+mechanical mixed-source control produces238 bytes with180 ordinary bytes and all
+29 address fields matching. The two SDK assembly blocks are unchanged except
+for saved-stack symbol spelling. Normal C promotion still rejects assembly.
+Next add curated complete-source facts and a strict mixed-runtime recipe with
+C/ASM partitions, inbound canonical anchor and rehashed negative controls;
+retain all existing C and accepted-public-entry guards. See
+`../evidence/experiments/resident-exit-message-leaves.json` and
+`../evidence/experiments/resident-exit-mechanical.json`. No coverage/debt changes.
+
+A label-only source control preserves complete CODE and all mechanical binding
+coordinates and measures196 C-compiler bytes plus42 SDK ASM bytes. The terminal
+six-byte epilogue belongs to C compiler output. This is source-language evidence
+only; no canonical source extent, historical TU or accounting acceptance. Replay
+`python evidence/rules/resident-exit-mechanical/replay.py`; partition inputs are
+in `../evidence/experiments/resident-exit-partition.json`.

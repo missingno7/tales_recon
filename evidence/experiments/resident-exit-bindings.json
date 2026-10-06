@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "THREE_OF_FIVE_EXIT_CALLEES_INDEPENDENTLY_BOUND",
+  "status": "FIVE_EXIT_CALLEE_IDENTITIES_INDEPENDENTLY_MATCHED",
   "accounting_promoted_variant": false,
   "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
   "variant": {
@@ -59,20 +59,33 @@
         100,
         116
       ]
-    }
-  ],
-  "remaining_callees": [
+    },
     {
       "name": "__Forbid",
       "original_offset": 35188,
-      "exit_site": 208
+      "evidence": "COMPLETE_SOURCE_LIBRARY_UNIQUE_KNOWN_SYSBASE_MATCH_NOT_ACCOUNTING_ACCEPTED",
+      "basis": {
+        "path": "evidence/experiments/resident-exit-message-leaves.json",
+        "sha256": "f47cd272ae562c089fd51392d1581b068be855831d42f8226cfc55949b10db78"
+      },
+      "exit_sites": [
+        208
+      ]
     },
     {
       "name": "__ReplyMsg",
       "original_offset": 35346,
-      "exit_site": 216
+      "evidence": "COMPLETE_SOURCE_LIBRARY_UNIQUE_KNOWN_SYSBASE_MATCH_NOT_ACCOUNTING_ACCEPTED",
+      "basis": {
+        "path": "evidence/experiments/resident-exit-message-leaves.json",
+        "sha256": "f47cd272ae562c089fd51392d1581b068be855831d42f8226cfc55949b10db78"
+      },
+      "exit_sites": [
+        216
+      ]
     }
   ],
+  "remaining_callees": [],
   "new_runtime_bytes": 36,
   "original_storage_ownership": "UNKNOWN",
   "limitations": [
@@ -81,8 +94,13 @@
     "Runtime ABI/code membership does not prove exact original library release."
   ],
   "next_experiment": {
-    "category": "CALL_BINDING",
-    "question": "Can complete Forbid/ReplyMsg and the mixed runtime object be independently verified from an accepted inbound exit-wrapper anchor?",
-    "smallest_change": "Design a strict joint complete-object source/runtime consumer anchored by accepted resident_F_8534 ->8552, with independently produced complete leaf bytes and mechanical global identities; preserve the existing library_a4 accepted-public-entry guard."
-  }
+    "category": "CFG/BOUNDARY",
+    "question": "Can the complete source-derived mixed object and its C/ASM partitions be accepted with a strict independently rederived recipe, canonical inbound anchor and all callee bindings?",
+    "smallest_change": "Extend curated source-fact inputs and a strict mixed-runtime verifier; keep normal C no-assembly guard and library_a4 public-entry guards unchanged. Verify both SDK assembly blocks, source-derived238 extent, all29 field identities and byte partitions, with consistently rehashed negative controls."
+  },
+  "remaining_acceptance_gates": [
+    "Normal C validator still rejects inline assembly; this experiment does not bypass promotion.",
+    "Current canonical extent remains232; compiler-owned trailing epilogue6 is not accepted.",
+    "A strict mixed-object source consumer, curated source extent, C/ASM attribution and stale/tamper negatives are required before any acceptance."
+  ]
 }

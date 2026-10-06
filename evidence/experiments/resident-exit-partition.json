@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "status": "LABEL_ONLY_CONTROL_MEASURES_C_ASM_PARTITION",
+  "accounting_promoted": false,
+  "code_bytes": 238,
+  "marked_code_sha256": "1ae301ab1c8521ab78cb2f0e6bbc34b9f2b169029f58c2b8cceac1a5064661ea",
+  "unmarked_code_sha256": "1ae301ab1c8521ab78cb2f0e6bbc34b9f2b169029f58c2b8cceac1a5064661ea",
+  "all_code_bytes_identical": true,
+  "all_mechanical_bindings_identical": true,
+  "c_compiler_bytes": 196,
+  "sdk_asm_bytes": 42,
+  "partitions": [
+    {
+      "start": 0,
+      "end": 122,
+      "size": 122,
+      "language": "C_COMPILER"
+    },
+    {
+      "start": 122,
+      "end": 154,
+      "size": 32,
+      "language": "ASM",
+      "source_block": 0
+    },
+    {
+      "start": 154,
+      "end": 222,
+      "size": 68,
+      "language": "C_COMPILER"
+    },
+    {
+      "start": 222,
+      "end": 232,
+      "size": 10,
+      "language": "ASM",
+      "source_block": 1
+    },
+    {
+      "start": 232,
+      "end": 238,
+      "size": 6,
+      "language": "C_COMPILER"
+    }
+  ],
+  "unmarked_basis": {
+    "path": "evidence/experiments/resident-exit-mechanical.json",
+    "sha256": "17dfa101fda886870d9b0d128daf57f4b5bad81ce93078797cc9807322c64325"
+  },
+  "task_card": {
+    "head": "e9798b03369e6320ec57f90038334a68cc4f38e6",
+    "canonical_ledger_sha256": "6f032aa89c8d50e7fc62823e3ce8b06525f62a0e5166c3c799380fcb52fcea0f",
+    "target": "resident_F_8552_complete_mixed_source",
+    "extent": {
+      "hunk": 0,
+      "start": 34130,
+      "end": 34368,
+      "size": 238
+    },
+    "profile": "aztec36-x3",
+    "blocker_category": "OBJECT/TU_LAYOUT",
+    "trial_budget": 1,
+    "stagnation_limit": 1,
+    "plan": "Add only public labels around the two unchanged SDK ASM blocks. Require complete emitted CODE and all mechanical bindings unchanged. Derive C/ASM byte intervals from actual linked symbols; no ownership or acceptance."
+  },
+  "retained_inputs": [
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "bytes": 37
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "bytes": 72
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate-ln.log",
+      "sha256": "ac28fd3fbc88396d8aeed5f4b46fc17e9b60d3605ec52aa5074598c1f697d084",
+      "bytes": 105
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate.asm",
+      "sha256": "91135c26b0a0be4b1080b2a8ad59c66f050d14872ab343deaf090c6a5027a8eb",
+      "bytes": 2100
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate.c",
+      "sha256": "a5db727af54968ec36f020680390933fc2fe8512a8b6a44e14d904a9aae7769b",
+      "bytes": 1862
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate.exe",
+      "sha256": "32d3ae226405043fccea81d32b586ecfc58246cebe1bdc1dc970d964f0af912b",
+      "bytes": 2212
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate.o",
+      "sha256": "ecc13a28b9773688b36d8685b6cc98d0e8ac2c2c9e72ddfffe3c4368e14f53bf",
+      "bytes": 752
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/candidate.sym",
+      "sha256": "ea6957030d2af68f9cda3d5940d913d1d39e9452d7c5b8610905431930353fc5",
+      "bytes": 1882
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/receipt.json",
+      "sha256": "ef6103a8f8a20895f70ab0e684b007fd5d18f4df13c2334fb7aa6c6297ebac0c",
+      "bytes": 5199
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/root.asm",
+      "sha256": "245e3337e974c5b0b58371059491964ccb91be0d7484cf2d2eae6ecb8c9f33f5",
+      "bytes": 1189
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/root.c",
+      "sha256": "ed5569c1c39df20fad7d67319fd186be252552446a4a99f433f85a589df2d89b",
+      "bytes": 552
+    },
+    {
+      "path": "evidence/rules/resident-exit-partition/root.o",
+      "sha256": "7c5cec8a1f82a9e20503d3f6e1471f797c2b5757a3a9db4f9597c2df26d80cce",
+      "bytes": 444
+    }
+  ],
+  "limitations": [
+    "These byte languages are emitted by independent source controls, not original source-file/TU provenance.",
+    "No acceptance or byte accounting changes; strict mixed-source and complete-extent consumer remains required."
+  ]
+}

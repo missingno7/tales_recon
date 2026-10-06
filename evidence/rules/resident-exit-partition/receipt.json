@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "original_job_receipt_sha256": "be6b2189cb530e9d61633dafe1c1fa5304376ff14ed1e722f0cc917865be05ba",
+  "source_files": [
+    {
+      "path": "candidate.c",
+      "sha256": "a5db727af54968ec36f020680390933fc2fe8512a8b6a44e14d904a9aae7769b"
+    },
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3"
+    },
+    {
+      "path": "root.c",
+      "sha256": "ed5569c1c39df20fad7d67319fd186be252552446a4a99f433f85a589df2d89b"
+    }
+  ],
+  "steps": [
+    {
+      "command": "Old1:bin/cc -a +X3 -o candidate.asm candidate.c <compiler-input.txt >candidate-cc.log",
+      "index": 0,
+      "returncode": 0,
+      "returncode_file": "step-00.rc"
+    },
+    {
+      "command": "Old1:bin/as -o candidate.o candidate.asm <compiler-input.txt >candidate-as.log",
+      "index": 1,
+      "returncode": 0,
+      "returncode_file": "step-01.rc"
+    },
+    {
+      "command": "Old1:bin/cc -a +X3 -o root.asm root.c <compiler-input.txt >root-cc.log",
+      "index": 2,
+      "returncode": 0,
+      "returncode_file": "step-02.rc"
+    },
+    {
+      "command": "Old1:bin/as -o root.o root.asm <compiler-input.txt >root-as.log",
+      "index": 3,
+      "returncode": 0,
+      "returncode_file": "step-03.rc"
+    },
+    {
+      "command": "Old1:bin/ln -m -t -o candidate.exe root.o candidate.o Old1:lib/c.lib <compiler-input.txt >candidate-ln.log",
+      "index": 4,
+      "returncode": 0,
+      "returncode_file": "step-04.rc"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "booted.txt",
+      "sha256": "bd0365f9ff33a73c021ad8c16a16e48863d0989106504fa3531511b40bb570bd",
+      "size": 7
+    },
+    {
+      "path": "candidate-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "candidate-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "candidate-ln.log",
+      "sha256": "ac28fd3fbc88396d8aeed5f4b46fc17e9b60d3605ec52aa5074598c1f697d084",
+      "size": 105
+    },
+    {
+      "path": "candidate.asm",
+      "sha256": "91135c26b0a0be4b1080b2a8ad59c66f050d14872ab343deaf090c6a5027a8eb",
+      "size": 2100
+    },
+    {
+      "path": "candidate.c",
+      "sha256": "a5db727af54968ec36f020680390933fc2fe8512a8b6a44e14d904a9aae7769b",
+      "size": 1862
+    },
+    {
+      "path": "candidate.exe",
+      "sha256": "32d3ae226405043fccea81d32b586ecfc58246cebe1bdc1dc970d964f0af912b",
+      "size": 2212
+    },
+    {
+      "path": "candidate.o",
+      "sha256": "ecc13a28b9773688b36d8685b6cc98d0e8ac2c2c9e72ddfffe3c4368e14f53bf",
+      "size": 752
+    },
+    {
+      "path": "candidate.sym",
+      "sha256": "ea6957030d2af68f9cda3d5940d913d1d39e9452d7c5b8610905431930353fc5",
+      "size": 1882
+    },
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+      "size": 40
+    },
+    {
+      "path": "done.txt",
+      "sha256": "d117fa006ba9208500b2930ce69cbde436c647afa917cb7396a9bc9111a46dd2",
+      "size": 5
+    },
+    {
+      "path": "root-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "root-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "root.asm",
+      "sha256": "245e3337e974c5b0b58371059491964ccb91be0d7484cf2d2eae6ecb8c9f33f5",
+      "size": 1189
+    },
+    {
+      "path": "root.c",
+      "sha256": "ed5569c1c39df20fad7d67319fd186be252552446a4a99f433f85a589df2d89b",
+      "size": 552
+    },
+    {
+      "path": "root.o",
+      "sha256": "7c5cec8a1f82a9e20503d3f6e1471f797c2b5757a3a9db4f9597c2df26d80cce",
+      "size": 444
+    },
+    {
+      "path": "step-00.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-01.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-02.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-03.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-04.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    }
+  ],
+  "tool_inputs": [
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/cc",
+      "sha256": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+      "sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3"
+    }
+  ]
+}

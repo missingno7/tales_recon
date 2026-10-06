@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "original_job_receipt_sha256": "a4402ffd0bcfe20a2153be36764f76465202bde9c06de73117b7b0713779f947",
+  "source_files": [
+    {
+      "path": "_forbid.asm",
+      "sha256": "163c19b1de68253cccec8d2e1e91e9869760257e354ad5cd05ade89a26e87a00"
+    },
+    {
+      "path": "_replyms.asm",
+      "sha256": "a7d70c0a5c185e3aa3d41d0cdf14825b381e6ebb9683f4904434345e3099f94e"
+    },
+    {
+      "path": "root1.asm",
+      "sha256": "338d324c5b8eec39f357805a5954b8e1cb140b23220344aa7e6161beb737b2e2"
+    },
+    {
+      "path": "root2.asm",
+      "sha256": "5582949110615cb93c0531468ac5a79852c44d17d82d6b513c26f436e647e46a"
+    }
+  ],
+  "steps": [
+    {
+      "command": "Old2:bin/lb >extract.log Old1:lib/c.lib -x _forbid _replyms",
+      "index": 0,
+      "returncode": 0,
+      "returncode_file": "step-00.rc"
+    },
+    {
+      "command": "Old1:bin/as >root1-as.log -o root1.o root1.asm",
+      "index": 1,
+      "returncode": 0,
+      "returncode_file": "step-01.rc"
+    },
+    {
+      "command": "Old1:bin/as >root2-as.log -o root2.o root2.asm",
+      "index": 2,
+      "returncode": 0,
+      "returncode_file": "step-02.rc"
+    },
+    {
+      "command": "Old1:bin/as >_forbid-as.log -o _forbid-source.o _forbid.asm",
+      "index": 3,
+      "returncode": 0,
+      "returncode_file": "step-03.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root1-lib.log -m -t -o _forbid-root1-lib _forbid.o root1.o",
+      "index": 4,
+      "returncode": 0,
+      "returncode_file": "step-04.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root1-source.log -m -t -o _forbid-root1-source _forbid-source.o root1.o",
+      "index": 5,
+      "returncode": 0,
+      "returncode_file": "step-05.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root2-lib.log -m -t -o _forbid-root2-lib _forbid.o root2.o",
+      "index": 6,
+      "returncode": 0,
+      "returncode_file": "step-06.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_forbid-root2-source.log -m -t -o _forbid-root2-source _forbid-source.o root2.o",
+      "index": 7,
+      "returncode": 0,
+      "returncode_file": "step-07.rc"
+    },
+    {
+      "command": "Old1:bin/as >_replyms-as.log -o _replyms-source.o _replyms.asm",
+      "index": 8,
+      "returncode": 0,
+      "returncode_file": "step-08.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_replyms-root1-lib.log -m -t -o _replyms-root1-lib _replyms.o root1.o",
+      "index": 9,
+      "returncode": 0,
+      "returncode_file": "step-09.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_replyms-root1-source.log -m -t -o _replyms-root1-source _replyms-source.o root1.o",
+      "index": 10,
+      "returncode": 0,
+      "returncode_file": "step-10.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_replyms-root2-lib.log -m -t -o _replyms-root2-lib _replyms.o root2.o",
+      "index": 11,
+      "returncode": 0,
+      "returncode_file": "step-11.rc"
+    },
+    {
+      "command": "Old1:bin/ln >_replyms-root2-source.log -m -t -o _replyms-root2-source _replyms-source.o root2.o",
+      "index": 12,
+      "returncode": 0,
+      "returncode_file": "step-12.rc"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "_forbid-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "_forbid-root1-lib",
+      "sha256": "66f68eb3e74c593a4205fe64e27b54cad8d83f43b7f165acdd6a1c8ffb7f84bd",
+      "size": 80
+    },
+    {
+      "path": "_forbid-root1-lib.log",
+      "sha256": "f6521c5b22edabc5d959ef364dd4e811cd1c8684348549175d54078a00e273aa",
+      "size": 105
+    },
+    {
+      "path": "_forbid-root1-lib.sym",
+      "sha256": "bf720e70b624ff5d75c0daf7f4e1c18deb66a04106ba00ee8f2a40c59858de79",
+      "size": 221
+    },
+    {
+      "path": "_forbid-root1-source",
+      "sha256": "66f68eb3e74c593a4205fe64e27b54cad8d83f43b7f165acdd6a1c8ffb7f84bd",
+      "size": 80
+    },
+    {
+      "path": "_forbid-root1-source.log",
+      "sha256": "f6521c5b22edabc5d959ef364dd4e811cd1c8684348549175d54078a00e273aa",
+      "size": 105
+    },
+    {
+      "path": "_forbid-root1-source.sym",
+      "sha256": "bf720e70b624ff5d75c0daf7f4e1c18deb66a04106ba00ee8f2a40c59858de79",
+      "size": 221
+    },
+    {
+      "path": "_forbid-root2-lib",
+      "sha256": "01ff7658995a6dd97920e147de7971a0ca6b97d1a3164e27a643eaa0f4fed355",
+      "size": 88
+    },
+    {
+      "path": "_forbid-root2-lib.log",
+      "sha256": "9f7992e4c30cf7b69832e85741c78ca63b249e6efa78b8cdeadb19d744f19ac8",
+      "size": 105
+    },
+    {
+      "path": "_forbid-root2-lib.sym",
+      "sha256": "0d53043561659b18d6143090ccacb7bd42845d4a88d0256b75696272ff03f066",
+      "size": 221
+    },
+    {
+      "path": "_forbid-root2-source",
+      "sha256": "01ff7658995a6dd97920e147de7971a0ca6b97d1a3164e27a643eaa0f4fed355",
+      "size": 88
+    },
+    {
+      "path": "_forbid-root2-source.log",
+      "sha256": "9f7992e4c30cf7b69832e85741c78ca63b249e6efa78b8cdeadb19d744f19ac8",
+      "size": 105
+    },
+    {
+      "path": "_forbid-root2-source.sym",
+      "sha256": "0d53043561659b18d6143090ccacb7bd42845d4a88d0256b75696272ff03f066",
+      "size": 221
+    },
+    {
+      "path": "_forbid-source.o",
+      "sha256": "8e3888a81c17cd069cf545c4c96e14265776ebe08b5ddd9831ffc7148723a4aa",
+      "size": 80
+    },
+    {
+      "path": "_forbid.asm",
+      "sha256": "163c19b1de68253cccec8d2e1e91e9869760257e354ad5cd05ade89a26e87a00",
+      "size": 139
+    },
+    {
+      "path": "_forbid.o",
+      "sha256": "1f6c3da0b9cebf34fdd533d5ded317f086b8969476c9ed9d09fde03968b4f118",
+      "size": 80
+    },
+    {
+      "path": "_replyms-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "_replyms-root1-lib",
+      "sha256": "b8aa78ea7d9ba3c62d912bf667210f2b84dc287d85335ca69528479b82235356",
+      "size": 84
+    },
+    {
+      "path": "_replyms-root1-lib.log",
+      "sha256": "24391a10744c28931bd50ba768defa989b0c5964519e12bbf10d7796921fd6b3",
+      "size": 105
+    },
+    {
+      "path": "_replyms-root1-lib.sym",
+      "sha256": "1c3f1f1b405ce99a0d679eb83f5c610388d412a370fbe030370c8a1baf1cbefa",
+      "size": 223
+    },
+    {
+      "path": "_replyms-root1-source",
+      "sha256": "b8aa78ea7d9ba3c62d912bf667210f2b84dc287d85335ca69528479b82235356",
+      "size": 84
+    },
+    {
+      "path": "_replyms-root1-source.log",
+      "sha256": "24391a10744c28931bd50ba768defa989b0c5964519e12bbf10d7796921fd6b3",
+      "size": 105
+    },
+    {
+      "path": "_replyms-root1-source.sym",
+      "sha256": "1c3f1f1b405ce99a0d679eb83f5c610388d412a370fbe030370c8a1baf1cbefa",
+      "size": 223
+    },
+    {
+      "path": "_replyms-root2-lib",
+      "sha256": "db98ebc7e00ae59859f58f77a9d5454169386bcb6c3dc1e6bc2d27b5c986bf6d",
+      "size": 92
+    },
+    {
+      "path": "_replyms-root2-lib.log",
+      "sha256": "fdf48aa85d72ab31e5b1cbe0bd4bbb654faefeae4a40006d3a0edafc1341fca9",
+      "size": 105
+    },
+    {
+      "path": "_replyms-root2-lib.sym",
+      "sha256": "e81d6ee4ff8c9353dde7d85b08fc310ba572313e58f2e99c2b3e666351e0b051",
+      "size": 223
+    },
+    {
+      "path": "_replyms-root2-source",
+      "sha256": "db98ebc7e00ae59859f58f77a9d5454169386bcb6c3dc1e6bc2d27b5c986bf6d",
+      "size": 92
+    },
+    {
+      "path": "_replyms-root2-source.log",
+      "sha256": "fdf48aa85d72ab31e5b1cbe0bd4bbb654faefeae4a40006d3a0edafc1341fca9",
+      "size": 105
+    },
+    {
+      "path": "_replyms-root2-source.sym",
+      "sha256": "e81d6ee4ff8c9353dde7d85b08fc310ba572313e58f2e99c2b3e666351e0b051",
+      "size": 223
+    },
+    {
+      "path": "_replyms-source.o",
+      "sha256": "3ccd3f93d64ea302baa742b3e44f72226668f59786f4c18a5f53fca38ab8ddb6",
+      "size": 84
+    },
+    {
+      "path": "_replyms.asm",
+      "sha256": "a7d70c0a5c185e3aa3d41d0cdf14825b381e6ebb9683f4904434345e3099f94e",
+      "size": 160
+    },
+    {
+      "path": "_replyms.o",
+      "sha256": "a863f17db9bfa6172608f4e6eda52a6734714c6560bbd49451480716175c1e3e",
+      "size": 84
+    },
+    {
+      "path": "booted.txt",
+      "sha256": "bd0365f9ff33a73c021ad8c16a16e48863d0989106504fa3531511b40bb570bd",
+      "size": 7
+    },
+    {
+      "path": "done.txt",
+      "sha256": "d117fa006ba9208500b2930ce69cbde436c647afa917cb7396a9bc9111a46dd2",
+      "size": 5
+    },
+    {
+      "path": "extract.log",
+      "sha256": "56a082b6400387be9a75be1553042a23f20aecd7072cb010b488898e2c0dc48c",
+      "size": 17
+    },
+    {
+      "path": "root1-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "root1.asm",
+      "sha256": "338d324c5b8eec39f357805a5954b8e1cb140b23220344aa7e6161beb737b2e2",
+      "size": 40
+    },
+    {
+      "path": "root1.o",
+      "sha256": "f59752d3dcc36b93ceb960e9ee1d70fa6450bfad87712daa8290fc823fe65f52",
+      "size": 60
+    },
+    {
+      "path": "root2-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "root2.asm",
+      "sha256": "5582949110615cb93c0531468ac5a79852c44d17d82d6b513c26f436e647e46a",
+      "size": 52
+    },
+    {
+      "path": "root2.o",
+      "sha256": "b4e8bd861d05f0a1480f1b1771105f542be9cc5412d5d7ad28dbc6f7af24744c",
+      "size": 68
+    },
+    {
+      "path": "step-00.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-01.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-02.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-03.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-04.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-05.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-06.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-07.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-08.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-09.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-10.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-11.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "path": "step-12.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    }
+  ],
+  "tool_inputs": [
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "sha256": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "sha256": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/SYS2/bin/lb",
+      "sha256": "a1bf3e25b67d9da333671c72b2e4e125f5f3b0ed74adef6dabf354c8ede21ac1"
+    }
+  ]
+}
