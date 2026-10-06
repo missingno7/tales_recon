@@ -299,3 +299,16 @@ Forbid/ReplyMsg complete identity controls remain outside runtime accounting.
 Next resolve the original DATA/COMMON provider and natural resident linking
 needed for ov04 closure; original filename/TU/release and provider remain unknown.
 See `../evidence/experiments/resident-exit-admission.json`.
+
+Two bounded SDK vars hypotheses now naturally compile and link in two DATA
+orders: remove the DETACH globals, or retain them without explicit initializers.
+Both own zero CODE/two DATA bytes; their complete COMMON allocations differ64
+versus72 bytes. The rounded00140000 DATA pattern appears at original H1 offsets
+1002,1074 and11952. Canonical exit independently references11952, but neither
+provider membership nor original COMMON allocation follows from the equal word.
+No DATA, padding or COMMON bytes are promoted. Retained whole objects, header
+pins, commands, maps and replay are in `evidence/rules/runtime-vars-variant/`;
+see `../evidence/experiments/runtime-vars-variant.json`. Next bind complete
+startup/CRT0 consumers and natural first-reference COMMON order before choosing
+a provider hypothesis. Do not prune unreferenced globals merely because an exit
+cleanup branch is absent.

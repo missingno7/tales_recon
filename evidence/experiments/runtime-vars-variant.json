@@ -1,0 +1,189 @@
+{
+  "acceptance": false,
+  "canonical_consumer": {
+    "id": "resident_F_8552",
+    "proof_sha256": "5efcdd9e20c0d94a0edd3a18353e5ae310da88a89e69ec44bc7736f6682fe04a",
+    "references": [
+      {
+        "original_offset": 11952,
+        "site": 36,
+        "symbol": "_G_h01_2EB0"
+      },
+      {
+        "original_offset": 11952,
+        "site": 42,
+        "symbol": "_G_h01_2EB0"
+      }
+    ],
+    "source_sha256": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab"
+  },
+  "conclusion": "Identical initialized provider bytes cannot choose between complete COMMON allocations64 and72. No original provider, padding, DATA or COMMON ownership accepted.",
+  "controls": [
+    {
+      "accounting_promoted": false,
+      "common_bytes": 64,
+      "common_fields": {
+        "_DOSBase": 4,
+        "_Enable_Abort": 34,
+        "_MathBase": 8,
+        "_MathIeeeDoubBasBase": 16,
+        "_MathIeeeDoubTransBase": 20,
+        "_MathTransBase": 12,
+        "_SysBase": 0,
+        "_WBenchMsg": 48,
+        "__arg_len": 38,
+        "__arg_lin": 44,
+        "__argc": 36,
+        "__argv": 40,
+        "__devtab": 52,
+        "__oldtrap": 56,
+        "__savsp": 24,
+        "__stkbase": 28,
+        "__trapaddr": 60,
+        "_errno": 32
+      },
+      "initialized_data_hex": "00140000",
+      "numdev_offset": 0,
+      "object_data": 2,
+      "original_ownership": "UNKNOWN",
+      "root": "root1",
+      "variant": "removed"
+    },
+    {
+      "accounting_promoted": false,
+      "common_bytes": 64,
+      "common_fields": {
+        "_DOSBase": 4,
+        "_Enable_Abort": 34,
+        "_MathBase": 8,
+        "_MathIeeeDoubBasBase": 16,
+        "_MathIeeeDoubTransBase": 20,
+        "_MathTransBase": 12,
+        "_SysBase": 0,
+        "_WBenchMsg": 48,
+        "__arg_len": 38,
+        "__arg_lin": 44,
+        "__argc": 36,
+        "__argv": 40,
+        "__devtab": 52,
+        "__oldtrap": 56,
+        "__savsp": 24,
+        "__stkbase": 28,
+        "__trapaddr": 60,
+        "_errno": 32
+      },
+      "initialized_data_hex": "0001000200030014",
+      "numdev_offset": 6,
+      "object_data": 2,
+      "original_ownership": "UNKNOWN",
+      "root": "root2",
+      "variant": "removed"
+    },
+    {
+      "accounting_promoted": false,
+      "common_bytes": 72,
+      "common_fields": {
+        "_DOSBase": 4,
+        "_Enable_Abort": 34,
+        "_MathBase": 8,
+        "_MathIeeeDoubBasBase": 16,
+        "_MathIeeeDoubTransBase": 20,
+        "_MathTransBase": 12,
+        "_SysBase": 0,
+        "_WBenchMsg": 48,
+        "__arg_len": 38,
+        "__arg_lin": 44,
+        "__argc": 36,
+        "__argv": 40,
+        "__detach_curdir": 60,
+        "__detach_name": 56,
+        "__devtab": 52,
+        "__oldtrap": 64,
+        "__savsp": 24,
+        "__stkbase": 28,
+        "__trapaddr": 68,
+        "_errno": 32
+      },
+      "initialized_data_hex": "00140000",
+      "numdev_offset": 0,
+      "object_data": 2,
+      "original_ownership": "UNKNOWN",
+      "root": "root1",
+      "variant": "common"
+    },
+    {
+      "accounting_promoted": false,
+      "common_bytes": 72,
+      "common_fields": {
+        "_DOSBase": 4,
+        "_Enable_Abort": 34,
+        "_MathBase": 8,
+        "_MathIeeeDoubBasBase": 16,
+        "_MathIeeeDoubTransBase": 20,
+        "_MathTransBase": 12,
+        "_SysBase": 0,
+        "_WBenchMsg": 48,
+        "__arg_len": 38,
+        "__arg_lin": 44,
+        "__argc": 36,
+        "__argv": 40,
+        "__detach_curdir": 60,
+        "__detach_name": 56,
+        "__devtab": 52,
+        "__oldtrap": 64,
+        "__savsp": 24,
+        "__stkbase": 28,
+        "__trapaddr": 68,
+        "_errno": 32
+      },
+      "initialized_data_hex": "0001000200030014",
+      "numdev_offset": 6,
+      "object_data": 2,
+      "original_ownership": "UNKNOWN",
+      "root": "root2",
+      "variant": "common"
+    }
+  ],
+  "original_aligned_four_byte_matches": [
+    1002,
+    1074,
+    11952
+  ],
+  "original_initialized_data_end": 11956,
+  "original_terminal_four_bytes": "00140000",
+  "remaining_gate": "Independent producer membership and natural first-reference COMMON allocation/order. Word and terminal-rounding equality do not establish either provider hypothesis.",
+  "replay_observations": [
+    "Initial experiment consumer looked for COMMON map symbols in H1; maps explicitly label them H2 with combined small-data coordinates. Corrected consumer and verified against whole H1 zero-fill allocation plus reserved H2 allocation4; no artifact changes or renewed compiler trials."
+  ],
+  "retained_directory": "evidence/rules/runtime-vars-variant",
+  "schema_version": 1,
+  "status": "WHOLE_PROVIDER_VARIANTS_DIFFER_IN_COMMON",
+  "task_card": {
+    "blocker_category": "DATA_OWNERSHIP",
+    "head": "6c49f28618048439ebcb409fb8edc4c5607e8374",
+    "ledger_sha256": "cb0618e4a6193a8189a7b86daa179bb1b2056cb3d78941ab610d6d94db751a9b",
+    "original_data_candidate": [
+      11952,
+      11956
+    ],
+    "profile": "aztec36-x3",
+    "sdk_archive_sha256": "5fe66196ea8c93d3c043e16c4cc60a814ad91790c7f0657aeb97e6fe5f557028",
+    "stagnation_limit": 1,
+    "stop": "Two complete provider objects and two DATA orders; do not promote matching prefixes or infer missing globals from absent cleanup branches.",
+    "target": "resident runtime DATA/COMMON provider",
+    "trial_budget": 2
+  },
+  "validation": {
+    "census_check_passed": true,
+    "census_write_passed": true,
+    "hybrid_check_passed": true,
+    "regression": {
+      "command": "python -m unittest discover -s tests -v",
+      "output_sha256": "06cd6b3013777095d8d0960fe6c598b33ef605b966493838c7b6db50aab3cd2f",
+      "passed": true,
+      "skipped": 9,
+      "tests": 455
+    },
+    "replay_passed": true
+  }
+}
