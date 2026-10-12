@@ -63,7 +63,10 @@ def expected_string_tail(f,*,context=None):
 
 def pc_relative_tail_proof(f,prefix,tail_start):
     """Prove candidate PC-relative operands address the declared tail offsets."""
-    expected=bytes.fromhex(f['raw_bytes']);ei,ebad=decode_all(expected);ai,abad=decode_all(prefix)
+    # Inline switch tables are census-proven data inside the code prefix;
+    # both prefixes share the original layout, so the same spans apply.
+    spans=[(t['table_start']-f['start'],t['table_end']-f['start']) for t in f.get('jump_tables',[])]
+    expected=bytes.fromhex(f['raw_bytes']);ei,ebad=decode_all(expected,spans);ai,abad=decode_all(prefix,spans)
     if ebad is not None or abad is not None or len(ei)!=len(ai):
         raise FormatError('cannot decode complete code prefix for PC-relative tail proof')
     refs={r['instruction_offset']:r['offset'] for r in f['referenced_data']

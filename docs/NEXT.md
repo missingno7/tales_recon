@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 205 functions / 65,918 C bytes, plus two complete mixed
+Canonical coverage is 212 functions / 79,648 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,496
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 124,336 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 110,450 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -59,6 +59,18 @@ callers standalone and binds the call by mechanical symbol, as for canonical
 16 functions; `resident_F_411E` joined the char-return EXT.W mechanism with
 `ov14_F_0412/04A8/0540` (now four functions). Blocker categories are taken
 from the leading `MECHANISM:` token first.
+
+Wave 10 and two Opus fixes (2026-10-13): the owned-literal tail proof now
+decodes around switch tables (closed ov06_F_063A, 2,690 bytes), and an
+original `bsr` between a new and a standalone-proved canonical function
+admits an evidence-backed object group (closed ov07_F_1F6E, ov05_F_467E
+5,438 bytes, ov08_F_1AB8 with unchanged worker sources). Also promoted:
+ov12_F_0000 (2,998, all known ov12 code), ov15_F_0000 (2,190), resident_F_3008.
+Open: ov11_F_15C8 is EQUAL but its tail is followed by unreferenced code at
+0x20AE (OWNED_TAIL_UNBOUNDED); ov09_F_0000 is two residuals from exact;
+ov03_F_001C matches shape and its 853-byte tail but needs ov03_F_154E/1500;
+ov05_F_1EFC joins the FFP family. `tools/boundary_refresh.py` replaces the
+manual post-promotion steps (two refused gates came from skipping them).
 
 Wave 9 (10 tasks) promoted ov09_F_1B1C (2,986), ov08_F_354E (2,214),
 ov11_F_0D8E (1,508) and resident 3C4C/2FE2/2816. Four ended as shared

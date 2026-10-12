@@ -219,3 +219,68 @@ class BlockerCategoryTests(unittest.TestCase):
         # Without a recognised mechanism token the full text still decides.
         self.assertEqual(blocker_category("NON_CONVERGENCE: data table differs"), "DATA_OWNERSHIP")
         self.assertEqual(blocker_category("plain text about a CFG boundary"), "CFG/BOUNDARY")
+
+
+class TailProofJumpTableTests(unittest.TestCase):
+    """The owned-literal proof decodes around census-proven switch tables."""
+
+    def test_table_span_between_code_and_tail(self):
+        from owned_code_data import pc_relative_tail_proof
+        # lea tail(pc),a0; nop; <undecodable 4-byte table>; nop | tail at +12
+        raw = "41fa000a" + "4e71" + "ffffffff" + "4e71"
+        f = dict(start=0, end=12, size=12, hunk=5, raw_bytes=raw,
+                 referenced_data=[dict(kind="PC_RELATIVE_DATA", hunk=5, offset=12, instruction_offset=0)],
+                 jump_tables=[dict(table_start=6, table_end=10)])
+        proof = pc_relative_tail_proof(f, bytes.fromhex(raw), 12)
+        self.assertEqual([(p["original_offset"], p["candidate_offset"]) for p in proof], [(12, 12)])
+        with self.assertRaisesRegex(FormatError, "cannot decode"):
+            pc_relative_tail_proof(dict(f, jump_tables=[]), bytes.fromhex(raw), 12)
+        # A candidate addressing anything but the owned tail is still refused.
+        with self.assertRaisesRegex(FormatError, "does not address owned tail"):
+            pc_relative_tail_proof(f, bytes.fromhex("41fa000c" + raw[8:]), 12)
+
+
+class EvidencedObjectGroupTests(unittest.TestCase):
+    """A standalone-proved canonical member joins a group only on BSR evidence."""
+
+    @staticmethod
+    def member(fid, start, end, calls=(), bsr_sites=()):
+        instructions = [dict(offset=s, mnemonic="bsr.b") for s in bsr_sites]
+        return dict(id=fid, start=start, end=end, instructions=instructions,
+                    direct_callees=[dict(id=c, site=s, basis="PC_RELATIVE") for c, s in calls])
+
+    def test_bsr_evidence_admits_standalone_canonical(self):
+        import check_unit
+        caller = self.member("ov07_F_1F6E", 0x1F6E, 0x2026, calls=[("ov07_F_2050", 0x1FE4)], bsr_sites=[0x1FE4])
+        callee = self.member("ov07_F_2050", 0x2050, 0x20A0)
+        ledger = dict(functions={"ov07_F_2050": dict(state="FUNCTION_CODE_MATCH")})
+        groups = check_unit.validate_object_groups([caller, callee], [["ov07_F_1F6E", "ov07_F_2050"]],
+                                                   {"ov07_F_1F6E"}, (), {"ov07_F_1F6E": 0x2A}, ledger)
+        self.assertEqual(groups, [["ov07_F_1F6E", "ov07_F_2050"]])
+        # Without an original BSR between them the grouping stays refused.
+        jsr_caller = self.member("ov07_F_1F6E", 0x1F6E, 0x2026, calls=[("ov07_F_2050", 0x1FE4)])
+        with self.assertRaisesRegex(FormatError, "without agreeing proven grouping"):
+            check_unit.validate_object_groups([jsr_caller, callee], [["ov07_F_1F6E", "ov07_F_2050"]],
+                                              {"ov07_F_1F6E"}, (), {"ov07_F_1F6E": 0x2A}, ledger)
+        # A member of a recorded multi-member object never joins a new group.
+        with patch.object(check_unit, "proven_object_members", return_value=["ov07_F_20A0"]):
+            with self.assertRaisesRegex(FormatError, "without agreeing proven grouping"):
+                check_unit.validate_object_groups([caller, callee], [["ov07_F_1F6E", "ov07_F_2050"]],
+                                                  {"ov07_F_1F6E"}, (), {"ov07_F_1F6E": 0x2A}, ledger)
+        # Original bytes between the members still refuse the group.
+        with self.assertRaisesRegex(FormatError, "does not own"):
+            check_unit.validate_object_groups([caller, callee], [["ov07_F_1F6E", "ov07_F_2050"]],
+                                              {"ov07_F_1F6E"}, (), {}, ledger)
+
+
+class EvidencedShortCallConsumerTests(unittest.TestCase):
+    def test_consumer_rederives_bsr_from_function_evidence(self):
+        import recovery_evidence
+        fake = {"ov07_F_1F6E": dict(id="ov07_F_1F6E", instructions=[dict(offset=0x1FE4, mnemonic="bsr.b")],
+                                    direct_callees=[dict(id="ov07_F_2050", site=0x1FE4, basis="PC_RELATIVE")]),
+                "ov07_F_0E06": dict(id="ov07_F_0E06", instructions=[dict(offset=0x0E10, mnemonic="jsr")],
+                                    direct_callees=[dict(id="ov07_F_2050", site=0x0E10, basis="PC_RELATIVE")])}
+        with patch.dict(recovery_evidence._FUNCTION_EVIDENCE, fake, clear=True):
+            self.assertTrue(recovery_evidence.evidenced_short_call("ov07_F_1F6E", "ov07_F_2050"))
+            self.assertFalse(recovery_evidence.evidenced_short_call("ov07_F_0E06", "ov07_F_2050"))
+            self.assertFalse(recovery_evidence.evidenced_short_call("ov07_F_2050", "ov07_F_1F6E"))

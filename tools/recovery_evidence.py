@@ -291,6 +291,27 @@ def group_object_source(texts,own_names):
     return stand_in_source(text,own_names)
 
 
+_FUNCTION_EVIDENCE={}
+
+
+def evidenced_short_call(caller_id,callee_id):
+    """True when the original caller reaches callee with a PC-relative BSR.
+
+    Re-derived from the function census itself, never from a receipt: Manx
+    emits the short BSR form only within one object, which is the positive
+    evidence that admits a standalone-proved canonical member into a group.
+    """
+    if not _FUNCTION_EVIDENCE:
+        import json
+        from analysis_support import ROOT
+        ledger=json.loads((ROOT/'evidence/functions/ledger.json').read_text())
+        _FUNCTION_EVIDENCE.update({f['id']:f for f in ledger['functions']})
+    caller=_FUNCTION_EVIDENCE.get(caller_id)
+    if caller is None:return False
+    sites={c['site'] for c in caller.get('direct_callees',[]) if c['id']==callee_id and c.get('basis')=='PC_RELATIVE'}
+    return any(i['offset'] in sites and i['mnemonic'].startswith('bsr') for i in caller.get('instructions',[]))
+
+
 def object_partition_sources(unit,unit_text,parts_dir):
     """Re-derive every object source hash of an ``object_groups`` unit receipt.
 
@@ -316,7 +337,9 @@ def object_partition_sources(unit,unit_text,parts_dir):
         for a,b in zip(g,g[1:]):
             require(by[a]['end']+tails.get(a,0)==by[b]['start'],'object group spans original bytes it does not own: '+a+'/'+b)
         for x in g:
-            require(x in new or any(x in p and set(p)<=set(g) for p in proven),
+            require(x in new or any(x in p and set(p)<=set(g) for p in proven) or
+                    (not any(x in p for p in proven) and any(evidenced_short_call(x,y) or evidenced_short_call(y,x)
+                                                             for y in g if y!=x)),
                     'canonical member joins an object group without agreeing proven grouping: '+x)
     names={m['id']:'recovered' if m['id']==unit['id'] else 'F_h%02d_%04X'%(m['hunk'],m['start']) for m in ordered}
     hashes=[]

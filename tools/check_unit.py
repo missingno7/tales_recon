@@ -699,7 +699,13 @@ def proven_unit_groups(members,new_ids,ledger=None):
     return merged,skipped
 
 
-def validate_object_groups(members,object_groups,new_ids,proven_groups=(),tails=None):
+def short_call(caller,callee):
+    """True when the original caller reaches callee with a PC-relative BSR."""
+    sites={c['site'] for c in caller.get('direct_callees',[]) if c['id']==callee['id'] and c.get('basis')=='PC_RELATIVE'}
+    return any(i['offset'] in sites and i['mnemonic'].startswith('bsr') for i in caller.get('instructions',[]))
+
+
+def validate_object_groups(members,object_groups,new_ids,proven_groups=(),tails=None,ledger=None):
     """Normalize ``--object-group`` hypotheses against one prepared unit.
 
     Each group names two or more unit members that become ONE ordinary
@@ -731,7 +737,13 @@ def validate_object_groups(members,object_groups,new_ids,proven_groups=(),tails=
             inside=[x for x in proven if x in ids]
             require(not inside or len(inside)==len(proven),'object group splits a proven canonical object: '+','.join(proven))
         for x in ids:
-            require(x in new_ids or any(x in p for p in proven_groups),
+            if x in new_ids or any(x in p for p in proven_groups):continue
+            # A canonical member proved standalone may join only on positive
+            # same-object evidence: an original short BSR between it and a
+            # member of this group (Manx emits BSR only within one object).
+            # A member of any recorded multi-member object never joins here.
+            require(not proven_object_members(x,ledger or recovery()) and
+                    any(short_call(by[x],by[y]) or short_call(by[y],by[x]) for y in ids if y!=x),
                     'canonical member joins an object group without agreeing proven grouping: '+x)
         result.append(ids)
     return sorted(result,key=lambda g:order.index(g[0]))
@@ -1059,7 +1071,13 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
             tails={r['id']:r['tail_bytes'] for r in natural['members']}
         else:
             current=recovery();tails={f['id']:len(proven_tail(f,current)[0]) for f in members}
-        object_groups=validate_object_groups(members,object_groups,{fid,*member_sources},proven_groups,tails)
+            if owned_code_data and not tails.get(fid):
+                # The entry's independently evidenced literal tail is part of
+                # its own object contribution (verified by compare_unit).
+                from owned_code_data import expected_string_tail
+                try:tails[fid]=len(expected_string_tail(next(m for m in members if m['id']==fid))[0])
+                except FormatError:pass
+        object_groups=validate_object_groups(members,object_groups,{fid,*member_sources},proven_groups,tails,recovery())
     trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups,
                        object_groups or (),per_member_profiles,member_profiles)
     if prepare_only:

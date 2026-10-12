@@ -114,8 +114,10 @@ python tools/check_function.py ID build/workers/<task>/<file>.c --profile P   # 
 python tools/promote_batch.py MANIFEST --verify-only; python tools/promote_batch.py MANIFEST
 ```
 
-Immediately after every published batch, and before the next one, run the
-boundary refresh in this order:
+Immediately after every published batch (or non-isolated check_unit /
+check_function promotion), and before the next one, run
+`python tools/boundary_refresh.py`. It performs, in order and stopping at the
+first failure:
 
 ```powershell
 python tools/type_evidence.py --write
@@ -137,6 +139,14 @@ refresh chained inside one long background command once silently did not
 run. Do not edit tools/, tests/, evidence/, src/, recovery/ or docs/blockers.json
 while a gate runs; its input snapshot must not change. Then `fleet.py plan` again:
 newly canonical callees release waiting callers.
+
+Same-object evidence: an original `bsr` between a new function and a
+canonical one proved standalone admits them into one `--object-group`
+(check_unit, `--separate-objects`; the census consumer re-derives the `bsr`
+from function evidence). Members of a recorded multi-member object still
+never join a different group, and every member must stay EQUAL. This closed
+ov07_F_1F6E, ov05_F_467E and ov08_F_1AB8; promote such units with the same
+non-isolated check_unit command.
 
 Supervisor review before promotion (the verifier proves bytes, not history):
 

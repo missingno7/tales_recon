@@ -488,11 +488,11 @@
     }
   ],
   "function_blockers": {
-    "ov06_F_063A": {
-      "category": "DATA_OWNERSHIP",
+    "ov05_F_1EFC": {
+      "category": "CALL_BINDING",
       "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
       "ownership_unchanged": true,
-      "reason": "TAIL_PROOF_TABLE_SPANS: 2690-byte function (aztec36) with three inline PC-relative word jump tables and six references into a compiler-owned string tail; code and tail bytes match, but owned_code_data.pc_relative_tail_proof decodes the original and candidate prefixes with decode_all without the function's jump-table data spans, stops at the first table (prefix 0x230) and refuses. Verifier tool limit, not source shape: pass jump_tables as data spans. Evidence build/workers/fn-ov06_F_063A.",
+      "reason": "FFP_PRIVATE_HELPER: 3544-byte function (aztec36) is structurally close (3552 vs 3544, frame matched) but its float operations call the game's private resident mathffp gates through A4 stubs (F_h00_8D00 SPFix, 8D0A binary op, 8D1E SPFlt, 8CE2 compare setting CCR, d0/d1 register arguments); Aztec float operators bind to m.lib .Fflt/.Fcmp/.Fmul/.Ffix/.Ftst instead. Same AJ/FFP mechanism as ov11_F_5FB2 and ov05_F_3836. Evidence build/workers/fn-ov05_F_1EFC.",
       "state": "BLOCKED"
     },
     "ov07_F_0612": {
@@ -502,11 +502,11 @@
       "reason": "NONCONTIGUOUS_LOCAL_UNIT_LAYOUT: 1684-byte function (aztec36, owned string tail) matches every instruction, jump table and literal, but its PC-relative jsr to canonical ov07_F_18F8 crosses the unclaimed original gap 0x1424..0x18F8 (contains unrecovered ov07_F_1424 and others); the contiguous unit builder links 18F8 directly after 0F30, so the call displacement differs (MEMBER_DIFFERS). Needs natural-offset placement across unowned gaps or the intervening functions recovered. Evidence build/workers/fn-ov07_F_0612.",
       "state": "BLOCKED"
     },
-    "ov07_F_1F6E": {
+    "ov11_F_15C8": {
       "category": "OBJECT/TU_LAYOUT",
-      "next_action": "A bsr.b to a canonical callee proves both were one original object, but the callee was proved standalone. Re-prove the callee and this caller as one address-consecutive object group through the normal unit verifier (replacement proof), then rerun the retained candidate unchanged.",
+      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
       "ownership_unchanged": true,
-      "reason": "SAME_OBJECT_SHORT_CALL: 184-byte function (aztec36) matches except its call to canonical ov07_F_2050 is bsr.b (other callees jsr), so 1F6E and 2050 were one object across 1F6E's 42-byte owned string tail (0x2026-0x204F); separate compilation emits jsr (186 vs 184). --object-group adjacency does not yet count a new member's owned tail, and 2050's canonical proof is standalone. Evidence build/workers/fn-ov07_F_1F6E.",
+      "reason": "OWNED_TAIL_UNBOUNDED: 2778-byte candidate build/workers/fn-ov11_F_15C8/v9.c is EQUAL with its 12-byte owned literal tail ('DT2:jg.arc'), but promotion needs the tail to end at the next discovered entry. The bytes at 0x20AE (64 bytes, link a5 ... unlk/rts plus its own 'C %d' literal) form an unreferenced function with no entry evidence (no call, relocation or overlay export), so 0x20AE..0x20F2 stays unowned. Needs entry evidence for 0x20AE or a proven tail-to-gap promotion rule.",
       "state": "BLOCKED"
     },
     "ov11_F_2272": {
