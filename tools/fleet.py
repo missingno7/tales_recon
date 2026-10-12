@@ -367,7 +367,8 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
         groups.setdefault((constraints[0], item["node"]), []).append(item["id"])
     review_order = ["UNRECOVERED_LOCAL_DEPENDENCY", "NONCONTIGUOUS_LOCAL_UNIT", "UNKNOWN_CALL_LIMIT",
                     "PC_RELATIVE_DATA_OWNERSHIP", "SIZE_LIMIT", "UNCERTAIN_EXTENT", "INDIRECT_CONTROL_FLOW",
-                    "LOW_CONFIDENCE", "DATA_REFERENCE_LIMIT", "RESIDENT_MIXED_DATA_MODEL", "RESIDENT_UNCLASSIFIED",
+                    "LOW_CONFIDENCE", "DATA_REFERENCE_LIMIT", "RESIDENT_IMPLICIT_HELPER_A4_ROUTE",
+                    "RESIDENT_MIXED_DATA_MODEL", "RESIDENT_UNCLASSIFIED",
                     "RESIDENT_RUNTIME_UNBOUNDED", "RESIDENT_RUNTIME_TAIL"]
     chunks = []
     for (constraint, node), members in groups.items():

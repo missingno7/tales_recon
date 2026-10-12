@@ -91,7 +91,7 @@ def runtime_floor(functions):
     return min(starts) if starts else None
 
 
-def resident_deferral(f,floor):
+def resident_deferral(f,floor,helpers=()):
     """None when a resident function is an ordinary game-code candidate, else the reason.
 
     Resident code above the first runtime candidate (startup, CLI/Workbench,
@@ -102,6 +102,10 @@ def resident_deferral(f,floor):
     if floor is None:return 'RESIDENT_RUNTIME_UNBOUNDED'
     if f['start']>=floor:return 'RESIDENT_RUNTIME_TAIL'
     if data_model(f)=='MIXED':return 'RESIDENT_MIXED_DATA_MODEL'
+    # Compiler helpers reached through A4 slots need a harness export route
+    # (blocker IMPLICIT_HELPER_A4_ROUTE); source changes cannot supply it.
+    if any(c.get('basis') in STUB_BASES and (c.get('hunk'),c.get('offset')) in helpers
+           for c in f.get('direct_callees',[])):return 'RESIDENT_IMPLICIT_HELPER_A4_ROUTE'
     return None
 
 
@@ -147,7 +151,7 @@ def ranked(node=None):
         score=f['size']//8+80*len(f['direct_callees'])-30*known+30*len(f['referenced_data'])+100*len(f['relocations'])+500*len(unresolved_indirect)-unlock+1000*unchanged
         if f['id'] in r['blockers'] and not r['blockers'][f['id']].get('next_action'):score+=5000
         if f['extent_status']!='CLOSED_CFG':score+=10000
-        deferral=resident_deferral(f,floor)
+        deferral=resident_deferral(f,floor,runtime)
         if deferral:score+=20000
         if f['ownership']!='UNKNOWN':continue
         if f['hunk']==14:score-=100

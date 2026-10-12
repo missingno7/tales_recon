@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 172 functions / 48,708 C bytes, plus two complete mixed
+Canonical coverage is 183 functions / 54,134 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,496
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 141,662 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 136,134 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -34,15 +34,23 @@ Work selection is now evidence-based (see `fleet.md`):
   dispatch specs for Haiku workers; intake re-verifies, the supervisor promotes.
 
 Measured first session (2026-10-12): canonical coverage rose from 156
-functions / 42,116 C bytes to 172 / 48,708; whole-file RAW_ORACLE_DEBT fell
-from 148,254 to 141,662. Haiku workers (16 tasks, 4-6 concurrent) produced 15
-confirmed exact matches (14 resident, two large ov07 functions of 1,388 and
-1,268 bytes) at a median of 3 compiler trials each; every claim was
-re-verified at intake and published through the batch regression gate. One
-review renamed an offset-forcing `pad` local; none was rejected. Opus
-re-measured Luna's retired `ov11_F_2EEA` near-miss and made it exact (1,608
-bytes): one wrong global name and two if/else join shapes, not a DATA-layout
-blocker. `resident_F_2EE8` is confirmed and awaits the next batch.
+functions / 42,116 C bytes to 183 / 54,134; whole-file RAW_ORACLE_DEBT fell
+from 148,254 to 136,134. Haiku workers (31 tasks, 4-7 concurrent, six waves)
+produced 26 promoted exact matches (21 resident; overlay ov07_F_1A02 1,388,
+ov07_F_0F30 1,268, ov15_F_0C12 1,972+98 literal, ov10_F_2634 1,366,
+ov10_F_3288, ov10_F_2CF4) at a median of 3 compiler trials; three tasks ended
+as precise shared blockers. Every claim was re-verified at intake and
+published through the batch regression gate; review renamed three
+offset-forcing `pad` locals and rejected none. Opus re-measured Luna's retired
+`ov11_F_2EEA` near-miss and made it exact (1,608 bytes: one wrong global name
+and two if/else join shapes), and fixed proven-object dependency units, which
+released ov10_F_2634/3288/2CF4 (2,624 bytes).
+
+Next resident frontier: of 38 eligible resident functions, 15 wait on
+PC-relative calls into unidentified runtime-tail code (`resident_F_86F6`,
+`8708`, `8820`, `894A`, ...). Identifying those library contributions
+(RUNTIME/LIBRARY) is the next Opus campaign; 15 more wait only on game
+callees and open as waves land.
 
 Opus-owned shared blockers now in `blockers.json` `function_blockers`:
 
@@ -51,10 +59,13 @@ Opus-owned shared blockers now in `blockers.json` `function_blockers`:
    through A4 jump-table slots; an isolated root candidate calls its own
    helper copies PC-relative. Needs a harness export control (as in the ov04
    export-routing rule), not source changes.
-2. `PROVEN_OBJECT_GROUP_DEPENDENCY` (OBJECT/TU_LAYOUT; `ov10_F_2634`, which
-   gates `ov10_F_3288` and `ov10_F_2CF4`, ~2.6 KB): automatic dependency
-   units compile canonical `ov10_F_22E6` outside its proven
-   `1FDE+2160+22E6` object.
+2. RESOLVED `PROVEN_OBJECT_GROUP_DEPENDENCY` (OBJECT/TU_LAYOUT; `ov10_F_2634`,
+   which gates `ov10_F_3288` and `ov10_F_2CF4`, ~2.6 KB): automatic dependency
+   units compiled canonical `ov10_F_22E6` outside its proven
+   `1FDE+2160+22E6` object (undefined externs it inherits from `2160`).
+   `check_unit.prepare_unit` now closes over hash-checked proven object
+   membership (`proven_object_members`), so the unit compiles; the Luna-era
+   draft is 30 bytes short of the 2,842-byte unit and is back with Haiku.
 3. `XOR_RESULT_REGISTER_ORIENTATION` (SOURCE_SHAPE; `resident_F_463E`, 56
    bytes): no tested form or release puts the `eor.w` result in the
    first-evaluated register.

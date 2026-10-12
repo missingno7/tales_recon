@@ -61,6 +61,10 @@ class ResidentEligibilityTests(unittest.TestCase):
         self.assertEqual(resident_deferral(by_id["resident_F_0100"], self.floor), "RESIDENT_MIXED_DATA_MODEL")
         self.assertEqual(resident_deferral(by_id["resident_F_463E"], None), "RESIDENT_RUNTIME_UNBOUNDED")
         self.assertIsNone(resident_deferral(dict(by_id["resident_F_463E"], node="ov04"), self.floor))
+        helper_call = dict(basis="A4_RELOCATED_JMP_STUB", hunk=0, id="resident_F_7F9C", offset=0x7F9C, site=0x14)
+        caller = dict(by_id["resident_F_463E"], direct_callees=[helper_call])
+        self.assertEqual(resident_deferral(caller, self.floor, {(0, 0x7F9C)}), "RESIDENT_IMPLICIT_HELPER_A4_ROUTE")
+        self.assertIsNone(resident_deferral(caller, self.floor, {(0, 0x7B00)}))
 
     def test_ranked_items_enter_queue_only_when_classified_safe(self):
         item = dict(id="resident_F_463E", node="resident", size=56, extent="CLOSED_CFG", confidence="HIGH",
@@ -173,3 +177,22 @@ class RouteAndWaveTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProvenObjectClosureTests(unittest.TestCase):
+    """Canonical members proved inside one natural object stay in that object."""
+
+    def test_member_pulls_in_its_whole_proven_object(self):
+        from check_unit import proven_object_members
+        from recovery_state import recovery
+        ledger = recovery()
+        if "ov10_F_22E6" not in ledger["functions"]:
+            self.skipTest("canonical ov10 object not present")
+        self.assertEqual(proven_object_members("ov10_F_22E6", ledger), ["ov10_F_1FDE", "ov10_F_2160"])
+        # A separately proved function has no co-members.
+        self.assertEqual(proven_object_members("ov10_F_1FDE", ledger), [])
+        # A changed co-member source invalidates the evidence instead of guessing.
+        import copy
+        changed = copy.deepcopy(ledger)
+        changed["functions"]["ov10_F_1FDE"]["source_sha256"] = "0" * 64
+        self.assertEqual(proven_object_members("ov10_F_22E6", changed), [])

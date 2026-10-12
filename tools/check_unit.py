@@ -255,6 +255,18 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     # Every named new member is part of the claimed unit, even one reached
     # only through a canonical bridge or by physical adjacency.
     for dep_id in member_sources:add_recovered(dep_id)
+    if natural_interval is None:
+        # A canonical member proved only inside one multi-member natural
+        # object is used only inside that whole object: its source may rely on
+        # an earlier member's declarations, and splitting it would change the
+        # proved local call forms.  proven_unit_groups keeps the object whole.
+        pending=True
+        while pending:
+            pending=False
+            for member_id in list(members):
+                for other in proven_object_members(member_id,r):
+                    if other not in members and other!=fid:
+                        add_recovered(other);pending=True
     if natural_interval is not None:
         # Natural interval: every discovered function of the claimed interval
         # is linked in original order, canonical ones from their exact
@@ -601,6 +613,36 @@ def proven_object_partition(receipt):
         objects.append(sorted(defined,key=ids.index));placed+=defined
     if sorted(placed)!=sorted(ids):return None
     return objects
+
+
+def proven_object_members(fid,ledger):
+    """Other members of the multi-member natural object in which ``fid`` was proved.
+
+    Uses the same hash-checked evidence as ``proven_unit_groups``: the
+    member's own proof, its ``complete_unit_receipt`` (EQUAL) and that
+    receipt's ordinary object partition, with every co-member still canonical
+    at its proved source hash.  Returns ``[]`` when there is no such object.
+    """
+    item=(ledger.get('functions') or {}).get(fid)
+    if not item or not item.get('proof'):return []
+    proof_path=ROOT/item['proof']
+    if not proof_path.is_file():return []
+    comparison=json.loads(proof_path.read_text()).get('comparison') or {}
+    receipt_path=comparison.get('complete_unit_receipt')
+    if not receipt_path:return []
+    path=ROOT/receipt_path
+    if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):return []
+    receipt=json.loads(path.read_text())
+    if receipt.get('verdict')!='EQUAL' or len(receipt.get('ordered_members') or [])<2:return []
+    partition=proven_object_partition(receipt)
+    if partition is None:return []
+    proved={**receipt.get('dependency_sources',{}),receipt['id']:receipt.get('source_sha256')}
+    functions=ledger['functions']
+    for ids in partition:
+        if fid in ids and len(ids)>1:
+            if any((functions.get(x) or {}).get('source_sha256')!=proved.get(x) for x in ids):return []
+            return [x for x in ids if x!=fid]
+    return []
 
 
 def proven_unit_groups(members,new_ids,ledger=None):
