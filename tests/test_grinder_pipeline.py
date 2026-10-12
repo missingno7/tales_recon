@@ -53,6 +53,23 @@ class FunctionCensusTests(unittest.TestCase):
             {'index':0,'offset':8,'target':36},{'index':1,'offset':10,'target':38}])
         self.assertEqual(f['indirect_control_flow'][0]['kind'],'PC_RELATIVE_WORD_JUMP_TABLE')
 
+    def test_jump_table_with_default_before_dispatch_closes_cfg(self):
+        # link; bra.w to the bound check; default arm (rts) placed before the
+        # table; cmp.l #2,d0; bcc.b back to the default; asl; move.w
+        # table(pc,d0.w),d0; jmp (pc,d0.w); two RTS case targets.
+        c=self.census('4e55000060000008'+'4e75'+'00020004'+'b0bc00000002'+'64f2'+'e380'+'303b00f0'+'4efb0000'+'4e754e75')
+        f=c.run()['functions'][0]
+        self.assertEqual(f['extent_status'],'CLOSED_CFG')
+        self.assertEqual(f['jump_tables'][0]['entries'],[
+            {'index':0,'offset':10,'target':32},{'index':1,'offset':12,'target':34}])
+
+    def test_jump_table_default_inside_table_stays_unresolved(self):
+        # Same dispatch, but the bound branch lands inside the word table.
+        c=self.census('4e55000060000008'+'4e75'+'00020004'+'b0bc00000002'+'64f4'+'e380'+'303b00f0'+'4efb0000'+'4e754e75')
+        f=c.run()['functions'][0]
+        self.assertEqual(f['extent_status'],'UNCERTAIN')
+        self.assertEqual(f['jump_tables'],[])
+
     def test_seed_in_instruction_cannot_make_closed_extent(self):
         c=self.census('4e5500004e5d4e75');c.seed(0,2,{'kind':'RELOCATION_POINTER'})
         self.assertEqual(c.run()['functions'][0]['extent_status'],'UNCERTAIN')

@@ -73,7 +73,10 @@ class Census:
         recognizes only ``cmp #N,d0; bcc default; asl #1,d0; move.w
         table(pc,d0.w),d0; jmp (pc,d0.w)`` and validates every table entry as
         an aligned executable target.  The table is retained as data evidence,
-        never decoded as fall-through instructions.
+        never decoded as fall-through instructions.  Manx places the
+        ``default`` arm either directly after the dispatch or earlier in the
+        switch body; the unsigned bound holds either way, so the default only
+        has to be a decodable executable target outside the table.
         """
         jmp=instruction(self.md,self.data[h],pc)
         load=instruction(self.md,self.data[h],pc-4)
@@ -92,8 +95,7 @@ class Census:
                 jo.mem.index_reg==lo.mem.index_reg==K.M68K_REG_D0 and ld.type==sd.type==cd.type==K.M68K_OP_REG and
                 ld.reg==sd.reg==cd.reg==K.M68K_REG_D0 and si.type==K.M68K_OP_IMM and si.imm==1 and
                 ci.type==K.M68K_OP_IMM and compare.mnemonic.endswith('.l') and load.mnemonic.endswith('.w') and
-                bound.operands and bound.operands[-1].type==K.M68K_OP_BR_DISP and
-                bound.address+2+bound.operands[-1].br_disp.disp==jmp.address+4):
+                bound.operands and bound.operands[-1].type==K.M68K_OP_BR_DISP):
             return None
         count=ci.imm
         if count<=0 or count>256:return None
@@ -101,6 +103,9 @@ class Census:
         table_end=table_start+2*count
         base=jmp.address+2+jo.mem.disp
         if table_start<0 or table_end>len(self.data[h]) or table_start&1:return None
+        default=bound.address+2+bound.operands[-1].br_disp.disp
+        if (not self.valid(h,default) or table_start<=default<table_end or
+                instruction(self.md,self.data[h],default) is None):return None
         targets=[]
         for index in range(count):
             value=signed16(int.from_bytes(self.data[h][table_start+2*index:table_start+2*index+2],'big'))

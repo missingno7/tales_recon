@@ -125,6 +125,10 @@ python tools/census.py --check
 python tools/hybrid_image.py --check
 ```
 
+After a CFG/parser change, start with `python tools/function_census.py`,
+confirm no canonical extent changed, then run the same sequence (rerun
+`type_evidence.py --write` if a test still reports a stale instruction index).
+
 The promotion gate's regression suite requires current type evidence and
 hybrid specimens that name exactly the canonical sources, so a batch on
 stale derived evidence is refused (transactionally, nothing is written).
