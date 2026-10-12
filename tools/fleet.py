@@ -958,6 +958,15 @@ If `best` was compiled with `--object-group`, add `"object_groups":[["<ID>","<ID
 """
 
 
+LESSONS = """## Measured lessons (supervised waves, 2026-10-12)
+- Write plain structured C first. Canonical same-node callees, and their proven objects, are linked automatically; call them by mechanical name.
+- Branches reaching a different join point usually mean another if/else-if nesting or a combined && / || condition, not a goto.
+- A frame slot your locals do not explain usually means declaration order or types; an unused local is a last resort with a neutral name (never pad/filler).
+- If only an A4 displacement differs, the verifier's relocation_issues name the exact global the original reads.
+- Reuse canonical siblings' declaration views for shared globals. Compiler helpers (.mulu/.divs/.mods/.modu/.divu) come from C arithmetic, never declarations.
+"""
+
+
 REGION_PROTOCOL = """## Region protocol (staged; the whole region is the only acceptance unit)
 Full member facts, candidates and edges are in `{dir}/task.json` (`task.origin.region`); read that file and `python tools/grinder.py facts ID --max-instructions 2000 --max-bytes 2000000 > {dir}/facts-ID.json` per member instead of asking for more context.
 A. Stage sources: each variant is one directory `{dir}/vNN/` holding `<ID>.c` for EVERY new member (copy the best candidate listed below, else author it; later variants copy their parent directory and change one member). Each file is self-contained K&R C defining `recovered(...)`; calls to other members, including back to the entry, use mechanical `F_hNN_XXXX` names. The entry file is compiled as recovered(); every other new member is one `--member ID=SRC`. Canonical members are reused automatically; never copy their bytes or source into your files.
@@ -1133,6 +1142,8 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None, 
                     % budget["max_compile_trials"])
     if task["kind"] == "region":
         head.append(REGION_PROTOCOL.format(dir=directory))
+    elif task["kind"] in ("function", "unit", "blocker-probe"):
+        head.append(LESSONS)
     tail = [PROTOCOL.format(unit_doc=unit_doc, record=record, run=run, trials=budget["max_compile_trials"],
                             variants=budget["max_variants_per_manifest"], dir=directory, task_id=task["id"]),
             RESULT_SCHEMA.format(task_id=task["id"], dir=directory, target=target, verifier=verifier, options=options,

@@ -35,16 +35,25 @@ Work selection is now evidence-based (see `fleet.md`):
 
 Measured first session (2026-10-12): canonical coverage rose from 156
 functions / 42,116 C bytes to 183 / 54,134; whole-file RAW_ORACLE_DEBT fell
-from 148,254 to 136,134. Haiku workers (31 tasks, 4-7 concurrent, six waves)
-produced 26 promoted exact matches (21 resident; overlay ov07_F_1A02 1,388,
-ov07_F_0F30 1,268, ov15_F_0C12 1,972+98 literal, ov10_F_2634 1,366,
-ov10_F_3288, ov10_F_2CF4) at a median of 3 compiler trials; three tasks ended
-as precise shared blockers. Every claim was re-verified at intake and
+from 148,254 to 136,134. Haiku workers (29 tasks, 4-7 concurrent, six waves,
+110 compiler trials in total) produced 26 promoted exact matches (20 resident;
+overlay ov07_F_1A02 1,388, ov07_F_0F30 1,268, ov15_F_0C12 1,972+98 literal,
+ov10_F_2634 1,366, ov10_F_3288, ov10_F_2CF4): 10,410 bytes, a median of 3
+trials per match, about 9,500 accepted bytes per 100 trials. The other three
+tasks ended as precise shared blockers. Every claim was re-verified at intake and
 published through the batch regression gate; review renamed three
 offset-forcing `pad` locals and rejected none. Opus re-measured Luna's retired
 `ov11_F_2EEA` near-miss and made it exact (1,608 bytes: one wrong global name
 and two if/else join shapes), and fixed proven-object dependency units, which
 released ov10_F_2634/3288/2CF4 (2,624 bytes).
+
+State at handoff: the READY_FOR_HAIKU queue is drained (`fleet.py wave N
+--dry-run` returns nothing claimable). Further gains need, in leverage order:
+(a) runtime-tail identification below; (b) the IMPLICIT_HELPER_A4_ROUTE
+harness export control; (c) the G_h01_A15E natural-unit view decision;
+(d) the AJ/FFP binding that also gates `ov11_F_0B4C`; (e) static extent
+recovery for UNCERTAIN functions (384 resident, all of ov09). Re-plan after
+each; newly canonical callees release waiting callers automatically.
 
 Next resident frontier: of 38 eligible resident functions, 15 wait on
 PC-relative calls into unidentified runtime-tail code (`resident_F_86F6`,
@@ -69,7 +78,12 @@ Opus-owned shared blockers now in `blockers.json` `function_blockers`:
 3. `XOR_RESULT_REGISTER_ORIENTATION` (SOURCE_SHAPE; `resident_F_463E`, 56
    bytes): no tested form or release puts the `eor.w` result in the
    first-evaluated register.
-4. Existing: ov14 char-return `EXT.W`, AJ/FFP (`ov11_F_5FB2`, `ov05_F_3836`),
+4. `NATURAL_UNIT_DECLARATION_VIEW` (DECLARATION_VIEW; `ov11_F_2272`, 386
+   bytes): with `--object-group 2272,23F4,2430,247C` in natural interval
+   0x2272..0x5FB2 the entry and its group are EQUAL (positive TU evidence), but
+   canonical `ov11_F_407C` differs: `G_h01_A15E` has two canonical views
+   (`struct Record`/`struct Event`) and the harness keeps one per symbol.
+5. Existing: ov14 char-return `EXT.W`, AJ/FFP (`ov11_F_5FB2`, `ov05_F_3836`),
    `ov05_F_2CD4` (real source-shape residual, 0.94 similarity), uncertain CFG
    extents.
 

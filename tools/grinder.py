@@ -38,6 +38,10 @@ def blocker_next_action(reason):
         return ('Make automatic dependency units keep a canonical member inside its whole proven object group '
                 '(proven_unit_groups outside natural intervals), or repair the member into a self-contained TU with a '
                 'fresh replacement proof; then rerun the unchanged candidate.')
+    if 'NATURAL_UNIT_DECLARATION_VIEW' in reason:
+        return ('Decide how one natural unit links canonical members that use distinct partial views of the same A4 '
+                'global (G_h01_A15E: struct Record vs struct Event): prove the original allocation from independent '
+                'evidence, then rerun the retained grouped candidate unchanged. Do not edit canonical views to fit.')
     if 'XOR_RESULT_REGISTER_ORIENTATION' in reason:
         return ('Find any source form or historical compiler release that emits eor.w with the result in the '
                 'first-evaluated register for two register-computed operands (minimal probe outside this target). '
