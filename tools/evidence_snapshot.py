@@ -69,6 +69,8 @@ class Snapshot:
         if strict:
             from resident_mixed import source_object_inputs
             for name in source_object_inputs(root):read(root / name)
+            from startup_recovery import inputs as startup_inputs
+            for name in startup_inputs(root):read(root / name)
             analysis = document(root / 'evidence/functions/ledger.json')
             for name in analysis.get('analysis_identity', {}):read(root / 'tools' / name)
             for name in ('runtime-matches.json', 'overlay-topology.json'):

@@ -34,7 +34,7 @@ def main():
     blob, model, _ = game(); analysis = evidence()
     ledger = json.loads((ROOT / 'recovery/ledger.json').read_bytes())
     promotions = load_promotions(ROOT, blob, model, analysis)
-    row, = load_source_objects(ROOT, blob, model, analysis, promotions, ledger)
+    row, = [r for r in load_source_objects(ROOT, blob, model, analysis, promotions, ledger) if r['id'] == 'resident_F_8552']
     proof = source_object_proof(ROOT, blob, model, analysis, ledger, row)
     if args.verify_only or row['acceptance']:
         print('EQUAL complete mixed object:196 C/42 ASM bytes; acceptance=' + str(row['acceptance']))
@@ -54,7 +54,7 @@ def main():
         source=SOURCE, source_sha256=sha256(source), proof=PROOF, proof_sha256=sha256((ROOT / PROOF).read_bytes()))
     write_json(ROOT / 'recovery/ledger.json', canonical_state(ledger))
     # Re-read through the canonical consumer, preserving normal C admission.
-    accepted, = load_source_objects(ROOT, blob, model, analysis, promotions, ledger)
+    accepted, = [r for r in load_source_objects(ROOT, blob, model, analysis, promotions, ledger) if r['id'] == 'resident_F_8552']
     require(accepted['acceptance'], 'mixed admission did not reload')
     print('Promoted complete mixed source object:196 C/42 ASM bytes at FUNCTION_CODE_MATCH.')
 

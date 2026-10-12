@@ -295,7 +295,7 @@ def verify(root, blob, model, analysis, promotions, ledger, *, fact=None):
                 source_sha256=sha256(source.encode('ascii')), storage_ownership='UNKNOWN')
 
 
-def load_source_objects(root, blob, model, analysis, promotions, ledger):
+def load_exit_source_objects(root, blob, model, analysis, promotions, ledger):
     """Reconcile curated whole-object evidence with descent, without promotion.
 
     CFG reachability and compiler object extent answer different questions.
@@ -304,7 +304,7 @@ def load_source_objects(root, blob, model, analysis, promotions, ledger):
     """
     path = canonical_path(root, FACT)
     if not path.exists():
-        require(not ledger.get('mixed_source_objects'), 'canonical mixed fact missing')
+        require('resident_F_8552' not in ledger.get('mixed_source_objects', {}), 'canonical mixed fact missing')
         return []
     raw = path.read_bytes()
     fact = json.loads(raw)
@@ -336,7 +336,7 @@ def load_source_objects(root, blob, model, analysis, promotions, ledger):
                  field_identities=report['field_identities'],
                  original_storage_ownership='UNKNOWN', original_filename='UNKNOWN', original_tu='UNKNOWN')
     entries = ledger.get('mixed_source_objects', {})
-    require(set(entries) <= {fact['id']}, 'unsupported canonical mixed object')
+    require(set(entries) <= {fact['id'], 'resident_F_766C'}, 'unsupported canonical mixed object')
     if fact['id'] in entries:
         item = entries[fact['id']]
         require(item.get('source') == SOURCE and item.get('proof') == PROOF and
@@ -350,6 +350,14 @@ def load_source_objects(root, blob, model, analysis, promotions, ledger):
                 'mixed canonical proof does not rederive')
         row.update(status='FUNCTION_CODE_MATCH', acceptance=True, source=SOURCE, proof=PROOF)
     return [row]
+
+
+def load_source_objects(root, blob, model, analysis, promotions, ledger):
+    require(set(ledger.get('mixed_source_objects', {})) <= {'resident_F_8552', 'resident_F_766C'},
+            'unsupported canonical mixed object')
+    rows = load_exit_source_objects(root, blob, model, analysis, promotions, ledger)
+    from startup_recovery import load
+    return rows + load(root, blob, model, analysis, promotions, ledger, rows)
 
 
 def produced_bytes(root, blob, model, analysis, row):
@@ -395,6 +403,10 @@ def accepted_contributions(root, blob, model, analysis, promotions, ledger):
     result = []
     for row in rows:
         if not row['acceptance']:
+            continue
+        if row['id'] == 'resident_F_766C':
+            from startup_recovery import contributions
+            result.extend(contributions(root, blob, model, row))
             continue
         _, normalized = produced_bytes(root, blob, model, analysis, row)
         for index, part in enumerate(row['partitions']):

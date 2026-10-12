@@ -1,12 +1,13 @@
-# Current handoff - 2026-10-06
+# Current handoff - 2026-10-07
 
 This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 156 functions / 42,116 C bytes. The generated
-`progress.json` is the measurement authority. Whole-file accounting has 1,494
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 148,804 file bytes of
+Canonical coverage is 156 functions / 42,116 C bytes, plus two complete mixed
+objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
+`progress.json` is the measurement authority. Whole-file accounting has 1,496
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 148,254 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -327,3 +328,61 @@ evidence paths, not ignored build inputs. Separate staged source facts are in
 is granted. Next implement strict complete callee/producer verification and
 mixed code/literal admission, then use startup/CRT0 objects for COMMON ordering.
 See `../evidence/experiments/startup-mechanical.json`.
+
+The retained startup producer now has a bounded audit in
+`tools/startup_producer.py`. It rederives both sources and harnesses from the
+pinned SDK recipe, requires the complete tool/header and artifact inventories,
+checks exact producing commands and whole-object bounds, and preserves the
+304 C / 6 ASM / 2 literal partition under the label-only control. Thirteen
+retained-input tests cover omitted inventories, consistently rehashed source,
+header and object edits, failed commands, partition claims and quarantine paths.
+Its `VERIFIED_STARTUP_PRODUCER_ONLY` result grants no source acceptance or
+coverage and is not wired into canonical promotion. Next independently verify
+the complete callee bodies and original field identities, then require a fresh
+unchanged compilation at the mixed code/literal admission boundary. DATA/COMMON
+provider and natural resident layout remain unknown.
+
+Validation for this producer-audit boundary: census write/check, hybrid check,
+the unchanged startup field replay and all 468 regression tests passed (9
+skipped). Canonical source acceptance and accounting totals did not change.
+
+The complete resident_F_766C startup is now canonical in `mixed_source_objects`
+at FUNCTION_WITH_DATA_MATCH: 304 C bytes, 6 SDK assembly bytes and the 2-byte
+compiler literal. The 310-byte closed CFG and complete 312-byte source object
+remain separate extents. All 38 fields rederive, including the actual node1
+main route and relocated DATA exit entry. CLI, Workbench and exit anchors are
+canonical; allocator/task helpers retain independent public/private bindings.
+Fresh complete library/SDK-source links bind the seven remaining leaves (90
+bytes) in two DATA orders, without adding runtime accounting. The DOSBase
+initializer is checked independently. Open's 14-byte object remains distinct
+from its control link's two-byte alignment.
+
+Fresh startup and label-only compilations reproduce all retained source,
+assembly, objects, executables and symbol maps unchanged. Canonical admission
+rechecks the recorded validation inputs after the full 481-test regression
+(9 skipped). Census and accounting consumers rederive the mixed proof and
+count its literal separately. Normal C and public-entry library guards remain
+intact. See `../evidence/experiments/startup-admission.json`.
+
+Fresh complete CRT0 controls now establish natural COMMON ordering under the
+pinned candidate linker. The unchanged library and SDK-source objects produce
+identical whole executables in three contexts (16 successful guest steps).
+Adding a separate four-byte DATA/eight-byte COMMON provider changes the seven
+expected fields; all 108 other bytes and the DATA relocation remain unchanged.
+Placing the unchanged library `_close` object before CRT0 moves DOSBase before
+saved SP and SysBase without a filler object or fixed address. This explains a
+possible mechanism for the original ordering, not its original provider.
+`../tools/crt0_controls.py` replays pinned inputs, complete object boundaries,
+source recipes, all fields, relocation and both whole outputs; the measured
+report is `../evidence/experiments/crt0-controls.json`. It grants no acceptance.
+
+Next complete CRT0 saved-stack/startup bindings using the canonical consumers
+and review full runtime admission separately. Then identify the original
+earlier DOS consumers and real DATA providers. Neither vars hypothesis is
+selected: original DATA/COMMON provider, TU, filename, release and natural
+resident/ov04 closure remain unknown. Coverage/accounting is unchanged.
+
+CRT0 control validation: all 493 regression tests passed (9 skipped), including
+12 new producer/order rejection tests. Census write/check, hybrid accounting
+check and exact retained-report replay passed. The full regression log is
+`../build/recovery/crt0-controls-regression.log` (ignored attempt output).

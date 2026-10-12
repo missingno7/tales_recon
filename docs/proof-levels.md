@@ -81,3 +81,11 @@ C promotion still requires CLOSED_CFG and rejects inline assembly. Accounting
 counts the proved C and ASM spans separately. A modified SDK body establishes
 neither an unmodified library member nor original filename, TU, storage provider
 or natural resident layout. These unknowns remain explicit in the mixed proof.
+
+A mixed startup object with a separately bounded compiler literal uses
+FUNCTION_WITH_DATA_MATCH. Its CODE-data tail is not counted as C or ASM:
+label-only controls partition the source languages, the decoded PC reference
+binds the exact literal, and the next discovered entry bounds the tail.
+Admission requires fresh unchanged producer artifacts, independently bound
+complete runtime callees and current canonical parser/exit anchors. Ordinary
+C and accepted-public-entry library admission rules remain unchanged.
