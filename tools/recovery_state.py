@@ -223,6 +223,7 @@ def _category_from_words(text):
                            (('IMPLICIT_HELPER_A4_ROUTE',),'CALL_BINDING'),
                            (('PROVEN_OBJECT_GROUP_DEPENDENCY',),'OBJECT/TU_LAYOUT'),
                            (('NATURAL_UNIT_DECLARATION_VIEW',),'DECLARATION_VIEW'),
+                           (('STALE_PROVEN_OBJECT_GROUP','SAME_OBJECT_SHORT_CALL'),'OBJECT/TU_LAYOUT'),
                            (('DECLARATION','STRUCT_VIEW'),'DECLARATION_VIEW'),
                            (('FFP','FIXUP','CALL_BINDING','REGISTER_CALL'),'CALL_BINDING'),
                            (('CFG','BOUNDARY','INDIRECT','EXTENT'),'CFG/BOUNDARY'),

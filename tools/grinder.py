@@ -38,6 +38,14 @@ def blocker_next_action(reason):
         return ('Make automatic dependency units keep a canonical member inside its whole proven object group '
                 '(proven_unit_groups outside natural intervals), or repair the member into a self-contained TU with a '
                 'fresh replacement proof; then rerun the unchanged candidate.')
+    if 'SAME_OBJECT_SHORT_CALL' in reason:
+        return ('A bsr.b to a canonical callee proves both were one original object, but the callee was proved '
+                'standalone. Re-prove the callee and this caller as one address-consecutive object group through the '
+                'normal unit verifier (replacement proof), then rerun the retained candidate unchanged.')
+    if 'STALE_PROVEN_OBJECT_GROUP' in reason:
+        return ('A recorded proven object predates a function discovered inside it. Re-prove the complete object '
+                'including the new member (replacement proofs through the normal unit verifier), then rerun the '
+                'retained unit inputs unchanged. Do not relax the proven-grouping validator.')
     if 'NATURAL_UNIT_DECLARATION_VIEW' in reason:
         return ('Decide how one natural unit links canonical members that use distinct partial views of the same A4 '
                 'global (G_h01_A15E: struct Record vs struct Event): prove the original allocation from independent '

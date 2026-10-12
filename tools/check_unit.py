@@ -217,6 +217,10 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     ``recovered`` definition, the only name it has in the compiled unit.
     """
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
+    from recovery_state import runtime_floor
+    floor=runtime_floor(l['functions'])
+    tail_ids={x['id'] for x in l['functions'] if floor is not None and f['hunk']==0 and f['start']<floor
+              and x['hunk']==0 and x['start']>=floor}
     member_sources=dict(member_sources or {})
     require(fid not in member_sources,'the entry member source is the positional candidate, not a --member')
     entry_name=mechanical_name(f)
@@ -224,6 +228,11 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
         return re.sub(r'\b'+re.escape(entry_name)+r'\b','recovered',text)
     if member_sources:
         parts[fid]=new_part(source)
+    def stub_only(call):
+        # An unrecovered callee reached through an A4 jump-table stub is bound
+        # by symbol through the jump table, never by same-object placement.
+        return (call.get('basis') in ('A4_RELOCATED_JMP_STUB','A4_OVERLAY_TRAMPOLINE')
+                and call['id'] not in r['functions'] and call['id'] not in member_sources)
     def add_recovered(dep_id):
         if dep_id in members:return
         if dep_id in member_sources:
@@ -238,6 +247,10 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
                     add_recovered(call['id'])
             return
         dep=r['functions'].get(dep_id)
+        if dep is None and dep_id in tail_ids:
+            # Unrecovered runtime-tail library glue stays an external stand-in,
+            # bound by mechanical symbol exactly as in standalone verification.
+            return
         require(dep is not None,'unrecovered same-node dependency: '+dep_id)
         df,_=validated_function(dep_id);text=canonical_path(ROOT,dep['source']).read_text()
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
@@ -247,10 +260,10 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
         # well.  Leaving them as externs can preserve a plausible instruction
         # shape while changing the original PC-relative call identity.
         for call in df['direct_callees']:
-            if call['hunk']==df['hunk'] and call['id']!=dep_id:
+            if call['hunk']==df['hunk'] and call['id']!=dep_id and not stub_only(call):
                 add_recovered(call['id'])
     for call in f['direct_callees']:
-        if call['hunk']!=f['hunk'] or call['id']==fid:continue
+        if call['hunk']!=f['hunk'] or call['id']==fid or stub_only(call):continue
         add_recovered(call['id'])
     # Every named new member is part of the claimed unit, even one reached
     # only through a canonical bridge or by physical adjacency.

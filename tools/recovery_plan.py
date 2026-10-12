@@ -35,7 +35,8 @@ def _profile_class(reason):
     if 'PERSISTENT_CODEGEN' in text:
         return 'SOURCE_OR_ALGORITHM_SHAPE'
     if any(x in text for x in ('CYCLIC_INTER_OBJECT_PC_CALL', 'PROVEN_OBJECT_GROUP_DEPENDENCY',
-                               'NATURAL_UNIT_DECLARATION_VIEW')):
+                               'NATURAL_UNIT_DECLARATION_VIEW', 'STALE_PROVEN_OBJECT_GROUP',
+                               'SAME_OBJECT_SHORT_CALL')):
         return 'DEPENDENCY_LAYOUT'
     if any(x in text for x in ('FFP', 'PRIVATE_HELPER', 'EXTERNAL_FIXUP', 'REGISTER_CALL_ABI', 'IMPLICIT_HELPER_A4_ROUTE')):
         return 'EXTERNAL_CALL_BINDING'
