@@ -67,30 +67,88 @@ def runtime_dependencies(ledger):
     return result
 
 
+STUB_BASES=('A4_RELOCATED_JMP_STUB','A4_OVERLAY_TRAMPOLINE')
+DATA_MODEL_PROFILES={'ABSOLUTE':['aztec36-large-data'],'A4':['aztec36'],'NONE':['aztec36','aztec36-large-data'],
+                     'MIXED':['aztec36-large-data','aztec36']}
+
+
+def data_model(f):
+    """Measured data addressing of one function.
+
+    A4-relative references at A4 jump-stub call sites are jump-table slots,
+    not data. Absolute RELOC32 references to DATA/BSS hunks indicate the
+    large-data (+D) model; the verifier still decides the profile.
+    """
+    stub_sites={c['site'] for c in f.get('direct_callees',[]) if c.get('basis') in STUB_BASES}
+    a4=sum(1 for x in f.get('referenced_data',[]) if x.get('kind')=='A4_RELATIVE' and x.get('instruction_offset') not in stub_sites)
+    absolute=sum(1 for x in f.get('relocations',[]) if x.get('target_hunk') not in (None,f.get('hunk')) and x.get('target_hunk')>0)
+    return 'MIXED' if a4 and absolute else 'ABSOLUTE' if absolute else 'A4' if a4 else 'NONE'
+
+
+def runtime_floor(functions):
+    """Lowest resident RUNTIME_CANDIDATE entry (libraries link after the game objects)."""
+    starts=[f['start'] for f in functions if f.get('hunk')==0 and f.get('ownership')=='RUNTIME_CANDIDATE']
+    return min(starts) if starts else None
+
+
+def resident_deferral(f,floor):
+    """None when a resident function is an ordinary game-code candidate, else the reason.
+
+    Resident code above the first runtime candidate (startup, CLI/Workbench,
+    exit and library objects) keeps its specialised mixed/runtime route, and a
+    function whose data model is mixed needs structural evidence first.
+    """
+    if f.get('node')!='resident':return None
+    if floor is None:return 'RESIDENT_RUNTIME_UNBOUNDED'
+    if f['start']>=floor:return 'RESIDENT_RUNTIME_TAIL'
+    if data_model(f)=='MIXED':return 'RESIDENT_MIXED_DATA_MODEL'
+    return None
+
+
+def resident_gate(item):
+    """Deferral reason for a ranked resident item; unclassified items stay deferred."""
+    if item.get('node')!='resident':return None
+    return item.get('resident_deferral','RESIDENT_UNCLASSIFIED')
+
+
 def ranked(node=None):
     l=evidence();r=recovery();result=[];runtime=runtime_dependencies(l)
     r['functions']={fid:item for fid,item in r['functions'].items() if
                     not item.get('source') or is_active_repo_path(ROOT/item['source'],ROOT)}
+    mixed=set(r.get('mixed_source_objects',{}))
+    floor=runtime_floor(l['functions'])
     incoming={f['id']:sum(any(c['id']==f['id'] for c in caller['direct_callees'])
                          for caller in l['functions'] if caller['id'] not in r['functions']) for f in l['functions']}
+    # Only a same-hunk PC-relative call makes the caller wait for this body;
+    # A4 stub callers verify independently and gain interface evidence only.
+    local_callers,stub_callers={},{}
+    for caller in l['functions']:
+        if caller['id'] in r['functions'] or caller['id'] in mixed:continue
+        for callee in {c['id'] for c in caller['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==caller['hunk']}:
+            local_callers[callee]=local_callers.get(callee,0)+1
+        for callee in {c['id'] for c in caller['direct_callees'] if c['basis'] in STUB_BASES}:
+            stub_callers[callee]=stub_callers.get(callee,0)+1
     known_runtime={x['id'] for x in l['functions'] if x['ownership']=='RUNTIME_CANDIDATE'}
     for f in l['functions']:
         if node and f['node']!=node:continue
         state=r['functions'].get(f['id'],{}).get('state','DISCOVERED')
         if state in ('FUNCTION_CODE_MATCH','FUNCTION_WITH_DATA_MATCH','MODULE_MATCH','OVERLAY_NODE_MATCH','BLOCKED'):continue
+        if f['id'] in mixed:continue
         if f['id'] in r['blockers']:state='BLOCKED'
         elif f['id'] in r['attempts']:
             state='CODEGEN_SIMILAR' if any((a.get('mnemonic_similarity') or 0)>=0.75 for a in r['attempts'][f['id']]) else 'CANDIDATE_C'
         known=sum(c['id'] in r['functions'] or c['id'] in known_runtime or (c['hunk'],c['offset']) in runtime for c in f['direct_callees'])
         unresolved_indirect=[x for x in f['indirect_control_flow'] if x.get('kind')!='PC_RELATIVE_WORD_JUMP_TABLE']
         # Lower cost wins. Closure and dependency unlocks dominate byte size.
-        unlock=10000*(f['node']=='ov04')+400*incoming[f['id']]+200*len(unresolved_indirect)
+        unlock=(10000*(f['node']=='ov04')+400*local_callers.get(f['id'],0)+100*stub_callers.get(f['id'],0)
+                +200*len(unresolved_indirect))
         attempts=r['attempts'].get(f['id'],[])
         unchanged=max(0,len(attempts)-len({(a.get('source_sha256'),a.get('comparison_identity')) for a in attempts}))
         score=f['size']//8+80*len(f['direct_callees'])-30*known+30*len(f['referenced_data'])+100*len(f['relocations'])+500*len(unresolved_indirect)-unlock+1000*unchanged
         if f['id'] in r['blockers'] and not r['blockers'][f['id']].get('next_action'):score+=5000
         if f['extent_status']!='CLOSED_CFG':score+=10000
-        if f['hunk']==0:score+=20000
+        deferral=resident_deferral(f,floor)
+        if deferral:score+=20000
         if f['ownership']!='UNKNOWN':continue
         if f['hunk']==14:score-=100
         # Resident A4 jump stubs are naturally linkable extern calls.  Their
@@ -118,6 +176,8 @@ def ranked(node=None):
                            confidence=f['confidence'],unknown_calls=len(unknown),data_references=len(f['referenced_data']),pending_local_dependencies=local_dependencies,
                            pc_relative_data=sum(x['kind']=='PC_RELATIVE_DATA' for x in f['referenced_data']),same_node_unit_ready=unit_ready,
                            unlock_value=unlock,unlocks_callers=incoming[f['id']],unchanged_hypotheses=unchanged,
+                           local_callers=local_callers.get(f['id'],0),stub_callers=stub_callers.get(f['id'],0),
+                           resident_deferral=deferral,data_model=data_model(f),profile_hints=DATA_MODEL_PROFILES[data_model(f)],
                            campaign='ov04' if f['node']=='ov04' else None,
                            blocker_category=blocker_category(r['blockers'].get(f['id'],{}).get('reason',''))))
     return sorted(result,key=lambda x:(x['score'],x['id']))
@@ -129,7 +189,10 @@ BLOCKER_CATEGORIES=('SOURCE_SHAPE','DECLARATION_VIEW','OBJECT/TU_LAYOUT','DATA_O
 
 def blocker_category(reason):
     text=reason.upper()
-    for words,category in [(('DECLARATION','STRUCT_VIEW'),'DECLARATION_VIEW'),
+    for words,category in [(('XOR_RESULT_REGISTER',),'SOURCE_SHAPE'),
+                           (('IMPLICIT_HELPER_A4_ROUTE',),'CALL_BINDING'),
+                           (('PROVEN_OBJECT_GROUP_DEPENDENCY',),'OBJECT/TU_LAYOUT'),
+                           (('DECLARATION','STRUCT_VIEW'),'DECLARATION_VIEW'),
                            (('FFP','FIXUP','CALL_BINDING','REGISTER_CALL'),'CALL_BINDING'),
                            (('CFG','BOUNDARY','INDIRECT','EXTENT'),'CFG/BOUNDARY'),
                            (('LAYOUT','OBJECT','CYCLIC','GAP'),'OBJECT/TU_LAYOUT'),

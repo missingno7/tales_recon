@@ -122,6 +122,12 @@ def _blocker_class(reason):
 
 UNLOCK_BOOST = 5
 UNLOCK_CAP = 4
+# Advisory routing (derived; the canonical ledger stays the only authority).
+ROUTES = ("READY_FOR_HAIKU", "READY_FOR_REGION_WORK", "BLOCKED_BY_SHARED_MECHANISM", "NEEDS_STRUCTURAL_EVIDENCE",
+          "ALREADY_EXHAUSTED")
+SHARED_MECHANISMS = ("ABI_OR_CODEGEN_PROFILE", "EXTERNAL_CALL_BINDING", "DEPENDENCY_LAYOUT")
+# A finished budget without a changed hypothesis is exhausted until reopened.
+EXHAUSTED_INTAKES = ("BLOCKED_FOR_CURATION", "EQUAL_CLAIM_REJECTED", "NEAR_RECORDED")
 EVIDENCE_INTAKES = ("NEEDS_EVIDENCE_FOR_CURATION", "BLOCKED_FOR_CURATION")
 
 
@@ -166,8 +172,9 @@ def region_tasks(regions, canonical):
         deferred = []
         if region["oversized"]:
             deferred.append("OVERSIZED_REGION")
-        if region.get("node") == "resident":
-            deferred.append("RESIDENT_DEFERRED")
+        resident = region.get("resident_deferrals") or []
+        if region.get("node") == "resident" and (resident or "resident_deferrals" not in region):
+            deferred.append(resident[0] if resident else "RESIDENT_UNCLASSIFIED")
         if not region.get("members_well_bounded", True):
             deferred.append("MEMBER_EXTENT_UNCERTAIN")
         notes = []
@@ -210,8 +217,9 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
     target, at most UNLOCK_CAP targets.
     """
     from recovery_plan import _constraints
+    from recovery_state import resident_gate
     canonical = {fid for fid, item in recovery_ledger.get("functions", {}).items()
-                 if item.get("state") in CANONICAL_STATES}
+                 if item.get("state") in CANONICAL_STATES} | set(recovery_ledger.get("mixed_source_objects", {}))
     blockers = recovery_ledger.get("blockers", {})
     attempts = recovery_ledger.get("attempts", {})
     by_id = {f["id"]: f for f in functions}
@@ -225,6 +233,9 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
         region["members_well_bounded"] = all(items.get(m, {}).get("extent") == "CLOSED_CFG"
                                              and items.get(m, {}).get("confidence") == "HIGH"
                                              for m in region["new_members"])
+        if region.get("node") == "resident":
+            region["resident_deferrals"] = sorted({resident_gate(items.get(m, dict(node="resident")))
+                                                   for m in region["new_members"]} - {None})
     in_region, region_of = set(), {}
     for task in region_tasks(regions, canonical):
         tasks.append(task)
@@ -300,7 +311,7 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
             verifier="check_function")
 
     def workable(item):
-        return (item["extent"] == "CLOSED_CFG" and item.get("confidence") == "HIGH" and item["node"] != "resident"
+        return (item["extent"] == "CLOSED_CFG" and item.get("confidence") == "HIGH" and not resident_gate(item)
                 and not item.get("indirect") and item["size"] <= max_bytes and item["id"] not in blockers)
 
     fresh = sorted((x for x in items.values() if workable(x) and not x.get("pending_local_dependencies")),
@@ -323,7 +334,7 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
         blocks = sorted(graph[fid] - {fid})
         if item is None or fid in assigned or fid in in_region or not blocks:
             continue
-        closed = (item["extent"] == "CLOSED_CFG" and item.get("confidence") == "HIGH" and item["node"] != "resident"
+        closed = (item["extent"] == "CLOSED_CFG" and item.get("confidence") == "HIGH" and not resident_gate(item)
                   and not item.get("indirect") and item["size"] <= max_bytes)
         if closed and not item.get("pending_local_dependencies"):
             untasked_leaves.append(dict(id=fid, blocks=blocks, size=item["size"],
@@ -356,7 +367,8 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
         groups.setdefault((constraints[0], item["node"]), []).append(item["id"])
     review_order = ["UNRECOVERED_LOCAL_DEPENDENCY", "NONCONTIGUOUS_LOCAL_UNIT", "UNKNOWN_CALL_LIMIT",
                     "PC_RELATIVE_DATA_OWNERSHIP", "SIZE_LIMIT", "UNCERTAIN_EXTENT", "INDIRECT_CONTROL_FLOW",
-                    "LOW_CONFIDENCE", "DATA_REFERENCE_LIMIT", "RESIDENT_DEFERRED"]
+                    "LOW_CONFIDENCE", "DATA_REFERENCE_LIMIT", "RESIDENT_MIXED_DATA_MODEL", "RESIDENT_UNCLASSIFIED",
+                    "RESIDENT_RUNTIME_UNBOUNDED", "RESIDENT_RUNTIME_TAIL"]
     chunks = []
     for (constraint, node), members in groups.items():
         for start in range(0, len(members), 8):
@@ -386,8 +398,39 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
             task["notes"].append("Prerequisites without any task: %s; the region cannot be verified until they are "
                                  "canonical." % ", ".join(untasked[:8]))
     apply_unlocks(tasks, graph, canonical)
-    tasks.sort(key=lambda t: (t["priority"], t["id"]))
+    for task in tasks:
+        task["leverage"] = sum(items[t].get("unlock_value", 0) for t in task["targets"] if t in items)
+        task["route"] = classify_route(task, intakes)
+    tasks.sort(key=task_order)
     return tasks, dict(omitted_review_chunks=omitted, untasked_blocking_leaves=untasked_leaves)
+
+
+def classify_route(task, intakes=()):
+    """Advisory route of one task: who should work on it next, and why.
+
+    ``intakes`` are the latest fleet outcomes (ledger records or completed
+    fleet state); a reopened task has none.
+    """
+    prior = {r.get("intake_status") for r in intakes
+             if r.get("task_id") == task["id"]
+             or (r.get("kind") == task["kind"] and set(task["targets"]) <= set(r.get("targets") or ()))}
+    if task["kind"] == "review" or task["origin"].get("deferred"):
+        return "NEEDS_STRUCTURAL_EVIDENCE"
+    if task["kind"] == "blocker-probe":
+        return ("BLOCKED_BY_SHARED_MECHANISM" if task["origin"].get("mechanism") in SHARED_MECHANISMS
+                else "ALREADY_EXHAUSTED")
+    if "NEEDS_EVIDENCE_FOR_CURATION" in prior:
+        return "NEEDS_STRUCTURAL_EVIDENCE"
+    if prior & set(EXHAUSTED_INTAKES):
+        return "ALREADY_EXHAUSTED"
+    if task["kind"] in ("region", "unit") or task.get("blocked_by_region"):
+        return "READY_FOR_REGION_WORK"
+    return "READY_FOR_HAIKU"
+
+
+def task_order(task):
+    """Deterministic claim order: priority, then measured dependency/interface leverage."""
+    return (task["priority"], -task.get("leverage", 0), task["id"])
 
 
 def apply_unlocks(tasks, graph, canonical=()):
@@ -440,6 +483,12 @@ def plan(fleet, max_bytes=1024, max_review_tasks=24, include_abi_blockers=False,
     for _, r in records:
         if r["record_type"] == "fleet_intake":
             latest[r.get("task_id")] = r
+    # Outcomes whose ledger records were retired survive in the fleet state.
+    with fleet.locked("plan-state"):
+        state = fleet.load_state()
+    for tid, item in completed_ids(fleet, state).items():
+        latest.setdefault(tid, dict(record_type="fleet_intake", task_id=tid,
+                                    intake_status=item.get("intake_status") or item.get("outcome")))
     tasks, extra = build_tasks(functions, items, rec, report["packages"], max_bytes, max_review_tasks,
                                include_abi_blockers, hyp, list(latest.values()),
                                region_context=region_context(fleet, functions, rec))
@@ -505,7 +554,9 @@ def region_summaries(tasks):
 
 def canonical_ids():
     from recovery_state import recovery
-    return {fid for fid, item in recovery().get("functions", {}).items() if item.get("state") in CANONICAL_STATES}
+    rec = recovery()
+    return ({fid for fid, item in rec.get("functions", {}).items() if item.get("state") in CANONICAL_STATES}
+            | set(rec.get("mixed_source_objects", {})))
 
 
 def intake_records(fleet):
@@ -542,7 +593,8 @@ def task_state(task, state, done, canonical, by_id, at):
     return "expired_lease" if lease else "open"
 
 
-def claim(fleet, worker, kinds=None, task_id=None, lease_hours=DEFAULT_LEASE_HOURS, dry_run=False, name_for=None):
+def claim(fleet, worker, kinds=None, task_id=None, lease_hours=DEFAULT_LEASE_HOURS, dry_run=False, name_for=None,
+          routes=None):
     """Atomically lease the best open task. Returns (task, lease) or (None, reason)."""
     require(worker is None or re.fullmatch(r"[A-Za-z0-9_.+-]{1,80}", worker), "invalid worker name")
     with fleet.locked("claim"):
@@ -556,8 +608,10 @@ def claim(fleet, worker, kinds=None, task_id=None, lease_hours=DEFAULT_LEASE_HOU
                     return by_id[tid], lease
         done = completed_ids(fleet, state)
         canonical = canonical_ids()
-        for task in sorted(tasks, key=lambda t: (t["priority"], t["id"])):
+        for task in sorted(tasks, key=task_order):
             if kinds and task["kind"] not in kinds:
+                continue
+            if routes and task.get("route") not in routes:
                 continue
             if task_id and task["id"] != task_id:
                 continue
@@ -672,7 +726,14 @@ def function_facts(fid, functions, rec, rank_item=None, max_bytes=1024):
         counted[name + " " + c.get("basis", "?") + " " + state] += 1
     unique_calls = [k + (" x%d" % n if n > 1 else "") for k, n in counted.items()]
     calls = unique_calls[:12]
-    data = sorted({"G_h%02d_%04X" % (x["hunk"], x["offset"]) for x in f.get("referenced_data", [])})
+    # A4 slots at jump-stub call sites are call bindings, not data; absolute
+    # RELOC32 targets in DATA/BSS hunks are data (large-data model).
+    stub_sites = {c.get("site") for c in f.get("direct_callees", [])
+                  if c.get("basis") in ("A4_RELOCATED_JMP_STUB", "A4_OVERLAY_TRAMPOLINE")}
+    data = sorted({"G_h%02d_%04X" % (x["hunk"], x["offset"]) for x in f.get("referenced_data", [])
+                   if not (x.get("kind") == "A4_RELATIVE" and x.get("instruction_offset") in stub_sites)} |
+                  {"G_h%02d_%04X" % (x["target_hunk"], x.get("addend_raw", 0)) for x in f.get("relocations", [])
+                   if x.get("target_hunk") not in (None, f.get("hunk")) and x.get("target_hunk", 0) > 0})
     facts = dict(id=fid, node=f.get("node"), hunk=f.get("hunk"), start="0x%04X" % f["start"], end="0x%04X" % f["end"],
                  size=f["size"], extent=f.get("extent_status"), confidence=f.get("confidence"),
                  instructions=len(f.get("instructions", [])), calls=calls,
@@ -682,6 +743,9 @@ def function_facts(fid, functions, rec, rank_item=None, max_bytes=1024):
                  jump_tables=len(f.get("jump_tables", [])), indirect=len(f.get("indirect_control_flow", [])))
     if rank_item:
         facts["constraints"] = _constraints(rank_item, max_bytes, 99, 999)
+        # Measured addressing model; the verifier still decides the profile.
+        facts["data_model"] = rank_item.get("data_model")
+        facts["profile_hints"] = rank_item.get("profile_hints")
     return facts
 
 
@@ -851,7 +915,7 @@ def unit_diag_summary(members, receipt, max_bytes=1800):
 
 
 LIVENESS = """## First step (host liveness)
-Run `python tools/fleet.py renew {task_id} --worker {worker}` before anything else. The host is shared and heavily loaded: a single command can take 1-3 minutes to start and finish. Run commands one at a time (never batch several commands in parallel), wait on slow commands instead of terminating them, and keep outputs small. Do not read whole docs/*.json ledgers or long docs; this packet already carries the binding rules and target facts, so use targeted queries. Only if this `renew` command itself has still not returned after 10 minutes, stop and reply with one line: `TASK {task_id} BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
+Run `python tools/fleet.py renew {task_id} --worker {worker}` before anything else. The host is shared: a cache-miss compile waits in the shared queue and can take several minutes. Run commands one at a time (never batch several commands in parallel), give compile commands a long timeout (10 minutes), wait on slow commands instead of terminating them, and keep outputs small. Do not read whole docs/*.json ledgers or long docs; this packet already carries the binding rules and target facts, so use targeted queries. Only if this `renew` command itself has still not returned after 10 minutes, stop and reply with one line: `TASK {task_id} BLOCKED HOST_TOOLS_UNRESPONSIVE` (no result.json needed; the supervisor releases the lease).
 """
 
 RULES = """## Rules (binding; from AGENTS.md)
@@ -861,6 +925,7 @@ RULES = """## Rules (binding; from AGENTS.md)
 - Write files ONLY under `{dir}/`. The tools themselves append to build/compile-cache and to the hypothesis ledger; that is expected.
 - Never promote: never run check_function.py/check_unit.py without `--isolated`; use the wrappers below. Never delete lock files. If a tool reports a stale lock, stop and report BLOCKED quoting the message.
 - The exact verifier alone decides EQUAL. Diagnostics and similarity scores are advisory. Other workers share this checkout; do not touch other experiments/ directories.
+- Source conventions (the harness validator is frozen): extern declarations must spell the base type, `[unsigned|signed] char|short|int|long|float|double|struct NAME` plus pointers/positive-bound arrays. Write `unsigned int` or `unsigned short`, never bare `unsigned`. Aztec 3.6 `int` is 16 bits; `long` is 32. Use the target facts' `profile_hints`: absolute `$xxxx.l` DATA references mean the large-data profile `aztec36-large-data`, A4-relative data means `aztec36`.
 """
 
 PROTOCOL = """## Protocol
@@ -875,7 +940,7 @@ PROTOCOL = """## Protocol
 
 RESULT_SCHEMA = """## result.json (closed schema; intake re-verifies every EQUAL claim)
 ```json
-{{"schema_version":1,"task_id":"{task_id}","worker":"<your -n name>",
+{{"schema_version":1,"task_id":"{task_id}","worker":"{worker}",
  "status":"EQUAL_CANDIDATE|NEAR|BLOCKED|NEEDS_EVIDENCE",
  "target":"{target}",
  "best":null or {{"source":"{dir}/<file>.c","profile":"aztec36","cache_key":"<64 hex>",
@@ -1058,7 +1123,7 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None, 
             "Priority %s. Lease: %s.\n" % (task["priority"], ("worker `%s`, expires %s (renew: `python tools/fleet.py renew %s --worker %s`)"
                                                              % (lease["worker"], lease["expires"], task["id"], lease["worker"]))
                                           if lease else "none recorded"),
-            LIVENESS.format(task_id=task["id"], worker=lease["worker"] if lease else "<your -n name>"),
+            LIVENESS.format(task_id=task["id"], worker=lease["worker"] if lease else "<your worker name>"),
             RULES.format(dir=directory)]
     if task["kind"] == "review":
         head.append("## Review task\nRead-only evidence review of the members below. Do not compile unless one member "
@@ -1070,6 +1135,7 @@ def render_packet(fleet, task, lease=None, rec=None, functions=None, rank=None, 
     tail = [PROTOCOL.format(unit_doc=unit_doc, record=record, run=run, trials=budget["max_compile_trials"],
                             variants=budget["max_variants_per_manifest"], dir=directory, task_id=task["id"]),
             RESULT_SCHEMA.format(task_id=task["id"], dir=directory, target=target, verifier=verifier, options=options,
+                                 worker=lease["worker"] if lease else "<your worker name>",
                                  entry=task["origin"]["region"]["entry"] if task["kind"] == "region" else target)]
     sections, optional = _task_body(fleet, task, rec, functions, rank)
     for note in task.get("notes", []):
@@ -1516,6 +1582,101 @@ def launch_plan(fleet, count, kinds=None, prefix="luna", model="gpt-6-luna", eff
     return lines, claimed
 
 
+# ---------------------------------------------------------------------------
+# Claude-native waves (Opus supervisor -> Haiku Agent workers)
+
+
+HAIKU_AGENT = dict(subagent_type="general-purpose", model="haiku", run_in_background=True)
+WORKER_PREFIX = "haiku-"
+
+
+def agent_prompt(fleet, task, lease, packet):
+    """The Agent-tool prompt: the packet is the whole contract; this only points at it."""
+    return ("You are autonomous fleet worker `%s` on task %s in the repository %s. Read `%s` in full and follow it "
+            "exactly: it is your complete, binding instruction set (rules, evidence commands, trial budget, "
+            "verification commands and the result.json schema). Write files only inside `%s/`. A DIFFER verdict "
+            "is information, not a reason to stop: keep making one-factor changes while they produce new emitted "
+            "states, and stop only at an exact EQUAL, the trial budget, repeated emitted states, or a structural "
+            "blocker you can name. Never promote, commit, edit canonical files or ask for help mid-task. Finish with "
+            "exactly the one-line reply the packet specifies."
+            % (lease["worker"], task["id"], ROOT.as_posix(), rel(packet), rel(fleet.task_dir(task["id"]))))
+
+
+def plan_is_current(fleet):
+    """(current?, reason): a wave may only lease tasks planned from the current canonical ledgers."""
+    frontier = fleet.load_tasks().get("frontier") or {}
+    current = sha256((ROOT / "recovery/ledger.json").read_bytes())
+    if frontier.get("recovery_ledger_sha256") != current:
+        return False, "tasks.json predates the current recovery ledger; run: python tools/fleet.py plan"
+    return True, None
+
+
+def wave_preview(fleet, count, routes, kinds=None):
+    """The tasks a wave would lease now, in claim order, without leasing them."""
+    with fleet.locked("wave-preview"):
+        tasks = fleet.load_tasks()["tasks"]
+        state = fleet.load_state()
+    at, by_id = now_epoch(), {t["id"]: t for t in tasks}
+    done, canonical = completed_ids(fleet, state), canonical_ids()
+    chosen = []
+    for task in sorted(tasks, key=task_order):
+        if len(chosen) >= count:
+            break
+        if (routes and task.get("route") not in routes) or (kinds and task["kind"] not in kinds):
+            continue
+        if task_state(task, state, done, canonical, by_id, at) in ("open", "expired_lease"):
+            chosen.append(task)
+    return chosen
+
+
+def wave(fleet, count, routes=("READY_FOR_HAIKU",), kinds=None, lease_hours=DEFAULT_LEASE_HOURS, dry_run=False,
+         model="haiku", check_plan=True, task_ids=()):
+    """Lease up to COUNT independent tasks, write packets and Agent dispatch specs. Launches nothing.
+
+    Independence comes from the planner: every target belongs to one task,
+    dependent tasks stay ``waiting`` until their callees are canonical, and
+    region members are only claimable through their region.
+    """
+    if check_plan:
+        ok, reason = plan_is_current(fleet)
+        require(ok, reason)
+    task_ids = list(task_ids or ())
+    if task_ids:
+        count = len(task_ids)
+    if dry_run:
+        preview = wave_preview(fleet, len(fleet.load_tasks()["tasks"]) if task_ids else count, routes, kinds)
+        if task_ids:
+            preview = [t for t in preview if t["id"] in task_ids]
+        return dict(schema_version=1, dry_run=True, routes=list(routes or ()),
+                    entries=[dict(task_id=t["id"], kind=t["kind"], route=t.get("route"), targets=t["targets"],
+                                  priority=t["priority"], leverage=t.get("leverage", 0)) for t in preview])
+    wave_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:6]
+    entries, stopped = [], None
+    for index in range(count):
+        task, lease = claim(fleet, None, kinds, task_ids[index] if task_ids else None, lease_hours=lease_hours,
+                            routes=routes, name_for=lambda t: (WORKER_PREFIX + t["id"])[:80])
+        if task is None:
+            stopped = lease
+            if task_ids:
+                continue
+            break
+        packet, size = write_packet(fleet, task["id"])
+        directory = fleet.task_dir(task["id"])
+        entries.append(dict(task_id=task["id"], kind=task["kind"], route=task.get("route"), targets=task["targets"],
+                            priority=task["priority"], leverage=task.get("leverage", 0), worker=lease["worker"],
+                            packet=rel(packet), packet_bytes=size, result=rel(directory / "result.json"),
+                            agent=dict(HAIKU_AGENT, model=model, description=("Grind " + task["id"])[:60],
+                                       prompt=agent_prompt(fleet, task, lease, packet))))
+    document = dict(schema_version=1, wave_id=wave_id, created=iso(now_epoch()), routes=list(routes or ()),
+                    frontier=fleet.load_tasks().get("frontier"), entries=entries, stopped=stopped,
+                    next=["python tools/fleet.py intake-all",
+                          "python tools/promote_batch.py MANIFEST --verify-only  (supervisor, CONFIRMED_EQUAL only)"])
+    if entries:
+        write_json(fleet.dir / "waves" / (wave_id + ".json"), document)
+        document["path"] = rel(fleet.dir / "waves" / (wave_id + ".json"))
+    return document
+
+
 def _run_wrapped(module_name, argv):
     import compile_queue
     compile_queue.install()
@@ -1599,6 +1760,14 @@ def main(argv=None):
     p.add_argument("--no-host-guard", action="store_true",
                    help="skip the cx ps worker count (TALES_FLEET_HOST_MAX/TALES_FLEET_MAX caps)")
     p.add_argument("--cx", default=CX_DEFAULT, help="path to cx.py (default %(default)s)")
+    p = sub.add_parser("wave", help="lease N independent tasks, write packets and Claude Agent dispatch specs "
+                                    "(launches nothing; the supervisor dispatches each entry's agent spec)")
+    p.add_argument("count", type=int); p.add_argument("--kind", action="append", choices=KINDS)
+    p.add_argument("--route", action="append", choices=ROUTES,
+                   help="routes to lease (default READY_FOR_HAIKU; repeatable)")
+    p.add_argument("--model", default="haiku"); p.add_argument("--lease-hours", type=float, default=DEFAULT_LEASE_HOURS)
+    p.add_argument("--dry-run", action="store_true", help="show the tasks a wave would lease, in order; lease nothing")
+    p.add_argument("--task", action="append", default=[], help="lease exactly these task ids (count is ignored)")
     for name in ("verify-function", "verify-unit"):
         p = sub.add_parser(name, help="isolated check_%s run through the compile queue" % name.split("-")[1])
         p.add_argument("args", nargs=argparse.REMAINDER)
@@ -1658,6 +1827,11 @@ def main(argv=None):
             lines, _ = launch_plan(fleet, args.count, args.kind, args.prefix, args.model, args.effort,
                                    args.lease_hours, args.dry_run, args.cx, not args.no_host_guard)
             print("\n".join(lines))
+        elif args.command == "wave":
+            doc = wave(fleet, args.count, tuple(args.route or ("READY_FOR_HAIKU",)), args.kind, args.lease_hours,
+                       args.dry_run, args.model, task_ids=args.task)
+            print(json.dumps(doc, indent=1, sort_keys=True))
+            return 0 if doc["entries"] else 1
         elif args.command == "verify-region":
             argv = region_verify_argv(fleet, args.task, args.sources, args.profile, args.join_direct_callees,
                                       prepare_only=args.prepare_only, object_groups=args.object_group,

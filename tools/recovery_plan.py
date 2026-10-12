@@ -6,7 +6,7 @@ invokes a compiler, edits recovery state, or promotes a proof.
 from collections import Counter, defaultdict
 
 from common import sha256
-from recovery_state import ROOT, evidence, ranked, recovery
+from recovery_state import ROOT, evidence, ranked, recovery, resident_gate
 
 
 MAX_PACKAGE_MEMBERS = 8
@@ -16,7 +16,7 @@ def _constraints(item, limit, max_unknown_calls=1, max_data_references=40):
     """Return every applicable grinder constraint, not only its first reason."""
     found = []
     if item.get('extent') != 'CLOSED_CFG': found.append('UNCERTAIN_EXTENT')
-    if item.get('node') == 'resident': found.append('RESIDENT_DEFERRED')
+    if resident_gate(item): found.append(resident_gate(item))
     if item.get('size', 0) > limit: found.append('SIZE_LIMIT')
     if item.get('confidence', 'HIGH') != 'HIGH': found.append('LOW_CONFIDENCE')
     if item.get('indirect', 0): found.append('INDIRECT_CONTROL_FLOW')
@@ -34,9 +34,9 @@ def _profile_class(reason):
         return 'ABI_OR_CODEGEN_PROFILE'
     if 'PERSISTENT_CODEGEN' in text:
         return 'SOURCE_OR_ALGORITHM_SHAPE'
-    if 'CYCLIC_INTER_OBJECT_PC_CALL' in text:
+    if any(x in text for x in ('CYCLIC_INTER_OBJECT_PC_CALL', 'PROVEN_OBJECT_GROUP_DEPENDENCY')):
         return 'DEPENDENCY_LAYOUT'
-    if any(x in text for x in ('FFP', 'PRIVATE_HELPER', 'EXTERNAL_FIXUP', 'REGISTER_CALL_ABI')):
+    if any(x in text for x in ('FFP', 'PRIVATE_HELPER', 'EXTERNAL_FIXUP', 'REGISTER_CALL_ABI', 'IMPLICIT_HELPER_A4_ROUTE')):
         return 'EXTERNAL_CALL_BINDING'
     if any(x in text for x in ('DATA', 'GLOBAL', 'TABLE')):
         return 'DATA_OWNERSHIP'
@@ -229,7 +229,10 @@ def _make_packages(items, functions, state, limit, max_packages,
         mechanism_groups[primary].append(x['id'])
     labels = {
         'SIZE_LIMIT': ('SIZE_BOUNDARY_REVIEW', 'inspect_size_boundary'),
-        'RESIDENT_DEFERRED': ('RESIDENT_OWNERSHIP_REVIEW', 'inspect_resident_context'),
+        'RESIDENT_RUNTIME_TAIL': ('RESIDENT_RUNTIME_REVIEW', 'inspect_runtime_object_identity'),
+        'RESIDENT_RUNTIME_UNBOUNDED': ('RESIDENT_OWNERSHIP_REVIEW', 'inspect_resident_context'),
+        'RESIDENT_MIXED_DATA_MODEL': ('RESIDENT_DATA_MODEL_REVIEW', 'inspect_data_references'),
+        'RESIDENT_UNCLASSIFIED': ('RESIDENT_OWNERSHIP_REVIEW', 'inspect_resident_context'),
         'UNKNOWN_CALL_LIMIT': ('CALL_IDENTITY_REVIEW', 'inspect_call_identities'),
         'PC_RELATIVE_DATA_OWNERSHIP': ('DATA_OWNERSHIP_REVIEW', 'inspect_data_references'),
         'DATA_REFERENCE_LIMIT': ('DATA_CONTEXT_REVIEW', 'inspect_data_references'),

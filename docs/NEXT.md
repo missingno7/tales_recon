@@ -1,15 +1,72 @@
-# Current handoff - 2026-10-07
+# Current handoff - 2026-10-12
 
 This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 156 functions / 42,116 C bytes, plus two complete mixed
+Canonical coverage is 172 functions / 48,708 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,496
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 148,254 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 141,662 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
+
+## Current campaign (2026-10-12): resident-first fleet
+
+The ov04 campaign below recovered all 24 known ov04 functions; its natural
+link is now blocked mainly by root content (root CODE 2,744 of 36,260 bytes),
+not by ov04 source. Recovering real resident game functions is therefore the
+route to ov04 closure, and it is also the largest ready pool: resident code
+below the first runtime candidate (0x75D8) had no prior attempts.
+
+Work selection is now evidence-based (see `fleet.md`):
+
+- Resident functions below the runtime floor, with a single measured data
+  model and the ordinary safety limits, are normal `READY_FOR_HAIKU` tasks.
+  The runtime tail, mixed data models, uncertain extents and indirect flow
+  stay deferred with explicit reasons.
+- `data_model`/`profile_hints` come from measured addressing: absolute DATA
+  relocations mean `aztec36-large-data`, A4-relative data means `aztec36`.
+  Jump-table call slots are not data.
+- Leverage counts real PC-relative dependants (400) above A4-stub callers
+  (100); stub callers already verify independently.
+- `python tools/fleet.py wave N` leases independent tasks and writes Agent
+  dispatch specs for Haiku workers; intake re-verifies, the supervisor promotes.
+
+Measured first session (2026-10-12): canonical coverage rose from 156
+functions / 42,116 C bytes to 172 / 48,708; whole-file RAW_ORACLE_DEBT fell
+from 148,254 to 141,662. Haiku workers (16 tasks, 4-6 concurrent) produced 15
+confirmed exact matches (14 resident, two large ov07 functions of 1,388 and
+1,268 bytes) at a median of 3 compiler trials each; every claim was
+re-verified at intake and published through the batch regression gate. One
+review renamed an offset-forcing `pad` local; none was rejected. Opus
+re-measured Luna's retired `ov11_F_2EEA` near-miss and made it exact (1,608
+bytes): one wrong global name and two if/else join shapes, not a DATA-layout
+blocker. `resident_F_2EE8` is confirmed and awaits the next batch.
+
+Opus-owned shared blockers now in `blockers.json` `function_blockers`:
+
+1. `IMPLICIT_HELPER_A4_ROUTE` (CALL_BINDING; `resident_F_09C0`, expected for
+   `08FC`, `3AE4`): resident callers reach `.mulu/.divs/.mods/.modu/.divu`
+   through A4 jump-table slots; an isolated root candidate calls its own
+   helper copies PC-relative. Needs a harness export control (as in the ov04
+   export-routing rule), not source changes.
+2. `PROVEN_OBJECT_GROUP_DEPENDENCY` (OBJECT/TU_LAYOUT; `ov10_F_2634`, which
+   gates `ov10_F_3288` and `ov10_F_2CF4`, ~2.6 KB): automatic dependency
+   units compile canonical `ov10_F_22E6` outside its proven
+   `1FDE+2160+22E6` object.
+3. `XOR_RESULT_REGISTER_ORIENTATION` (SOURCE_SHAPE; `resident_F_463E`, 56
+   bytes): no tested form or release puts the `eor.w` result in the
+   first-evaluated register.
+4. Existing: ov14 char-return `EXT.W`, AJ/FFP (`ov11_F_5FB2`, `ov05_F_3836`),
+   `ov05_F_2CD4` (real source-shape residual, 0.94 similarity), uncertain CFG
+   extents.
+
+Time-boxed: `RESIDENT-VARS-LAYOUT-001` (two indistinguishable vars providers).
+Return to it when recovered resident readers/writers bind the actual storage
+and first-reference COMMON order. Opus-owned shared blockers, in order:
+resident DATA/COMMON ownership, ov14 char-return `EXT.W` (TOOLCHAIN),
+AJ/FFP private helper binding (`ov11_F_5FB2`), uncertain CFG boundaries.
 
 ## First closure campaign: ov04
 
@@ -158,7 +215,9 @@ pinned complete object emits312 bytes including the same nonzero trailing
 two bytes. Verify that whole unit's callee/global bindings before identifying
 the original runtime DATA variant and its COMMON ownership. Natural COMMON
 merging controls are measured; they do not select original object order or
-compiler release. Keep ov04 closure ahead of unrelated targets.
+compiler release. (Superseded 2026-10-12: this kept ov04 closure ahead of
+unrelated targets while ov04 functions remained; all are canonical now and the
+resident-first campaign above is the route to its natural root link.)
 
 Startup routing controls now match all ordinary bytes of the complete312-byte
 object. Eight global and eleven PC target bindings remain pending; callback

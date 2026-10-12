@@ -12,7 +12,7 @@ import uuid
 import os
 import time
 from common import require,write_json,sha256,FormatError
-from recovery_state import ROOT,LEDGER,recovery,ranked,facts,save_rank,write_recovery,blocker_category
+from recovery_state import ROOT,LEDGER,recovery,ranked,facts,save_rank,write_recovery,blocker_category,resident_gate
 from check_function import check_many
 from compiler_oracle import PROFILES
 from recovery_transaction import ledger_lock
@@ -30,6 +30,18 @@ def blocker_next_action(reason):
         return ('Recover and link the 0x4790..0x5962 physical ov11 source interval in order as a normal source-layout '
                 'proof. Ordinary earlier-object linking is proven to retain F_h11_5C42 -> F_h11_4696 as JSR, but the complete interval is still '
                 'needed for its exact PC displacement and A4/global placement; do not retry either isolated member.')
+    if 'IMPLICIT_HELPER_A4_ROUTE' in reason:
+        return ('Give root-node candidates the A4 jump-table route for compiler helpers (.mulu/.divs/.mods/.modu/.divu) '
+                'that the original reaches through A4 slots, using an independently controlled export reference like '
+                'the ov04 export-routing rule; then rerun the unchanged best source. Source changes cannot fix this.')
+    if 'PROVEN_OBJECT_GROUP_DEPENDENCY' in reason:
+        return ('Make automatic dependency units keep a canonical member inside its whole proven object group '
+                '(proven_unit_groups outside natural intervals), or repair the member into a self-contained TU with a '
+                'fresh replacement proof; then rerun the unchanged candidate.')
+    if 'XOR_RESULT_REGISTER_ORIENTATION' in reason:
+        return ('Find any source form or historical compiler release that emits eor.w with the result in the '
+                'first-evaluated register for two register-computed operands (minimal probe outside this target). '
+                'Do not retry equal-semantics variants of this function until such a form exists.')
     if 'PERSISTENT_CODEGEN_MISMATCH' in reason:
         return ('Derive the historical Boolean-return source form from the compiler fingerprint, then close the named '
                 'same-node source unit; do not retry isolated candidate C until the codegen mismatch changes.')
@@ -78,7 +90,7 @@ def checkpoint(totals):
 
 
 def eligible(item,args,limit):
-    return (item['extent']=='CLOSED_CFG' and item['size']<=limit and item.get('node')!='resident'
+    return (item['extent']=='CLOSED_CFG' and item['size']<=limit and not resident_gate(item)
             and item.get('confidence','HIGH')=='HIGH' and item.get('indirect',0)==0
             and item.get('unknown_calls',0)<=getattr(args,'max_unknown_calls',1)
             and item.get('pc_relative_data',0)==0
@@ -89,7 +101,7 @@ def eligible(item,args,limit):
 def deferral_reason(item,args,limit):
     """Return the first explicit reason a discovered item is not grinder-safe."""
     if item['extent']!='CLOSED_CFG':return 'UNCERTAIN_EXTENT'
-    if item.get('node')=='resident':return 'RESIDENT_DEFERRED'
+    if resident_gate(item):return resident_gate(item)
     if item['size']>limit:return 'SIZE_LIMIT'
     if item.get('confidence','HIGH')!='HIGH':return 'LOW_CONFIDENCE'
     if item.get('indirect',0):return 'INDIRECT_CONTROL_FLOW'

@@ -299,8 +299,7 @@ def derive(root, promotion_evidence=None):
         phases={'0':'CENSUS_COMPLETE','1':'CENSUS_COMPLETE','2':'CENSUS_COMPLETE',
                 '3':'STATIC_TOPOLOGY_VALIDATED_RUNTIME_NOT_TRACED','4':'PARTIAL_CONSERVATIVE_MAP',
                 '5':'MANX_ABI_OBSERVED_VERSION_UNKNOWN','6':'CANDIDATE_OBJECT_MATCHES' if runtime_candidate_bytes else 'OVERLAY_GLUE_ONLY','7':'FINGERPRINT_MATRIX_AND_GAME_LEAF_MATCHES' if promoted else 'NOT_RUN','8':'PILOT_SELECTED_NOT_RECONSTRUCTED'},
-        pilot='ov04',next_action=(f'Close ov04 naturally: recover its {len(ov04_pending)} remaining closed functions, resolve data ownership and object ordering, and remove all overlay RAW_ORACLE_DEBT before claiming closure.' if ov04_pending else
-            'Verify ov04 terminal-padding ownership and the complete natural node link, including allocations, exports, relocations and root bindings; zero accounting debt alone cannot establish closure.'))
+        pilot='ov04',next_action=frontier_next_action(analysis, promoted, mixed, ov04_pending))
     outputs['evidence/executable/pilot.json'] = dict(schema_version=1, node='ov04', hunk=4,
         selection_reason=f'Closure campaign: {len(ov04_owned)} canonical contributions and {len(ov04_pending)} remaining known closed-CFG functions; data and natural linking remain unproved',
         initialized_size=next(h['initialized_size'] for h in model['hunks'] if h['number']==4),
@@ -308,6 +307,24 @@ def derive(root, promotion_evidence=None):
         candidate_text=[s for s in strings if s['hunk']==4 and len(s['text']) >= 12],
         complete_function_census=False, compiler_provenance='UNRESOLVED', reconstruction_proof_level=None)
     return outputs, files, model
+
+
+def frontier_next_action(analysis, promoted, mixed, ov04_pending):
+    """Describe the measured function frontier; never a fixed campaign string."""
+    if ov04_pending:
+        return (f'Close ov04 naturally: recover its {len(ov04_pending)} remaining closed functions, resolve data ownership '
+                'and object ordering, and remove all overlay RAW_ORACLE_DEBT before claiming closure.')
+    functions = analysis.get('functions', [])
+    owned = {f['id'] for f in promoted} | {row['id'] for row in mixed}
+    runtime = [f['start'] for f in functions if f['hunk'] == 0 and f.get('ownership') == 'RUNTIME_CANDIDATE']
+    floor = min(runtime) if runtime else None
+    pending = [f for f in functions if f['extent_status'] == 'CLOSED_CFG' and f.get('ownership') == 'UNKNOWN'
+               and f['id'] not in owned]
+    resident = [f for f in pending if f['hunk'] == 0 and floor is not None and f['start'] < floor]
+    return (f'Recover the {len(pending)} unowned closed-CFG functions ({sum(f["size"] for f in pending)} bytes), '
+            f'including {len(resident)} resident functions ({sum(f["size"] for f in resident)} bytes) below the first '
+            'runtime candidate, through the supervised fleet (docs/fleet.md). All known ov04 functions are canonical; '
+            'its natural link still needs the missing resident root CODE, DATA/COMMON ownership and the full topology.')
 
 
 def lock_document(root, files):

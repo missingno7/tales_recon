@@ -30,7 +30,8 @@ and the retained unit inputs they actually reference. Current blockers are
 `docs/blockers.json`. Attempt history and generated candidates belong under
 ignored `build/recovery/`; worker source belongs under `build/workers/NAME/`.
 
-Use `python tools/grinder.py facts TARGET` for context, then write a candidate,
+Supervised waves (Opus supervisor, Haiku Agent workers, `fleet.py wave`) follow
+`docs/fleet.md`. Use `python tools/grinder.py facts TARGET` for context, then write a candidate,
 run lightweight diagnostics, and use `check_function.py TARGET SOURCE --isolated
 --no-promote --profile aztec36` for exact verification. Promote the unchanged
 candidate with `check_function.py TARGET SOURCE --profile aztec36` only after

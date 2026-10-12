@@ -488,6 +488,13 @@
     }
   ],
   "function_blockers": {
+    "ov10_F_2634": {
+      "category": "OBJECT/TU_LAYOUT",
+      "next_action": "Make automatic dependency units keep a canonical member inside its whole proven object group (proven_unit_groups outside natural intervals), or repair the member into a self-contained TU with a fresh replacement proof; then rerun the unchanged candidate.",
+      "ownership_unchanged": true,
+      "reason": "PROVEN_OBJECT_GROUP_DEPENDENCY: the automatic separate-object unit compiles canonical ov10_F_22E6 alone, but 22E6 was proven only inside the single natural object ov10_F_1FDE+2160+22E6 (its source relies on the earlier members' extern lines: undefined G_h01_5370/G_h01_46D2 in t000_part001). Luna's 2026-09-29 struct-redeclaration failure no longer occurs. Unblocking also releases ov10_F_3288 and ov10_F_2CF4. Evidence build/workers/opus-ov10.",
+      "state": "BLOCKED"
+    },
     "ov11_F_5FB2": {
       "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
       "ownership_unchanged": true,
@@ -510,6 +517,20 @@
       "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
       "ownership_unchanged": true,
       "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
+      "state": "BLOCKED"
+    },
+    "resident_F_09C0": {
+      "category": "CALL_BINDING",
+      "next_action": "Give root-node candidates the A4 jump-table route for compiler helpers (.mulu/.divs/.mods/.modu/.divu) that the original reaches through A4 slots, using an independently controlled export reference like the ov04 export-routing rule; then rerun the unchanged best source. Source changes cannot fix this.",
+      "ownership_unchanged": true,
+      "reason": "IMPLICIT_HELPER_A4_ROUTE: 132-byte source shape matches frame, loop, epilogue and the F_h00_35DC stub call (aztec36, 4 trials). The original calls compiler helpers .mods/.divs through A4 jump-table slots (hunk 1 +258/+252 -> 0x7FC4/0x7F9C); an isolated root candidate links its own c.lib copies and calls them PC-relative. Same mechanism expected for resident_F_08FC and resident_F_3AE4 (.mulu at 0x7B00). Evidence build/workers/fn-resident_F_09C0 (fleet intake BLOCKED_FOR_CURATION).",
+      "state": "BLOCKED"
+    },
+    "resident_F_463E": {
+      "category": "SOURCE_SHAPE",
+      "next_action": "Find any source form or historical compiler release that emits eor.w with the result in the first-evaluated register for two register-computed operands (minimal probe outside this target). Do not retry equal-semantics variants of this function until such a form exists.",
+      "ownership_unchanged": true,
+      "reason": "XOR_RESULT_REGISTER_ORIENTATION: 56-byte candidate (aztec36-large-data) matches length and relocations; only eor.w d0,d1 (result in right register) differs from original eor.w d1,d0. Haiku wave 2026-10-12 tested 15 trials/10 families (types, casts, temporaries, shift spellings, operand order, aztec36-x3, aztec50-short): orientation never changes; a stored temporary flips it only with an extra frame slot. Evidence build/workers/fn-resident_F_463E (fleet intake NEAR_RECORDED).",
       "state": "BLOCKED"
     }
   },
