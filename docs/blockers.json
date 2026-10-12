@@ -488,6 +488,20 @@
     }
   ],
   "function_blockers": {
+    "ov06_F_063A": {
+      "category": "DATA_OWNERSHIP",
+      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+      "ownership_unchanged": true,
+      "reason": "TAIL_PROOF_TABLE_SPANS: 2690-byte function (aztec36) with three inline PC-relative word jump tables and six references into a compiler-owned string tail; code and tail bytes match, but owned_code_data.pc_relative_tail_proof decodes the original and candidate prefixes with decode_all without the function's jump-table data spans, stops at the first table (prefix 0x230) and refuses. Verifier tool limit, not source shape: pass jump_tables as data spans. Evidence build/workers/fn-ov06_F_063A.",
+      "state": "BLOCKED"
+    },
+    "ov07_F_0612": {
+      "category": "OBJECT/TU_LAYOUT",
+      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+      "ownership_unchanged": true,
+      "reason": "NONCONTIGUOUS_LOCAL_UNIT_LAYOUT: 1684-byte function (aztec36, owned string tail) matches every instruction, jump table and literal, but its PC-relative jsr to canonical ov07_F_18F8 crosses the unclaimed original gap 0x1424..0x18F8 (contains unrecovered ov07_F_1424 and others); the contiguous unit builder links 18F8 directly after 0F30, so the call displacement differs (MEMBER_DIFFERS). Needs natural-offset placement across unowned gaps or the intervening functions recovered. Evidence build/workers/fn-ov07_F_0612.",
+      "state": "BLOCKED"
+    },
     "ov07_F_1F6E": {
       "category": "OBJECT/TU_LAYOUT",
       "next_action": "A bsr.b to a canonical callee proves both were one original object, but the callee was proved standalone. Re-prove the callee and this caller as one address-consecutive object group through the normal unit verifier (replacement proof), then rerun the retained candidate unchanged.",
@@ -530,7 +544,7 @@
       "category": "OBJECT/TU_LAYOUT",
       "next_action": "A bsr.b to a canonical callee proves both were one original object, but the callee was proved standalone. Re-prove the callee and this caller as one address-consecutive object group through the normal unit verifier (replacement proof), then rerun the retained candidate unchanged.",
       "ownership_unchanged": true,
-      "reason": "SAME_OBJECT_SHORT_CALL: 448-byte switch function (aztec36). The original's case-8 call to canonical resident_F_04FE is bsr.b (other three sites jsr), so 033E and 04FE were one object; separate compilation emits jsr and shifts the table by 2 (450 vs 448). After the 2026-10-12 unit fixes (runtime-tail and A4-stub callees stay external) the unit still needs unrecovered PC-relative game callee resident_F_0640. Evidence build/workers/fn-resident_F_033E.",
+      "reason": "SAME_OBJECT_SHORT_CALL: 448-byte switch function (aztec36). The original's case-8 call to canonical resident_F_04FE is bsr.b (other three sites jsr), so 033E and 04FE were one object; separate compilation emits jsr and shifts the table by 2 (450 vs 448). Its unit also reaches unrecovered resident_F_86A8 (runtime tail, via canonical 330E) and PC-relative game callee resident_F_0640; a 2026-10-12 attempt to keep such callees external in units was reverted because it broke the proven standalone stand-in fallback (resident_F_2FE2). Evidence build/workers/fn-resident_F_033E.",
       "state": "BLOCKED"
     },
     "resident_F_09C0": {

@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 199 functions / 58,478 C bytes, plus two complete mixed
+Canonical coverage is 205 functions / 65,918 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,496
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 131,776 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 124,336 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -59,6 +59,19 @@ callers standalone and binds the call by mechanical symbol, as for canonical
 16 functions; `resident_F_411E` joined the char-return EXT.W mechanism with
 `ov14_F_0412/04A8/0540` (now four functions). Blocker categories are taken
 from the leading `MECHANISM:` token first.
+
+Wave 9 (10 tasks) promoted ov09_F_1B1C (2,986), ov08_F_354E (2,214),
+ov11_F_0D8E (1,508) and resident 3C4C/2FE2/2816. Four ended as shared
+mechanisms: SAME_OBJECT_SHORT_CALL (a `bsr.b` to a canonical callee proved
+standalone: resident_F_033E, ov07_F_1F6E), NONCONTIGUOUS_LOCAL_UNIT_LAYOUT
+(ov07_F_0612 calls 18F8 across an unowned gap), TAIL_PROOF_TABLE_SPANS
+(ov06_F_063A: the owned-tail proof decodes without jump-table spans, a
+verifier fix), and STALE_PROVEN_OBJECT_GROUP (ov11_F_2272: all 60 members of
+its grouped natural unit are now EQUAL after ov11_F_40AE, but the recorded
+407C+40E0 object predates 40AE). Lesson: keeping runtime-tail/A4-stub
+callees external inside `prepare_unit` was tried and reverted; it broke the
+proven standalone stand-in fallback (resident_F_2FE2 EXTRACTION_BLOCKED).
+Rank-level exclusion (runtime_tail_call) is the working rule.
 
 Earlier handoff state: the READY_FOR_HAIKU queue was drained (`fleet.py wave N
 --dry-run` returns nothing claimable). Further gains need, in leverage order:
