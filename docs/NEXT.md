@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 183 functions / 54,134 C bytes, plus two complete mixed
+Canonical coverage is 199 functions / 58,478 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,496
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 136,134 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 131,776 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -47,7 +47,20 @@ offset-forcing `pad` locals and rejected none. Opus re-measured Luna's retired
 and two if/else join shapes), and fixed proven-object dependency units, which
 released ov10_F_2634/3288/2CF4 (2,624 bytes).
 
-State at handoff: the READY_FOR_HAIKU queue is drained (`fleet.py wave N
+Continuation (2026-10-12, later): two static/planning rules reopened the
+queue. (1) The census now proves Manx `switch` word tables whose `default`
+arm precedes the dispatch: 18 functions (46,576 bytes) became CLOSED_CFG,
+including all known ov09 code; the remaining UNCERTAIN pool is ~10 KB of
+small resident/runtime fragments. (2) A resident game caller's PC-relative
+call into the runtime tail (DOS/exec glue such as `resident_F_86F6` Read) is
+no longer a pending source dependency: check_function already verifies such
+callers standalone and binds the call by mechanical symbol, as for canonical
+`resident_F_7B24`. Waves 7-8 (17 Haiku tasks, up to 11 concurrent) promoted
+16 functions; `resident_F_411E` joined the char-return EXT.W mechanism with
+`ov14_F_0412/04A8/0540` (now four functions). Blocker categories are taken
+from the leading `MECHANISM:` token first.
+
+Earlier handoff state: the READY_FOR_HAIKU queue was drained (`fleet.py wave N
 --dry-run` returns nothing claimable). Further gains need, in leverage order:
 (a) runtime-tail identification below; (b) the IMPLICIT_HELPER_A4_ROUTE
 harness export control; (c) the G_h01_A15E natural-unit view decision;

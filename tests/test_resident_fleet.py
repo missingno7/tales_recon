@@ -196,3 +196,26 @@ class ProvenObjectClosureTests(unittest.TestCase):
         changed = copy.deepcopy(ledger)
         changed["functions"]["ov10_F_1FDE"]["source_sha256"] = "0" * 64
         self.assertEqual(proven_object_members("ov10_F_22E6", changed), [])
+
+
+class RuntimeTailCallTests(unittest.TestCase):
+    def test_only_resident_game_calls_into_the_tail_qualify(self):
+        from recovery_state import runtime_tail_call
+        caller = dict(hunk=0, start=0x2D66)
+        stub = dict(hunk=0, offset=0x86F6, basis="PC_RELATIVE", id="resident_F_86F6")
+        self.assertTrue(runtime_tail_call(caller, stub, 0x75D8))
+        self.assertFalse(runtime_tail_call(caller, dict(stub, offset=0x30F0), 0x75D8))   # game callee
+        self.assertFalse(runtime_tail_call(caller, dict(stub, basis="A4_RELOCATED_JMP_STUB"), 0x75D8))
+        self.assertFalse(runtime_tail_call(dict(hunk=0, start=0x8000), stub, 0x75D8))    # tail caller
+        self.assertFalse(runtime_tail_call(dict(hunk=11, start=0x100), dict(stub, hunk=11), 0x75D8))
+        self.assertFalse(runtime_tail_call(caller, stub, None))
+
+
+class BlockerCategoryTests(unittest.TestCase):
+    def test_named_mechanism_wins_over_incidental_words(self):
+        from recovery_state import blocker_category
+        self.assertEqual(blocker_category("CHAR_RETURN_EXTENSION: under aztec36-large-data ..."), "TOOLCHAIN")
+        self.assertEqual(blocker_category("XOR_RESULT_REGISTER_ORIENTATION: large-data profile"), "SOURCE_SHAPE")
+        # Without a recognised mechanism token the full text still decides.
+        self.assertEqual(blocker_category("NON_CONVERGENCE: data table differs"), "DATA_OWNERSHIP")
+        self.assertEqual(blocker_category("plain text about a CFG boundary"), "CFG/BOUNDARY")

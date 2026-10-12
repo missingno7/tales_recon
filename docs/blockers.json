@@ -526,6 +526,13 @@
       "reason": "IMPLICIT_HELPER_A4_ROUTE: 132-byte source shape matches frame, loop, epilogue and the F_h00_35DC stub call (aztec36, 4 trials). The original calls compiler helpers .mods/.divs through A4 jump-table slots (hunk 1 +258/+252 -> 0x7FC4/0x7F9C); an isolated root candidate links its own c.lib copies and calls them PC-relative. Same mechanism expected for resident_F_08FC and resident_F_3AE4 (.mulu at 0x7B00). Evidence build/workers/fn-resident_F_09C0 (fleet intake BLOCKED_FOR_CURATION).",
       "state": "BLOCKED"
     },
+    "resident_F_411E": {
+      "category": "TOOLCHAIN",
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "ownership_unchanged": true,
+      "reason": "CHAR_RETURN_EXTENSION: original returns *G_h01_3AB4 as a bare move.b (a0),d0 with no widening; under aztec36-large-data char and implicit int returns add ext.w, unsigned char adds moveq #0,d0, void rejects a value return (7 trials). Same mechanism as ov14_F_0412/04A8/0540. Best v6 is 2 bytes long; the F_h00_86F6 Read call binding is otherwise ordinary. Evidence build/workers/fn-resident_F_411E.",
+      "state": "BLOCKED"
+    },
     "resident_F_463E": {
       "category": "SOURCE_SHAPE",
       "next_action": "Find any source form or historical compiler release that emits eor.w with the result in the first-evaluated register for two register-computed operands (minimal probe outside this target). Do not retry equal-semantics variants of this function until such a form exists.",

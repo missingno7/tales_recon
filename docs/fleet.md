@@ -132,7 +132,9 @@ confirm no canonical extent changed, then run the same sequence (rerun
 The promotion gate's regression suite requires current type evidence and
 hybrid specimens that name exactly the canonical sources, so a batch on
 stale derived evidence is refused (transactionally, nothing is written).
-Do not edit tools/, tests/, evidence/, src/, recovery/ or docs/blockers.json
+Run these as separate commands and confirm both `--check` results; a
+refresh chained inside one long background command once silently did not
+run. Do not edit tools/, tests/, evidence/, src/, recovery/ or docs/blockers.json
 while a gate runs; its input snapshot must not change. Then `fleet.py plan` again:
 newly canonical callees release waiting callers.
 

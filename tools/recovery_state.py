@@ -109,6 +109,19 @@ def resident_deferral(f,floor,helpers=()):
     return None
 
 
+def runtime_tail_call(f,call,floor):
+    """True for a resident game caller's PC-relative call into the runtime tail.
+
+    Such callees (library glue such as DOS Open/Read stubs) are not recovered
+    as game C.  check_function verifies the caller standalone against
+    stand-ins and proves each call target by its mechanical symbol identity,
+    as for canonical resident_F_7B24, so the callee is not a pending source
+    dependency and does not break same-node unit contiguity.
+    """
+    return (floor is not None and f.get('hunk')==0 and f.get('start',floor)<floor and call.get('hunk')==0
+            and call.get('basis')=='PC_RELATIVE' and call.get('offset',-1)>=floor)
+
+
 def resident_gate(item):
     """Deferral reason for a ranked resident item; unclassified items stay deferred."""
     if item.get('node')!='resident':return None
@@ -159,10 +172,12 @@ def ranked(node=None):
         # exact identity is independently checked by function_compare, so an
         # unrecovered resident implementation is not an unknown dependency for
         # an overlay candidate.
+        tail_calls={c['id'] for c in f['direct_callees'] if runtime_tail_call(f,c,floor)}
         unknown={c['id'] for c in f['direct_callees'] if c['basis']!='A4_RELOCATED_JMP_STUB'
-                 and c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}
-        local_dependencies=sorted({c['id'] for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id'] not in r['functions']})
-        same_node_calls=[c for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk']]
+                 and c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}-tail_calls
+        local_dependencies=sorted({c['id'] for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk']
+                                   and c['id'] not in r['functions'] and c['id'] not in tail_calls})
+        same_node_calls=[c for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id'] not in tail_calls]
         # A local unit may include recovered bridge functions between its caller
         # and callee.  It is usable only when the full interval is contiguous
         # canonical ownership; otherwise no source unit may span the gap.
@@ -181,6 +196,7 @@ def ranked(node=None):
                            pc_relative_data=sum(x['kind']=='PC_RELATIVE_DATA' for x in f['referenced_data']),same_node_unit_ready=unit_ready,
                            unlock_value=unlock,unlocks_callers=incoming[f['id']],unchanged_hypotheses=unchanged,
                            local_callers=local_callers.get(f['id'],0),stub_callers=stub_callers.get(f['id'],0),
+                           runtime_tail_calls=sorted(tail_calls),
                            resident_deferral=deferral,data_model=data_model(f),profile_hints=DATA_MODEL_PROFILES[data_model(f)],
                            campaign='ov04' if f['node']=='ov04' else None,
                            blocker_category=blocker_category(r['blockers'].get(f['id'],{}).get('reason',''))))
@@ -192,7 +208,17 @@ BLOCKER_CATEGORIES=('SOURCE_SHAPE','DECLARATION_VIEW','OBJECT/TU_LAYOUT','DATA_O
 
 
 def blocker_category(reason):
-    text=reason.upper()
+    # A leading ``MECHANISM:`` token is classified first, so incidental words
+    # in the explanation (for example the profile name aztec36-large-data)
+    # cannot override the named mechanism.
+    head,sep,_=reason.partition(':')
+    if sep and head.strip() and ' ' not in head.strip():
+        named=_category_from_words(head.upper())
+        if named:return named
+    return _category_from_words(reason.upper()) or 'SOURCE_SHAPE'
+
+
+def _category_from_words(text):
     for words,category in [(('XOR_RESULT_REGISTER',),'SOURCE_SHAPE'),
                            (('IMPLICIT_HELPER_A4_ROUTE',),'CALL_BINDING'),
                            (('PROVEN_OBJECT_GROUP_DEPENDENCY',),'OBJECT/TU_LAYOUT'),
@@ -205,7 +231,7 @@ def blocker_category(reason):
                            (('RUNTIME','LIBRARY'),'RUNTIME/LIBRARY'),
                            (('TOOLCHAIN','BYTE_RETURN_ABI','CHAR_RETURN_EXTENSION'),'TOOLCHAIN')]:
         if any(w in text for w in words):return category
-    return 'SOURCE_SHAPE'
+    return None
 
 
 def call_excerpt(source,name,limit=900):
