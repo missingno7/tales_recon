@@ -1,0 +1,592 @@
+{
+  "artifacts": [
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+      "size": 40
+    },
+    {
+      "path": "h000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "h000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "h000.asm",
+      "sha256": "45dd1b00fb1dbf8fa726d1d508674d194c6e0fe63eefc0bae2e1f871c66585a4",
+      "size": 418
+    },
+    {
+      "path": "h000.c",
+      "sha256": "d2faf97e68f45c6477239643079c6bf973c0fa5fefe4a71aab1500d91600dcb3",
+      "size": 187
+    },
+    {
+      "path": "h000.o",
+      "sha256": "d05e1758878a0a7e3be6f655cab9056ca12e57d1e835d400dce40c1505b6f66b",
+      "size": 164
+    },
+    {
+      "path": "t000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "t000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "t000-ln.log",
+      "sha256": "9d1eeb355817ed0ab86ab48cf341290d508745c43d6d3626f13ed5a3fdcdcf5a",
+      "size": 105
+    },
+    {
+      "path": "t000.asm",
+      "sha256": "5f07ecf59f067414d5f05e86654153869a20ae0efa08fd1fcc4a4d843e0bf1c2",
+      "size": 591
+    },
+    {
+      "path": "t000.c",
+      "sha256": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
+      "size": 526
+    },
+    {
+      "path": "t000.exe",
+      "sha256": "a8f89bee78384d4acc4e9441fe77a612c9e5fa5f40f3bc9a2fd211c20550b0da",
+      "size": 2040
+    },
+    {
+      "path": "t000.o",
+      "sha256": "cf3187b11226787a4714a129f8ee3d0aca158efde32d89b04b99d3bfe28d1d3a",
+      "size": 224
+    },
+    {
+      "path": "t000.sym",
+      "sha256": "37157404b218337f4ee0a35b6fb9813f2e82fb4791efb9fa56bdee38174cab28",
+      "size": 1436
+    }
+  ],
+  "cache_key": "3f9248760a186bc95cb966a2a5ac8812014476fa43dc06726fe107228d2ad52e",
+  "comparison": {
+    "actual_length": 104,
+    "cache_hit": true,
+    "cache_key": "3f9248760a186bc95cb966a2a5ac8812014476fa43dc06726fe107228d2ad52e",
+    "code_comparison": {
+      "actual_length": 74,
+      "actual_sha256": "3290c12eea667e36630835ee57728beefe73c9d02f8a728daafa56ebfb275446",
+      "cache_hit": true,
+      "cache_key": "3f9248760a186bc95cb966a2a5ac8812014476fa43dc06726fe107228d2ad52e",
+      "compiler": "aztec36-large-data",
+      "data_contributions": {
+        "candidate_bss": 0,
+        "candidate_data": 0,
+        "expected_owned_data": "NOT_CLAIMED"
+      },
+      "epilogue": {
+        "actual": [
+          {
+            "mnemonic": "bra.b",
+            "offset": 68,
+            "operands": "$16",
+            "raw": "60d0",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 70,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 72,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "bra.b",
+            "offset": 68,
+            "operands": "$16",
+            "raw": "60d0",
+            "size": 2
+          },
+          {
+            "mnemonic": "unlk",
+            "offset": 70,
+            "operands": "a5",
+            "raw": "4e5d",
+            "size": 2
+          },
+          {
+            "mnemonic": "rts",
+            "offset": 72,
+            "operands": "",
+            "raw": "4e75",
+            "size": 2
+          }
+        ]
+      },
+      "expected_length": 74,
+      "expected_sha256": "7f4cbb8d9cf2be26a96f97471cea78fece165c2ec78dcf1042799a9617dcafd1",
+      "first_structural_instruction_difference": null,
+      "flags": [
+        "+D"
+      ],
+      "mnemonic_similarity": 1.0,
+      "normalized_first_difference": null,
+      "normalized_sha256": "7f4cbb8d9cf2be26a96f97471cea78fece165c2ec78dcf1042799a9617dcafd1",
+      "prologue": {
+        "actual": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "pea.l",
+            "offset": 4,
+            "operands": "$4a(pc)",
+            "raw": "487a0044",
+            "size": 4
+          },
+          {
+            "mnemonic": "jsr",
+            "offset": 8,
+            "operands": "$fffffff6(pc)",
+            "raw": "4ebaffec",
+            "size": 4
+          }
+        ],
+        "expected": [
+          {
+            "mnemonic": "link.w",
+            "offset": 0,
+            "operands": "a5, #$fffc",
+            "raw": "4e55fffc",
+            "size": 4
+          },
+          {
+            "mnemonic": "pea.l",
+            "offset": 4,
+            "operands": "$4a(pc)",
+            "raw": "487a0044",
+            "size": 4
+          },
+          {
+            "mnemonic": "jsr",
+            "offset": 8,
+            "operands": "$3614(pc)",
+            "raw": "4eba360a",
+            "size": 4
+          }
+        ]
+      },
+      "proof_level": "FUNCTION_CODE_MATCH",
+      "raw_first_difference": {
+        "actual": "ffec584f2b7900000010fffc4aadfffc",
+        "actual_size": 74,
+        "expected": "360a584f2b790000543afffc4aadfffc",
+        "expected_size": 74,
+        "offset": 10
+      },
+      "reason": "COMPLETE_CONTRIBUTION",
+      "relocation_equal": true,
+      "relocation_issues": [],
+      "relocation_profiles": {
+        "actual": [
+          {
+            "addend_raw": 16,
+            "entry_offset": 1964,
+            "record_offset": 1952,
+            "relative_offset": 16,
+            "source_hunk": 0,
+            "source_offset": 38,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ],
+        "expected": [
+          {
+            "addend_raw": 21562,
+            "entry_offset": 38248,
+            "record_offset": 36300,
+            "relative_offset": 16,
+            "source_hunk": 0,
+            "source_offset": 14870,
+            "target_hunk": 1,
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ]
+      },
+      "relocation_proof": [
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 1,
+            "offset": 21562,
+            "symbol": "_G_h01_543A"
+          },
+          "kind": "HUNK_RELOCATION",
+          "offset": 16
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 0,
+            "offset": 28698,
+            "symbol": "_F_h00_701A"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 10,
+          "width": 2
+        },
+        {
+          "identity": {
+            "addend": 0,
+            "hunk": 0,
+            "offset": 28698,
+            "symbol": "_F_h00_701A"
+          },
+          "kind": "PC_RELATIVE_CALL_SYMBOL",
+          "offset": 54,
+          "width": 2
+        }
+      ],
+      "verdict": "EQUAL"
+    },
+    "comparison_identity": "5e78644f11add2e5f47063781bdc009f3cde892f1b48290177b8c62a2a8a6c56",
+    "compiler": "aztec36-large-data",
+    "epilogue": {
+      "actual": [
+        {
+          "mnemonic": "bra.b",
+          "offset": 68,
+          "operands": "$16",
+          "raw": "60d0",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 70,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 72,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "bra.b",
+          "offset": 68,
+          "operands": "$16",
+          "raw": "60d0",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 70,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 72,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ]
+    },
+    "expected_length": 74,
+    "flags": [
+      "+D"
+    ],
+    "id": "resident_F_3A06",
+    "mnemonic_similarity": 1.0,
+    "normalized_first_difference": null,
+    "owned_code_data": {
+      "actual_tail_length": 30,
+      "actual_tail_sha256": "31a69fcde489deaa2a275c57ce6eb4e489db98c6eb638d069ca9bf266c80a62c",
+      "alignment_padding": 1,
+      "end": 14958,
+      "expected_tail_sha256": "31a69fcde489deaa2a275c57ce6eb4e489db98c6eb638d069ca9bf266c80a62c",
+      "pc_relative_proof": [
+        {
+          "candidate_offset": 74,
+          "kind": "PC_RELATIVE_OWNED_STRING",
+          "offset": 4,
+          "original_offset": 14928,
+          "tail_offset": 0
+        },
+        {
+          "candidate_offset": 85,
+          "kind": "PC_RELATIVE_OWNED_STRING",
+          "offset": 48,
+          "original_offset": 14939,
+          "tail_offset": 11
+        }
+      ],
+      "start": 14928,
+      "strings": [
+        {
+          "offset": 14928,
+          "text": "\nMEM LIST\n"
+        },
+        {
+          "offset": 14939,
+          "text": "%lx:  %ld ($%lx)\n"
+        }
+      ]
+    },
+    "prologue": {
+      "actual": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fffc",
+          "raw": "4e55fffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "pea.l",
+          "offset": 4,
+          "operands": "$4a(pc)",
+          "raw": "487a0044",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 8,
+          "operands": "$fffffff6(pc)",
+          "raw": "4ebaffec",
+          "size": 4
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fffc",
+          "raw": "4e55fffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "pea.l",
+          "offset": 4,
+          "operands": "$4a(pc)",
+          "raw": "487a0044",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 8,
+          "operands": "$3614(pc)",
+          "raw": "4eba360a",
+          "size": 4
+        }
+      ]
+    },
+    "proof_level": "FUNCTION_WITH_DATA_MATCH",
+    "reason": "FUNCTION_AND_COMPILER_OWNED_CODE_DATA_MATCH",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_proof": [
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21562,
+          "symbol": "_G_h01_543A"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 16
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 28698,
+          "symbol": "_F_h00_701A"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 10,
+        "width": 2
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 28698,
+          "symbol": "_F_h00_701A"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 54,
+        "width": 2
+      }
+    ],
+    "source_sha256": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
+    "unit_blocker": "unrecovered same-node dependency: resident_F_701A",
+    "verdict": "EQUAL"
+  },
+  "compiler": {
+    "candidate_overlay_node": 0,
+    "compiler_version": "3.6a",
+    "flags": [
+      "+D"
+    ],
+    "harness_sha256": "d2faf97e68f45c6477239643079c6bf973c0fa5fefe4a71aab1500d91600dcb3",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o candidate.o c.lib; -m -t",
+    "profile": "aztec36-large-data",
+    "resident_link_sha256": "5b11675ab8a3a0d134cc831ca12c92d54498b335f82e16b2992fe41ccf05d540",
+    "resident_object_extractor_sha256": "6dd909b9e3bb72ca096c790d9852b8e054d8f88fb4c9b10d04607aff1ad39678",
+    "service_version": 1,
+    "source_sha256": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "2bbbdc20815156d038f9f214cfd0318d6f73a29d8c379918a1d7fc7006a68d6f"
+  },
+  "compiler_selection": "Matching candidate; historical release remains ambiguous",
+  "data_ownership": {
+    "actual_tail_length": 30,
+    "actual_tail_sha256": "31a69fcde489deaa2a275c57ce6eb4e489db98c6eb638d069ca9bf266c80a62c",
+    "alignment_padding": 1,
+    "end": 14958,
+    "expected_tail_sha256": "31a69fcde489deaa2a275c57ce6eb4e489db98c6eb638d069ca9bf266c80a62c",
+    "pc_relative_proof": [
+      {
+        "candidate_offset": 74,
+        "kind": "PC_RELATIVE_OWNED_STRING",
+        "offset": 4,
+        "original_offset": 14928,
+        "tail_offset": 0
+      },
+      {
+        "candidate_offset": 85,
+        "kind": "PC_RELATIVE_OWNED_STRING",
+        "offset": 48,
+        "original_offset": 14939,
+        "tail_offset": 11
+      }
+    ],
+    "start": 14928,
+    "strings": [
+      {
+        "offset": 14928,
+        "text": "\nMEM LIST\n"
+      },
+      {
+        "offset": 14939,
+        "text": "%lx:  %ld ($%lx)\n"
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_701A",
+      "offset": 28698,
+      "site": 14862
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_701A",
+      "offset": 28698,
+      "site": 14906
+    }
+  ],
+  "evidence_extent": {
+    "end": 14928,
+    "extent_status": "CLOSED_CFG",
+    "hunk": 0,
+    "sha256": "7f4cbb8d9cf2be26a96f97471cea78fece165c2ec78dcf1042799a9617dcafd1",
+    "size": 74,
+    "start": 14854
+  },
+  "id": "resident_F_3A06",
+  "object_hash": "cf3187b11226787a4714a129f8ee3d0aca158efde32d89b04b99d3bfe28d1d3a",
+  "regression": {
+    "batch_inputs_sha256": "a803e45e2b605d832c514a2b45e34ab34a2f2855d50f82b5e536af56ffa91dc8",
+    "batch_members": [
+      "resident_F_3A06",
+      "resident_F_3674",
+      "ov10_F_0000"
+    ],
+    "command": "python -m unittest discover -s tests",
+    "input_sha256": "31f30a5f1b1f657c43cc4eb6ebe352e2e9c2a3017b1bf90f4db8020fa712cbdf",
+    "output_sha256": "3a80383c22ec6ba34fc856091c3499503940dd1c5aa45f8ac447be9a7d5c4598",
+    "passed": true
+  },
+  "relocation_proof": [
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21562,
+        "symbol": "_G_h01_543A"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 16
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 28698,
+        "symbol": "_F_h00_701A"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 10,
+      "width": 2
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 28698,
+        "symbol": "_F_h00_701A"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 54,
+      "width": 2
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/resident/resident_F_3A06.c",
+  "source_sha256": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
+  "state": "FUNCTION_WITH_DATA_MATCH",
+  "verifier_identity": {
+    "check_function.py": "0b3f341d2133ebf8a673ca816fcb47cbb9abccf244d1c89488d7bfaf3553dd23",
+    "compiler_oracle.py": "3f7d4da820be17368a455df315c5ef217902ca276edad1ba4754a460f88a9bb1",
+    "function_compare.py": "e9fcf48c3ebbeefb58ef6be779fdcd9a9a30f881b712eb1132da8609386632bb",
+    "runtime_arithmetic.py": "ac504401940c27a97ab314de6f711f7bdb0dd861dc1937ec988681fc11043d68"
+  }
+}

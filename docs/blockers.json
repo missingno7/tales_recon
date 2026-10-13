@@ -554,6 +554,13 @@
       "reason": "SAME_OBJECT_SHORT_CALL: 448-byte switch function (aztec36). The original's case-8 call to canonical resident_F_04FE is bsr.b (other three sites jsr), so 033E and 04FE were one object; separate compilation emits jsr and shifts the table by 2 (450 vs 448). Its unit also reaches unrecovered resident_F_86A8 (runtime tail, via canonical 330E) and PC-relative game callee resident_F_0640; a 2026-10-12 attempt to keep such callees external in units was reverted because it broke the proven standalone stand-in fallback (resident_F_2FE2). Evidence build/workers/fn-resident_F_033E.",
       "state": "BLOCKED"
     },
+    "resident_F_3930": {
+      "category": "CFG/BOUNDARY",
+      "next_action": "Discover the unreferenced function after the literal bundle (post-literal link prologue at 0x39C2) so the owned tail is bounded, then promote the retained candidate unchanged.",
+      "ownership_unchanged": true,
+      "reason": "OWNED_TAIL_UNBOUNDED: 98-byte candidate build/workers/fn-resident_F_3930/v4-long-sum.c is EQUAL with its owned literal tail (\"dealloc: ...\" and \"BAD POINTER\n\", aztec36-large-data), but the tail is followed by an undiscovered unreferenced kprintf debug function (link; push two globals; pea \"%s  mem=%ld (%lx)\n\"; jsr 701A) and a tiny getter before resident_F_3A06, so it does not end at a discovered entry. Same mechanism as ov11_F_15C8.",
+      "state": "BLOCKED"
+    },
     "resident_F_411E": {
       "category": "TOOLCHAIN",
       "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",

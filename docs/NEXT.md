@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 220 functions / 94,400 C bytes, plus two complete mixed
+Canonical coverage is 224 functions / 104,320 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,666 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 84,106 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -102,10 +102,18 @@ single-letter options) and 5.0a; the game has no widened byte return and
 exactly four bare signed ones (411E, ov14 0412/04A8/0540). It needs another
 historical compiler release (3.4/3.6 pre-a) or non-C provenance; it gates
 404A/4184, the 287C region and ov14_F_0000.
-ov10_F_0000 (7,990) ended round 2 NEAR (h25: unit 13,244 of 13,258,
-mnemonic 0.96, frame now exact); the original's three `btst #7,-$6f(a5)`
-tests are missing and the candidate has an extra jsr/pea/ext.l run near
-0x5172-0x5300. Next step is an Opus pass from h25, not a third Haiku round.
+ov10_F_0000 (7,990 + 90 literal bytes; all known ov10 code) closed in an
+Opus pass from the round-2 NEAR in six one-factor steps: an `else if` chain
+that re-tests `(action & 128) &&` in every arm (the original's repeated
+`btst #7`), two removed redundant calls, a missing three-iteration draw
+loop and its `(64L, 40L, ..., 176L, 160L)` box arguments, no `default:
+break;` (it adds a dispatch jump and an end jump), and 54-byte record
+indexing as pointer arithmetic (`(struct Rec54 *)&G + i`; `char * + 54 * i`
+adds `ext.l`). The last residuals were relocation identities only (two
+swapped/shifted globals and a 4EC6/435E callee name). Three unused locals
+remain under neutral names because the 134-byte frame requires them.
+ov07_F_0612 (1,684 + tail) closed unchanged once ov07_F_1424 filled its
+gap (NONCONTIGUOUS_LOCAL_UNIT_LAYOUT resolved by recovery, not tooling).
 Open: ov11_F_15C8 is EQUAL but its tail is followed by unreferenced code at
 0x20AE (OWNED_TAIL_UNBOUNDED); ov09_F_0000 is two residuals from exact;
 ov03_F_001C matches shape and its 853-byte tail but needs ov03_F_154E/1500;
