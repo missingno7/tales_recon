@@ -4,7 +4,7 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 249 functions / 127,448 C bytes, plus two complete mixed
+Canonical coverage is 250 functions / 133,082 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
 compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 60,558 file bytes of
@@ -70,8 +70,23 @@ waits on a named structural blocker:
    Restructuring work on 3532 waits for a re-proof under the current
    grouping. A fresh re-verification audit of every canonical source would
    find any other drift; it is a mechanical, parallel task.
-6. Exhausted shape residuals: resident_F_463E (eor orientation),
-   ov08_F_1F4C (12 bytes).
+6. Exhausted shape residual: resident_F_463E (eor orientation).
+   RESOLVED ov08_F_1F4C (5,634): an Opus pass from the worker's v4a closed
+   it in about ten diff-guided steps (build/workers/opus-1f4c). The fixes were all
+   per-site idioms. Countdown arms are `if (--e->t <= 0) {advance} else {hold}`;
+   `== 0` is the form for the 15..17 states. Advances post-increment
+   (`sl->st = e->active++ - 5`) and ternary arms keep source order
+   (`c < 10 ? a : b`). Inner switches have no `default: break;`. `x <= 0`
+   exits with `break` rather than an else. `(e->t & 1)` stores
+   through if/else, and `F_h00_463E()` takes no argument. The worker had also
+   swapped the names of the two resident callees (34E0 is the sprite draw,
+   57D2 the sound call). Relocation issues showed this at once. The map read
+   needs a TU-local `char *G_h01_6EB0` view indexed by `(long)row * 21 + col`.
+   The canonical `long` view of 1C30 casts the base into the long sum, and no
+   cast spelling reproduces the original index-then-base order. The tail
+   `if (e - n)` reads an uninitialized `unsigned char` frame slot (-$f, read
+   once, never written) exactly as the original does. ov08_F_0000 (6,828) is
+   now the only unrecovered ov08 function.
 
 ## Current campaign (2026-10-12): resident-first fleet
 

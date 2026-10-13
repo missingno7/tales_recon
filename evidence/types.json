@@ -5206,6 +5206,36 @@
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
           "declaration": "extern char G_h01_46E0;",
+          "line": 25,
+          "path": "src/recovered/ov08/ov08_F_1F4C.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "char",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "ARRAY_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern char G_h01_46E0[3];",
+          "line": 23,
+          "path": "src/recovered/ov11/ov11_F_62B4.c",
+          "shape": {
+            "array": true,
+            "base": "char",
+            "category": "char",
+            "extent": 3,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_46E0"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern char G_h01_46E0;",
           "line": 283,
           "path": "src/recovered/ov09/ov09_F_0000.c",
           "shape": {
@@ -8861,6 +8891,36 @@
           }
         },
         "symbol": "G_h01_606C"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_6EB0;",
+          "line": 4,
+          "path": "src/recovered/ov08/ov08_F_1C30.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern char *G_h01_6EB0;",
+          "line": 8,
+          "path": "src/recovered/ov08/ov08_F_1F4C.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_6EB0"
       },
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
@@ -18133,15 +18193,15 @@
         "symbol": "G_h01_B3B0"
       }
     ],
-    "declarations_scanned": 2439,
+    "declarations_scanned": 2463,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
       "ABI_COMPATIBLE_INT_SHORT_VIEW": 146,
       "ARRAY_EXTENT_CONFLICT": 2,
-      "ARRAY_SCALAR_VIEW_CONFLICT": 53,
+      "ARRAY_SCALAR_VIEW_CONFLICT": 54,
       "DECLARATION_VIEW_REVIEW": 34,
-      "POINTER_SCALAR_VIEW_CONFLICT": 155,
+      "POINTER_SCALAR_VIEW_CONFLICT": 156,
       "SIGNEDNESS_VIEW_CONFLICT": 9,
       "STORAGE_WIDTH_CONFLICT": 77,
       "STRUCT_VIEW_DIFFERENCE_REVIEW": 128
@@ -18201,6 +18261,7 @@
       "src/recovered/ov08/ov08_F_1B2A.c": "2d38fcda6000f990daf8128c47dfabfe68a926d3affba6051737b1b5dfa1affb",
       "src/recovered/ov08/ov08_F_1C30.c": "4401cf1ef2cfcfddffe1831cc8e859d44cdd0fe2c0a6018f7b9d8c027de73a23",
       "src/recovered/ov08/ov08_F_1D42.c": "d00e02a2ab35fd0c7ba25264690e45bf21a24c3709f7463b6d6a948bda8f3fec",
+      "src/recovered/ov08/ov08_F_1F4C.c": "bcd251c75c2068e9750e25cbdb5c0de4a04672cadc581938c8bca7119ffb78c8",
       "src/recovered/ov08/ov08_F_354E.c": "997249d7956c81fc8321c20c5875e58a40983eb1ae99f617f710e7c1adfce55e",
       "src/recovered/ov08/ov08_F_3DF4.c": "5bf3168503f6043a4c8b8328496f54a3b098744a387accb36f92e2cbfa4f5251",
       "src/recovered/ov08/ov08_F_3F70.c": "117ecbadd8da42690078b29bed3e2d34a886487411c210eb7d844c2e7be3c471",
@@ -18365,7 +18426,7 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "symbols_with_multiple_views": 414
+    "symbols_with_multiple_views": 420
   },
   "frame_access_candidates": [
     {
@@ -167831,6 +167892,7 @@
       "src/recovered/ov08/ov08_F_1B2A.c": "2d38fcda6000f990daf8128c47dfabfe68a926d3affba6051737b1b5dfa1affb",
       "src/recovered/ov08/ov08_F_1C30.c": "4401cf1ef2cfcfddffe1831cc8e859d44cdd0fe2c0a6018f7b9d8c027de73a23",
       "src/recovered/ov08/ov08_F_1D42.c": "d00e02a2ab35fd0c7ba25264690e45bf21a24c3709f7463b6d6a948bda8f3fec",
+      "src/recovered/ov08/ov08_F_1F4C.c": "bcd251c75c2068e9750e25cbdb5c0de4a04672cadc581938c8bca7119ffb78c8",
       "src/recovered/ov08/ov08_F_354E.c": "997249d7956c81fc8321c20c5875e58a40983eb1ae99f617f710e7c1adfce55e",
       "src/recovered/ov08/ov08_F_3DF4.c": "5bf3168503f6043a4c8b8328496f54a3b098744a387accb36f92e2cbfa4f5251",
       "src/recovered/ov08/ov08_F_3F70.c": "117ecbadd8da42690078b29bed3e2d34a886487411c210eb7d844c2e7be3c471",
