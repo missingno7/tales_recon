@@ -17,7 +17,8 @@ def aliases(compiled, blob, original, original_model, evidence):
         # the same pinned library (aztec36 and its +D large-data mode both
         # link SYS1 c.lib) share its helper code, and the complete original
         # and linked byte proofs below still gate every alias.
-        if item['library_sha256'] != compiled['identity']['library_sha256']:
+        linked_libraries={compiled['identity']['library_sha256']}|{x['library_sha256'] for x in compiled['identity'].get('additional_libraries',())}
+        if item['library_sha256'] not in linked_libraries:
             continue
         extent=item['original']; size=item['size']
         require(size > 0 and extent['size'] == size, 'bad runtime extent')

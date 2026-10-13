@@ -159,6 +159,13 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
         from analysis_support import game
         from runtime_arithmetic import aliases
         runtime_evidence=json.loads(runtime_evidence_path.read_text())
+        # Complete library members (runtime_members.py), e.g. m.lib's FFP
+        # operator stubs, join the same byte-proved alias evidence.
+        members_path=runtime_evidence_path.with_name('runtime-members.json')
+        if members_path.exists():
+            members=json.loads(members_path.read_text())
+            if members.get('game_sha256')==runtime_evidence.get('game_sha256') and members.get('status')=='COMPLETE_RUNTIME_CODE_MATCH':
+                runtime_evidence=dict(runtime_evidence,contributions=runtime_evidence['contributions']+members['contributions'])
     if runtime_evidence and any(s['name'] in runtime_symbol_names(runtime_evidence) for s in c['symbols']):
         if context is None:original,original_model,_=game()
         else:original,original_model=context['blob'],context['model']
@@ -166,6 +173,8 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
         symbol_map.extend(runtime_symbols)
         report['runtime_contributions']=runtime_proof
         report['runtime_evidence_sha256']=sha256(runtime_evidence_path.read_bytes())
+        if any(p.get('library_sha256') and 'members' in next((c for c in runtime_evidence['contributions'] if c.get('code_sha256')==p['code_sha256']),{}) for p in runtime_proof):
+            report['runtime_members_sha256']=sha256(runtime_evidence_path.with_name('runtime-members.json').read_bytes())
     root=next(h for h in c['hunks'] if h['number']==0)
     for r in c['all_relocations']:
         p=root['content_offset']+r['source_offset']

@@ -304,6 +304,39 @@ class PinnedRuntimeMemberTests(unittest.TestCase):
         self.assertIn(runtime[(0, 0x702E)]["symbol"], ("KDoFmt",))
 
 
+class FfpGroupTests(unittest.TestCase):
+    """m.lib FFP operator stubs are one pinned group; callers link all nine."""
+
+    def test_ffp_stub_group_is_pinned_at_the_resident_gateway(self):
+        evidence = json.loads((ROOT / "evidence/experiments/runtime-members.json").read_text())
+        group = next(c for c in evidence["contributions"] if ".Fflt" in {e["name"] for e in c["entries"]})
+        self.assertEqual((group["original"]["hunk"], group["original"]["offset"], group["size"]), (0, 0x8CD8, 90))
+        self.assertEqual([e["name"] for e in group["entries"]],
+                         [".Fadd", ".Fcmp", ".Fneg", ".Ftst", ".Ffix", ".Fsub", ".Fdiv", ".Fflt", ".Fmul"])
+
+    def test_one_ffp_call_routes_the_whole_group_for_any_node(self):
+        import helper_exports
+        entries = helper_exports.helper_entries()
+        self.assertEqual(entries[0x8D1E], ".Fflt")
+        overlay = dict(node="ov05", direct_callees=[
+            dict(basis="A4_RELOCATED_JMP_STUB", hunk=0, offset=0x8D1E, id="resident_F_8D1E"),
+            dict(basis="A4_RELOCATED_JMP_STUB", hunk=0, offset=0x7B00, id="resident_F_7B00")])
+        self.assertEqual(helper_exports.original_helpers([overlay], entries), tuple(sorted(helper_exports.FFP)))
+        resident = dict(overlay, node="resident")
+        self.assertIn(".mulu", helper_exports.original_helpers([resident], entries))
+        self.assertIn("float f, g;", helper_exports.control_source(helper_exports.FFP))
+
+    def test_overlay_harness_defines_the_control_in_the_root(self):
+        import compiler_oracle
+        import helper_exports
+        source = "/* ffp overlay probe */\nrecovered() { return 0; }\n"
+        helper_exports.register(source, helper_exports.FFP)
+        text = compiler_oracle.harness(source, 3)
+        self.assertIn(helper_exports.CONTROL + "(a,b,c,d)", text)
+        self.assertNotIn("helper_export_reference", text)
+        self.assertEqual(compiler_oracle.overlay_proxies(source, 3), [])
+
+
 if __name__ == "__main__":
     unittest.main()
 

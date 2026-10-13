@@ -27,7 +27,16 @@ EVIDENCE = 'evidence/experiments/runtime-arithmetic.json'
 CONTROL = 'helper_export_control'
 # Helper -> statement that makes Aztec C call exactly that helper.
 STATEMENTS = {'.mulu': 'a = a * b;', '.divs': 'a = a / b;', '.mods': 'a = a % b;',
-              '.divu': 'c = c / d;', '.modu': 'c = c % d;'}
+              '.divu': 'c = c / d;', '.modu': 'c = c % d;',
+              # m.lib FFP operators (float locals f, g and int k).
+              '.Fadd': 'f = f + g;', '.Fsub': 'f = f - g;', '.Fmul': 'f = f * g;', '.Fdiv': 'f = f / g;',
+              '.Fneg': 'f = -f;', '.Fcmp': 'if (f < g) k = 1;', '.Ftst': 'if (f) k = 2;',
+              '.Ffix': 'k = f;', '.Fflt': 'f = k;'}
+MEMBERS = 'evidence/experiments/runtime-members.json'
+# m.lib's FFP operator stubs each jmp to the following amiga_ffp member, so a
+# stub's bytes depend on how many stubs the link pulls after it.  The original
+# resident holds the complete group; a caller of any stub links all of them.
+FFP = ('.Fadd', '.Fcmp', '.Fneg', '.Ftst', '.Ffix', '.Fsub', '.Fdiv', '.Fflt', '.Fmul')
 _routes = {}
 _installed = False
 
@@ -36,8 +45,13 @@ def helper_entries():
     """Original resident offset -> helper name, from complete pinned contributions."""
     evidence = json.loads((ROOT / EVIDENCE).read_text())
     require(evidence.get('status') == 'COMPLETE_RUNTIME_CODE_MATCH', 'runtime arithmetic evidence is not complete')
+    contributions = list(evidence['contributions'])
+    if (ROOT / MEMBERS).is_file():
+        members = json.loads((ROOT / MEMBERS).read_text())
+        require(members.get('status') == 'COMPLETE_RUNTIME_CODE_MATCH', 'runtime member evidence is not complete')
+        contributions += [c for c in members['contributions'] if {e['name'] for e in c['entries']} == set(FFP)]
     entries = {}
-    for item in evidence['contributions']:
+    for item in contributions:
         require(item['original']['hunk'] == 0, 'runtime helper outside resident CODE')
         for entry in item['entries']:
             offset = item['original']['offset'] + entry['offset']
@@ -47,22 +61,30 @@ def helper_entries():
 
 
 def original_helpers(functions, entries=None):
-    """Helpers the original functions call through A4 jump-table stubs (sorted names)."""
+    """Helpers the original functions call through A4 jump-table stubs (sorted names).
+
+    Resident callers need every called helper routed through a slot.  Overlay
+    callers already reach resident helpers through slots, so they need only
+    the complete FFP group (stub bytes depend on the linked group).
+    """
     entries = helper_entries() if entries is None else entries
     names = set()
     for f in functions:
-        if f.get('node') != 'resident':
-            continue
         for callee in f.get('direct_callees', ()):
             if callee.get('basis') == 'A4_RELOCATED_JMP_STUB' and callee.get('hunk') == 0 and callee.get('offset') in entries:
-                names.add(entries[callee['offset']])
+                name = entries[callee['offset']]
+                if name in FFP:
+                    names.update(FFP)
+                elif f.get('node') == 'resident':
+                    names.add(name)
     return tuple(sorted(names))
 
 
 def control_source(helpers):
     require(helpers and all(h in STATEMENTS for h in helpers), 'unknown runtime helper export')
     body = '\n'.join('    ' + STATEMENTS[h] for h in sorted(helpers))
-    return (CONTROL + '(a,b,c,d)\nlong a,b;\nunsigned long c,d;\n{\n' + body + '\n    return 0;\n}\n')
+    floats = '    float f, g;\n    int k;\n\n' if any(h in FFP for h in helpers) else ''
+    return (CONTROL + '(a,b,c,d)\nlong a,b;\nunsigned long c,d;\n{\n' + floats + body + '\n    return 0;\n}\n')
 
 
 def register(source, helpers):
@@ -90,10 +112,14 @@ def install():
 
     def harness(source, target_node=1, *args, **kwargs):
         text = base_harness(source, target_node, *args, **kwargs)
-        helpers = _routes.get(source) if target_node == 0 else None
-        if helpers:
+        helpers = _routes.get(source)
+        if helpers and target_node == 0:
             text += ('/* Runtime helper export control (harness only). */\nextern int ' + CONTROL + '();\n'
                      'int (*helper_export_reference)() = ' + CONTROL + ';\n')
+        elif helpers and any(h in FFP for h in helpers):
+            # Overlay callers already reach resident helpers through slots; a
+            # root control only makes the link pull the complete FFP group.
+            text += '/* Runtime helper link control (harness only). */\n' + control_source(helpers)
         return text
 
     def overlay_proxies(source, target_node):

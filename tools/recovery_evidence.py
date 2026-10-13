@@ -212,13 +212,12 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     if resident_interfaces.FIELD in compiler or resident_interfaces.FIELD in unit:
         interfaces=resident_interfaces.evidence(unit['ordered_members'],source,compiler,blob,model,
                                                resident_interfaces.original_a4_bias(blob,model),unit)
-    if compiler.get('candidate_overlay_node')==0:
-        # Runtime helper export control re-derives from the members' original
-        # A4 helper calls (helper_exports); no helper call, no control.
-        import helper_exports
-        by_id={f['id']:f for f in functions}
-        helper_exports.register(source,helper_exports.original_helpers(
-            [by_id[m['id']] for m in unit['ordered_members'] if m['id'] in by_id]))
+    # Runtime helper export control re-derives from the members' original A4
+    # helper calls (helper_exports); no helper call, no control.
+    import helper_exports
+    by_id={f['id']:f for f in functions}
+    helper_exports.register(source,helper_exports.original_helpers(
+        [by_id[m['id']] for m in unit['ordered_members'] if m['id'] in by_id]))
     text=harness(source,compiler.get('candidate_overlay_node',1),compiler.get('local_functions',()),
                  compiler.get('entry_function','recovered'),expected,interfaces)
     require(sha256(text.encode('ascii'))==compiler.get('harness_sha256'),'export harness hash does not re-derive')

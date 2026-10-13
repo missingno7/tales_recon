@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 239 functions / 112,148 C bytes, plus two complete mixed
+Canonical coverage is 240 functions / 115,692 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 75,876 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 72,332 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -30,8 +30,19 @@ waits on a named structural blocker:
    canonical members as external roots. resident_interfaces.py is bound
    into 15 proof identities, so fix it through a wrapper (as
    helper_exports does for compiler_oracle) or a transactional re-proof.
-3. FFP private helpers (CALL_BINDING): ov11_F_5FB2, ov05_F_1EFC/3836, then
-   ov11_F_0B4C and the ov05 131C..1EFC region.
+3. RESOLVED FFP "private helpers" (CALL_BINDING). The resident gateway at
+   0x8CD8 is m.lib's FFP operator members (.Fadd .Fcmp .Fneg .Ftst .Ffix .Fsub
+   .Fdiv .Fflt .Fmul, ten-byte stubs that jmp to amiga_ffp, the lazy
+   mathffp.library opener). Linked in library order they reproduce the
+   original 90 bytes exactly (runtime_members.py group evidence). Float code
+   is therefore ordinary Aztec C. A stub's jmp depends on how many stubs
+   follow it, so helper_exports makes any caller's link pull the complete
+   group, and runtime aliases bind m.lib members by linked library identity.
+   ov05_F_1EFC (3,544) closed. The worker had read .Fsub as .Fmul; the rest
+   were per-arm shape idioms (pre-decrement conditions, `x = x op y`
+   double loads, case order, `default: break;`, and the FFP constant 134).
+   Released: ov05 0000 (4,874), 131C, 1860, 2CD4, 318E, 3836, ov11_F_5FB2,
+   then ov11_F_0B4C and the ov05 region (about 12 KB).
 4. STALE_PROVEN_OBJECT_GROUP: ov11_F_2272 needs a regroup transaction
    (407C+40AE+40E0); its unit is also 98 bytes long, so grouping alone
    will not close it.

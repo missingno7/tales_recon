@@ -108,9 +108,15 @@
           "offset": 100
         }
       ],
+      "job_receipt_sha256": "25890264b57499e81ccc27537a3a5cfe8d4b178399ef7e21c4e31ff812717d0d",
       "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
       "member": "kputchar",
-      "object_sha256": "ce0cc2aaa319f5e7f96f5c9d31073ef627e542cfceab3dced2735bb9a9610dff",
+      "members": [
+        "kputchar"
+      ],
+      "object_sha256s": {
+        "kputchar": "ce0cc2aaa319f5e7f96f5c9d31073ef627e542cfceab3dced2735bb9a9610dff"
+      },
       "original": {
         "hunk": 0,
         "offset": 28632,
@@ -118,16 +124,88 @@
       },
       "profile": "aztec36",
       "size": 118
+    },
+    {
+      "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+      "entries": [
+        {
+          "name": ".Fadd",
+          "offset": 0
+        },
+        {
+          "name": ".Fcmp",
+          "offset": 10
+        },
+        {
+          "name": ".Fneg",
+          "offset": 20
+        },
+        {
+          "name": ".Ftst",
+          "offset": 30
+        },
+        {
+          "name": ".Ffix",
+          "offset": 40
+        },
+        {
+          "name": ".Fsub",
+          "offset": 50
+        },
+        {
+          "name": ".Fdiv",
+          "offset": 60
+        },
+        {
+          "name": ".Fflt",
+          "offset": 70
+        },
+        {
+          "name": ".Fmul",
+          "offset": 80
+        }
+      ],
+      "job_receipt_sha256": "f85675f2db962bc16440338bb3f9803beec054ebe653ad89abdd6ff421ede93e",
+      "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+      "member": "fadd+fcmp+fneg+ftst+ffix+fsub+fdiv+fflt+fmul",
+      "members": [
+        "fadd",
+        "fcmp",
+        "fneg",
+        "ftst",
+        "ffix",
+        "fsub",
+        "fdiv",
+        "fflt",
+        "fmul"
+      ],
+      "object_sha256s": {
+        "fadd": "a5a6e4f4b29651daa88e1efc28664d08b5f53b314dbeeac5dc30d5679a8378c9",
+        "fcmp": "7800025622f20255caa893947f5ccbfb62bb44a0790179aec3cbeef657331201",
+        "fdiv": "1dd869b36d45ccf9cef6018a50a4acc36dfc12b1b0800e8ba5d17d7dad9f8ed5",
+        "ffix": "8f359ab9d5f641a657f3cf8c55584e3aa9469e915a8573223250a573bbafefe8",
+        "fflt": "cb67a7c599f78a282113fd6e140c9bd298a0e7f171333329c68f8ff673ffff64",
+        "fmul": "2ca90309bd3acf4f3b2f847af55eb5a01c10385dd239b1752cd207bbbe2f8a49",
+        "fneg": "49261ef56d5b3ec94ad598a246fd3b9d16a82b1793bdf9cea14f08c2de6e1451",
+        "fsub": "feef1674689b20c7dd9948ae25c7cf8351e896183b255b0efd3056053f39cf30",
+        "ftst": "b9ad9a145a1b45c2b680b36506d367d78c52b8258160712c5e666c0b12ff0c56"
+      },
+      "original": {
+        "hunk": 0,
+        "offset": 36056,
+        "size": 90
+      },
+      "profile": "aztec36",
+      "size": 90
     }
   ],
   "exact_compiler_release_selected": false,
   "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
-  "job_receipt_sha256": "25890264b57499e81ccc27537a3a5cfe8d4b178399ef7e21c4e31ff812717d0d",
   "limitations": [
-    "Library members linked alone; only relocation-free complete contributions are accepted.",
+    "Only relocation-free complete member contributions are accepted.",
     "Identifies runtime ownership of these bytes; no game source and no release selection."
   ],
   "reconstructed_game_functions": 0,
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "COMPLETE_RUNTIME_CODE_MATCH"
 }
