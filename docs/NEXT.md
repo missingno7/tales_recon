@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 247 functions / 120,870 C bytes, plus two complete mixed
+Canonical coverage is 248 functions / 122,574 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 67,154 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 65,450 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -46,7 +46,23 @@ waits on a named structural blocker:
 4. STALE_PROVEN_OBJECT_GROUP: ov11_F_2272 needs a regroup transaction
    (407C+40AE+40E0); its unit is also 98 bytes long, so grouping alone
    will not close it.
-5. FRESH RE-VERIFICATION DRIFT (OBJECT/TU_LAYOUT): canonical ov11_F_3532 still
+5. FRESH RE-VERIFICATION AUDIT (2026-10-13; build/workers/opus-audit). All 247
+   canonical sources were re-verified fresh and isolated. 230 are EQUAL with
+   plain check_function. 4 more are EQUAL with their recorded object groups
+   (ov03_F_001C, ov05_F_467E, ov07_F_1F6E, ov08_F_1AB8), 3 are members of
+   other units, and ov08_F_1C30 was a lock collision (EQUAL on retry).
+   9 drift: seven ov11 automatic-dependency units in the 2272 region (13DC,
+   2430, 25F8, 3532, 407C, 6CFE, 70DC; units 2-4 bytes off), plus
+   ov10_F_22E6 and ov13_F_02BE (COMPILE_ERROR). Each predates a later proven
+   grouping (583A+5962, 1FDE+2160+22E6, 407C+40AE+40E0) that today's unit
+   closure applies. Stored proofs remain valid, but these sources cannot be
+   replaced or restructured, and new units linking them may fail, until they
+   are re-proved under current grouping. This is STALE_PROVEN_OBJECT_GROUP at
+   wider scope. The audit also unmasked pinned-key positive controls that had
+   silently skipped on a cold cache; they now assert the exact verdict and
+   derive the key, skipping explicitly when the fixture's entry has joined a
+   proven multi-member object.
+   Original note: canonical ov11_F_3532 still
    re-derives from its cached proof artifacts, but a fresh check_function now
    builds its dependency unit with ov11_F_583A+5962 as one object. That
    grouping was proven later, by ov11_F_51C0. The relayout shifts 5962 by
