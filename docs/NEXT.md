@@ -11,6 +11,33 @@ compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes 
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
+## Frontier state (2026-10-13, after wave 18)
+
+The Haiku frontier is drained (`fleet.py wave N --dry-run` claims nothing).
+Waves 13-18 recovered 22 functions; supervisor intake closed four of them
+(3870, 0D36, 0640, ov10_F_0000) and widened two verifier rules (helper
+aliases by library identity, post-literal entries). Every remaining target
+waits on a named structural blocker:
+
+1. CHAR_RETURN_EXTENSION (TOOLCHAIN): 411E, then 404A/4184, the 287C..2D00
+   region and 49A0; ov14 0412/04A8/0540, then ov14_F_0000. All available
+   compilers widen char returns, and the game has exactly four bare byte
+   returns. This needs another historical Aztec release (3.4 or 3.6 before
+   3.6a) or positive provenance for non-C code. No candidate C should be
+   retried.
+2. Resident DATA-interface derivation over large units (OBJECT/TU_LAYOUT):
+   033E (+04FE by bsr), then 01BA. The derived recipe lists unit-local
+   canonical members as external roots. resident_interfaces.py is bound
+   into 15 proof identities, so fix it through a wrapper (as
+   helper_exports does for compiler_oracle) or a transactional re-proof.
+3. FFP private helpers (CALL_BINDING): ov11_F_5FB2, ov05_F_1EFC/3836, then
+   ov11_F_0B4C and the ov05 131C..1EFC region.
+4. STALE_PROVEN_OBJECT_GROUP: ov11_F_2272 needs a regroup transaction
+   (407C+40AE+40E0); its unit is also 98 bytes long, so grouping alone
+   will not close it.
+5. Exhausted shape residuals: resident_F_463E (eor orientation),
+   ov08_F_1F4C (12 bytes).
+
 ## Current campaign (2026-10-12): resident-first fleet
 
 The ov04 campaign below recovered all 24 known ov04 functions; its natural
