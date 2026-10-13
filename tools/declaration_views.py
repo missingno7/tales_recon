@@ -347,7 +347,14 @@ def extern_block(views):
         w = (item.get('widths') or {}).get('target')
         detail = ('inside %s+%d (%s)' % (inside['name'], inside['displacement'], inside['view'])) if inside \
             else 'no canonical view'
-        lines.append('/* %s: %s%s */' % (item['name'], detail, '; w' + ','.join(map(str, w)) if w else ''))
+        width_type = {1: 'char', 2: 'int', 4: 'long'}.get(w[0]) if w and len(set(w)) == 1 else None
+        if width_type and not inside:
+            # One observed access width: a paste-ready view from the original
+            # instructions themselves (a candidate view, not provenance).
+            lines.append('extern %s %s; /* no canonical view; w%d from the original accesses */'
+                         % (width_type, item['name'], w[0]))
+        else:
+            lines.append('/* %s: %s%s */' % (item['name'], detail, '; w' + ','.join(map(str, w)) if w else ''))
     return '\n'.join(lines) + '\n'
 
 

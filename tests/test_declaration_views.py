@@ -109,6 +109,17 @@ class DeclarationViewTests(unittest.TestCase):
         self.assertIn("/* G_h01_A46A: inside G_h01_A464+6 (struct Object [2]) */", block)
         self.assertIn("/* G_h01_1234: no canonical view */", block)
 
+    def test_single_observed_width_without_canonical_view_becomes_an_extern(self):
+        views = dict(structs=[], symbols=[], without_canonical_view=[
+            dict(name='G_h01_1234', widths=dict(target=[2, 2])),
+            dict(name='G_h01_2000', widths=dict(target=[1, 4])),
+            dict(name='G_h01_3000', widths=dict(target=[4]),
+                 within_declared_view=dict(name='G_h01_2FFC', displacement=4, view='char[8]'))])
+        text = dv.extern_block(views)
+        self.assertIn('extern int G_h01_1234;', text)
+        self.assertNotIn('extern char G_h01_2000', text)   # mixed widths stay a comment
+        self.assertNotIn('extern long G_h01_3000', text)   # inside a declared view stays a comment
+
     def test_conflict_clusters(self):
         report = dv.conflict_clusters(self.root)
         self.assertEqual(report["struct_tag_variants"], [dict(tag="Object", distinct_bodies=2, sources=3)])
