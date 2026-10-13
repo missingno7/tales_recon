@@ -1,0 +1,2435 @@
+{
+  "artifacts": [
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+      "size": 40
+    },
+    {
+      "path": "h000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "h000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "h000.asm",
+      "sha256": "ee957ab4f454eaf12744e111f2dd924e54266a61205a310dfa736f81a616ff13",
+      "size": 1822
+    },
+    {
+      "path": "h000.c",
+      "sha256": "d27db8b5be3ebfe6653f579dfefc104d4a44b64a3e65a276f8d930f3ce389c1e",
+      "size": 1176
+    },
+    {
+      "path": "h000.o",
+      "sha256": "a9bbe3e6cabe62fa3f24edcec142036bfe38155122b5e2dabdb546400901f1a1",
+      "size": 804
+    },
+    {
+      "path": "t000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "t000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "t000-ln.log",
+      "sha256": "8ee4ebdc7b4885906ffc2a601284ed97b8a81cf0a604b9839cfdf07b6c8ae260",
+      "size": 105
+    },
+    {
+      "path": "t000.asm",
+      "sha256": "3fc890966d69b1ad3fc85e21ba4f243627a250908155b6ef50eda151964bb34c",
+      "size": 5237
+    },
+    {
+      "path": "t000.c",
+      "sha256": "169c6f66b8ef02d41bdc9a41044880f7a3e21f58e35400f7441a3a3c7afb71c4",
+      "size": 3860
+    },
+    {
+      "path": "t000.exe",
+      "sha256": "feba895aaf8916273119e413289aca693e2be95d4d3ecf04a1e25825d00f9e04",
+      "size": 3928
+    },
+    {
+      "path": "t000.o",
+      "sha256": "414d8ef586943e493a78e73aa5f5dc4db9a024023847b3654e815df9af0afd9d",
+      "size": 1736
+    },
+    {
+      "path": "t000.sym",
+      "sha256": "4e785d60c87c1dcbdf09226b0c8d0e28f642bb381885b111fbbdf764296e9ba1",
+      "size": 2246
+    }
+  ],
+  "cache_key": "bf4f4aee27840af1a91a0d7e8dbdede57eaf0086ef7b882f4105ccaac9a0d856",
+  "comparison": {
+    "actual_length": 1050,
+    "actual_sha256": "03b3a6cd9ef39154fa483c8f7929de4add2e2b1aa562f13dbf4fc62e993e2870",
+    "cache_hit": true,
+    "cache_key": "bf4f4aee27840af1a91a0d7e8dbdede57eaf0086ef7b882f4105ccaac9a0d856",
+    "comparison_identity": "647159ad174b4a20f91cdbb1832da76996efc25ecc780ef2de9f997c6150f51a",
+    "compiler": "aztec36",
+    "data_contributions": {
+      "candidate_bss": 0,
+      "candidate_data": 0,
+      "expected_owned_data": "NOT_CLAIMED"
+    },
+    "epilogue": {
+      "actual": [
+        {
+          "mnemonic": "addi.l",
+          "offset": 1034,
+          "operands": "#$e, -$c(a5)",
+          "raw": "06ad0000000efff4",
+          "size": 8
+        },
+        {
+          "mnemonic": "bra.w",
+          "offset": 1042,
+          "operands": "$3a",
+          "raw": "6000fc26",
+          "size": 4
+        },
+        {
+          "mnemonic": "bra.w",
+          "offset": 1046,
+          "operands": "$18",
+          "raw": "6000fc00",
+          "size": 4
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "addi.l",
+          "offset": 1034,
+          "operands": "#$e, -$c(a5)",
+          "raw": "06ad0000000efff4",
+          "size": 8
+        },
+        {
+          "mnemonic": "bra.w",
+          "offset": 1042,
+          "operands": "$3a",
+          "raw": "6000fc26",
+          "size": 4
+        },
+        {
+          "mnemonic": "bra.w",
+          "offset": 1046,
+          "operands": "$18",
+          "raw": "6000fc00",
+          "size": 4
+        }
+      ]
+    },
+    "expected_length": 1050,
+    "expected_sha256": "57604e7eeed9232963f32cf48094def409ee9cfd5702ecd0ad43c7d89b5786e8",
+    "first_structural_instruction_difference": null,
+    "flags": [],
+    "id": "ov05_F_2CD4",
+    "mnemonic_similarity": 1.0,
+    "normalized_first_difference": null,
+    "normalized_sha256": "57604e7eeed9232963f32cf48094def409ee9cfd5702ecd0ad43c7d89b5786e8",
+    "prologue": {
+      "actual": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fff4",
+          "raw": "4e55fff4",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 4,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "ext.l",
+          "offset": 8,
+          "operands": "d0",
+          "raw": "48c0",
+          "size": 2
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fff4",
+          "raw": "4e55fff4",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 4,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "ext.l",
+          "offset": 8,
+          "operands": "d0",
+          "raw": "48c0",
+          "size": 2
+        }
+      ]
+    },
+    "proof_level": "FUNCTION_CODE_MATCH",
+    "raw_first_difference": {
+      "actual": "80520c70ffff080066044e5d4e75302d",
+      "actual_size": 1050,
+      "expected": "de680c70ffff080066044e5d4e75302d",
+      "expected_size": 1050,
+      "offset": 14
+    },
+    "reason": "COMPLETE_CONTRIBUTION",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_profiles": {
+      "actual": [],
+      "expected": []
+    },
+    "relocation_proof": [
+      {
+        "expected": [
+          1,
+          24166
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 24166,
+          "symbol": "_G_h01_5E66"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 14
+      },
+      {
+        "expected": [
+          1,
+          24166
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 24166,
+          "symbol": "_G_h01_5E66"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 38
+      },
+      {
+        "expected": [
+          1,
+          24684
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 24684,
+          "symbol": "_G_h01_606C"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 50
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 116
+      },
+      {
+        "expected": [
+          1,
+          21812
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21812,
+          "symbol": "_G_h01_5534"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 120
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 144
+      },
+      {
+        "expected": [
+          1,
+          21814
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 21814,
+          "symbol": "_G_h01_5534"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 148
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 168
+      },
+      {
+        "expected": [
+          1,
+          21812
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21812,
+          "symbol": "_G_h01_5534"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 172
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 180
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 214
+      },
+      {
+        "expected": [
+          1,
+          22464
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22464,
+          "symbol": "_G_h01_57C0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 218
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 242
+      },
+      {
+        "expected": [
+          1,
+          22466
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 22466,
+          "symbol": "_G_h01_57C0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 246
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 266
+      },
+      {
+        "expected": [
+          1,
+          22464
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22464,
+          "symbol": "_G_h01_57C0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 270
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 278
+      },
+      {
+        "expected": [
+          1,
+          21704
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21704,
+          "symbol": "_G_h01_54C8"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 294
+      },
+      {
+        "expected": [
+          1,
+          21706
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 21706,
+          "symbol": "_G_h01_54C8"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 304
+      },
+      {
+        "expected": [
+          1,
+          21704
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21704,
+          "symbol": "_G_h01_54C8"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 308
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 312
+      },
+      {
+        "expected": [
+          1,
+          21758
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21758,
+          "symbol": "_G_h01_54FE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 328
+      },
+      {
+        "expected": [
+          1,
+          21760
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 21760,
+          "symbol": "_G_h01_54FE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 338
+      },
+      {
+        "expected": [
+          1,
+          21758
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21758,
+          "symbol": "_G_h01_54FE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 342
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 346
+      },
+      {
+        "expected": [
+          1,
+          23872
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 23872,
+          "symbol": "_G_h01_5D40"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 374
+      },
+      {
+        "expected": [
+          1,
+          23872
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 23872,
+          "symbol": "_G_h01_5D40"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 392
+      },
+      {
+        "expected": [
+          1,
+          23874
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 23874,
+          "symbol": "_G_h01_5D40"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 402
+      },
+      {
+        "expected": [
+          1,
+          23924
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 23924,
+          "symbol": "_G_h01_5D74"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 438
+      },
+      {
+        "expected": [
+          0,
+          17982
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 17982,
+          "symbol": "_F_h00_463E"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 466
+      },
+      {
+        "expected": [
+          1,
+          23872
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 23872,
+          "symbol": "_G_h01_5D40"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 490
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 494
+      },
+      {
+        "expected": [
+          0,
+          17982
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 17982,
+          "symbol": "_F_h00_463E"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 504
+      },
+      {
+        "expected": [
+          0,
+          36126
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36126,
+          "symbol": "F_h00_8D1E"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 536
+      },
+      {
+        "expected": [
+          1,
+          24116
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 24116,
+          "symbol": "_G_h01_5E34"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 542
+      },
+      {
+        "expected": [
+          0,
+          36106
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36106,
+          "symbol": "F_h00_8D0A"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 546
+      },
+      {
+        "expected": [
+          0,
+          36096
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36096,
+          "symbol": "F_h00_8D00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 550
+      },
+      {
+        "expected": [
+          0,
+          22482
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 22482,
+          "symbol": "_F_h00_57D2"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 606
+      },
+      {
+        "expected": [
+          1,
+          22572
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22572,
+          "symbol": "_G_h01_582C"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 666
+      },
+      {
+        "expected": [
+          1,
+          22574
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 22574,
+          "symbol": "_G_h01_582C"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 676
+      },
+      {
+        "expected": [
+          1,
+          22572
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22572,
+          "symbol": "_G_h01_582C"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 680
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 684
+      },
+      {
+        "expected": [
+          1,
+          22626
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22626,
+          "symbol": "_G_h01_5862"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 732
+      },
+      {
+        "expected": [
+          1,
+          22628
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 22628,
+          "symbol": "_G_h01_5862"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 742
+      },
+      {
+        "expected": [
+          1,
+          22626
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22626,
+          "symbol": "_G_h01_5862"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 746
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 750
+      },
+      {
+        "expected": [
+          1,
+          22626
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22626,
+          "symbol": "_G_h01_5862"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 798
+      },
+      {
+        "expected": [
+          1,
+          22628
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 22628,
+          "symbol": "_G_h01_5862"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 808
+      },
+      {
+        "expected": [
+          1,
+          22626
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 22626,
+          "symbol": "_G_h01_5862"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 812
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 816
+      },
+      {
+        "expected": [
+          1,
+          12058
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12058,
+          "symbol": "_G_h01_2F1A"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 852
+      },
+      {
+        "expected": [
+          1,
+          12060
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12060,
+          "symbol": "_G_h01_2F1C"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 872
+      },
+      {
+        "expected": [
+          1,
+          12056
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12056,
+          "symbol": "_G_h01_2F18"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 888
+      },
+      {
+        "expected": [
+          1,
+          12056
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12056,
+          "symbol": "_G_h01_2F18"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 892
+      },
+      {
+        "expected": [
+          1,
+          12048
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12048,
+          "symbol": "_G_h01_2F10"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 900
+      },
+      {
+        "expected": [
+          1,
+          12052
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12052,
+          "symbol": "_G_h01_2F14"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 908
+      },
+      {
+        "expected": [
+          1,
+          12058
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12058,
+          "symbol": "_G_h01_2F1A"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 912
+      },
+      {
+        "expected": [
+          1,
+          12054
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12054,
+          "symbol": "_G_h01_2F16"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 918
+      },
+      {
+        "expected": [
+          1,
+          12060
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 12060,
+          "symbol": "_G_h01_2F1C"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 922
+      },
+      {
+        "expected": [
+          1,
+          2682
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 2682,
+          "symbol": "_G_h01_0A7A"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 930
+      },
+      {
+        "expected": [
+          1,
+          2682
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 2682,
+          "symbol": "_G_h01_0A7A"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 936
+      },
+      {
+        "expected": [
+          1,
+          2684
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 2684,
+          "symbol": "_G_h01_0A7C"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 940
+      },
+      {
+        "expected": [
+          1,
+          23278
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 23278,
+          "symbol": "_G_h01_5AEE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 950
+      },
+      {
+        "expected": [
+          1,
+          23280
+        ],
+        "identity": {
+          "addend": 2,
+          "hunk": 1,
+          "offset": 23280,
+          "symbol": "_G_h01_5AEE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 960
+      },
+      {
+        "expected": [
+          1,
+          23278
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 23278,
+          "symbol": "_G_h01_5AEE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 964
+      },
+      {
+        "expected": [
+          0,
+          13536
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13536,
+          "symbol": "_F_h00_34E0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 968
+      }
+    ],
+    "runtime_contributions": [
+      {
+        "code_sha256": "153fd8949289b566841c65c87e04601b51799177f715eb415a6e0ff9ec8c8927",
+        "identity": "F_h00_7B00",
+        "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+        "linked": {
+          "hunk": 0,
+          "offset": 1422,
+          "size": 36
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 31488,
+          "size": 36
+        },
+        "symbol": ".mulu"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CD8",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fadd"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CE2",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fcmp"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CEC",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fneg"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CF6",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Ftst"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D00",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Ffix"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D0A",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fsub"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D14",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fdiv"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D1E",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fflt"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D28",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2278,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fmul"
+      }
+    ],
+    "runtime_evidence_sha256": "01d126e7cf1f1c6b8233cbb565de0f60ede764b5132c73c5cae548a4eb8ac338",
+    "runtime_members_sha256": "046bfcc900e55f15aadde7a086039732b98bdde20ba91f319c877e3fd51b7eaa",
+    "source_sha256": "169c6f66b8ef02d41bdc9a41044880f7a3e21f58e35400f7441a3a3c7afb71c4",
+    "verdict": "EQUAL"
+  },
+  "compiler": {
+    "additional_libraries": [
+      {
+        "library": "m.lib",
+        "library_guest": "Old1:",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2"
+      }
+    ],
+    "candidate_overlay_node": 3,
+    "compiler_version": "3.6a",
+    "flags": [],
+    "harness_sha256": "d27db8b5be3ebfe6653f579dfefc104d4a44b64a3e65a276f8d930f3ce389c1e",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o +o3 candidate.o +o0 c.lib m.lib; -m -t",
+    "profile": "aztec36",
+    "service_version": 1,
+    "source_sha256": "169c6f66b8ef02d41bdc9a41044880f7a3e21f58e35400f7441a3a3c7afb71c4",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "2bbbdc20815156d038f9f214cfd0318d6f73a29d8c379918a1d7fc7006a68d6f"
+  },
+  "compiler_selection": "Matching candidate; historical release remains ambiguous",
+  "data_ownership": "External references only; no candidate-owned data or padding omitted",
+  "dependencies": [
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_463E",
+      "offset": 17982,
+      "site": 11940
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 11968
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 12442
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 12224
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 12290
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_463E",
+      "offset": 17982,
+      "site": 11978
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D1E",
+      "offset": 36126,
+      "site": 12010
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D0A",
+      "offset": 36106,
+      "site": 12020
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D00",
+      "offset": 36096,
+      "site": 12024
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_57D2",
+      "offset": 22482,
+      "site": 12080
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 12158
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_7B00",
+      "offset": 31488,
+      "site": 11688
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_7B00",
+      "offset": 31488,
+      "site": 11716
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_7B00",
+      "offset": 31488,
+      "site": 11740
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 11752
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_7B00",
+      "offset": 31488,
+      "site": 11590
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_7B00",
+      "offset": 31488,
+      "site": 11618
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_7B00",
+      "offset": 31488,
+      "site": 11642
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 11654
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 11820
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_34E0",
+      "offset": 13536,
+      "site": 11786
+    }
+  ],
+  "evidence_extent": {
+    "end": 12526,
+    "extent_status": "CLOSED_CFG",
+    "hunk": 5,
+    "sha256": "57604e7eeed9232963f32cf48094def409ee9cfd5702ecd0ad43c7d89b5786e8",
+    "size": 1050,
+    "start": 11476
+  },
+  "id": "ov05_F_2CD4",
+  "object_hash": "414d8ef586943e493a78e73aa5f5dc4db9a024023847b3654e815df9af0afd9d",
+  "regression": {
+    "batch_inputs_sha256": "7c1894ebd47f005fa4a428f04566151222bacae268a1d5b1d5f2b2d89e877601",
+    "batch_members": [
+      "ov11_F_5FB2",
+      "ov05_F_3836",
+      "ov05_F_2CD4"
+    ],
+    "command": "python -m unittest discover -s tests",
+    "input_sha256": "08728709d15a9613d530264dbb7ab25d0e12875d13fb8e8a3a70c1786beee337",
+    "output_sha256": "c573ad805409e2d3e52e58ef11290460570f35afcac3b5b20e90a243b02996ea",
+    "passed": true
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        24166
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 24166,
+        "symbol": "_G_h01_5E66"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 14
+    },
+    {
+      "expected": [
+        1,
+        24166
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 24166,
+        "symbol": "_G_h01_5E66"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 38
+    },
+    {
+      "expected": [
+        1,
+        24684
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 24684,
+        "symbol": "_G_h01_606C"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 50
+    },
+    {
+      "expected": [
+        0,
+        31488
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 31488,
+        "symbol": "F_h00_7B00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 116
+    },
+    {
+      "expected": [
+        1,
+        21812
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21812,
+        "symbol": "_G_h01_5534"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 120
+    },
+    {
+      "expected": [
+        0,
+        31488
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 31488,
+        "symbol": "F_h00_7B00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 144
+    },
+    {
+      "expected": [
+        1,
+        21814
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 21814,
+        "symbol": "_G_h01_5534"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 148
+    },
+    {
+      "expected": [
+        0,
+        31488
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 31488,
+        "symbol": "F_h00_7B00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 168
+    },
+    {
+      "expected": [
+        1,
+        21812
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21812,
+        "symbol": "_G_h01_5534"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 172
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 180
+    },
+    {
+      "expected": [
+        0,
+        31488
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 31488,
+        "symbol": "F_h00_7B00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 214
+    },
+    {
+      "expected": [
+        1,
+        22464
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22464,
+        "symbol": "_G_h01_57C0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 218
+    },
+    {
+      "expected": [
+        0,
+        31488
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 31488,
+        "symbol": "F_h00_7B00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 242
+    },
+    {
+      "expected": [
+        1,
+        22466
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 22466,
+        "symbol": "_G_h01_57C0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 246
+    },
+    {
+      "expected": [
+        0,
+        31488
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 31488,
+        "symbol": "F_h00_7B00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 266
+    },
+    {
+      "expected": [
+        1,
+        22464
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22464,
+        "symbol": "_G_h01_57C0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 270
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 278
+    },
+    {
+      "expected": [
+        1,
+        21704
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21704,
+        "symbol": "_G_h01_54C8"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 294
+    },
+    {
+      "expected": [
+        1,
+        21706
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 21706,
+        "symbol": "_G_h01_54C8"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 304
+    },
+    {
+      "expected": [
+        1,
+        21704
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21704,
+        "symbol": "_G_h01_54C8"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 308
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 312
+    },
+    {
+      "expected": [
+        1,
+        21758
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21758,
+        "symbol": "_G_h01_54FE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 328
+    },
+    {
+      "expected": [
+        1,
+        21760
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 21760,
+        "symbol": "_G_h01_54FE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 338
+    },
+    {
+      "expected": [
+        1,
+        21758
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21758,
+        "symbol": "_G_h01_54FE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 342
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 346
+    },
+    {
+      "expected": [
+        1,
+        23872
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 23872,
+        "symbol": "_G_h01_5D40"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 374
+    },
+    {
+      "expected": [
+        1,
+        23872
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 23872,
+        "symbol": "_G_h01_5D40"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 392
+    },
+    {
+      "expected": [
+        1,
+        23874
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 23874,
+        "symbol": "_G_h01_5D40"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 402
+    },
+    {
+      "expected": [
+        1,
+        23924
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 23924,
+        "symbol": "_G_h01_5D74"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 438
+    },
+    {
+      "expected": [
+        0,
+        17982
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 17982,
+        "symbol": "_F_h00_463E"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 466
+    },
+    {
+      "expected": [
+        1,
+        23872
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 23872,
+        "symbol": "_G_h01_5D40"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 490
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 494
+    },
+    {
+      "expected": [
+        0,
+        17982
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 17982,
+        "symbol": "_F_h00_463E"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 504
+    },
+    {
+      "expected": [
+        0,
+        36126
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36126,
+        "symbol": "F_h00_8D1E"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 536
+    },
+    {
+      "expected": [
+        1,
+        24116
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 24116,
+        "symbol": "_G_h01_5E34"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 542
+    },
+    {
+      "expected": [
+        0,
+        36106
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36106,
+        "symbol": "F_h00_8D0A"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 546
+    },
+    {
+      "expected": [
+        0,
+        36096
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36096,
+        "symbol": "F_h00_8D00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 550
+    },
+    {
+      "expected": [
+        0,
+        22482
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 22482,
+        "symbol": "_F_h00_57D2"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 606
+    },
+    {
+      "expected": [
+        1,
+        22572
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22572,
+        "symbol": "_G_h01_582C"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 666
+    },
+    {
+      "expected": [
+        1,
+        22574
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 22574,
+        "symbol": "_G_h01_582C"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 676
+    },
+    {
+      "expected": [
+        1,
+        22572
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22572,
+        "symbol": "_G_h01_582C"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 680
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 684
+    },
+    {
+      "expected": [
+        1,
+        22626
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22626,
+        "symbol": "_G_h01_5862"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 732
+    },
+    {
+      "expected": [
+        1,
+        22628
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 22628,
+        "symbol": "_G_h01_5862"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 742
+    },
+    {
+      "expected": [
+        1,
+        22626
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22626,
+        "symbol": "_G_h01_5862"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 746
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 750
+    },
+    {
+      "expected": [
+        1,
+        22626
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22626,
+        "symbol": "_G_h01_5862"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 798
+    },
+    {
+      "expected": [
+        1,
+        22628
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 22628,
+        "symbol": "_G_h01_5862"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 808
+    },
+    {
+      "expected": [
+        1,
+        22626
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 22626,
+        "symbol": "_G_h01_5862"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 812
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 816
+    },
+    {
+      "expected": [
+        1,
+        12058
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12058,
+        "symbol": "_G_h01_2F1A"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 852
+    },
+    {
+      "expected": [
+        1,
+        12060
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12060,
+        "symbol": "_G_h01_2F1C"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 872
+    },
+    {
+      "expected": [
+        1,
+        12056
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12056,
+        "symbol": "_G_h01_2F18"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 888
+    },
+    {
+      "expected": [
+        1,
+        12056
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12056,
+        "symbol": "_G_h01_2F18"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 892
+    },
+    {
+      "expected": [
+        1,
+        12048
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12048,
+        "symbol": "_G_h01_2F10"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 900
+    },
+    {
+      "expected": [
+        1,
+        12052
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12052,
+        "symbol": "_G_h01_2F14"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 908
+    },
+    {
+      "expected": [
+        1,
+        12058
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12058,
+        "symbol": "_G_h01_2F1A"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 912
+    },
+    {
+      "expected": [
+        1,
+        12054
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12054,
+        "symbol": "_G_h01_2F16"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 918
+    },
+    {
+      "expected": [
+        1,
+        12060
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 12060,
+        "symbol": "_G_h01_2F1C"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 922
+    },
+    {
+      "expected": [
+        1,
+        2682
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 2682,
+        "symbol": "_G_h01_0A7A"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 930
+    },
+    {
+      "expected": [
+        1,
+        2682
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 2682,
+        "symbol": "_G_h01_0A7A"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 936
+    },
+    {
+      "expected": [
+        1,
+        2684
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 2684,
+        "symbol": "_G_h01_0A7C"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 940
+    },
+    {
+      "expected": [
+        1,
+        23278
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 23278,
+        "symbol": "_G_h01_5AEE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 950
+    },
+    {
+      "expected": [
+        1,
+        23280
+      ],
+      "identity": {
+        "addend": 2,
+        "hunk": 1,
+        "offset": 23280,
+        "symbol": "_G_h01_5AEE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 960
+    },
+    {
+      "expected": [
+        1,
+        23278
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 23278,
+        "symbol": "_G_h01_5AEE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 964
+    },
+    {
+      "expected": [
+        0,
+        13536
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 13536,
+        "symbol": "_F_h00_34E0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 968
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/ov05/ov05_F_2CD4.c",
+  "source_sha256": "169c6f66b8ef02d41bdc9a41044880f7a3e21f58e35400f7441a3a3c7afb71c4",
+  "state": "FUNCTION_CODE_MATCH",
+  "verifier_identity": {
+    "check_function.py": "6688ea73ba5ae7b9e97d89f294f0590c6a7bdb5bf9a5f224cc72503fb8889c81",
+    "compiler_oracle.py": "3f7d4da820be17368a455df315c5ef217902ca276edad1ba4754a460f88a9bb1",
+    "function_compare.py": "64e3033395b3820ee40dd7b67b6c88a968997983c1ba5d0ff530cf438d837875",
+    "runtime_arithmetic.py": "758f6510566108effaa0266ceb971b205fbb4aa662fff5885d5301b12557381f"
+  }
+}

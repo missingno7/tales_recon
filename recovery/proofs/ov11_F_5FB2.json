@@ -1,0 +1,977 @@
+{
+  "artifacts": [
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+      "size": 40
+    },
+    {
+      "path": "h000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "h000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "h000.asm",
+      "sha256": "715cd2808d2ade570b5babeb14b3d6c4d0e292b6e3c55715bd935e5fb93d349e",
+      "size": 1101
+    },
+    {
+      "path": "h000.c",
+      "sha256": "b6e6df7b1310941f57751b7e5a2f9f61e8b6637d0881bb4fd12d4cf0621386e7",
+      "size": 842
+    },
+    {
+      "path": "h000.o",
+      "sha256": "708f953e2339f60dd7d92b0fd47aa0d517d5b7fbad77e6c35a19039b193851b0",
+      "size": 500
+    },
+    {
+      "path": "t000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "t000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "t000-ln.log",
+      "sha256": "8b047c00c385eef13e2165e29ce914fb0997ea2aa9479911c910e4361aa9163a",
+      "size": 105
+    },
+    {
+      "path": "t000.asm",
+      "sha256": "1755dc8a941b999a04a6701fedc1171013c108319c2c06fbe7d7d969a6c5aa9f",
+      "size": 1186
+    },
+    {
+      "path": "t000.c",
+      "sha256": "746abc12b5313b3605f02b3cfd4ce83d518e167036c60d60bbf969d2516c3ae7",
+      "size": 1103
+    },
+    {
+      "path": "t000.exe",
+      "sha256": "26be414ad9f52653b6f624e8a002725362c6758e0f19106bb3e5f56197eb494b",
+      "size": 3072
+    },
+    {
+      "path": "t000.o",
+      "sha256": "178672e209c63e9d3e60d4c4bf09875ac7c71c135914eb39c7e72df524198920",
+      "size": 468
+    },
+    {
+      "path": "t000.sym",
+      "sha256": "a11bf108bcc19e5b6c29f8f42a41bc270dd7bd299b99a13adf06c999519691c9",
+      "size": 1856
+    }
+  ],
+  "cache_key": "9341b18d6f8badb24e7e0040454536b2a2397576c6f71262477ed07525951bff",
+  "comparison": {
+    "actual_length": 206,
+    "actual_sha256": "a726851f6f1927d5fa7f7c4fac79d29d581ec8a7d08c8eb6780951ce796da763",
+    "cache_hit": true,
+    "cache_key": "9341b18d6f8badb24e7e0040454536b2a2397576c6f71262477ed07525951bff",
+    "comparison_identity": "647159ad174b4a20f91cdbb1832da76996efc25ecc780ef2de9f997c6150f51a",
+    "compiler": "aztec36",
+    "data_contributions": {
+      "candidate_bss": 0,
+      "candidate_data": 0,
+      "expected_owned_data": "NOT_CLAIMED"
+    },
+    "epilogue": {
+      "actual": [
+        {
+          "mnemonic": "move.w",
+          "offset": 196,
+          "operands": "-$8(a5), -$7fb8(a4)",
+          "raw": "396dfff88048",
+          "size": 6
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 202,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 204,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "move.w",
+          "offset": 196,
+          "operands": "-$8(a5), -$480e(a4)",
+          "raw": "396dfff8b7f2",
+          "size": 6
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 202,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 204,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ]
+    },
+    "expected_length": 206,
+    "expected_sha256": "7d48b9716409f67ecd8f019f0f43ca14b52e37985ad423b398420ef0cb031578",
+    "first_structural_instruction_difference": null,
+    "flags": [],
+    "id": "ov11_F_5FB2",
+    "mnemonic_similarity": 1.0,
+    "normalized_first_difference": null,
+    "normalized_sha256": "7d48b9716409f67ecd8f019f0f43ca14b52e37985ad423b398420ef0cb031578",
+    "prologue": {
+      "actual": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fff8",
+          "raw": "4e55fff8",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 4,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "muls.w",
+          "offset": 8,
+          "operands": "#$34, d0",
+          "raw": "c1fc0034",
+          "size": 4
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fff8",
+          "raw": "4e55fff8",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 4,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "muls.w",
+          "offset": 8,
+          "operands": "#$34, d0",
+          "raw": "c1fc0034",
+          "size": 4
+        }
+      ]
+    },
+    "proof_level": "FUNCTION_CODE_MATCH",
+    "raw_first_difference": {
+      "actual": "804ad0882b40fffc302c808048c04eac",
+      "actual_size": 206,
+      "expected": "0beed0882b40fffc302c14c048c04eac",
+      "expected_size": 206,
+      "offset": 14
+    },
+    "reason": "COMPLETE_CONTRIBUTION",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_profiles": {
+      "actual": [],
+      "expected": []
+    },
+    "relocation_proof": [
+      {
+        "expected": [
+          1,
+          35820
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 35820,
+          "symbol": "_G_h01_8BEC"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 14
+      },
+      {
+        "expected": [
+          1,
+          38078
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 38078,
+          "symbol": "_G_h01_94BE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 24
+      },
+      {
+        "expected": [
+          0,
+          36126
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36126,
+          "symbol": "F_h00_8D1E"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 30
+      },
+      {
+        "expected": [
+          0,
+          36126
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36126,
+          "symbol": "F_h00_8D1E"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 48
+      },
+      {
+        "expected": [
+          0,
+          36106
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36106,
+          "symbol": "F_h00_8D0A"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 56
+      },
+      {
+        "expected": [
+          0,
+          36126
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36126,
+          "symbol": "F_h00_8D1E"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 78
+      },
+      {
+        "expected": [
+          0,
+          36136
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36136,
+          "symbol": "F_h00_8D28"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 86
+      },
+      {
+        "expected": [
+          0,
+          36116
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36116,
+          "symbol": "F_h00_8D14"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 96
+      },
+      {
+        "expected": [
+          0,
+          36096
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 36096,
+          "symbol": "F_h00_8D00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 100
+      },
+      {
+        "expected": [
+          1,
+          38064
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 38064,
+          "symbol": "_G_h01_94B0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 130
+      },
+      {
+        "expected": [
+          1,
+          38078
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 38078,
+          "symbol": "_G_h01_94BE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 136
+      },
+      {
+        "expected": [
+          1,
+          14320
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 14320,
+          "symbol": "_G_h01_37F0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 140
+      },
+      {
+        "expected": [
+          1,
+          14318
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 14318,
+          "symbol": "_G_h01_37EE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 172
+      },
+      {
+        "expected": [
+          1,
+          38080
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 38080,
+          "symbol": "_G_h01_94C0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 176
+      },
+      {
+        "expected": [
+          1,
+          14320
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 14320,
+          "symbol": "_G_h01_37F0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 184
+      },
+      {
+        "expected": [
+          1,
+          38078
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 38078,
+          "symbol": "_G_h01_94BE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 188
+      },
+      {
+        "expected": [
+          1,
+          14318
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 14318,
+          "symbol": "_G_h01_37EE"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 194
+      },
+      {
+        "expected": [
+          1,
+          14320
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 14320,
+          "symbol": "_G_h01_37F0"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 200
+      }
+    ],
+    "runtime_contributions": [
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CD8",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fadd"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CE2",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fcmp"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CEC",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fneg"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8CF6",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Ftst"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D00",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Ffix"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D0A",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fsub"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D14",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fdiv"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D1E",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fflt"
+      },
+      {
+        "code_sha256": "12f980c0b9c40dc8cfd4df34e5c75f121db91e6e0ef7f85043f55a6dc57579b6",
+        "identity": "F_h00_8D28",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2",
+        "linked": {
+          "hunk": 0,
+          "offset": 2212,
+          "size": 90
+        },
+        "original": {
+          "hunk": 0,
+          "offset": 36056,
+          "size": 90
+        },
+        "symbol": ".Fmul"
+      }
+    ],
+    "runtime_evidence_sha256": "01d126e7cf1f1c6b8233cbb565de0f60ede764b5132c73c5cae548a4eb8ac338",
+    "runtime_members_sha256": "046bfcc900e55f15aadde7a086039732b98bdde20ba91f319c877e3fd51b7eaa",
+    "source_sha256": "746abc12b5313b3605f02b3cfd4ce83d518e167036c60d60bbf969d2516c3ae7",
+    "verdict": "EQUAL"
+  },
+  "compiler": {
+    "additional_libraries": [
+      {
+        "library": "m.lib",
+        "library_guest": "Old1:",
+        "library_sha256": "545e585fe6f40422b6ba969922d15d0e0e426fa32f0ad2b2b8241b49f95309f2"
+      }
+    ],
+    "candidate_overlay_node": 9,
+    "compiler_version": "3.6a",
+    "flags": [],
+    "harness_sha256": "b6e6df7b1310941f57751b7e5a2f9f61e8b6637d0881bb4fd12d4cf0621386e7",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o +o9 candidate.o +o0 c.lib m.lib; -m -t",
+    "profile": "aztec36",
+    "service_version": 1,
+    "source_sha256": "746abc12b5313b3605f02b3cfd4ce83d518e167036c60d60bbf969d2516c3ae7",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "2bbbdc20815156d038f9f214cfd0318d6f73a29d8c379918a1d7fc7006a68d6f"
+  },
+  "compiler_selection": "Matching candidate; historical release remains ambiguous",
+  "data_ownership": "External references only; no candidate-owned data or padding omitted",
+  "dependencies": [
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D1E",
+      "offset": 36126,
+      "site": 24526
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D1E",
+      "offset": 36126,
+      "site": 24544
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D0A",
+      "offset": 36106,
+      "site": 24552
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D1E",
+      "offset": 36126,
+      "site": 24574
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D28",
+      "offset": 36136,
+      "site": 24582
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D14",
+      "offset": 36116,
+      "site": 24592
+    },
+    {
+      "basis": "A4_RELOCATED_JMP_STUB",
+      "hunk": 0,
+      "id": "resident_F_8D00",
+      "offset": 36096,
+      "site": 24596
+    }
+  ],
+  "evidence_extent": {
+    "end": 24704,
+    "extent_status": "CLOSED_CFG",
+    "hunk": 11,
+    "sha256": "7d48b9716409f67ecd8f019f0f43ca14b52e37985ad423b398420ef0cb031578",
+    "size": 206,
+    "start": 24498
+  },
+  "id": "ov11_F_5FB2",
+  "object_hash": "178672e209c63e9d3e60d4c4bf09875ac7c71c135914eb39c7e72df524198920",
+  "regression": {
+    "batch_inputs_sha256": "7c1894ebd47f005fa4a428f04566151222bacae268a1d5b1d5f2b2d89e877601",
+    "batch_members": [
+      "ov11_F_5FB2",
+      "ov05_F_3836",
+      "ov05_F_2CD4"
+    ],
+    "command": "python -m unittest discover -s tests",
+    "input_sha256": "08728709d15a9613d530264dbb7ab25d0e12875d13fb8e8a3a70c1786beee337",
+    "output_sha256": "c573ad805409e2d3e52e58ef11290460570f35afcac3b5b20e90a243b02996ea",
+    "passed": true
+  },
+  "relocation_proof": [
+    {
+      "expected": [
+        1,
+        35820
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 35820,
+        "symbol": "_G_h01_8BEC"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 14
+    },
+    {
+      "expected": [
+        1,
+        38078
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 38078,
+        "symbol": "_G_h01_94BE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 24
+    },
+    {
+      "expected": [
+        0,
+        36126
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36126,
+        "symbol": "F_h00_8D1E"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 30
+    },
+    {
+      "expected": [
+        0,
+        36126
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36126,
+        "symbol": "F_h00_8D1E"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 48
+    },
+    {
+      "expected": [
+        0,
+        36106
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36106,
+        "symbol": "F_h00_8D0A"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 56
+    },
+    {
+      "expected": [
+        0,
+        36126
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36126,
+        "symbol": "F_h00_8D1E"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 78
+    },
+    {
+      "expected": [
+        0,
+        36136
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36136,
+        "symbol": "F_h00_8D28"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 86
+    },
+    {
+      "expected": [
+        0,
+        36116
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36116,
+        "symbol": "F_h00_8D14"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 96
+    },
+    {
+      "expected": [
+        0,
+        36096
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 36096,
+        "symbol": "F_h00_8D00"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 100
+    },
+    {
+      "expected": [
+        1,
+        38064
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 38064,
+        "symbol": "_G_h01_94B0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 130
+    },
+    {
+      "expected": [
+        1,
+        38078
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 38078,
+        "symbol": "_G_h01_94BE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 136
+    },
+    {
+      "expected": [
+        1,
+        14320
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 14320,
+        "symbol": "_G_h01_37F0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 140
+    },
+    {
+      "expected": [
+        1,
+        14318
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 14318,
+        "symbol": "_G_h01_37EE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 172
+    },
+    {
+      "expected": [
+        1,
+        38080
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 38080,
+        "symbol": "_G_h01_94C0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 176
+    },
+    {
+      "expected": [
+        1,
+        14320
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 14320,
+        "symbol": "_G_h01_37F0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 184
+    },
+    {
+      "expected": [
+        1,
+        38078
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 38078,
+        "symbol": "_G_h01_94BE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 188
+    },
+    {
+      "expected": [
+        1,
+        14318
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 14318,
+        "symbol": "_G_h01_37EE"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 194
+    },
+    {
+      "expected": [
+        1,
+        14320
+      ],
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 14320,
+        "symbol": "_G_h01_37F0"
+      },
+      "kind": "A4_D16_SYMBOL",
+      "offset": 200
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/ov11/ov11_F_5FB2.c",
+  "source_sha256": "746abc12b5313b3605f02b3cfd4ce83d518e167036c60d60bbf969d2516c3ae7",
+  "state": "FUNCTION_CODE_MATCH",
+  "verifier_identity": {
+    "check_function.py": "6688ea73ba5ae7b9e97d89f294f0590c6a7bdb5bf9a5f224cc72503fb8889c81",
+    "compiler_oracle.py": "3f7d4da820be17368a455df315c5ef217902ca276edad1ba4754a460f88a9bb1",
+    "function_compare.py": "64e3033395b3820ee40dd7b67b6c88a968997983c1ba5d0ff530cf438d837875",
+    "runtime_arithmetic.py": "758f6510566108effaa0266ceb971b205fbb4aa662fff5885d5301b12557381f"
+  }
+}

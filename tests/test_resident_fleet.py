@@ -337,6 +337,23 @@ class FfpGroupTests(unittest.TestCase):
         self.assertEqual(compiler_oracle.overlay_proxies(source, 3), [])
 
 
+class RuntimeLibraryLedgerTests(unittest.TestCase):
+    """c.lib members matched with masked A4 fields and voted library-base slots."""
+
+    def test_graphics_and_dos_glue_are_identified_with_their_base_slots(self):
+        ledger = json.loads((ROOT / "evidence/experiments/runtime-library.json").read_text())
+        by_offset = {c["original"]["offset"]: c for c in ledger["contributions"]}
+        self.assertEqual(by_offset[0x8A46]["member"], "bltbitma")
+        self.assertEqual(by_offset[0x86A8]["member"], "delay")
+        slots = {k: v["a4_displacement"] for k, v in ledger["base_slots"].items()}
+        self.assertEqual(slots["_GfxBase"], -0x2C8A)
+        self.assertEqual(slots["_DOSBase"], 0x2990)
+        self.assertEqual(len(set(slots.values())), len(slots))  # one symbol per slot
+        for c in ledger["contributions"]:
+            for f in c["a4_fields"]:
+                self.assertTrue(all(slots[s] == f["a4_displacement"] for s in f["symbols"]))
+
+
 if __name__ == "__main__":
     unittest.main()
 
