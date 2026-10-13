@@ -966,6 +966,7 @@ LESSONS = """## Measured lessons (supervised waves, 2026-10-12)
 - Reuse canonical siblings' declaration views for shared globals. Compiler helpers (.mulu/.divs/.mods/.modu/.divu) come from C arithmetic, never declarations; in resident code the verifier routes them through A4 slots like the original.
 - Aztec idioms: `lea sym(a4)` + `move.b 1(a0,d0.l)` is `(char)` of an int member (low byte); a bare `tst` with no branch is an empty `if (x) ;`; `tst/bls` on a zero-started counter is unsigned `c > 0`; a `continue` jumping back to a top test means `while (cond)`, not `for (;;) { if (...) break;`.
 - More Aztec idioms: a condition re-tested in every arm (`btst` repeated) is `if ((x & 128) && (k == 1 || k == 2)) ... else if ((x & 128) && ...)`, not one outer `if (x & 128)`; `default: break;` adds a dispatch jump and an end jump, so omit an empty default; `muls.w #N` feeding a pointer add with no `ext.l` is record indexing (`(struct RecN *)&G + i` or `&arr[i]`), while `(char *)&G + N * i` adds `ext.l`.
+- `beq THEN; cmp; bne SKIP; THEN: bra OUT` (a jump to a lone bra) is `if (a || b) { break; }` with braces; a bare `break;` folds into direct exits. A local stored once and never read (`clr.l -6(a5)`) is a real historical store: keep it with a neutral name.
 - A `bsr.b` to an adjacent canonical function means one original object: report it (the supervisor tests an evidence-backed `--object-group`); source changes cannot produce it.
 """
 
