@@ -211,13 +211,18 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     if unit.get('harness_struct_views'):source=struct_view_source(source)
     import resident_interfaces
     interfaces=None
+    by_id={f['id']:f for f in functions}
     if resident_interfaces.FIELD in compiler or resident_interfaces.FIELD in unit:
-        interfaces=resident_interfaces.evidence(unit['ordered_members'],source,compiler,blob,model,
+        # Decode each member from its full evidence record (jump-table spans
+        # included), as the verifier did; the receipt keeps only identities.
+        members=[by_id.get(m['id'],m) for m in unit['ordered_members']]
+        require(all(by_id.get(m['id'],m)['sha256']==m['sha256'] for m in unit['ordered_members']),
+                'resident DATA interface member evidence changed')
+        interfaces=resident_interfaces.evidence(members,source,compiler,blob,model,
                                                resident_interfaces.original_a4_bias(blob,model),unit)
     # Runtime helper export control re-derives from the members' original A4
     # helper calls (helper_exports); no helper call, no control.
     import helper_exports
-    by_id={f['id']:f for f in functions}
     helper_exports.register(source,helper_exports.original_helpers(
         [by_id[m['id']] for m in unit['ordered_members'] if m['id'] in by_id]))
     # Resolve the harness builder after registration: the first registration

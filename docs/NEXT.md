@@ -4,7 +4,7 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 252 functions / 140,296 C bytes, plus two complete mixed
+Canonical coverage is 253 functions / 140,744 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
 compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 60,558 file bytes of
