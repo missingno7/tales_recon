@@ -54,7 +54,7 @@ def terminal_padding_recipe(root,blob,model,analysis,promotions,ledger,entry):
             require(unit['verdict']=='EQUAL','padding group receipt is not exact')
             raw_unit_source=canonical_path(root,unit_name).with_name('unit.c').read_bytes()
             require(sha256(raw_unit_source)==unit['combined_source_sha256'],'padding group raw source changed')
-            unit_export_evidence(unit,raw_unit_source.decode('ascii'),unit['compiler'],blob,model)
+            unit_export_evidence(unit,raw_unit_source.decode('ascii'),unit['compiler'],blob,model,analysis['functions'])
             specimen=cached(unit['cache_key'])
             require(specimen and specimen['identity']==unit['compiler'],'padding group compiler identity differs')
             units[unit_name]=(unit,sha256(rawunit))
@@ -191,7 +191,7 @@ def same_overlay_exports(members,names,target_id,blob,model):
     return dict(executable_sha256=sha256(blob),inventory_sha256=sha256(json_bytes(inventory)),members=roots)
 
 
-def unit_export_evidence(unit,unit_text,compiler,blob,model):
+def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     """New root recipes must re-derive; absent recipes retain legacy semantics."""
     field='same_overlay_exports'
     expected=None
@@ -212,6 +212,13 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model):
     if resident_interfaces.FIELD in compiler or resident_interfaces.FIELD in unit:
         interfaces=resident_interfaces.evidence(unit['ordered_members'],source,compiler,blob,model,
                                                resident_interfaces.original_a4_bias(blob,model),unit)
+    if compiler.get('candidate_overlay_node')==0:
+        # Runtime helper export control re-derives from the members' original
+        # A4 helper calls (helper_exports); no helper call, no control.
+        import helper_exports
+        by_id={f['id']:f for f in functions}
+        helper_exports.register(source,helper_exports.original_helpers(
+            [by_id[m['id']] for m in unit['ordered_members'] if m['id'] in by_id]))
     text=harness(source,compiler.get('candidate_overlay_node',1),compiler.get('local_functions',()),
                  compiler.get('entry_function','recovered'),expected,interfaces)
     require(sha256(text.encode('ascii'))==compiler.get('harness_sha256'),'export harness hash does not re-derive')
@@ -520,7 +527,7 @@ def load_promotions(root,blob,model,analysis):
             require(sha256(unit_source.read_bytes())==unit['combined_source_sha256'] and
                     compiled_unit_source_sha256(unit,unit_source.read_bytes().decode('ascii'),proof['compiler'])==proof['compiler']['source_sha256'],
                     'combined source hash differs')
-            unit_export_evidence(unit,unit_source.read_bytes().decode('ascii'),proof['compiler'],blob,model)
+            unit_export_evidence(unit,unit_source.read_bytes().decode('ascii'),proof['compiler'],blob,model,analysis['functions'])
             if unit.get('object_groups') is not None:
                 # An --object-group unit compiled re-derivable object sources.
                 derived=object_partition_sources(unit,unit_source.read_bytes().decode('ascii'),unit_path.parent/'parts')
@@ -631,6 +638,9 @@ def load_promotions(root,blob,model,analysis):
                 require(ledger['functions'].get(dep,{}).get('source_sha256')==digest,'unit dependency source changed')
         else:
             from resident_interfaces import evidence as resident_interface_evidence
+            if proof['compiler'].get('candidate_overlay_node')==0:
+                import helper_exports
+                helper_exports.register(source.read_bytes().decode('ascii'),helper_exports.original_helpers([f]))
             resident_interface_evidence([f],source.read_bytes().decode('ascii'),proof['compiler'],blob,model,analysis['a4']['bias'])
         if 'resident_data_interfaces' in proof['compiler']:
             from compiler_oracle import cached

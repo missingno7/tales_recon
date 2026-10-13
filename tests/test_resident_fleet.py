@@ -63,8 +63,8 @@ class ResidentEligibilityTests(unittest.TestCase):
         self.assertIsNone(resident_deferral(dict(by_id["resident_F_463E"], node="ov04"), self.floor))
         helper_call = dict(basis="A4_RELOCATED_JMP_STUB", hunk=0, id="resident_F_7F9C", offset=0x7F9C, site=0x14)
         caller = dict(by_id["resident_F_463E"], direct_callees=[helper_call])
-        self.assertEqual(resident_deferral(caller, self.floor, {(0, 0x7F9C)}), "RESIDENT_IMPLICIT_HELPER_A4_ROUTE")
-        self.assertIsNone(resident_deferral(caller, self.floor, {(0, 0x7B00)}))
+        # A4 helper routes are supplied by the helper export control, not deferred.
+        self.assertIsNone(resident_deferral(caller, self.floor, {(0, 0x7F9C)}))
 
     def test_ranked_items_enter_queue_only_when_classified_safe(self):
         item = dict(id="resident_F_463E", node="resident", size=56, extent="CLOSED_CFG", confidence="HIGH",
@@ -237,6 +237,52 @@ class CanonicalReplacementTests(unittest.TestCase):
         with self.assertRaisesRegex(FormatError, "grouped or multi-member"):
             self.run_replace(lambda requests, regression: [])
         self.assertEqual((self.tmp / "src/a.c").read_text(), "old a")
+
+
+class HelperExportControlTests(unittest.TestCase):
+    """Resident A4 helper routes come from evidence; unregistered harnesses are unchanged."""
+
+    ENTRIES = {0x7F9C: ".divs", 0x7FC4: ".mods", 0x7B00: ".mulu"}
+
+    def test_original_helpers_come_from_a4_stub_calls_into_pinned_entries(self):
+        import helper_exports
+        f = dict(node="resident", direct_callees=[
+            dict(basis="A4_RELOCATED_JMP_STUB", hunk=0, offset=0x7FC4, id="resident_F_7FC4"),
+            dict(basis="PC_RELATIVE", hunk=0, offset=0x7F9C, id="resident_F_7F9C"),
+            dict(basis="A4_RELOCATED_JMP_STUB", hunk=0, offset=0x35DC, id="resident_F_35DC")])
+        overlay = dict(f, node="ov03")
+        self.assertEqual(helper_exports.original_helpers([f], self.ENTRIES), (".mods",))
+        self.assertEqual(helper_exports.original_helpers([overlay], self.ENTRIES), ())
+
+    def test_pinned_runtime_evidence_names_the_divide_family(self):
+        import helper_exports
+        entries = helper_exports.helper_entries()
+        self.assertEqual(entries[0x7FC4], ".mods")
+        self.assertEqual(entries[0x7F9C], ".divs")
+        self.assertEqual(entries[0x7B00], ".mulu")
+
+    def test_control_source_uses_only_the_requested_helpers(self):
+        import helper_exports
+        text = helper_exports.control_source((".mods", ".divs"))
+        self.assertIn("a = a % b;", text)
+        self.assertIn("a = a / b;", text)
+        self.assertNotIn("c = c", text)
+        with self.assertRaises(FormatError):
+            helper_exports.control_source((".bogus",))
+
+    def test_only_registered_resident_sources_get_the_control(self):
+        import compiler_oracle
+        import helper_exports
+        routed = "/* routed probe */\nrecovered(a,b) long a,b; { return a % b; }\n"
+        plain = "/* plain probe */\nrecovered(a,b) long a,b; { return a % b; }\n"
+        helper_exports.register(routed, (".mods",))
+        self.assertIn(helper_exports.CONTROL, compiler_oracle.harness(routed, 0))
+        self.assertEqual([p["name"] for p in compiler_oracle.overlay_proxies(routed, 0)], [helper_exports.CONTROL])
+        self.assertNotIn(helper_exports.CONTROL, compiler_oracle.harness(plain, 0))
+        self.assertNotIn(helper_exports.CONTROL, compiler_oracle.harness(routed, 1))
+        self.assertEqual(compiler_oracle.overlay_proxies(plain, 0), [])
+        with self.assertRaisesRegex(FormatError, "different helper routes"):
+            helper_exports.register(routed, (".divs",))
 
 
 if __name__ == "__main__":

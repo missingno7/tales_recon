@@ -982,6 +982,8 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
                 plan,klass=member_profile_plan(members,p,{fid,*(member_sources or ())},profile_hypotheses)
                 trial['profile_record']=apply_member_profiles(trial,plan,klass)
         if node==0:
+            import helper_exports
+            helper_exports.register(trial['source'],helper_exports.original_helpers(members))
             from resident_interfaces import derive
             from analysis_support import game
             blob,model,_=game()

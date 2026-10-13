@@ -530,19 +530,19 @@
       "state": "BLOCKED"
     },
     "ov14_F_0412": {
-      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",
       "ownership_unchanged": true,
       "reason": "BYTE_RETURN_ABI_MISMATCH: the recovered 3.6a loop body is structurally aligned, but signed/implicit/int byte returns add EXT.W and unsigned-char returns clear D0 before the byte load. The original returns its local byte directly, and the caller consumes only D0.b. aztec36-x3 retains the signed-return extension; defer until the historical return-mode mechanism is identified.",
       "state": "BLOCKED"
     },
     "ov14_F_04A8": {
-      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",
       "ownership_unchanged": true,
       "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
       "state": "BLOCKED"
     },
     "ov14_F_0540": {
-      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",
       "ownership_unchanged": true,
       "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
       "state": "BLOCKED"
@@ -554,16 +554,9 @@
       "reason": "SAME_OBJECT_SHORT_CALL: 448-byte switch function (aztec36). The original's case-8 call to canonical resident_F_04FE is bsr.b (other three sites jsr), so 033E and 04FE were one object; separate compilation emits jsr and shifts the table by 2 (450 vs 448). Its unit also reaches unrecovered resident_F_86A8 (runtime tail, via canonical 330E) and PC-relative game callee resident_F_0640; a 2026-10-12 attempt to keep such callees external in units was reverted because it broke the proven standalone stand-in fallback (resident_F_2FE2). Evidence build/workers/fn-resident_F_033E.",
       "state": "BLOCKED"
     },
-    "resident_F_09C0": {
-      "category": "CALL_BINDING",
-      "next_action": "Give root-node candidates the A4 jump-table route for compiler helpers (.mulu/.divs/.mods/.modu/.divu) that the original reaches through A4 slots, using an independently controlled export reference like the ov04 export-routing rule; then rerun the unchanged best source. Source changes cannot fix this.",
-      "ownership_unchanged": true,
-      "reason": "IMPLICIT_HELPER_A4_ROUTE: 132-byte source shape matches frame, loop, epilogue and the F_h00_35DC stub call (aztec36, 4 trials). The original calls compiler helpers .mods/.divs through A4 jump-table slots (hunk 1 +258/+252 -> 0x7FC4/0x7F9C); an isolated root candidate links its own c.lib copies and calls them PC-relative. Same mechanism expected for resident_F_08FC and resident_F_3AE4 (.mulu at 0x7B00). Evidence build/workers/fn-resident_F_09C0 (fleet intake BLOCKED_FOR_CURATION).",
-      "state": "BLOCKED"
-    },
     "resident_F_411E": {
       "category": "TOOLCHAIN",
-      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes.",
+      "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",
       "ownership_unchanged": true,
       "reason": "CHAR_RETURN_EXTENSION: original returns *G_h01_3AB4 as a bare move.b (a0),d0 with no widening; under aztec36-large-data char and implicit int returns add ext.w, unsigned char adds moveq #0,d0, void rejects a value return (7 trials). Same mechanism as ov14_F_0412/04A8/0540. Best v6 is 2 bytes long; the F_h00_86F6 Read call binding is otherwise ordinary. Evidence build/workers/fn-resident_F_411E.",
       "state": "BLOCKED"

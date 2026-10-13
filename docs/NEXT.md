@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 218 functions / 94,146 C bytes, plus two complete mixed
+Canonical coverage is 219 functions / 94,278 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,920 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,788 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -86,6 +86,12 @@ re-proves every pinning dependent in the same transaction (dependents are
 withdrawn while re-proved, one regression gate on the pre-state, full
 rollback on any failure); grouped or chained dependents refuse, and
 promote_batch refuses replacements that would stale a receipt.
+CHAR_RETURN_EXTENSION is now a measured TOOLCHAIN blocker: every char
+return widens under Aztec 3.6a (11 source forms, +X1..+X5, 17 accepted
+single-letter options) and 5.0a; the game has no widened byte return and
+exactly four bare signed ones (411E, ov14 0412/04A8/0540). It needs another
+historical compiler release (3.4/3.6 pre-a) or non-C provenance; it gates
+404A/4184, the 287C region and ov14_F_0000.
 ov10_F_0000 (7,990) ended round 2 NEAR (h25: unit 13,244 of 13,258,
 mnemonic 0.96, frame now exact); the original's three `btst #7,-$6f(a5)`
 tests are missing and the candidate has an extra jsr/pea/ext.l run near
@@ -125,11 +131,19 @@ callees and open as waves land.
 
 Opus-owned shared blockers now in `blockers.json` `function_blockers`:
 
-1. `IMPLICIT_HELPER_A4_ROUTE` (CALL_BINDING; `resident_F_09C0`, expected for
-   `08FC`, `3AE4`): resident callers reach `.mulu/.divs/.mods/.modu/.divu`
-   through A4 jump-table slots; an isolated root candidate calls its own
-   helper copies PC-relative. Needs a harness export control (as in the ov04
-   export-routing rule), not source changes.
+1. RESOLVED `IMPLICIT_HELPER_A4_ROUTE` (CALL_BINDING): resident callers
+   reach `.mulu/.divs/.mods/.modu/.divu` through A4 jump-table slots because
+   overlays call those helpers. Measured: an overlay object that calls the
+   helpers, referenced from the root harness, turns a resident candidate's
+   `jsr .mods` into `jsr d16(a4)` and changes nothing else.
+   `tools/helper_exports.py` adds that control (harness only, never claimed)
+   for exactly the sources whose original functions call pinned
+   runtime-arithmetic entries through A4 stubs; verifier, unit trials and
+   proof re-derivation register the same route. `compiler_oracle.py` stays
+   byte-identical (a comment-only edit stales 15 resident DATA-interface
+   proofs), so the module wraps its harness/proxy builders for registered
+   sources only. `resident_F_09C0`'s unchanged worker source is now
+   canonical; 08FC, 3AE4 and 7430 re-enter the queue.
 2. RESOLVED `PROVEN_OBJECT_GROUP_DEPENDENCY` (OBJECT/TU_LAYOUT; `ov10_F_2634`,
    which gates `ov10_F_3288` and `ov10_F_2CF4`, ~2.6 KB): automatic dependency
    units compiled canonical `ov10_F_22E6` outside its proven

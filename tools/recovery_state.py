@@ -102,10 +102,8 @@ def resident_deferral(f,floor,helpers=()):
     if floor is None:return 'RESIDENT_RUNTIME_UNBOUNDED'
     if f['start']>=floor:return 'RESIDENT_RUNTIME_TAIL'
     if data_model(f)=='MIXED':return 'RESIDENT_MIXED_DATA_MODEL'
-    # Compiler helpers reached through A4 slots need a harness export route
-    # (blocker IMPLICIT_HELPER_A4_ROUTE); source changes cannot supply it.
-    if any(c.get('basis') in STUB_BASES and (c.get('hunk'),c.get('offset')) in helpers
-           for c in f.get('direct_callees',[])):return 'RESIDENT_IMPLICIT_HELPER_A4_ROUTE'
+    # Compiler helpers reached through A4 slots no longer defer: the verifier
+    # adds the runtime helper export control (helper_exports) for them.
     return None
 
 

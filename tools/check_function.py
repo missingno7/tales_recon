@@ -239,6 +239,10 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
         profiles=req.get('profiles',['aztec36'] if 'm.lib' in req.get('extra_libraries',()) else ['aztec36','aztec50-short'])
         from resident_interfaces import derive as resident_interface_recipe
         original_blob,original_model,_=game()
+        if target_node==0:
+            # Original A4 helper routes need the runtime helper export control.
+            import helper_exports
+            helper_exports.register(compile_source,helper_exports.original_helpers(unit[0] if unit is not None else [f]))
         interfaces=resident_interface_recipe(unit[0] if unit is not None else [f],compile_source,
                                             original_blob,original_model,l['a4']['bias']) if target_node==0 else None
         for profile in profiles:

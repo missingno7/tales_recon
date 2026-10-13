@@ -963,7 +963,7 @@ LESSONS = """## Measured lessons (supervised waves, 2026-10-12)
 - Branches reaching a different join point usually mean another if/else-if nesting or a combined && / || condition, not a goto.
 - A frame slot your locals do not explain usually means declaration order or types; an unused local is a last resort with a neutral name (never pad/filler).
 - If only an A4 displacement differs, the verifier's relocation_issues name the exact global the original reads.
-- Reuse canonical siblings' declaration views for shared globals. Compiler helpers (.mulu/.divs/.mods/.modu/.divu) come from C arithmetic, never declarations.
+- Reuse canonical siblings' declaration views for shared globals. Compiler helpers (.mulu/.divs/.mods/.modu/.divu) come from C arithmetic, never declarations; in resident code the verifier routes them through A4 slots like the original.
 - Aztec idioms: `lea sym(a4)` + `move.b 1(a0,d0.l)` is `(char)` of an int member (low byte); a bare `tst` with no branch is an empty `if (x) ;`; `tst/bls` on a zero-started counter is unsigned `c > 0`; a `continue` jumping back to a top test means `while (cond)`, not `for (;;) { if (...) break;`.
 - A `bsr.b` to an adjacent canonical function means one original object: report it (the supervisor tests an evidence-backed `--object-group`); source changes cannot produce it.
 """
