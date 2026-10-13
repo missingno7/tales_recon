@@ -1019,7 +1019,7 @@ def trial_cache_key(trial):
 
 @scoped
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=True,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
-          object_groups=None,per_member_profiles=False,member_profiles=None):
+          object_groups=None,per_member_profiles=False,member_profiles=None,replace_canonical=False):
     """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
     members authored with the entry; acceptance is then the complete unit.
 
@@ -1116,6 +1116,13 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                 report['promotions']=promote_unit_members(fid,source,member_sources,members,report,comparison,compiled,state)
             elif not canonical or canonical['source_sha256']==report['source_sha256']:
                 promote(fid,source,comparison,compiled,target,state=state)
+            elif replace_canonical:
+                # A structured rewrite of a proved source needs the same exact
+                # unit verdict, and every receipt that pinned the old source is
+                # re-proved in the same transaction (or nothing changes).
+                import canonical_replacement
+                report['dependent_reproofs']=[dict(id=r['id'],verdict=r['verdict']) for r in canonical_replacement.replace(
+                    fid,lambda gate:promote(fid,source,comparison,compiled,target,state=state,replace_canonical=True,regression=gate))]
         if isolated and output_root is not None:
             base=output_root/fid/(compiled['identity']['profile']+'-'+compiled['cache_key'][:12]);base.mkdir(parents=True,exist_ok=True)
             (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
@@ -1143,6 +1150,7 @@ def main():
     ap.add_argument('--separate-objects',action='store_true',default=True,help='default: compile each proven unit member as an ordinary object before the normal overlay link')
     ap.add_argument('--allow-original-gaps',action='store_true',help='with separate objects, prove compact linked source ownership across known but unreconstructed original gaps')
     ap.add_argument('--join-direct-callees',action='store_true',help='compile the target and its following direct same-node callees as one ordinary source object')
+    ap.add_argument('--replace-canonical',action='store_true',help='replace the existing canonical source with this EQUAL source (single target, no --member)')
     ap.add_argument('--isolated',action='store_true',help='run exact unit comparison without writing recovery units, proofs, ledger, or ranking')
     ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
     ap.add_argument('--member',action='append',default=[],metavar='ID=SOURCE',
@@ -1169,13 +1177,15 @@ def main():
         require(sep and member_id and profile in PROFILES and member_id not in member_profiles,
                 '--member-profile expects a unique ID=PROFILE with a known profile')
         member_profiles[member_id]=profile
+    require(not (a.replace_canonical and a.member),'--replace-canonical replaces only the single target source')
     member_sources={}
     for item in a.member:
         member_id,sep,member_path=item.partition('=')
         require(sep and member_id and member_path and member_id not in member_sources,'--member expects a unique ID=SOURCE')
         member_sources[member_id]=Path(member_path)
     reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
-                  a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles)
+                  a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles,
+                  a.replace_canonical)
     for r in reports:print(json.dumps(r))
     if a.prepare_only:return 0
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1

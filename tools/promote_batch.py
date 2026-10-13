@@ -85,6 +85,10 @@ def validate_plan(root, ledger, entries):
         prior = ledger['functions'].get(fid)
         require(not prior or prior['source_sha256'] == report['source_sha256'] or entry.get('replace_canonical'),
                 'already promoted with another source; preserve canonical source: ' + fid)
+        if prior and prior['source_sha256'] != report['source_sha256']:
+            import canonical_replacement
+            require(not canonical_replacement.dependents(fid, prior['source_sha256'], ledger),
+                    'replacement would stale receipts pinning the old source; use check_function --replace-canonical: ' + fid)
         require(not prior or prior['state'] != 'FUNCTION_WITH_DATA_MATCH' or
                 report['proof_level'] == 'FUNCTION_WITH_DATA_MATCH', 'replacement would discard owned CODE data: ' + fid)
         if report['proof_level'] == 'FUNCTION_WITH_DATA_MATCH':

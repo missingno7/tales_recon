@@ -175,6 +175,70 @@ class RouteAndWaveTests(unittest.TestCase):
             fleet.wave(self.fleet, 2)
 
 
+class CanonicalReplacementTests(unittest.TestCase):
+    """Replacing a canonical source re-proves every receipt that pinned it, or changes nothing."""
+
+    def setUp(self):
+        import canonical_replacement
+        self.cr = canonical_replacement
+        self.tmp = Path(tempfile.mkdtemp())
+        for rel, text in (("src/a.c", "old a"), ("src/b.c", "b"), ("proofs/a.json", "{\"comparison\": {}}")):
+            (self.tmp / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.tmp / rel).write_text(text)
+        unit = dict(id="B", dependency_sources={"A": "hA"}, verdict="EQUAL")
+        (self.tmp / "units").mkdir()
+        (self.tmp / "units/b.json").write_text(json.dumps(unit))
+        (self.tmp / "proofs/b.json").write_text(json.dumps(dict(
+            compiler=dict(profile="aztec36"), comparison=dict(complete_unit_receipt="units/b.json"))))
+        self.ledger = dict(functions=dict(
+            A=dict(source="src/a.c", source_sha256="hA", proof="proofs/a.json", state="FUNCTION_CODE_MATCH"),
+            B=dict(source="src/b.c", source_sha256="hB", proof="proofs/b.json", state="FUNCTION_WITH_DATA_MATCH")))
+        (self.tmp / "ledger.json").write_text(json.dumps(self.ledger))
+
+    def patched(self, check_many):
+        import check_function
+        return (patch.object(self.cr, "ROOT", self.tmp), patch.object(check_function, "LEDGER", self.tmp / "ledger.json"),
+                patch.object(check_function, "recovery", side_effect=lambda: json.loads(json.dumps(self.ledger))),
+                patch.object(check_function, "regression_receipt", return_value=dict(passed=True)),
+                patch.object(check_function, "check_many", side_effect=check_many),
+                patch("canonical_replacement.canonical_path", side_effect=lambda root, rel: self.tmp / rel))
+
+    def run_replace(self, check_many):
+        patches = self.patched(check_many)
+        for item in patches:
+            item.start()
+        self.addCleanup(lambda: [item.stop() for item in patches])
+
+        def write(gate):
+            self.assertEqual(gate, dict(passed=True))
+            (self.tmp / "src/a.c").write_text("new a")
+            (self.tmp / "ledger.json").write_text("replaced")
+        return self.cr.replace("A", write)
+
+    def test_dependent_is_reproved_from_its_own_canonical_source(self):
+        seen = []
+        reports = self.run_replace(lambda requests, regression: seen.extend(requests) or
+                                   [dict(id="B", verdict="EQUAL", promotion=dict(state="FUNCTION_WITH_DATA_MATCH"))])
+        self.assertEqual(seen, [dict(id="B", source="src/b.c", profiles=["aztec36"], owned_code_data=True)])
+        self.assertEqual([r["id"] for r in reports], ["B"])
+        self.assertEqual((self.tmp / "src/a.c").read_text(), "new a")
+        # B is withdrawn while it is re-proved against the replacement.
+        self.assertNotIn("B", json.loads((self.tmp / "ledger.json").read_text())["functions"])
+
+    def test_failed_dependent_restores_prior_canonical_state(self):
+        with self.assertRaisesRegex(FormatError, "dependent re-proof failed"):
+            self.run_replace(lambda requests, regression: [dict(id="B", verdict="DIFFER")])
+        self.assertEqual((self.tmp / "src/a.c").read_text(), "old a")
+        self.assertEqual(json.loads((self.tmp / "ledger.json").read_text()), self.ledger)
+
+    def test_grouped_dependent_refuses_replacement(self):
+        unit = dict(id="B", dependency_sources={"A": "hA"}, object_partition=[["A", "B"]])
+        (self.tmp / "units/b.json").write_text(json.dumps(unit))
+        with self.assertRaisesRegex(FormatError, "grouped or multi-member"):
+            self.run_replace(lambda requests, regression: [])
+        self.assertEqual((self.tmp / "src/a.c").read_text(), "old a")
+
+
 if __name__ == "__main__":
     unittest.main()
 

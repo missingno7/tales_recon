@@ -53,6 +53,14 @@ class FunctionCensusTests(unittest.TestCase):
             {'index':0,'offset':8,'target':36},{'index':1,'offset':10,'target':38}])
         self.assertEqual(f['indirect_control_flow'][0]['kind'],'PC_RELATIVE_WORD_JUMP_TABLE')
 
+    def test_pc_relative_empty_literal_is_evidenced(self):
+        # link; pea 8(pc) lands on an immediate NUL after rts; addq; unlk;
+        # rts; then two zero bytes. An empty literal f("") is the same
+        # compiler-owned evidence with a zero-length payload.
+        c=self.census('4e550000487a0008584f4e5d4e750000')
+        f=c.run()['functions'][0]
+        self.assertEqual([s['text'] for s in f['referenced_strings']],[''])
+
     def test_jump_table_with_default_before_dispatch_closes_cfg(self):
         # link; bra.w to the bound check; default arm (rts) placed before the
         # table; cmp.l #2,d0; bcc.b back to the default; asl; move.w

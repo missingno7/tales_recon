@@ -191,7 +191,7 @@ def isolated_output_root(output_dir):
 
 
 @scoped
-def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
+def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regression=None):
     if isolated:promote_equal=False
     output_root=isolated_output_root(output_dir) if isolated else None
     prepared=[];trials=[]
@@ -336,8 +336,12 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None):
             if proof_level=='FUNCTION_WITH_DATA_MATCH':
                 owned_code_data_boundary(f,l,report)
             canonical=recovery()['functions'].get(f['id'])
-            if not canonical or canonical['source_sha256']==report['source_sha256'] or req.get('replace_canonical'):
-                report['promotion']=promote(f['id'],source,report,compiled,f,proof_level,req.get('replace_canonical',False))
+            if not canonical or canonical['source_sha256']==report['source_sha256']:
+                report['promotion']=promote(f['id'],source,report,compiled,f,proof_level,regression=regression)
+            elif req.get('replace_canonical'):
+                import canonical_replacement
+                report['dependent_reproofs']=[dict(id=r['id'],verdict=r['verdict']) for r in canonical_replacement.replace(
+                    f['id'],lambda gate:report.__setitem__('promotion',promote(f['id'],source,report,compiled,f,proof_level,True,regression=gate)))]
         reports.append(report)
     if not isolated:save_rank()
     return reports

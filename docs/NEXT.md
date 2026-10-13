@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 217 functions / 94,120 C bytes, plus two complete mixed
+Canonical coverage is 218 functions / 94,146 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
-`progress.json` is the measurement authority. Whole-file accounting has 1,496
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,948 file bytes of
+`progress.json` is the measurement authority. Whole-file accounting has 2,800
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,920 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -73,9 +73,23 @@ symbol map prints hunk numbers in decimal (the parser read them as hex, so
 every proxy symbol in hunk 10+ was unbindable, e.g. calls into ov14/ov15),
 and same-object evidence now also counts a PC-relative JSR to an
 overlay-exported callee (separately compiled callers route exports through
-the A4 trampoline), admitting members between an evidenced pair. STRUCTURE
-DEBT: its proven source still has 38 worker gotos; restructure it with
-`--replace-canonical` while keeping the same evidenced group.
+the A4 trampoline), admitting members between an evidenced pair. Its 38
+worker gotos were then removed by a restructuring worker (EQUAL, zero gotos;
+the decisive form was one `if (rv == 0 && f1f == 0) ... else if (f1f != 0 &&
+rv == 0)` chain). ov03_F_0000 followed once the census evidenced a
+PC-relative empty literal `""` (a NUL right after `rts`), so all known ov03
+code is canonical (ov03 RAW_ORACLE_DEBT 0).
+Canonical replacement is now transactional (`tools/canonical_replacement.py`,
+via `check_function`/`check_unit --replace-canonical`): a complete-unit
+receipt pins its canonical dependencies' source hashes, so replacing one
+re-proves every pinning dependent in the same transaction (dependents are
+withdrawn while re-proved, one regression gate on the pre-state, full
+rollback on any failure); grouped or chained dependents refuse, and
+promote_batch refuses replacements that would stale a receipt.
+ov10_F_0000 (7,990) ended round 2 NEAR (h25: unit 13,244 of 13,258,
+mnemonic 0.96, frame now exact); the original's three `btst #7,-$6f(a5)`
+tests are missing and the candidate has an extra jsr/pea/ext.l run near
+0x5172-0x5300. Next step is an Opus pass from h25, not a third Haiku round.
 Open: ov11_F_15C8 is EQUAL but its tail is followed by unreferenced code at
 0x20AE (OWNED_TAIL_UNBOUNDED); ov09_F_0000 is two residuals from exact;
 ov03_F_001C matches shape and its 853-byte tail but needs ov03_F_154E/1500;

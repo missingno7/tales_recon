@@ -148,6 +148,14 @@ never join a different group, and every member must stay EQUAL. This closed
 ov07_F_1F6E, ov05_F_467E and ov08_F_1AB8; promote such units with the same
 non-isolated check_unit command.
 
+Replacing a canonical source (for example a goto-free rewrite) uses
+`check_function`/`check_unit ... --replace-canonical` with the same unit
+options. It is one transaction (`tools/canonical_replacement.py`): every
+canonical receipt that pinned the old source hash is re-proved from its own
+unchanged source against the replacement, or nothing changes. Dependents
+proved in grouped or multi-member units refuse; re-prove them explicitly.
+`promote_batch` refuses replacements that would stale a receipt.
+
 Supervisor review before promotion (the verifier proves bytes, not history):
 
 - No filler locals or arrays (`pad`, `filler`, `unused[N]`) placed only to

@@ -241,7 +241,11 @@ class Census:
                     # need a NUL terminator, printable payload, contiguous-tail
                     # proof, and an exact candidate contribution before any
                     # source promotion can use them.
-                    if raw and all(32<=v<127 or v in (9,10,13) for v in raw):
+                    # A PC-relative reference into CODE that lands on an immediate
+                    # NUL is the empty literal "" (e.g. f("")): the same
+                    # compiler-owned literal evidence with a zero-length payload.
+                    empty_literal=(not raw and end==off and r['kind']=='PC_RELATIVE_DATA' and r['hunk']==f['hunk'])
+                    if (raw or empty_literal) and all(32<=v<127 or v in (9,10,13) for v in raw):
                         f['referenced_strings'].append(dict(hunk=r['hunk'],offset=off,text=raw.decode('ascii'),confidence='REFERENCED_PRINTABLE_CANDIDATE'))
         unreached=[]
         for h in self.hunks.values():
