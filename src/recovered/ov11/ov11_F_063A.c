@@ -90,7 +90,7 @@ void recovered()
         case 7:
             if (G_h01_94BE - 16 <= 0) {
                 G_h01_94AE = 5;
-                goto state5_switch_end;
+                break;
             } else {
                 G_h01_94AE = 1;
                 if (G_h01_94B0 == 1)
@@ -129,31 +129,22 @@ void recovered()
                 } else
                     G_h01_94AE = 20;
             } else {
-                if (!G_h01_945C[G_h01_94BA])
-                    goto key1_fallback_missing;
-                if (G_h01_94B6) {
-                    G_h01_94AE = 19;
-                    goto key1_fallback_done;
-                }
-                if (G_h01_94B0 == 1) {
-                    if (G_h01_945C[G_h01_94BA + 1]) {
+                if (G_h01_945C[G_h01_94BA]) {
+                    if (G_h01_94B6) {
+                        G_h01_94AE = 19;
+                    } else if (G_h01_94B0 == 1 &&
+                               G_h01_945C[G_h01_94BA + 1]) {
                         G_h01_94AE = 17;
-                        goto key1_fallback_done;
+                    } else if (G_h01_94B0 == 0 &&
+                               G_h01_945C[G_h01_94BA - 1]) {
+                        G_h01_94AE = 16;
+                    } else {
+                        G_h01_94AE = 19;
                     }
+                } else {
+                    G_h01_94AE = 19;
                 }
-                if (G_h01_94B0 == 0 &&
-                    G_h01_945C[G_h01_94BA - 1]) {
-                    G_h01_94AE = 16;
-                    goto key1_fallback_done;
-                }
-key1_fallback_invalid:
-                G_h01_94AE = 19;
-key1_fallback_done:
-                goto key1_fallback_exit;
-key1_fallback_missing:
-                G_h01_94AE = 19;
             }
-key1_fallback_exit:
             break;
 
         case 5:
@@ -173,10 +164,7 @@ key1_fallback_exit:
             ++G_h01_94B8;
             break;
         }
-state5_switch_end:
-        goto state8_join;
-    }
-    if (G_h01_94AE == 8) {
+    } else if (G_h01_94AE == 8) {
         G_h01_34D8[7] = 2;
         switch (key) {
         case 5:
@@ -228,9 +216,6 @@ state5_switch_end:
             break;
         }
     }
-
-state8_join:
-    ;
 
     if (!animated &&
         (G_h01_94AE != old_state || G_h01_94B0 != old_direction))

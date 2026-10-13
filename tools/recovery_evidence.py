@@ -218,7 +218,10 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     by_id={f['id']:f for f in functions}
     helper_exports.register(source,helper_exports.original_helpers(
         [by_id[m['id']] for m in unit['ordered_members'] if m['id'] in by_id]))
-    text=harness(source,compiler.get('candidate_overlay_node',1),compiler.get('local_functions',()),
+    # Resolve the harness builder after registration: the first registration
+    # installs the helper-export wrapper on compiler_oracle.
+    import compiler_oracle
+    text=compiler_oracle.harness(source,compiler.get('candidate_overlay_node',1),compiler.get('local_functions',()),
                  compiler.get('entry_function','recovered'),expected,interfaces)
     require(sha256(text.encode('ascii'))==compiler.get('harness_sha256'),'export harness hash does not re-derive')
 

@@ -213,10 +213,10 @@ char *flag;
         F_h00_34E0(&G_h01_4442);
         if ((r = F_h15_1428(&x, &y)) != 0) {
             if (r == 0x25)
-                goto tail;
+                break;
             if (x >= G_h01_4442 && x <= G_h01_4442 + 0x30 && y >= G_h01_4444 && y <= G_h01_4444 + 0x30) {
                 r = 0x23;
-                goto tail;
+                break;
             }
             if (x >= 0x18 && x <= 0x125 && y >= 0x14 && y <= 0x9f) {
                 if (p1 == 1)
@@ -225,7 +225,7 @@ char *flag;
                     r = 1;
                 if (r == 1) {
                     r = G_h01_0666;
-                    goto tail;
+                    break;
                 }
                 if (r == 0x24) {
                     x = xs;
@@ -266,7 +266,6 @@ char *flag;
         F_h00_307C();
         F_h00_86A8(2L);
     }
-tail:
     F_h00_3AE4(&G_h01_4488, G_h01_4480, G_h01_4482);
     F_h00_3AE4(&G_h01_44BE, G_h01_44B6, G_h01_44B8);
     F_h00_3AE4(&G_h01_4452, G_h01_444A, G_h01_444C);

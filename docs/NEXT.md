@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 243 functions / 117,564 C bytes, plus two complete mixed
+Canonical coverage is 245 functions / 119,018 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 70,460 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 69,006 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -46,7 +46,15 @@ waits on a named structural blocker:
 4. STALE_PROVEN_OBJECT_GROUP: ov11_F_2272 needs a regroup transaction
    (407C+40AE+40E0); its unit is also 98 bytes long, so grouping alone
    will not close it.
-5. Exhausted shape residuals: resident_F_463E (eor orientation),
+5. FRESH RE-VERIFICATION DRIFT (OBJECT/TU_LAYOUT): canonical ov11_F_3532 still
+   re-derives from its cached proof artifacts, but a fresh check_function now
+   builds its dependency unit with ov11_F_583A+5962 as one object. That
+   grouping was proven later, by ov11_F_51C0. The relayout shifts 5962 by
+   2 bytes (unit 2,196 vs 2,194), so 3532 is DIFFER under today's closure.
+   Restructuring work on 3532 waits for a re-proof under the current
+   grouping. A fresh re-verification audit of every canonical source would
+   find any other drift; it is a mechanical, parallel task.
+6. Exhausted shape residuals: resident_F_463E (eor orientation),
    ov08_F_1F4C (12 bytes).
 
 ## Current campaign (2026-10-12): resident-first fleet
