@@ -285,6 +285,25 @@ class HelperExportControlTests(unittest.TestCase):
             helper_exports.register(routed, (".divs",))
 
 
+class PinnedRuntimeMemberTests(unittest.TestCase):
+    """Complete library members linked alone are runtime, not game candidates."""
+
+    MEMBER = {(0, 0x701A): dict(kind="LIBRARY_MEMBER", symbol="_kprintf", member="kputchar",
+                                extent=dict(hunk=0, offset=0x6FD8, size=118))}
+
+    def test_functions_inside_a_pinned_member_are_runtime(self):
+        inside = dict(node="resident", hunk=0, start=0x702E, end=0x703C, direct_callees=[])
+        after = dict(inside, start=0x7050, end=0x7060)
+        self.assertEqual(resident_deferral(inside, 0x75D8, self.MEMBER), "RESIDENT_PINNED_RUNTIME")
+        self.assertIsNone(resident_deferral(after, 0x75D8, self.MEMBER))
+
+    def test_kputchar_member_evidence_covers_kprintf_and_kdofmt(self):
+        from recovery_state import evidence, runtime_dependencies
+        runtime = runtime_dependencies(evidence())
+        self.assertEqual(runtime[(0, 0x701A)]["kind"], "LIBRARY_MEMBER")
+        self.assertIn(runtime[(0, 0x702E)]["symbol"], ("KDoFmt",))
+
+
 if __name__ == "__main__":
     unittest.main()
 

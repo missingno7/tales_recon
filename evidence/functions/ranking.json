@@ -44,25 +44,55 @@
       "local_callers": 4,
       "node": "resident",
       "pc_relative_data": 2,
-      "pending_local_dependencies": [
-        "resident_F_701A"
-      ],
+      "pending_local_dependencies": [],
       "profile_hints": [
         "aztec36-large-data"
       ],
       "resident_deferral": null,
       "runtime_tail_calls": [
+        "resident_F_701A",
         "resident_F_8938"
       ],
-      "same_node_unit_ready": false,
-      "score": -1188,
+      "same_node_unit_ready": true,
+      "score": -1218,
       "size": 98,
       "state": "DISCOVERED",
       "stub_callers": 1,
       "unchanged_hypotheses": 0,
-      "unknown_calls": 1,
+      "unknown_calls": 0,
       "unlock_value": 1700,
       "unlocks_callers": 5
+    },
+    {
+      "blocker_category": "SOURCE_SHAPE",
+      "calls": 2,
+      "campaign": null,
+      "confidence": "HIGH",
+      "data_model": "ABSOLUTE",
+      "data_references": 1,
+      "extent": "CLOSED_CFG",
+      "id": "resident_F_3AE4",
+      "indirect": 0,
+      "local_callers": 1,
+      "node": "resident",
+      "pc_relative_data": 0,
+      "pending_local_dependencies": [
+        "resident_F_3930"
+      ],
+      "profile_hints": [
+        "aztec36-large-data"
+      ],
+      "resident_deferral": null,
+      "runtime_tail_calls": [],
+      "same_node_unit_ready": false,
+      "score": -734,
+      "size": 50,
+      "state": "DISCOVERED",
+      "stub_callers": 7,
+      "unchanged_hypotheses": 0,
+      "unknown_calls": 1,
+      "unlock_value": 1100,
+      "unlocks_callers": 8
     },
     {
       "blocker_category": "SOURCE_SHAPE",
@@ -107,23 +137,23 @@
       "node": "resident",
       "pc_relative_data": 3,
       "pending_local_dependencies": [
-        "resident_F_3A06",
-        "resident_F_701A"
+        "resident_F_3A06"
       ],
       "profile_hints": [
         "aztec36-large-data"
       ],
       "resident_deferral": null,
       "runtime_tail_calls": [
+        "resident_F_701A",
         "resident_F_875C"
       ],
       "same_node_unit_ready": false,
-      "score": -297,
+      "score": -357,
       "size": 108,
       "state": "DISCOVERED",
       "stub_callers": 2,
       "unchanged_hypotheses": 0,
-      "unknown_calls": 2,
+      "unknown_calls": 1,
       "unlock_value": 1000,
       "unlocks_callers": 4
     },
@@ -229,21 +259,21 @@
       "local_callers": 1,
       "node": "resident",
       "pc_relative_data": 2,
-      "pending_local_dependencies": [
-        "resident_F_701A"
-      ],
+      "pending_local_dependencies": [],
       "profile_hints": [
         "aztec36-large-data"
       ],
       "resident_deferral": null,
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": false,
-      "score": -71,
+      "runtime_tail_calls": [
+        "resident_F_701A"
+      ],
+      "same_node_unit_ready": true,
+      "score": -131,
       "size": 74,
       "state": "DISCOVERED",
       "stub_callers": 0,
       "unchanged_hypotheses": 0,
-      "unknown_calls": 1,
+      "unknown_calls": 0,
       "unlock_value": 400,
       "unlocks_callers": 1
     },
@@ -619,6 +649,38 @@
     },
     {
       "blocker_category": "SOURCE_SHAPE",
+      "calls": 10,
+      "campaign": null,
+      "confidence": "HIGH",
+      "data_model": "NONE",
+      "data_references": 11,
+      "extent": "CLOSED_CFG",
+      "id": "resident_F_3674",
+      "indirect": 0,
+      "local_callers": 0,
+      "node": "resident",
+      "pc_relative_data": 7,
+      "pending_local_dependencies": [],
+      "profile_hints": [
+        "aztec36",
+        "aztec36-large-data"
+      ],
+      "resident_deferral": null,
+      "runtime_tail_calls": [
+        "resident_F_701A"
+      ],
+      "same_node_unit_ready": true,
+      "score": 411,
+      "size": 172,
+      "state": "DISCOVERED",
+      "stub_callers": 5,
+      "unchanged_hypotheses": 0,
+      "unknown_calls": 0,
+      "unlock_value": 500,
+      "unlocks_callers": 5
+    },
+    {
+      "blocker_category": "SOURCE_SHAPE",
       "calls": 8,
       "campaign": null,
       "confidence": "HIGH",
@@ -647,38 +709,6 @@
       "unknown_calls": 0,
       "unlock_value": 800,
       "unlocks_callers": 2
-    },
-    {
-      "blocker_category": "SOURCE_SHAPE",
-      "calls": 10,
-      "campaign": null,
-      "confidence": "HIGH",
-      "data_model": "NONE",
-      "data_references": 11,
-      "extent": "CLOSED_CFG",
-      "id": "resident_F_3674",
-      "indirect": 0,
-      "local_callers": 0,
-      "node": "resident",
-      "pc_relative_data": 7,
-      "pending_local_dependencies": [
-        "resident_F_701A"
-      ],
-      "profile_hints": [
-        "aztec36",
-        "aztec36-large-data"
-      ],
-      "resident_deferral": null,
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": false,
-      "score": 591,
-      "size": 172,
-      "state": "DISCOVERED",
-      "stub_callers": 5,
-      "unchanged_hypotheses": 0,
-      "unknown_calls": 1,
-      "unlock_value": 500,
-      "unlocks_callers": 5
     },
     {
       "blocker_category": "CALL_BINDING",
@@ -742,6 +772,35 @@
       "unknown_calls": 2,
       "unlock_value": 0,
       "unlocks_callers": 0
+    },
+    {
+      "blocker_category": "SOURCE_SHAPE",
+      "calls": 2,
+      "campaign": null,
+      "confidence": "HIGH",
+      "data_model": "A4",
+      "data_references": 8,
+      "extent": "CLOSED_CFG",
+      "id": "resident_F_7430",
+      "indirect": 4,
+      "local_callers": 1,
+      "node": "resident",
+      "pc_relative_data": 0,
+      "pending_local_dependencies": [],
+      "profile_hints": [
+        "aztec36"
+      ],
+      "resident_deferral": null,
+      "runtime_tail_calls": [],
+      "same_node_unit_ready": true,
+      "score": 1170,
+      "size": 242,
+      "state": "DISCOVERED",
+      "stub_callers": 0,
+      "unchanged_hypotheses": 0,
+      "unknown_calls": 0,
+      "unlock_value": 1200,
+      "unlocks_callers": 1
     },
     {
       "blocker_category": "OBJECT/TU_LAYOUT",
@@ -1475,38 +1534,6 @@
     },
     {
       "blocker_category": "SOURCE_SHAPE",
-      "calls": 1,
-      "campaign": null,
-      "confidence": "LOW",
-      "data_model": "NONE",
-      "data_references": 1,
-      "extent": "UNCERTAIN",
-      "id": "resident_F_701A",
-      "indirect": 0,
-      "local_callers": 4,
-      "node": "resident",
-      "pc_relative_data": 1,
-      "pending_local_dependencies": [
-        "resident_F_702E"
-      ],
-      "profile_hints": [
-        "aztec36",
-        "aztec36-large-data"
-      ],
-      "resident_deferral": null,
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": true,
-      "score": 8512,
-      "size": 20,
-      "state": "DISCOVERED",
-      "stub_callers": 0,
-      "unchanged_hypotheses": 0,
-      "unknown_calls": 1,
-      "unlock_value": 1600,
-      "unlocks_callers": 4
-    },
-    {
-      "blocker_category": "SOURCE_SHAPE",
       "calls": 0,
       "campaign": null,
       "confidence": "LOW",
@@ -1591,36 +1618,6 @@
       "unchanged_hypotheses": 0,
       "unknown_calls": 0,
       "unlock_value": 400,
-      "unlocks_callers": 1
-    },
-    {
-      "blocker_category": "SOURCE_SHAPE",
-      "calls": 0,
-      "campaign": null,
-      "confidence": "LOW",
-      "data_model": "NONE",
-      "data_references": 0,
-      "extent": "UNCERTAIN",
-      "id": "resident_F_702E",
-      "indirect": 1,
-      "local_callers": 1,
-      "node": "resident",
-      "pc_relative_data": 0,
-      "pending_local_dependencies": [],
-      "profile_hints": [
-        "aztec36",
-        "aztec36-large-data"
-      ],
-      "resident_deferral": null,
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": true,
-      "score": 9901,
-      "size": 14,
-      "state": "DISCOVERED",
-      "stub_callers": 0,
-      "unchanged_hypotheses": 0,
-      "unknown_calls": 0,
-      "unlock_value": 600,
       "unlocks_callers": 1
     },
     {
@@ -9486,37 +9483,6 @@
     },
     {
       "blocker_category": "SOURCE_SHAPE",
-      "calls": 2,
-      "campaign": null,
-      "confidence": "HIGH",
-      "data_model": "ABSOLUTE",
-      "data_references": 1,
-      "extent": "CLOSED_CFG",
-      "id": "resident_F_3AE4",
-      "indirect": 0,
-      "local_callers": 1,
-      "node": "resident",
-      "pc_relative_data": 0,
-      "pending_local_dependencies": [
-        "resident_F_3930"
-      ],
-      "profile_hints": [
-        "aztec36-large-data"
-      ],
-      "resident_deferral": "RESIDENT_IMPLICIT_HELPER_A4_ROUTE",
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": false,
-      "score": 19266,
-      "size": 50,
-      "state": "DISCOVERED",
-      "stub_callers": 7,
-      "unchanged_hypotheses": 0,
-      "unknown_calls": 1,
-      "unlock_value": 1100,
-      "unlocks_callers": 8
-    },
-    {
-      "blocker_category": "SOURCE_SHAPE",
       "calls": 1,
       "campaign": null,
       "confidence": "HIGH",
@@ -9776,65 +9742,6 @@
       "calls": 2,
       "campaign": null,
       "confidence": "HIGH",
-      "data_model": "NONE",
-      "data_references": 2,
-      "extent": "CLOSED_CFG",
-      "id": "resident_F_08FC",
-      "indirect": 0,
-      "local_callers": 0,
-      "node": "resident",
-      "pc_relative_data": 0,
-      "pending_local_dependencies": [],
-      "profile_hints": [
-        "aztec36",
-        "aztec36-large-data"
-      ],
-      "resident_deferral": "RESIDENT_IMPLICIT_HELPER_A4_ROUTE",
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": true,
-      "score": 20175,
-      "size": 122,
-      "state": "DISCOVERED",
-      "stub_callers": 0,
-      "unchanged_hypotheses": 0,
-      "unknown_calls": 0,
-      "unlock_value": 0,
-      "unlocks_callers": 0
-    },
-    {
-      "blocker_category": "SOURCE_SHAPE",
-      "calls": 2,
-      "campaign": null,
-      "confidence": "HIGH",
-      "data_model": "A4",
-      "data_references": 8,
-      "extent": "CLOSED_CFG",
-      "id": "resident_F_7430",
-      "indirect": 4,
-      "local_callers": 1,
-      "node": "resident",
-      "pc_relative_data": 0,
-      "pending_local_dependencies": [],
-      "profile_hints": [
-        "aztec36"
-      ],
-      "resident_deferral": "RESIDENT_IMPLICIT_HELPER_A4_ROUTE",
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": true,
-      "score": 21170,
-      "size": 242,
-      "state": "DISCOVERED",
-      "stub_callers": 0,
-      "unchanged_hypotheses": 0,
-      "unknown_calls": 0,
-      "unlock_value": 1200,
-      "unlocks_callers": 1
-    },
-    {
-      "blocker_category": "SOURCE_SHAPE",
-      "calls": 2,
-      "campaign": null,
-      "confidence": "HIGH",
       "data_model": "A4",
       "data_references": 3,
       "extent": "CLOSED_CFG",
@@ -10073,36 +9980,6 @@
       "calls": 0,
       "campaign": null,
       "confidence": "LOW",
-      "data_model": "NONE",
-      "data_references": 0,
-      "extent": "UNCERTAIN",
-      "id": "resident_F_7B00",
-      "indirect": 0,
-      "local_callers": 0,
-      "node": "resident",
-      "pc_relative_data": 0,
-      "pending_local_dependencies": [],
-      "profile_hints": [
-        "aztec36",
-        "aztec36-large-data"
-      ],
-      "resident_deferral": "RESIDENT_RUNTIME_TAIL",
-      "runtime_tail_calls": [],
-      "same_node_unit_ready": true,
-      "score": 29004,
-      "size": 36,
-      "state": "DISCOVERED",
-      "stub_callers": 10,
-      "unchanged_hypotheses": 0,
-      "unknown_calls": 0,
-      "unlock_value": 1000,
-      "unlocks_callers": 10
-    },
-    {
-      "blocker_category": "SOURCE_SHAPE",
-      "calls": 0,
-      "campaign": null,
-      "confidence": "LOW",
       "data_model": "A4",
       "data_references": 1,
       "extent": "UNCERTAIN",
@@ -10126,6 +10003,36 @@
       "unknown_calls": 0,
       "unlock_value": 1500,
       "unlocks_callers": 13
+    },
+    {
+      "blocker_category": "SOURCE_SHAPE",
+      "calls": 0,
+      "campaign": null,
+      "confidence": "LOW",
+      "data_model": "NONE",
+      "data_references": 0,
+      "extent": "UNCERTAIN",
+      "id": "resident_F_7B00",
+      "indirect": 0,
+      "local_callers": 0,
+      "node": "resident",
+      "pc_relative_data": 0,
+      "pending_local_dependencies": [],
+      "profile_hints": [
+        "aztec36",
+        "aztec36-large-data"
+      ],
+      "resident_deferral": "RESIDENT_RUNTIME_TAIL",
+      "runtime_tail_calls": [],
+      "same_node_unit_ready": true,
+      "score": 29104,
+      "size": 36,
+      "state": "DISCOVERED",
+      "stub_callers": 9,
+      "unchanged_hypotheses": 0,
+      "unknown_calls": 0,
+      "unlock_value": 900,
+      "unlocks_callers": 9
     },
     {
       "blocker_category": "SOURCE_SHAPE",

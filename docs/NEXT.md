@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 219 functions / 94,278 C bytes, plus two complete mixed
+Canonical coverage is 220 functions / 94,400 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,788 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,666 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -86,6 +86,16 @@ re-proves every pinning dependent in the same transaction (dependents are
 withdrawn while re-proved, one regression gate on the pre-state, full
 rollback on any failure); grouped or chained dependents refuse, and
 promote_batch refuses replacements that would stale a receipt.
+Runtime below the tail: resident 0x6FD8..0x704E is c.lib's `kputchar`
+debug-output member (kputchar/kputs/kgetchar/KMayGetChar/KPutFmt/kprintf/
+KDoFmt), matched exactly, uniquely and relocation-free when linked alone
+(`tools/runtime_members.py`, `evidence/experiments/runtime-members.json`).
+The planner now treats calls into pinned member entries as runtime calls
+and never tasks the member's bytes; the runtime floor is unchanged because
+real game code follows the member. This released resident 3930, 3A06 and
+3674 (which call `kprintf` at 0x701A), and through them 3870, 3A6E, 3AE4
+and 0FDE. resident_F_08FC (squared distance, `.mulu` via A4) closed first
+try under the new helper route.
 CHAR_RETURN_EXTENSION is now a measured TOOLCHAIN blocker: every char
 return widens under Aztec 3.6a (11 source forms, +X1..+X5, 17 accepted
 single-letter options) and 5.0a; the game has no widened byte return and

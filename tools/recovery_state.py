@@ -64,6 +64,22 @@ def runtime_dependencies(ledger):
                 source_contract='Express the C operation; let the compiler emit this helper. Do not declare a C function for its register ABI.'))
             require(item['symbol']==entry['name'],'conflicting runtime entry names')
             item['profiles'].append(contribution['profile'])
+    # Complete library members linked alone (runtime_members.py): calls into
+    # their entries are runtime calls, and their bytes are no game candidate.
+    path=ROOT/'evidence/experiments/runtime-members.json'
+    if path.exists():
+        proof=json.loads(path.read_text())
+        require(proof['game_sha256']==ledger['game_sha256'],'runtime member guidance belongs to another executable')
+        require(proof['status']=='COMPLETE_RUNTIME_CODE_MATCH','runtime member guidance lacks a complete match')
+        for contribution in proof['contributions']:
+            extent=contribution['original']
+            for entry in contribution['entries']:
+                require(0<=entry['offset']<contribution['size'],'runtime member entry outside extent')
+                key=(extent['hunk'],extent['offset']+entry['offset'])
+                item=result.setdefault(key,dict(state='MATCHED_RUNTIME_CONTRIBUTION',kind='LIBRARY_MEMBER',
+                    symbol=entry['name'],member=contribution['member'],extent=dict(extent),profiles=[contribution['profile']],
+                    evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
+                    source_contract='Call the library entry by its mechanical name; its code is pinned runtime, not game source.'))
     return result
 
 
@@ -101,6 +117,9 @@ def resident_deferral(f,floor,helpers=()):
     if f.get('node')!='resident':return None
     if floor is None:return 'RESIDENT_RUNTIME_UNBOUNDED'
     if f['start']>=floor:return 'RESIDENT_RUNTIME_TAIL'
+    if any(isinstance(v,dict) and v.get('kind')=='LIBRARY_MEMBER' and v['extent']['hunk']==f.get('hunk')
+           and v['extent']['offset']<=f['start']<v['extent']['offset']+v['extent']['size']
+           for v in (helpers.values() if isinstance(helpers,dict) else ())):return 'RESIDENT_PINNED_RUNTIME'
     if data_model(f)=='MIXED':return 'RESIDENT_MIXED_DATA_MODEL'
     # Compiler helpers reached through A4 slots no longer defer: the verifier
     # adds the runtime helper export control (helper_exports) for them.
@@ -163,6 +182,7 @@ def ranked(node=None):
         if f['id'] in r['blockers'] and not r['blockers'][f['id']].get('next_action'):score+=5000
         if f['extent_status']!='CLOSED_CFG':score+=10000
         deferral=resident_deferral(f,floor,runtime)
+        if deferral=='RESIDENT_PINNED_RUNTIME':continue
         if deferral:score+=20000
         if f['ownership']!='UNKNOWN':continue
         if f['hunk']==14:score-=100
@@ -170,7 +190,9 @@ def ranked(node=None):
         # exact identity is independently checked by function_compare, so an
         # unrecovered resident implementation is not an unknown dependency for
         # an overlay candidate.
-        tail_calls={c['id'] for c in f['direct_callees'] if runtime_tail_call(f,c,floor)}
+        # Calls into pinned library members are runtime calls like the tail's.
+        tail_calls={c['id'] for c in f['direct_callees'] if runtime_tail_call(f,c,floor) or
+                    (c.get('basis')=='PC_RELATIVE' and runtime.get((c['hunk'],c['offset']),{}).get('kind')=='LIBRARY_MEMBER')}
         unknown={c['id'] for c in f['direct_callees'] if c['basis']!='A4_RELOCATED_JMP_STUB'
                  and c['id'] not in r['functions'] and c['id'] not in known_runtime and (c['hunk'],c['offset']) not in runtime}-tail_calls
         local_dependencies=sorted({c['id'] for c in f['direct_callees'] if c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk']
