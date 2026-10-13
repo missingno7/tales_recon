@@ -99,6 +99,26 @@ class ObjectProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(FormatError,'PROFILES_NOT_LINK_COMPATIBLE'):
             mixed_profile_oracle.mixed_identity(dict(trial,object_profiles=['aztec36','aztec50-short']))
 
+    @unittest.skipUnless(toolchain_present(),'pinned toolchain absent')
+    def test_mixed_identity_links_pinned_m_lib_only_on_the_default_link(self):
+        from compiler_oracle import identity,object_specs
+        import mixed_profile_oracle
+        objects=[dict(source='recovered() { return 1; }\n'),dict(source='F_h09_0108() { return 2; }\n')]
+        trial=dict(source='recovered() { return 1; }\nF_h09_0108() { return 2; }\n',profile='aztec36',objects=objects,
+                   local_functions=['F_h09_0108'],object_profiles=['aztec36','aztec36-large-data'])
+        plain,_,_,_=mixed_profile_oracle.mixed_identity(trial)
+        key,meta,_,_=mixed_profile_oracle.mixed_identity(dict(trial,extra_libraries=['m.lib']))
+        self.assertNotEqual(key,plain)
+        self.assertEqual([x['library'] for x in meta.get('additional_libraries',[])],['m.lib'])
+        self.assertEqual(check_unit.trial_cache_key(dict(trial,extra_libraries=['m.lib']))[0],key)
+        # A plain trial's cache key carries its opt-in library as well.
+        single=dict(source='recovered() { return 1; }\n',profile='aztec36',extra_libraries=['m.lib'])
+        self.assertEqual(check_unit.trial_cache_key(single)[0],
+                         identity(single['source'],'aztec36',1,None,(),extra_libraries=('m.lib',))[0])
+        for bad in (dict(trial,extra_libraries=['ma.lib']),dict(trial,extra_libraries=['m.lib','m.lib'])):
+            with self.assertRaises(FormatError):
+                mixed_profile_oracle.mixed_identity(bad)
+
 
 @unittest.skipUnless(toolchain_present(),'pinned toolchain absent')
 class MemberProfilePromotionEvidenceTests(unittest.TestCase):

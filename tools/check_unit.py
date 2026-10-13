@@ -647,7 +647,7 @@ def proven_object_members(fid,ledger):
     if receipt.get('verdict')!='EQUAL' or len(receipt.get('ordered_members') or [])<2:return []
     partition=proven_object_partition(receipt)
     if partition is None:return []
-    proved={**receipt.get('dependency_sources',{}),receipt['id']:receipt.get('source_sha256')}
+    proved={**receipt.get('dependency_sources',{}),**receipt.get('member_sources',{}),receipt['id']:receipt.get('source_sha256')}
     functions=ledger['functions']
     for ids in partition:
         if fid in ids and len(ids)>1:
@@ -690,7 +690,7 @@ def proven_unit_groups(members,new_ids,ledger=None):
         partition=proven_object_partition(receipt)
         if partition is None:
             skip('PROVEN_OBJECT_PARTITION_UNAVAILABLE');continue
-        proved={**receipt.get('dependency_sources',{}),receipt['id']:receipt.get('source_sha256')}
+        proved={**receipt.get('dependency_sources',{}),**receipt.get('member_sources',{}),receipt['id']:receipt.get('source_sha256')}
         for ids in partition:
             if len(ids)<2:continue
             if any(x not in order or x in new_ids for x in ids):
@@ -1031,6 +1031,7 @@ def trial_cache_key(trial):
         key=trial_key(trial);return key,cached(key) is not None
     objects=object_specs(trial) if trial.get('objects') is not None else None
     key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()),
+                 extra_libraries=trial.get('extra_libraries',()),
                  same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))[0]
     return key,cached(key) is not None
 
@@ -1102,8 +1103,11 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     if with_m_lib:
         # Float members call m.lib's FFP operators; link the pinned m.lib after
         # c.lib exactly as check_function --with-m-lib does.
-        require(all(t['profile']=='aztec36' for t in trials) and not per_member_profiles,
-                '--with-m-lib is pinned to the standard aztec36 profile without per-member profiles')
+        # The link and all FFP-using members retain the pinned default profile.
+        # Compatible +D integer objects may retain their canonical proof profile;
+        # mixed_identity still verifies the common tools, ABI and c.lib hashes.
+        require(all(t['profile']=='aztec36' for t in trials),
+                '--with-m-lib requires the standard aztec36 link profile')
         for t in trials:t['extra_libraries']=['m.lib']
     if prepare_only:
         keys=[trial_cache_key(t) for t in trials]

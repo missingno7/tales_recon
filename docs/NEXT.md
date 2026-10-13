@@ -4,7 +4,7 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 253 functions / 140,744 C bytes, plus two complete mixed
+Canonical coverage is 254 functions / 141,924 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
 compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 60,558 file bytes of
@@ -117,6 +117,43 @@ waits on a named structural blocker:
      caught by relocation identity.
    - Case 6 compares G_h01_6F26 > 0x118 but clamps G_h01_6F24, exactly as
      the original does.
+
+7. RESOLVED ov11_F_0000 (1,180; Codex wave 2026-10-13/14). The Haiku draft
+   differed only because the original reaches the adjacent 049C with `bsr.b`.
+   The Sol worker (build/workers/sol-ov11-0000) accounted for every byte of
+   the 92-member closure, which led to two verifier fixes:
+   - proven-group readers now include `receipt.member_sources`, so the
+     proven 2272+23F4+2430+247C object applies again;
+   - check_unit `--with-m-lib` works with `--per-member-profiles`, because
+     727A/729C are canonical under +D. mixed_profile_oracle allows only the
+     pinned m.lib on an aztec36 link.
+   The promotion used `--natural-interval 0x0000..0x0558 --with-m-lib
+   --per-member-profiles --object-group ov11_F_0000,ov11_F_049C`. All 92
+   members are EQUAL with 0 unclaimed bytes. Editing mixed_profile_oracle.py
+   changes the runner hash in the ov04 padding recipe, so run
+   tools/padding_refresh.py after any change to it.
+8. LIBRARY IDENTIFICATION (Sol, build/workers/sol-lib-7BF4, comparison*.json).
+   The resident span 0x7956..0x8100 between identified c.lib members holds
+   further c.lib code, not game code:
+   - 0x7978..0x7A6C is `segload`, byte-equal and unique. The sweep missed it
+     only because its A4 fields address the root overlay structure and get
+     no symbol votes.
+   - 0x7B24..0x7BD8 is `wbparse`, and 0x7BD8..0x7BF4 is `printf` (its
+     putchar PEA is a link-context address).
+   - 0x7BF4..0x7C82 is `_fmtcvt`, and 0x7C82..0x7F9C is `_format`. The SDK's
+     misc.arc format.c compiled with `+x3` reproduces the 936-byte shape.
+   The residual opcode in wbparse and format is a call through an A4
+   jump-table slot (jsr d16(a4)) where the library object emits a
+   PC-relative jsr. That is a linker routing context (CALL_BINDING), not a
+   different compiler build. Next: a separate curated library-identification
+   input that unit preparation consults, so calls into identified library
+   code stay external. resident_F_01BA, whose bsr.b joins the 033E+04FE
+   object, calls `_segload` and is blocked only on that.
+9. 0x13B8..0x1BA6 (Luna reviews, rev-uncertain_extent-*): each UNCERTAIN
+   "function" there is anchored only by relocation pointers, with no CFG,
+   callers or returns. Some pointers target odd addresses. The span is
+   linked records with character data in CODE, not functions. It needs a
+   data-object classification, not source grinding.
 
 ## Current campaign (2026-10-12): resident-first fleet
 

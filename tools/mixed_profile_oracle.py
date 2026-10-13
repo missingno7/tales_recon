@@ -51,9 +51,12 @@ def mixed_identity(trial):
         require(PROFILES[p]['flags']==profile_compat.PROFILE_FLAGS.get(p),'profile flags differ from the link-compatibility policy: '+p)
         require(PROFILES[p]['base']==PROFILES[link]['base'] and PROFILES[p]['guest']==PROFILES[link]['guest'],
                 'profile %s does not use the %s tool installation'%(p,link))
-    require(not trial.get('extra_libraries'),'additional link libraries are not supported with per-object profiles')
+    extras=tuple(trial.get('extra_libraries') or ())
+    require(not extras or (extras==('m.lib',) and link=='aztec36' and
+                           set(profiles)<=set(profile_compat.LINK_CLASSES['aztec-3.6a-c.lib']['profiles'])),
+            'additional libraries require pinned aztec36 m.lib and compatible default/+D objects')
     node=trial.get('target_node',1);local=trial.get('local_functions',());entry=trial.get('entry_function','recovered')
-    _,keydata,h=identity(trial['source'],link,node,objects,local,entry,same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))
+    _,keydata,h=identity(trial['source'],link,node,objects,local,entry,extra_libraries=extras,same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))
     for p in sorted(set(profiles)-{link}):
         _,other,_=identity(trial['source'],p,node,objects,local,entry,same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))
         require(all(other.get(k)==keydata.get(k) for k in LINK_FIELDS),
