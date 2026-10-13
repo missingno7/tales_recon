@@ -11,7 +11,7 @@ RAW_ORACLE_DEBT never counts as reconstructed. No natural layout or closure proo
 | ov06 | 3632 | 0 | 66 | 0 | 0 | 654 |
 | ov07 | 3974 | 0 | 134 | 0 | 0 | 4244 |
 | ov08 | 4030 | 0 | 0 | 0 | 0 | 12474 |
-| ov09 | 4946 | 0 | 0 | 0 | 0 | 6438 |
+| ov09 | 11280 | 0 | 18 | 0 | 0 | 86 |
 | ov10 | 5268 | 0 | 4 | 0 | 0 | 8244 |
 | ov11 | 23558 | 0 | 296 | 0 | 0 | 5522 |
 | ov12 | 2998 | 0 | 14 | 0 | 0 | 0 |
@@ -20,7 +20,7 @@ RAW_ORACLE_DEBT never counts as reconstructed. No natural layout or closure proo
 | ov15 | 5600 | 0 | 132 | 0 | 0 | 0 |
 
 File: 193,004 bytes. Initialized content: 186,324 bytes.
-File structure debt: 6,680; total file RAW_ORACLE_DEBT: 110,450.
+File structure debt: 6,680; total file RAW_ORACLE_DEBT: 104,098.
 Allocation-only zero fill remains separate debt: 34,092 bytes.
 Overlap: 0. Unaccounted file bytes: 0. All 1,445 relocations and the complete HUNK/overlay topology preserved.
 
