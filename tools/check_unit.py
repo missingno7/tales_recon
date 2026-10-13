@@ -1037,7 +1037,7 @@ def trial_cache_key(trial):
 
 @scoped
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=True,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
-          object_groups=None,per_member_profiles=False,member_profiles=None,replace_canonical=False):
+          object_groups=None,per_member_profiles=False,member_profiles=None,replace_canonical=False,with_m_lib=False):
     """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
     members authored with the entry; acceptance is then the complete unit.
 
@@ -1099,6 +1099,12 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         object_groups=validate_object_groups(members,object_groups,{fid,*member_sources},proven_groups,tails,recovery())
     trials=unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_direct_callees,member_sources,proven_groups,
                        object_groups or (),per_member_profiles,member_profiles)
+    if with_m_lib:
+        # Float members call m.lib's FFP operators; link the pinned m.lib after
+        # c.lib exactly as check_function --with-m-lib does.
+        require(all(t['profile']=='aztec36' for t in trials) and not per_member_profiles,
+                '--with-m-lib is pinned to the standard aztec36 profile without per-member profiles')
+        for t in trials:t['extra_libraries']=['m.lib']
     if prepare_only:
         keys=[trial_cache_key(t) for t in trials]
         plan=dict(verdict='PREPARED_NOT_COMPILED',id=fid,
@@ -1180,6 +1186,7 @@ def main():
                          '(canonical sources are regression checks); unknown gaps stay unclaimed and gap-crossing '
                          'references are classified (GAP_DEPENDENT_ENCODING blocks the unit)')
     ap.add_argument('--prepare-only',action='store_true',help='print the planned unit, spacing, gap crossings and trial cache keys; never compile')
+    ap.add_argument('--with-m-lib',action='store_true',help='link pinned Aztec 3.6a m.lib after c.lib (aztec36 only)')
     ap.add_argument('--object-group',action='append',default=[],metavar='ID,ID,...',
                     help='with --separate-objects, compile these address-consecutive unit members (no original byte '
                          'between them) as ONE ordinary object; all new, or canonical only inside their whole proven '
@@ -1205,7 +1212,7 @@ def main():
         member_sources[member_id]=Path(member_path)
     reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
                   a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles,
-                  a.replace_canonical)
+                  a.replace_canonical,a.with_m_lib)
     for r in reports:print(json.dumps(r))
     if a.prepare_only:return 0
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1

@@ -513,6 +513,13 @@
       "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
       "state": "BLOCKED"
     },
+    "resident_F_01BA": {
+      "category": "OBJECT/TU_LAYOUT",
+      "next_action": "Identify 0x7978..0x7A6C as a library member (sol-lib-7BF4 follow-up); then unit preparation must treat identified runtime-library calls as external library references and the unchanged candidate is rerun with --object-group 01BA,033E,04FE.",
+      "ownership_unchanged": true,
+      "reason": "SAME_OBJECT_SHORT_CALL + RUNTIME/LIBRARY dependency (2026-10-13 Luna, build/workers/fn-resident_F_01BA): candidate-frame-local.c is 386 vs 388 only because the original reaches resident_F_033E with bsr.b at +0x11E, so 01BA joins the proven 033E+04FE object. --object-group 01BA,033E,04FE stops at 'unrecovered same-node dependency: resident_F_7978': 01BA calls 0x7978 PC-relative, an unmatched span inside the resident library area (strncpy 0x7956 .. movmem 0x7A6C).",
+      "state": "BLOCKED"
+    },
     "resident_F_411E": {
       "category": "TOOLCHAIN",
       "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",
@@ -522,9 +529,16 @@
     },
     "resident_F_463E": {
       "category": "SOURCE_SHAPE",
-      "next_action": "Find any source form or historical compiler release that emits eor.w with the result in the first-evaluated register for two register-computed operands (minimal probe outside this target). Do not retry equal-semantics variants of this function until such a form exists.",
+      "next_action": "Only an independent minimal probe with positive evidence for another register-allocation rule or compiler; do not repeat casts, operand permutations, temporaries or register locals.",
       "ownership_unchanged": true,
-      "reason": "XOR_RESULT_REGISTER_ORIENTATION: 56-byte candidate (aztec36-large-data) matches length and relocations; only eor.w d0,d1 (result in right register) differs from original eor.w d1,d0. Haiku wave 2026-10-12 tested 15 trials/10 families (types, casts, temporaries, shift spellings, operand order, aztec36-x3, aztec50-short): orientation never changes; a stored temporary flips it only with an extra frame slot. Evidence build/workers/fn-resident_F_463E (fleet intake NEAR_RECORDED).",
+      "reason": "XOR_RESULT_REGISTER_ORIENTATION: 56-byte candidate (aztec36-large-data) matches length and relocations; only eor.w d0,d1 (result in right register) differs from original eor.w d1,d0. Haiku wave 2026-10-12 tested 15 trials/10 families (types, casts, temporaries, shift spellings, operand order, aztec36-x3, aztec50-short): orientation never changes; a stored temporary flips it only with an extra frame slot. Evidence build/workers/fn-resident_F_463E (fleet intake NEAR_RECORDED). 2026-10-13 Sol probe (build/workers/blk-resident_F_463E, ledger 330-332): explicit register locals (r = a >> 3; r = r ^ (b << 13) or r ^= ...) do emit first-computed-result eor.w d0,d4, but add d4 preservation and a return copy absent from the original. Open: a positively evidenced allocation rule or compiler that keeps the first-result XOR in transient d0 with no saved register.",
+      "state": "BLOCKED"
+    },
+    "resident_F_7C82": {
+      "category": "RUNTIME/LIBRARY",
+      "next_action": "Obtain an independently pinned 16-bit Aztec format member (another release/build) with an external strlen call, link it alone and replay the unchanged mask; until then account the span as identified-variant runtime, not game source.",
+      "ownership_unchanged": true,
+      "reason": "LIBRARY_VARIANT_NOT_GAME_CODE (2026-10-13 Sol, build/workers/sol-lib-7BF4): 0x7BF4..0x7C82 is masked-equal to c.lib format's leading helper (_fmtcvt; helper calls bind .modu 0x7FDE/.divu 0x7FEA; its digit DATA equals hunk1+0x2C64). 0x7C82..0x7F9C is a _format variant: the pinned SYS1 c.lib format object inlines strlen where the original calls the strlen A4 slot (936 vs 938 bytes, internal branches differ). No SYS1 m.lib/ma.lib member matches. Library code from another build; never reconstruct it as game C.",
       "state": "BLOCKED"
     }
   },
