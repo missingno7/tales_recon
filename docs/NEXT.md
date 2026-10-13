@@ -25,11 +25,17 @@ waits on a named structural blocker:
    returns. This needs another historical Aztec release (3.4 or 3.6 before
    3.6a) or positive provenance for non-C code. No candidate C should be
    retried.
-2. Resident DATA-interface derivation over large units (OBJECT/TU_LAYOUT):
-   033E (+04FE by bsr), then 01BA. The derived recipe lists unit-local
-   canonical members as external roots. resident_interfaces.py is bound
-   into 15 proof identities, so fix it through a wrapper (as
-   helper_exports does for compiler_oracle) or a transactional re-proof.
+2. RESOLVED resident_F_033E (2026-10-13; SAME_OBJECT_SHORT_CALL). Explicit
+   resident object groups now close over PC-relative calls only
+   (`prepare_unit(local_calls_only=True)`, gated to `--object-group` on a
+   resident entry). A4-slot callees stay external stand-ins, as in a
+   single-function resident proof, so the unit no longer pulls in 36
+   slot-reached members or the unrecovered runtime tail.
+   resident_interfaces.py is unchanged. `--object-group 033E,04FE` is
+   EQUAL: the bsr.b forms, and 04FE's owned "DT2:clues.arc" tail matches.
+   The only source change in the worker candidate was one shared physical
+   declaration, `long F_h00_291E()`, because 04FE stores its result as a
+   long. 01BA is now ready.
 3. RESOLVED FFP "private helpers" (CALL_BINDING). The resident gateway at
    0x8CD8 is m.lib's FFP operator members (.Fadd .Fcmp .Fneg .Ftst .Ffix .Fsub
    .Fdiv .Fflt .Fmul, ten-byte stubs that jmp to amiga_ffp, the lazy

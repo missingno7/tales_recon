@@ -513,13 +513,6 @@
       "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
       "state": "BLOCKED"
     },
-    "resident_F_033E": {
-      "category": "OBJECT/TU_LAYOUT",
-      "next_action": "Make resident DATA-interface derivation exclude unit-local members for large resident units (resident_interfaces.py is identity-bound for 15 proofs, so this needs a transactional re-proof or a wrapper outside it), then rerun the gated object-group unit with the unchanged candidate.",
-      "ownership_unchanged": true,
-      "reason": "SAME_OBJECT_SHORT_CALL: 448-byte switch function (aztec36). The original's case-8 call to canonical resident_F_04FE is bsr.b (other three sites jsr), so 033E and 04FE were one object; separate compilation emits jsr and shifts the table by 2 (450 vs 448). Its unit also reaches unrecovered resident_F_86A8 (runtime tail, via canonical 330E) and PC-relative game callee resident_F_0640; a 2026-10-12 attempt to keep such callees external in units was reverted because it broke the proven standalone stand-in fallback (resident_F_2FE2). Evidence build/workers/fn-resident_F_033E. 2026-10-13: resident_F_0640 is now canonical. An experimental --object-group 033E,04FE unit that kept unrecovered runtime-tail, A4-stub and pinned-library callees external (gated to explicit object groups so the standalone fallback is unaffected) got past resident_F_86A8 and resident_F_701A, then stopped at resident_interfaces.validate: the closure links 36 canonical resident members and the derived DATA-interface recipe lists 17 of them as external roots. The experiment was reverted.",
-      "state": "BLOCKED"
-    },
     "resident_F_411E": {
       "category": "TOOLCHAIN",
       "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",

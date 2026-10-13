@@ -91,6 +91,24 @@ class MultiMemberPreparationTests(unittest.TestCase):
         with self.assertRaisesRegex(FormatError,'unrecovered same-node dependency: ov09_F_0068'):
             self.prepare({A['id']:A,B['id']:B},{},'recovered() {}')
 
+    def test_resident_group_closure_follows_only_pc_relative_calls(self):
+        stub=dict(id='ov09_F_0090',hunk=9,offset=0x90,site=0x66,basis='A4_RELOCATED_JMP_STUB')
+        a=dict(A,direct_callees=A['direct_callees']+[stub])
+        functions={A['id']:a,B['id']:B}
+        def validated(fid):
+            if fid not in functions:raise FormatError('unknown function '+fid)
+            return functions[fid],dict(functions=list(functions.values()),a4=dict(bias=32766))
+        canonical={B['id']:dict(source='b.c',source_sha256=check_unit.sha256(b'recovered() {}\n'))}
+        with patch.object(check_unit,'validated_function',side_effect=validated), \
+             patch.object(check_unit,'recovery',return_value=dict(functions=canonical)), \
+             patch.object(check_unit,'canonical_path',return_value=type('P',(),{'read_text':lambda self:'recovered() {}\n'})()), \
+             patch.object(check_unit,'proven_object_members',return_value=[]):
+            # The slot-reached callee is unrecovered: the ordinary closure needs it.
+            with self.assertRaisesRegex(FormatError,'unrecovered same-node dependency: ov09_F_0090'):
+                check_unit.prepare_unit(A['id'],'recovered() {}',True,True,False)
+            members,_,_,_,_=check_unit.prepare_unit(A['id'],'recovered() {}',True,True,False,local_calls_only=True)
+        self.assertEqual([m['id'] for m in members],[A['id'],B['id']])
+
     def test_gaps_and_unknown_members_are_refused(self):
         far=dict(B,id='ov09_F_0070',start=0x70,end=0x74,direct_callees=[])
         a=dict(A,direct_callees=[])

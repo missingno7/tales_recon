@@ -208,5 +208,9 @@ Per wave, record in the wave summary: new canonical functions and C bytes
 accepted bytes per 100 unique trials. A candidate count, similarity score or
 cached exploratory EQUAL is not progress until promotion passes.
 
-Legacy: `fleet.py launch-plan` still prints `cx` commands for the retired
-Codex/Luna workers; it is not used by the Claude loop.
+Workers (2026-10-13, user direction): Codex workers through `cx` replace
+the Claude Agent workers. Use `gpt-6.1-sol` for blocker and structural probes,
+and `gpt-6-luna` at `xhigh` for mechanical tasks (function grinding, renames,
+audits). `fleet.py claim`/`packet` (or `launch-plan`, which prints the `cx run`
+commands) produce the same packets. Launch each `cx run` as a background task;
+its completion is the worker-finished event. Check `cx ps` host load first.

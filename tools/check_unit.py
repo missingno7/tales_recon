@@ -205,7 +205,8 @@ def natural_interval_plan(members,interval,new_ids,owned_code_data=False,target_
 
 
 @scoped
-def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True,member_sources=None,natural_interval=None):
+def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True,member_sources=None,natural_interval=None,
+                 local_calls_only=False):
     """Build one complete unit around ``fid`` (compiled as ``recovered``).
 
     ``member_sources`` maps further *new* member ids to candidate source text.
@@ -215,6 +216,13 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     are all unproven can be verified in one normal compilation.  A reference
     to the entry's mechanical name inside a new member is bound to the entry's
     ``recovered`` definition, the only name it has in the compiled unit.
+
+    ``local_calls_only`` (explicit resident object groups) follows only
+    PC-relative calls.  A resident call through an A4 DATA jump slot reaches
+    its callee through the linked jump table, exactly as in a single-function
+    resident proof, so the callee stays an external stand-in instead of
+    pulling every slot-reached function (and unrecovered runtime tails) into
+    the unit.
     """
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
     member_sources=dict(member_sources or {})
@@ -222,6 +230,8 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     entry_name=mechanical_name(f)
     def new_part(text):
         return re.sub(r'\b'+re.escape(entry_name)+r'\b','recovered',text)
+    def linked_call(call):
+        return not local_calls_only or call.get('basis')=='PC_RELATIVE'
     if member_sources:
         parts[fid]=new_part(source)
     def add_recovered(dep_id):
@@ -234,7 +244,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             # check in compare_unit, never guessed from source text.
             parts[dep_id]=new_part(re.sub(r'\brecovered\b',name,member_sources[dep_id]))
             for call in df['direct_callees']:
-                if call['hunk']==df['hunk'] and call['id']!=dep_id:
+                if call['hunk']==df['hunk'] and call['id']!=dep_id and linked_call(call):
                     add_recovered(call['id'])
             return
         dep=r['functions'].get(dep_id)
@@ -247,10 +257,10 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
         # well.  Leaving them as externs can preserve a plausible instruction
         # shape while changing the original PC-relative call identity.
         for call in df['direct_callees']:
-            if call['hunk']==df['hunk'] and call['id']!=dep_id:
+            if call['hunk']==df['hunk'] and call['id']!=dep_id and linked_call(call):
                 add_recovered(call['id'])
     for call in f['direct_callees']:
-        if call['hunk']!=f['hunk'] or call['id']==fid:continue
+        if call['hunk']!=f['hunk'] or call['id']==fid or not linked_call(call):continue
         add_recovered(call['id'])
     # Every named new member is part of the claimed unit, even one reached
     # only through a canonical bridge or by physical adjacency.
@@ -1054,9 +1064,10 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         from check_function import isolated_output_root
         output_root=isolated_output_root(output_dir)
     member_sources={k:candidate_path(ROOT,v).read_text() for k,v in (member_sources or {}).items()}
+    resident_groups=bool(object_groups) and validated_function(fid)[0]['node']=='resident'
     source=candidate_path(ROOT,path).read_text();members,names,parts,combined,ledger=prepare_unit(
         fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources,
-        natural_interval=natural_interval)
+        natural_interval=natural_interval,local_calls_only=resident_groups)
     natural=None
     if natural_interval is not None:
         natural=natural_interval_plan(members,natural_interval,{fid,*member_sources},owned_code_data,fid,ledger['functions'])
