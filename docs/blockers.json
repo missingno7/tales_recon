@@ -495,13 +495,6 @@
       "reason": "NONCONTIGUOUS_LOCAL_UNIT_LAYOUT: 1684-byte function (aztec36, owned string tail) matches every instruction, jump table and literal, but its PC-relative jsr to canonical ov07_F_18F8 crosses the unclaimed original gap 0x1424..0x18F8 (contains unrecovered ov07_F_1424 and others); the contiguous unit builder links 18F8 directly after 0F30, so the call displacement differs (MEMBER_DIFFERS). Needs natural-offset placement across unowned gaps or the intervening functions recovered. Evidence build/workers/fn-ov07_F_0612.",
       "state": "BLOCKED"
     },
-    "ov11_F_2272": {
-      "category": "OBJECT/TU_LAYOUT",
-      "next_action": "A recorded proven object predates a function discovered inside it. Re-prove the complete object including the new member (replacement proofs through the normal unit verifier), then rerun the retained unit inputs unchanged. Do not relax the proven-grouping validator.",
-      "ownership_unchanged": true,
-      "reason": "STALE_PROVEN_OBJECT_GROUP: grouped natural unit 0x2272..0x5FB2 (--object-group 2272,23F4,2430,247C, member 23F4) now has every member EQUAL, including ov11_F_407C, after ov11_F_40AE became canonical (2026-10-12); the complete unit is 15,304 vs 15,206 bytes. The recorded proven object ov11_F_407C+40E0 predates the discovery of 40AE between them, so it is no longer applied (PROVEN_MEMBERS_NOT_CONSECUTIVE_HERE) and an explicit 407C+40AE+40E0 group is rejected as disagreeing with that proof. Next: re-prove 407C+40AE+40E0 as one natural object (replacement proofs), then rerun this unit unchanged. Inputs build/workers/opus-2272 (2272.c, 23F4.c).",
-      "state": "BLOCKED"
-    },
     "ov14_F_0412": {
       "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",
       "ownership_unchanged": true,

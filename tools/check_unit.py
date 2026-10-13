@@ -15,7 +15,7 @@ from recovery_state import recovery,evidence,save_rank
 from check_function import validated_function,promote
 from compiler_oracle import compile_many,PROFILES
 from function_compare import compare_function
-from recovery_evidence import stand_in_source,EXTERN_FUNCTION,proven_object_source,group_object_source
+from recovery_evidence import stand_in_source,struct_view_source,EXTERN_FUNCTION,proven_object_source,group_object_source
 from recovery_evidence import joined_source as joined_texts
 
 
@@ -472,10 +472,11 @@ def write_parts(base,parts):
 
 
 def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_data=False,allow_gaps=False,isolated=False,member_sources=None,natural=None,merged_externals=None,
-                object_record=None,parts=None,profile_record=None):
+                object_record=None,parts=None,profile_record=None,harness_struct_views=False):
     report=compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,combined,natural=natural)
     # Differing per-object views of one external share one harness stand-in.
     if merged_externals:report['merged_external_declarations']=merged_externals
+    if harness_struct_views:report['harness_struct_views']=True
     if 'same_overlay_exports' in compiled['identity']:
         report['same_overlay_exports']=compiled['identity']['same_overlay_exports']
     if 'resident_data_interfaces' in compiled['identity']:
@@ -978,6 +979,11 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
             # defines every external stand-in once.
             trial['source'],merged=external_stand_in_source(combined,trial['local_functions'],node)
             if merged:trial['merged_external_declarations']=merged
+            # Harness storage keeps each global's own struct view when the
+            # first body of a shared tag would undersize it (recorded, so
+            # retained units without the field re-derive unchanged).
+            viewed=struct_view_source(trial['source'])
+            if viewed!=trial['source']:trial['source']=viewed;trial['harness_struct_views']=True
             if per_member_profiles:
                 plan,klass=member_profile_plan(members,p,{fid,*(member_sources or ())},profile_hypotheses)
                 trial['profile_record']=apply_member_profiles(trial,plan,klass)
@@ -1105,7 +1111,8 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                                       member_sources=member_sources,natural=natural,
                                       merged_externals=trial.get('merged_external_declarations'),
                                       object_record=record,parts=parts if record else None,
-                                      profile_record=trial.get('profile_record'))
+                                      profile_record=trial.get('profile_record'),
+                                      harness_struct_views=trial.get('harness_struct_views',False))
         if report['verdict']=='EQUAL' and promote_equal:
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:

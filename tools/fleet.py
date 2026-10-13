@@ -969,6 +969,7 @@ LESSONS = """## Measured lessons (supervised waves, 2026-10-12)
 - `beq THEN; cmp; bne SKIP; THEN: bra OUT` (a jump to a lone bra) is `if (a || b) { break; }` with braces; a bare `break;` folds into direct exits. A local stored once and never read (`clr.l -6(a5)`) is a real historical store: keep it with a neutral name.
 - Float code is ordinary Aztec C on `float` (FFP) values; verify with `--with-m-lib`. Read each operator from the A4 stub the original calls: 8CD8 `.Fadd`, 8CE2 `.Fcmp`, 8CEC `.Fneg`, 8CF6 `.Ftst`, 8D00 `.Ffix` (float->int), 8D0A `.Fsub`, 8D14 `.Fdiv`, 8D1E `.Fflt` (int->float), 8D28 `.Fmul`; never guess `*` for `-`. A non-commutative op evaluates its converted right operand first into d1. FFP constants are inline longs (`#$86000048` = 134: 24-bit mantissa, exponent byte - 0x40); an int literal (`> 134`) and a float literal (`> 134.0`) load in different orders.
 - `movea p,a0; movea p,a1; op (a1)` is `p->x = p->x op y;` (a single load is `p->x op= y`). A `bcc` out of a switch landing on a lone `bra` after the last case means `default: break;`.
+- Byte local loaded via `moveq #0` is `unsigned char`. Word slots and gaps under one address-taken base are one struct local. "Local table full!" means fewer locals (structs/arrays). A jump table spans min..max case; entries hitting the default body are extra labels.
 - A `bsr.b` to an adjacent canonical function means one original object: report it (the supervisor tests an evidence-backed `--object-group`); source changes cannot produce it.
 """
 

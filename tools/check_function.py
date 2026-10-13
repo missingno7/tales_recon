@@ -217,10 +217,12 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
                 objects=grouped_objects(members,names,parts,False,groups,with_members=per_member)
                 local_functions=tuple(names[m['id']] for m in members if m['id']!=f['id'])
                 compile_source,merged=external_stand_in_source(combined,local_functions,target_node)
+                from recovery_evidence import struct_view_source
+                viewed=struct_view_source(compile_source);struct_views=viewed!=compile_source;compile_source=viewed
                 # Retain every original per-object declaration in unit.c;
                 # only the shared harness input removes conflicting views.
                 # The strict proof consumer re-derives that removal itself.
-                unit=(members,names,combined,True,merged)
+                unit=(members,names,combined,True,merged,struct_views)
             except FormatError as exc:unit_blocker=str(exc)
             # A recovered dependency can sit across a real but still
             # unclaimed original gap.  Prove the compact source contribution
@@ -288,6 +290,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
                                  owned_code_data=bool(req.get('owned_code_data')),
                                  allow_gaps=bool(unit_options and unit_options[0]),isolated=isolated,
                                  merged_externals=unit_options[1] if len(unit_options)>1 else None,
+                                 harness_struct_views=len(unit_options)>2 and unit_options[2],
                                  profile_record=trials[slot].get('profile_record') if isinstance(slot,int) else None)
         elif req.get('owned_code_data'):
             from owned_code_data import compare_owned_code_data

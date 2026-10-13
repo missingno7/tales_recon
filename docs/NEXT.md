@@ -4,7 +4,7 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 250 functions / 133,082 C bytes, plus two complete mixed
+Canonical coverage is 252 functions / 140,296 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
 compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 60,558 file bytes of
@@ -43,9 +43,21 @@ waits on a named structural blocker:
    double loads, case order, `default: break;`, and the FFP constant 134).
    Released: ov05 0000 (4,874), 131C, 1860, 2CD4, 318E, 3836, ov11_F_5FB2,
    then ov11_F_0B4C and the ov05 region (about 12 KB).
-4. STALE_PROVEN_OBJECT_GROUP: ov11_F_2272 needs a regroup transaction
-   (407C+40AE+40E0); its unit is also 98 bytes long, so grouping alone
-   will not close it.
+4. RESOLVED STALE_PROVEN_OBJECT_GROUP for ov11_F_2272 (2026-10-13). First,
+   ov11_F_407C was replaced canonically by a natural-interval unit
+   (0x407C..0x4790, 13 members, `--object-group 407C,40AE,40E0`). The
+   retained 2272 unit (0x2272..0x5FB2, group 2272+23F4+2430+247C, 61
+   members) then failed only on 407C's A4 identity: it was a HARNESS defect.
+   The oracle harness keeps the first body of a struct tag. Two member
+   objects define different `struct Record` bodies, so the storage for
+   G_h01_A15E got another object's 14-byte view, and `A15E+14` bound to the
+   next symbol. `recovery_evidence.struct_view_source` renames later
+   differing bodies in the harness input (`TAG__vN`), but only when a
+   global's own view is larger than the body the harness picked. It is a
+   recorded receipt field (`harness_struct_views`), so the six retained
+   units that would otherwise change keep re-deriving exactly
+   (tests/test_harness_struct_views.py). ov11_F_2272 is promoted, and
+   ov11_F_0000 is now unblocked.
 5. FRESH RE-VERIFICATION AUDIT (2026-10-13; build/workers/opus-audit). All 247
    canonical sources were re-verified fresh and isolated. 230 are EQUAL with
    plain check_function. 4 more are EQUAL with their recorded object groups
@@ -85,8 +97,20 @@ waits on a named structural blocker:
    The canonical `long` view of 1C30 casts the base into the long sum, and no
    cast spelling reproduces the original index-then-base order. The tail
    `if (e - n)` reads an uninitialized `unsigned char` frame slot (-$f, read
-   once, never written) exactly as the original does. ov08_F_0000 (6,828) is
-   now the only unrecovered ov08 function.
+   once, never written) exactly as the original does.
+   RESOLVED ov08_F_0000 (6,828; the ov08 entry): every known ov08 function is
+   now canonical. The Haiku worker's NEAR draft (24 bytes short) was
+   finished in about 12 diff-guided steps (build/workers/opus-0000):
+   - The frame gaps were one 54-byte struct local with the sprite-slot
+     layout of G_h01_6EB8. Adding locals hit "Local table full!".
+   - Byte locals are `unsigned char`, apart from one signed `char`.
+   - The `c60` map read is `(int)` before its byte store.
+   - Two jump tables carry `case 0: case 5: default:`.
+   - The `c60` switch cases are 1..7, '0', '8' and 'F'.
+   - The draft also had wrong globals or arm orders in cases 6..10, all
+     caught by relocation identity.
+   - Case 6 compares G_h01_6F26 > 0x118 but clamps G_h01_6F24, exactly as
+     the original does.
 
 ## Current campaign (2026-10-12): resident-first fleet
 

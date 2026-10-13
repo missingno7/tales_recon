@@ -208,6 +208,7 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     merged=unit.get('merged_external_declarations')
     skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
     source=stand_in_source(unit_text,skip)[0] if merged is not None else unit_text
+    if unit.get('harness_struct_views'):source=struct_view_source(source)
     import resident_interfaces
     interfaces=None
     if resident_interfaces.FIELD in compiler or resident_interfaces.FIELD in unit:
@@ -252,6 +253,87 @@ def stand_in_source(combined,skip=()):
     for a,b in drop:pieces.append(combined[cursor:a]);cursor=b
     pieces.append(combined[cursor:])
     return ''.join(pieces),{name:dict(defined=decls[0],merged=decls[1:]) for name,decls in sorted(merged.items())}
+
+
+STRUCT_DEFINITION=r'\bstruct\s+(\w+)\s*\{([^{}]*)\}\s*;'
+
+
+def struct_view_source(text):
+    """Harness input whose global storage keeps its own object's struct view.
+
+    Separate objects may each define a different body under one struct tag
+    (tags are mechanical, never provenance).  The oracle harness keeps the
+    first body of a tag and the first ``extern`` of each global, so a global
+    first declared through a later, different body would get storage sized
+    by another object's view; an access past that size then binds to the
+    next linked symbol.  Only in that case, each later distinct body is
+    renamed ``TAG__vN`` in this harness input, together with the references
+    that follow it (each object defines its tags before using them).
+    Member objects still compile their own unchanged text.  Without such a
+    global the text is returned unchanged, so retained units re-derive
+    exactly.
+    """
+    import re
+    first={};variants={};current={};pieces=[];cursor=0;changed=False
+    token=re.compile(STRUCT_DEFINITION+r'|\bstruct\s+(\w+)\b')
+    for m in token.finditer(text):
+        if m[1] is not None:
+            tag,body=m[1],re.sub(r'\s+',' ',m[2]).strip()
+            if tag not in first:first[tag]=body
+            if body==first[tag]:current[tag]=tag
+            else:
+                names=variants.setdefault(tag,{})
+                current[tag]=names.setdefault(body,'%s__v%d'%(tag,len(names)+2))
+            new=m[0].replace(tag,current[tag],1)
+        else:
+            tag=m[3];new='struct '+current.get(tag,tag)
+        pieces.append(text[cursor:m.start()]+new);cursor=m.end()
+    pieces.append(text[cursor:])
+    renamed=''.join(pieces)
+    if not variants:return text
+    # Only a global whose harness storage (its first extern) names a renamed
+    # view that is larger than the first body changes the harness; otherwise
+    # the original input (and every retained identity) is kept.
+    bodies={m[1]:m[2] for m in re.finditer(STRUCT_DEFINITION,renamed)}
+    seen=set()
+    for m in re.finditer(r'\bextern\s+([^;{}]+);',renamed):
+        decl=m[1].strip()
+        if '(' in decl:continue
+        name=re.search(r'(\w+)(?:\s*\[\s*[1-9]\d*\s*\])*\s*$',decl)
+        if name is None or name[1] in seen:continue
+        seen.add(name[1])
+        view=re.match(r'struct\s+(\w+)\s*(\**)',decl)
+        if not view or view[2] or '__v' not in view[1]:continue
+        base=view[1].split('__v')[0]
+        own,old=aztec_struct_size(view[1],bodies),aztec_struct_size(base,bodies)
+        if own is not None and old is not None and own>old:changed=True;break
+    return renamed if changed else text
+
+
+def aztec_struct_size(tag,bodies,depth=0):
+    """Aztec 3.6a size of a simple struct body (16-bit int, word-aligned
+    members wider than a byte, even total size), or None when unparsed."""
+    import re
+    body=bodies.get(tag)
+    if body is None or depth>8:return None
+    scalar=dict(char=1,short=2,int=2,long=4,float=4,double=8)
+    offset=0
+    for field in [f.strip() for f in body.split(';') if f.strip()]:
+        m=re.fullmatch(r'(?:(?:unsigned|signed)\s+)?(char|short|int|long|float|double|struct\s+\w+)\s+(.+)',field)
+        if m is None:return None
+        for declarator in m[2].split(','):
+            d=re.fullmatch(r'\s*(\**)\s*\w+((?:\s*\[\s*[1-9]\d*\s*\])*)\s*',declarator)
+            if d is None:return None
+            if d[1]:size=4
+            elif m[1].startswith('struct'):
+                size=aztec_struct_size(m[1].split()[1],bodies,depth+1)
+                if size is None:return None
+            else:size=scalar[m[1]]
+            count=1
+            for n in re.findall(r'\d+',d[2]):count*=int(n)
+            if size>1 or m[1].startswith('struct'):offset+=offset&1
+            offset+=size*count
+    return offset+(offset&1)
 
 
 def joined_source(texts):
@@ -405,11 +487,18 @@ def compiled_unit_source_sha256(unit,unit_text,compiler):
     harness input re-derived here from ``unit.c``, the identity's local
     functions and overlay proxies; the receipt's merge list must match.
     """
-    merged=unit.get('merged_external_declarations')
-    if merged is None:return sha256(unit_text.encode('ascii'))
-    skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
-    derived,actual=stand_in_source(unit_text,skip)
-    require(merged and actual==merged,'merged external declarations do not re-derive from unit.c')
+    merged=unit.get('merged_external_declarations');views=unit.get('harness_struct_views')
+    require(views in (None,True),'harness struct views flag is malformed')
+    if merged is None:
+        derived=unit_text
+    else:
+        skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
+        derived,actual=stand_in_source(unit_text,skip)
+        require(merged and actual==merged,'merged external declarations do not re-derive from unit.c')
+    if views:
+        viewed=struct_view_source(derived)
+        require(viewed!=derived,'harness struct views do not re-derive from unit.c')
+        derived=viewed
     return sha256(derived.encode('ascii'))
 
 
