@@ -231,6 +231,20 @@ class CanonicalReplacementTests(unittest.TestCase):
         self.assertEqual((self.tmp / "src/a.c").read_text(), "old a")
         self.assertEqual(json.loads((self.tmp / "ledger.json").read_text()), self.ledger)
 
+    def test_chained_dependents_are_reproved_in_pin_order(self):
+        # C pins A and B; B pins A. Replacing A re-proves B before C.
+        (self.tmp / "src/c.c").write_text("c")
+        (self.tmp / "units/c.json").write_text(json.dumps(dict(id="C", dependency_sources={"A": "hA", "B": "hB"})))
+        (self.tmp / "proofs/c.json").write_text(json.dumps(dict(
+            compiler=dict(profile="aztec36"), comparison=dict(complete_unit_receipt="units/c.json"))))
+        self.ledger["functions"]["C"] = dict(source="src/c.c", source_sha256="hC", proof="proofs/c.json",
+                                             state="FUNCTION_CODE_MATCH")
+        (self.tmp / "ledger.json").write_text(json.dumps(self.ledger))
+        order = []
+        self.run_replace(lambda requests, regression: order.extend(r["id"] for r in requests) or
+                         [dict(id=requests[0]["id"], verdict="EQUAL", promotion=dict(state="x"))])
+        self.assertEqual(order, ["B", "C"])
+
     def test_grouped_dependent_refuses_replacement(self):
         unit = dict(id="B", dependency_sources={"A": "hA"}, object_partition=[["A", "B"]])
         (self.tmp / "units/b.json").write_text(json.dumps(unit))

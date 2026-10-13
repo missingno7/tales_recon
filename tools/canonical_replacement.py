@@ -49,36 +49,60 @@ def reproof_request(other, item, proof, unit):
                 owned_code_data=item['state'] == 'FUNCTION_WITH_DATA_MATCH')
 
 
+def closure(fid, ledger):
+    """Every canonical proof that transitively pins ``fid``'s current source.
+
+    Returns ``{id: (request, pinned_ids)}``: the re-proof request and the ids
+    its complete-unit receipt pins (re-proved only after those are back).
+    """
+    found = {}
+    pending = [fid]
+    while pending:
+        current = pending.pop()
+        for other, item, proof, unit in dependents(current, ledger['functions'][current]['source_sha256'], ledger):
+            if other in found:
+                continue
+            found[other] = (reproof_request(other, item, proof, unit), set(unit.get('dependency_sources', {})))
+            pending.append(other)
+    return found
+
+
 def replace(fid, write):
     """Run ``write(regression)`` (the replacement promotion), then re-prove dependents.
 
     ``write`` must promote ``fid`` with the given regression receipt and
-    ``replace_canonical``.  Returns the dependent re-proof reports.
+    ``replace_canonical``.  Every transitive dependent is withdrawn and then
+    re-proved in dependency order, each after the canonical sources its
+    receipt pins are back.  Returns the dependent re-proof reports.
     """
     import check_function
     ledger = check_function.recovery()
     prior = ledger['functions'][fid]
-    requests = [reproof_request(*d) for d in dependents(fid, prior['source_sha256'], ledger)]
-    for request in requests:
-        require(not dependents(request['id'], ledger['functions'][request['id']]['source_sha256'], ledger),
-                'replacement dependent is itself pinned by another receipt: ' + request['id'])
+    chain = closure(fid, ledger)
     regression = check_function.regression_receipt()
     paths = [check_function.LEDGER, ROOT / prior['source'], ROOT / prior['proof']]
-    paths += [ROOT / ledger['functions'][r['id']]['proof'] for r in requests]
+    paths += [ROOT / ledger['functions'][other]['proof'] for other in chain]
     saved = {p: p.read_bytes() for p in paths}
     try:
         write(regression)
-        if requests:
+        if chain:
             from recovery_transaction import ledger_lock
             with ledger_lock(check_function.LEDGER):
                 current = check_function.recovery()
-                for request in requests:
-                    current['functions'].pop(request['id'])
+                for other in chain:
+                    current['functions'].pop(other)
                 check_function.write_recovery(current, check_function.LEDGER)
-        reports = check_function.check_many(requests, regression=regression) if requests else []
-        for request, report in zip(requests, reports):
-            require(report['verdict'] == 'EQUAL' and report.get('promotion'),
-                    'dependent re-proof failed against the replacement: ' + request['id'])
+        reports = []
+        waiting = dict(chain)
+        while waiting:
+            ready = sorted(o for o, (_, pins) in waiting.items() if not (pins & set(waiting)))
+            require(ready, 'replacement dependents pin each other in a cycle: ' + ','.join(sorted(waiting)))
+            for other in ready:
+                request = waiting.pop(other)[0]
+                report = check_function.check_many([request], regression=regression)[0]
+                require(report['verdict'] == 'EQUAL' and report.get('promotion'),
+                        'dependent re-proof failed against the replacement: ' + other)
+                reports.append(report)
         return reports
     except BaseException:
         for path, data in saved.items():

@@ -96,6 +96,7 @@ def terminal_padding_recipe(root,blob,model,analysis,promotions,ledger,entry):
         trial.update(object_profiles=object_profiles,member_profiles=profiles)
         key,compiler,_,_=mixed_identity(trial)
     else:key,compiler,_=identity(source,trial['profile'],2,object_specs(trial),local,same_overlay_exports=roots)
+    context['trial']=trial
     recipe=dict(entry=entry,hunk=4,node='ov04',interval=[0,h['initialized_size']],start=cursor,end=h['initialized_size'],
         member_dependencies=dependencies,unit_dependencies=[dict(path=p,sha256=d) for p,(_,d) in units.items()],
         proven_groups=merged,object_partition=partition,combined_source_sha256=sha256(combined.encode('ascii')),

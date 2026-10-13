@@ -39,9 +39,7 @@ int limit;
 	G_h01_52CE = 0x52;
 	G_h01_511A = 2;
 
-	pass = 0;
-	goto outer_check;
-outer_body:
+	for (pass = 0; pass < limit; ++pass) {
 		F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
 			0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
 		F_h00_34E0(&G_h01_50E6);
@@ -53,16 +51,10 @@ outer_body:
 			F_h00_34E0(&G_h01_5302);
 		F_h00_34E0(&G_h01_5260);
 
-		row = first - 1;
-    goto row_check_one;
-row_body_one:
+		for (row = first - 1; row < last; ++row)
 			F_h00_35DC(*((int *)((char *)G_h01_0398 + ((long)row << 3))),
 				*((int *)((char *)G_h01_039A + ((long)row << 3))),
 				*((long *)((char *)G_h01_039C + ((long)row << 3))), 0, 1);
-			++row;
-row_check_one:
-    if (row < last)
-        goto row_body_one;
     F_h00_307C();
 		F_h00_4376();
 		if (G_h01_536E) {
@@ -88,16 +80,10 @@ row_check_one:
 			F_h00_34E0(&G_h01_5302);
 		F_h00_34E0(&G_h01_5296);
 
-		row = first - 1;
-    goto row_check_two;
-row_body_two:
+		for (row = first - 1; row < last; ++row)
 			F_h00_35DC(*((int *)((char *)G_h01_0398 + ((long)row << 3))),
 				*((int *)((char *)G_h01_039A + ((long)row << 3))),
 				*((long *)((char *)G_h01_039C + ((long)row << 3))), 0, 1);
-			++row;
-row_check_two:
-    if (row < last)
-        goto row_body_two;
     F_h00_307C();
 		F_h00_4376();
 		if (G_h01_536E) {
@@ -111,9 +97,6 @@ row_check_two:
 			F_h00_57D2(0);
 			return;
 		}
-++pass;
-outer_check:
-if (pass < limit)
-	goto outer_body;
+	}
 	F_h00_86A8(15L);
 }
