@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 236 functions / 110,044 C bytes, plus two complete mixed
+Canonical coverage is 238 functions / 111,436 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 78,042 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 76,588 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
