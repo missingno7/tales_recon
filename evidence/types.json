@@ -2025,6 +2025,36 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
+          "declaration": "extern struct LinkEntry G_h01_4524[35];",
+          "line": 19,
+          "path": "src/recovered/ov04/ov04_F_000C.c",
+          "shape": {
+            "array": true,
+            "base": "struct LinkEntry",
+            "category": "struct",
+            "extent": 35,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct PointRef G_h01_4524[36];",
+          "line": 4,
+          "path": "src/recovered/resident/resident_F_01BA.c",
+          "shape": {
+            "array": true,
+            "base": "struct PointRef",
+            "category": "struct",
+            "extent": 36,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_4524"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
           "declaration": "extern struct FlagEntry G_h01_452E[35];",
           "line": 16,
           "path": "src/recovered/ov03/ov03_F_001C.c",
@@ -19183,7 +19213,7 @@
         "symbol": "G_h01_B3B0"
       }
     ],
-    "declarations_scanned": 2593,
+    "declarations_scanned": 2595,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
@@ -19194,7 +19224,7 @@
       "POINTER_SCALAR_VIEW_CONFLICT": 170,
       "SIGNEDNESS_VIEW_CONFLICT": 9,
       "STORAGE_WIDTH_CONFLICT": 78,
-      "STRUCT_VIEW_DIFFERENCE_REVIEW": 128
+      "STRUCT_VIEW_DIFFERENCE_REVIEW": 129
     },
     "schema_version": 1,
     "source_hashes": {
@@ -19373,6 +19403,7 @@
       "src/recovered/ov15/ov15_F_0A80.c": "a0e4679a60eb1f4c35d3227dd95537b71370a7dbf3f2da8f9208e1cb1064b441",
       "src/recovered/ov15/ov15_F_0C12.c": "4292a982d176e3bf9614ad3b008d6ac16325867a0cc5512f7e843ce360246d03",
       "src/recovered/ov15/ov15_F_1428.c": "9e50cf26f255b6d9c5940f3c931b6769ceaba70d4e8f8e2b544fbdb1a162090c",
+      "src/recovered/resident/resident_F_01BA.c": "5d09fffccadb22dadc33deeeb29ad2ff90c7fa85ae0182a51a0858d50d81d6a8",
       "src/recovered/resident/resident_F_033E.c": "a489464bd654684bf8754c24dd187986ca3b5b5784dab4b08d943cadf21e5477",
       "src/recovered/resident/resident_F_04FE.c": "3928e32af3e04bd4fc5c99df22c94f3616d63434358bbc492461a2860e76a496",
       "src/recovered/resident/resident_F_0640.c": "41c2fd70ca508e4b9f7dcc11782ac7abcab4f60c3b3705acebf3f8aa3354f357",
@@ -169008,6 +169039,7 @@
       "src/recovered/ov15/ov15_F_0A80.c": "a0e4679a60eb1f4c35d3227dd95537b71370a7dbf3f2da8f9208e1cb1064b441",
       "src/recovered/ov15/ov15_F_0C12.c": "4292a982d176e3bf9614ad3b008d6ac16325867a0cc5512f7e843ce360246d03",
       "src/recovered/ov15/ov15_F_1428.c": "9e50cf26f255b6d9c5940f3c931b6769ceaba70d4e8f8e2b544fbdb1a162090c",
+      "src/recovered/resident/resident_F_01BA.c": "5d09fffccadb22dadc33deeeb29ad2ff90c7fa85ae0182a51a0858d50d81d6a8",
       "src/recovered/resident/resident_F_033E.c": "a489464bd654684bf8754c24dd187986ca3b5b5784dab4b08d943cadf21e5477",
       "src/recovered/resident/resident_F_04FE.c": "3928e32af3e04bd4fc5c99df22c94f3616d63434358bbc492461a2860e76a496",
       "src/recovered/resident/resident_F_0640.c": "41c2fd70ca508e4b9f7dcc11782ac7abcab4f60c3b3705acebf3f8aa3354f357",

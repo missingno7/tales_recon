@@ -80,6 +80,22 @@ def runtime_dependencies(ledger):
                     symbol=entry['name'],member=contribution['member'],extent=dict(extent),profiles=[contribution['profile']],
                     evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
                     source_contract='Call the library entry by its mechanical name; its code is pinned runtime, not game source.'))
+    # Separate so legacy runtime-members.json keeps its digest.
+    path=ROOT/'evidence/experiments/runtime-members-relocated.json'
+    if path.exists():
+        proof=json.loads(path.read_text())
+        require(proof['game_sha256']==ledger['game_sha256'] and proof['status']=='COMPLETE_RUNTIME_CODE_MATCH',
+                'relocated runtime guidance lacks a complete match')
+        for contribution in proof['contributions']:
+            extent=contribution['original']
+            for entry in contribution['entries']:
+                require(0<=entry['offset']<contribution['size'],'relocated runtime entry outside extent')
+                key=(extent['hunk'],extent['offset']+entry['offset'])
+                require(key not in result,'conflicting relocated runtime entry')
+                result[key]=dict(state='MATCHED_RUNTIME_CONTRIBUTION',kind='LIBRARY_MEMBER',
+                    symbol=entry['name'],member=contribution['member'],extent=dict(extent),profiles=[contribution['profile']],
+                    evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
+                    source_contract='Call the pinned library entry; relocation identity rechecks at comparison.')
     return result
 
 

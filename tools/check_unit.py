@@ -230,7 +230,14 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     entry_name=mechanical_name(f)
     def new_part(text):
         return re.sub(r'\b'+re.escape(entry_name)+r'\b','recovered',text)
+    from recovery_state import runtime_dependencies
+    # Runtime evidence is bound to the measured executable; a ledger without
+    # that identity (synthetic fixtures) has no library entries to route.
+    runtime=runtime_dependencies(l) if 'game_sha256' in l else {}
     def linked_call(call):
+        if (call.get('basis')=='PC_RELATIVE' and
+                runtime.get((call.get('hunk'),call.get('offset')),{}).get('kind')=='LIBRARY_MEMBER'):
+            return False  # Exact exported entry only; interior offsets remain unresolved.
         return not local_calls_only or call.get('basis')=='PC_RELATIVE'
     if member_sources:
         parts[fid]=new_part(source)
@@ -521,6 +528,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         # proof receipt or requested/hypothesis) and the link class.
         report.update(profile_record)
         verifier_files+=('profile_compat.py','mixed_profile_oracle.py')
+    if report.get('runtime_library_routes'):verifier_files+=('runtime_member_routes.py','runtime_members.py')
     verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in verifier_files}
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
@@ -997,6 +1005,11 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
             if per_member_profiles:
                 plan,klass=member_profile_plan(members,p,{fid,*(member_sources or ())},profile_hypotheses)
                 trial['profile_record']=apply_member_profiles(trial,plan,klass)
+        import runtime_member_routes
+        routes=runtime_member_routes.derive(members,trial['source'])
+        if routes:
+            runtime_member_routes.register(trial['source'],routes)
+            trial['runtime_library_routes']=routes
         import helper_exports
         helper_exports.register(trial['source'],helper_exports.original_helpers(members))
         if node==0:
@@ -1078,12 +1091,13 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         require(separate_objects or not natural['compaction_spans'],
                 'natural-interval proof across compaction spans requires separate ordinary source objects')
     reports=[];proven_groups=[]
-    if natural is not None and separate_objects:
+    if (natural is not None or object_groups) and separate_objects:
         # Canonical members proved together as one natural object stay one
         # object; splitting them would change their proved local call forms.
         proven_groups,skipped=proven_unit_groups(members,{fid,*member_sources},ledger=recovery())
-        natural['proven_object_groups']=proven_groups
-        if skipped:natural['proven_object_groups_not_applied']=skipped
+        if natural is not None:
+            natural['proven_object_groups']=proven_groups
+            if skipped:natural['proven_object_groups_not_applied']=skipped
     if object_groups:
         require(separate_objects,'--object-group requires --separate-objects')
         require(not join_direct_callees,'--object-group replaces --join-direct-callees; name the joined members explicitly')
@@ -1128,6 +1142,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         return [plan]
     for trial,compiled in zip(trials,compile_trials(trials)):
         record=object_group_record(trial)
+        if trial.get('runtime_library_routes'):record['runtime_library_routes']=trial['runtime_library_routes']
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,
                                       member_sources=member_sources,natural=natural,
                                       merged_externals=trial.get('merged_external_declarations'),

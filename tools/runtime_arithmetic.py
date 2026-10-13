@@ -26,7 +26,16 @@ def aliases(compiled, blob, original, original_model, evidence):
         require(oh['type']=='CODE' and 0<=extent['offset']<=oh['initialized_size']-size, 'runtime outside original CODE')
         start=oh['content_offset']+extent['offset']
         require(sha256(original[start:start+size])==item['code_sha256'], 'original runtime changed')
-        require(not any(r['source_hunk']==extent['hunk'] and r['source_offset']<extent['offset']+size and r['source_offset']+r['width']>extent['offset'] for r in original_model['relocations']), 'original runtime needs relocation proof')
+        relocated = 'relocation_identity' in item
+        if relocated:
+            from runtime_members import relocation_identity, SEGLOAD_RELOCATIONS
+            require(item.get('member')=='segload' and size==244 and
+                    item['entries']==[dict(name='_segload',offset=0),dict(name='.segload',offset=18)] and
+                    item.get('owned_data_size')==item.get('owned_bss_size')==0 and
+                    item['relocation_identity']==SEGLOAD_RELOCATIONS and
+                    relocation_identity(original_model, extent)==SEGLOAD_RELOCATIONS,
+                    'original runtime relocation identities differ')
+        require(relocated or not any(r['source_hunk']==extent['hunk'] and r['source_offset']<extent['offset']+size and r['source_offset']+r['width']>extent['offset'] for r in original_model['relocations']), 'original runtime needs relocation proof')
         for entry in item['entries']:
             require(0<=entry['offset']<size, 'runtime entry outside contribution')
             matches=[s for s in c['symbols'] if s['name']==entry['name']]
@@ -34,12 +43,17 @@ def aliases(compiled, blob, original, original_model, evidence):
             s=matches[0]; offset=s['offset']-entry['offset']
             h=next(h for h in c['hunks'] if h['number']==s['hunk'])
             if h['type']!='CODE' or not 0<=offset<=h['initialized_size']-size:continue
-            if any(r['source_hunk']==s['hunk'] and r['source_offset']<offset+size and r['source_offset']+r['width']>offset for r in c['all_relocations']):continue
+            if relocated:
+                linked_extent=dict(hunk=s['hunk'],offset=offset,size=size)
+                if relocation_identity(dict(hunks=c['hunks'],relocations=c['all_relocations']), linked_extent)!=SEGLOAD_RELOCATIONS:continue
+                if not all(len([x for x in c['symbols'] if x['name']==e['name'] and x['hunk']==s['hunk'] and
+                                x['offset']==offset+e['offset']])==1 for e in item['entries']):continue
+            if not relocated and any(r['source_hunk']==s['hunk'] and r['source_offset']<offset+size and r['source_offset']+r['width']>offset for r in c['all_relocations']):continue
             at=h['content_offset']+offset
             if sha256(blob[at:at+size])!=item['code_sha256']:continue
             name='F_h%02d_%04X'%(extent['hunk'],extent['offset']+entry['offset'])
             result.append(dict(hunk=s['hunk'],offset=s['offset'],name=name))
-            proofs.append(dict(symbol=entry['name'],identity=name,original=extent,
+            proofs.append(dict(**({'relocation_identity':item['relocation_identity']} if relocated else {}),symbol=entry['name'],identity=name,original=extent,
                                linked=dict(hunk=s['hunk'],offset=offset,size=size),
                                code_sha256=item['code_sha256'],library_sha256=item['library_sha256']))
     return result,proofs

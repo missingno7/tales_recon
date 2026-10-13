@@ -166,6 +166,14 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
             members=json.loads(members_path.read_text())
             if members.get('game_sha256')==runtime_evidence.get('game_sha256') and members.get('status')=='COMPLETE_RUNTIME_CODE_MATCH':
                 runtime_evidence=dict(runtime_evidence,contributions=runtime_evidence['contributions']+members['contributions'])
+    relocated_members_path=runtime_evidence_path.with_name('runtime-members-relocated.json')
+    if runtime_evidence and relocated_members_path.exists():
+        members=json.loads(relocated_members_path.read_text())
+        require(members.get('game_sha256')==runtime_evidence['game_sha256'] and
+                members.get('status')=='COMPLETE_RUNTIME_CODE_MATCH','relocated runtime evidence differs')
+        called={(x['hunk'],x['offset']) for x in f.get('direct_callees',())}
+        wanted=[m for m in members['contributions'] if any((m['original']['hunk'],m['original']['offset']+e['offset']) in called for e in m['entries'])]
+        runtime_evidence=dict(runtime_evidence,contributions=runtime_evidence['contributions']+wanted)
     if runtime_evidence and any(s['name'] in runtime_symbol_names(runtime_evidence) for s in c['symbols']):
         if context is None:original,original_model,_=game()
         else:original,original_model=context['blob'],context['model']
@@ -173,7 +181,9 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
         symbol_map.extend(runtime_symbols)
         report['runtime_contributions']=runtime_proof
         report['runtime_evidence_sha256']=sha256(runtime_evidence_path.read_bytes())
-        if any(p.get('library_sha256') and 'members' in next((c for c in runtime_evidence['contributions'] if c.get('code_sha256')==p['code_sha256']),{}) for p in runtime_proof):
+        if any('relocation_identity' in p for p in runtime_proof):
+            report['runtime_relocated_members_sha256']=sha256(relocated_members_path.read_bytes())
+        if any('relocation_identity' not in p and p.get('library_sha256') and 'members' in next((c for c in runtime_evidence['contributions'] if c.get('code_sha256')==p['code_sha256']),{}) for p in runtime_proof):
             report['runtime_members_sha256']=sha256(runtime_evidence_path.with_name('runtime-members.json').read_bytes())
     root=next(h for h in c['hunks'] if h['number']==0)
     for r in c['all_relocations']:

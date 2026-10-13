@@ -209,6 +209,8 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
     source=stand_in_source(unit_text,skip)[0] if merged is not None else unit_text
     if unit.get('harness_struct_views'):source=struct_view_source(source)
+    import runtime_member_routes
+    runtime_member_routes.replay(unit,source,functions,game_sha256=sha256(blob))
     import resident_interfaces
     interfaces=None
     by_id={f['id']:f for f in functions}
@@ -480,6 +482,9 @@ def object_partition_sources(unit,unit_text,parts_dir):
     for o in partition:
         texts=[parts[x] for x in o];own=[names[x] for x in o]
         text=texts[0] if len(o)==1 else group_object_source(texts,own)[0] if o in groups else proven_object_source(texts,own)
+        if unit.get('runtime_library_routes'):
+            from runtime_member_routes import object_source
+            text=object_source(text,unit['runtime_library_routes'])
         hashes.append(sha256(text.encode('ascii')))
     return hashes
 

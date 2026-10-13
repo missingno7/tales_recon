@@ -20,6 +20,122 @@ from overlay_experiment import symbols
 from runtime_match import code, find_matches
 
 OUTPUT = 'evidence/experiments/runtime-members.json'
+# Separate opt-in ledger preserves legacy runtime-members.json receipts.
+RELOCATED_OUTPUT = 'evidence/experiments/runtime-members-relocated.json'
+SEGLOAD_RELOCATIONS = [
+    dict(offset=0x28, type='HUNK_RELOC32', width=4,
+         target=dict(kind='ROOT_HUNK_ORIGIN', hunk=0, type='CODE', addend=8)),
+    dict(offset=0x3e, type='HUNK_RELOC32', width=4,
+         target=dict(kind='ROOT_HUNK_ORIGIN', hunk=1, type='DATA', addend=0)),
+]
+RELOCATED_SPECS = (
+    dict(job='runtime-segload-c36', prefix='segload36', profile='aztec36',
+         library='aztec-3.6a/SYS1/lib/c.lib', members=['segload'], contribution=['segload'],
+         relocation_identity=SEGLOAD_RELOCATIONS),
+)
+
+
+def relocation_identity(model, extent):
+    """Complete site/type/width/root-origin target identities; no masking.
+
+    Deliberately bounded to structural root hunk references. Equal addends
+    do not identify arbitrary objects or prove the referenced data contents.
+    """
+    hunk, base, size = extent['hunk'], extent['offset'], extent['size']
+    result = []
+    for r in model['relocations']:
+        if r['source_hunk'] != hunk or r['source_offset'] >= base+size or r['source_offset']+r['width'] <= base:
+            continue
+        require(base <= r['source_offset'] and r['source_offset']+r['width'] <= base+size,
+                'runtime relocation straddles contribution')
+        target = next((h for h in model['hunks'] if h['number'] == r['target_hunk']), None)
+        require(target and target.get('node') == 'resident' and target['number'] in (0, 1),
+                'runtime relocation target is not a root origin')
+        require(target['type'] == ('CODE' if target['number'] == 0 else 'DATA'),
+                'runtime root hunk target type differs')
+        result.append(dict(offset=r['source_offset']-base, type=r['type'], width=r['width'],
+                           target=dict(kind='ROOT_HUNK_ORIGIN', hunk=target['number'],
+                                       type=target['type'], addend=r['addend_raw'])))
+    result.sort(key=lambda r: (r['offset'], r['type'], r['width']))
+    require(len({r['offset'] for r in result}) == len(result), 'duplicate runtime relocation')
+    return result
+
+
+def relocated_contribution(spec, original, model):
+    """Prove the complete segload object, exports and structural references.
+
+    Its object owns zero DATA/BSS; the DATA-origin relocation is an external
+    reference. Nonzero ownership fails rather than being clipped or ignored.
+    """
+    from hunk import parse
+    require(spec['members'] == spec['contribution'] == ['segload'] and
+            spec['relocation_identity'] == SEGLOAD_RELOCATIONS, 'unsupported relocated runtime recipe')
+    job = ROOT / 'build/worker-jobs' / spec['job']
+    work = job / 'sys/work'
+    receipt = json.loads((job / 'result.json').read_text())
+    require(receipt['all_steps_succeeded'], 'relocated runtime link failed')
+    artifacts = {a['path']: a['sha256'] for a in receipt['artifacts']}
+    for name in (spec['prefix']+'.o', spec['prefix'], spec['prefix']+'.sym'):
+        require(name in artifacts and sha256((work/name).read_bytes()) == artifacts[name],
+                'missing/changed relocated runtime artifact')
+    library = 'toolchain/installed/' + spec['library']
+    digest = sha256((ROOT/library).read_bytes())
+    require(any(p['path'] == library and p['sha256'] == digest
+                for p in receipt['request']['pinned_inputs']), 'relocated runtime library is not pinned')
+    steps = [s['command'] for s in receipt['steps']]
+    prefix = spec['prefix']
+    require('Old2:bin/lb Old1:lib/c.lib -x segload' in steps and
+            'copy segload.o '+prefix+'.o' in steps and
+            'Old1:bin/ln -m -t -o '+prefix+' '+prefix+'.o' in steps,
+            'relocated runtime standalone producer recipe differs')
+    obj = (work/(prefix+'.o')).read_bytes()
+    size = object_code_size(obj)
+    require(size == 244, 'segload complete object extent differs')
+    data = (work/prefix).read_bytes(); linked_model = parse(data)
+    require([(h['number'], h['type']) for h in linked_model['hunks']] ==
+            [(0, 'CODE'), (1, 'DATA'), (2, 'BSS')], 'segload standalone hunk layout differs')
+    h = linked_model['hunks'][0]
+    require(h['initialized_size'] == size and h['allocated_size'] == size and
+            all(x['initialized_size'] == x['allocated_size'] == 0 for x in linked_model['hunks'][1:]),
+            'segload link owns extra content/storage')
+    expected = spec['relocation_identity']
+    require(relocation_identity(linked_model, dict(hunk=0, offset=0, size=size)) == expected and
+            len(linked_model['relocations']) == len(expected), 'segload linked relocation identities differ')
+    raw = data[h['content_offset']:h['content_offset']+size]
+    matches = []
+    for oh in model['hunks']:
+        if oh['number'] != 0 or oh['type'] != 'CODE' or oh['node'] != 'resident': continue
+        payload = original[oh['content_offset']:oh['content_offset']+oh['initialized_size']]
+        at = 0
+        while (at := payload.find(raw, at)) >= 0:
+            extent = dict(hunk=0, offset=at, size=size)
+            if at % 2 == 0 and relocation_identity(model, extent) == expected: matches.append(extent)
+            at += 1
+    require(len(matches) == 1, 'segload bytes/relocations do not match uniquely')
+    sm = symbols((work/(prefix+'.sym')).read_text())
+    require(sm.get((0, '__H0_org')) == sm.get((1, '__H1_org')) == 0,
+            'segload origin symbols differ')
+    entries = sorted((dict(name=n, offset=o) for (hn,n),o in sm.items()
+                      if hn == 0 and not n.startswith('__H') and 0 <= o < size),
+                     key=lambda e: (e['offset'], e['name']))
+    require(entries == [dict(name='_segload', offset=0), dict(name='.segload', offset=18)],
+            'segload exports differ')
+    return dict(member='segload', members=['segload'], profile=spec['profile'], library_sha256=digest,
+                object_sha256s={'segload':sha256(obj)}, code_sha256=sha256(raw), size=size,
+                original=matches[0], entries=entries, relocation_identity=expected,
+                owned_data_size=0, owned_bss_size=0,
+                job_receipt_sha256=sha256((job/'result.json').read_bytes()))
+
+
+def analyze_relocated():
+    original, model, _ = game()
+    return dict(schema_version=1, game_sha256=sha256(original), status='COMPLETE_RUNTIME_CODE_MATCH',
+                contributions=[relocated_contribution(s, original, model) for s in RELOCATED_SPECS],
+                limitations=['Root hunk-origin RELOC32 identities only; no normalization.',
+                             'Nonzero owned DATA/BSS requires a separate complete ownership proof.'],
+                reconstructed_game_functions=0, exact_compiler_release_selected=False)
+
+
 # prefix: linked output name in the job; members: lb -x names, in link order;
 # contribution: leading members whose code forms the proven contribution.
 SPECS = (
@@ -87,7 +203,9 @@ def analyze():
 
 
 if __name__ == '__main__':
-    argparse.ArgumentParser(description=__doc__).parse_args()
-    result = analyze()
-    write_json(ROOT / OUTPUT, result)
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--relocated', action='store_true')
+    args = ap.parse_args()
+    result = analyze_relocated() if args.relocated else analyze()
+    write_json(ROOT / (RELOCATED_OUTPUT if args.relocated else OUTPUT), result)
     print(json.dumps(dict(status=result['status'], contributions=[(c['member'], c['original'], c['size']) for c in result['contributions']])))

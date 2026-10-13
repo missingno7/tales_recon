@@ -4,7 +4,7 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 254 functions / 141,924 C bytes, plus two complete mixed
+Canonical coverage is 255 functions / 142,312 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
 compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 60,558 file bytes of
@@ -147,13 +147,45 @@ waits on a named structural blocker:
    PC-relative jsr. That is a linker routing context (CALL_BINDING), not a
    different compiler build. Next: a separate curated library-identification
    input that unit preparation consults, so calls into identified library
-   code stay external. resident_F_01BA, whose bsr.b joins the 033E+04FE
-   object, calls `_segload` and is blocked only on that.
-9. 0x13B8..0x1BA6 (Luna reviews, rev-uncertain_extent-*): each UNCERTAIN
-   "function" there is anchored only by relocation pointers, with no CFG,
-   callers or returns. Some pointers target odd addresses. The span is
-   linked records with character data in CODE, not functions. It needs a
-   data-object classification, not source grinding.
+   code stay external.
+   RESOLVED for segload (Sol, build/workers/sol-lib-route, reviewed patch).
+   runtime_members.py `--relocated` proves a complete library member with
+   exact relocations (site, type, width and structural target; nothing
+   masked) into the separate opt-in ledger
+   evidence/experiments/runtime-members-relocated.json. The legacy
+   runtime-members.json is unchanged. Unit preparation treats a PC-relative
+   call to an exact proven library entry as external. runtime_member_routes
+   (a recorded receipt field `runtime_library_routes`, like helper_exports)
+   spells the mechanical callee as the library symbol in the object input.
+   The harness omits that stand-in and the comparison binds the call to the
+   linked library code. resident_F_01BA, the overlay dispatcher
+   (`segload(entry)`, call, 7522), is now canonical as one object with
+   033E+04FE. The worker candidate needed one declaration change: an
+   `unsigned int` field selector, which gives an `lsr` shift. Accounting
+   credit for the 244 library bytes is a follow-up: hybrid specimens must
+   carry the relocation identities, and census already counts the span in
+   overlay-topology, so it must not be counted twice.
+9. AUDIO SEQUENCE DATA IN CODE (Luna reviews, then Sol,
+   build/workers/sol-data-13B8). H0 [0x13B8,0x2816) (5,214 bytes;
+   0x13B8..0x1BA6 measured in detail) is audio-sequence bytecode:
+   variable-length commands, note/duration events, pattern calls, jumps and
+   counted loops. RELOC32 operands point at command starts, so some targets
+   are odd. The interpreter is reached through 57D2/57E4 and the
+   0x6200 -> H1+0xB39A tables. The 32 UNCERTAIN "functions" in the span are
+   phantom entries; never grind them as C. Pinned 3.6a C probes place
+   initialized records in DATA, so an assembled data module is plausible but
+   unproven. Next: a curated DATA-in-CODE fact (Sol's proposal is unapplied)
+   and a bounded data-contribution verifier. The smallest experiment
+   independently encodes the 72-byte stream [0x16E4,0x172C) with score
+   macros.
+10. LIBRARY CALL ROUTING (Sol, build/workers/sol-a4-routing). The Manx 3.6a
+   linker gives a symbol a root DATA JMP slot when an overlay or distant
+   (beyond +/-32762) reference needs one. Every resident jsr to that symbol
+   then uses the slot (4EAC). Under this rule, unchanged wbparse, the SDK
+   format.c built with +x3, and printf reproduce in natural link contexts
+   (EQUAL_CANDIDATE). The next step is a curated natural-link recipe plus a
+   strict whole-member address-field consumer. Opcodes are never
+   normalized.
 
 ## Current campaign (2026-10-12): resident-first fleet
 
