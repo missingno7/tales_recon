@@ -292,24 +292,62 @@ def group_object_source(texts,own_names):
 
 
 _FUNCTION_EVIDENCE={}
+_OVERLAY_EXPORTS=set()
+
+
+def overlay_exports():
+    """(hunk, offset) of every overlay-table entry in the original executable."""
+    if not _OVERLAY_EXPORTS:
+        import json
+        from analysis_support import ROOT
+        tree=json.loads((ROOT/'evidence/executable/overlay-tree.json').read_text())
+        _OVERLAY_EXPORTS.update((s['target_hunk'],s['target_offset']) for slot in tree['slots'] for s in slot.get('symbols',[]))
+    return _OVERLAY_EXPORTS
+
+
+def same_object_call(caller,callee,exports=None):
+    """Original call evidence that caller and callee were one Manx object.
+
+    A PC-relative BSR is emitted only within one object, and a separately
+    compiled caller reaches an overlay-exported function through its A4
+    trampoline (ov04 export-routing rule), so a PC-relative JSR to an
+    exported callee is same-object evidence too.
+    """
+    exports=overlay_exports() if exports is None else exports
+    sites={c['site'] for c in caller.get('direct_callees',[]) if c['id']==callee['id'] and c.get('basis')=='PC_RELATIVE'}
+    exported=(callee.get('hunk'),callee.get('start')) in exports
+    return any(i['offset'] in sites and (i['mnemonic'].startswith('bsr') or (exported and i['mnemonic'].startswith('jsr')))
+               for i in caller.get('instructions',[]))
+
+
+def evidenced_span_member(x,group,by,exports=None):
+    """True when x lies inside the address span of an evidenced same-object pair of group.
+
+    Manx objects are contiguous, so every function between two members of
+    one object belongs to it as well.
+    """
+    order=list(group);at=order.index(x)
+    for i,a in enumerate(order):
+        for j,b in enumerate(order):
+            if i<j and i<=at<=j and a in by and b in by and                     (same_object_call(by[a],by[b],exports) or same_object_call(by[b],by[a],exports)):
+                return True
+    return False
 
 
 def evidenced_short_call(caller_id,callee_id):
-    """True when the original caller reaches callee with a PC-relative BSR.
+    """Function-evidence form of same_object_call, re-derived from the census itself."""
+    load_function_evidence()
+    caller=_FUNCTION_EVIDENCE.get(caller_id);callee=_FUNCTION_EVIDENCE.get(callee_id)
+    return caller is not None and callee is not None and same_object_call(caller,callee)
 
-    Re-derived from the function census itself, never from a receipt: Manx
-    emits the short BSR form only within one object, which is the positive
-    evidence that admits a standalone-proved canonical member into a group.
-    """
+
+def load_function_evidence():
     if not _FUNCTION_EVIDENCE:
         import json
         from analysis_support import ROOT
         ledger=json.loads((ROOT/'evidence/functions/ledger.json').read_text())
         _FUNCTION_EVIDENCE.update({f['id']:f for f in ledger['functions']})
-    caller=_FUNCTION_EVIDENCE.get(caller_id)
-    if caller is None:return False
-    sites={c['site'] for c in caller.get('direct_callees',[]) if c['id']==callee_id and c.get('basis')=='PC_RELATIVE'}
-    return any(i['offset'] in sites and i['mnemonic'].startswith('bsr') for i in caller.get('instructions',[]))
+    return _FUNCTION_EVIDENCE
 
 
 def object_partition_sources(unit,unit_text,parts_dir):
@@ -338,8 +376,7 @@ def object_partition_sources(unit,unit_text,parts_dir):
             require(by[a]['end']+tails.get(a,0)==by[b]['start'],'object group spans original bytes it does not own: '+a+'/'+b)
         for x in g:
             require(x in new or any(x in p and set(p)<=set(g) for p in proven) or
-                    (not any(x in p for p in proven) and any(evidenced_short_call(x,y) or evidenced_short_call(y,x)
-                                                             for y in g if y!=x)),
+                    (not any(x in p for p in proven) and evidenced_span_member(x,g,load_function_evidence())),
                     'canonical member joins an object group without agreeing proven grouping: '+x)
     names={m['id']:'recovered' if m['id']==unit['id'] else 'F_h%02d_%04X'%(m['hunk'],m['start']) for m in ordered}
     hashes=[]

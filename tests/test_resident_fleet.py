@@ -279,8 +279,44 @@ class EvidencedShortCallConsumerTests(unittest.TestCase):
         fake = {"ov07_F_1F6E": dict(id="ov07_F_1F6E", instructions=[dict(offset=0x1FE4, mnemonic="bsr.b")],
                                     direct_callees=[dict(id="ov07_F_2050", site=0x1FE4, basis="PC_RELATIVE")]),
                 "ov07_F_0E06": dict(id="ov07_F_0E06", instructions=[dict(offset=0x0E10, mnemonic="jsr")],
-                                    direct_callees=[dict(id="ov07_F_2050", site=0x0E10, basis="PC_RELATIVE")])}
+                                    direct_callees=[dict(id="ov07_F_2050", site=0x0E10, basis="PC_RELATIVE")]),
+                "ov07_F_2050": dict(id="ov07_F_2050", hunk=7, start=0x2050, instructions=[], direct_callees=[])}
         with patch.dict(recovery_evidence._FUNCTION_EVIDENCE, fake, clear=True):
             self.assertTrue(recovery_evidence.evidenced_short_call("ov07_F_1F6E", "ov07_F_2050"))
             self.assertFalse(recovery_evidence.evidenced_short_call("ov07_F_0E06", "ov07_F_2050"))
             self.assertFalse(recovery_evidence.evidenced_short_call("ov07_F_2050", "ov07_F_1F6E"))
+
+
+class SymbolMapHunkNumberTests(unittest.TestCase):
+    def test_manx_hunk_numbers_are_decimal(self):
+        from overlay_experiment import symbols
+        text = ("Segment 00:  Hunk 009\n\t00000000 _F_h13_02BE\n"
+                "Segment 12:  Hunk 010\n\t00000000 _F_h14_0000\n\t0000000a _F_h14_03AE\n"
+                "Segment 13:  Hunk 011\n\t00000000 _F_h15_0000\n")
+        parsed = symbols(text)
+        self.assertEqual(parsed[(10, "_F_h14_0000")], 0)
+        self.assertEqual(parsed[(10, "_F_h14_03AE")], 10)
+        self.assertEqual(parsed[(11, "_F_h15_0000")], 0)
+        self.assertNotIn((16, "_F_h14_0000"), parsed)
+
+
+class ExportedCallEvidenceTests(unittest.TestCase):
+    """A PC-relative JSR to an overlay export is same-object evidence; spans admit members between."""
+
+    def test_exported_jsr_and_span(self):
+        from recovery_evidence import same_object_call, evidenced_span_member
+        caller = dict(id="ov03_F_001C", hunk=3, start=0x1C,
+                      instructions=[dict(offset=0x136, mnemonic="jsr"), dict(offset=0x18C, mnemonic="jsr")],
+                      direct_callees=[dict(id="ov03_F_154E", site=0x136, basis="PC_RELATIVE"),
+                                      dict(id="ov03_F_1500", site=0x18C, basis="PC_RELATIVE")])
+        middle = dict(id="ov03_F_1500", hunk=3, start=0x1500, instructions=[], direct_callees=[])
+        exported = dict(id="ov03_F_154E", hunk=3, start=0x154E, instructions=[], direct_callees=[])
+        exports = {(3, 0x154E)}
+        self.assertTrue(same_object_call(caller, exported, exports))
+        self.assertFalse(same_object_call(caller, middle, exports))      # plain JSR to a non-export
+        self.assertFalse(same_object_call(caller, exported, set()))      # not exported: no evidence
+        by = {x["id"]: x for x in (caller, middle, exported)}
+        group = ["ov03_F_001C", "ov03_F_1500", "ov03_F_154E"]
+        with patch("recovery_evidence.overlay_exports", return_value=exports):
+            self.assertTrue(evidenced_span_member("ov03_F_1500", group, by))
+            self.assertFalse(evidenced_span_member("ov03_F_1500", ["ov03_F_001C", "ov03_F_1500"], by))

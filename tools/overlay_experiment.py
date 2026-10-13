@@ -19,7 +19,9 @@ def symbols(text):
     for line in text.splitlines():
         header=re.fullmatch(r'Segment ([0-9a-fA-F]+):\s+Hunk ([0-9a-fA-F]+)',line)
         if header:
-            hunk=int(header[2],16)
+            # The Manx map prints hunk numbers in decimal (... Hunk 009, Hunk 010);
+            # reading them as hex misplaced every symbol in hunk 10 and above.
+            hunk=int(header[2],10)
             continue
         entry=re.fullmatch(r'\s+([0-9a-fA-F]{8}) (\S+)',line)
         if entry:

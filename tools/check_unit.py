@@ -700,9 +700,9 @@ def proven_unit_groups(members,new_ids,ledger=None):
 
 
 def short_call(caller,callee):
-    """True when the original caller reaches callee with a PC-relative BSR."""
-    sites={c['site'] for c in caller.get('direct_callees',[]) if c['id']==callee['id'] and c.get('basis')=='PC_RELATIVE'}
-    return any(i['offset'] in sites and i['mnemonic'].startswith('bsr') for i in caller.get('instructions',[]))
+    """Same-object call evidence (BSR, or PC-relative JSR to an overlay export)."""
+    from recovery_evidence import same_object_call
+    return same_object_call(caller,callee)
 
 
 def validate_object_groups(members,object_groups,new_ids,proven_groups=(),tails=None,ledger=None):
@@ -742,8 +742,8 @@ def validate_object_groups(members,object_groups,new_ids,proven_groups=(),tails=
             # same-object evidence: an original short BSR between it and a
             # member of this group (Manx emits BSR only within one object).
             # A member of any recorded multi-member object never joins here.
-            require(not proven_object_members(x,ledger or recovery()) and
-                    any(short_call(by[x],by[y]) or short_call(by[y],by[x]) for y in ids if y!=x),
+            from recovery_evidence import evidenced_span_member
+            require(not proven_object_members(x,ledger or recovery()) and evidenced_span_member(x,ids,by),
                     'canonical member joins an object group without agreeing proven grouping: '+x)
         result.append(ids)
     return sorted(result,key=lambda g:order.index(g[0]))

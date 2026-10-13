@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 216 functions / 89,626 C bytes, plus two complete mixed
+Canonical coverage is 217 functions / 94,120 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 1,496
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 100,296 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 94,948 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -68,6 +68,14 @@ admits an evidence-backed object group (closed ov07_F_1F6E, ov05_F_467E
 ov12_F_0000 (2,998, all known ov12 code), ov15_F_0000 (2,190), resident_F_3008.
 ov09_F_0000 (6,334 + 18 literal bytes, all known ov09 code now canonical) closed in four one-factor Opus steps from the worker's NEAR: empty `if (x) ;`, unsigned `c > 0`, `(char)` of an int member (low-byte displacement), and `while (!changed)`; these idioms are now in the packet lessons.
 Wave 11 promoted ov07_F_1424, ov06_F_0000 (ov06 known code complete) and ov05_F_3B6C. ov08_F_1F4C stays 12 bytes short after two rounds (SOURCE_SHAPE_RESIDUAL); its claimed MOVEQ mechanism is refuted (the assembler turns move.l #small into moveq). ov10_F_0000 (7,990) remains approximate.
+ov03_F_001C (4,494 + 854 literal bytes) closed after two tool fixes: the Manx
+symbol map prints hunk numbers in decimal (the parser read them as hex, so
+every proxy symbol in hunk 10+ was unbindable, e.g. calls into ov14/ov15),
+and same-object evidence now also counts a PC-relative JSR to an
+overlay-exported callee (separately compiled callers route exports through
+the A4 trampoline), admitting members between an evidenced pair. STRUCTURE
+DEBT: its proven source still has 38 worker gotos; restructure it with
+`--replace-canonical` while keeping the same evidenced group.
 Open: ov11_F_15C8 is EQUAL but its tail is followed by unreferenced code at
 0x20AE (OWNED_TAIL_UNBOUNDED); ov09_F_0000 is two residuals from exact;
 ov03_F_001C matches shape and its 853-byte tail but needs ov03_F_154E/1500;
