@@ -13,7 +13,11 @@ def aliases(compiled, blob, original, original_model, evidence):
     require(evidence['game_sha256'] == sha256(original), 'runtime oracle identity changed')
     c=compiled['contribution']; result=[]; proofs=[]
     for item in evidence['contributions']:
-        if item['profile'] != compiled['identity']['profile'] or item['library_sha256'] != compiled['identity']['library_sha256']:
+        # The linked library is the identity that matters: profiles that link
+        # the same pinned library (aztec36 and its +D large-data mode both
+        # link SYS1 c.lib) share its helper code, and the complete original
+        # and linked byte proofs below still gate every alias.
+        if item['library_sha256'] != compiled['identity']['library_sha256']:
             continue
         extent=item['original']; size=item['size']
         require(size > 0 and extent['size'] == size, 'bad runtime extent')

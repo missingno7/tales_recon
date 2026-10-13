@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 226 functions / 107,196 C bytes, plus two complete mixed
+Canonical coverage is 231 functions / 108,394 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 81,172 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 79,818 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -112,6 +112,13 @@ indexing as pointer arithmetic (`(struct Rec54 *)&G + i`; `char * + 54 * i`
 adds `ext.l`). The last residuals were relocation identities only (two
 swapped/shifted globals and a 4EC6/435E callee name). Three unused locals
 remain under neutral names because the 134-byte frame requires them.
+Wave 14 (5 Haiku workers) promoted every target: resident 3C0E, 3B84,
+3870, 3AE4 and ov07_F_0000. Two closed only at supervisor intake. 3870's
+worker was denied its own `--owned-code-data` verification by the
+auto-mode classifier, and the unchanged v1 was EQUAL. 3AE4 needed
+runtime-helper aliases to match on the pinned library identity rather
+than the profile name, since aztec36 and +D large-data link the same SYS1
+c.lib and the complete byte proofs still gate every alias.
 OWNED_TAIL_UNBOUNDED resolved (CFG/BOUNDARY): the census now seeds a weak
 `POST_LITERAL_PROLOGUE` entry where a function's referenced literal bundle
 (NUL-terminated printable runs it references, plus one alignment byte) is

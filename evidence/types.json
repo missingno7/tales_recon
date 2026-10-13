@@ -286,6 +286,36 @@
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
           "declaration": "extern int G_h01_1466;",
+          "line": 11,
+          "path": "src/recovered/ov07/ov07_F_0000.c",
+          "shape": {
+            "array": false,
+            "base": "int",
+            "category": "word",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STORAGE_WIDTH_CONFLICT",
+        "right": {
+          "declaration": "extern char G_h01_1466;",
+          "line": 58,
+          "path": "src/recovered/ov13/ov13_F_02BE.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "char",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_1466"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern int G_h01_1466;",
           "line": 19,
           "path": "src/recovered/ov07/ov07_F_1424.c",
           "shape": {
@@ -2940,6 +2970,36 @@
         "relation": "POINTER_SCALAR_VIEW_CONFLICT",
         "right": {
           "declaration": "extern long G_h01_46CE;",
+          "line": 14,
+          "path": "src/recovered/ov07/ov07_F_0000.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_46CE"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct BitmapLayout *G_h01_46CE;",
+          "line": 46,
+          "path": "src/recovered/ov04/ov04_F_1E36.c",
+          "shape": {
+            "array": false,
+            "base": "struct BitmapLayout",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern long G_h01_46CE;",
           "line": 2,
           "path": "src/recovered/ov07/ov07_F_03CC.c",
           "shape": {
@@ -3750,6 +3810,36 @@
         "relation": "POINTER_SCALAR_VIEW_CONFLICT",
         "right": {
           "declaration": "extern char *G_h01_46D6;",
+          "line": 13,
+          "path": "src/recovered/ov07/ov07_F_0000.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_46D6"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_46D6;",
+          "line": 5,
+          "path": "src/recovered/ov04/ov04_F_1302.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern char *G_h01_46D6;",
           "line": 20,
           "path": "src/recovered/ov07/ov07_F_1424.c",
           "shape": {
@@ -4158,6 +4248,36 @@
           "declaration": "extern long G_h01_46DA;",
           "line": 26,
           "path": "src/recovered/ov06/ov06_F_0000.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern char *G_h01_46DA;",
+          "line": 16,
+          "path": "src/recovered/resident/resident_F_4D04.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_46DA"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_46DA;",
+          "line": 16,
+          "path": "src/recovered/ov07/ov07_F_0000.c",
           "shape": {
             "array": false,
             "base": "long",
@@ -14503,7 +14623,7 @@
         "symbol": "G_h01_B3B0"
       }
     ],
-    "declarations_scanned": 2005,
+    "declarations_scanned": 2024,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
@@ -14511,9 +14631,9 @@
       "ARRAY_EXTENT_CONFLICT": 2,
       "ARRAY_SCALAR_VIEW_CONFLICT": 51,
       "DECLARATION_VIEW_REVIEW": 31,
-      "POINTER_SCALAR_VIEW_CONFLICT": 118,
+      "POINTER_SCALAR_VIEW_CONFLICT": 121,
       "SIGNEDNESS_VIEW_CONFLICT": 5,
-      "STORAGE_WIDTH_CONFLICT": 34,
+      "STORAGE_WIDTH_CONFLICT": 35,
       "STRUCT_VIEW_DIFFERENCE_REVIEW": 111
     },
     "schema_version": 1,
@@ -14546,6 +14666,7 @@
       "src/recovered/ov06/ov06_F_0000.c": "0afb9a70bb3168f3bf88e753cf5de6bed9fe3bf8744b4da64ba2929197bd4e5d",
       "src/recovered/ov06/ov06_F_042A.c": "eeb16c678cd15ee57a6d8f2c41a2af056a7821f4ee6d235e5ad1f8ff87ef47f5",
       "src/recovered/ov06/ov06_F_063A.c": "1a30b6c7b3f2887579fc9cb92a01c91f9e5bf64798455d2ba8447b3063ebeb02",
+      "src/recovered/ov07/ov07_F_0000.c": "fd3e4cd1190c4c91b0b9f7c83ea25b3c5830c75986f8d52bcd5bfa21d65b24f6",
       "src/recovered/ov07/ov07_F_03CC.c": "a668d4280680cfcef73a6a7bd8c9bfc103cbf182cf6ac075876830ad88e12ed3",
       "src/recovered/ov07/ov07_F_04AC.c": "e3ef5ec57f1ec94fab896855701133c45996d4f14d2df71649ef5ae4431804f3",
       "src/recovered/ov07/ov07_F_0612.c": "3eceadf0c738b4adc38a845511dd45c76cf677ac9b239a035dd092ee300b38bf",
@@ -14691,8 +14812,12 @@
       "src/recovered/resident/resident_F_35DC.c": "2f1c478cccb1c1000d6ed7c61782004a39b1e67d19a963712121bf6a7e856099",
       "src/recovered/resident/resident_F_37C8.c": "2c92f2b5ba3f87b38a337372515fb06bd2999ed55318087f4a4d3d78cf4be073",
       "src/recovered/resident/resident_F_3850.c": "13b9642f82f1bde45bf6d7c24bbaacf9919d7166ca119d6e514ef5534ddf3ab7",
+      "src/recovered/resident/resident_F_3870.c": "cf98eda9d5f1d98569e6c59219209284c8102f494de396de356b6fc311648bf2",
       "src/recovered/resident/resident_F_3930.c": "34c8d0da66b363dd1ab01507fcc200e413b17d579a77e772ca521c04f3d71aa0",
       "src/recovered/resident/resident_F_3A06.c": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
+      "src/recovered/resident/resident_F_3AE4.c": "08633d0ebd8911a32fa4d72f85f53b8a7e79f607b5983e42425018565cb7323c",
+      "src/recovered/resident/resident_F_3B84.c": "5cb7fcfc9e1b65e275a28d89d12f285393d361c907892f96c8d9c7e6e4a0cf1d",
+      "src/recovered/resident/resident_F_3C0E.c": "224685b325aa36b8c6dcbcf57cddc53ef0e9d60345f321ce013e738f0f734610",
       "src/recovered/resident/resident_F_3C4C.c": "2fc53e5bce3382c9f9d3cfd866b1908018b178ce9e809e0d17d56b8340cb36b3",
       "src/recovered/resident/resident_F_3E9C.c": "165691d4136ca6dbe43dd428e90e3c629d8d35ddba46bede53ffc426d93f27d0",
       "src/recovered/resident/resident_F_4032.c": "3c0962b0d8d93cc735aaa37aba845227c5e5decf7fc6c3dfb913a536ea79c044",
@@ -14712,7 +14837,7 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "symbols_with_multiple_views": 322
+    "symbols_with_multiple_views": 327
   },
   "frame_access_candidates": [
     {
@@ -164153,6 +164278,7 @@
       "src/recovered/ov06/ov06_F_0000.c": "0afb9a70bb3168f3bf88e753cf5de6bed9fe3bf8744b4da64ba2929197bd4e5d",
       "src/recovered/ov06/ov06_F_042A.c": "eeb16c678cd15ee57a6d8f2c41a2af056a7821f4ee6d235e5ad1f8ff87ef47f5",
       "src/recovered/ov06/ov06_F_063A.c": "1a30b6c7b3f2887579fc9cb92a01c91f9e5bf64798455d2ba8447b3063ebeb02",
+      "src/recovered/ov07/ov07_F_0000.c": "fd3e4cd1190c4c91b0b9f7c83ea25b3c5830c75986f8d52bcd5bfa21d65b24f6",
       "src/recovered/ov07/ov07_F_03CC.c": "a668d4280680cfcef73a6a7bd8c9bfc103cbf182cf6ac075876830ad88e12ed3",
       "src/recovered/ov07/ov07_F_04AC.c": "e3ef5ec57f1ec94fab896855701133c45996d4f14d2df71649ef5ae4431804f3",
       "src/recovered/ov07/ov07_F_0612.c": "3eceadf0c738b4adc38a845511dd45c76cf677ac9b239a035dd092ee300b38bf",
@@ -164298,8 +164424,12 @@
       "src/recovered/resident/resident_F_35DC.c": "2f1c478cccb1c1000d6ed7c61782004a39b1e67d19a963712121bf6a7e856099",
       "src/recovered/resident/resident_F_37C8.c": "2c92f2b5ba3f87b38a337372515fb06bd2999ed55318087f4a4d3d78cf4be073",
       "src/recovered/resident/resident_F_3850.c": "13b9642f82f1bde45bf6d7c24bbaacf9919d7166ca119d6e514ef5534ddf3ab7",
+      "src/recovered/resident/resident_F_3870.c": "cf98eda9d5f1d98569e6c59219209284c8102f494de396de356b6fc311648bf2",
       "src/recovered/resident/resident_F_3930.c": "34c8d0da66b363dd1ab01507fcc200e413b17d579a77e772ca521c04f3d71aa0",
       "src/recovered/resident/resident_F_3A06.c": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
+      "src/recovered/resident/resident_F_3AE4.c": "08633d0ebd8911a32fa4d72f85f53b8a7e79f607b5983e42425018565cb7323c",
+      "src/recovered/resident/resident_F_3B84.c": "5cb7fcfc9e1b65e275a28d89d12f285393d361c907892f96c8d9c7e6e4a0cf1d",
+      "src/recovered/resident/resident_F_3C0E.c": "224685b325aa36b8c6dcbcf57cddc53ef0e9d60345f321ce013e738f0f734610",
       "src/recovered/resident/resident_F_3C4C.c": "2fc53e5bce3382c9f9d3cfd866b1908018b178ce9e809e0d17d56b8340cb36b3",
       "src/recovered/resident/resident_F_3E9C.c": "165691d4136ca6dbe43dd428e90e3c629d8d35ddba46bede53ffc426d93f27d0",
       "src/recovered/resident/resident_F_4032.c": "3c0962b0d8d93cc735aaa37aba845227c5e5decf7fc6c3dfb913a536ea79c044",
