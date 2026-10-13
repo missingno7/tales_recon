@@ -502,6 +502,13 @@
       "reason": "NONCONTIGUOUS_LOCAL_UNIT_LAYOUT: 1684-byte function (aztec36, owned string tail) matches every instruction, jump table and literal, but its PC-relative jsr to canonical ov07_F_18F8 crosses the unclaimed original gap 0x1424..0x18F8 (contains unrecovered ov07_F_1424 and others); the contiguous unit builder links 18F8 directly after 0F30, so the call displacement differs (MEMBER_DIFFERS). Needs natural-offset placement across unowned gaps or the intervening functions recovered. Evidence build/workers/fn-ov07_F_0612.",
       "state": "BLOCKED"
     },
+    "ov08_F_1F4C": {
+      "category": "SOURCE_SHAPE",
+      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
+      "ownership_unchanged": true,
+      "reason": "SOURCE_SHAPE_RESIDUAL: complete 5634-byte source (best build/workers/fn-ov08_F_1F4C/v4a.c, 22 trials over two rounds) is 12 bytes short. Round 1's movem explanation and round 2's MOVEQ_CONSTANT_CODEGEN claim are both refuted: the candidate has no movem, and Aztec's assembler turns move.l #small,Dn in the .asm text into moveq bytes (ov09_F_0000 matched original moveq sites exactly). Remaining: the map-index read sequence and helper call routing; needs instruction-level alignment (diag is UNSUPPORTED because the candidate switch tables disagree with the listing).",
+      "state": "BLOCKED"
+    },
     "ov11_F_15C8": {
       "category": "OBJECT/TU_LAYOUT",
       "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",

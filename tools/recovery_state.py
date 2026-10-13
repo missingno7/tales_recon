@@ -219,7 +219,7 @@ def blocker_category(reason):
 
 
 def _category_from_words(text):
-    for words,category in [(('XOR_RESULT_REGISTER',),'SOURCE_SHAPE'),
+    for words,category in [(('XOR_RESULT_REGISTER','SOURCE_SHAPE'),'SOURCE_SHAPE'),
                            (('IMPLICIT_HELPER_A4_ROUTE',),'CALL_BINDING'),
                            (('PROVEN_OBJECT_GROUP_DEPENDENCY',),'OBJECT/TU_LAYOUT'),
                            (('NATURAL_UNIT_DECLARATION_VIEW',),'DECLARATION_VIEW'),
