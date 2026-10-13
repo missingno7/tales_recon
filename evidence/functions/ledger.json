@@ -18,7 +18,7 @@
   },
   "analysis_identity": {
     "analysis_support.py": "a76981e72fcef647d55c806517f125d55eaa8ec3e3658832b18b6bc8912ba2cd",
-    "function_census.py": "b623bff2259c6ff6097d74c6ced93abfcc06c505d046b997a4e1f4ede38c74ed"
+    "function_census.py": "0c41ffb13348e7488fe20456c0169ff3082e23ec09e2b29a54a1b1a20753b0e1"
   },
   "decoder": "Capstone 5.0.7",
   "functions": [
@@ -18100,6 +18100,271 @@
         }
       ],
       "start": 4062,
+      "tail_bytes_included": false,
+      "undecoded_gaps": []
+    },
+    {
+      "boundary_stops": [],
+      "branch_targets": [
+        4884,
+        4900,
+        4908,
+        4922,
+        4932
+      ],
+      "callers": [],
+      "cfg": [
+        {
+          "kind": "UNCONDITIONAL",
+          "source": 4882,
+          "target": 4922
+        },
+        {
+          "kind": "CONDITIONAL",
+          "source": 4930,
+          "target": 4884
+        },
+        {
+          "kind": "FALLTHROUGH",
+          "source": 4930,
+          "target": 4932
+        },
+        {
+          "kind": "CONDITIONAL",
+          "source": 4898,
+          "target": 4908
+        },
+        {
+          "kind": "FALLTHROUGH",
+          "source": 4898,
+          "target": 4900
+        },
+        {
+          "kind": "UNCONDITIONAL",
+          "source": 4906,
+          "target": 4932
+        }
+      ],
+      "confidence": "LOW",
+      "direct_callees": [
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "hunk": 0,
+          "id": "resident_F_4376",
+          "offset": 17270,
+          "site": 4884
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "hunk": 0,
+          "id": "resident_F_86A8",
+          "offset": 34472,
+          "site": 4912
+        }
+      ],
+      "end": 4940,
+      "entry_evidence": [
+        {
+          "kind": "POST_LITERAL_PROLOGUE",
+          "literal_owner": "resident_F_0FDE"
+        }
+      ],
+      "extent_status": "UNCERTAIN",
+      "hunk": 0,
+      "id": "resident_F_1306",
+      "indirect_control_flow": [],
+      "instructions": [
+        {
+          "mnemonic": "link.w",
+          "offset": 4870,
+          "operands": "a5, #$fffa",
+          "raw": "4e55fffa",
+          "size": 4
+        },
+        {
+          "mnemonic": "clr.w",
+          "offset": 4874,
+          "operands": "-$6(a5)",
+          "raw": "426dfffa",
+          "size": 4
+        },
+        {
+          "mnemonic": "clr.w",
+          "offset": 4878,
+          "operands": "-$4(a5)",
+          "raw": "426dfffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "bra.b",
+          "offset": 4882,
+          "operands": "$133a",
+          "raw": "6026",
+          "size": 2
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 4884,
+          "operands": "-$7f5c(a4)",
+          "raw": "4eac80a4",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.b",
+          "offset": 4888,
+          "operands": "d0, -$1(a5)",
+          "raw": "1b40ffff",
+          "size": 4
+        },
+        {
+          "mnemonic": "btst.b",
+          "offset": 4892,
+          "operands": "#$6, -$1(a5)",
+          "raw": "082d0006ffff",
+          "size": 6
+        },
+        {
+          "mnemonic": "beq.b",
+          "offset": 4898,
+          "operands": "$132c",
+          "raw": "6708",
+          "size": 2
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 4900,
+          "operands": "#$1, -$6(a5)",
+          "raw": "3b7c0001fffa",
+          "size": 6
+        },
+        {
+          "mnemonic": "bra.b",
+          "offset": 4906,
+          "operands": "$1344",
+          "raw": "6018",
+          "size": 2
+        },
+        {
+          "mnemonic": "pea.l",
+          "offset": 4908,
+          "operands": "$5.w",
+          "raw": "48780005",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 4912,
+          "operands": "-$7ee4(a4)",
+          "raw": "4eac811c",
+          "size": 4
+        },
+        {
+          "mnemonic": "addq.w",
+          "offset": 4916,
+          "operands": "#$4, a7",
+          "raw": "584f",
+          "size": 2
+        },
+        {
+          "mnemonic": "addq.w",
+          "offset": 4918,
+          "operands": "#$1, -$4(a5)",
+          "raw": "526dfffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 4922,
+          "operands": "-$4(a5), d0",
+          "raw": "302dfffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "cmp.w",
+          "offset": 4926,
+          "operands": "$8(a5), d0",
+          "raw": "b06d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "blt.b",
+          "offset": 4930,
+          "operands": "$1314",
+          "raw": "6dd0",
+          "size": 2
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 4932,
+          "operands": "-$6(a5), d0",
+          "raw": "302dfffa",
+          "size": 4
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 4936,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 4938,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "jump_tables": [],
+      "likely_argument_accesses": [
+        {
+          "frame_offset": 8,
+          "instruction_offset": 4926,
+          "width": "w"
+        }
+      ],
+      "node": "resident",
+      "ownership": "UNKNOWN",
+      "raw_bytes": "4e55fffa426dfffa426dfffc60264eac80a41b40ffff082d0006ffff67083b7c0001fffa6018487800054eac811c584f526dfffc302dfffcb06d00086dd0302dfffa4e5d4e75",
+      "reconstruction_state": "DISCOVERED",
+      "referenced_data": [
+        {
+          "hunk": 1,
+          "instruction_offset": 4884,
+          "kind": "A4_RELATIVE",
+          "offset": 162
+        },
+        {
+          "hunk": 1,
+          "instruction_offset": 4912,
+          "kind": "A4_RELATIVE",
+          "offset": 282
+        }
+      ],
+      "referenced_strings": [],
+      "register_save_restore": [
+        {
+          "mnemonic": "unlk",
+          "offset": 4936,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        }
+      ],
+      "relocations": [],
+      "return_sites": [
+        4938
+      ],
+      "sha256": "c1e38e7f54512d226ebc437d6820273d7f4510915f57c3affcad5b6077efcdbb",
+      "size": 70,
+      "stack_frames": [
+        {
+          "local_bytes": 6,
+          "offset": 4870,
+          "register": "a5"
+        }
+      ],
+      "start": 4870,
       "tail_bytes_included": false,
       "undecoded_gaps": []
     },
@@ -50325,6 +50590,12 @@
         },
         {
           "basis": "A4_RELOCATED_JMP_STUB",
+          "id": "ov11_F_20AE",
+          "reference_kind": "CALL",
+          "site": 8418
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
           "id": "ov11_F_20F2",
           "reference_kind": "CALL",
           "site": 8486
@@ -50773,6 +51044,12 @@
           "caller": "ov11_F_7194",
           "kind": "DIRECT_CALL",
           "site": 29260
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "caller": "ov11_F_20AE",
+          "kind": "DIRECT_CALL",
+          "site": 8418
         }
       ],
       "extent_status": "CLOSED_CFG",
@@ -53114,6 +53391,268 @@
         }
       ],
       "start": 14640,
+      "tail_bytes_included": false,
+      "undecoded_gaps": []
+    },
+    {
+      "boundary_stops": [],
+      "branch_targets": [],
+      "callers": [],
+      "cfg": [],
+      "confidence": "LOW",
+      "direct_callees": [
+        {
+          "basis": "PC_RELATIVE",
+          "hunk": 0,
+          "id": "resident_F_701A",
+          "offset": 28698,
+          "site": 14808
+        }
+      ],
+      "end": 14820,
+      "entry_evidence": [
+        {
+          "kind": "POST_LITERAL_PROLOGUE",
+          "literal_owner": "resident_F_3930"
+        }
+      ],
+      "extent_status": "UNCERTAIN",
+      "hunk": 0,
+      "id": "resident_F_39C0",
+      "indirect_control_flow": [],
+      "instructions": [
+        {
+          "mnemonic": "link.w",
+          "offset": 14784,
+          "operands": "a5, #$0",
+          "raw": "4e550000",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 14788,
+          "operands": "$5446.l, -(a7)",
+          "raw": "2f3900005446",
+          "size": 6
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 14794,
+          "operands": "$5446.l, -(a7)",
+          "raw": "2f3900005446",
+          "size": 6
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 14800,
+          "operands": "$8(a5), -(a7)",
+          "raw": "2f2d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "pea.l",
+          "offset": 14804,
+          "operands": "$39e4(pc)",
+          "raw": "487a000e",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 14808,
+          "operands": "$701a(pc)",
+          "raw": "4eba3640",
+          "size": 4
+        },
+        {
+          "mnemonic": "lea.l",
+          "offset": 14812,
+          "operands": "$10(a7), a7",
+          "raw": "4fef0010",
+          "size": 4
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 14816,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 14818,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "jump_tables": [],
+      "likely_argument_accesses": [
+        {
+          "frame_offset": 8,
+          "instruction_offset": 14800,
+          "width": "l"
+        }
+      ],
+      "node": "resident",
+      "ownership": "UNKNOWN",
+      "raw_bytes": "4e5500002f39000054462f39000054462f2d0008487a000e4eba36404fef00104e5d4e75",
+      "reconstruction_state": "DISCOVERED",
+      "referenced_data": [
+        {
+          "hunk": 0,
+          "instruction_offset": 14804,
+          "kind": "PC_RELATIVE_DATA",
+          "offset": 14820
+        }
+      ],
+      "referenced_strings": [
+        {
+          "confidence": "REFERENCED_PRINTABLE_CANDIDATE",
+          "hunk": 0,
+          "offset": 14820,
+          "text": "%s  mem=%ld (%lx)\n"
+        }
+      ],
+      "register_save_restore": [
+        {
+          "mnemonic": "unlk",
+          "offset": 14816,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        }
+      ],
+      "relocations": [
+        {
+          "addend_raw": 21574,
+          "entry_offset": 38236,
+          "record_offset": 36300,
+          "relative_offset": 6,
+          "source_hunk": 0,
+          "source_offset": 14790,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 21574,
+          "entry_offset": 38240,
+          "record_offset": 36300,
+          "relative_offset": 12,
+          "source_hunk": 0,
+          "source_offset": 14796,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        }
+      ],
+      "return_sites": [
+        14818
+      ],
+      "sha256": "4c00b44de1fc55190829c16c2fef5068f804b0f648a3c965befbabc1c07f8603",
+      "size": 36,
+      "stack_frames": [
+        {
+          "local_bytes": 0,
+          "offset": 14784,
+          "register": "a5"
+        }
+      ],
+      "start": 14784,
+      "tail_bytes_included": false,
+      "undecoded_gaps": []
+    },
+    {
+      "boundary_stops": [],
+      "branch_targets": [],
+      "callers": [],
+      "cfg": [],
+      "confidence": "LOW",
+      "direct_callees": [],
+      "end": 14854,
+      "entry_evidence": [
+        {
+          "kind": "POST_LITERAL_PROLOGUE",
+          "literal_owner": "resident_F_39C0"
+        }
+      ],
+      "extent_status": "UNCERTAIN",
+      "hunk": 0,
+      "id": "resident_F_39F8",
+      "indirect_control_flow": [],
+      "instructions": [
+        {
+          "mnemonic": "link.w",
+          "offset": 14840,
+          "operands": "a5, #$0",
+          "raw": "4e550000",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 14844,
+          "operands": "$5446.l, d0",
+          "raw": "203900005446",
+          "size": 6
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 14850,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 14852,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "jump_tables": [],
+      "likely_argument_accesses": [],
+      "node": "resident",
+      "ownership": "UNKNOWN",
+      "raw_bytes": "4e5500002039000054464e5d4e75",
+      "reconstruction_state": "DISCOVERED",
+      "referenced_data": [],
+      "referenced_strings": [],
+      "register_save_restore": [
+        {
+          "mnemonic": "unlk",
+          "offset": 14850,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        }
+      ],
+      "relocations": [
+        {
+          "addend_raw": 21574,
+          "entry_offset": 38244,
+          "record_offset": 36300,
+          "relative_offset": 6,
+          "source_hunk": 0,
+          "source_offset": 14846,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        }
+      ],
+      "return_sites": [
+        14852
+      ],
+      "sha256": "be9f974a9f2738bd894b6eb01e8971be8ddb09e6a12f5a506dcbf8d21e2526e4",
+      "size": 14,
+      "stack_frames": [
+        {
+          "local_bytes": 0,
+          "offset": 14840,
+          "register": "a5"
+        }
+      ],
+      "start": 14840,
       "tail_bytes_included": false,
       "undecoded_gaps": []
     },
@@ -64840,6 +65379,12 @@
         },
         {
           "basis": "A4_RELOCATED_JMP_STUB",
+          "id": "resident_F_1306",
+          "reference_kind": "CALL",
+          "site": 4884
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
           "id": "resident_F_134C",
           "reference_kind": "CALL",
           "site": 4958
@@ -65893,6 +66438,12 @@
           "caller": "ov04_F_0B50",
           "kind": "DIRECT_CALL",
           "site": 3466
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "caller": "resident_F_1306",
+          "kind": "DIRECT_CALL",
+          "site": 4884
         }
       ],
       "extent_status": "CLOSED_CFG",
@@ -103414,6 +103965,12 @@
         },
         {
           "basis": "PC_RELATIVE",
+          "id": "resident_F_39C0",
+          "reference_kind": "CALL",
+          "site": 14808
+        },
+        {
+          "basis": "PC_RELATIVE",
           "id": "resident_F_3A06",
           "reference_kind": "CALL",
           "site": 14862
@@ -103503,6 +104060,12 @@
           "caller": "resident_F_3A06",
           "kind": "DIRECT_CALL",
           "site": 14906
+        },
+        {
+          "basis": "PC_RELATIVE",
+          "caller": "resident_F_39C0",
+          "kind": "DIRECT_CALL",
+          "site": 14808
         }
       ],
       "extent_status": "UNCERTAIN",
@@ -103716,6 +104279,12 @@
           "id": "ov10_F_0000",
           "reference_kind": "CALL",
           "site": 322
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "id": "ov11_F_20AE",
+          "reference_kind": "CALL",
+          "site": 8400
         },
         {
           "basis": "A4_RELOCATED_JMP_STUB",
@@ -104095,6 +104664,12 @@
           "caller": "ov11_F_7194",
           "kind": "DIRECT_CALL",
           "site": 29220
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "caller": "ov11_F_20AE",
+          "kind": "DIRECT_CALL",
+          "site": 8400
         }
       ],
       "extent_status": "CLOSED_CFG",
@@ -109238,6 +109813,12 @@
         },
         {
           "basis": "A4_RELOCATED_JMP_STUB",
+          "id": "ov11_F_20AE",
+          "reference_kind": "CALL",
+          "site": 8378
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
           "id": "ov11_F_20F2",
           "reference_kind": "CALL",
           "site": 8446
@@ -109649,6 +110230,12 @@
           "caller": "ov11_F_7194",
           "kind": "DIRECT_CALL",
           "site": 29242
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "caller": "ov11_F_20AE",
+          "kind": "DIRECT_CALL",
+          "site": 8378
         }
       ],
       "extent_status": "UNCERTAIN",
@@ -124053,6 +124640,12 @@
         },
         {
           "basis": "A4_RELOCATED_JMP_STUB",
+          "id": "resident_F_1306",
+          "reference_kind": "CALL",
+          "site": 4912
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
           "id": "resident_F_134C",
           "reference_kind": "CALL",
           "site": 4990
@@ -124967,6 +125560,12 @@
           "caller": "ov11_F_41F6",
           "kind": "DIRECT_CALL",
           "site": 17358
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "caller": "resident_F_1306",
+          "kind": "DIRECT_CALL",
+          "site": 4912
         }
       ],
       "extent_status": "UNCERTAIN",
@@ -458069,6 +458668,266 @@
     {
       "boundary_stops": [],
       "branch_targets": [
+        8414,
+        8424
+      ],
+      "callers": [],
+      "cfg": [
+        {
+          "kind": "CONDITIONAL",
+          "source": 8412,
+          "target": 8424
+        },
+        {
+          "kind": "FALLTHROUGH",
+          "source": 8412,
+          "target": 8414
+        }
+      ],
+      "confidence": "LOW",
+      "direct_callees": [
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "hunk": 0,
+          "id": "resident_F_75D8",
+          "offset": 30168,
+          "site": 8378
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "hunk": 0,
+          "id": "resident_F_704E",
+          "offset": 28750,
+          "site": 8400
+        },
+        {
+          "basis": "A4_RELOCATED_JMP_STUB",
+          "hunk": 0,
+          "id": "resident_F_3674",
+          "offset": 13940,
+          "site": 8418
+        }
+      ],
+      "end": 8428,
+      "entry_evidence": [
+        {
+          "kind": "POST_LITERAL_PROLOGUE",
+          "literal_owner": "ov11_F_15C8"
+        }
+      ],
+      "extent_status": "UNCERTAIN",
+      "hunk": 11,
+      "id": "ov11_F_20AE",
+      "indirect_control_flow": [],
+      "instructions": [
+        {
+          "mnemonic": "link.w",
+          "offset": 8366,
+          "operands": "a5, #$fffc",
+          "raw": "4e55fffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 8370,
+          "operands": "#$43, -(a7)",
+          "raw": "3f3c0043",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 8374,
+          "operands": "$8(a5), -(a7)",
+          "raw": "2f2d0008",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 8378,
+          "operands": "-$7f20(a4)",
+          "raw": "4eac80e0",
+          "size": 4
+        },
+        {
+          "mnemonic": "addq.w",
+          "offset": 8382,
+          "operands": "#$6, a7",
+          "raw": "5c4f",
+          "size": 2
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 8384,
+          "operands": "d0, -$4(a5)",
+          "raw": "2b40fffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "pea.l",
+          "offset": 8388,
+          "operands": "-$56a(a4)",
+          "raw": "486cfa96",
+          "size": 4
+        },
+        {
+          "mnemonic": "pea.l",
+          "offset": 8392,
+          "operands": "$20ec(pc)",
+          "raw": "487a0022",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 8396,
+          "operands": "-$4(a5), -(a7)",
+          "raw": "2f2dfffc",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 8400,
+          "operands": "-$7f2c(a4)",
+          "raw": "4eac80d4",
+          "size": 4
+        },
+        {
+          "mnemonic": "lea.l",
+          "offset": 8404,
+          "operands": "$c(a7), a7",
+          "raw": "4fef000c",
+          "size": 4
+        },
+        {
+          "mnemonic": "cmp.w",
+          "offset": 8408,
+          "operands": "#$1, d0",
+          "raw": "b07c0001",
+          "size": 4
+        },
+        {
+          "mnemonic": "bge.b",
+          "offset": 8412,
+          "operands": "$20e8",
+          "raw": "6c0a",
+          "size": 2
+        },
+        {
+          "mnemonic": "move.w",
+          "offset": 8414,
+          "operands": "#$2c, -(a7)",
+          "raw": "3f3c002c",
+          "size": 4
+        },
+        {
+          "mnemonic": "jsr",
+          "offset": 8418,
+          "operands": "-$7f9e(a4)",
+          "raw": "4eac8062",
+          "size": 4
+        },
+        {
+          "mnemonic": "addq.w",
+          "offset": 8422,
+          "operands": "#$2, a7",
+          "raw": "544f",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 8424,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 8426,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "jump_tables": [],
+      "likely_argument_accesses": [
+        {
+          "frame_offset": 8,
+          "instruction_offset": 8374,
+          "width": "l"
+        }
+      ],
+      "node": "ov11",
+      "ownership": "UNKNOWN",
+      "raw_bytes": "4e55fffc3f3c00432f2d00084eac80e05c4f2b40fffc486cfa96487a00222f2dfffc4eac80d44fef000cb07c00016c0a3f3c002c4eac8062544f4e5d4e75",
+      "reconstruction_state": "DISCOVERED",
+      "referenced_data": [
+        {
+          "hunk": 1,
+          "instruction_offset": 8378,
+          "kind": "A4_RELATIVE",
+          "offset": 222
+        },
+        {
+          "hunk": 1,
+          "instruction_offset": 8388,
+          "kind": "A4_RELATIVE",
+          "offset": 31380
+        },
+        {
+          "hunk": 11,
+          "instruction_offset": 8392,
+          "kind": "PC_RELATIVE_DATA",
+          "offset": 8428
+        },
+        {
+          "hunk": 1,
+          "instruction_offset": 8400,
+          "kind": "A4_RELATIVE",
+          "offset": 210
+        },
+        {
+          "hunk": 1,
+          "instruction_offset": 8418,
+          "kind": "A4_RELATIVE",
+          "offset": 96
+        }
+      ],
+      "referenced_strings": [
+        {
+          "confidence": "REFERENCED_PRINTABLE_CANDIDATE",
+          "hunk": 11,
+          "offset": 8428,
+          "text": "C %d"
+        }
+      ],
+      "register_save_restore": [
+        {
+          "mnemonic": "unlk",
+          "offset": 8424,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        }
+      ],
+      "relocations": [],
+      "return_sites": [
+        8426
+      ],
+      "sha256": "6ddc172dbe5da14d98e75c24cee99f070d177dea30914791dafee5c5c7acbf6a",
+      "size": 62,
+      "stack_frames": [
+        {
+          "local_bytes": 4,
+          "offset": 8366,
+          "register": "a5"
+        }
+      ],
+      "start": 8366,
+      "tail_bytes_included": false,
+      "undecoded_gaps": []
+    },
+    {
+      "boundary_stops": [],
+      "branch_targets": [
         8482,
         8492,
         8522,
@@ -563387,9 +564246,9 @@
   "schema_version": 1,
   "summary": {
     "by_hunk": {
-      "0": 25846,
+      "0": 25966,
       "10": 13242,
-      "11": 28138,
+      "11": 28200,
       "12": 2998,
       "13": 3446,
       "14": 1456,
@@ -563402,9 +564261,9 @@
       "8": 16234,
       "9": 10892
     },
-    "candidates": 667,
+    "candidates": 671,
     "closed_cfg": 285,
-    "decoded_bytes": 158006,
+    "decoded_bytes": 158188,
     "reconstruction_claimed_by_census": false
   },
   "unreached_ranges": [
@@ -563536,7 +564395,7 @@
     },
     {
       "classification": "NOT_REACHED_BY_DESCENT",
-      "end": 4940,
+      "end": 4870,
       "hunk": 0,
       "start": 4786
     },
@@ -563770,9 +564629,15 @@
     },
     {
       "classification": "NOT_REACHED_BY_DESCENT",
-      "end": 14854,
+      "end": 14784,
       "hunk": 0,
       "start": 14738
+    },
+    {
+      "classification": "NOT_REACHED_BY_DESCENT",
+      "end": 14840,
+      "hunk": 0,
+      "start": 14820
     },
     {
       "classification": "NOT_REACHED_BY_DESCENT",
@@ -564964,9 +565829,15 @@
     },
     {
       "classification": "NOT_REACHED_BY_DESCENT",
-      "end": 8434,
+      "end": 8366,
       "hunk": 11,
       "start": 8354
+    },
+    {
+      "classification": "NOT_REACHED_BY_DESCENT",
+      "end": 8434,
+      "hunk": 11,
+      "start": 8428
     },
     {
       "classification": "NOT_REACHED_BY_DESCENT",

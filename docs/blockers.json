@@ -509,13 +509,6 @@
       "reason": "SOURCE_SHAPE_RESIDUAL: complete 5634-byte source (best build/workers/fn-ov08_F_1F4C/v4a.c, 22 trials over two rounds) is 12 bytes short. Round 1's movem explanation and round 2's MOVEQ_CONSTANT_CODEGEN claim are both refuted: the candidate has no movem, and Aztec's assembler turns move.l #small,Dn in the .asm text into moveq bytes (ov09_F_0000 matched original moveq sites exactly). Remaining: the map-index read sequence and helper call routing; needs instruction-level alignment (diag is UNSUPPORTED because the candidate switch tables disagree with the listing).",
       "state": "BLOCKED"
     },
-    "ov11_F_15C8": {
-      "category": "OBJECT/TU_LAYOUT",
-      "next_action": "Revise ABI/data hypothesis or use a stronger model; retry explicitly",
-      "ownership_unchanged": true,
-      "reason": "OWNED_TAIL_UNBOUNDED: 2778-byte candidate build/workers/fn-ov11_F_15C8/v9.c is EQUAL with its 12-byte owned literal tail ('DT2:jg.arc'), but promotion needs the tail to end at the next discovered entry. The bytes at 0x20AE (64 bytes, link a5 ... unlk/rts plus its own 'C %d' literal) form an unreferenced function with no entry evidence (no call, relocation or overlay export), so 0x20AE..0x20F2 stays unowned. Needs entry evidence for 0x20AE or a proven tail-to-gap promotion rule.",
-      "state": "BLOCKED"
-    },
     "ov11_F_2272": {
       "category": "OBJECT/TU_LAYOUT",
       "next_action": "A recorded proven object predates a function discovered inside it. Re-prove the complete object including the new member (replacement proofs through the normal unit verifier), then rerun the retained unit inputs unchanged. Do not relax the proven-grouping validator.",
@@ -552,13 +545,6 @@
       "next_action": "A bsr.b to a canonical callee proves both were one original object, but the callee was proved standalone. Re-prove the callee and this caller as one address-consecutive object group through the normal unit verifier (replacement proof), then rerun the retained candidate unchanged.",
       "ownership_unchanged": true,
       "reason": "SAME_OBJECT_SHORT_CALL: 448-byte switch function (aztec36). The original's case-8 call to canonical resident_F_04FE is bsr.b (other three sites jsr), so 033E and 04FE were one object; separate compilation emits jsr and shifts the table by 2 (450 vs 448). Its unit also reaches unrecovered resident_F_86A8 (runtime tail, via canonical 330E) and PC-relative game callee resident_F_0640; a 2026-10-12 attempt to keep such callees external in units was reverted because it broke the proven standalone stand-in fallback (resident_F_2FE2). Evidence build/workers/fn-resident_F_033E.",
-      "state": "BLOCKED"
-    },
-    "resident_F_3930": {
-      "category": "CFG/BOUNDARY",
-      "next_action": "Discover the unreferenced function after the literal bundle (post-literal link prologue at 0x39C2) so the owned tail is bounded, then promote the retained candidate unchanged.",
-      "ownership_unchanged": true,
-      "reason": "OWNED_TAIL_UNBOUNDED: 98-byte candidate build/workers/fn-resident_F_3930/v4-long-sum.c is EQUAL with its owned literal tail (\"dealloc: ...\" and \"BAD POINTER\n\", aztec36-large-data), but the tail is followed by an undiscovered unreferenced kprintf debug function (link; push two globals; pea \"%s  mem=%ld (%lx)\n\"; jsr 701A) and a tiny getter before resident_F_3A06, so it does not end at a discovered entry. Same mechanism as ov11_F_15C8.",
       "state": "BLOCKED"
     },
     "resident_F_411E": {

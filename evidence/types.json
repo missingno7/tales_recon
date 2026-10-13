@@ -1,13 +1,13 @@
 {
   "counts": {
-    "address_taken_sites": 1627,
+    "address_taken_sites": 1628,
     "extension_context_sites": 184,
-    "frame_access_sites": 1102,
+    "frame_access_sites": 1105,
     "frame_address_taken_sites": 2,
     "frame_extension_context_sites": 80,
-    "frame_slots": 383,
-    "functions_scanned": 667,
-    "global_accesses": 8798,
+    "frame_slots": 386,
+    "functions_scanned": 671,
+    "global_accesses": 8803,
     "global_identities": 1899
   },
   "declaration_conflicts": {
@@ -14503,7 +14503,7 @@
         "symbol": "G_h01_B3B0"
       }
     ],
-    "declarations_scanned": 1999,
+    "declarations_scanned": 2005,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
@@ -14593,6 +14593,7 @@
       "src/recovered/ov11/ov11_F_1372.c": "ecf339729d655127ba8710ff0e5c64f8a61c18edb5dc210221637964a1632e56",
       "src/recovered/ov11/ov11_F_13DC.c": "b6dfd08ca4ee11646350cba504f79f9ce637977ca1bbdfc93ce1b93203aa713a",
       "src/recovered/ov11/ov11_F_14BA.c": "9fa3634b1da8a9ecb700d810f47bfa4547316b2a023adfcf69d65534c32cf499",
+      "src/recovered/ov11/ov11_F_15C8.c": "539f731c917c5d4cd1ac3c521d571291fd1ed204b87b08225ec5a7b851963c2a",
       "src/recovered/ov11/ov11_F_20F2.c": "1c7f380f309f5a21b01f97605232c6d99564c9312593b2a391b3239fdb93943e",
       "src/recovered/ov11/ov11_F_21F8.c": "06e9a9b4dda38979c20606e7b2126181938ac4afd2e54de016d906c802800a2d",
       "src/recovered/ov11/ov11_F_23F4.c": "154632c9b23ec2b9480f72f7e369719655f687ff161716c916309b56ed402c33",
@@ -14690,6 +14691,7 @@
       "src/recovered/resident/resident_F_35DC.c": "2f1c478cccb1c1000d6ed7c61782004a39b1e67d19a963712121bf6a7e856099",
       "src/recovered/resident/resident_F_37C8.c": "2c92f2b5ba3f87b38a337372515fb06bd2999ed55318087f4a4d3d78cf4be073",
       "src/recovered/resident/resident_F_3850.c": "13b9642f82f1bde45bf6d7c24bbaacf9919d7166ca119d6e514ef5534ddf3ab7",
+      "src/recovered/resident/resident_F_3930.c": "34c8d0da66b363dd1ab01507fcc200e413b17d579a77e772ca521c04f3d71aa0",
       "src/recovered/resident/resident_F_3A06.c": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
       "src/recovered/resident/resident_F_3C4C.c": "2fc53e5bce3382c9f9d3cfd866b1908018b178ce9e809e0d17d56b8340cb36b3",
       "src/recovered/resident/resident_F_3E9C.c": "165691d4136ca6dbe43dd428e90e3c629d8d35ddba46bede53ffc426d93f27d0",
@@ -14710,7 +14712,7 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "symbols_with_multiple_views": 319
+    "symbols_with_multiple_views": 322
   },
   "frame_access_candidates": [
     {
@@ -21261,6 +21263,26 @@
         {
           "basis": "decoded A5 displacement; argument boundary unproved",
           "frame_offset": 8,
+          "function": "ov11_F_20AE",
+          "hunk": 11,
+          "mnemonic": "move.l",
+          "offset": 8374,
+          "operands": "$8(a5), -(a7)",
+          "raw": "2f2d0008",
+          "width_bytes": 4
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "ov11_F_20AE",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
           "function": "ov11_F_20F2",
           "hunk": 11,
           "mnemonic": "move.l",
@@ -27766,6 +27788,26 @@
         {
           "basis": "decoded A5 displacement; argument boundary unproved",
           "frame_offset": 8,
+          "function": "resident_F_1306",
+          "hunk": 0,
+          "mnemonic": "cmp.w",
+          "offset": 4926,
+          "operands": "$8(a5), d0",
+          "raw": "b06d0008",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "resident_F_1306",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
           "function": "resident_F_134C",
           "hunk": 0,
           "mnemonic": "cmp.w",
@@ -29223,6 +29265,26 @@
       "extension_context": [],
       "frame_offset": 16,
       "function": "resident_F_3930",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "resident_F_39C0",
+          "hunk": 0,
+          "mnemonic": "move.l",
+          "offset": 14800,
+          "operands": "$8(a5), -(a7)",
+          "raw": "2f2d0008",
+          "width_bytes": 4
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "resident_F_39C0",
       "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
     },
     {
@@ -46835,6 +46897,17 @@
         {
           "basis": "A4 bias + decoded displacement",
           "direction": "UNKNOWN",
+          "function": "ov11_F_20AE",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 8418,
+          "operands": "-$7f9e(a4)",
+          "raw": "4eac8062",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
           "function": "ov11_F_20F2",
           "hunk": 1,
           "mnemonic": "jsr",
@@ -50766,6 +50839,17 @@
           "hunk": 1,
           "mnemonic": "jsr",
           "offset": 3870,
+          "operands": "-$7f5c(a4)",
+          "raw": "4eac80a4",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "resident_F_1306",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 4884,
           "operands": "-$7f5c(a4)",
           "raw": "4eac80a4",
           "width_bytes": null
@@ -56202,6 +56286,17 @@
         {
           "basis": "A4 bias + decoded displacement",
           "direction": "UNKNOWN",
+          "function": "ov11_F_20AE",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 8400,
+          "operands": "-$7f2c(a4)",
+          "raw": "4eac80d4",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
           "function": "ov11_F_20F2",
           "hunk": 1,
           "mnemonic": "jsr",
@@ -56752,6 +56847,17 @@
           "hunk": 1,
           "mnemonic": "jsr",
           "offset": 29852,
+          "operands": "-$7f20(a4)",
+          "raw": "4eac80e0",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_20AE",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 8378,
           "operands": "-$7f20(a4)",
           "raw": "4eac80e0",
           "width_bytes": null
@@ -58516,6 +58622,17 @@
           "hunk": 1,
           "mnemonic": "jsr",
           "offset": 4734,
+          "operands": "-$7ee4(a4)",
+          "raw": "4eac811c",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "resident_F_1306",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 4912,
           "operands": "-$7ee4(a4)",
           "raw": "4eac811c",
           "width_bytes": null
@@ -140673,7 +140790,17 @@
           "width_bytes": 2
         }
       ],
-      "address_taken": [],
+      "address_taken": [
+        {
+          "basis": "A4 identity + PEA",
+          "function": "ov11_F_20AE",
+          "hunk": 1,
+          "mnemonic": "pea.l",
+          "offset": 8388,
+          "operands": "-$56a(a4)",
+          "raw": "486cfa96"
+        }
+      ],
       "data_hunk_offset": 31380,
       "extension_context": [],
       "observed_widths_bytes": [
@@ -163995,7 +164122,7 @@
     },
     "analysis_identity": {
       "analysis_support.py": "a76981e72fcef647d55c806517f125d55eaa8ec3e3658832b18b6bc8912ba2cd",
-      "function_census.py": "b623bff2259c6ff6097d74c6ced93abfcc06c505d046b997a4e1f4ede38c74ed"
+      "function_census.py": "0c41ffb13348e7488fe20456c0169ff3082e23ec09e2b29a54a1b1a20753b0e1"
     },
     "declaration_source_hashes": {
       "src/recovered/ov03/ov03_F_001C.c": "4430515d846a6b33e4bf088ccde23c50e5d76e1c6e7d50ae4114e4fb183f0791",
@@ -164073,6 +164200,7 @@
       "src/recovered/ov11/ov11_F_1372.c": "ecf339729d655127ba8710ff0e5c64f8a61c18edb5dc210221637964a1632e56",
       "src/recovered/ov11/ov11_F_13DC.c": "b6dfd08ca4ee11646350cba504f79f9ce637977ca1bbdfc93ce1b93203aa713a",
       "src/recovered/ov11/ov11_F_14BA.c": "9fa3634b1da8a9ecb700d810f47bfa4547316b2a023adfcf69d65534c32cf499",
+      "src/recovered/ov11/ov11_F_15C8.c": "539f731c917c5d4cd1ac3c521d571291fd1ed204b87b08225ec5a7b851963c2a",
       "src/recovered/ov11/ov11_F_20F2.c": "1c7f380f309f5a21b01f97605232c6d99564c9312593b2a391b3239fdb93943e",
       "src/recovered/ov11/ov11_F_21F8.c": "06e9a9b4dda38979c20606e7b2126181938ac4afd2e54de016d906c802800a2d",
       "src/recovered/ov11/ov11_F_23F4.c": "154632c9b23ec2b9480f72f7e369719655f687ff161716c916309b56ed402c33",
@@ -164170,6 +164298,7 @@
       "src/recovered/resident/resident_F_35DC.c": "2f1c478cccb1c1000d6ed7c61782004a39b1e67d19a963712121bf6a7e856099",
       "src/recovered/resident/resident_F_37C8.c": "2c92f2b5ba3f87b38a337372515fb06bd2999ed55318087f4a4d3d78cf4be073",
       "src/recovered/resident/resident_F_3850.c": "13b9642f82f1bde45bf6d7c24bbaacf9919d7166ca119d6e514ef5534ddf3ab7",
+      "src/recovered/resident/resident_F_3930.c": "34c8d0da66b363dd1ab01507fcc200e413b17d579a77e772ca521c04f3d71aa0",
       "src/recovered/resident/resident_F_3A06.c": "dc644068d558100435bb5a3bdcae7a7a28f32da874657ba1f81016c0935be819",
       "src/recovered/resident/resident_F_3C4C.c": "2fc53e5bce3382c9f9d3cfd866b1908018b178ce9e809e0d17d56b8340cb36b3",
       "src/recovered/resident/resident_F_3E9C.c": "165691d4136ca6dbe43dd428e90e3c629d8d35ddba46bede53ffc426d93f27d0",
@@ -164190,8 +164319,8 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "function_ledger_sha256": "548e8b89fb26d0812a320c4c09b2331a0cf2ba966cd57a6f62f8a74bdd4d1206",
-    "instruction_index_sha256": "7b66f0b4e845d8965ee2b689aa58b49639701d741c994e9520e51b2edfacf631",
+    "function_ledger_sha256": "1e0111f8a5dd7ed8d10fc1f30d57e395acf34ab91c7d4db9fb4dcf0ea75270ec",
+    "instruction_index_sha256": "22100aa1cab2e3fb6bc67b8b1f9fab349408d47dc2fde9c1323685a7c89b4ddb",
     "miner_sha256": "1982119317d01b59b2216145a02eea8f06824fac5329dc37f7aff97af7a6a724"
   },
   "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",

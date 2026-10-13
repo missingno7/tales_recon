@@ -11,11 +11,15 @@ import sys
 from analysis_support import ROOT
 
 STEPS = (
+    # Census first: a census change regenerates the instruction index that
+    # type evidence is keyed to, so type evidence must follow it.
+    ("census write", ["tools/census.py", "--write"]),
     ("type evidence", ["tools/type_evidence.py", "--write"]),
     ("hybrid refresh", ["tools/hybrid_image.py", "--refresh", "--write"]),
     ("census write", ["tools/census.py", "--write"]),
     ("census check", ["tools/census.py", "--check"]),
     ("hybrid check", ["tools/hybrid_image.py", "--check"]),
+    ("type check", ["tools/type_evidence.py", "--check"]),
 )
 
 

@@ -217,13 +217,53 @@ class Census:
             confidence='HIGH' if complete else 'LOW',ownership='RUNTIME_CANDIDATE' if any(rh==h and a<=start<b for rh,a,b in self.runtime) else 'UNKNOWN',
             reconstruction_state='DISCOVERED',tail_bytes_included=False)
 
-    def run(self):
-        # Discovery fixpoint, followed by a stable pass with all entry barriers.
+    def post_literal_seeds(self,functions):
+        """Seed the link prologue that directly follows a function's literal bundle.
+
+        Aztec places a function's PC-relative literals right after its code,
+        then the next compiled function.  When the bytes after a function are
+        exactly NUL-terminated printable runs that the function itself
+        references (plus at most one alignment zero) and the next even word is
+        ``link a5`` that no discovered function covers, that word is the next
+        function's entry even without a caller (dead or indirectly used code).
+        The seed is weak evidence: it bounds the literal bundle and keeps the
+        function visible, but never makes its extent CLOSED_CFG by itself.
+        """
+        covered=defaultdict(set)
+        for f in functions:
+            for i in f['instructions']:covered[f['hunk']].update(range(i['offset'],i['offset']+i['size']))
+        added=0
+        for f in functions:
+            h=f['hunk'];data=self.data.get(h,b'')
+            starts={r['offset'] for r in f['referenced_data'] if r['kind']=='PC_RELATIVE_DATA' and r['hunk']==h and r['offset']>=f['end']}
+            if not starts or min(starts)!=f['end']:continue
+            cursor=f['end'];ok=True
+            while cursor<=max(starts):
+                if cursor not in starts:ok=False;break
+                nul=data.find(b'\0',cursor,min(len(data),cursor+256))
+                if nul<0 or not all(32<=v<127 or v in (9,10,13) for v in data[cursor:nul]):ok=False;break
+                cursor=nul+1
+            if not ok:continue
+            if cursor%2:
+                if data[cursor:cursor+1]!=b'\0':continue
+                cursor+=1
+            if data[cursor:cursor+2]!=b'\x4e\x55' or cursor in covered[h] or (h,cursor) in self.entries:continue
+            if self.valid(h,cursor):
+                self.seed(h,cursor,dict(kind='POST_LITERAL_PROLOGUE',literal_owner=f['id']));added+=1
+        return added
+
+    def discover(self):
         previous=-1
         while previous!=len(self.entries):
             previous=len(self.entries)
             for h,start in sorted(list(self.entries),key=lambda x:({14:0,12:1,13:2,7:3}.get(x[0],4),x)):
                 self.walk(h,start)
+
+    def run(self):
+        # Discovery fixpoint, followed by a stable pass with all entry barriers.
+        self.discover()
+        while self.post_literal_seeds([self.walk(h,s) for h,s in sorted(self.entries)]):
+            self.discover()
         functions=[self.walk(h,s) for h,s in sorted(self.entries)]
         by_id={f['id']:f for f in functions};coverage=defaultdict(set)
         for f in functions:

@@ -4,10 +4,10 @@ This is a validated consolidation checkpoint. The original requested pass is
 not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
 the remaining legacy workflow/documentation audit still have open gates.
 
-Canonical coverage is 224 functions / 104,320 C bytes, plus two complete mixed
+Canonical coverage is 226 functions / 107,196 C bytes, plus two complete mixed
 objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
 `progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 84,106 file bytes of
+compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 81,172 file bytes of
 RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
 is separate. Accounting grants no new reconstruction proof.
 
@@ -112,6 +112,15 @@ indexing as pointer arithmetic (`(struct Rec54 *)&G + i`; `char * + 54 * i`
 adds `ext.l`). The last residuals were relocation identities only (two
 swapped/shifted globals and a 4EC6/435E callee name). Three unused locals
 remain under neutral names because the 134-byte frame requires them.
+OWNED_TAIL_UNBOUNDED resolved (CFG/BOUNDARY): the census now seeds a weak
+`POST_LITERAL_PROLOGUE` entry where a function's referenced literal bundle
+(NUL-terminated printable runs it references, plus one alignment byte) is
+followed directly by an uncovered `link a5`. Such entries stay UNCERTAIN
+(no caller) but bound the preceding tail. Four entries appeared (ov11 20AE,
+resident 1306/39C0/39F8; no existing extent changed); ov11_F_15C8 (2,778)
+and resident_F_3930 then promoted unchanged apart from neutral struct names.
+`tools/boundary_refresh.py` now writes the census before type evidence (a
+census change regenerates the instruction index) and checks type evidence.
 ov07_F_0612 (1,684 + tail) closed unchanged once ov07_F_1424 filled its
 gap (NONCONTIGUOUS_LOCAL_UNIT_LAYOUT resolved by recovery, not tooling).
 Open: ov11_F_15C8 is EQUAL but its tail is followed by unreferenced code at

@@ -61,6 +61,18 @@ class FunctionCensusTests(unittest.TestCase):
         f=c.run()['functions'][0]
         self.assertEqual([s['text'] for s in f['referenced_strings']],[''])
 
+    def test_link_after_referenced_literal_bundle_is_a_weak_entry(self):
+        # link; pea 8(pc) -> "A" right after rts; addq; unlk; rts; "A\0";
+        # then an unreferenced link/unlk/rts function. Its entry is seeded
+        # from the bundle, stays UNCERTAIN, and bounds the literal tail.
+        code='4e550000487a0008584f4e5d4e75'
+        fs={f['start']:f for f in self.census(code+'4100'+'4e5500004e5d4e75').run()['functions']}
+        self.assertEqual(sorted(fs),[0,16])
+        self.assertEqual(fs[16]['entry_evidence'],[dict(kind='POST_LITERAL_PROLOGUE',literal_owner='resident_F_0000')])
+        self.assertEqual(fs[16]['extent_status'],'UNCERTAIN')
+        # A non-printable byte in the bundle is not literal evidence.
+        self.assertEqual([f['start'] for f in self.census(code+'ff00'+'4e5500004e5d4e75').run()['functions']],[0])
+
     def test_jump_table_with_default_before_dispatch_closes_cfg(self):
         # link; bra.w to the bound check; default arm (rts) placed before the
         # table; cmp.l #2,d0; bcc.b back to the default; asl; move.w
