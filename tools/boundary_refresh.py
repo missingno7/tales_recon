@@ -5,7 +5,7 @@ check_function/check_unit run) the derived evidence must be regenerated
 before the next promotion gate, whose regression suite requires current type
 evidence and hybrid specimens naming exactly the canonical sources.
 """
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import nullcontext, redirect_stderr, redirect_stdout
 import io
 import runpy
 import sys
@@ -52,7 +52,11 @@ def run_step(script, argv):
 def main():
     with snapshot():
         for label, script, argv in STEPS:
-            with validated_stage(ROOT, strict=True):
+            # Type evidence writes evidence/types.json, a strict-stage input of
+            # the typed DATA providers, from the immutable image only; a strict
+            # stage around its own output would always report changed inputs.
+            stage = nullcontext() if (script, argv) == ("tools/type_evidence.py", ["--write"])                 else validated_stage(ROOT, strict=True)
+            with stage:
                 code, output = run_step(script, argv)
             lines = [line for line in output.splitlines() if line.strip()]
             print("%-14s exit %d  %s" % (label, code, lines[-1] if lines else ""))
