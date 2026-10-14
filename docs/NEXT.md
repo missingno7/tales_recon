@@ -309,6 +309,18 @@ waits on a named structural blocker:
     proposal.patch there), then a separate curated strong-entry input for
     uncalled routines, backed by exact natural-interval verification, then
     grinding.
+14. TYPED DATA PROVIDERS (Sol, build/workers/sol-tu-layout; 2026-10-14).
+    The approved strict-typing DATA policy now has a separate route:
+    evidence/data-providers facts, one producer job per batch pinned by
+    SHA-256, and tools/promote_data.py behind the shared regression gate.
+    Five resident providers (320 bytes: int[8] at 0A92, the two int[64]
+    sine/cosine tables at 1322, int scalars at 1608/1708, the 32-entry
+    input lookup at 1F14) are accepted as RECOVERED_DATA. Original TU, owner
+    and root layout stay UNKNOWN. 1608 and 1708 have identical payloads; they
+    are bound only by their consumers. Next: a 12-byte Entry-struct
+    provider at 12B4 after struct-field/ABI controls. The other 12 spans
+    and their evidence gaps are listed in next-candidates4.json. No pointer
+    table earns credit until it has bounds and named proved targets.
 
 ## Current campaign (2026-10-12): resident-first fleet
 

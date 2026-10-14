@@ -225,6 +225,28 @@ class DataProviderControls(unittest.TestCase):
     def test_absent_section_is_backward_compatible(self):
         self.assertEqual(dp.load_data_providers(ROOT,self.blob,self.model,self.analysis,dict(functions={}),[]),[])
 
+    def canonical_replay(self,replay=None,proof=None):
+        """Replay canonical providers with a substituted comparison or proof document."""
+        stored={i['proof']:dp.document(ROOT,i['proof']) for i in self.ledger.get('data_providers',{}).values()}
+        original=dp.document
+        def doc(root,path):return copy.deepcopy(proof(stored[path])) if proof and path in stored else original(root,path)
+        def verify(root,blob,model,analysis,ledger,promotions,fact,src,retained):
+            comparison=copy.deepcopy(next(v['comparison'] for v in stored.values() if v['fact']['id']==fact['id']))
+            return replay(comparison) if replay else comparison
+        with patch.object(dp,'document',doc),patch.object(dp,'verify',verify):
+            return dp.load_data_providers(ROOT,self.blob,self.model,self.analysis,self.ledger,self.promotions)
+
+    def test_canonical_verifier_identity_is_provenance_not_equality(self):
+        if not self.ledger.get('data_providers'):self.skipTest('no canonical DATA providers')
+        def edited(c):c['verifier_identity']['data_providers.py']='0'*64;return c
+        self.assertEqual(len(self.canonical_replay(edited)),len(self.ledger['data_providers']))
+        def changed(c):c['typed_evidence']=c['typed_evidence'][:-1];return c
+        with self.assertRaisesRegex(FormatError,'no longer rederives'):self.canonical_replay(changed)
+        def unprovenanced(c):c.pop('verifier_identity');return c
+        with self.assertRaisesRegex(FormatError,'verifier provenance'):self.canonical_replay(proof=lambda p:dict(p,comparison=unprovenanced(copy.deepcopy(p['comparison']))))
+        with self.assertRaisesRegex(FormatError,'regression receipt'):self.canonical_replay(proof=lambda p:{k:v for k,v in p.items() if k!='regression'})
+        with self.assertRaisesRegex(FormatError,'regression receipt'):self.canonical_replay(proof=lambda p:dict(p,regression=dict(p['regression'],passed=False)))
+
     def pointer_fixture(self):
         fact=copy.deepcopy(self.facts[0]);fact.update(id='resident_data_0000',source='src/recovered/data/resident_data_0000.c',original=dict(hunk=1,start=0,size=6),object_sections=dict(CODE=0,DATA=6,BSS=0,COMMON=0))
         fact['definitions']=[dict(symbol='DP_test_target',type='int',offset=0,initializer=7,bounds=dict(kind='SCALAR_ABI',bytes=2)),

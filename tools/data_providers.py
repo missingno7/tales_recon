@@ -388,7 +388,15 @@ def load_data_providers(root,blob,model,analysis,ledger,promotions):
         require(sha256(proof_path.read_bytes())==item['proof_sha256'],'provider proof changed')
         src=canonical_path(root,item['source']).read_bytes();require(sha256(src)==item['source_sha256'],'provider source changed')
         replay=verify(root,blob,model,analysis,ledger,promotions,fact,src,None)
-        require(proof==dict(fact=fact,comparison=replay),'provider canonical receipt no longer rederives')
+        require(set(proof)=={'fact','comparison','regression'} and proof['regression'].get('passed') is True,
+                'provider proof lacks a passing promotion regression receipt')
+        # Verifier hashes are provenance only; the complete exact replay is the
+        # acceptance check, so verifier edits do not strand canonical proofs.
+        facts=lambda c:{k:v for k,v in c.items() if k!='verifier_identity'}
+        require(isinstance(proof['comparison'].get('verifier_identity'),dict) and proof['comparison']['verifier_identity'],
+                'provider proof lacks verifier provenance')
+        require(proof['fact']==fact and facts(proof['comparison'])==facts(replay),
+                'provider canonical receipt no longer rederives')
         o=replay['original'];points=set(range(o['start'],o['start']+o['size']));require(not(points&occupied),'overlapping DATA providers');occupied|=points
         records.append(replay)
     return records
@@ -408,7 +416,7 @@ def input_identity(root):
     manifest=canonical_path(root,'evidence/data-providers/batch.json')
     facts=[]
     if manifest.is_file():facts += document(root,'evidence/data-providers/batch.json')['facts']
-    ledger=document(root,'recovery/ledger.json')
+    ledger=document(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').is_file() else {}
     for item in ledger.get('data_providers',{}).values():
         names.update([item['source'],item['proof']]);facts.append(item['fact'])
     for name in facts:
