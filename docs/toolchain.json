@@ -244,6 +244,40 @@
       "experiments": [
         "evidence/experiments/aztec68k-charret.json"
       ]
+    },
+    {
+      "name": "Manx Aztec C Amiga 3.20a update (BS1 scene copy)",
+      "acquisition_receipt": "toolchain/aztec320a-acquisition.json",
+      "inventory": "evidence/toolchain/aztec-3.20a.json",
+      "status": "ACQUIRED_EXECUTED_BARE_CHAR_RETURNS_CODEGEN_DIFFERS",
+      "provenance_class": "ANALYSIS_ONLY",
+      "historical_selection_proven": false,
+      "version_basis": "Executed banners: Aztec C68K 3.20a 02-25-86 (cc/as/ln); archive label 1986-02-27",
+      "host_format": "Amiga OFS ADF; run only through the isolated WinUAE worker",
+      "windows_native": false,
+      "purpose": "Probe CHAR_RETURN_EXTENSION with an older Amiga release (resident_F_411E, ov14 0412/04A8/0540).",
+      "tools": [
+        {
+          "path": "c/as",
+          "sha256": "1aba6a12068d4c0443deca436fa8fa0a71fc925611e03c6d2c95e93b67016e0a"
+        },
+        {
+          "path": "c/cc",
+          "sha256": "60a2799b96a78ce3b683b85a83a6c568699de4962140fca78692ef6621a5deff"
+        },
+        {
+          "path": "c/ln",
+          "sha256": "edf0e31b64062d570eaaebab450ca279339d63b859f0fe237ed74e6b3a19f322"
+        },
+        {
+          "path": "lib/c.lib",
+          "sha256": "4edae27cdfa78a0de04d18e7bcc72e39b5e0cdb1d85a6e2a7d81f77ce12d78fc"
+        }
+      ],
+      "experiments": [
+        "build/workers/sol-aztec320a/report.txt",
+        "build/workers/sol-aztec320a/evidence.json"
+      ]
     }
   ],
   "cli_parser_frontier": {

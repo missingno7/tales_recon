@@ -97,6 +97,8 @@ def derive(root, promotion_evidence=None):
     if analysis:require(analysis['game_sha256']==sha256(exe),'function census belongs to another game fixture')
     analysis_current=bool(analysis) and all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in analysis.get('analysis_identity',{}).items())
     analysis_current=analysis_current and analysis.get('data_fact_identity',{})==audio_sequence_data.identity(root)
+    import curated_unreferenced_entries
+    analysis_current=analysis_current and analysis.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(root)
     promoted=load_promotions(root,exe,model,analysis)
     from resident_mixed import load_source_objects
     ledger_path = root / 'recovery/ledger.json'

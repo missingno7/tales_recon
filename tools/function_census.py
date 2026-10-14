@@ -226,7 +226,7 @@ class Census:
             if i['offset']!=cursor:gaps.append([cursor,i['offset']])
             cursor=i['offset']+i['size']
         evidence=self.entries[(h,start)]
-        strong=any(e['kind'] in ('OVERLAY_EXPORT','DIRECT_CALL','PROVEN_RUNTIME','EXECUTABLE_ENTRY') for e in evidence)
+        strong=any(e['kind'] in ('OVERLAY_EXPORT','DIRECT_CALL','PROVEN_RUNTIME','EXECUTABLE_ENTRY','CURATED_UNREFERENCED_ENTRY') for e in evidence)
         complete=bool(ordered and returns and not stops and not gaps and strong and ordered[0]['mnemonic'].startswith('link') and all(p>=start for p in seen))
         return dict(id=function_id(h,start),hunk=h,node=self.hunks[h]['node'],start=start,end=end,size=end-start,
             raw_bytes=self.data[h][start:end].hex(),sha256=sha256(self.data[h][start:end]),entry_evidence=evidence,
@@ -273,6 +273,31 @@ class Census:
                 self.seed(h,cursor,dict(kind='POST_LITERAL_PROLOGUE',literal_owner=f['id']));added+=1
         return added
 
+    def post_function_seeds(self,functions):
+        """Keep uncalled overlay LINK entries following complete C epilogues visible.
+
+        Adjacency is weak boundary evidence only.  The new seed kind is
+        deliberately absent from walk()'s strong-entry set, so it grants
+        neither CLOSED_CFG nor source acceptance.
+        """
+        covered=defaultdict(set)
+        for f in functions:
+            for i in f['instructions']:
+                covered[f['hunk']].update(range(i['offset'],i['offset']+i['size']))
+        added=0
+        for f in functions:
+            h=f['hunk'];cursor=f['end'];data=self.data.get(h,b'')
+            if h<3 or not f['stack_frames'] or f['stack_frames'][0]['offset']!=f['start']:continue
+            if f['boundary_stops'] or f['undecoded_gaps']:continue
+            if data[cursor-4:cursor]!=b'\x4e\x5d\x4e\x75':continue
+            if any(r['kind']=='PC_RELATIVE_DATA' and r['hunk']==h and r['offset']>=cursor
+                   for r in f['referenced_data']):continue
+            if data[cursor:cursor+2]!=b'\x4e\x55' or cursor in covered[h] or (h,cursor) in self.entries:continue
+            if self.valid(h,cursor):
+                self.seed(h,cursor,dict(kind='POST_FUNCTION_PROLOGUE',code_predecessor=f['id']))
+                added+=1
+        return added
+
     def discover(self):
         previous=-1
         while previous!=len(self.entries):
@@ -283,7 +308,9 @@ class Census:
     def run(self):
         # Discovery fixpoint, followed by a stable pass with all entry barriers.
         self.discover()
-        while self.post_literal_seeds([self.walk(h,s) for h,s in sorted(self.entries)]):
+        while True:
+            walked=[self.walk(h,s) for h,s in sorted(self.entries)]
+            if not (self.post_literal_seeds(walked)+self.post_function_seeds(walked)):break
             self.discover()
         functions=[self.walk(h,s) for h,s in sorted(self.entries)]
         by_id={f['id']:f for f in functions};coverage=defaultdict(set)
@@ -347,7 +374,15 @@ def build():
             for m in obj['matches']:
                 c.seed(m['hunk'],m['offset'],dict(kind='PROVEN_RUNTIME',candidate=obj['name']))
                 c.runtime.append((m['hunk'],m['offset'],m['offset']+m['size']))
-    return c.run()
+    import curated_unreferenced_entries
+    c.run()  # Weak discovery first; curated facts never invent an entry.
+    admitted=curated_unreferenced_entries.validate(c,ROOT)
+    for row in admitted:c.seed(row['hunk'],row['start'],row)
+    report=c.run()
+    report['analysis_identity']['curated_unreferenced_entries.py']=sha256((ROOT/'tools/curated_unreferenced_entries.py').read_bytes())
+    report['unreferenced_entry_identity']=curated_unreferenced_entries.identity(ROOT)
+    report['curated_unreferenced_entries']=admitted
+    return report
 
 if __name__=='__main__':
     ap=argparse.ArgumentParser(description=__doc__);ap.parse_args()

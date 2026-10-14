@@ -27,6 +27,17 @@ waits on a named structural blocker:
    `return *++G_h01_3AB4;` without ext.w, so it is ordinary C from an older
    Amiga release. No 3.4x/3.2x Amiga release is archived at aztecmuseum.ca,
    amigacity.xyz or archive.org.
+   NARROWED (2026-10-14). The user approved pinning Aztec C68K 3.20a
+   (02-25-86) from the Bamiga Sector One cleaned part 10
+   (toolchain/aztec320a-acquisition.json). It emits BARE byte returns, but
+   it allocates A6/D3/D2 temporaries and uses cmpi.l #0, so 411E builds to
+   106 bytes against 102 and ov14_F_0412 to 162 against 150
+   (build/workers/sol-aztec320a/report.txt). The widening therefore arrived
+   between 3.20a and 3.6a. The needed compiler is an intermediate 3.3x/3.4x
+   Amiga release with 3.6a-style allocation. Exhaustive public searches found
+   none (build/workers/sol-aztec-hunt/report*.md). The only known copy is an
+   imaged Aztec C v3.40b Amiga 4-disk set in typewritten.org's private
+   inventory.
    Gated: 411E, then 404A/4184, the 287C..2D00
    region and 49A0; ov14 0412/04A8/0540, then ov14_F_0000. All available
    compilers widen char returns, and the game has exactly four bare byte

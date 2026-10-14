@@ -19,6 +19,9 @@ def validated_function(fid):
     require(sha256(blob)==ledger['game_sha256'],'stale function ledger: game changed')
     require(all(sha256((ROOT/'tools'/p).read_bytes())==digest for p,digest in ledger['analysis_identity'].items()),
             'stale analysis implementation: run tools/function_census.py')
+    import curated_unreferenced_entries
+    require(ledger.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(ROOT),
+            'stale uncalled entry input: run tools/function_census.py')
     f=next((f for f in ledger['functions'] if f['id']==fid),None)
     require(f is not None,'unknown function '+fid)
     h=next(h for h in model['hunks'] if h['number']==f['hunk'])

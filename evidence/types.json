@@ -1,13 +1,13 @@
 {
   "counts": {
-    "address_taken_sites": 1628,
+    "address_taken_sites": 1637,
     "extension_context_sites": 184,
-    "frame_access_sites": 1105,
+    "frame_access_sites": 1147,
     "frame_address_taken_sites": 2,
-    "frame_extension_context_sites": 80,
-    "frame_slots": 386,
-    "functions_scanned": 619,
-    "global_accesses": 8803,
+    "frame_extension_context_sites": 88,
+    "frame_slots": 404,
+    "functions_scanned": 627,
+    "global_accesses": 8845,
     "global_identities": 1899
   },
   "declaration_conflicts": {
@@ -1755,6 +1755,66 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
+          "declaration": "extern short G_h01_4356[64];",
+          "line": 11,
+          "path": "src/recovered/ov10/ov10_F_0000.c",
+          "shape": {
+            "array": true,
+            "base": "short",
+            "category": "word",
+            "extent": 64,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "ARRAY_EXTENT_CONFLICT",
+        "right": {
+          "declaration": "extern int G_h01_4356[1];",
+          "line": 3,
+          "path": "src/recovered/ov10/ov10_F_2C52.c",
+          "shape": {
+            "array": true,
+            "base": "int",
+            "category": "word",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_4356"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern char G_h01_4356[1];",
+          "line": 15,
+          "path": "src/recovered/ov10/ov10_F_2634.c",
+          "shape": {
+            "array": true,
+            "base": "char",
+            "category": "char",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STORAGE_WIDTH_CONFLICT",
+        "right": {
+          "declaration": "extern int G_h01_4356[1];",
+          "line": 3,
+          "path": "src/recovered/ov10/ov10_F_2C52.c",
+          "shape": {
+            "array": true,
+            "base": "int",
+            "category": "word",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_4356"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
           "declaration": "extern int G_h01_43D6;",
           "line": 41,
           "path": "src/recovered/ov15/ov15_F_0000.c",
@@ -2702,6 +2762,36 @@
           "declaration": "extern long G_h01_46CA;",
           "line": 7,
           "path": "src/recovered/ov11/ov11_F_0000.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_46CA"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct BitmapScreenRecord *G_h01_46CA;",
+          "line": 45,
+          "path": "src/recovered/ov04/ov04_F_1E36.c",
+          "shape": {
+            "array": false,
+            "base": "struct BitmapScreenRecord",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern long G_h01_46CA;",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_2664.c",
           "shape": {
             "array": false,
             "base": "long",
@@ -6660,6 +6750,36 @@
         "relation": "POINTER_SCALAR_VIEW_CONFLICT",
         "right": {
           "declaration": "extern char *G_h01_5370;",
+          "line": 1,
+          "path": "src/recovered/ov11/ov11_F_2664.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_5370"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_5370;",
+          "line": 49,
+          "path": "src/recovered/ov04/ov04_F_1E36.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern char *G_h01_5370;",
           "line": 11,
           "path": "src/recovered/ov11/ov11_F_27CC.c",
           "shape": {
@@ -7112,6 +7232,36 @@
           "declaration": "extern char *G_h01_5370;",
           "line": 6,
           "path": "src/recovered/ov10/ov10_F_2160.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_5370"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern long G_h01_5370;",
+          "line": 23,
+          "path": "src/recovered/ov05/ov05_F_0000.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern char *G_h01_5370;",
+          "line": 1,
+          "path": "src/recovered/ov11/ov11_F_2664.c",
           "shape": {
             "array": false,
             "base": "char",
@@ -10515,6 +10665,36 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
+          "declaration": "extern unsigned int G_h01_799E;",
+          "line": 1,
+          "path": "src/recovered/ov10/ov10_F_2C52.c",
+          "shape": {
+            "array": false,
+            "base": "unsigned int",
+            "category": "word",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": false,
+        "relation": "ABI_COMPATIBLE_INT_SHORT_VIEW",
+        "right": {
+          "declaration": "extern unsigned short G_h01_799E;",
+          "line": 29,
+          "path": "src/recovered/ov10/ov10_F_2FA0.c",
+          "shape": {
+            "array": false,
+            "base": "unsigned short",
+            "category": "word",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_799E"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
           "declaration": "extern short G_h01_79B6;",
           "line": 27,
           "path": "src/recovered/ov10/ov10_F_0000.c",
@@ -11039,12 +11219,72 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 20,
+          "path": "src/recovered/ov11/ov11_F_063A.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct InitRecord G_h01_8BEC[1];",
           "line": 2,
           "path": "src/recovered/ov11/ov11_F_5EC0.c",
           "shape": {
             "array": true,
             "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 20,
+          "path": "src/recovered/ov11/ov11_F_063A.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -11159,12 +11399,72 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 20,
+          "path": "src/recovered/ov11/ov11_F_0D8E.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct InitRecord G_h01_8BEC[1];",
           "line": 2,
           "path": "src/recovered/ov11/ov11_F_5EC0.c",
           "shape": {
             "array": true,
             "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 20,
+          "path": "src/recovered/ov11/ov11_F_0D8E.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -11309,6 +11609,36 @@
         "order_sensitive_harness": true,
         "relation": "DECLARATION_VIEW_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern int G_h01_8BEC[1];",
+          "line": 17,
+          "path": "src/recovered/ov11/ov11_F_55B8.c",
+          "shape": {
+            "array": true,
+            "base": "int",
+            "category": "word",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "DECLARATION_VIEW_REVIEW",
+        "right": {
           "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
           "line": 14,
           "path": "src/recovered/ov11/ov11_F_5D14.c",
@@ -11345,6 +11675,36 @@
           "shape": {
             "array": true,
             "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern int G_h01_8BEC[1];",
+          "line": 17,
+          "path": "src/recovered/ov11/ov11_F_55B8.c",
+          "shape": {
+            "array": true,
+            "base": "int",
+            "category": "word",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "DECLARATION_VIEW_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -11489,12 +11849,72 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 19,
+          "path": "src/recovered/ov11/ov11_F_5962.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct InitRecord G_h01_8BEC[1];",
           "line": 2,
           "path": "src/recovered/ov11/ov11_F_5EC0.c",
           "shape": {
             "array": true,
             "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 19,
+          "path": "src/recovered/ov11/ov11_F_5962.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -11579,6 +11999,36 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct MotionRecord G_h01_8BEC[1];",
+          "line": 7,
+          "path": "src/recovered/ov11/ov11_F_5C1A.c",
+          "shape": {
+            "array": true,
+            "base": "struct MotionRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
           "line": 14,
           "path": "src/recovered/ov11/ov11_F_5D14.c",
@@ -11615,6 +12065,36 @@
           "shape": {
             "array": true,
             "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct MotionRecord G_h01_8BEC[1];",
+          "line": 7,
+          "path": "src/recovered/ov11/ov11_F_5C1A.c",
+          "shape": {
+            "array": true,
+            "base": "struct MotionRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -11729,12 +12209,72 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 19,
+          "path": "src/recovered/ov11/ov11_F_5C42.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct InitRecord G_h01_8BEC[1];",
           "line": 2,
           "path": "src/recovered/ov11/ov11_F_5EC0.c",
           "shape": {
             "array": true,
             "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 19,
+          "path": "src/recovered/ov11/ov11_F_5C42.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -11775,6 +12315,156 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 14,
+          "path": "src/recovered/ov11/ov11_F_5D14.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct InitRecord G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5EC0.c",
+          "shape": {
+            "array": true,
+            "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 23,
+          "path": "src/recovered/ov11/ov11_F_5FB2.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct BRecord G_h01_8BEC[1];",
+          "line": 12,
+          "path": "src/recovered/ov11/ov11_F_6080.c",
+          "shape": {
+            "array": true,
+            "base": "struct BRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5CEA.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 24,
+          "path": "src/recovered/ov11/ov11_F_62B4.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
           "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
           "line": 14,
           "path": "src/recovered/ov11/ov11_F_5D14.c",
@@ -11819,12 +12509,72 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 14,
+          "path": "src/recovered/ov11/ov11_F_5D14.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct BRecord G_h01_8BEC[1];",
           "line": 12,
           "path": "src/recovered/ov11/ov11_F_6080.c",
           "shape": {
             "array": true,
             "base": "struct BRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct InitRecord G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5EC0.c",
+          "shape": {
+            "array": true,
+            "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -11901,6 +12651,96 @@
           "shape": {
             "array": true,
             "base": "struct InitRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 24,
+          "path": "src/recovered/ov11/ov11_F_62B4.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct ClusterRecord G_h01_8BEC[1];",
+          "line": 23,
+          "path": "src/recovered/ov11/ov11_F_5FB2.c",
+          "shape": {
+            "array": true,
+            "base": "struct ClusterRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct BRecord G_h01_8BEC[1];",
+          "line": 12,
+          "path": "src/recovered/ov11/ov11_F_6080.c",
+          "shape": {
+            "array": true,
+            "base": "struct BRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_8BEC"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_8BEC[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_5F90.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
             "category": "struct",
             "extent": 1,
             "pointer": false
@@ -18569,6 +19409,36 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_A554[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_6F20.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_A554"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_A554[10];",
+          "line": 9,
+          "path": "src/recovered/ov11/ov11_F_69A4.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 10,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct DistanceRecord G_h01_A554[1];",
           "line": 10,
           "path": "src/recovered/ov11/ov11_F_6F78.c",
@@ -18689,6 +19559,36 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_A554[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_6F20.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_A554"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct VRecord G_h01_A554[1];",
+          "line": 19,
+          "path": "src/recovered/ov11/ov11_F_6A44.c",
+          "shape": {
+            "array": true,
+            "base": "struct VRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct DistanceRecord G_h01_A554[1];",
           "line": 10,
           "path": "src/recovered/ov11/ov11_F_6F78.c",
@@ -18779,6 +19679,36 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_A554[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_6F20.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_A554"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_A554[16];",
+          "line": 17,
+          "path": "src/recovered/ov11/ov11_F_6C3A.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 16,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct DistanceRecord G_h01_A554[1];",
           "line": 10,
           "path": "src/recovered/ov11/ov11_F_6F78.c",
@@ -18839,6 +19769,36 @@
         "order_sensitive_harness": true,
         "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
         "right": {
+          "declaration": "extern struct Record G_h01_A554[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_6F20.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_A554"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_A554[10];",
+          "line": 4,
+          "path": "src/recovered/ov11/ov11_F_6CFE.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 10,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
           "declaration": "extern struct DistanceRecord G_h01_A554[1];",
           "line": 10,
           "path": "src/recovered/ov11/ov11_F_6F78.c",
@@ -18863,6 +19823,66 @@
             "base": "struct Record",
             "category": "struct",
             "extent": 36,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct Record G_h01_A554[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_6F20.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_A554"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_A554[36];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_6ED6.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 36,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "STRUCT_VIEW_DIFFERENCE_REVIEW",
+        "right": {
+          "declaration": "extern struct DistanceRecord G_h01_A554[1];",
+          "line": 10,
+          "path": "src/recovered/ov11/ov11_F_6F78.c",
+          "shape": {
+            "array": true,
+            "base": "struct DistanceRecord",
+            "category": "struct",
+            "extent": 1,
+            "pointer": false
+          }
+        },
+        "symbol": "G_h01_A554"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
+          "declaration": "extern struct Record G_h01_A554[1];",
+          "line": 2,
+          "path": "src/recovered/ov11/ov11_F_6F20.c",
+          "shape": {
+            "array": true,
+            "base": "struct Record",
+            "category": "struct",
+            "extent": 1,
             "pointer": false
           }
         },
@@ -19213,18 +20233,18 @@
         "symbol": "G_h01_B3B0"
       }
     ],
-    "declarations_scanned": 2595,
+    "declarations_scanned": 2609,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
-      "ABI_COMPATIBLE_INT_SHORT_VIEW": 163,
-      "ARRAY_EXTENT_CONFLICT": 2,
+      "ABI_COMPATIBLE_INT_SHORT_VIEW": 164,
+      "ARRAY_EXTENT_CONFLICT": 3,
       "ARRAY_SCALAR_VIEW_CONFLICT": 55,
-      "DECLARATION_VIEW_REVIEW": 34,
-      "POINTER_SCALAR_VIEW_CONFLICT": 170,
+      "DECLARATION_VIEW_REVIEW": 36,
+      "POINTER_SCALAR_VIEW_CONFLICT": 173,
       "SIGNEDNESS_VIEW_CONFLICT": 9,
-      "STORAGE_WIDTH_CONFLICT": 78,
-      "STRUCT_VIEW_DIFFERENCE_REVIEW": 129
+      "STORAGE_WIDTH_CONFLICT": 79,
+      "STRUCT_VIEW_DIFFERENCE_REVIEW": 155
     },
     "schema_version": 1,
     "source_hashes": {
@@ -19302,6 +20322,7 @@
       "src/recovered/ov10/ov10_F_2634.c": "9035beba431b116c587d8d3f90ab54a253dde6436d71eba1f0ee1ff59f482405",
       "src/recovered/ov10/ov10_F_2B8A.c": "8634445576cbe23fec211e05dbfac5d4cc6ced534263beb1268841fed0320e9a",
       "src/recovered/ov10/ov10_F_2BAC.c": "8f33a6d6e191f532d3f928df6efdd6d9744f7d2b86c7dfd0d5bd59633c961d5c",
+      "src/recovered/ov10/ov10_F_2C52.c": "e3d87f3458a2192e88101f7b99e1cc998c419eca1694824fc07d722c966d3fda",
       "src/recovered/ov10/ov10_F_2CF4.c": "06267ece6ce03fdd0f134f92ff5ed9f98091b596207aa662a32ca6e5d15f495b",
       "src/recovered/ov10/ov10_F_2FA0.c": "04edd2a52b4d8aded721e84ac1cfdea5564edbe6dfde0b6e572a5b907fe7d765",
       "src/recovered/ov10/ov10_F_320C.c": "b20a4f348df0f22184d573ca83645d7edacc911c69bf8ccce0c57370f8e59be2",
@@ -19317,12 +20338,14 @@
       "src/recovered/ov11/ov11_F_13DC.c": "b6dfd08ca4ee11646350cba504f79f9ce637977ca1bbdfc93ce1b93203aa713a",
       "src/recovered/ov11/ov11_F_14BA.c": "9fa3634b1da8a9ecb700d810f47bfa4547316b2a023adfcf69d65534c32cf499",
       "src/recovered/ov11/ov11_F_15C8.c": "539f731c917c5d4cd1ac3c521d571291fd1ed204b87b08225ec5a7b851963c2a",
+      "src/recovered/ov11/ov11_F_20AE.c": "446331236414d7f382832e4181fe6286ae19fb8eeeeb712a16a7baf5290a79b7",
       "src/recovered/ov11/ov11_F_20F2.c": "1c7f380f309f5a21b01f97605232c6d99564c9312593b2a391b3239fdb93943e",
       "src/recovered/ov11/ov11_F_21F8.c": "06e9a9b4dda38979c20606e7b2126181938ac4afd2e54de016d906c802800a2d",
       "src/recovered/ov11/ov11_F_2272.c": "4cc22038629cf3f3045d402c75506caf4a81f9e3a1d863f51510f90b2ff4c353",
       "src/recovered/ov11/ov11_F_23F4.c": "154632c9b23ec2b9480f72f7e369719655f687ff161716c916309b56ed402c33",
       "src/recovered/ov11/ov11_F_2430.c": "59128a7817964e57585686a24b8f04e01146bfd46e864961f8a5d136d9ffbdf8",
       "src/recovered/ov11/ov11_F_247C.c": "ffd4f756074afdc8a8af432d7bacd9ee2600aa54235ed9abc30084b5033c723a",
+      "src/recovered/ov11/ov11_F_2664.c": "eaba1a47c1eaad3b497481ea4e047df51c5095d613896744222ffbb80898528a",
       "src/recovered/ov11/ov11_F_27CC.c": "6d6c480edc3614c02368093246211a84c42ca0fa67535e9421d52433dc13fc01",
       "src/recovered/ov11/ov11_F_2A3A.c": "d0901485de837c66db67623501dc621df869635acb6c6c3b018afb15ae0c5178",
       "src/recovered/ov11/ov11_F_2C96.c": "cfc89605f9ca92d89c36b57370a1a4ae7cde8754672084a3d9aff83e7f8ab4ee",
@@ -19361,13 +20384,16 @@
       "src/recovered/ov11/ov11_F_54F8.c": "b8251ae6e1ecb6a64e65d4a01575cc7cf23d6016d6dd87dc394adf98eab30728",
       "src/recovered/ov11/ov11_F_55B8.c": "6c8d1e0ae1bc2e46e1e5c737a9b684fac276d48c141bb9b241eb41d15b8eb21a",
       "src/recovered/ov11/ov11_F_5962.c": "8d3790a0e92d4d6ea7df923f32ed94f0f9e93705806eb8ad638f4f6e79c18e06",
+      "src/recovered/ov11/ov11_F_59E6.c": "13f921a23e7fbca4cb9be595511108dc840b2ad0349af8ed329e2eb2a8982b03",
       "src/recovered/ov11/ov11_F_5A12.c": "0744f9bcb820e7f3ad6b9e3fd6ff183cb3275bacc36b8d31dd5e779552299482",
       "src/recovered/ov11/ov11_F_5A62.c": "0e90fb13e8823bfb44d1d6c7c02153513bd16095d480b273f2e34c7adb56449f",
       "src/recovered/ov11/ov11_F_5AB0.c": "a4fbf0472657780f7b8b324e79d21be4c5bc95aa2593fa500eaf020635b9d06e",
       "src/recovered/ov11/ov11_F_5C1A.c": "2bbcceb03505bfc3b57465743905c4d2bee45d8da490f8206f76af0130801367",
       "src/recovered/ov11/ov11_F_5C42.c": "3c46ec2addc544249d0a6951ce2fc22b0cf913916ff70a10a5244383243d57e1",
+      "src/recovered/ov11/ov11_F_5CEA.c": "628b5c8bd067c5e583678e839f31fcec95ac613a13dc73ef7cb07e1afb431e2c",
       "src/recovered/ov11/ov11_F_5D14.c": "763e2c4a444da28e2bc4c8f1b351a9254954319f48096da5fe6efb6961f957a4",
       "src/recovered/ov11/ov11_F_5EC0.c": "422ef23a5ff2e6742492fb70897073ca966b1734b5863d46c735ce6613122755",
+      "src/recovered/ov11/ov11_F_5F90.c": "f68ea6ffb291a4d290b12a34a5f914f318f7990074a35f0e61ad1818241e80bb",
       "src/recovered/ov11/ov11_F_5FB2.c": "746abc12b5313b3605f02b3cfd4ce83d518e167036c60d60bbf969d2516c3ae7",
       "src/recovered/ov11/ov11_F_6080.c": "d0041051d58a8945ce2b979a8c40528382e1031e636aac17ad0417e862e44888",
       "src/recovered/ov11/ov11_F_62B4.c": "a5b214e365463150d4a863a3814dba0938bb973882e867f71217643d31bd3b0d",
@@ -19382,6 +20408,7 @@
       "src/recovered/ov11/ov11_F_6C3A.c": "a5673ec5947364cb2df6d09a3e0fa9892b438733cb3d4281faeeaee964ff962d",
       "src/recovered/ov11/ov11_F_6CFE.c": "e7cfa961c0b1dbc27d0991e40cb6c4d0aeaf6670651a37f066eccd2323aa0326",
       "src/recovered/ov11/ov11_F_6ED6.c": "92d1fcd4a7b81506745deb4f4d54002798a247024d6de6c8d47f6a81e4215898",
+      "src/recovered/ov11/ov11_F_6F20.c": "9894902113422a927286ee56e76b23b00de5eb59331edc7dfa80d2933ed11966",
       "src/recovered/ov11/ov11_F_6F78.c": "ce18a982f0c9e1f3410b1d60dead292d87aba1cda98507d3c8550ec83da34689",
       "src/recovered/ov11/ov11_F_6FFE.c": "0d10ad4b05b3d865111df666dd85c7bac08d2f6bed71401207c88b14a73ea81a",
       "src/recovered/ov11/ov11_F_706C.c": "3fdfc43b50cf8d93d37479d6458cd0e66bbc7baa6b435e50d5ef09cc7dfdc068",
@@ -19451,7 +20478,7 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "symbols_with_multiple_views": 451
+    "symbols_with_multiple_views": 455
   },
   "frame_access_candidates": [
     {
@@ -26727,6 +27754,392 @@
         {
           "basis": "decoded A5 displacement; argument boundary unproved",
           "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9870,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9898,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9956,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9988,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10042,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10074,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10124,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10160,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 9874,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 9870
+        },
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 9960,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 9956
+        },
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 10046,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 10042
+        },
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 10078,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 10074
+        }
+      ],
+      "frame_offset": 8,
+      "function": "ov11_F_2664",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9862,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9890,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9944,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 9976,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10034,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10062,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10116,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 10148,
+          "operands": "$a(a5), d0",
+          "raw": "302d000a",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 9866,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 9862
+        },
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 9894,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 9890
+        },
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 10038,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 10034
+        },
+        {
+          "confidence": "LOCAL_ADJACENCY_ONLY; FRAME_SLOT_CANDIDATE",
+          "extension": "ext.l",
+          "extension_offset": 10120,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "load_offset": 10116
+        }
+      ],
+      "frame_offset": 10,
+      "function": "ov11_F_2664",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 9902,
+          "operands": "$c(a5), d0",
+          "raw": "d06d000c",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 9992,
+          "operands": "$c(a5), d0",
+          "raw": "d06d000c",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 10128,
+          "operands": "$c(a5), d0",
+          "raw": "d06d000c",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 10164,
+          "operands": "$c(a5), d0",
+          "raw": "d06d000c",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 12,
+      "function": "ov11_F_2664",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 14,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 9948,
+          "operands": "$e(a5), d0",
+          "raw": "d06d000e",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 14,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 9980,
+          "operands": "$e(a5), d0",
+          "raw": "d06d000e",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 14,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 10066,
+          "operands": "$e(a5), d0",
+          "raw": "d06d000e",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 14,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "add.w",
+          "offset": 10152,
+          "operands": "$e(a5), d0",
+          "raw": "d06d000e",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 14,
+      "function": "ov11_F_2664",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 17,
+          "function": "ov11_F_2664",
+          "hunk": 11,
+          "mnemonic": "move.b",
+          "offset": 9836,
+          "operands": "$11(a5), (a0)",
+          "raw": "10ad0011",
+          "width_bytes": 1
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 17,
+      "function": "ov11_F_2664",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
           "function": "ov11_F_2C96",
           "hunk": 11,
           "mnemonic": "move.l",
@@ -29997,6 +31410,26 @@
         {
           "basis": "decoded A5 displacement; argument boundary unproved",
           "frame_offset": 8,
+          "function": "ov11_F_5CEA",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 23790,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "ov11_F_5CEA",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
           "function": "ov11_F_5D14",
           "hunk": 11,
           "mnemonic": "move.w",
@@ -30085,6 +31518,230 @@
       "extension_context": [],
       "frame_offset": 8,
       "function": "ov11_F_5EC0",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24374,
+          "operands": "$8(a5), -(a7)",
+          "raw": "3f2d0008",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24396,
+          "operands": "$8(a5), -(a7)",
+          "raw": "3f2d0008",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24366,
+          "operands": "$a(a5), -(a7)",
+          "raw": "3f2d000a",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24388,
+          "operands": "$a(a5), -(a7)",
+          "raw": "3f2d000a",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 10,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24418,
+          "operands": "$c(a5), -(a7)",
+          "raw": "3f2d000c",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24440,
+          "operands": "$c(a5), -(a7)",
+          "raw": "3f2d000c",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 12,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 14,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24410,
+          "operands": "$e(a5), -(a7)",
+          "raw": "3f2d000e",
+          "width_bytes": 2
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 14,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24432,
+          "operands": "$e(a5), -(a7)",
+          "raw": "3f2d000e",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 14,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 16,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24370,
+          "operands": "$10(a5), -(a7)",
+          "raw": "3f2d0010",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 16,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 18,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24392,
+          "operands": "$12(a5), -(a7)",
+          "raw": "3f2d0012",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 18,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 20,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24414,
+          "operands": "$14(a5), -(a7)",
+          "raw": "3f2d0014",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 20,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 22,
+          "function": "ov11_F_5F2A",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24436,
+          "operands": "$16(a5), -(a7)",
+          "raw": "3f2d0016",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 22,
+      "function": "ov11_F_5F2A",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_5F90",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 24468,
+          "operands": "$8(a5), d0",
+          "raw": "302d0008",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "ov11_F_5F90",
       "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
     },
     {
@@ -30535,6 +32192,66 @@
       "extension_context": [],
       "frame_offset": 22,
       "function": "ov11_F_6ED6",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "ov11_F_6F20",
+          "hunk": 11,
+          "mnemonic": "cmp.w",
+          "offset": 28510,
+          "operands": "$8(a5), d0",
+          "raw": "b06d0008",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "ov11_F_6F20",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 10,
+          "function": "ov11_F_6F20",
+          "hunk": 11,
+          "mnemonic": "cmp.w",
+          "offset": 28520,
+          "operands": "$a(a5), d0",
+          "raw": "b06d000a",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 10,
+      "function": "ov11_F_6F20",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "ov11_F_6F20",
+          "hunk": 11,
+          "mnemonic": "move.w",
+          "offset": 28452,
+          "operands": "$c(a5), d0",
+          "raw": "302d000c",
+          "width_bytes": 2
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 12,
+      "function": "ov11_F_6F20",
       "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
     },
     {
@@ -43323,6 +45040,17 @@
         {
           "basis": "A4 bias + decoded displacement",
           "direction": "UNKNOWN",
+          "function": "ov09_F_2C22",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 11328,
+          "operands": "-$7fc8(a4)",
+          "raw": "4eac8038",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
           "function": "ov10_F_0000",
           "hunk": 1,
           "mnemonic": "jsr",
@@ -51059,6 +52787,17 @@
           "hunk": 1,
           "mnemonic": "jsr",
           "offset": 6188,
+          "operands": "-$7fa4(a4)",
+          "raw": "4eac805c",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov09_F_2C22",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 11320,
           "operands": "-$7fa4(a4)",
           "raw": "4eac805c",
           "width_bytes": null
@@ -63687,6 +65426,17 @@
         {
           "basis": "A4 bias + decoded displacement",
           "direction": "UNKNOWN",
+          "function": "ov09_F_2C22",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 11336,
+          "operands": "-$7ee4(a4)",
+          "raw": "4eac811c",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
           "function": "ov10_F_0000",
           "hunk": 1,
           "mnemonic": "jsr",
@@ -67106,6 +68856,50 @@
         {
           "basis": "A4 bias + decoded displacement",
           "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 9914,
+          "operands": "-$7e9c(a4)",
+          "raw": "4eac8164",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 10004,
+          "operands": "-$7e9c(a4)",
+          "raw": "4eac8164",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 10086,
+          "operands": "-$7e9c(a4)",
+          "raw": "4eac8164",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 10176,
+          "operands": "-$7e9c(a4)",
+          "raw": "4eac8164",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
           "function": "ov11_F_27CC",
           "hunk": 1,
           "mnemonic": "jsr",
@@ -68140,6 +69934,50 @@
         {
           "basis": "A4 bias + decoded displacement",
           "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 9882,
+          "operands": "-$7e5a(a4)",
+          "raw": "4eac81a6",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 9968,
+          "operands": "-$7e5a(a4)",
+          "raw": "4eac81a6",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 10054,
+          "operands": "-$7e5a(a4)",
+          "raw": "4eac81a6",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 10140,
+          "operands": "-$7e5a(a4)",
+          "raw": "4eac81a6",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
           "function": "ov11_F_27CC",
           "hunk": 1,
           "mnemonic": "jsr",
@@ -69038,6 +70876,50 @@
           "hunk": 1,
           "mnemonic": "jsr",
           "offset": 8502,
+          "operands": "-$7e42(a4)",
+          "raw": "4eac81be",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 9856,
+          "operands": "-$7e42(a4)",
+          "raw": "4eac81be",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 9938,
+          "operands": "-$7e42(a4)",
+          "raw": "4eac81be",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 10028,
+          "operands": "-$7e42(a4)",
+          "raw": "4eac81be",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 10110,
           "operands": "-$7e42(a4)",
           "raw": "4eac81be",
           "width_bytes": null
@@ -72765,6 +74647,17 @@
           "hunk": 1,
           "mnemonic": "jsr",
           "offset": 9314,
+          "operands": "-$7d5e(a4)",
+          "raw": "4eac82a2",
+          "width_bytes": null
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov09_F_2C22",
+          "hunk": 1,
+          "mnemonic": "jsr",
+          "offset": 11346,
           "operands": "-$7d5e(a4)",
           "raw": "4eac82a2",
           "width_bytes": null
@@ -84648,6 +86541,17 @@
       "accesses": [
         {
           "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_59E6",
+          "hunk": 1,
+          "mnemonic": "cmp.w",
+          "offset": 23048,
+          "operands": "-$4812(a4), d0",
+          "raw": "b06cb7ee",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
           "direction": "WRITE",
           "function": "ov11_F_6080",
           "hunk": 1,
@@ -95356,6 +97260,24 @@
           "offset": 11088,
           "operands": "-$3ca8(a4)",
           "raw": "486cc358"
+        },
+        {
+          "basis": "A4 identity + LEA",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "lea.l",
+          "offset": 11370,
+          "operands": "-$3ca8(a4), a0",
+          "raw": "41ecc358"
+        },
+        {
+          "basis": "A4 identity + LEA",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "lea.l",
+          "offset": 11422,
+          "operands": "-$3ca8(a4), a0",
+          "raw": "41ecc358"
         }
       ],
       "data_hunk_offset": 17238,
@@ -99415,6 +101337,138 @@
           "hunk": 1,
           "mnemonic": "move.l",
           "offset": 94,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 9852,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 9878,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 9910,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 9934,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 9964,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 10000,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 10024,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 10050,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 10082,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 10106,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 10136,
+          "operands": "-$3934(a4), -(a7)",
+          "raw": "2f2cc6cc",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "move.l",
+          "offset": 10172,
           "operands": "-$3934(a4), -(a7)",
           "raw": "2f2cc6cc",
           "width_bytes": 4
@@ -113688,6 +115742,61 @@
           "hunk": 1,
           "mnemonic": "movea.l",
           "offset": 9574,
+          "operands": "-$2c8e(a4), a0",
+          "raw": "206cd372",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "movea.l",
+          "offset": 9832,
+          "operands": "-$2c8e(a4), a0",
+          "raw": "206cd372",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "movea.l",
+          "offset": 9840,
+          "operands": "-$2c8e(a4), a0",
+          "raw": "206cd372",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "movea.l",
+          "offset": 9922,
+          "operands": "-$2c8e(a4), a0",
+          "raw": "206cd372",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "movea.l",
+          "offset": 10012,
+          "operands": "-$2c8e(a4), a0",
+          "raw": "206cd372",
+          "width_bytes": 4
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov11_F_2664",
+          "hunk": 1,
+          "mnemonic": "movea.l",
+          "offset": 10094,
           "operands": "-$2c8e(a4), a0",
           "raw": "206cd372",
           "width_bytes": 4
@@ -138096,6 +140205,15 @@
           "offset": 2826,
           "operands": "-$cba(a4)",
           "raw": "486cf346"
+        },
+        {
+          "basis": "A4 identity + PEA",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "pea.l",
+          "offset": 11442,
+          "operands": "-$cba(a4)",
+          "raw": "486cf346"
         }
       ],
       "data_hunk_offset": 29508,
@@ -138223,6 +140341,15 @@
           "hunk": 1,
           "mnemonic": "pea.l",
           "offset": 2932,
+          "operands": "-$c84(a4)",
+          "raw": "486cf37c"
+        },
+        {
+          "basis": "A4 identity + PEA",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "pea.l",
+          "offset": 11494,
           "operands": "-$c84(a4)",
           "raw": "486cf37c"
         }
@@ -138354,6 +140481,15 @@
           "offset": 2720,
           "operands": "-$c4e(a4)",
           "raw": "486cf3b2"
+        },
+        {
+          "basis": "A4 identity + PEA",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "pea.l",
+          "offset": 11474,
+          "operands": "-$c4e(a4)",
+          "raw": "486cf3b2"
         }
       ],
       "data_hunk_offset": 29616,
@@ -138481,6 +140617,15 @@
           "hunk": 1,
           "mnemonic": "pea.l",
           "offset": 2614,
+          "operands": "-$c18(a4)",
+          "raw": "486cf3e8"
+        },
+        {
+          "basis": "A4 identity + PEA",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "pea.l",
+          "offset": 11390,
           "operands": "-$c18(a4)",
           "raw": "486cf3e8"
         }
@@ -142607,6 +144752,61 @@
         {
           "basis": "A4 bias + decoded displacement",
           "direction": "READ",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "move.w",
+          "offset": 11350,
+          "operands": "-$660(a4), d0",
+          "raw": "302cf9a0",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "move.w",
+          "offset": 11364,
+          "operands": "-$660(a4), d0",
+          "raw": "302cf9a0",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "move.w",
+          "offset": 11402,
+          "operands": "-$660(a4), d0",
+          "raw": "302cf9a0",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "move.w",
+          "offset": 11416,
+          "operands": "-$660(a4), d0",
+          "raw": "302cf9a0",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "move.w",
+          "offset": 11454,
+          "operands": "-$660(a4), d0",
+          "raw": "302cf9a0",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "READ",
           "function": "ov10_F_2FA0",
           "hunk": 1,
           "mnemonic": "move.w",
@@ -143207,6 +145407,39 @@
           "offset": 11190,
           "operands": "-$65e(a4), d1",
           "raw": "322cf9a2",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "cmp.w",
+          "offset": 11356,
+          "operands": "-$65e(a4), d0",
+          "raw": "b06cf9a2",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "cmp.w",
+          "offset": 11408,
+          "operands": "-$65e(a4), d0",
+          "raw": "b06cf9a2",
+          "width_bytes": 2
+        },
+        {
+          "basis": "A4 bias + decoded displacement",
+          "direction": "UNKNOWN",
+          "function": "ov10_F_2C52",
+          "hunk": 1,
+          "mnemonic": "cmp.w",
+          "offset": 11460,
+          "operands": "-$65e(a4), d0",
+          "raw": "b06cf9a2",
           "width_bytes": 2
         }
       ],
@@ -147270,6 +149503,15 @@
         },
         {
           "basis": "A4 identity + LEA",
+          "function": "ov11_F_5CEA",
+          "hunk": 1,
+          "mnemonic": "lea.l",
+          "offset": 23798,
+          "operands": "$bee(a4), a0",
+          "raw": "41ec0bee"
+        },
+        {
+          "basis": "A4 identity + LEA",
           "function": "ov11_F_5D14",
           "hunk": 1,
           "mnemonic": "lea.l",
@@ -147283,6 +149525,15 @@
           "hunk": 1,
           "mnemonic": "lea.l",
           "offset": 24268,
+          "operands": "$bee(a4), a0",
+          "raw": "41ec0bee"
+        },
+        {
+          "basis": "A4 identity + LEA",
+          "function": "ov11_F_5F90",
+          "hunk": 1,
+          "mnemonic": "lea.l",
+          "offset": 24476,
           "operands": "$bee(a4), a0",
           "raw": "41ec0bee"
         },
@@ -165985,6 +168236,15 @@
         },
         {
           "basis": "A4 identity + LEA",
+          "function": "ov11_F_6F20",
+          "hunk": 1,
+          "mnemonic": "lea.l",
+          "offset": 28460,
+          "operands": "$2556(a4), a0",
+          "raw": "41ec2556"
+        },
+        {
+          "basis": "A4 identity + LEA",
           "function": "ov11_F_6F78",
           "hunk": 1,
           "mnemonic": "lea.l",
@@ -168862,7 +171122,8 @@
     "analysis_identity": {
       "analysis_support.py": "a76981e72fcef647d55c806517f125d55eaa8ec3e3658832b18b6bc8912ba2cd",
       "audio_sequence_data.py": "a485ebb5f2683d634069c1a43957936db916db2d5a8dd4d4ca54530d776c34c0",
-      "function_census.py": "6ad844d6d286cd41d985a80f83adcc8b2f28dcfaf6d6a0e82669c9db6764f23c"
+      "curated_unreferenced_entries.py": "6867b637d72dbaf25084f3f75b75c41c329936587048c116db228aad162bc42e",
+      "function_census.py": "ec76779876e1be77839ecfd950036e817c82ce5f0fa101981a49fdd034001616"
     },
     "declaration_source_hashes": {
       "src/recovered/ov03/ov03_F_001C.c": "4430515d846a6b33e4bf088ccde23c50e5d76e1c6e7d50ae4114e4fb183f0791",
@@ -168939,6 +171200,7 @@
       "src/recovered/ov10/ov10_F_2634.c": "9035beba431b116c587d8d3f90ab54a253dde6436d71eba1f0ee1ff59f482405",
       "src/recovered/ov10/ov10_F_2B8A.c": "8634445576cbe23fec211e05dbfac5d4cc6ced534263beb1268841fed0320e9a",
       "src/recovered/ov10/ov10_F_2BAC.c": "8f33a6d6e191f532d3f928df6efdd6d9744f7d2b86c7dfd0d5bd59633c961d5c",
+      "src/recovered/ov10/ov10_F_2C52.c": "e3d87f3458a2192e88101f7b99e1cc998c419eca1694824fc07d722c966d3fda",
       "src/recovered/ov10/ov10_F_2CF4.c": "06267ece6ce03fdd0f134f92ff5ed9f98091b596207aa662a32ca6e5d15f495b",
       "src/recovered/ov10/ov10_F_2FA0.c": "04edd2a52b4d8aded721e84ac1cfdea5564edbe6dfde0b6e572a5b907fe7d765",
       "src/recovered/ov10/ov10_F_320C.c": "b20a4f348df0f22184d573ca83645d7edacc911c69bf8ccce0c57370f8e59be2",
@@ -168954,12 +171216,14 @@
       "src/recovered/ov11/ov11_F_13DC.c": "b6dfd08ca4ee11646350cba504f79f9ce637977ca1bbdfc93ce1b93203aa713a",
       "src/recovered/ov11/ov11_F_14BA.c": "9fa3634b1da8a9ecb700d810f47bfa4547316b2a023adfcf69d65534c32cf499",
       "src/recovered/ov11/ov11_F_15C8.c": "539f731c917c5d4cd1ac3c521d571291fd1ed204b87b08225ec5a7b851963c2a",
+      "src/recovered/ov11/ov11_F_20AE.c": "446331236414d7f382832e4181fe6286ae19fb8eeeeb712a16a7baf5290a79b7",
       "src/recovered/ov11/ov11_F_20F2.c": "1c7f380f309f5a21b01f97605232c6d99564c9312593b2a391b3239fdb93943e",
       "src/recovered/ov11/ov11_F_21F8.c": "06e9a9b4dda38979c20606e7b2126181938ac4afd2e54de016d906c802800a2d",
       "src/recovered/ov11/ov11_F_2272.c": "4cc22038629cf3f3045d402c75506caf4a81f9e3a1d863f51510f90b2ff4c353",
       "src/recovered/ov11/ov11_F_23F4.c": "154632c9b23ec2b9480f72f7e369719655f687ff161716c916309b56ed402c33",
       "src/recovered/ov11/ov11_F_2430.c": "59128a7817964e57585686a24b8f04e01146bfd46e864961f8a5d136d9ffbdf8",
       "src/recovered/ov11/ov11_F_247C.c": "ffd4f756074afdc8a8af432d7bacd9ee2600aa54235ed9abc30084b5033c723a",
+      "src/recovered/ov11/ov11_F_2664.c": "eaba1a47c1eaad3b497481ea4e047df51c5095d613896744222ffbb80898528a",
       "src/recovered/ov11/ov11_F_27CC.c": "6d6c480edc3614c02368093246211a84c42ca0fa67535e9421d52433dc13fc01",
       "src/recovered/ov11/ov11_F_2A3A.c": "d0901485de837c66db67623501dc621df869635acb6c6c3b018afb15ae0c5178",
       "src/recovered/ov11/ov11_F_2C96.c": "cfc89605f9ca92d89c36b57370a1a4ae7cde8754672084a3d9aff83e7f8ab4ee",
@@ -168998,13 +171262,16 @@
       "src/recovered/ov11/ov11_F_54F8.c": "b8251ae6e1ecb6a64e65d4a01575cc7cf23d6016d6dd87dc394adf98eab30728",
       "src/recovered/ov11/ov11_F_55B8.c": "6c8d1e0ae1bc2e46e1e5c737a9b684fac276d48c141bb9b241eb41d15b8eb21a",
       "src/recovered/ov11/ov11_F_5962.c": "8d3790a0e92d4d6ea7df923f32ed94f0f9e93705806eb8ad638f4f6e79c18e06",
+      "src/recovered/ov11/ov11_F_59E6.c": "13f921a23e7fbca4cb9be595511108dc840b2ad0349af8ed329e2eb2a8982b03",
       "src/recovered/ov11/ov11_F_5A12.c": "0744f9bcb820e7f3ad6b9e3fd6ff183cb3275bacc36b8d31dd5e779552299482",
       "src/recovered/ov11/ov11_F_5A62.c": "0e90fb13e8823bfb44d1d6c7c02153513bd16095d480b273f2e34c7adb56449f",
       "src/recovered/ov11/ov11_F_5AB0.c": "a4fbf0472657780f7b8b324e79d21be4c5bc95aa2593fa500eaf020635b9d06e",
       "src/recovered/ov11/ov11_F_5C1A.c": "2bbcceb03505bfc3b57465743905c4d2bee45d8da490f8206f76af0130801367",
       "src/recovered/ov11/ov11_F_5C42.c": "3c46ec2addc544249d0a6951ce2fc22b0cf913916ff70a10a5244383243d57e1",
+      "src/recovered/ov11/ov11_F_5CEA.c": "628b5c8bd067c5e583678e839f31fcec95ac613a13dc73ef7cb07e1afb431e2c",
       "src/recovered/ov11/ov11_F_5D14.c": "763e2c4a444da28e2bc4c8f1b351a9254954319f48096da5fe6efb6961f957a4",
       "src/recovered/ov11/ov11_F_5EC0.c": "422ef23a5ff2e6742492fb70897073ca966b1734b5863d46c735ce6613122755",
+      "src/recovered/ov11/ov11_F_5F90.c": "f68ea6ffb291a4d290b12a34a5f914f318f7990074a35f0e61ad1818241e80bb",
       "src/recovered/ov11/ov11_F_5FB2.c": "746abc12b5313b3605f02b3cfd4ce83d518e167036c60d60bbf969d2516c3ae7",
       "src/recovered/ov11/ov11_F_6080.c": "d0041051d58a8945ce2b979a8c40528382e1031e636aac17ad0417e862e44888",
       "src/recovered/ov11/ov11_F_62B4.c": "a5b214e365463150d4a863a3814dba0938bb973882e867f71217643d31bd3b0d",
@@ -169019,6 +171286,7 @@
       "src/recovered/ov11/ov11_F_6C3A.c": "a5673ec5947364cb2df6d09a3e0fa9892b438733cb3d4281faeeaee964ff962d",
       "src/recovered/ov11/ov11_F_6CFE.c": "e7cfa961c0b1dbc27d0991e40cb6c4d0aeaf6670651a37f066eccd2323aa0326",
       "src/recovered/ov11/ov11_F_6ED6.c": "92d1fcd4a7b81506745deb4f4d54002798a247024d6de6c8d47f6a81e4215898",
+      "src/recovered/ov11/ov11_F_6F20.c": "9894902113422a927286ee56e76b23b00de5eb59331edc7dfa80d2933ed11966",
       "src/recovered/ov11/ov11_F_6F78.c": "ce18a982f0c9e1f3410b1d60dead292d87aba1cda98507d3c8550ec83da34689",
       "src/recovered/ov11/ov11_F_6FFE.c": "0d10ad4b05b3d865111df666dd85c7bac08d2f6bed71401207c88b14a73ea81a",
       "src/recovered/ov11/ov11_F_706C.c": "3fdfc43b50cf8d93d37479d6458cd0e66bbc7baa6b435e50d5ef09cc7dfdc068",
@@ -169088,8 +171356,8 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "function_ledger_sha256": "b44b3cae33ebe5afe34a3de917983180a8c86f626db8c10e8839949886b1719b",
-    "instruction_index_sha256": "c32ed975f638aec370c091fdb8ee49258fa1f95885180b8a30befc3d335115c6",
+    "function_ledger_sha256": "126b510d29e3ffcff25197531a87cc05c5af716eecb1176765543fe4784e996d",
+    "instruction_index_sha256": "4e03421158e9be955bb4ace798d46c35c49886c71f84bc02636d810f9f3e0a03",
     "miner_sha256": "1982119317d01b59b2216145a02eea8f06824fac5329dc37f7aff97af7a6a724"
   },
   "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",

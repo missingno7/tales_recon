@@ -6,6 +6,14 @@ historical reconstruction, not a source port. `assets/` is immutable oracle
 evidence. Never relock fixtures automatically or feed original code bytes into
 reconstructed outputs. Keep natural object/hunk/overlay layout as the target.
 
+DATA initializer policy (user decision 2026-10-14): measured initializer values
+from the original DATA may be curated into reconstructed C as recovered-source
+facts only under strict typing. Types and extents must come from recovered code's
+accesses or other independent evidence. Pointer initializers must bind to
+independently named targets. Each provider object is compiled and verified exactly,
+relocations included. Never use opaque char/byte arrays, padding fillers or guessed
+extents. Untyped spans stay RAW_ORACLE_DEBT. This never permits original CODE bytes.
+
 Numeric overlay directories reflect historical containers; source filenames
 and semantic labels require explicit provenance. Printable runs are candidates,
 not established string boundaries. Unknown ownership/classification must remain
