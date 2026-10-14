@@ -19,9 +19,10 @@ class RuntimeAccountingTests(unittest.TestCase):
         cls.blob=files['DT1:DuckTales']
         cls.rows=r.capture_runtime_members(ROOT,cls.blob,cls.model)
 
-    def test_exact_seven_extents_and_serialization(self):
+    def test_complete_extents_and_serialization(self):
         self.assertEqual([(x['hunk'],x['start'],x['end']-x['start']) for x in self.rows],
             [(0,0x7978,244),(0,0x7b24,180),(0,0x7bf4,936),(0,0x7bd8,28),
+             (0,0x704e,112),(0,0x70be,1124),(0,0x850a,42),(0,0x8794,210),(0,0x887e,40),(0,0x88a6,128),
              (1,0x2c64,18),(1,0x2c76,130),(1,0x2cf8,440)])
         self.assertEqual(self.rows,json.loads(json.dumps(self.rows)))
         for c in r.contributions(self.rows):
@@ -75,7 +76,7 @@ class RuntimeAccountingTests(unittest.TestCase):
     def test_topology_segload_counts_once_and_data_is_separate(self):
         occupied={(0,i) for i in range(0x7978,0x7a6c)}
         union=r.candidate_union(occupied,self.rows,(0,0x7978,0x7a6c))
-        self.assertEqual(len(union),244+180+936+28)
+        self.assertEqual(len(union),244+180+936+28+1656)
         self.assertTrue(all(hn==0 for hn,_ in union))
         for extent in (None,(0,0x7978,0x7a6a)):
             with self.assertRaises(FormatError):r.candidate_union(occupied,self.rows,extent)

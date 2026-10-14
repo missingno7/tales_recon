@@ -223,5 +223,451 @@
     }
   },
   "consumer_basis": "Independently authored real overlay caller; compiler emits both references. Historical original consumer/TU is not selected. No generated JMP data or linker placement filler.",
-  "output_family": "runtime-members-natural.json: separate opt-in sibling of relocated ledger"
+  "output_family": "runtime-members-natural.json: separate opt-in sibling of relocated ledger",
+  "tail": {
+    "work": "build/worker-jobs/sol-lib-tail-routes-04/sys/work",
+    "request": {
+      "path": "build/worker-jobs/sol-lib-tail-routes-04/request.json",
+      "sha256": "1b76285a5435cc2915005d5ecc1ef4f4e1f3e70146ce80c0281a8da99740d18e"
+    },
+    "receipt": {
+      "path": "build/worker-jobs/sol-lib-tail-routes-04/result.json",
+      "sha256": "7ab887cd8c629de299f045e0c2d87a3e53812ddb1744bf0d06e7491827aba5f5"
+    },
+    "sources": {
+      "bases.c": "long SysBase, DOSBase;\r\n",
+      "consumer.c": "extern long AllocMem(), FindTask();\r\nextern int FreeMem(), exit();\r\nextern char *index();\r\nlong tail_consumer(p, a, b) char *p; long a, b;\r\n{ long v; v = AllocMem(a, b); v = FindTask(v); FreeMem(v, a);\r\n  index(p, 0); exit(0); return a*b; }\r\n",
+      "gateway.c": "extern long tail_consumer();\r\nmain() { return tail_consumer(\"x\", 1L, 2L); }\r\n"
+    },
+    "sdk": {
+      "path": "toolchain/installed/aztec-3.6a/Library Source/misc.arc",
+      "sha256": "87d11dd68160b0e4cde4dc0b9b4555189dedc889c677c8189d0f5493fbc701cb"
+    },
+    "commands": [
+      "Old2:bin/lb >extract.log Old1:lib/c.lib -x",
+      "Old1:bin/cc >cc-gateway.log -a +b gateway.c",
+      "Old1:bin/as >as-gateway.log -o gateway.o gateway.asm",
+      "Old1:bin/cc >cc-consumer.log -a +b consumer.c",
+      "Old1:bin/as >as-consumer.log -o consumer.o consumer.asm",
+      "Old1:bin/cc >cc-bases.log -a +b bases.c",
+      "Old1:bin/as >as-bases.log -o bases.o bases.asm",
+      "Old1:bin/cc >cc-sscanf-source.log -a +b -IOld1:include sscanf.c",
+      "Old1:bin/as >as-sscanf-source.log -o sscanf-source.o sscanf.asm",
+      "Old1:bin/cc >cc-scan-source.log -a +b +x3 -IOld1:include scan.c",
+      "Old1:bin/as >as-scan-source.log -o scan-source.o scan.asm",
+      "Old1:bin/ln >ln-natural.log -m -t -o natural gateway.o sscanf.o scan.o abort.o createpo.o createst.o createex.o bases.o +o1 consumer.o +o0 Old1:lib/c.lib",
+      "Old1:bin/ln >ln-reverse.log -m -t -o reverse sscanf.o scan.o abort.o createpo.o createst.o createex.o gateway.o bases.o +o1 consumer.o +o0 Old1:lib/c.lib",
+      "Old1:bin/ln >ln-source.log -m -t -o source gateway.o sscanf-source.o scan-source.o abort.o createpo.o createst.o createex.o bases.o +o1 consumer.o +o0 Old1:lib/c.lib"
+    ],
+    "tools": {
+      "toolchain/installed/aztec-3.6a/SYS1/bin/as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "toolchain/installed/aztec-3.6a/SYS1/bin/cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "toolchain/installed/aztec-3.6a/SYS1/bin/ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45",
+      "toolchain/installed/aztec-3.6a/SYS1/include/ctype.h": "7e69253345ae16dbbbfb5fdcf4a835e1cf4925f506e9669927ab6b13b20817d9",
+      "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+      "toolchain/installed/aztec-3.6a/SYS2/bin/lb": "a1bf3e25b67d9da333671c72b2e4e125f5f3b0ed74adef6dabf354c8ede21ac1"
+    },
+    "artifacts": {
+      "sscanf.o": "366e61a7f4eb32b51ddfea6886717ebd92873d260f71dd2baef3b5c605a0882a",
+      "scan.o": "57016715d46d4ae8170b2e876658fc383b6b0f1a8200e4eb1eecac6d84efe4d6",
+      "abort.o": "9e459bb332060caa5a3b87c93b036d89edc830638559862be163bb9f1024ce18",
+      "createpo.o": "c6ef2d83ffb565ed6f2dd012b10e47c5c4099c3bb23a75b0d027d4b0aeabb47d",
+      "createst.o": "80463d17a8693595b3cab0711228299e77006666b957f8dac2981bb42565feea",
+      "createex.o": "81ddddeca24ad39f9763fa43072a0d7f9d2cfb1e7b8ba943f8cbaa0a4023a422",
+      "index.o": "2fdad1b3970e365c8410e17e7ea7cb1ae1fba535ec0aee94287d8898adbf970d",
+      "lmul.o": "5eec6c5d23dcd6b0594d5982262fbb299d490ebe83e40a086160b580bd064f6d",
+      "_output.o": "de04d6cb6d578a7c433b7e1f67f7feb5c00ad7d018521cd842dbe10e310b81cd",
+      "_write.o": "0a9bb715460e905a862193c0910e02dcb159543fd0a2c94304d12f15f3bb882c",
+      "addport.o": "31cec2390747737201c2dc14528397f76384bda52ea4596a4150a08a69c1a0df",
+      "allocsig.o": "7a2ddf1dff5fc3eac01ef549e5349334abd64fea0eeb4fb150c340e6042237cd",
+      "freesign.o": "bf39500e871252d4dd769a821a65f8b26cf9b1c66628a0d970ea4ef53a0e95ce",
+      "newlist.o": "1ef8901f5bfba0058737284f1331beec509c744d3b562cc18db5709520a2304a",
+      "remport.o": "6ac58d5e9b94fcae4ed438c759e6f86d16ed3c83d8742daffdcded3d2ab16e13",
+      "allocmem.o": "0447ad96151b8f7dbebbd250758a74800b6c2418ec5b960f87c8d512354c3e5f",
+      "_allocme.o": "5cd460d564135bbacc5ee87bea7598fc178fa7cc86d552ee72e96adf357f44e4",
+      "findtask.o": "eac9d9d7d6fb228209edbe6896cb1c57fdb6c3423283eb6684433367781d4ecc",
+      "_findtas.o": "3431f3adbe7ee4d2d3a0ef85909d88e0a4835de613d6363f152f84ca57fe912c",
+      "freemem.o": "b7d4e3cb1554c3fd0a692af9cafd1845e389a587216be2d0b1db5fe749c50439",
+      "_freemem.o": "a40a176aa85dc113d38ca77b84dd289ec1bc5bf09ec5384219fadda92527ec8b",
+      "ctype.o": "bd625be7c4b172268dc5d5ba52f27e63048dff587454fa539f5fe8270897a062",
+      "gateway.o": "99a732b2a011dcf88c54014e9921d23edac3bd5076e58f01b20c3e3c434cb24b",
+      "consumer.o": "0f59cdf0abf7b44efb2b35522bf223211b1e9824fef473715925ae9d549c8f3e",
+      "bases.o": "c1a33015d0cb26e78bd0684c7133e08a7eb58c585cd00c1371dc2f3166560378",
+      "scan-source.o": "813b632b4fc612bf768bb6af4ac23e0a583f022b7b297e8e07bd36735581319c",
+      "sscanf-source.o": "a4f7b6874b9530ea3b96d631d7c7af9de8debb35f1997d78a6c73033f99b8f2b",
+      "scan.asm": "4a6a0968f18d25f99bc37f28f0eb8d938345315c66c7f2ebc13e7626c7c3b5ab",
+      "sscanf.asm": "6422fc162fae68117487ff5e921be7fbea3529c79f300e5e4511e585df1efb79",
+      "gateway.asm": "afe6a77aee7dfe70125da7361e8e429d3c2a6d88c47ef3c7689ad15bee4721dd",
+      "consumer.asm": "1f5003875c64ce2206b661a661b2117db70c5363d0bcdcedbd953875af22cf0a",
+      "bases.asm": "64eb1ac38a957bfc8813c9923c3cf63cbdd25632ccb7a0471d4ea9ab39b6b4c9",
+      "natural": "055783bd1ecdd1b676a4427c5d54dd48026a392bc7c5cc4398d7ea4bd17f091b",
+      "natural.sym": "c9591c1675cbd64691b955dee40bf924e96351db236992fa8bd84d2f3d7b19b9",
+      "reverse": "4a651c041ad4c53a01f1213ebe3dcfab295ae6c732d8e85d84783c873e2206e4",
+      "reverse.sym": "2e81c292885d7f27103f74380a494ba65765f5f310cdd46e475355db4990d11b",
+      "source": "055783bd1ecdd1b676a4427c5d54dd48026a392bc7c5cc4398d7ea4bd17f091b",
+      "source.sym": "c9591c1675cbd64691b955dee40bf924e96351db236992fa8bd84d2f3d7b19b9"
+    },
+    "library_objects": [
+      "sscanf.o",
+      "scan.o",
+      "abort.o",
+      "createpo.o",
+      "createst.o",
+      "createex.o",
+      "index.o",
+      "lmul.o",
+      "_output.o",
+      "_write.o",
+      "addport.o",
+      "allocsig.o",
+      "freesign.o",
+      "newlist.o",
+      "remport.o",
+      "allocmem.o",
+      "_allocme.o",
+      "findtask.o",
+      "_findtas.o",
+      "freemem.o",
+      "_freemem.o",
+      "ctype.o"
+    ],
+    "anchors": {
+      "ov04_F_037E": {
+        "source": "src/recovered/ov04/ov04_F_037E.c",
+        "source_sha256": "e6816588d5942ffd2ed06aa85917f6a6070d9d0b2004d3567cd04d47dccf8957",
+        "proof": "recovery/proofs/ov04_F_037E.json",
+        "proof_sha256": "8705bcd68c2145ffe5a7da9e095487afb91482518134dccbca280d3310b09416"
+      },
+      "ov04_F_1E36": {
+        "source": "src/recovered/ov04/ov04_F_1E36.c",
+        "source_sha256": "5213fb9622ebaada9615432085c1bd584728935b05aa4f454f433157ab08ccf7",
+        "proof": "recovery/proofs/ov04_F_1E36.json",
+        "proof_sha256": "d52e85d5b084516304112c8432ee0586a41d064492aba8801a7f35c5344cdcdd"
+      }
+    },
+    "options": {
+      "sscanf": [
+        "+b",
+        "-IOld1:include"
+      ],
+      "scan": [
+        "+b",
+        "+x3",
+        "-IOld1:include"
+      ]
+    },
+    "private_accesses": {
+      "SSCANF_SCNSTR": {
+        "member": "sscanf",
+        "sdk_symbol": "_scnstr",
+        "field": 8,
+        "initializer": "input pointer store",
+        "size": 4,
+        "original": [
+          1,
+          15034
+        ],
+        "ownership": "UNKNOWN",
+        "allocation_identity": null
+      },
+      "SSCANF_QUIT": {
+        "member": "sscanf",
+        "sdk_symbol": "_quit",
+        "field": 12,
+        "initializer": "zero byte store",
+        "size": 1,
+        "original": [
+          1,
+          15038
+        ],
+        "ownership": "UNKNOWN",
+        "allocation_identity": null
+      },
+      "SCAN_GSUB": {
+        "member": "scan",
+        "sdk_symbol": "_gsub",
+        "field": 22,
+        "initializer": "callback input pointer store",
+        "size": 4,
+        "original": [
+          1,
+          15042
+        ],
+        "ownership": "UNKNOWN",
+        "allocation_identity": null
+      },
+      "SCAN_MAXWIDTH": {
+        "member": "scan",
+        "sdk_symbol": "_maxwidth",
+        "field": 62,
+        "initializer": "constant 127 word store",
+        "size": 2,
+        "original": [
+          1,
+          15040
+        ],
+        "ownership": "UNKNOWN",
+        "allocation_identity": null
+      }
+    },
+    "original_bss_claim": null,
+    "claimed_data_size": 0,
+    "contracts": {
+      "sscanf": {
+        "8": {
+          "kind": "A4",
+          "symbol": "SSCANF_SCNSTR"
+        },
+        "12": {
+          "kind": "A4",
+          "symbol": "SSCANF_QUIT"
+        },
+        "28": {
+          "kind": "PC",
+          "symbol": "_scanfmt"
+        },
+        "50": {
+          "kind": "A4",
+          "symbol": "SSCANF_SCNSTR"
+        },
+        "58": {
+          "kind": "A4",
+          "symbol": "SSCANF_SCNSTR"
+        },
+        "62": {
+          "kind": "A4",
+          "symbol": "SSCANF_SCNSTR"
+        },
+        "80": {
+          "kind": "A4",
+          "symbol": "SSCANF_QUIT"
+        },
+        "86": {
+          "kind": "A4",
+          "symbol": "SSCANF_QUIT"
+        },
+        "92": {
+          "kind": "A4",
+          "symbol": "SSCANF_SCNSTR"
+        },
+        "96": {
+          "kind": "A4",
+          "symbol": "SSCANF_SCNSTR"
+        }
+      },
+      "scan": {
+        "22": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "62": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "86": {
+          "kind": "A4",
+          "symbol": "_ctp_"
+        },
+        "98": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "106": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "120": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "132": {
+          "kind": "A4",
+          "symbol": "_ctp_"
+        },
+        "248": {
+          "kind": "A4",
+          "symbol": "SCAN_LOCAL_DATA",
+          "addend": 23
+        },
+        "260": {
+          "kind": "A4",
+          "symbol": "SCAN_LOCAL_DATA"
+        },
+        "464": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "468": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "478": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "506": {
+          "kind": "A4",
+          "symbol": "_index",
+          "route": true
+        },
+        "530": {
+          "kind": "A4",
+          "symbol": "_index",
+          "route": true
+        },
+        "552": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "624": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "728": {
+          "kind": "A4",
+          "symbol": "_ctp_"
+        },
+        "750": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "766": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "786": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "814": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "832": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "840": {
+          "kind": "A4",
+          "symbol": "_ctp_"
+        },
+        "860": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "892": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        },
+        "924": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "964": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "976": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "992": {
+          "kind": "A4",
+          "symbol": "_index",
+          "route": true
+        },
+        "1034": {
+          "kind": "A4",
+          "symbol": "SCAN_GSUB"
+        },
+        "1054": {
+          "kind": "A4",
+          "symbol": ".mulu",
+          "route": true
+        },
+        "1086": {
+          "kind": "A4",
+          "symbol": "SCAN_MAXWIDTH"
+        }
+      },
+      "abort": {
+        "14": {
+          "kind": "PC",
+          "symbol": "__Output"
+        },
+        "20": {
+          "kind": "PC",
+          "symbol": "__Write"
+        },
+        "28": {
+          "kind": "A4",
+          "symbol": "_exit",
+          "route": true
+        }
+      },
+      "createpo": {
+        "14": {
+          "kind": "PC",
+          "symbol": "_AllocSignal"
+        },
+        "50": {
+          "kind": "A4",
+          "symbol": "_AllocMem",
+          "route": true
+        },
+        "64": {
+          "kind": "PC",
+          "symbol": "_FreeSignal"
+        },
+        "102": {
+          "kind": "A4",
+          "symbol": "_FindTask",
+          "route": true
+        },
+        "120": {
+          "kind": "PC",
+          "symbol": "_AddPort"
+        },
+        "132": {
+          "kind": "PC",
+          "symbol": "_NewList"
+        },
+        "160": {
+          "kind": "PC",
+          "symbol": "_RemPort"
+        },
+        "188": {
+          "kind": "PC",
+          "symbol": "_FreeSignal"
+        },
+        "198": {
+          "kind": "A4",
+          "symbol": "_FreeMem",
+          "route": true
+        }
+      },
+      "createst": {
+        "14": {
+          "kind": "PC",
+          "symbol": "_CreateExtIO"
+        },
+        "32": {
+          "kind": "PC",
+          "symbol": "_DeleteExtIO"
+        }
+      },
+      "createex": {
+        "32": {
+          "kind": "A4",
+          "symbol": "_AllocMem",
+          "route": true
+        },
+        "122": {
+          "kind": "A4",
+          "symbol": "_FreeMem",
+          "route": true
+        }
+      }
+    }
+  }
 }

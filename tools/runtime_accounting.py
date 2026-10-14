@@ -77,7 +77,8 @@ def capture_runtime_members(root, blob, model):
     contexts=natural.producer(root,recipe)
     for row in report['contributions']:
         spec=natural.SPECS[row['member']];o=row['original'];payloads=[]
-        for prefix in ('natural','reverse'):
+        prefixes=('natural','reverse') if row['member'] in natural.LEGACY_MEMBERS else ('tail_natural','tail_reverse')
+        for prefix in prefixes:
             b,m,sm=contexts[prefix];start=natural.symbol(sm,spec['export'])[1]+spec['delta']
             raw=natural.extent(b,m,0,start,row['size'])
             payloads.append(resolve_fields(raw,o['offset'],row['operand_identity']))
@@ -171,8 +172,28 @@ def input_identity(root):
     paths.update(SEG_JOB+'/sys/work/'+name for name in ('segload36.o','segload36','segload36.sym'))
     job=Path(recipe['request']['path']).parent.as_posix()
     paths.update(job+'/'+name for name in ('sys/s/startup-sequence','worker.uae','kick.rom'))
+    tail=recipe['tail']
+    paths.update((tail['sdk']['path'],tail['request']['path'],tail['receipt']['path'],*tail['tools']))
+    paths.update(tail['work']+'/'+name for name in tail['artifacts'])
+    paths.update(tail['work']+'/'+name for name in (*tail['sources'],'scan.c','sscanf.c'))
+    for anchor in tail['anchors'].values():paths.update((anchor['source'],anchor['proof']))
+    tail_job=Path(tail['request']['path']).parent.as_posix()
+    paths.update(tail_job+'/'+name for name in ('sys/s/startup-sequence','worker.uae','kick.rom'))
+    # Natural member proofs replay the existing leaf route as a dependency.
+    from runtime_tail_members import RECIPE as leaf_recipe
+    paths.add(leaf_recipe)
+    leaf=json.loads(canonical_path(root,leaf_recipe).read_text())
+    paths.update((leaf['library']['path'],leaf['job']['request']['path'],leaf['job']['receipt']['path']))
+    for member in leaf['members']:
+        paths.update(member[k]['path'] for k in ('object','executable','symbols'))
+    leaf_job=Path(leaf['job']['request']['path']).parent.as_posix()
+    paths.update(leaf_job+'/'+name for name in ('sys/s/startup-sequence','worker.uae','kick.rom'))
     values={str(candidate_path(root,root/p)):sha256(candidate_path(root,root/p).read_bytes()) for p in paths}
     request=json.loads(candidate_path(root,root/recipe['request']['path']).read_text())
     emulator=Path(request['emulator']).resolve()
     values[str(emulator)]=sha256(emulator.read_bytes())
+    for claim in (tail['request'],leaf['job']['request']):
+        other=json.loads(candidate_path(root,root/claim['path']).read_text())
+        emulator=Path(other['emulator']).resolve()
+        values[str(emulator)]=sha256(emulator.read_bytes())
     return values

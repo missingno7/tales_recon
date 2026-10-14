@@ -21,6 +21,7 @@ class NaturalMemberTests(unittest.TestCase):
         cls.original=game()[:2]
         cls.contexts=n.producer(ROOT,cls.recipe)
         cls.result=n.verify(ROOT,recipe=cls.recipe,original=cls.original)
+        cls.result=dict(cls.result,contributions=[r for r in cls.result['contributions'] if r['member'] in n.LEGACY_MEMBERS])
 
     def prove(self,candidate=None,original=None):
         return n.prove_context(ROOT,self.recipe,candidate or self.contexts['natural'],original or self.original,self.contexts['crt'])

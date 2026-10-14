@@ -264,9 +264,40 @@ waits on a named structural blocker:
     - resident_F_7B24's canonical C proof (158 C + 22 literal bytes) is
       c.lib wbparse. The proof stays, but the pinned object is now counted
       once, as runtime.
+    - Follow-up (Sol, build/workers/sol-lib-tail result2/report2): sscanf
+      (112), scan (1,124), abort, createport, createstdio and createextio
+      are proven through the natural route. That is 1,656 CODE bytes, with
+      the producer job in build/worker-jobs/sol-lib-tail-routes-04 and
+      every A4/PC operand bound. RAW_ORACLE_DEBT goes to 35,550 (file level
+      42,230) and PINNED_RUNTIME to 4,220. The private storage at
+      H1+0x3ABA..0x3AC6 stays UNKNOWN; no storage is credited.
     - The H1 DATA map in build/workers/sol-data-map/data-map.json
       partitions all 11,956 DATA bytes: 588 are proven library DATA and
       6,933 are UNKNOWN.
+
+12. LINKER-GENERATED DATA (Sol, build/workers/sol-linker-slots; NEAR,
+    deferred). Fresh natural links reproduce only 96 raw-equal overlay-ABI
+    bytes (12 relocation-free records). The 576-byte resident JMP-slot prefix
+    and 118 more ABI bytes need the original root/overlay object references
+    and TU layout, including the unexplained H1+0xE4 slot and the
+    H1[204,210) slot to 0x57D2. The proposal embeds producer artifacts as
+    hex in a 10K-line evidence file. Redo it with a job referenced under
+    build/worker-jobs (as the runtime routes do) once the prefix is
+    explained; the 96 bytes alone do not justify it now.
+
+13. UNREFERENCED OVERLAY FUNCTIONS (Sol, build/workers/sol-ovl-gaps). The
+    remaining overlay RAW_ORACLE_DEBT gaps hold eight uncalled LINK
+    routines the census never seeds:
+    - ov09 0x2C22 (with a literal tail) and ov10 0x2C52;
+    - ov11 0x2664, 0x59E6, 0x5CEA, 0x5F2A (two routines) and 0x6F20;
+    - plus the weakly seeded ov11_F_20AE.
+    ov11 0x66FE has a 114-byte unreachable tail. ov13_F_0942 has 226
+    unreachable bytes and four literal references that are missing, so its
+    owned-tail proof rejects. Diagnostic compiles reproduce the sizes but
+    are not exact proofs. Plan: weak POST_FUNCTION_PROLOGUE seeds (the
+    proposal.patch there), then a separate curated strong-entry input for
+    uncalled routines, backed by exact natural-interval verification, then
+    grinding.
 
 ## Current campaign (2026-10-12): resident-first fleet
 
