@@ -321,6 +321,38 @@ waits on a named structural blocker:
     provider at 12B4 after struct-field/ABI controls. The other 12 spans
     and their evidence gaps are listed in next-candidates4.json. No pointer
     table earns credit until it has bounds and named proved targets.
+    Batch 0002 (cd2119a; 220 bytes) is also accepted: 0A3A, 0AA2, 12B4 and
+    1EA4. The new bounds recipes are STRUCT_ABI, GUARDED_BYTE, COORDINATES
+    and STATE16. Inventory (build/workers/sol-tu-layout/inventory5.json):
+    about 20 KB of resident debt is unknown, 5.2 KB is audio bytecode,
+    3.4 KB is printable candidates and 1.2 KB is pointer tables.
+
+15. RUNTIME GLUE AND ROUTES (Sol, build/workers/sol-glue-tail; be12304).
+    91 complete Aztec c.lib glue members in 0x868C..0x8CD8 are exact, adding
+    1,076 PINNED_RUNTIME bytes. tools/runtime_entry_routes.py exports the exact
+    C-ABI entries of the natural, tail and glue proofs to unit preparation, so
+    printf, Read and Seek are now routable. Open items:
+    - the stdio family 8056..850A (putc differs in 4 bytes);
+    - amiga_ffp 8D32 (MathBase binding);
+    - a mixed-object dependency recipe, because C units cannot import the
+      canonical mixed object resident_F_8552.
+    The 287C/291E region still waits on 404A/4184 and therefore on 411E
+    (TOOLCHAIN).
+
+16. COMPLETE-C DEAD CODE (Sol, build/workers/sol-ovl-gaps). The route is
+    5bb8b48. The ov13_F_0942 promotion (7101c7d) was reverted (13d12cf): with
+    a canonical dead_code_functions entry present, 8 regression tests failed,
+    and the gate took 25 min because every census replays the 88-part ov11
+    unit. Fix in progress (sol-ovl-gaps-e). Then promote ov13_F_0942 and
+    ov11_F_66FE again.
+
+17. RECONSTRUCTED ASM (user decision 2026-10-14, AGENTS.md; Sol,
+    build/workers/sol-audio-asm). The pinned SYS1 `as`, with the referenced
+    data declared in `dseg`, reproduces the 56-byte audio RNG at 559E
+    exactly, including both named RELOC32 fields (its non-C predicate is the
+    CCR-X rotation chain). The route and the scaling to 5428..558A and
+    55D6..5E6C are in progress. 558A/5594 are C-compatible and stay on the C
+    route.
 
 ## Current campaign (2026-10-12): resident-first fleet
 
