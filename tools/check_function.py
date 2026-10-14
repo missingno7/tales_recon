@@ -382,7 +382,9 @@ def main():
             extras=list(item.get('extra_libraries',()))
             if 'm.lib' not in extras:extras.append('m.lib')
             item['extra_libraries']=extras
-    reports=check_many(req,not args.no_promote,args.isolated,args.output_dir)
+    from evidence_snapshot import isolated_verification
+    with isolated_verification(ROOT,args.isolated):
+        reports=check_many(req,not args.no_promote,args.isolated,args.output_dir)
     for r in reports:
         if args.json:print(json.dumps(r))
         else:

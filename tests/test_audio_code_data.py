@@ -134,8 +134,10 @@ class Classification(Fixture):
 
 class CensusIntegration(Fixture):
     def test_full_generated_census_and_review_ranking_have_no_phantoms(self):
-        census=function_census.Census(self.blob,self.model,[],classified_data=[self.fact])
-        with patch.object(function_census,'ROOT',HERE):generated=census.run()
+        # The canonical function census is the generated output with the fact
+        # (census --check rejects it when stale against the fact identity);
+        # only the no-fact baseline below is recomputed here.
+        generated=json.loads((HERE/'evidence/functions/ledger.json').read_text())
         self.assertFalse(any(f['hunk']==0 and 0x13b8<=f['start']<0x2816 for f in generated['functions']))
         self.assertFalse(generated['summary']['reconstruction_claimed_by_census'])
         self.assertEqual(generated['data_fact_identity'],data.identity(HERE))

@@ -203,6 +203,21 @@ def validated_stage(root, strict=True):
             raise
 
 
+@contextmanager
+def isolated_verification(root, enabled=True):
+    """An isolated verifier run as one validated stage.
+
+    Isolated runs write nothing that is a census or proof input, so the strict
+    and advisory input sets are hashed once on entry and once on exit instead
+    of on every derivation reuse. Promotion runs keep per-read rehashing.
+    """
+    if not enabled:
+        yield
+        return
+    with snapshot(), validated_stage(root, strict=True), validated_stage(root, strict=False):
+        yield
+
+
 def scoped(function):
     @wraps(function)
     def wrapped(*args, **kwargs):

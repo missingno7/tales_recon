@@ -27,11 +27,20 @@ def read(root, path):
     return canonical_path(root, path).read_bytes()
 
 
+_PINS = {}
+
+
 def pinned(root, path):
-    inventory = json.loads(read(root, 'evidence/toolchain/aztec-3.6a.json'))
-    pins = {('toolchain/installed/aztec-3.6a/' + d['manifest']['volume'] + '/' + e['path']): e['sha256']
-            for d in inventory['disks'] if d['status'] == 'VALIDATED'
-            for e in d['manifest']['entries'] if e['kind'] == 'file'}
+    # The inventory is re-read and re-hashed on every call; only its parse,
+    # keyed by those exact bytes, is reused.
+    inventory_raw = read(root, 'evidence/toolchain/aztec-3.6a.json')
+    key = sha256(inventory_raw)
+    pins = _PINS.get(key)
+    if pins is None:
+        inventory = json.loads(inventory_raw)
+        pins = _PINS[key] = {('toolchain/installed/aztec-3.6a/' + d['manifest']['volume'] + '/' + e['path']): e['sha256']
+                             for d in inventory['disks'] if d['status'] == 'VALIDATED'
+                             for e in d['manifest']['entries'] if e['kind'] == 'file'}
     raw = read(root, path)
     require(path in pins and sha256(raw) == pins[path], 'mixed pinned input differs')
     return raw

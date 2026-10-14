@@ -1229,7 +1229,9 @@ def main():
         member_id,sep,member_path=item.partition('=')
         require(sep and member_id and member_path and member_id not in member_sources,'--member expects a unique ID=SOURCE')
         member_sources[member_id]=Path(member_path)
-    reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
+    from evidence_snapshot import isolated_verification
+    with isolated_verification(ROOT,a.isolated):
+     reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
                   a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles,
                   a.replace_canonical,a.with_m_lib)
     for r in reports:print(json.dumps(r))
