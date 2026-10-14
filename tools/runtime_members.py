@@ -23,6 +23,7 @@ OUTPUT = 'evidence/experiments/runtime-members.json'
 # Separate opt-in ledger preserves legacy runtime-members.json receipts.
 RELOCATED_OUTPUT = 'evidence/experiments/runtime-members-relocated.json'
 NATURAL_OUTPUT = 'evidence/experiments/runtime-members-natural.json'
+TAIL_OUTPUT = 'evidence/experiments/runtime-members-tail.json'
 SEGLOAD_RELOCATIONS = [
     dict(offset=0x28, type='HUNK_RELOC32', width=4,
          target=dict(kind='ROOT_HUNK_ORIGIN', hunk=0, type='CODE', addend=8)),
@@ -133,6 +134,11 @@ def analyze_natural():
     return verify(ROOT)
 
 
+def analyze_tail():
+    from runtime_tail_members import verify
+    return verify(ROOT)
+
+
 def analyze_relocated():
     original, model, _ = game()
     return dict(schema_version=1, game_sha256=sha256(original), status='COMPLETE_RUNTIME_CODE_MATCH',
@@ -213,8 +219,9 @@ if __name__ == '__main__':
     mode = ap.add_mutually_exclusive_group()
     mode.add_argument('--relocated', action='store_true')
     mode.add_argument('--natural-routes', action='store_true')
+    mode.add_argument('--tail-leaves', action='store_true')
     args = ap.parse_args()
-    result = analyze_natural() if args.natural_routes else analyze_relocated() if args.relocated else analyze()
-    output = NATURAL_OUTPUT if args.natural_routes else RELOCATED_OUTPUT if args.relocated else OUTPUT
+    result = analyze_tail() if args.tail_leaves else analyze_natural() if args.natural_routes else analyze_relocated() if args.relocated else analyze()
+    output = TAIL_OUTPUT if args.tail_leaves else NATURAL_OUTPUT if args.natural_routes else RELOCATED_OUTPUT if args.relocated else OUTPUT
     write_json(ROOT / output, result)
     print(json.dumps(dict(status=result['status'], contributions=[(c['member'], c['original'], c['size']) for c in result['contributions']])))
