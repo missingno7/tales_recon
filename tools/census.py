@@ -61,6 +61,16 @@ def advisory_image():
 
 
 def derive(root, promotion_evidence=None):
+    if promotion_evidence is None:
+        promotion_evidence = _PROMOTION_EVIDENCE[0]
+    from evidence_snapshot import memoized
+    identity = 'promotion_evidence=' + ('1' if promotion_evidence else '0')
+    return memoized(root, 'census-derive', identity,
+                    lambda: _derive_uncached(root, promotion_evidence),
+                    strict=bool(promotion_evidence))
+
+
+def _derive_uncached(root, promotion_evidence=None):
     """Derive every census output from the immutable inputs.
 
     ``promotion_evidence=False`` (default: strict unless inside

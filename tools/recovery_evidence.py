@@ -577,6 +577,13 @@ def owned_tail_boundary(h,fid,end,owned_end,analysis,blob):
 
 
 def load_promotions(root,blob,model,analysis):
+    from evidence_snapshot import memoized
+    identity=sha256(json_bytes(dict(game_sha256=sha256(blob),analysis=analysis)))
+    return memoized(root,'canonical-promotions',identity,
+                    lambda:_load_promotions(root,blob,model,analysis),strict=True)
+
+
+def _load_promotions(root,blob,model,analysis):
     path=root/'recovery/ledger.json'
     if not path.exists():return []
     ledger=json.loads(path.read_text());out=[];occupied=set()

@@ -81,6 +81,17 @@ def normalize(f, actual, comparison, a4_bias):
     return bytes(result)
 
 
+def index_job_receipts(root, wanted):
+    """Hash every retained worker result once; keep only requested exact bytes."""
+    index={}
+    for path in sorted((root/'build/worker-jobs').glob('*/result.json')):
+        raw=path.read_bytes()
+        digest=sha256(raw)
+        if digest in wanted:
+            index.setdefault(digest,[]).append((path,raw))
+    return index
+
+
 def capture(root=ROOT):
     """Freeze only compiler-produced contribution bytes, not worker environments.
 
@@ -128,15 +139,28 @@ def capture(root=ROOT):
         normalize(by[fid],raw,comparison,analysis['a4']['bias'])
         entries[fid]=dict(proof_sha256=item['proof_sha256'],source_sha256=item['source_sha256'],
                           cache_key=key,actual_hex=raw.hex(),actual_sha256=sha256(raw))
+    # Resolve the two pinned worker receipts with one bounded index pass.
+    receipt_rows=[]
+    for name in ('runtime-matches.json','runtime-arithmetic.json'):
+        receipt_path=root/'evidence/experiments'/name
+        receipt_bytes=receipt_path.read_bytes()
+        receipt=json.loads(receipt_bytes)
+        receipt_rows.append((name,receipt_path,receipt_bytes,receipt))
+    wanted={row[3]['job_receipt_sha256'] for row in receipt_rows}
+    job_index=index_job_receipts(root,wanted)
+    parsed_jobs={}
     # Relocation-free library specimens: retain the linked producing bytes,
     # verifying them against pinned library/object receipts, never the oracle.
     runtime=[];seen=set()
-    for name in ('runtime-matches.json','runtime-arithmetic.json'):
-        receipt_path=root/'evidence/experiments'/name;receipt=json.loads(receipt_path.read_text())
-        jobs=[p for p in (root/'build/worker-jobs').glob('*/result.json')
-              if sha256(p.read_bytes())==receipt['job_receipt_sha256']]
+    for name,receipt_path,receipt_bytes,receipt in receipt_rows:
+        jobs=job_index.get(receipt['job_receipt_sha256'],[])
         require(len(jobs)==1,'missing or ambiguous runtime job receipt: '+name)
-        job=json.loads(jobs[0].read_text());work=jobs[0].parent/'sys/work'
+        job_path,job_bytes=jobs[0]
+        job=parsed_jobs.get(job_path)
+        if job is None:
+            job=json.loads(job_bytes.decode('utf-8'))
+            parsed_jobs[job_path]=job
+        work=job_path.parent/'sys/work'
         rows=receipt.get('contributions',receipt.get('objects',[]))
         for row in rows:
             matches=[row['original']] if 'original' in row else row['matches']
@@ -164,7 +188,7 @@ def capture(root=ROOT):
             require(len(candidates)==1,'runtime linked specimen missing')
             runtime.append(dict(id='runtime_'+Path(obj['path']).stem,**region,actual_hex=candidates[0].hex(),
                                 actual_sha256=row['code_sha256'],library_sha256=library,object_sha256=obj['sha256'],
-                                receipt=receipt_path.relative_to(root).as_posix(),receipt_sha256=sha256(receipt_path.read_bytes())))
+                                receipt=receipt_path.relative_to(root).as_posix(),receipt_sha256=sha256(receipt_bytes)))
     return dict(schema_version=1,game_sha256=sha256(blob),functions=entries,runtime=runtime,
                 runtime_members=capture_runtime_members(root,blob,model),
                 policy='Compiler-produced validation specimens; acceptance authority remains recovery/ledger.json and its receipts.')
@@ -306,22 +330,24 @@ def closure_inventory(report, analysis, ledger, model, node='ov04'):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--refresh',action='store_true');ap.add_argument('--write',action='store_true');ap.add_argument('--check',action='store_true');a=ap.parse_args()
-    if a.refresh:write_json(ROOT/SPECIMENS,capture())
-    output,report=build();text=human(report)
-    _,model,_=game()
-    closure=closure_inventory(report,json.loads((ROOT/'evidence/functions/ledger.json').read_text()),
-                              json.loads((ROOT/'recovery/ledger.json').read_text()),model)
-    closure_path=ROOT/'evidence/closure/ov04.json'
-    if a.write:
-        write_json(ROOT/'evidence/hybrid/accounting.json',report)
-        write_json(closure_path,closure)
-        (ROOT/'docs/ACCOUNTING.md').write_text(text,encoding='ascii',newline='\n')
-        dest=ROOT/'build/hybrid';dest.mkdir(parents=True,exist_ok=True);(dest/'validation-only.bin').write_bytes(output)
-    if a.check:
-        require(json.loads((ROOT/'evidence/hybrid/accounting.json').read_text())==report,'stale accounting report')
-        require((ROOT/'docs/ACCOUNTING.md').read_text()==text,'stale human accounting report')
-        require(json.loads(closure_path.read_text())==closure,'stale closure inventory')
-    print(text)
+    from evidence_snapshot import snapshot
+    with snapshot():
+        if a.refresh:write_json(ROOT/SPECIMENS,capture())
+        output,report=build();text=human(report)
+        _,model,_=game()
+        closure=closure_inventory(report,json.loads((ROOT/'evidence/functions/ledger.json').read_text()),
+                                  json.loads((ROOT/'recovery/ledger.json').read_text()),model)
+        closure_path=ROOT/'evidence/closure/ov04.json'
+        if a.write:
+            write_json(ROOT/'evidence/hybrid/accounting.json',report)
+            write_json(closure_path,closure)
+            (ROOT/'docs/ACCOUNTING.md').write_text(text,encoding='ascii',newline='\n')
+            dest=ROOT/'build/hybrid';dest.mkdir(parents=True,exist_ok=True);(dest/'validation-only.bin').write_bytes(output)
+        if a.check:
+            require(json.loads((ROOT/'evidence/hybrid/accounting.json').read_text())==report,'stale accounting report')
+            require((ROOT/'docs/ACCOUNTING.md').read_text()==text,'stale human accounting report')
+            require(json.loads(closure_path.read_text())==closure,'stale closure inventory')
+        print(text)
 
 
 if __name__=='__main__':

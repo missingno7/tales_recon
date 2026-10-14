@@ -15,6 +15,7 @@ import time
 from common import require, sha256, json_bytes
 
 _ACTIVE = ContextVar('evidence_snapshot', default=None)
+_VALIDATED = ContextVar('evidence_snapshot_inputs', default=())
 
 
 class Snapshot:
@@ -104,28 +105,51 @@ class Snapshot:
         self.hash_seconds += time.perf_counter() - started
         return values
 
-    def load(self, root, strict, loader):
-        key = str(Path(root).resolve()), strict
-        before = self.inputs(root, strict)
+    def _discard_scope(self, root, strict):
+        root_key = str(Path(root).resolve())
+        strict = bool(strict)
+        for key in list(self.entries):
+            if key[0] == root_key and key[1] == strict:
+                del self.entries[key]
+
+    def load(self, root, strict, loader, namespace='game', identity=None):
+        strict = bool(strict)
+        root_key = str(Path(root).resolve())
+        key = root_key, strict, namespace
+        stage = next((row for row in reversed(_VALIDATED.get())
+                      if row[0] is self and row[1] == root_key and row[2] == strict), None)
+        def current_inputs():
+            values = dict(stage[3]) if stage is not None else self.inputs(root, strict)
+            if identity is not None:
+                values['@identity:' + namespace] = identity
+            return values
+        before = current_inputs()
         entry = self.entries.get(key)
         if entry is not None and entry[0] == before:
-            self.hits += 1
+            if namespace == 'game':self.hits += 1
             return pickle.loads(entry[1])
         if entry is not None:
-            self.invalidations += 1
-            del self.entries[key]
-        self.misses += 1
+            if namespace == 'game':self.invalidations += 1
+            self._discard_scope(root, strict)
+        if namespace == 'game':self.misses += 1
         started = time.perf_counter()
-        value = loader()
+        try:
+            value = loader()
+            if stage is None:
+                after = current_inputs()
+                require(after == before,
+                        'game derivation inputs changed during snapshot creation; retry verification')
+            # The C serializer is much cheaper than recursively copying the large
+            # census output. These bytes are created here and kept only in memory;
+            # never deserialize a disk cache or worker-provided pickle.
+            packed = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
+        except BaseException:
+            self._discard_scope(root, strict)
+            raise
         self.derive_seconds += time.perf_counter() - started
-        require(self.inputs(root, strict) == before,
-                'game derivation inputs changed during snapshot creation; retry verification')
-        # The C serializer is much cheaper than recursively copying the large
-        # census output. These bytes are created here and kept only in memory;
-        # never deserialize a disk cache or worker-provided pickle.
-        packed = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
         self.entries[key] = before, packed
         return pickle.loads(packed)
+
 
 
 @contextmanager
@@ -145,6 +169,40 @@ def snapshot(enabled=True):
         current.parsed.clear()
 
 
+@contextmanager
+def validated_stage(root, strict=True):
+    """Rehash a stage's full inputs once before and after its nested derivations."""
+    active = _ACTIVE.get()
+    if active is None or not active.enabled:
+        yield
+        return
+    root_key = str(Path(root).resolve())
+    strict = bool(strict)
+    parent = next((row for row in reversed(_VALIDATED.get())
+                   if row[0] is active and row[1] == root_key and row[2] == strict), None)
+    if parent is not None:
+        yield
+        return
+    before = active.inputs(root, strict)
+    stack = _VALIDATED.get()
+    token = _VALIDATED.set(stack + ((active, root_key, strict, before),))
+    try:
+        yield
+    except BaseException:
+        _VALIDATED.reset(token)
+        active._discard_scope(root, strict)
+        raise
+    else:
+        _VALIDATED.reset(token)
+        try:
+            after = active.inputs(root, strict)
+            require(after == before,
+                    'refresh stage inputs changed during derivation; retry verification')
+        except BaseException:
+            active._discard_scope(root, strict)
+            raise
+
+
 def scoped(function):
     @wraps(function)
     def wrapped(*args, **kwargs):
@@ -157,4 +215,12 @@ def game_read(root, loader):
     active = _ACTIVE.get()
     if active is None or not active.enabled:return loader()
     from census import _PROMOTION_EVIDENCE
-    return active.load(root, bool(_PROMOTION_EVIDENCE[0]), loader)
+    return active.load(root, bool(_PROMOTION_EVIDENCE[0]), loader, namespace='game')
+
+
+def memoized(root, namespace, identity, loader, strict=True):
+    """Memoize a read-only derivation only inside the active, rehashing scope."""
+    active = _ACTIVE.get()
+    if active is None or not active.enabled:
+        return loader()
+    return active.load(root, bool(strict), loader, namespace=namespace, identity=identity)

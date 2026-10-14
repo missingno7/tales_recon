@@ -49,6 +49,13 @@ def resolve_fields(raw, start, fields):
 
 
 def capture_runtime_members(root, blob, model):
+    from evidence_snapshot import memoized
+    identity=sha256(blob)
+    return memoized(root,'runtime-members',identity,
+                    lambda:_capture_runtime_members(root,blob,model),strict=True)
+
+
+def _capture_runtime_members(root, blob, model):
     """Replay both complete proofs; payloads come only from producing artifacts."""
     root=Path(root).resolve()
     seg=relocated.relocated_contribution(relocated.RELOCATED_SPECS[0],blob,model,root=root)
