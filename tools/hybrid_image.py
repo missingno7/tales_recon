@@ -20,7 +20,7 @@ from repo_paths import canonical_path
 from library_a4 import load_library_a4
 from runtime_accounting import capture_runtime_members, contributions as runtime_contributions, merge_accounting
 
-CATEGORIES = ('RECOVERED_C', 'RECOVERED_ASM', 'COMPILER_OWNED_DATA',
+CATEGORIES = ('RECOVERED_C', 'RECOVERED_ASM', 'COMPILER_OWNED_DATA', 'RECOVERED_DATA',
               'PINNED_RUNTIME', 'CLASSIFIED_PADDING', 'RAW_ORACLE_DEBT')
 SPECIMENS = 'evidence/contributions/compiled.json'
 
@@ -290,6 +290,9 @@ def build(root=ROOT):
     contributions.extend(load_library_a4(root,blob,model,analysis,promoted,ledger))
     from resident_mixed import accepted_contributions
     contributions.extend(accepted_contributions(root,blob,model,analysis,promoted,ledger))
+    from data_providers import load_data_providers, contributions as data_contributions
+    providers=load_data_providers(root,blob,model,analysis,ledger,promoted)
+    contributions.extend(data_contributions(providers))
     members=capture_runtime_members(root,blob,model)
     # Legacy compiled.json lacks this optional, fully replayed specimen section.
     # Once refreshed, it is a further binding and may never silently go stale.
@@ -303,8 +306,8 @@ def build(root=ROOT):
 
 def human(report):
     lines=['# Whole-image validation accounting','',report['policy'],'',
-           '| Node | C | ASM | Compiler data | Runtime | Padding | RAW_ORACLE_DEBT |',
-           '| --- | ---: | ---: | ---: | ---: | ---: | ---: |']
+           '| Node | C | ASM | Compiler data | Recovered DATA | Runtime | Padding | RAW_ORACLE_DEBT |',
+           '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
     for node,c in report['by_overlay'].items():lines.append('| '+node+' | '+' | '.join(str(c[k]) for k in CATEGORIES)+' |')
     t=report['totals'];lines+=['',f"File: {t['file_size']:,} bytes. Initialized content: {t['initialized_bytes']:,} bytes.",
         f"File structure debt: {t['structural_RAW_ORACLE_DEBT']:,}; total file RAW_ORACLE_DEBT: {t['file_RAW_ORACLE_DEBT']:,}.",

@@ -76,6 +76,8 @@ class Snapshot:
         if strict:
             from runtime_accounting import input_identity as runtime_input_identity
             values.update(runtime_input_identity(root))
+            from data_providers import input_identity as provider_input_identity
+            values.update(provider_input_identity(root))
             from resident_mixed import source_object_inputs
             for name in source_object_inputs(root):read(root / name)
             from startup_recovery import inputs as startup_inputs
@@ -90,7 +92,7 @@ class Snapshot:
             # can change during a batch without changing any derived output.
             if values[str(ledger_path.resolve())] is not None:
                 values[str(ledger_path.resolve())] = sha256(json_bytes(dict(
-                    functions=ledger['functions'], mixed_source_objects=ledger.get('mixed_source_objects', {}))))
+                    functions=ledger['functions'], mixed_source_objects=ledger.get('mixed_source_objects', {}), data_providers=ledger.get('data_providers', {}))))
             for item in ledger.get('mixed_source_objects', {}).values():
                 read(root / item['source']); read(root / item['proof'])
             for item in ledger.get('functions', {}).values():

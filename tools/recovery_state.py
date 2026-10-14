@@ -24,6 +24,8 @@ def canonical_state(value):
     result = dict(schema_version=value.get('schema_version',1),functions=value['functions'],attempts={},blockers={})
     if 'mixed_source_objects' in value:
         result['mixed_source_objects'] = value['mixed_source_objects']
+    if 'data_providers' in value:
+        result['data_providers'] = value['data_providers']
     return result
 
 

@@ -120,6 +120,10 @@ def _derive_uncached(root, promotion_evidence=None):
         game_sha256=sha256(exe), objects=source_objects,
         policy='Complete source-object extents remain separate from CFG reachability. Only rederived canonical mixed proofs grant coverage; historical ownership remains unknown.')
     mixed = [row for row in source_objects if row['acceptance']]
+    from data_providers import load_data_providers
+    providers=load_data_providers(root,exe,model,analysis,ledger,promoted)
+    outputs['evidence/data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
+        objects=providers,policy='Strict source-produced typed DATA; historical owner/TU unknown; no root-layout proof.')
     code_data_facts=audio_sequence_data.load(root,exe,model,analysis=analysis,
         claimed=[dict(hunk=f['hunk'],start=f['start'],end=f['end']) for f in promoted]+
                 [dict(hunk=row['original']['hunk'],start=p['start'],end=p['end']) for row in mixed for p in row['partitions']])
@@ -297,7 +301,7 @@ def _derive_uncached(root, promotion_evidence=None):
             functions_identified=None,function_candidates=sum(f['hunk'] in node['hunks'] for f in analysis.get('functions',[])),
             overlay_entries_identified=sum(s['hunk'] in node['hunks'] for s in symbols),
             functions_reconstructed=sum(f['hunk'] in node['hunks'] for f in promoted),
-            code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks']),data_matched_bytes=0,
+            code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks']),data_matched_bytes=sum(r['original']['size'] for r in providers if r['original']['hunk'] in node['hunks']),
             mixed_source_objects=sum(row['original']['hunk'] in node['hunks'] for row in mixed),
             mixed_code_matched_bytes=sum(row['size'] for row in mixed if row['original']['hunk'] in node['hunks']),
             relocation_records=sum(r['source_hunk'] in node['hunks'] for r in model['relocations']),
@@ -306,7 +310,7 @@ def _derive_uncached(root, promotion_evidence=None):
     outputs['docs/modules.json'] = dict(schema_version=1, modules=modules)
     outputs['docs/symbols.json'] = dict(schema_version=1, symbols=symbols,recovered_functions=promoted,historical_symbols_present=False)
     outputs['docs/data-layout.json'] = dict(schema_version=1, ranges=[r for r in ranges
-        if r['hunk'] in (1,2) or r['classification'] in ('DATA','STRING')], typed_game_objects=0)
+        if r['hunk'] in (1,2) or r['classification'] in ('DATA','STRING')], typed_game_objects=sum(len(r['typed_evidence']) for r in providers),data_provider_bytes=sum(r['original']['size'] for r in providers))
     outputs['docs/progress.json'] = dict(schema_version=1, milestone='MECHANICAL_FUNCTION_RECOVERY' if promoted else 'IMMUTABLE_TOPOLOGY_CENSUS',
         reconstruction_complete=False, pilot_complete=False, independent_game_build_available=False,
         supplied_disks=len(disks), extracted_files=len(files), executable_size=len(exe),
@@ -316,6 +320,7 @@ def _derive_uncached(root, promotion_evidence=None):
         allocation_sum_bytes=allocated, classification_unknown_bytes=unknown,
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
         reconstructed_functions=len(promoted),matched_source_bytes=matched_source_bytes,current_proof_level=None,
+        reconstructed_data_providers=len(providers),matched_data_provider_bytes=sum(r['original']['size'] for r in providers),
         reconstructed_mixed_objects=len(mixed),
         matched_mixed_c_bytes=sum(row['c_compiler_bytes'] for row in mixed),
         matched_asm_bytes=sum(row['sdk_asm_bytes'] for row in mixed),
