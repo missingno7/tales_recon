@@ -513,6 +513,13 @@
       "reason": "CHAR_RETURN_EXTENSION: plausible Aztec 3.6a C adds a final EXT.W (two bytes); 5.0a-short also differs. Keep explicit return semantics; investigate historical codegen rather than force expression fallthrough.",
       "state": "BLOCKED"
     },
+    "resident_F_34E0": {
+      "category": "RUNTIME/LIBRARY",
+      "next_action": "Obtain an independently pinned period glue library (e.g. an amiga.lib catalog) and compare its BltMaskBitMapRastPort object with unchanged masks; only then route 34E0's call as a library call.",
+      "ownership_unchanged": true,
+      "reason": "UNPINNED_LIBRARY_GLUE (2026-10-14 Sol, build/workers/rev-unrecovered_local_dependency-resident_F_34E0 and sol-lib-7BF4 result3.json): 34E0's PC-relative call at 0x35A4 reaches 0x4692..0x46CE, graphics.library BltMaskBitMapRastPort glue (vector -636, ten register arguments, GfxBase from G_h01_5374). It saves D4-D6/A2-A6 and loads each argument separately; no pinned c.lib/c32/cl32/5.0a member, bmbmrp.a68 build or MAPFD output reproduces it.",
+      "state": "BLOCKED"
+    },
     "resident_F_411E": {
       "category": "TOOLCHAIN",
       "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance.",

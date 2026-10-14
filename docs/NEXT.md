@@ -178,6 +178,27 @@ waits on a named structural blocker:
    and a bounded data-contribution verifier. The smallest experiment
    independently encodes the 72-byte stream [0x16E4,0x172C) with score
    macros.
+   AUDIO DRIVER (Sol reviews rev-uncertain_extent-resident_F_{5504,57D2}).
+   The resident routines around 0x54B6..0x5B62 that interpret this
+   bytecode have no LINK frames and use register and CCR contracts, shared
+   tails and a dispatch through H1 relocation slots:
+   - 57D2 is an 18-byte dual entry into 57E4;
+   - 5A76 is the interpreter, with opcode handlers at 5ACA (0x98), 5B06
+     (0x8B) and 5B20 (0xA0);
+   - 59A4 repurposes A4 as a sample pointer.
+   Aztec C emits none of this. Treat the driver and its bytecode as a
+   probable assembly module (producer unproven). Do not grind its UNCERTAIN
+   entries as C. Game functions that wait on it (4AF0, 50E8, 53E6) need
+   curated entry/ABI admission of these routines first.
+   LIBRARY: 0x704E is c.lib sscanf (wrapper plus callback; needs its 6-byte
+   private BSS mapped to DATA 0x3ABA/0x3ABE and the _scanfmt binding at
+   0x70BE). 0x4692 (60 bytes; blocks 34E0) is graphics.library
+   BltMaskBitMapRastPort glue: vector -636, ten register arguments,
+   GfxBase taken from G_h01_5374 as proven by ov04_F_1E36. It saves
+   D4-D6/A2-A6 and loads each argument from the stack individually, and no
+   pinned c.lib/c32/5.0a member or MAPFD/SDK producer emits that form. It
+   needs an independently pinned period amiga.lib-style glue object
+   (RUNTIME/LIBRARY).
 10. LIBRARY CALL ROUTING (Sol, build/workers/sol-a4-routing). The Manx 3.6a
    linker gives a symbol a root DATA JMP slot when an overlay or distant
    (beyond +/-32762) reference needs one. Every resident jsr to that symbol
