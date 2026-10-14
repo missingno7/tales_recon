@@ -6,6 +6,7 @@ from pathlib import Path
 from analysis_support import ROOT,K,decoder,game,instruction,basic,signed16,capstone
 from common import require,sha256,write_json
 from hunk import manx_overlay
+import audio_sequence_data
 
 
 def function_id(hunk,start):
@@ -13,11 +14,19 @@ def function_id(hunk,start):
 
 
 class Census:
-    def __init__(self,blob,model,ranges):
+    def __init__(self,blob,model,ranges,classified_data=()):
         self.blob=blob;self.model=model;self.md=decoder()
         self.hunks={h['number']:h for h in model['hunks']}
         self.data={h['number']:blob[h['content_offset']:h['content_offset']+h['initialized_size']]
                    for h in model['hunks'] if h['content_offset'] is not None}
+        self.classified_data=list(classified_data)
+        for fact in self.classified_data:
+            interval=fact['interval']
+            require(not any(r['hunk']==interval['hunk'] and r['classification']=='CODE' and
+                            r['start']<interval['end'] and interval['start']<r['end'] for r in ranges),
+                    'classified data overlaps known code range')
+        ranges=list(ranges)+audio_sequence_data.ranges(self.classified_data)
+        self.non_executable_references=[]
         self.blocked=defaultdict(list)
         for r in ranges:
             if r['classification'] in ('DATA','STRING','BSS'):
@@ -39,12 +48,22 @@ class Census:
                     self.trampolines[s['trampoline_offset']]=(s['target_hunk'],s['target_offset'])
         self.seed(0,0,{'kind':'EXECUTABLE_ENTRY'})
         for r in model['relocations']:
-            self.seed(r['target_hunk'],r['addend_raw'],{'kind':'RELOCATION_POINTER','source_hunk':r['source_hunk'],'source_offset':r['source_offset']})
+            fact=self.data_fact(r['target_hunk'],r['addend_raw'])
+            if fact is not None:
+                self.non_executable_references.append(dict(r,kind='BYTECODE_POINTER',data_fact=fact['id']))
+            else:
+                self.seed(r['target_hunk'],r['addend_raw'],{'kind':'RELOCATION_POINTER','source_hunk':r['source_hunk'],'source_offset':r['source_offset']})
+
+    def data_fact(self,h,off):
+        return next((f for f in self.classified_data if f['interval']['hunk']==h and
+                     f['interval']['start']<=off<f['interval']['end']),None)
 
     def valid(self,h,off):
         return h in self.hunks and self.hunks[h]['type']=='CODE' and 0<=off<len(self.data.get(h,b'')) and off%2==0 and not any(a<=off<b for a,b,_ in self.blocked[h])
 
     def seed(self,h,off,evidence):
+        require(self.data_fact(h,off) is None or evidence['kind']=='RELOCATION_POINTER',
+                'executable seed contradicts classified CODE-data')
         if self.valid(h,off) and evidence not in self.entries[(h,off)]:
             self.entries[(h,off)].append(evidence)
 
@@ -172,6 +191,8 @@ class Census:
                 is_branch=mn in ('jmp','bra') or (ins.operands and ins.operands[-1].type==K.M68K_OP_BR_DISP and not is_call)
                 if is_call or is_branch:
                     target=self.target(h,ins)
+                    require(target is None or self.data_fact(target[0],target[1]) is None,
+                            'direct executable edge contradicts classified CODE-data')
                     if is_call:
                         if target and self.valid(target[0],target[1]):
                             th,to,basis=target;calls.append(dict(site=pc,hunk=th,offset=to,id=function_id(th,to),basis=basis))
@@ -297,14 +318,24 @@ class Census:
                 if not unknown and start is not None:
                     unreached.append(dict(hunk=h['number'],start=start,end=off,classification='NOT_REACHED_BY_DESCENT'));start=None
         return dict(schema_version=1,game_sha256=sha256(self.blob),decoder='Capstone '+capstone.__version__,
-            analysis_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('function_census.py','analysis_support.py')},
+            analysis_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in ('function_census.py','analysis_support.py','audio_sequence_data.py')},
+            data_fact_identity=audio_sequence_data.identity(ROOT),
+            classified_code_data=[dict(id=f['id'],interval=f['interval'],classification='DATA',ownership='UNKNOWN',
+                evidence=f['evidence_path'],evidence_sha256=f['evidence_sha256'],source_acceptance=False,proof_level=None) for f in self.classified_data],
+            non_executable_references=self.non_executable_references,
             method='RECURSIVE_DESCENT_FROM_EVIDENCE_ONLY',a4=dict(bias=self.a4_bias,evidence=getattr(self,'a4_evidence',None)),
             unreached_ranges=unreached,functions=functions,summary=dict(candidates=len(functions),closed_cfg=sum(f['extent_status']=='CLOSED_CFG' for f in functions),
                 decoded_bytes=sum(len(v) for v in coverage.values()),by_hunk={str(k):len(v) for k,v in coverage.items()},reconstruction_claimed_by_census=False))
 
 
 def build():
-    blob,model,outputs=game();c=Census(blob,model,outputs['evidence/executable/byte-map.json']['ranges'])
+    blob,model,outputs=game()
+    analysis_path=ROOT/'evidence/functions/ledger.json'
+    analysis=json.loads(analysis_path.read_text()) if analysis_path.exists() else {}
+    byte_ranges=outputs['evidence/executable/byte-map.json']['ranges']
+    facts=audio_sequence_data.load(ROOT,blob,model,analysis=analysis,
+                                  claimed=[r for r in byte_ranges if r['classification']=='CODE'])
+    c=Census(blob,model,byte_ranges,classified_data=facts)
     for file in ('runtime-matches.json','overlay-topology.json'):
         p=ROOT/'evidence/experiments'/file
         if not p.exists():continue

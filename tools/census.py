@@ -10,6 +10,7 @@ from common import FormatError, json_bytes, require, sha256
 from ofs import OFSDisk
 from hunk import parse, manx_overlay, overlay_shape
 from recovery_evidence import load_promotions
+import audio_sequence_data
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -95,6 +96,7 @@ def derive(root, promotion_evidence=None):
     analysis=json.loads(function_path.read_text()) if function_path.exists() else {}
     if analysis:require(analysis['game_sha256']==sha256(exe),'function census belongs to another game fixture')
     analysis_current=bool(analysis) and all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in analysis.get('analysis_identity',{}).items())
+    analysis_current=analysis_current and analysis.get('data_fact_identity',{})==audio_sequence_data.identity(root)
     promoted=load_promotions(root,exe,model,analysis)
     from resident_mixed import load_source_objects
     ledger_path = root / 'recovery/ledger.json'
@@ -104,6 +106,12 @@ def derive(root, promotion_evidence=None):
         game_sha256=sha256(exe), objects=source_objects,
         policy='Complete source-object extents remain separate from CFG reachability. Only rederived canonical mixed proofs grant coverage; historical ownership remains unknown.')
     mixed = [row for row in source_objects if row['acceptance']]
+    code_data_facts=audio_sequence_data.load(root,exe,model,analysis=analysis,
+        claimed=[dict(hunk=f['hunk'],start=f['start'],end=f['end']) for f in promoted]+
+                [dict(hunk=row['original']['hunk'],start=p['start'],end=p['end']) for row in mixed for p in row['partitions']])
+    outputs['evidence/executable/code-data.json']=dict(schema_version=1,
+        facts=code_data_facts,source_acceptance=False,proof_level=None)
+
     matched_source_bytes=sum(f['size'] for f in promoted)
     ov04_owned={f['id'] for f in promoted if f['hunk']==4}
     ov04_pending=[f for f in analysis.get('functions',[]) if f['hunk']==4
@@ -207,6 +215,8 @@ def derive(root, promotion_evidence=None):
             evidence='absolute JMP bridge with independent relocation record'))
     for h in model['hunks']:
         spans = list(verified) if h['number'] == 1 else []
+        spans += [(f['interval']['start'],f['interval']['end'],'DATA','UNKNOWN',f['evidence_path'])
+                  for f in code_data_facts if f['interval']['hunk']==h['number']]
         spans += [(f['start'],f['end'],'CODE','GAME_C',f['proof']) for f in promoted if f['hunk']==h['number']]
         spans += [(p['start'],p['end'],'CODE','UNKNOWN',row['proof']) for row in mixed
                   if row['original']['hunk']==h['number'] for p in row['partitions']]
@@ -277,7 +287,7 @@ def derive(root, promotion_evidence=None):
     outputs['docs/modules.json'] = dict(schema_version=1, modules=modules)
     outputs['docs/symbols.json'] = dict(schema_version=1, symbols=symbols,recovered_functions=promoted,historical_symbols_present=False)
     outputs['docs/data-layout.json'] = dict(schema_version=1, ranges=[r for r in ranges
-        if r['hunk'] in (1,2) or r['classification']=='STRING'], typed_game_objects=0)
+        if r['hunk'] in (1,2) or r['classification'] in ('DATA','STRING')], typed_game_objects=0)
     outputs['docs/progress.json'] = dict(schema_version=1, milestone='MECHANICAL_FUNCTION_RECOVERY' if promoted else 'IMMUTABLE_TOPOLOGY_CENSUS',
         reconstruction_complete=False, pilot_complete=False, independent_game_build_available=False,
         supplied_disks=len(disks), extracted_files=len(files), executable_size=len(exe),

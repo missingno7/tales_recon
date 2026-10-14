@@ -66,6 +66,8 @@ class Snapshot:
         for path in inputs(root):read(path)
         for path in sorted((root / 'tools').glob('*.py')):read(path)
         read(root / 'evidence/fixture-lock.json')
+        from audio_sequence_data import inputs as code_data_inputs
+        for name in code_data_inputs(root):read(root / name)
         if strict:
             from resident_mixed import source_object_inputs
             for name in source_object_inputs(root):read(root / name)

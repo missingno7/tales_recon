@@ -174,10 +174,21 @@ waits on a named structural blocker:
    0x6200 -> H1+0xB39A tables. The 32 UNCERTAIN "functions" in the span are
    phantom entries; never grind them as C. Pinned 3.6a C probes place
    initialized records in DATA, so an assembled data module is plausible but
-   unproven. Next: a curated DATA-in-CODE fact (Sol's proposal is unapplied)
-   and a bounded data-contribution verifier. The smallest experiment
-   independently encodes the 72-byte stream [0x16E4,0x172C) with score
-   macros.
+   unproven.
+   APPLIED (Sol patch, reviewed). The curated fact
+   evidence/data-facts/resident-audio-sequences.json keeps ownership,
+   language, file and object UNKNOWN and grants no source acceptance.
+   function_census consumes it, so the 52 phantom candidates in
+   [0x13B8,0x2816) are gone from the census, ranking and review tasks.
+   The 131 data references stay visible in evidence/executable/code-data.json.
+   tools/check_data_contribution.py proves the 72-byte stream
+   [0x16E4,0x172C) exactly from independently authored score macros
+   (evidence/rules/audio-score-16e4), including its single internal RELOC32
+   field: EQUAL_CANDIDATE with no copied bytes and no fixed placement.
+   After any data-fact change, run tools/function_census.py before
+   boundary_refresh; census refuses stale function analysis. The producer
+   audit tests are opt-in (AUDIO_DATA_JOB) and need a job prepared by
+   aztec_worker, whose config embeds native job paths.
    AUDIO DRIVER (Sol reviews rev-uncertain_extent-resident_F_{5504,57D2}).
    The resident routines around 0x54B6..0x5B62 that interpret this
    bytecode have no LINK frames and use register and CCR contracts, shared
