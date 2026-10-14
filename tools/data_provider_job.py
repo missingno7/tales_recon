@@ -9,7 +9,7 @@ from analysis_support import ROOT
 from common import require,sha256,json_bytes
 from repo_paths import candidate_path
 from aztec_worker import prepare
-from data_providers import source,document,HARNESSSOURCE,batch_key
+from data_providers import source,document,HARNESSSOURCE,batch_key,STRUCT_CONTROL_SOURCE
 from promote_data import manifest_facts
 
 CONTROL=b'int DP_test_target = 7;\nint *DP_test_pointer = &DP_test_target;\n'
@@ -23,17 +23,21 @@ def commands(prefixes):
     return out
 
 
-def pins(root,rows,job):
+def pins(root,rows,job,controls=(),manifest=None):
     job=candidate_path(root,Path(root)/'build/worker-jobs'/job)
     request_raw=(job/'request.json').read_bytes();result_raw=(job/'result.json').read_bytes()
     request=json.loads(request_raw);receipt=json.loads(result_raw)
     members=[dict(fact=n,fact_sha256=sha256(json_bytes(f)),prefix=f['producer']['prefix']) for n,f in rows]
-    prefixes=[m['prefix'] for m in members]+['relprobe']
+    require(list(controls) in ([],['structprobe']),'unsupported ABI control')
+    prefixes=[m['prefix'] for m in members]+['relprobe']+list(controls)
     require(receipt['all_steps_succeeded'] and receipt['request']==request,'collect a successful batch job before pinning')
     require([s['command'] for s in request['steps']]==commands(prefixes),'job does not produce complete batch')
     for n,f in rows:require((job/'sys/work'/(f['producer']['prefix']+'.c')).read_bytes()==source(f),'producer source differs')
     require((job/'sys/work/relprobe.c').read_bytes()==CONTROL and (job/'sys/work/h000.asm').read_bytes()==HARNESSSOURCE,'controls differ')
     recipe=dict(schema_version=1,job=job.relative_to(Path(root)).as_posix(),profile='aztec36',members=members,prefixes=prefixes,commands=commands(prefixes),sources={s['path']:s['sha256'] for s in request['source_files']},toolchain_inventory_sha256={n:sha256((Path(root)/n).read_bytes()) for n in ['evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json']},request_sha256=sha256(request_raw),result_sha256=sha256(result_raw),artifacts={a['path']:a['sha256'] for a in receipt['artifacts']})
+    if controls:
+        require((job/'sys/work/structprobe.c').read_bytes()==STRUCT_CONTROL_SOURCE,'struct control differs');recipe['controls']=list(controls)
+    if manifest:recipe['manifest']=manifest
     recipe['cache_key']=batch_key(recipe);return recipe
 
 
@@ -41,15 +45,16 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default='evidence/data-providers/batch.json');ap.add_argument('--job',required=True)
     ap.add_argument('--prepare',action='store_true');ap.add_argument('--pins',action='store_true');ap.add_argument('--source-dir',default='build/workers/data-provider-regeneration');ap.add_argument('--emulator',default='C:/Program Files/WinUAE/winuae64.exe');a=ap.parse_args()
     require(a.job.startswith('tu-layout-') and a.prepare!=a.pins,'choose --prepare or --pins for a tu-layout-* job')
-    rows=manifest_facts(ROOT,a.manifest);prefixes=[f['producer']['prefix'] for n,f in rows]+['relprobe']
+    rows=manifest_facts(ROOT,a.manifest);controls=document(ROOT,a.manifest).get('controls',[]);require(controls in ([],['structprobe']),'unsupported control');prefixes=[f['producer']['prefix'] for n,f in rows]+['relprobe']+controls
     if a.prepare:
         directory=candidate_path(ROOT,ROOT/a.source_dir)
         require(directory.is_relative_to(ROOT/'build/workers') and not directory.exists(),'fresh worker source directory required')
         directory.mkdir(parents=True)
         for n,f in rows:(directory/(f['producer']['prefix']+'.c')).write_bytes(source(f))
+        if controls:(directory/'structprobe.c').write_bytes(STRUCT_CONTROL_SOURCE)
         (directory/'relprobe.c').write_bytes(CONTROL);(directory/'h000.asm').write_bytes(HARNESSSOURCE)
         print(prepare(a.job,directory,commands(prefixes),Path(a.emulator),aztec36=True))
-    else:print(json_bytes(pins(ROOT,rows,a.job)).decode('utf-8'),end='')
+    else:print(json_bytes(pins(ROOT,rows,a.job,controls,a.manifest if controls else None)).decode('utf-8'),end='')
 
 
 if __name__=='__main__':main()

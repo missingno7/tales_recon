@@ -33,9 +33,9 @@ def shape(fact):
     defs=fact['definitions'];require(isinstance(defs,list) and defs,'empty provider')
     cursor=0;seen=set();pointers=0
     for d in defs:
-        ty=d.get('type');require(ty in WIDTHS,'unsupported/opaque/array type')
+        ty=d.get('type');require(ty in WIDTHS or ty.startswith('struct '),'unsupported/opaque/array type')
         size=definition_size(d);require(type(d.get('bounds',{}).get('bytes')) is int,'non-integer bounds');require(type(d.get('offset')) is int and d.get('offset')==cursor and (size==1 or cursor%2==0),'gap, padding filler or unaligned scalar')
-        require((d.get('count') is None and d.get('bounds')==dict(kind='SCALAR_ABI',bytes=size)) or (d.get('count') is not None and d.get('bounds',{}).get('kind') in ('MASKED_INDEX','INPUT_BITS','EXPLICIT_LOOPS') and d['bounds'].get('bytes')==size), 'guessed extent: independent closed bounds route required')
+        require((d.get('count') is None and d.get('bounds')==dict(kind='STRUCT_ABI' if ty.startswith('struct ') else 'SCALAR_ABI',bytes=size)) or (d.get('count') is not None and d.get('bounds',{}).get('kind') in ('MASKED_INDEX','INPUT_BITS','EXPLICIT_LOOPS','GUARDED_BYTE','COORDINATES','STATE16') and d['bounds'].get('bytes')==size), 'guessed extent: independent closed bounds route required')
         absolute=origin['start']+cursor;require(re.fullmatch(r'[A-Za-z_]\w*',d.get('symbol','')),'invalid provider C symbol')
         require(d['symbol'] not in seen,'duplicate symbol');seen.add(d['symbol'])
         if ty=='int *':
@@ -43,6 +43,10 @@ def shape(fact):
             require(pointers==1 and d.get('target')==defs[0]['symbol'] and defs[0]['type']=='int' and cursor>0,
                     'v1 pointer requires the independently evidenced first int target, zero addend')
             require('initializer' not in d,'integer pointer or opaque address initializer')
+        elif ty.startswith('struct '):
+            fields=struct_layout(d);values=d.get('initializer')
+            require(isinstance(values,list) and len(values)==len(fields),'complete struct field initializers required')
+            for f,v in zip(fields,values):check_value(f['type'],v)
         else:
             values=d.get('initializer');values=values if d.get('count') is not None else [values]
             require(isinstance(values,list) and len(values)==d.get('count',1) and all(type(v) is int for v in values),'complete typed numeric initializers required')
@@ -56,20 +60,54 @@ def shape(fact):
     return cursor
 
 
+
+def check_value(ty,v):
+    require(ty in WIDTHS and ty!='int *' and type(v) is int,'typed scalar field initializer required')
+    w=WIDTHS[ty];unsigned=ty.startswith('unsigned');lo=0 if unsigned else -(1<<(8*w-1));hi=(1<<(8*w-(0 if unsigned else 1)))-1
+    require(lo<=v<=hi,'field initializer outside type')
+
+
+def struct_layout(d):
+    require(re.fullmatch(r'struct [A-Za-z_]\w*',d['type']) and d.get('count') is None,'unsupported struct shape')
+    fields=d.get('fields');require(isinstance(fields,list) and fields,'complete struct fields required')
+    cursor=0;seen=set();result=[]
+    for f in fields:
+        require(set(f)=={'name','type','offset'} and f['type'] in WIDTHS and f['type']!='int *','opaque/pointer/array field rejected')
+        require(re.fullmatch(r'[A-Za-z_]\w*',f['name']) and not re.search('pad|rest|unused|filler|reserved',f['name'],re.I),'padding filler/unknown field rejected')
+        require(f['name'] not in seen,'duplicate struct field');seen.add(f['name'])
+        if WIDTHS[f['type']]>1:cursor=(cursor+1)&~1
+        require(type(f['offset']) is int and f['offset']==cursor,'struct ABI field offset/order differs')
+        result.append(dict(f));cursor+=WIDTHS[f['type']]
+    return result
+
+
+STRUCT_CONTROL_SOURCE=b'struct DP_Abi { char mode; long count; char state; int value; };\nstruct DP_Abi DP_abi = {7, 305419896L, -1, 23};\n'
+
+
+def struct_control_fact():
+    return dict(schema_version=1,id='resident_data_0000',source=ROOT_SOURCE+'resident_data_0000.c',original=dict(hunk=1,start=0,size=10),historical_owner='UNKNOWN',historical_tu='UNKNOWN',original_filename=None,object_sections=dict(CODE=0,DATA=10,BSS=0,COMMON=0),definitions=[dict(symbol='DP_abi',type='struct DP_Abi',offset=0,fields=[dict(name=n,type=t,offset=o) for n,t,o in [('mode','char',0),('count','long',2),('state','char',6),('value','int',8)]],initializer=[7,305419896,-1,23],bounds=dict(kind='STRUCT_ABI',bytes=10))])
+
 def definition_size(d):
-    ty=d.get('type');require(ty in WIDTHS,'unsupported/opaque element type')
+    ty=d.get('type')
+    if isinstance(ty,str) and ty.startswith('struct '):
+        fields=struct_layout(d);return (fields[-1]['offset']+WIDTHS[fields[-1]['type']]+1)&~1
+    require(ty in WIDTHS,'unsupported/opaque element type')
     count=d.get('count')
     if count is not None:
-        require(ty in ('int','unsigned char') and type(count) is int and count>0,
+        require(ty in ('int','char','unsigned char') and type(count) is int and count>0,
                 'only independently bounded integer/input lookup arrays; opaque byte carriers reject')
     return WIDTHS[ty]*(count if count is not None else 1)
 
 
 def source(fact):
-    shape(fact);lines=[]
+    shape(fact);lines=[];tags=set()
     for d in fact['definitions']:
         name=d['symbol'];ty=d['type']
-        if d.get('count') is not None:
+        if ty.startswith('struct '):
+            if ty not in tags:
+                lines.append(ty+' { '+''.join(f['type']+' '+f['name']+'; ' for f in struct_layout(d))+'};\n');tags.add(ty)
+            value='{'+', '.join(str(v)+('L' if f['type'].endswith('long') else '') for f,v in zip(struct_layout(d),d['initializer']))+'}'
+        elif d.get('count') is not None:
             name+='['+str(d['count'])+']';value='{'+', '.join(str(v) for v in d['initializer'])+'}'
         else:value='&'+d['target'] if ty=='int *' else str(d['initializer'])+('L' if ty.endswith('long') else '')
         lines.append(ty+' '+name+' = '+value+';\n')
@@ -87,7 +125,7 @@ def typed_evidence(root,fact,analysis,ledger,promotions):
     # accesses which could enlarge/alias this provider. V1 defers such spans
     # rather than guessing an absolute operand's type or address-taking extent.
     lo=fact['original']['start'];hi=lo+fact['original']['size']
-    scalar_spans=[(lo+d['offset'],lo+d['offset']+definition_size(d)) for d in fact['definitions'] if d.get('count') is None]
+    scalar_spans=[(lo+d['offset'],lo+d['offset']+definition_size(d)) for d in fact['definitions'] if d.get('count') is None and not d['type'].startswith('struct ')]
     require(not any(f['id'] in accepted and r['target_hunk']==1 and any(a-3<=r['addend_raw']<b for a,b in scalar_spans)
                     for f in analysis['functions'] for r in f.get('relocations',[])),
             'absolute DATA reference requires a separate decoded bounds route')
@@ -108,6 +146,9 @@ def typed_evidence(root,fact,analysis,ledger,promotions):
         item=ledger['functions'][fid]; c=canonical_path(root,item['source']).read_bytes();praw=canonical_path(root,item['proof']).read_bytes()
         require(sha256(c)==item['source_sha256']==e['source_sha256'] and sha256(praw)==item['proof_sha256']==e['proof_sha256'],'stale typed consumer')
         declaration=e['declaration']; require(declaration in c.decode('ascii').splitlines(),'typed declaration absent from canonical source')
+        if d['bounds']['kind'] in ('STRUCT_ABI','GUARDED_BYTE','COORDINATES','STATE16'):
+            from data_provider_bounds import verify_definition
+            out.append(verify_definition(root,fact,d,analysis,ledger,promotions,types));continue
         if d.get('count') is not None:
             out.append(array_evidence(fact,d,by[fid],json.loads(praw),c.decode('ascii'),types));continue
         parsed=DECL_RE.fullmatch(declaration);require(parsed and not parsed['array'] and parsed['name']==d['symbol'],'array/partial declaration is not scalar evidence')
@@ -256,7 +297,14 @@ def compare_data(original,original_model,fact,obj,linked,map_text):
     candidate_relocs=relocation_profile(lm,1,0,size)
     wanted=[];original_wanted=[];fixups=[];rebased=bytearray(actual)
     for d in fact['definitions']:
-        pos=d['offset'];width=WIDTHS[d['type']];extent=definition_size(d)
+        pos=d['offset'];extent=definition_size(d)
+        if d['type'].startswith('struct '):
+            payload=bytearray(extent)
+            for f,v in zip(struct_layout(d),d['initializer']):
+                w=WIDTHS[f['type']];payload[f['offset']:f['offset']+w]=(v & ((1<<(8*w))-1)).to_bytes(w,'big')
+            require(parsed['bytes'][pos:pos+extent]==actual[pos:pos+extent]==expected[pos:pos+extent]==payload,'complete struct fields/ABI padding differ')
+            continue
+        width=WIDTHS[d['type']]
         if d['type']!='int *':
             values=d['initializer'] if d.get('count') is not None else [d['initializer']]
             value_bytes=b''.join((v & ((1<<(width*8))-1)).to_bytes(width,'big') for v in values)
@@ -297,7 +345,7 @@ def producer(root,fact,retained=None):
     producer_paths(root,recipe);retained=candidate_path(root,Path(root)/recipe['job'])
     def read_job(path):
         target=candidate_path(root,Path(root)/recipe['job']/path)
-        require(target.is_file(),'Missing DATA producer artifact '+str(target)+'. Regenerate with python tools/data_provider_job.py --manifest evidence/data-providers/batch.json --job tu-layout-d-REGEN --prepare; run WinUAE, collect and refresh hash pins, then reverify. No retained verdict substitutes for the job.')
+        require(target.is_file(),'Missing DATA producer artifact '+str(target)+'. Regenerate with python tools/data_provider_job.py --manifest '+recipe.get('manifest','evidence/data-providers/batch.json')+' --job tu-layout-REGEN --prepare; run WinUAE, collect and refresh hash pins, then reverify. No retained verdict substitutes for the job.')
         return target.read_bytes()
     request_raw=read_job('request.json');result_raw=read_job('result.json')
     require(sha256(request_raw)==recipe['request_sha256'] and sha256(result_raw)==recipe['result_sha256'],'producer request/result hash changed')
@@ -309,7 +357,8 @@ def producer(root,fact,retained=None):
         name=item['path'];require(Path(name).name==name and '/' not in name and '\\' not in name,'artifact escapes worker work')
         raw=read_job('sys/work/'+name);require(len(raw)==item['size'] and sha256(raw)==item['sha256'],'producer artifact changed');files[name]=raw
     prefixes=recipe['prefixes'];require(len(prefixes)==len(set(prefixes)) and all(re.fullmatch(r'[a-z][a-z0-9]*',p) for p in prefixes),'invalid producer prefixes')
-    require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe'],'one job must contain the entire provider batch and control')
+    controls=recipe.get('controls',[]);require(controls in ([],['structprobe']),'unsupported batch control')
+    require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe']+controls,'one job must contain the entire provider batch and control')
     require(recipe['sources']=={r['path']:r['sha256'] for r in request['source_files']} and recipe['commands']==[r['command'] for r in request['steps']],'curated source/command pins differ')
     require(set(recipe['toolchain_inventory_sha256'])=={'evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json'},'incomplete toolchain inventory pins')
     for name,digest in recipe['toolchain_inventory_sha256'].items():
@@ -366,7 +415,13 @@ def producer(root,fact,retained=None):
     control=dict(schema_version=1,id='resident_data_0000',source=ROOT_SOURCE+'resident_data_0000.c',original=dict(hunk=1,start=0,size=6),historical_owner='UNKNOWN',historical_tu='UNKNOWN',original_filename=None,object_sections=dict(CODE=0,DATA=6,BSS=0,COMMON=0),definitions=[dict(symbol='DP_test_target',type='int',offset=0,initializer=7,bounds=dict(kind='SCALAR_ABI',bytes=2)),dict(symbol='DP_test_pointer',type='int *',offset=2,target='DP_test_target',bounds=dict(kind='SCALAR_ABI',bytes=4))])
     control_report=compare_data(files['relprobe.exe'],parse(files['relprobe.exe']),control,files['relprobe.o'],files['relprobe.exe'],files['relprobe.sym'].decode('ascii'))
     require(control_report['relocation_bindings']==[dict(offset=2,width=4,type='HUNK_RELOC32',symbol='_DP_test_target',addend=0)],'named relocation positive control differs')
-    return files,dict(job=recipe['job'],request_sha256=recipe['request_sha256'],result_sha256=recipe['result_sha256'],artifact_sha256=recipe['artifacts'],cache_key=recipe['cache_key'],relocation_control='EXACT_NAMED_INTERNAL_RELOC32; TEST_ONLY_NO_GAME_CREDIT')
+    result=dict(job=recipe['job'],request_sha256=recipe['request_sha256'],result_sha256=recipe['result_sha256'],artifact_sha256=recipe['artifacts'],cache_key=recipe['cache_key'],relocation_control='EXACT_NAMED_INTERNAL_RELOC32; TEST_ONLY_NO_GAME_CREDIT')
+    if controls:
+        require(files['structprobe.c']==STRUCT_CONTROL_SOURCE,'struct ABI control source changed')
+        padfact=struct_control_fact()
+        checked=compare_data(files['structprobe.exe'],parse(files['structprobe.exe']),padfact,files['structprobe.o'],files['structprobe.exe'],files['structprobe.sym'].decode('ascii'))
+        result['struct_control']=dict(DATA=checked['sections']['DATA'],padding_offsets=[1,7],game_credit=0)
+    return files,result
 
 def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained):
     require(source_bytes==source(fact),'source differs from strict evidence-derived scalar definitions')
@@ -376,6 +431,9 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
     report.update(typed_evidence=evidence,producer=producer_proof,fact_sha256=sha256(json_bytes(fact)),
         verifier_identity={'data_providers.py':sha256(Path(__file__).read_bytes()),
             **{name:sha256(canonical_path(root,'tools/'+name).read_bytes()) for name in ['common.py','repo_paths.py','type_evidence.py','hunk.py','overlay_experiment.py','runtime_natural_members.py']}})
+    if any(d['bounds']['kind'] in ('STRUCT_ABI','GUARDED_BYTE','COORDINATES','STATE16') for d in fact['definitions']):
+        import data_provider_bounds
+        report['verifier_identity']['data_provider_bounds.py']=sha256(Path(data_provider_bounds.__file__).read_bytes())
     return report
 
 
@@ -413,9 +471,12 @@ def contributions(records):
 def input_identity(root):
     """Snapshot closure: compact facts and their ignored jobs, no cached verdicts."""
     root=Path(root);names={'evidence/data-providers/batch.json','evidence/types.json'};external={}
-    manifest=canonical_path(root,'evidence/data-providers/batch.json')
     facts=[]
-    if manifest.is_file():facts += document(root,'evidence/data-providers/batch.json')['facts']
+    from repo_paths import active_files
+    folder=canonical_path(root,'evidence/data-providers')
+    for manifest in active_files(folder,'.json') if folder.is_dir() else []:
+        if manifest.name=='batch.json' or re.fullmatch(r'batch-[0-9]{4}\.json',manifest.name):
+            name=manifest.relative_to(root).as_posix();names.add(name);facts+=document(root,name)['facts']
     ledger=document(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').is_file() else {}
     for item in ledger.get('data_providers',{}).values():
         names.update([item['source'],item['proof']]);facts.append(item['fact'])
