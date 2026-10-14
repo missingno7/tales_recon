@@ -1,0 +1,99 @@
+{
+  "candidate": "evidence/rules/asm-reconstructed/resident_asm_559E.asm",
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_asm_559E",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 21974,
+    "hunk": 0,
+    "sha256": "cf03cba7f88bb00bec2189578cdfaebbae93897d9fc045ea5336507952cff308",
+    "size": 56,
+    "start": 21918
+  },
+  "original_filename": null,
+  "predicate": {
+    "basis": "Cross-instruction 68000 X state and memory ROXR; no C flag primitive.",
+    "c_compatible": false,
+    "chain": {
+      "end": 21966,
+      "instructions": [
+        {
+          "mnemonic": "move.b",
+          "offset": 21938,
+          "operands": "$1(a1), d0"
+        },
+        {
+          "mnemonic": "roxl.b",
+          "offset": 21942,
+          "operands": "#$4, d0"
+        },
+        {
+          "mnemonic": "eor.b",
+          "offset": 21944,
+          "operands": "d0, $1(a1)"
+        },
+        {
+          "mnemonic": "move.b",
+          "offset": 21948,
+          "operands": "$1(a1), d0"
+        },
+        {
+          "mnemonic": "roxl.b",
+          "offset": 21952,
+          "operands": "#$1, d0"
+        },
+        {
+          "mnemonic": "move.b",
+          "offset": 21954,
+          "operands": "(a0), d0"
+        },
+        {
+          "mnemonic": "roxr.b",
+          "offset": 21956,
+          "operands": "#$1, d0"
+        },
+        {
+          "mnemonic": "move.b",
+          "offset": 21958,
+          "operands": "d0, (a0)"
+        },
+        {
+          "mnemonic": "roxr.w",
+          "offset": 21960,
+          "operands": "(a1)"
+        },
+        {
+          "mnemonic": "dbra",
+          "offset": 21962,
+          "operands": "d7, $55b2"
+        }
+      ],
+      "start": 21938
+    },
+    "kind": "CCR_X_REGISTER_MEMORY_ROTATION_LOOP"
+  },
+  "relocations": [
+    {
+      "addend_raw": 11145,
+      "source_hunk": 0,
+      "source_offset": 21928,
+      "symbol": "_G_h01_2B89",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11146,
+      "source_hunk": 0,
+      "source_offset": 21934,
+      "symbol": "_G_h01_2B8A",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/asm-reconstructed/resident_asm_559E.asm",
+  "source_sha256": "207c408ec610000b1d4e7fe18258cc2a284b71dd2ffdec8a4cfb069bc0f27a39"
+}

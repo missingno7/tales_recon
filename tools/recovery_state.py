@@ -25,6 +25,7 @@ def canonical_state(value):
     if 'mixed_source_objects' in value:
         result['mixed_source_objects'] = value['mixed_source_objects']
     if 'dead_code_functions' in value:result['dead_code_functions']=value['dead_code_functions']
+    if 'reconstructed_asm' in value:result['reconstructed_asm']=value['reconstructed_asm']
     if 'data_providers' in value:
         result['data_providers'] = value['data_providers']
     return result

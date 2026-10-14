@@ -67,6 +67,8 @@ def coverage(row,promotions):
  return subtract(e['start'],e['end'],covered)
 
 def accepted_contributions(root,blob,model,analysis,promotions,ledger):
+ # Staged experiments have no accounting authority. Canonical entries still replay.
+ if not ledger.get(MAP):return []
  rows=canonical_rows(root,blob,model,analysis,ledger)
  registry=records(root);out=[]
  from hybrid_image import normalize

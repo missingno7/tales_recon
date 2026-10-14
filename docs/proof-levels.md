@@ -102,3 +102,20 @@ reads rederive all boundaries and replay the exact unit. Verifier and validator
 hashes remain provenance. Existing reachable-prefix proofs stay valid; census
 and hybrid accounting subtract that prefix before crediting new C bytes.
 Original filename, translation unit and natural overlay layout remain unproved.
+
+Reconstructed assembly uses the separate `reconstructed_asm` ownership map,
+`src/recovered/asm-reconstructed/` and `recovery/proofs/asm-reconstructed/`.
+Every admission, census and accounting read rederives a complete non-C predicate
+from the locked oracle, then audits the pinned producer and complete AJ object,
+CODE and every named relocation. The first predicate is a cross-instruction
+68000 CCR-X register/memory rotation loop; ordinary C-compatible hardware stores
+are rejected. A separate predicate proves saved A4 world replacement by an
+indexed sample-record cursor with word/word/long postincrement reads and an
+A4 restore. Neither predicate is inherited by adjoining driver code.
+Only mnemonics, symbolic labels and named targets are admissible;
+instruction-word directives, opaque carriers and clipped spans reject.
+`promote_asm.py --promote` requires the shared regression gate and unchanged
+validation inputs. Verifier identities are provenance only; exact replay is
+the acceptance check. DATA declarations have zero credit. Historical source
+provenance, object/TU membership, owner and natural layout stay UNKNOWN.
+Accounting uses RECONSTRUCTED_ASM, separate from C and RECOVERED_ASM.

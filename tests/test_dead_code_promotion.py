@@ -86,7 +86,8 @@ class CompleteCPromotionTests(unittest.TestCase):
   # independently accepted and must never be credited a second time.
   accepted=[dict(r,acceptance=True) for r in verified]
   ordinary=load_promotions(ROOT,blob,model,analysis)
-  with patch.object(promote,'canonical_rows',return_value=accepted):parts=promote.accepted_contributions(ROOT,blob,model,analysis,ordinary,state)
+  projected=dict(state,**{promote.MAP:{r['id']:{} for r in accepted}})
+  with patch.object(promote,'canonical_rows',return_value=accepted):parts=promote.accepted_contributions(ROOT,blob,model,analysis,ordinary,projected)
   self.assertEqual(sum(len(p['bytes']) for p in parts if p['category']=='RECOVERED_C'),1490)
   self.assertEqual(sum(len(p['bytes']) for p in parts if p['category']=='COMPILER_OWNED_DATA'),220)
   for part in parts:

@@ -1,0 +1,95 @@
+{
+  "candidate": "evidence/rules/asm-reconstructed/resident_asm_59A4.asm",
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_asm_59A4",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 23120,
+    "hunk": 0,
+    "sha256": "fc7ec084ef0bfbe3868467a51fa6aabd8a182d0ce199729d94c54beca03ad56d",
+    "size": 172,
+    "start": 22948
+  },
+  "original_filename": null,
+  "predicate": {
+    "a4_bias": 32766,
+    "access_widths": [
+      2,
+      2,
+      4
+    ],
+    "c_compatible": false,
+    "displacement": -22554,
+    "instructions": [
+      {
+        "mnemonic": "lea.l",
+        "offset": 23040,
+        "operands": "-$581a(a4), a4"
+      },
+      {
+        "mnemonic": "movea.l",
+        "offset": 23044,
+        "operands": "(a4, d0.w), a4"
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23048,
+        "operands": "(a4)+, (a2)"
+      },
+      {
+        "mnemonic": "move.w",
+        "offset": 23050,
+        "operands": "(a4)+, $4(a3)"
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 23054,
+        "operands": "(a4)+, (a3)"
+      },
+      {
+        "mnemonic": "move.l",
+        "offset": 23056,
+        "operands": "a4, $4(a2)"
+      }
+    ],
+    "kind": "SAVED_A4_WORLD_REPLACED_BY_TYPED_RECORD_CURSOR",
+    "restores_a4": true,
+    "site": 23040,
+    "world_hunk": 1,
+    "world_offset": 10212,
+    "world_symbol": "_G_h01_27E4"
+  },
+  "relocations": [
+    {
+      "addend_raw": 11086,
+      "source_hunk": 0,
+      "source_offset": 22998,
+      "symbol": "_G_h01_2B4E",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 10718,
+      "source_hunk": 0,
+      "source_offset": 23070,
+      "symbol": "_G_h01_29DE",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 10762,
+      "source_hunk": 0,
+      "source_offset": 23090,
+      "symbol": "_G_h01_2A0A",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/asm-reconstructed/resident_asm_59A4.asm",
+  "source_sha256": "e2b6d387accde08e28367c54308fd8bb52af44a2ae23a52560b233527643f220"
+}

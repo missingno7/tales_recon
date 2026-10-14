@@ -132,7 +132,10 @@ filesystem2=ro,DH5:Old2:{older/'SYS2'},-128
              'C:Path Tools2:bin ADD','C:Stack 65536','C:CD SYS:work','C:Echo booted >booted.txt']
     for n,command in enumerate(COMMANDS):startup += [command,'C:Echo $RC >step-%02d.rc'%n]
     startup.append('C:Echo done >done.txt')
-    require((job/'worker.uae').read_text()==expected_config,'producer mounts/configuration recipe differs')
+    # Host path spelling (D:/ versus D:\) depends on the shell that prepared
+    # the job; every mount, ROM and option must still match exactly.
+    spelling=lambda text:text.replace('\\','/')
+    require(spelling((job/'worker.uae').read_text())==spelling(expected_config),'producer mounts/configuration recipe differs')
     require((job/'sys/s/startup-sequence').read_text()=='\n'.join(startup)+'\n','producer startup recipe differs')
     for folder in ('c','l','libs','devs'):
         original=installed/'Aztec1'/folder
