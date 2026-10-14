@@ -64,7 +64,8 @@ def derive(root, promotion_evidence=None):
     if promotion_evidence is None:
         promotion_evidence = _PROMOTION_EVIDENCE[0]
     from evidence_snapshot import memoized
-    identity = 'promotion_evidence=' + ('1' if promotion_evidence else '0')
+    from dead_code_extents import refreshing_analysis
+    identity = 'promotion_evidence=' + ('1' if promotion_evidence else '0')+';complete_c_refresh='+str(refreshing_analysis())
     return memoized(root, 'census-derive', identity,
                     lambda: _derive_uncached(root, promotion_evidence),
                     strict=bool(promotion_evidence))
@@ -115,6 +116,13 @@ def _derive_uncached(root, promotion_evidence=None):
     from resident_mixed import load_source_objects
     ledger_path = root / 'recovery/ledger.json'
     ledger = json.loads(ledger_path.read_bytes()) if ledger_path.exists() else dict(functions={})
+    from dead_code_promotion import canonical_rows as dead_rows,coverage as dead_coverage
+    complete_c=dead_rows(root,exe,model,analysis,ledger) if ledger.get('dead_code_functions') and not dead_code_extents.refreshing_analysis() else []
+    outputs['evidence/functions/dead-code-source-objects.json']=dict(schema_version=1,objects=complete_c,policy='Complete C source-object basis is separate from reachable CFG; only current exact canonical proofs grant acceptance.')
+    accepted_dead=[r for r in complete_c if r['acceptance']]
+    dead_code_spans=[dict(id=r['id'],hunk=r['complete_extent']['hunk'],start=a,end=b,proof=r['proof']) for r in accepted_dead for a,b in dead_coverage(r,promoted)]
+    dead_literal_spans=[dict(hunk=r['complete_extent']['hunk'],start=r['complete_extent']['end'],end=r['owned_literal_end'],proof=r['proof']) for r in accepted_dead if r['owned_literal_end']>r['complete_extent']['end']]
+    new_dead_ids={r['id'] for r in accepted_dead}-{r['id'] for r in promoted}
     source_objects = load_source_objects(root, exe, model, analysis, promoted, ledger)
     outputs['evidence/functions/source-objects.json'] = dict(schema_version=1,
         game_sha256=sha256(exe), objects=source_objects,
@@ -130,7 +138,7 @@ def _derive_uncached(root, promotion_evidence=None):
     outputs['evidence/executable/code-data.json']=dict(schema_version=1,
         facts=code_data_facts,source_acceptance=False,proof_level=None)
 
-    matched_source_bytes=sum(f['size'] for f in promoted)
+    matched_source_bytes=sum(f['size'] for f in promoted)+sum(r['end']-r['start'] for r in dead_code_spans)
     ov04_owned={f['id'] for f in promoted if f['hunk']==4}
     ov04_pending=[f for f in analysis.get('functions',[]) if f['hunk']==4
                   and f['extent_status']=='CLOSED_CFG' and f['id'] not in ov04_owned]
@@ -241,6 +249,8 @@ def _derive_uncached(root, promotion_evidence=None):
         spans += [(f['interval']['start'],f['interval']['end'],'DATA','UNKNOWN',f['evidence_path'])
                   for f in code_data_facts if f['interval']['hunk']==h['number']]
         spans += [(f['start'],f['end'],'CODE','GAME_C',f['proof']) for f in promoted if f['hunk']==h['number']]
+        spans += [(r['start'],r['end'],'CODE','GAME_C',r['proof']) for r in dead_code_spans if r['hunk']==h['number']]
+        spans += [(r['start'],r['end'],'DATA','GAME_C',r['proof']) for r in dead_literal_spans if r['hunk']==h['number']]
         spans += [(p['start'],p['end'],'CODE','UNKNOWN',row['proof']) for row in mixed
                   if row['original']['hunk']==h['number'] for p in row['partitions']]
         spans += [(a['offset'],a['offset']+a['size'],'STRING','UNKNOWN','exact asset filename anchor')
@@ -296,12 +306,12 @@ def _derive_uncached(root, promotion_evidence=None):
             asset_anchors=[a for a in anchors if a['node'] == node['id']],
             byte_size=size, initialized_bytes=sum(h['initialized_size'] for h in hs),
             classified_bytes=size-unclassified, unknown_bytes=unclassified, ownership_unknown_bytes=owner_unknown,
-            game_owned_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks']),
+            game_owned_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks'])+sum(r['end']-r['start'] for r in dead_code_spans if r['hunk'] in node['hunks']),
             runtime_bytes=sum(r['end']-r['start'] for r in rs if r['ownership']=='MANX_RUNTIME'),
             functions_identified=None,function_candidates=sum(f['hunk'] in node['hunks'] for f in analysis.get('functions',[])),
             overlay_entries_identified=sum(s['hunk'] in node['hunks'] for s in symbols),
-            functions_reconstructed=sum(f['hunk'] in node['hunks'] for f in promoted),
-            code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks']),data_matched_bytes=sum(r['original']['size'] for r in providers if r['original']['hunk'] in node['hunks']),
+            functions_reconstructed=sum(f['hunk'] in node['hunks'] for f in promoted)+sum(r['id'] in new_dead_ids and r['complete_extent']['hunk'] in node['hunks'] for r in accepted_dead),
+            code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks'])+sum(r['end']-r['start'] for r in dead_code_spans if r['hunk'] in node['hunks']),data_matched_bytes=sum(r['original']['size'] for r in providers if r['original']['hunk'] in node['hunks']),
             mixed_source_objects=sum(row['original']['hunk'] in node['hunks'] for row in mixed),
             mixed_code_matched_bytes=sum(row['size'] for row in mixed if row['original']['hunk'] in node['hunks']),
             relocation_records=sum(r['source_hunk'] in node['hunks'] for r in model['relocations']),
@@ -319,12 +329,13 @@ def _derive_uncached(root, promotion_evidence=None):
         file_bytes_accounted=model['accounted_file_bytes'], file_bytes_unparsed=model['unparsed_bytes'],
         allocation_sum_bytes=allocated, classification_unknown_bytes=unknown,
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
-        reconstructed_functions=len(promoted),matched_source_bytes=matched_source_bytes,current_proof_level=None,
+        reconstructed_functions=len(promoted)+len(new_dead_ids),matched_source_bytes=matched_source_bytes,
+        reconstructed_dead_code_objects=len(accepted_dead),matched_dead_code_c_bytes=sum(r['end']-r['start'] for r in dead_code_spans),current_proof_level=None,
         reconstructed_data_providers=len(providers),matched_data_provider_bytes=sum(r['original']['size'] for r in providers),
         reconstructed_mixed_objects=len(mixed),
         matched_mixed_c_bytes=sum(row['c_compiler_bytes'] for row in mixed),
         matched_asm_bytes=sum(row['sdk_asm_bytes'] for row in mixed),
-        highest_individual_contribution_proof=('FUNCTION_WITH_DATA_MATCH' if any(x['state']=='FUNCTION_WITH_DATA_MATCH' for x in promoted)
+        highest_individual_contribution_proof=('FUNCTION_WITH_DATA_MATCH' if any(x['state']=='FUNCTION_WITH_DATA_MATCH' for x in promoted) or any(r['status']=='FUNCTION_WITH_DATA_MATCH' for r in accepted_dead)
                                                else 'FUNCTION_CODE_MATCH' if promoted else None),
         function_analysis=analysis.get('summary'),function_analysis_current=analysis_current,
         recovery_ledger='recovery/ledger.json',bootstrap_overlay='ov14',fingerprint_database='evidence/fingerprints/index.json',

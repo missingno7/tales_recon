@@ -290,6 +290,8 @@ def build(root=ROOT):
     contributions.extend(load_library_a4(root,blob,model,analysis,promoted,ledger))
     from resident_mixed import accepted_contributions
     contributions.extend(accepted_contributions(root,blob,model,analysis,promoted,ledger))
+    from dead_code_promotion import accepted_contributions as complete_c_contributions
+    contributions.extend(complete_c_contributions(root,blob,model,analysis,promoted,ledger))
     from data_providers import load_data_providers, contributions as data_contributions
     providers=load_data_providers(root,blob,model,analysis,ledger,promoted)
     contributions.extend(data_contributions(providers))

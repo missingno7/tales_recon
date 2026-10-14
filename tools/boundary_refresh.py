@@ -15,8 +15,11 @@ from analysis_support import ROOT
 from evidence_snapshot import snapshot, validated_stage
 
 STEPS = (
-    # Census first: a census change regenerates the instruction index that
-    # type evidence is keyed to, so type evidence must follow it.
+    # Type evidence first, mined from the immutable image only: strict census
+    # replays typed DATA providers, which require type evidence keyed to the
+    # current function ledger. A census change then regenerates the instruction
+    # index that type evidence is keyed to, so type evidence follows it again.
+    ("type evidence", "tools/type_evidence.py", ["--write"]),
     ("census write", "tools/census.py", ["--write"]),
     ("type evidence", "tools/type_evidence.py", ["--write"]),
     ("hybrid refresh", "tools/hybrid_image.py", ["--refresh", "--write"]),

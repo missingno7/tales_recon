@@ -66,7 +66,12 @@ def mine(root=ROOT):
                 'function census is stale: ' + relative)
     require(ledger.get('game_sha256'), 'function ledger has no oracle identity')
     # game() verifies fixture-lock identity and returns the executable from disks.
-    blob, model, _ = game()
+    # Mining needs only the immutable image, never strict promotion evidence:
+    # strict census replays typed DATA providers, which require this report to be
+    # current, so a strict read here would make the refresh cyclic.
+    from census import advisory_image
+    with advisory_image():
+        blob, model, _ = game()
     require(sha256(blob) == ledger['game_sha256'], 'function ledger belongs to another executable')
     hunks = {h['number']: h for h in model['hunks']}
     data = {n: blob[h['content_offset']:h['content_offset'] + h['initialized_size']]

@@ -356,7 +356,8 @@ class Census:
 
 
 def build():
-    blob,model,outputs=game()
+    import dead_code_extents
+    with dead_code_extents.analysis_refresh():blob,model,outputs=game()
     analysis_path=ROOT/'evidence/functions/ledger.json'
     analysis=json.loads(analysis_path.read_text()) if analysis_path.exists() else {}
     byte_ranges=outputs['evidence/executable/byte-map.json']['ranges']
@@ -386,6 +387,10 @@ def build():
     report['analysis_identity']['dead_code_extents.py']=sha256((ROOT/'tools/dead_code_extents.py').read_bytes())
     report['dead_code_input_identity']=dead_code_extents.identity(ROOT)
     report['verified_dead_code_objects']=dead_code_extents.verified_admissions(ROOT,blob,model,report)
+    from recovery_state import recovery
+    if recovery().get('dead_code_functions'):
+        from dead_code_promotion import canonical_rows
+        canonical_rows(ROOT,blob,model,report,recovery())
     return report
 
 if __name__=='__main__':

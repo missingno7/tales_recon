@@ -14,14 +14,23 @@ INPUT='evidence/rules/dead-code-extents/entries.json'
 STATUS='COMPLETE_C_SOURCE_OBJECT_WITH_DEAD_CODE'
 _ACTIVE=ContextVar('staged_dead_code_entry',default=None)
 _ANALYSIS=ContextVar('fresh_dead_code_analysis',default=None)
+_IMAGE=ContextVar('exact_dead_code_image',default=None)
+_REFRESH=ContextVar('refresh_dead_code_analysis',default=False)
+def refreshing_analysis():return _REFRESH.get()
+@contextmanager
+def analysis_refresh():
+ token=_REFRESH.set(True)
+ try:yield
+ finally:_REFRESH.reset(token)
+def current_image():return _IMAGE.get()
 def current_analysis():return _ANALYSIS.get()
 def mode_active():return _ACTIVE.get() is not None
 
 @contextmanager
-def isolated_view(fid,analysis=None):
- token=_ACTIVE.set(fid);other=_ANALYSIS.set(analysis)
+def isolated_view(fid,analysis=None,image=None):
+ token=_ACTIVE.set(fid);other=_ANALYSIS.set(analysis);picture=_IMAGE.set(image)
  try:yield
- finally:_ACTIVE.reset(token);_ANALYSIS.reset(other)
+ finally:_ACTIVE.reset(token);_ANALYSIS.reset(other);_IMAGE.reset(picture)
 
 def active_entry(fid):return _ACTIVE.get()==fid
 
@@ -86,9 +95,10 @@ def make_view(base,ledger,blob,model,root):
  while pc<end:
   ins=instruction(md,data,pc);require(ins is not None and pc+ins.size<=end,'dead-code bytes do not decode completely')
   items.append(basic(ins));mn=ins.mnemonic.split('.')[0];nxt=pc+ins.size
+  require(pc!=start or (mn=='link' and data[pc:pc+2]==b'\x4e\x55'),'dead-code owner does not start with LINK A5')
   require(pc==start or mn!='link','dead-code hides another LINK entry')
   if mn in ['rts','rte','rtr','rtd']:
-   require(mn=='rts' and data[pc-2:pc]==b'\x4e\x5d','dead-code return is not terminal UNLK/RTS');returns.append(pc)
+   require(mn=='rts' and len(items)>1 and items[-2]['offset']==pc-2 and items[-2]['mnemonic']=='unlk' and data[pc-2:pc]==b'\x4e\x5d','dead-code return is not terminal decoded UNLK/RTS');returns.append(pc)
   require(mn not in ['stop','illegal','trap','trapv'],'dead-code contains terminal trap')
   is_call=mn in ['jsr','bsr'];branch=mn in ['bra','jmp'] or (ins.operands and ins.operands[-1].type==K.M68K_OP_BR_DISP and not is_call)
   if is_call or branch:
@@ -145,7 +155,7 @@ def make_view(base,ledger,blob,model,root):
   require(row['contribution_end']>end and 0<=len(data)-row['contribution_end']<=2 and all(v==0 for v in data[row['contribution_end']:]),'dead-code terminal literal boundary differs')
   require(not any(o['hunk']==h and o['start']>=end for o in ledger['functions']),'dead-code terminal tail precedes another function')
  else:require(nxt is not None and nxt['hunk']==h and nxt['start']==row['contribution_end'] and nxt['extent_status']=='CLOSED_CFG','dead-code next closed boundary differs')
- f=copy.deepcopy(base);f.update(end=end,size=end-start,raw_bytes=data[start:end].hex(),sha256=sha256(data[start:end]),instructions=items,direct_callees=calls,referenced_data=refs,referenced_strings=[],return_sites=returns,relocations=[dict(r,relative_offset=r['source_offset']-start) for r in model['relocations'] if r['source_hunk']==h and start<=r['source_offset']<end],extent_status=STATUS)
+ f=copy.deepcopy(base);f.update(end=end,size=end-start,raw_bytes=data[start:end].hex(),sha256=sha256(data[start:end]),instructions=items,direct_callees=calls,referenced_data=refs,referenced_strings=[],return_sites=returns,relocations=[dict(r,relative_offset=r['source_offset']-start) for r in model['relocations'] if r['source_hunk']==h and start<=r['source_offset']<end],extent_status=STATUS,source_object_cfg=edges)
  for r in refs:
   if r['kind']!='PC_RELATIVE_DATA' or r['hunk']!=h:continue
   off=r['offset'];nul=data.find(b'\0',off,min(len(data),off+160));raw=data[off:nul] if nul>=off else b''
@@ -173,9 +183,20 @@ def comparison_allowed(f,context=None):
 ADMISSIONS='evidence/rules/dead-code-extents/admissions.json'
 
 def admission_boundary(view):
- """Physical policy: no admission of a tail after the final epilogue."""
- spans=view['dead_code_extent']['dead_spans']
- require(spans[-1][1]<=max(view['return_sites'])-2 or view['dead_code_extent']['contribution_end']>view['end'], 'dead-code bytes follow terminal UNLK/RTS without an owned literal boundary; keep pending')
+ """Re-derive internal holes or a bounded owner-epilogue back-transfer tail."""
+ spans=view['dead_code_extent']['dead_spans'];dead=lambda off:any(a<=off<b for a,b in spans)
+ reachable_returns=[r for r in view['return_sites'] if not dead(r) and not dead(r-2)]
+ require(reachable_returns,'dead-code object lacks a reachable owner epilogue')
+ last=max(reachable_returns)
+ post=[(a,b) for a,b in spans if b>last+2]
+ if not post:return dict(kind='INTERNAL_UNREACHABLE_C',last_reachable_epilogue=last-2)
+ require(post==[(last+2,view['end'])], 'post-epilogue tail must start immediately after the last reachable RTS and end at its closed boundary')
+ terminal=view['instructions'][-1]
+ edges=[e for e in view['source_object_cfg'] if e['source']==terminal['offset']]
+ require(terminal['mnemonic'].split('.')[0] in ['bra','jmp'] and len(edges)==1 and edges[0]['kind']=='UNCONDITIONAL' and edges[0]['target']==last-2,
+         'post-epilogue tail must transfer unconditionally to the same last reachable owner UNLK/RTS')
+ return dict(kind='POST_EPILOGUE_OWNER_BACK_TRANSFER',last_reachable_epilogue=last-2,tail=[last+2,view['end']],terminal_transfer=dict(site=terminal['offset'],target=last-2))
+
 
 def verified_admissions(root,blob,model,analysis):
  """Re-derive exact complete source objects; never rewrite CLOSED_CFG evidence.
@@ -221,7 +242,7 @@ def verified_admissions(root,blob,model,analysis):
   require(contribution==producer['contribution'],'dead-code compiler object/executable extraction differs')
   compiled=dict(producer,directory=str(directory),cache_hit=True)
   import check_unit
-  with isolated_view(fid,analysis):
+  with isolated_view(fid,analysis,(blob,model,{})):
    plans=check_unit.check(entry,entry_path,[receipt['profile']],promote_equal=False,owned_code_data=bool(receipt.get('owned_code_tails')),isolated=True,member_sources=member_paths,natural_interval=receipt['natural_interval']['interval'],prepare_only=True,object_groups=receipt.get('object_groups'),per_member_profiles=receipt.get('per_member_profiles',False),with_m_lib=bool(meta.get('additional_libraries')))
    require(len(plans)==1 and plans[0]['trials'][0]['cache_key']==producer['cache_key'],'dead-code current natural-unit producer recipe changed')
    require(plans[0]['natural_interval']==receipt['natural_interval'],'dead-code natural interval or gap encoding changed')

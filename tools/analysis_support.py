@@ -16,6 +16,10 @@ def decoder():
     return md
 
 def game():
+    from dead_code_extents import current_image,refreshing_analysis
+    supplied=current_image()
+    if supplied is not None:return supplied
+    if refreshing_analysis():return _game()
     from evidence_snapshot import game_read
     return game_read(ROOT,_game)
 

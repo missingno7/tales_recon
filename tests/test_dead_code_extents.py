@@ -70,9 +70,12 @@ class DeadCodeTests(unittest.TestCase):
   def spec(path):return dict(path=path.relative_to(self.root).as_posix(),sha256=sha256(path.read_bytes()))
   p=self.root/dead.ADMISSIONS;p.write_text(json.dumps(dict(schema_version=1,admissions=[dict(id=x[0]['id'],unit_entry=x[0]['id'],entry_source=spec(source),source=spec(source),receipt=spec(receipt),compiler=spec(compiler),member_sources={})])))
   with self.assertRaisesRegex(FormatError,'candidate source changed'):dead.verified_admissions(self.root,x[2],x[3],x[1])
- def test_post_epilogue_tail_only_has_experimental_view(self):
-  dead.admission_boundary(self.view(self.fixture(False)))
-  with self.assertRaisesRegex(FormatError,'keep pending'):dead.admission_boundary(self.view(self.fixture(True)))
+ def test_post_epilogue_tail_requires_owner_epilogue_transfer(self):
+  self.assertEqual(dead.admission_boundary(self.view(self.fixture(False)))['kind'],'INTERNAL_UNREACHABLE_C')
+  f=self.view(self.fixture(True));self.assertEqual(dead.admission_boundary(f)['terminal_transfer'],dict(site=12,target=4))
+  for key,value in [('target',0),('kind','CONDITIONAL')]:
+   changed=copy.deepcopy(f);changed['source_object_cfg'][-1][key]=value
+   with self.assertRaisesRegex(FormatError,'same last reachable'):dead.admission_boundary(changed)
  def test_api_nonisolated_guards(self):
   import check_unit,check_function
   with dead.isolated_view('ov03_F_0000'):
@@ -85,10 +88,14 @@ class DeadCodeTests(unittest.TestCase):
   from analysis_support import ROOT,game
   from recovery_state import evidence
   blob,model,_=game();analysis=evidence();rows=dead.verified_admissions(ROOT,blob,model,analysis)
-  self.assertEqual([r['id'] for r in rows],['ov13_F_0942']);row=rows[0]
+  self.assertEqual({r['id'] for r in rows},{'ov13_F_0942','ov11_F_66FE'});row=next(r for r in rows if r['id']=='ov13_F_0942')
   self.assertEqual(row['dead_spans'],[[0xD80,0xE62]]);self.assertEqual(row['owned_literal_end'],0xF7E)
   self.assertFalse(row['source_acceptance']);self.assertEqual(row['complete_extent']['size'],1376)
   base=next(f for f in analysis['functions'] if f['id']==row['id']);self.assertTrue(base['undecoded_gaps'])
+  registry=json.loads((ROOT/dead.ADMISSIONS).read_bytes())
+  for record in registry['admissions']:
+   receipt=json.loads((ROOT/record['receipt']['path']).read_bytes());witness=next(m['dead_code_extent'] for m in receipt['members'] if m['id']==record['id'])
+   self.assertNotEqual(witness['validator_sha256'],sha256((ROOT/'tools/dead_code_extents.py').read_bytes()))
  def test_rehashed_cached_pass_contribution_cannot_replace_extraction(self):
   import shutil
   from analysis_support import ROOT,game
@@ -103,4 +110,15 @@ class DeadCodeTests(unittest.TestCase):
   compiler.write_bytes(json.dumps(producer).encode());row['compiler']['sha256']=sha256(compiler.read_bytes())
   (self.root/dead.ADMISSIONS).write_bytes(json.dumps(registry).encode())
   with self.assertRaisesRegex(FormatError,'extraction differs'):dead.verified_admissions(self.root,blob,model,analysis)
+ def test_foreign_cfg_edge_into_dead_tail_rejected(self):
+  x=self.fixture(True);x[1]['functions'][1]['cfg'].append(dict(source=14,target=8,kind='UNCONDITIONAL'))
+  with self.assertRaisesRegex(FormatError,'foreign reference'):self.view(x)
+ def test_post_epilogue_return_without_back_transfer_rejected(self):
+  x=list(self.fixture(True));x[2]=R+bytes.fromhex('4e714e5d4e75')+R;self.write(x[2],x[4])
+  with self.assertRaisesRegex(FormatError,'unconditionally'):dead.admission_boundary(self.view(x))
+ def test_unbounded_or_incomplete_post_tail_rejected(self):
+  x=self.fixture(True);x[4]['next_entry']='ov03_F_9999';self.write(x[2],x[4])
+  with self.assertRaisesRegex(FormatError,'next closed boundary'):self.view(x)
+  x=list(self.fixture(True));x[2]=x[2][:8]+bytes.fromhex('4afc')+x[2][10:];self.write(x[2],x[4])
+  with self.assertRaises(FormatError):self.view(x)
 if __name__=='__main__':unittest.main()

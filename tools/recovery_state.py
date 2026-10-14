@@ -24,6 +24,7 @@ def canonical_state(value):
     result = dict(schema_version=value.get('schema_version',1),functions=value['functions'],attempts={},blockers={})
     if 'mixed_source_objects' in value:
         result['mixed_source_objects'] = value['mixed_source_objects']
+    if 'dead_code_functions' in value:result['dead_code_functions']=value['dead_code_functions']
     if 'data_providers' in value:
         result['data_providers'] = value['data_providers']
     return result
@@ -167,7 +168,7 @@ def ranked(node=None):
     l=evidence();r=recovery();result=[];runtime=runtime_dependencies(l)
     r['functions']={fid:item for fid,item in r['functions'].items() if
                     not item.get('source') or is_active_repo_path(ROOT/item['source'],ROOT)}
-    mixed=set(r.get('mixed_source_objects',{}))
+    mixed=set(r.get('mixed_source_objects',{}))|set(r.get('dead_code_functions',{}))
     floor=runtime_floor(l['functions'])
     incoming={f['id']:sum(any(c['id']==f['id'] for c in caller['direct_callees'])
                          for caller in l['functions'] if caller['id'] not in r['functions']) for f in l['functions']}

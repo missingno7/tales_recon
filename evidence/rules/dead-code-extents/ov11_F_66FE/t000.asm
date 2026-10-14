@@ -1,0 +1,559 @@
+;:ts=8
+	public	_recovered
+_recovered:
+	link	a5,#.2
+	movem.l	.3,-(sp)
+	move.w	#1,-14(a5)
+	move.w	8(a5),_G_h01_7A94
+	clr.l	-(sp)
+	move.l	_G_h01_46CA,-(sp)
+	jsr	_F_h00_8BC8
+	add.w	#8,sp
+	move.w	#1,-(sp)
+	jsr	_F_h11_15C8
+	add.w	#2,sp
+	jsr	_F_h11_2A3A
+	jsr	_F_h11_4EC6
+	jsr	_F_h11_69A4
+	jsr	_F_h11_3A24
+	jsr	_F_h11_21F8
+	jsr	_F_h11_68B0
+	jsr	_F_h11_6FFE
+	move.w	#1,-(sp)
+	jsr	_F_h11_14BA
+	add.w	#2,sp
+	clr.l	_G_h01_2C26
+	clr.b	_G_h01_2C2C
+	jsr	_F_h00_330E
+	clr.w	_G_h01_12FE
+	clr.l	-(sp)
+	move.l	_G_h01_46CA,-(sp)
+	jsr	_F_h00_8BC8
+	add.w	#8,sp
+	clr.l	-(sp)
+	pea	255
+	pea	192
+	pea	200
+	pea	320
+	clr.l	-(sp)
+	clr.l	-(sp)
+	move.l	_G_h01_46D2,-(sp)
+	clr.l	-(sp)
+	clr.l	-(sp)
+	move.l	_G_h01_46CE,-(sp)
+	jsr	_F_h00_8A46
+	lea	44(sp),sp
+	move.w	#1,-(sp)
+	jsr	_F_h11_62B4
+	add.w	#2,sp
+	jsr	_F_h00_4EC6
+	move.w	#2,-(sp)
+	jsr	_F_h00_0FDE
+	add.w	#2,sp
+	move.w	#8,-(sp)
+	jsr	_F_h00_4D04
+	add.w	#2,sp
+	move.w	#92,-(sp)
+	jsr	_F_h00_57D2
+	add.w	#2,sp
+	move.w	_G_h01_94BA,d0
+	ext.l	d0
+	asl.l	#3,d0
+	move.w	_G_h01_94BC,d1
+	ext.l	d1
+	asl.l	#1,d1
+	add.l	d1,d0
+	lea	_G_h01_8B1C,a0
+	move.w	(a0,d0.l),d1
+	ext.l	d1
+	asl.l	#1,d1
+	lea	_G_h01_940C,a0
+	clr.w	(a0,d1.l)
+	clr.w	_G_h01_94B8
+	jsr	_F_h00_435E
+.4
+	tst.w	_G_h01_12FE
+	bne	.5
+	tst.w	_G_h01_8A3C
+	bne	.6
+	jsr	_F_h11_13DC
+.6
+	clr.w	_G_h01_94E6
+	jsr	_F_h11_063A
+	jsr	_F_h11_0BB6
+	tst.w	_G_h01_12FE
+	bne	.4
+	cmp.w	#7,_G_h01_94AE
+	bne	.7
+	clr.w	-(sp)
+	jsr	_F_h00_57D2
+	add.w	#2,sp
+	pea	50
+	jsr	_F_h00_86A8
+	add.w	#4,sp
+	jsr	_F_h00_330E
+	cmp.w	#3,_G_h01_94AC
+	bge	.8
+	move.w	#3,_G_h01_8A3C
+	move.w	#1,-14(a5)
+	jsr	_F_h11_49CE
+	clr.w	-(sp)
+	jsr	_F_h11_15C8
+	add.w	#2,sp
+	clr.w	-(sp)
+	jsr	_F_h11_14BA
+	add.w	#2,sp
+	jsr	_F_h11_2A3A
+	clr.w	-(sp)
+	jsr	_F_h11_62B4
+	add.w	#2,sp
+	jsr	_F_h11_3A24
+	jsr	_F_h11_21F8
+	pea	100
+	jsr	_F_h00_86A8
+	add.w	#4,sp
+	clr.w	_G_h01_94B8
+	move.w	#92,-(sp)
+	jsr	_F_h00_57D2
+	add.w	#2,sp
+	bra	.9
+.8
+	bra	.5
+.9
+.7
+	jsr	_F_h11_0558
+	tst.w	_G_h01_8A42
+	beq	.10
+	move.w	#3,_G_h01_8A3C
+.10
+	move.w	_G_h01_8A3E,d0
+	ext.l	d0
+	divs.w	#104,d0
+	move.w	d0,-6(a5)
+	tst.w	_G_h01_8A42
+	beq	.11
+	move.l	#4,d0
+	bra	.12
+.11
+	move.l	#3,d0
+.12
+	add.w	-6(a5),d0
+	move.w	d0,-8(a5)
+	move.w	-6(a5),-2(a5)
+	bra	.16
+.15
+	move.w	-2(a5),d0
+	muls.w	#14,d0
+	lea	_G_h01_8A66,a0
+	add.l	a0,d0
+	move.l	d0,-12(a5)
+	move.l	-12(a5),a0
+	tst.w	(a0)
+	beq	.17
+	move.l	-12(a5),a0
+	move.w	(a0),-(sp)
+	jsr	_F_h11_5D14
+	add.w	#2,sp
+.17
+	move.l	-12(a5),a0
+	tst.w	2(a0)
+	beq	.18
+	move.l	-12(a5),a0
+	move.w	2(a0),-(sp)
+	jsr	_F_h11_51C0
+	add.w	#2,sp
+.18
+	move.l	-12(a5),a0
+	tst.w	4(a0)
+	beq	.19
+	move.l	-12(a5),a0
+	move.w	4(a0),-(sp)
+	jsr	_F_h11_6CFE
+	add.w	#2,sp
+	move.l	-12(a5),a0
+	tst.w	6(a0)
+	beq	.20
+	move.l	-12(a5),a0
+	move.w	6(a0),-(sp)
+	jsr	_F_h11_6CFE
+	add.w	#2,sp
+.20
+.19
+	move.l	-12(a5),a0
+	tst.w	10(a0)
+	beq	.21
+	move.l	-12(a5),a0
+	move.w	10(a0),-(sp)
+	jsr	_F_h11_2EEA
+	add.w	#2,sp
+.21
+	move.l	-12(a5),a0
+	tst.w	10(a0)
+	beq	.22
+	move.l	-12(a5),a0
+	move.w	10(a0),-(sp)
+	jsr	_F_h11_3532
+	add.w	#2,sp
+.22
+	move.l	-12(a5),a0
+	tst.w	8(a0)
+	beq	.23
+	move.l	-12(a5),a0
+	move.w	8(a0),-(sp)
+	jsr	_F_h11_6486
+	add.w	#2,sp
+	move.l	-12(a5),a0
+	move.w	8(a0),-(sp)
+	jsr	_F_h11_6582
+	add.w	#2,sp
+.23
+	move.l	-12(a5),a0
+	tst.w	12(a0)
+	beq	.24
+	move.l	-12(a5),a0
+	move.w	12(a0),-(sp)
+	jsr	_F_h11_70DC
+	add.w	#2,sp
+.24
+.13
+	add.w	#1,-2(a5)
+.16
+	move.w	-2(a5),d0
+	cmp.w	-8(a5),d0
+	blt	.15
+.14
+	jsr	_F_h11_3D9A
+	jsr	_F_h11_2272
+	jsr	_F_h11_0B4C
+	jsr	_F_h11_0D8E
+	cmp.w	#1,_G_h01_8A3C
+	ble	.25
+	jsr	_F_h11_4848
+.25
+	tst.w	_G_h01_8A3C
+	ble	.26
+	cmp.w	#1,_G_h01_8A3C
+	bne	.27
+	move.l	#1,d0
+	bra	.28
+.27
+	move.l	#0,d0
+.28
+	move.w	d0,-(sp)
+	move.w	#320,-(sp)
+	clr.w	-(sp)
+	move.w	_G_h01_8A3E,-(sp)
+	jsr	_F_h11_487E
+	add.w	#8,sp
+	sub.w	#1,_G_h01_8A3C
+	bra	.29
+.26
+	jsr	_F_h11_4790
+.29
+	move.w	-6(a5),-2(a5)
+	bra	.33
+.32
+	move.w	-2(a5),d0
+	muls.w	#14,d0
+	lea	_G_h01_8A66,a0
+	add.l	a0,d0
+	move.l	d0,-12(a5)
+	move.l	-12(a5),a0
+	tst.w	(a0)
+	beq	.34
+	move.l	-12(a5),a0
+	move.w	(a0),-(sp)
+	jsr	_F_h11_5C1A
+	add.w	#2,sp
+.34
+	move.l	-12(a5),a0
+	tst.w	10(a0)
+	beq	.35
+	move.l	-12(a5),a0
+	move.w	10(a0),-(sp)
+	jsr	_F_h11_2DBA
+	add.w	#2,sp
+.35
+.30
+	add.w	#1,-2(a5)
+.33
+	move.w	-2(a5),d0
+	cmp.w	-8(a5),d0
+	blt	.32
+.31
+	jsr	_F_h11_3B92
+	move.w	-6(a5),-2(a5)
+	bra	.39
+.38
+	move.w	-2(a5),d0
+	muls.w	#14,d0
+	lea	_G_h01_8A66,a0
+	add.l	a0,d0
+	move.l	d0,-12(a5)
+	move.l	-12(a5),a0
+	tst.w	2(a0)
+	beq	.40
+	move.l	-12(a5),a0
+	move.w	2(a0),-(sp)
+	jsr	_F_h11_519C
+	add.w	#2,sp
+.40
+	move.l	-12(a5),a0
+	tst.w	10(a0)
+	beq	.41
+	move.l	-12(a5),a0
+	move.w	10(a0),-(sp)
+	jsr	_F_h11_36F8
+	add.w	#2,sp
+	move.l	-12(a5),a0
+	move.w	10(a0),-(sp)
+	jsr	_F_h11_37E4
+	add.w	#2,sp
+.41
+	move.l	-12(a5),a0
+	tst.w	4(a0)
+	beq	.42
+	move.l	-12(a5),a0
+	move.w	4(a0),-(sp)
+	jsr	_F_h11_6C3A
+	add.w	#2,sp
+	move.l	-12(a5),a0
+	tst.w	6(a0)
+	beq	.43
+	move.l	-12(a5),a0
+	move.w	6(a0),-(sp)
+	jsr	_F_h11_6C3A
+	add.w	#2,sp
+.43
+.42
+	move.l	-12(a5),a0
+	tst.w	8(a0)
+	beq	.44
+	cmp.w	#45,_G_h01_94AE
+	bne	.44
+	move.l	-12(a5),a0
+	move.w	8(a0),-(sp)
+	jsr	_F_h11_645E
+	add.w	#2,sp
+.44
+	move.l	-12(a5),a0
+	tst.w	12(a0)
+	beq	.45
+	move.l	-12(a5),a0
+	move.w	12(a0),-(sp)
+	jsr	_F_h11_706C
+	add.w	#2,sp
+.45
+.36
+	add.w	#1,-2(a5)
+.39
+	move.w	-2(a5),d0
+	cmp.w	-8(a5),d0
+	blt	.38
+.37
+	jsr	_F_h11_1372
+	jsr	_F_h11_23F4
+	jsr	_F_h11_27CC
+	tst.w	-14(a5)
+	beq	.46
+	jsr	_F_h00_330E
+	jsr	_F_h00_307C
+	lea	_G_h01_16E6,a0
+	move.l	a0,_G_h01_46D6
+	pea	_G_h01_16E6
+	jsr	_F_h00_31AA
+	add.w	#4,sp
+	clr.w	-14(a5)
+	jsr	_F_h00_435E
+	bra	.47
+.46
+	jsr	_F_h00_307C
+.47
+	bra	.4
+.5
+	jsr	_F_h11_049C
+	jsr	_F_h11_4A92
+	jsr	_F_h00_330E
+	move.l	_G_h01_46DA,-(sp)
+	jsr	_F_h00_868C
+	add.w	#4,sp
+	move.l	_G_h01_9FA6,_G_h01_46DA
+	move.l	_G_h01_46DA,-(sp)
+	jsr	_F_h00_2816
+	add.w	#4,sp
+	clr.w	-(sp)
+	jsr	_F_h00_57D2
+	add.w	#2,sp
+	jsr	_F_h00_4EC6
+	move.w	_G_h01_12FE,d0
+.48
+	movem.l	(sp)+,.3
+	unlk	a5
+	rts
+.2	equ	-214
+.3	reg	
+	public	_F_h11_049C
+_F_h11_049C:
+	link	a5,#.49
+	movem.l	.50,-(sp)
+	move.l	_G_h01_9F8E,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F4E,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F52,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F56,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F5E,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F62,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F66,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F6A,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F82,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F7E,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F6E,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F76,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F8A,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F92,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F96,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F9A,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9F9E,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+	move.l	_G_h01_9FA2,-(sp)
+	jsr	_F_h00_3BD2
+	add.w	#4,sp
+.51
+	movem.l	(sp)+,.50
+	unlk	a5
+	rts
+.49	equ	0
+.50	reg	
+	public	_F_h00_3BD2
+	public	_F_h11_4A92
+	public	_F_h11_27CC
+	public	_F_h11_23F4
+	public	_F_h11_1372
+	public	_F_h11_706C
+	public	_F_h11_645E
+	public	_F_h11_6C3A
+	public	_F_h11_37E4
+	public	_F_h11_36F8
+	public	_F_h11_519C
+	public	_F_h11_3B92
+	public	_F_h11_2DBA
+	public	_F_h11_5C1A
+	public	_F_h11_4790
+	public	_F_h11_487E
+	public	_F_h11_4848
+	public	_F_h11_0D8E
+	public	_F_h11_0B4C
+	public	_F_h11_2272
+	public	_F_h11_3D9A
+	public	_F_h11_70DC
+	public	_F_h11_6582
+	public	_F_h11_6486
+	public	_F_h11_3532
+	public	_F_h11_2EEA
+	public	_F_h11_6CFE
+	public	_F_h11_51C0
+	public	_F_h11_5D14
+	public	_F_h11_0558
+	public	_F_h11_49CE
+	public	_F_h11_0BB6
+	public	_F_h11_063A
+	public	_F_h11_13DC
+	public	_F_h11_62B4
+	public	_F_h11_14BA
+	public	_F_h11_6FFE
+	public	_F_h11_68B0
+	public	_F_h11_21F8
+	public	_F_h11_3A24
+	public	_F_h11_69A4
+	public	_F_h11_4EC6
+	public	_F_h11_2A3A
+	public	_F_h11_15C8
+	public	_F_h00_8BC8
+	public	_F_h00_8A46
+	public	_F_h00_86A8
+	public	_F_h00_868C
+	public	_F_h00_57D2
+	public	_F_h00_4EC6
+	public	_F_h00_4D04
+	public	_F_h00_435E
+	public	_F_h00_330E
+	public	_F_h00_31AA
+	public	_F_h00_307C
+	public	_F_h00_2816
+	public	_F_h00_0FDE
+	public	.begin
+	dseg
+	public	_G_h01_9FA2
+	public	_G_h01_9F9E
+	public	_G_h01_9F9A
+	public	_G_h01_9F96
+	public	_G_h01_9F92
+	public	_G_h01_9F8E
+	public	_G_h01_9F8A
+	public	_G_h01_9F82
+	public	_G_h01_9F7E
+	public	_G_h01_9F76
+	public	_G_h01_9F6E
+	public	_G_h01_9F6A
+	public	_G_h01_9F66
+	public	_G_h01_9F62
+	public	_G_h01_9F5E
+	public	_G_h01_9F56
+	public	_G_h01_9F52
+	public	_G_h01_9F4E
+	public	_G_h01_16E6
+	public	_G_h01_9FA6
+	public	_G_h01_94E6
+	public	_G_h01_94BC
+	public	_G_h01_94BA
+	public	_G_h01_94B8
+	public	_G_h01_94AE
+	public	_G_h01_94AC
+	public	_G_h01_940C
+	public	_G_h01_8B1C
+	public	_G_h01_8A66
+	public	_G_h01_8A42
+	public	_G_h01_8A3E
+	public	_G_h01_8A3C
+	public	_G_h01_7A94
+	public	_G_h01_46DA
+	public	_G_h01_46D6
+	public	_G_h01_46D2
+	public	_G_h01_46CE
+	public	_G_h01_46CA
+	public	_G_h01_2C2C
+	public	_G_h01_2C26
+	public	_G_h01_12FE
+	end

@@ -89,3 +89,16 @@ binds the exact literal, and the next discovered entry bounds the tail.
 Admission requires fresh unchanged producer artifacts, independently bound
 complete runtime callees and current canonical parser/exit anchors. Ordinary
 C and accepted-public-entry library admission rules remain unchanged.
+
+Complete ordinary C objects with unreachable compiler code use the separate
+`dead_code_functions` ownership map. Their canonical source and proof are
+written only by `dead_code_promotion.py --promote`, after a current exact
+whole-natural-unit replay and regression gate. The proof records the complete
+object basis and original reachable CFG separately; it never asserts CLOSED_CFG.
+A post-epilogue tail must be completely decoded, unreferenced by foreign code or
+relocations, bounded by the next closed entry or proved literal tail, and end
+in an unconditional transfer to the owner's last reachable UNLK/RTS. Canonical
+reads rederive all boundaries and replay the exact unit. Verifier and validator
+hashes remain provenance. Existing reachable-prefix proofs stay valid; census
+and hybrid accounting subtract that prefix before crediting new C bytes.
+Original filename, translation unit and natural overlay layout remain unproved.

@@ -92,8 +92,8 @@ class Snapshot:
             # can change during a batch without changing any derived output.
             if values[str(ledger_path.resolve())] is not None:
                 values[str(ledger_path.resolve())] = sha256(json_bytes(dict(
-                    functions=ledger['functions'], mixed_source_objects=ledger.get('mixed_source_objects', {}), data_providers=ledger.get('data_providers', {}))))
-            for item in ledger.get('mixed_source_objects', {}).values():
+                    functions=ledger['functions'], mixed_source_objects=ledger.get('mixed_source_objects', {}), dead_code_functions=ledger.get('dead_code_functions', {}), data_providers=ledger.get('data_providers', {}))))
+            for item in list(ledger.get('mixed_source_objects', {}).values())+list(ledger.get('dead_code_functions', {}).values()):
                 read(root / item['source']); read(root / item['proof'])
             for item in ledger.get('functions', {}).values():
                 read(root / item['source'])
