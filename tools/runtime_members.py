@@ -63,7 +63,7 @@ def relocation_identity(model, extent):
     return result
 
 
-def relocated_contribution(spec, original, model):
+def relocated_contribution(spec, original, model, *, root=ROOT):
     """Prove the complete segload object, exports and structural references.
 
     Its object owns zero DATA/BSS; the DATA-origin relocation is an external
@@ -72,7 +72,7 @@ def relocated_contribution(spec, original, model):
     from hunk import parse
     require(spec['members'] == spec['contribution'] == ['segload'] and
             spec['relocation_identity'] == SEGLOAD_RELOCATIONS, 'unsupported relocated runtime recipe')
-    job = ROOT / 'build/worker-jobs' / spec['job']
+    job = Path(root) / 'build/worker-jobs' / spec['job']
     work = job / 'sys/work'
     receipt = json.loads((job / 'result.json').read_text())
     require(receipt['all_steps_succeeded'], 'relocated runtime link failed')
@@ -81,7 +81,7 @@ def relocated_contribution(spec, original, model):
         require(name in artifacts and sha256((work/name).read_bytes()) == artifacts[name],
                 'missing/changed relocated runtime artifact')
     library = 'toolchain/installed/' + spec['library']
-    digest = sha256((ROOT/library).read_bytes())
+    digest = sha256((Path(root)/library).read_bytes())
     require(any(p['path'] == library and p['sha256'] == digest
                 for p in receipt['request']['pinned_inputs']), 'relocated runtime library is not pinned')
     steps = [s['command'] for s in receipt['steps']]

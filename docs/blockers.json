@@ -534,6 +534,27 @@
       "reason": "XOR_RESULT_REGISTER_ORIENTATION: 56-byte candidate (aztec36-large-data) matches length and relocations; only eor.w d0,d1 (result in right register) differs from original eor.w d1,d0. Haiku wave 2026-10-12 tested 15 trials/10 families (types, casts, temporaries, shift spellings, operand order, aztec36-x3, aztec50-short): orientation never changes; a stored temporary flips it only with an extra frame slot. Evidence build/workers/fn-resident_F_463E (fleet intake NEAR_RECORDED). 2026-10-13 Sol probe (build/workers/blk-resident_F_463E, ledger 330-332): explicit register locals (r = a >> 3; r = r ^ (b << 13) or r ^= ...) do emit first-computed-result eor.w d0,d4, but add d4 preservation and a return copy absent from the original. Open: a positively evidenced allocation rule or compiler that keeps the first-result XOR in transient d0 with no saved register.",
       "state": "BLOCKED"
     },
+    "resident_F_4AF0": {
+      "category": "RUNTIME/LIBRARY",
+      "next_action": "Obtain positive provenance for the driver (original source, an object, or a documented published replayer with byte-level correspondence). Never transcribe its disassembly into assembly source. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
+      "ownership_unchanged": true,
+      "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (559E). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
+      "state": "BLOCKED"
+    },
+    "resident_F_50E8": {
+      "category": "RUNTIME/LIBRARY",
+      "next_action": "Obtain positive provenance for the driver (original source, an object, or a documented published replayer with byte-level correspondence). Never transcribe its disassembly into assembly source. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
+      "ownership_unchanged": true,
+      "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (57B6/5868). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
+      "state": "BLOCKED"
+    },
+    "resident_F_53E6": {
+      "category": "RUNTIME/LIBRARY",
+      "next_action": "Obtain positive provenance for the driver (original source, an object, or a documented published replayer with byte-level correspondence). Never transcribe its disassembly into assembly source. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
+      "ownership_unchanged": true,
+      "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (5594/5868). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
+      "state": "BLOCKED"
+    },
     "resident_F_7C82": {
       "category": "RUNTIME/LIBRARY",
       "next_action": "Obtain an independently pinned 16-bit Aztec format member (another release/build) with an external strlen call, link it alone and replay the unchanged mask; until then account the span as identified-variant runtime, not game source.",

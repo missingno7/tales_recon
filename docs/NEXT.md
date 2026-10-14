@@ -218,6 +218,13 @@ waits on a named structural blocker:
    pinned c.lib/c32/5.0a member or MAPFD/SDK producer emits that form. It
    needs an independently pinned period amiga.lib-style glue object
    (RUNTIME/LIBRARY).
+   PROVENANCE (Sol, build/workers/sol-audio-id): a custom four-channel Paula
+   bytecode engine with 44 opcode handlers (0x80..0xAB), packed pitch/tick
+   notes, priority preemption and pattern call/return. Developer-internal
+   assembly is the leading hypothesis; no pinned source or object exists.
+   UADE's Cinemaware.asm is a third-party re-implementation and cannot give
+   byte provenance, so it was not acquired. 4AF0, 50E8 and 53E6 are
+   BLOCKED (NON_C_AUDIO_DRIVER_PROVENANCE).
 10. LIBRARY CALL ROUTING (Sol, build/workers/sol-a4-routing). The Manx 3.6a
    linker gives a symbol a root DATA JMP slot when an overlay or distant
    (beyond +/-32762) reference needs one. Every resident jsr to that symbol
@@ -240,6 +247,26 @@ waits on a named structural blocker:
    build/worker-jobs/routing-proof-02, and the test negatives in
    build/worker-jobs/routing-04 and routing-proof-01. Accounting credit and
    alias integration are a separate step.
+
+11. LIBRARY TAIL AND ACCOUNTING (2026-10-14, Sol patches, reviewed).
+    - `runtime_members.py --tail-leaves` proves seven complete c.lib
+      leaves (88 bytes: _output, _write, addport, allocsig, freesign,
+      newlist, remport). sscanf, scan/_scanfmt, abort, createport,
+      createstdio and createextio are identified only. They need natural
+      call routing, and the sscanf/scan private BSS at H1+0x3ABA needs an
+      ownership map; build/workers/sol-lib-tail/handoff.md has the job
+      recipe.
+    - tools/runtime_accounting.py credits every exact relocated, natural
+      and tail runtime proof as PINNED_RUNTIME, CODE plus the member-owned
+      DATA it proves. RAW_ORACLE_DEBT goes from 39,002 to 37,206
+      initialized bytes (file level 45,682 to 43,886), and PINNED_RUNTIME
+      from 588 to 2,564.
+    - resident_F_7B24's canonical C proof (158 C + 22 literal bytes) is
+      c.lib wbparse. The proof stays, but the pinned object is now counted
+      once, as runtime.
+    - The H1 DATA map in build/workers/sol-data-map/data-map.json
+      partitions all 11,956 DATA bytes: 588 are proven library DATA and
+      6,933 are UNKNOWN.
 
 ## Current campaign (2026-10-12): resident-first fleet
 

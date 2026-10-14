@@ -132,11 +132,11 @@
     },
     "resident": {
       "CLASSIFIED_PADDING": 0,
-      "COMPILER_OWNED_DATA": 556,
-      "PINNED_RUNTIME": 588,
-      "RAW_ORACLE_DEBT": 34854,
+      "COMPILER_OWNED_DATA": 534,
+      "PINNED_RUNTIME": 2564,
+      "RAW_ORACLE_DEBT": 33058,
       "RECOVERED_ASM": 48,
-      "RECOVERED_C": 12170,
+      "RECOVERED_C": 12012,
       "overlap": 0,
       "unexplained": 0
     }
@@ -700,9 +700,10 @@
       "start": 31062
     },
     {
-      "category": "RAW_ORACLE_DEBT",
+      "category": "PINNED_RUNTIME",
       "end": 31340,
       "hunk": 0,
+      "id": "runtime_member_segload",
       "start": 31096
     },
     {
@@ -741,24 +742,25 @@
       "start": 31488
     },
     {
-      "category": "RECOVERED_C",
-      "end": 31682,
+      "category": "PINNED_RUNTIME",
+      "end": 31704,
       "hunk": 0,
-      "id": "resident_F_7B24",
+      "id": "runtime_member_wbparse",
       "start": 31524
     },
     {
-      "category": "COMPILER_OWNED_DATA",
-      "end": 31704,
+      "category": "PINNED_RUNTIME",
+      "end": 31732,
       "hunk": 0,
-      "id": "resident_F_7B24_tail",
-      "start": 31682
+      "id": "runtime_member_printf",
+      "start": 31704
     },
     {
-      "category": "RAW_ORACLE_DEBT",
+      "category": "PINNED_RUNTIME",
       "end": 32668,
       "hunk": 0,
-      "start": 31704
+      "id": "runtime_member_format",
+      "start": 31732
     },
     {
       "category": "PINNED_RUNTIME",
@@ -955,9 +957,36 @@
     },
     {
       "category": "RAW_ORACLE_DEBT",
-      "end": 11956,
+      "end": 11364,
       "hunk": 1,
       "start": 0
+    },
+    {
+      "category": "PINNED_RUNTIME",
+      "end": 11382,
+      "hunk": 1,
+      "id": "runtime_data_format",
+      "start": 11364
+    },
+    {
+      "category": "PINNED_RUNTIME",
+      "end": 11512,
+      "hunk": 1,
+      "id": "runtime_data_ctype",
+      "start": 11382
+    },
+    {
+      "category": "PINNED_RUNTIME",
+      "end": 11952,
+      "hunk": 1,
+      "id": "runtime_data_getbuff",
+      "start": 11512
+    },
+    {
+      "category": "RAW_ORACLE_DEBT",
+      "end": 11956,
+      "hunk": 1,
+      "start": 11952
     },
     {
       "category": "RECOVERED_C",
@@ -2710,6 +2739,905 @@
     }
   ],
   "reconstruction_proof_level": null,
+  "runtime_member_proofs": [
+    {
+      "actual_sha256": "d7aea9c5c5947f25e194be0351ed684f02b457aaeef695e6c57f29e72990dbb3",
+      "end": 31340,
+      "hunk": 0,
+      "id": "runtime_member_segload",
+      "proof": {
+        "member": "segload",
+        "object_sha256s": {
+          "segload": "9291e2774516f75c0b75d9d2c390085563c954a4b3c1b55b7720f176b2ad6745"
+        },
+        "receipt": "evidence/experiments/runtime-members-relocated.json",
+        "relocation_identity": [
+          {
+            "offset": 40,
+            "target": {
+              "addend": 8,
+              "hunk": 0,
+              "kind": "ROOT_HUNK_ORIGIN",
+              "type": "CODE"
+            },
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "offset": 62,
+            "target": {
+              "addend": 0,
+              "hunk": 1,
+              "kind": "ROOT_HUNK_ORIGIN",
+              "type": "DATA"
+            },
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ]
+      },
+      "relocations": [
+        {
+          "addend_raw": 8,
+          "source_offset": 31136,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 0,
+          "source_offset": 31158,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        }
+      ],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 31096
+    },
+    {
+      "actual_sha256": "cfdb5a7b6e78f3a0d0afaa86b4f5f0998130a93f14ef29990715653a71a5bc01",
+      "end": 31704,
+      "hunk": 0,
+      "id": "runtime_member_wbparse",
+      "proof": {
+        "member": "wbparse",
+        "object_sha256s": {
+          "wbparse": "afa3982805cc3416f41d0696fc0572a9102c4a4804f636fb25901791495061a2"
+        },
+        "operand_identity": [
+          {
+            "kind": "INTERNAL_PC",
+            "site": 14,
+            "target": 158
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              3404
+            ],
+            "field": 20,
+            "kind": "PC",
+            "original": [
+              0,
+              35284
+            ],
+            "site": 18,
+            "symbol": "__OpenLibrary",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              632
+            ],
+            "field": 24,
+            "kind": "A4",
+            "original": [
+              1,
+              46016
+            ],
+            "site": 22,
+            "symbol": "_IconBase",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 28,
+            "target": 38
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              3472
+            ],
+            "field": 52,
+            "kind": "PC",
+            "original": [
+              0,
+              35900
+            ],
+            "site": 50,
+            "symbol": "_GetDiskObject",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 58,
+            "target": 142
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 60,
+            "target": 171
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              3446
+            ],
+            "field": 72,
+            "kind": "PC",
+            "original": [
+              0,
+              35874
+            ],
+            "site": 70,
+            "symbol": "_FindToolType",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 80,
+            "target": 134
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              3298
+            ],
+            "field": 90,
+            "kind": "PC",
+            "original": [
+              0,
+              34528
+            ],
+            "site": 88,
+            "symbol": "__Open",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 96,
+            "target": 134
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 120,
+            "target": 178
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              3298
+            ],
+            "field": 126,
+            "kind": "PC",
+            "original": [
+              0,
+              34528
+            ],
+            "site": 124,
+            "symbol": "__Open",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              3460
+            ],
+            "field": 138,
+            "kind": "PC",
+            "original": [
+              0,
+              35888
+            ],
+            "site": 136,
+            "symbol": "_FreeDiskObject",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              632
+            ],
+            "field": 144,
+            "kind": "A4",
+            "original": [
+              1,
+              46016
+            ],
+            "site": 142,
+            "symbol": "_IconBase",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              3350
+            ],
+            "candidate_slot": {
+              "relocation": {
+                "addend_raw": 3350,
+                "entry_offset": 4212,
+                "record_offset": 4196,
+                "source_hunk": 1,
+                "source_offset": 8,
+                "target_hunk": 0,
+                "type": "HUNK_RELOC32",
+                "width": 4
+              },
+              "slot_hunk": 1,
+              "slot_offset": 6
+            },
+            "field": 148,
+            "kind": "A4",
+            "original": [
+              0,
+              34692
+            ],
+            "original_slot": {
+              "relocation": {
+                "addend_raw": 34692,
+                "entry_offset": 52592,
+                "record_offset": 51956,
+                "source_hunk": 1,
+                "source_offset": 302,
+                "target_hunk": 0,
+                "type": "HUNK_RELOC32",
+                "width": 4
+              },
+              "slot_hunk": 1,
+              "slot_offset": 300
+            },
+            "site": 146,
+            "symbol": "_CloseLibrary",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              632
+            ],
+            "field": 152,
+            "kind": "A4",
+            "original": [
+              1,
+              46016
+            ],
+            "site": 150,
+            "symbol": "_IconBase",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 156,
+            "target": 30
+          }
+        ],
+        "provider": "PINNED_LIBRARY_OBJECT",
+        "receipt": "evidence/experiments/runtime-members-natural.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 31524
+    },
+    {
+      "actual_sha256": "c2ce50a826a1aea4e21a3924077ef0fd3b1d9a8e583b920a832b1c4ccd5611ca",
+      "end": 32668,
+      "hunk": 0,
+      "id": "runtime_member_format",
+      "proof": {
+        "member": "format",
+        "object_sha256s": {
+          "format": "9c88d5ec1725a4884934939369d0e5fcc4fd142805b6639999adb85f415cb4a2"
+        },
+        "operand_identity": [
+          {
+            "kind": "INTERNAL_PC",
+            "site": 18,
+            "target": 28
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 26,
+            "target": 56
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 32,
+            "target": 46
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 44,
+            "target": 56
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 64,
+            "target": 82
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 72,
+            "target": 82
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1516
+            ],
+            "field": 92,
+            "kind": "PC",
+            "original": [
+              0,
+              32734
+            ],
+            "site": 90,
+            "symbol": ".modu",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              28
+            ],
+            "field": 96,
+            "kind": "A4",
+            "original": [
+              1,
+              11364
+            ],
+            "site": 94,
+            "symbol": "FORMAT_LOCAL_DIGITS",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1528
+            ],
+            "field": 114,
+            "kind": "PC",
+            "original": [
+              0,
+              32746
+            ],
+            "site": 112,
+            "symbol": ".divu",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 118,
+            "target": 82
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 124,
+            "target": 132
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 178,
+            "target": 928
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 186,
+            "target": 902
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 226,
+            "target": 242
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 246,
+            "target": 264
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 268,
+            "target": 294
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 292,
+            "target": 344
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 298,
+            "target": 328
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              46
+            ],
+            "field": 334,
+            "kind": "A4",
+            "original": [
+              1,
+              11382
+            ],
+            "site": 332,
+            "symbol": "_ctp_",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 342,
+            "target": 300
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 348,
+            "target": 440
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 364,
+            "target": 390
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 388,
+            "target": 440
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 394,
+            "target": 424
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              46
+            ],
+            "field": 430,
+            "kind": "A4",
+            "original": [
+              1,
+              11382
+            ],
+            "site": 428,
+            "symbol": "_ctp_",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 438,
+            "target": 396
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 450,
+            "target": 470
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 468,
+            "target": 486
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 474,
+            "target": 486
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 490,
+            "target": 612
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 498,
+            "target": 522
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 506,
+            "target": 522
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 514,
+            "target": 522
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 538,
+            "target": 0
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 560,
+            "target": 652
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1432
+            ],
+            "candidate_slot": {
+              "relocation": {
+                "addend_raw": 1432,
+                "entry_offset": 4208,
+                "record_offset": 4196,
+                "source_hunk": 1,
+                "source_offset": 2,
+                "target_hunk": 0,
+                "type": "HUNK_RELOC32",
+                "width": 4
+              },
+              "slot_hunk": 1,
+              "slot_offset": 0
+            },
+            "field": 580,
+            "kind": "A4",
+            "original": [
+              0,
+              32836
+            ],
+            "original_slot": {
+              "relocation": {
+                "addend_raw": 32836,
+                "entry_offset": 52568,
+                "record_offset": 51956,
+                "source_hunk": 1,
+                "source_offset": 266,
+                "target_hunk": 0,
+                "type": "HUNK_RELOC32",
+                "width": 4
+              },
+              "slot_hunk": 1,
+              "slot_offset": 264
+            },
+            "site": 578,
+            "symbol": "_strlen",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 588,
+            "target": 664
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 610,
+            "target": 652
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 618,
+            "target": 590
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 622,
+            "target": 516
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 630,
+            "target": 492
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 636,
+            "target": 562
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 640,
+            "target": 500
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 646,
+            "target": 508
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 650,
+            "target": 600
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 672,
+            "target": 680
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 684,
+            "target": 790
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 694,
+            "target": 706
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 704,
+            "target": 752
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 712,
+            "target": 752
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 740,
+            "target": 752
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 752,
+            "target": 776
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 766,
+            "target": 772
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 770,
+            "target": 744
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 788,
+            "target": 754
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 794,
+            "target": 828
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 818,
+            "target": 824
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 822,
+            "target": 744
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 834,
+            "target": 846
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 844,
+            "target": 796
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 858,
+            "target": 900
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 860,
+            "target": 886
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 874,
+            "target": 882
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 878,
+            "target": 744
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 898,
+            "target": 862
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 900,
+            "target": 924
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 912,
+            "target": 920
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 916,
+            "target": 744
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 924,
+            "target": 168
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 932,
+            "target": 744
+          }
+        ],
+        "provider": "PINNED_SDK_SOURCE",
+        "receipt": "evidence/experiments/runtime-members-natural.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 31732
+    },
+    {
+      "actual_sha256": "ea622d9c60a8a09f6ae3d3c189a2f175b520fdbdf35dc0959896082789fafdec",
+      "end": 31732,
+      "hunk": 0,
+      "id": "runtime_member_printf",
+      "proof": {
+        "member": "printf",
+        "object_sha256s": {
+          "printf": "cdfe9f75ea45fc88931733351eabed174ebda99c5f6a8b0131678c407496c4cc"
+        },
+        "operand_identity": [
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1618
+            ],
+            "field": 14,
+            "kind": "PC",
+            "original": [
+              0,
+              32854
+            ],
+            "site": 12,
+            "symbol": "_putchar",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              638
+            ],
+            "field": 18,
+            "kind": "PC",
+            "original": [
+              0,
+              31874
+            ],
+            "site": 16,
+            "symbol": "_format",
+            "width": 2
+          }
+        ],
+        "provider": "PINNED_LIBRARY_OBJECT",
+        "receipt": "evidence/experiments/runtime-members-natural.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 31704
+    },
+    {
+      "actual_sha256": "2abca1fcfdc467a949e0760419d00707278a73af7dd36a63a216fa8869b6fc29",
+      "end": 11382,
+      "hunk": 1,
+      "id": "runtime_data_format",
+      "proof": {
+        "identity": {
+          "basis": "COMPLETE_COMPILER_LOCAL_DATA",
+          "candidate": [
+            1,
+            28
+          ],
+          "original": [
+            1,
+            11364
+          ],
+          "sha256": "2abca1fcfdc467a949e0760419d00707278a73af7dd36a63a216fa8869b6fc29",
+          "size": 18
+        },
+        "member": "format",
+        "receipt": "evidence/experiments/runtime-members-natural.json",
+        "symbol": "FORMAT_LOCAL_DIGITS"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 11364
+    },
+    {
+      "actual_sha256": "5fd42fe959d06992e2dad6109e38b01ee37d900e75f9fff80c5909f029a2b036",
+      "end": 11512,
+      "hunk": 1,
+      "id": "runtime_data_ctype",
+      "proof": {
+        "identity": {
+          "basis": "UNIQUE_COMPLETE_PINNED_DATA_PAYLOAD",
+          "candidate": [
+            1,
+            46
+          ],
+          "original": [
+            1,
+            11382
+          ],
+          "sha256": "5fd42fe959d06992e2dad6109e38b01ee37d900e75f9fff80c5909f029a2b036",
+          "size": 130
+        },
+        "member": "ctype",
+        "receipt": "evidence/experiments/runtime-members-natural.json",
+        "symbol": "_ctp_"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 11382
+    },
+    {
+      "actual_sha256": "065fb065bdd2767f53e43dde80a6bdc374e4fb84ce04cf36bd9fb519308fe5dd",
+      "end": 11952,
+      "hunk": 1,
+      "id": "runtime_data_getbuff",
+      "proof": {
+        "identity": {
+          "basis": "UNIQUE_COMPLETE_PINNED_DATA_PAYLOAD",
+          "candidate": [
+            1,
+            176
+          ],
+          "original": [
+            1,
+            11512
+          ],
+          "sha256": "065fb065bdd2767f53e43dde80a6bdc374e4fb84ce04cf36bd9fb519308fe5dd",
+          "size": 440
+        },
+        "member": "getbuff",
+        "receipt": "evidence/experiments/runtime-members-natural.json",
+        "symbol": "_Cbuffs"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 11512
+    }
+  ],
   "schema_version": 1,
   "topology": {
     "hunks": 16,
@@ -2733,12 +3661,12 @@
   },
   "totals": {
     "CLASSIFIED_PADDING": 2,
-    "COMPILER_OWNED_DATA": 3872,
-    "PINNED_RUNTIME": 588,
-    "RAW_ORACLE_DEBT": 39002,
+    "COMPILER_OWNED_DATA": 3850,
+    "PINNED_RUNTIME": 2564,
+    "RAW_ORACLE_DEBT": 37206,
     "RECOVERED_ASM": 48,
-    "RECOVERED_C": 142812,
-    "file_RAW_ORACLE_DEBT": 45682,
+    "RECOVERED_C": 142654,
+    "file_RAW_ORACLE_DEBT": 43886,
     "file_size": 193004,
     "initialized_bytes": 186324,
     "overlap": 0,

@@ -69,6 +69,8 @@ class Snapshot:
         from audio_sequence_data import inputs as code_data_inputs
         for name in code_data_inputs(root):read(root / name)
         if strict:
+            from runtime_accounting import input_identity as runtime_input_identity
+            values.update(runtime_input_identity(root))
             from resident_mixed import source_object_inputs
             for name in source_object_inputs(root):read(root / name)
             from startup_recovery import inputs as startup_inputs

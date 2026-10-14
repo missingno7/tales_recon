@@ -18,6 +18,7 @@ from hunk import parse, manx_overlay
 from recovery_evidence import load_promotions,load_terminal_padding
 from repo_paths import canonical_path
 from library_a4 import load_library_a4
+from runtime_accounting import capture_runtime_members, contributions as runtime_contributions, merge_accounting
 
 CATEGORIES = ('RECOVERED_C', 'RECOVERED_ASM', 'COMPILER_OWNED_DATA',
               'PINNED_RUNTIME', 'CLASSIFIED_PADDING', 'RAW_ORACLE_DEBT')
@@ -165,6 +166,7 @@ def capture(root=ROOT):
                                 actual_sha256=row['code_sha256'],library_sha256=library,object_sha256=obj['sha256'],
                                 receipt=receipt_path.relative_to(root).as_posix(),receipt_sha256=sha256(receipt_path.read_bytes())))
     return dict(schema_version=1,game_sha256=sha256(blob),functions=entries,runtime=runtime,
+                runtime_members=capture_runtime_members(root,blob,model),
                 policy='Compiler-produced validation specimens; acceptance authority remains recovery/ledger.json and its receipts.')
 
 
@@ -264,7 +266,15 @@ def build(root=ROOT):
     contributions.extend(load_library_a4(root,blob,model,analysis,promoted,ledger))
     from resident_mixed import accepted_contributions
     contributions.extend(accepted_contributions(root,blob,model,analysis,promoted,ledger))
-    return account(blob,model,contributions)
+    members=capture_runtime_members(root,blob,model)
+    # Legacy compiled.json lacks this optional, fully replayed specimen section.
+    # Once refreshed, it is a further binding and may never silently go stale.
+    if 'runtime_members' in specimens:
+        require(specimens['runtime_members']==members,'runtime member specimens changed')
+    contributions=merge_accounting(contributions,runtime_contributions(members))
+    output,report=account(blob,model,contributions)
+    report['runtime_member_proofs']=[{k:v for k,v in r.items() if k!='actual_hex'} for r in members]
+    return output,report
 
 
 def human(report):

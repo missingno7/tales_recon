@@ -76,7 +76,13 @@ class AccountingTests(unittest.TestCase):
         self.assertEqual(len(output),193004)
         self.assertEqual(t['RECOVERED_C'],sum(v['evidence_extent']['size'] for v in canonical.values())+
                          sum(p['end']-p['start'] for proof in mixed for p in proof['partitions']
-                             if p['language']=='C_COMPILER'))
+                             if p['language']=='C_COMPILER')-
+                         canonical['resident_F_7B24']['evidence_extent']['size'])
+        # Its accepted 158 C / 22 literal proof remains canonical, while the
+        # complete pinned wbparse object is accounted once as runtime.
+        runtime=next(r for r in report['ranges'] if r.get('id')=='runtime_member_wbparse')
+        self.assertEqual((runtime['start'],runtime['end'],runtime['category']),
+                         (0x7b24,0x7bd8,'PINNED_RUNTIME'))
         self.assertEqual(t['RECOVERED_ASM'],sum(p['end']-p['start'] for proof in mixed
                                              for p in proof['partitions'] if p['language']=='ASM'))
         self.assertEqual(ledger_path.read_bytes(),before)

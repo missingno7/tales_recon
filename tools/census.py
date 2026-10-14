@@ -137,6 +137,7 @@ def derive(root, promotion_evidence=None):
             occupied.update(locations)
         runtime_candidate_bytes = len(occupied)
         require(runtime_candidate_bytes == runtime['matched_candidate_bytes'], 'runtime match total inconsistent')
+    overlay_runtime_extent = None
     overlay_path = root/'evidence/experiments/overlay-topology.json'
     if overlay_path.exists():
         overlay_report = json.loads(overlay_path.read_text())
@@ -159,6 +160,10 @@ def derive(root, promotion_evidence=None):
         occupied.update(locations)
         runtime_candidate_bytes = len(occupied)
         natural_overlay_shape_reproduced = True
+        overlay_runtime_extent = (h['number'], start, start+size)
+    from runtime_accounting import capture_runtime_members, candidate_union
+    occupied = candidate_union(occupied, capture_runtime_members(root, exe, model), overlay_runtime_extent)
+    runtime_candidate_bytes = len(occupied)
     tree = manx_overlay(model, exe)
     outputs['evidence/executable/hunks.json'] = {k:v for k,v in model.items() if k != 'relocations'}
     outputs['evidence/executable/relocations.json'] = dict(schema_version=1, count=len(model['relocations']),
