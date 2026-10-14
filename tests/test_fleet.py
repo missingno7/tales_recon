@@ -428,6 +428,23 @@ class RegionTests(unittest.TestCase):
                 claimed = [fleet.claim(f, "w%d" % i)[0] for i in range(4)]
         self.assertEqual({t["id"] for t in claimed if t}, {region["id"], "fn-ov11_F_0160"})
 
+    def test_region_with_untasked_prerequisite_is_not_claimable_until_it_is_canonical(self):
+        tasks, _ = fleet.build_tasks(self.functions, self.items, self.ledger, [])
+        by_id = {t["id"]: t for t in tasks}
+        region = by_id["reg-ov11_0100-0280"]
+        region["origin"]["untasked_prerequisites"] = ["ov11_F_9000"]
+        state = dict(leases={}, completed={}, reopened={}, history=[])
+        self.assertEqual(fleet.task_state(region, state, {}, set(), by_id, 0), "blocked_by_prerequisite")
+        self.assertEqual(fleet.task_state(region, state, {}, {"ov11_F_9000"}, by_id, 0), "open")
+        with tempfile.TemporaryDirectory() as temp:
+            f = fleet.Fleet(Path(temp) / "fleet", "build/test-fleet-" + uuid.uuid4().hex + ".jsonl", Path(temp) / "p")
+            f.dir.mkdir(parents=True)
+            f.tasks.write_text(json.dumps(dict(schema_version=1, tasks=tasks)), encoding="utf-8")
+            with patch.object(fleet, "canonical_ids", return_value=set()):
+                task, reason = fleet.claim(f, "w", task_id=region["id"])
+        self.assertIsNone(task)
+        self.assertIn("blocked_by_prerequisite", reason)
+
     def test_short_form_call_depends_on_unrecovered_bytes_between(self):
         import fleet_regions
         call = dict(offset=0x10, raw="4eba00fc", size=4, mnemonic="jsr", operands="")

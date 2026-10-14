@@ -587,6 +587,10 @@ def task_state(task, state, done, canonical, by_id, at):
         return "leased"
     if task.get("blocked_by_region"):
         return "blocked_by_region"
+    # A prerequisite with no task cannot become canonical through this queue;
+    # leasing the region would only rediscover the structural dependency.
+    if any(d not in canonical for d in task["origin"].get("untasked_prerequisites", ())):
+        return "blocked_by_prerequisite"
     for dep in task.get("dependencies", []):
         dep_task = by_id.get(dep)
         if dep_task is None or not all(t in canonical for t in dep_task["targets"]):
