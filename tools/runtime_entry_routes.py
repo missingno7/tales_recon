@@ -10,7 +10,7 @@ from common import require,sha256,json_bytes
 from repo_paths import canonical_path
 
 INPUT='evidence/contributions/runtime-library-routes.json'
-INPUT_DIGEST='fb5ea5e9d648efa99f7bcab7de0f0727555d0578edd234f3e5482d9d7af4efae'
+INPUT_DIGEST='b900a3e294235ea3b7dac46a8a994cc30b852ebe0f1dd69b04af6bebdf2e4e0b'
 
 
 def export(proof,path,digest):
@@ -47,7 +47,8 @@ def load(root,game_sha256,*,document=None,original=None,audit=False):
         import runtime_natural_members as natural
         import runtime_tail_members as tail
         import runtime_glue_members as glue
-        verifiers={'natural':natural.verify,'tail':tail.verify,'glue':glue.verify}
+        import runtime_stdio_ffp_members as extra
+        verifiers={'natural':natural.verify,'tail':tail.verify,'glue':glue.verify,'stdio_ffp':extra.verify}
         rows={}
         for provider in document['providers']:
             raw=canonical_path(root,provider['path']).read_bytes()

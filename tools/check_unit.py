@@ -255,6 +255,14 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
                 if call['hunk']==df['hunk'] and call['id']!=dep_id and linked_call(call):
                     add_recovered(call['id'])
             return
+        if dep_id in r.get('mixed_source_objects',{}):
+            import mixed_object_dependencies as mixed
+            require(dep_id==mixed.ID,'unsupported mixed same-node dependency: '+dep_id)
+            mixed.recipe(ROOT,r)  # Validate complete retained object, never feed ASM to ordinary C.
+            df,_=validated_function(dep_id)
+            for call in df['direct_callees']:
+                if call['hunk']==df['hunk'] and call['id']!=dep_id and linked_call(call):add_recovered(call['id'])
+            return
         dep=r['functions'].get(dep_id)
         require(dep is not None,'unrecovered same-node dependency: '+dep_id)
         df,_=validated_function(dep_id);text=canonical_path(ROOT,dep['source']).read_text()
@@ -346,6 +354,9 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
     verdict additionally requires every gap-crossing reference to be
     gap-independent; otherwise it is BLOCKED with the layout's reason.
     """
+    if compiled.get('identity',{}).get('mixed_object_dependencies'):
+        import mixed_object_dependencies
+        compiled=mixed_object_dependencies.validate_linked(compiled)
     if natural is None:
         return _compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,source_text,context=context)
     result=_compare_unit(members,names,compiled,a4_bias,owned_code_data,True,source_text,context=context)
@@ -964,6 +975,9 @@ def apply_member_profiles(trial,plan,link_compatibility,single_object=None):
 def compile_trials(trials):
     """A capable queue takes all trials together; direct callers retain the
     legacy per-object-profile dispatcher and unchanged identities."""
+    if any(t.get('mixed_object_dependencies') for t in trials):
+        import queued_oracle
+        return queued_oracle.compile_many(trials)
     if not any(t.get('object_profiles') for t in trials) or getattr(compile_many,'supports_object_profiles',False) is True:
         return compile_many(trials)
     import mixed_profile_oracle
@@ -1015,6 +1029,10 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
             if per_member_profiles:
                 plan,klass=member_profile_plan(members,p,{fid,*(member_sources or ())},profile_hypotheses)
                 trial['profile_record']=apply_member_profiles(trial,plan,klass)
+        import mixed_object_dependencies as mixed
+        dependencies=mixed.derive(members)
+        if dependencies:
+            mixed.configure(trial,dependencies)
         import runtime_member_routes
         routes=runtime_member_routes.derive(members,trial['source'])
         if routes:
@@ -1036,7 +1054,7 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
 def stand_in_summary(trial):
     """Harness stand-in definitions of one trial: merged views and any duplicate name."""
     from compiler_oracle import harness
-    text=harness(trial['source'],trial.get('target_node',1),trial.get('local_functions',()),
+    text=harness(trial['source'],trial.get('target_node',1),trial.get('local_functions',()),entry_function=trial.get('entry_function','recovered'),
                  same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))
     defined=re.findall(r'^'+EXTERN_FUNCTION+r'\s*\{',text,re.M)
     counts={}
@@ -1052,6 +1070,9 @@ def trial_cache_key(trial):
     if trial.get('object_profiles'):
         from mixed_profile_oracle import trial_key
         key=trial_key(trial);return key,cached(key) is not None
+    if trial.get('mixed_object_dependencies'):
+        from queued_oracle import trial_plan
+        key=trial_plan(trial)[0];return key,cached(key) is not None
     objects=object_specs(trial) if trial.get('objects') is not None else None
     key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()),
                  extra_libraries=trial.get('extra_libraries',()),
@@ -1143,6 +1164,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                                         linked_name=names[m['id']]) for m in members],
                   objects=len(trials[0].get('objects') or [None]) if trials else 0,
                   trials=[dict(profile=t['profile'],cache_key=k,cached=c,**stand_in_summary(t),
+                               **({'mixed_object_dependencies':t['mixed_object_dependencies']} if t.get('mixed_object_dependencies') else {}),
                                **({'member_profiles':t['profile_record']['member_profiles'],
                                    'object_profiles':t['profile_record']['object_profiles'],
                                    'mixed_object_profiles':t['profile_record']['mixed_object_profiles']}
@@ -1154,6 +1176,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         return [plan]
     for trial,compiled in zip(trials,compile_trials(trials)):
         record=object_group_record(trial)
+        if trial.get('mixed_object_dependencies'):record['mixed_object_dependencies']=trial['mixed_object_dependencies']
         if trial.get('runtime_library_routes'):record['runtime_library_routes']=trial['runtime_library_routes']
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,
                                       member_sources=member_sources,natural=natural,

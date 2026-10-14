@@ -159,8 +159,8 @@
     "resident": {
       "CLASSIFIED_PADDING": 0,
       "COMPILER_OWNED_DATA": 534,
-      "PINNED_RUNTIME": 5296,
-      "RAW_ORACLE_DEBT": 29558,
+      "PINNED_RUNTIME": 5728,
+      "RAW_ORACLE_DEBT": 29126,
       "RECONSTRUCTED_ASM": 228,
       "RECOVERED_ASM": 48,
       "RECOVERED_C": 12012,
@@ -851,10 +851,45 @@
       "start": 32836
     },
     {
+      "category": "PINNED_RUNTIME",
+      "end": 32876,
+      "hunk": 0,
+      "id": "runtime_extra_putchar",
+      "start": 32854
+    },
+    {
       "category": "RAW_ORACLE_DEBT",
+      "end": 33760,
+      "hunk": 0,
+      "start": 32876
+    },
+    {
+      "category": "PINNED_RUNTIME",
+      "end": 33848,
+      "hunk": 0,
+      "id": "runtime_extra_isatty",
+      "start": 33760
+    },
+    {
+      "category": "PINNED_RUNTIME",
+      "end": 33884,
+      "hunk": 0,
+      "id": "runtime_extra_unlink",
+      "start": 33848
+    },
+    {
+      "category": "PINNED_RUNTIME",
+      "end": 34010,
+      "hunk": 0,
+      "id": "runtime_extra_write",
+      "start": 33884
+    },
+    {
+      "category": "PINNED_RUNTIME",
       "end": 34058,
       "hunk": 0,
-      "start": 32854
+      "id": "runtime_extra_chkabort",
+      "start": 34010
     },
     {
       "category": "PINNED_RUNTIME",
@@ -1537,9 +1572,22 @@
     },
     {
       "category": "RAW_ORACLE_DEBT",
-      "end": 36260,
+      "end": 36146,
       "hunk": 0,
       "start": 36056
+    },
+    {
+      "category": "PINNED_RUNTIME",
+      "end": 36258,
+      "hunk": 0,
+      "id": "runtime_extra_ffp",
+      "start": 36146
+    },
+    {
+      "category": "RAW_ORACLE_DEBT",
+      "end": 36260,
+      "hunk": 0,
+      "start": 36258
     },
     {
       "category": "RAW_ORACLE_DEBT",
@@ -8795,6 +8843,677 @@
       "relocations": [],
       "representation": "RESOLVED_VALIDATION_COMPARISON",
       "start": 36048
+    },
+    {
+      "actual_sha256": "146a95ba78280246356a951848c1e4c7494d6d02a32522308e004d49b625633b",
+      "end": 32876,
+      "hunk": 0,
+      "id": "runtime_extra_putchar",
+      "proof": {
+        "member": "putchar",
+        "object_sha256s": {
+          "putchar": "3f3c3c98fec99d44cbbd92480e0d62a78780de90c3d60f814396d9a312a94c2b"
+        },
+        "operand_identity": [
+          {
+            "addend": 22,
+            "candidate": [
+              1,
+              22
+            ],
+            "field": 6,
+            "kind": "A4",
+            "original": [
+              1,
+              11534
+            ],
+            "site": 4,
+            "symbol": "_Cbuffs",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              22
+            ],
+            "field": 14,
+            "kind": "PC",
+            "original": [
+              0,
+              32876
+            ],
+            "site": 12,
+            "symbol": "_aputc",
+            "width": 2
+          }
+        ],
+        "receipt": "evidence/experiments/runtime-members-stdio-ffp.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 32854
+    },
+    {
+      "actual_sha256": "ec4bd1a4534219b5e8bc4f59f35e34dc7a9a328a0e80c0d47f8ddbc27455dbbf",
+      "end": 33848,
+      "hunk": 0,
+      "id": "runtime_extra_isatty",
+      "proof": {
+        "member": "isatty",
+        "object_sha256s": {
+          "isatty": "e3159f48207f9936514c78b2059acd7217c699380b7e4e5f039d7b2ea01c708a"
+        },
+        "operand_identity": [
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              472
+            ],
+            "field": 18,
+            "kind": "A4",
+            "original": [
+              1,
+              45990
+            ],
+            "site": 16,
+            "symbol": "__devtab",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 24,
+            "target": 40
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              448
+            ],
+            "field": 32,
+            "kind": "A4",
+            "original": [
+              1,
+              11952
+            ],
+            "site": 30,
+            "symbol": "__numdev",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 34,
+            "target": 40
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 38,
+            "target": 54
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              476
+            ],
+            "field": 44,
+            "kind": "A4",
+            "original": [
+              1,
+              46028
+            ],
+            "site": 40,
+            "symbol": "_errno",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              472
+            ],
+            "field": 64,
+            "kind": "A4",
+            "original": [
+              1,
+              45990
+            ],
+            "site": 62,
+            "symbol": "__devtab",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1668
+            ],
+            "field": 72,
+            "kind": "PC",
+            "original": [
+              0,
+              34512
+            ],
+            "site": 70,
+            "symbol": "__IsInteractive",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 78,
+            "target": 84
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 82,
+            "target": 86
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 86,
+            "target": 48
+          }
+        ],
+        "receipt": "evidence/experiments/runtime-members-stdio-ffp.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 33760
+    },
+    {
+      "actual_sha256": "ec5a6f8130fc795bbe5972d53ec3edca8fa846a4bf8fee5c0453f728932b9544",
+      "end": 33884,
+      "hunk": 0,
+      "id": "runtime_extra_unlink",
+      "proof": {
+        "member": "unlink",
+        "object_sha256s": {
+          "unlink": "417430e55574350a32a6ae26cd92e69741672cf5ba61b5902993cfed2877c2cf"
+        },
+        "operand_identity": [
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1648
+            ],
+            "field": 10,
+            "kind": "PC",
+            "original": [
+              0,
+              34484
+            ],
+            "site": 8,
+            "symbol": "__DeleteFile",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 16,
+            "target": 32
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1660
+            ],
+            "field": 20,
+            "kind": "PC",
+            "original": [
+              0,
+              34504
+            ],
+            "site": 18,
+            "symbol": "__IoErr",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              476
+            ],
+            "field": 24,
+            "kind": "A4",
+            "original": [
+              1,
+              46028
+            ],
+            "site": 22,
+            "symbol": "_errno",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 34,
+            "target": 28
+          }
+        ],
+        "receipt": "evidence/experiments/runtime-members-stdio-ffp.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 33848
+    },
+    {
+      "actual_sha256": "86bd06dad952ed18ea504071837b20817f7719c2f3f32b1644e0ea7dbf47449d",
+      "end": 34058,
+      "hunk": 0,
+      "id": "runtime_extra_chkabort",
+      "proof": {
+        "member": "chkabort",
+        "object_sha256s": {
+          "chkabort": "91b8df67955e2da15210e681a8c2e62b6bc26a1bef3f8d2c38e35fa7bbb3be72"
+        },
+        "operand_identity": [
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1780
+            ],
+            "field": 12,
+            "kind": "PC",
+            "original": [
+              0,
+              35372
+            ],
+            "site": 10,
+            "symbol": "__SetSignal",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 24,
+            "target": 44
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              478
+            ],
+            "field": 28,
+            "kind": "A4",
+            "original": [
+              1,
+              45998
+            ],
+            "site": 26,
+            "symbol": "_Enable_Abort",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 30,
+            "target": 40
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1204
+            ],
+            "field": 42,
+            "kind": "PC",
+            "original": [
+              0,
+              34058
+            ],
+            "site": 40,
+            "symbol": "__abort",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 46,
+            "target": 36
+          }
+        ],
+        "receipt": "evidence/experiments/runtime-members-stdio-ffp.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 34010
+    },
+    {
+      "actual_sha256": "aa74acef456d00aeecd41392ac9e10387cce58f75d507fb90167e6dd41e3afd0",
+      "end": 34010,
+      "hunk": 0,
+      "id": "runtime_extra_write",
+      "proof": {
+        "member": "write",
+        "object_sha256s": {
+          "write": "1584021c8d12dd4a23227d28d0f715e17766c7416bda37d4281d18ff2d890cbb"
+        },
+        "operand_identity": [
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1156
+            ],
+            "field": 14,
+            "kind": "PC",
+            "original": [
+              0,
+              34010
+            ],
+            "site": 12,
+            "symbol": "_Chk_Abort",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              472
+            ],
+            "field": 26,
+            "kind": "A4",
+            "original": [
+              1,
+              45990
+            ],
+            "site": 24,
+            "symbol": "__devtab",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 30,
+            "target": 42
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              448
+            ],
+            "field": 34,
+            "kind": "A4",
+            "original": [
+              1,
+              11952
+            ],
+            "site": 32,
+            "symbol": "__numdev",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 36,
+            "target": 42
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 40,
+            "target": 58
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              476
+            ],
+            "field": 46,
+            "kind": "A4",
+            "original": [
+              1,
+              46028
+            ],
+            "site": 42,
+            "symbol": "_errno",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 66,
+            "target": 78
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              476
+            ],
+            "field": 72,
+            "kind": "A4",
+            "original": [
+              1,
+              46028
+            ],
+            "site": 68,
+            "symbol": "_errno",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 76,
+            "target": 50
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1704
+            ],
+            "field": 94,
+            "kind": "PC",
+            "original": [
+              0,
+              34586
+            ],
+            "site": 92,
+            "symbol": "__Write",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 108,
+            "target": 122
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              1660
+            ],
+            "field": 112,
+            "kind": "PC",
+            "original": [
+              0,
+              34504
+            ],
+            "site": 110,
+            "symbol": "__IoErr",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              476
+            ],
+            "field": 116,
+            "kind": "A4",
+            "original": [
+              1,
+              46028
+            ],
+            "site": 114,
+            "symbol": "_errno",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 120,
+            "target": 50
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 124,
+            "target": 50
+          }
+        ],
+        "receipt": "evidence/experiments/runtime-members-stdio-ffp.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 33884
+    },
+    {
+      "actual_sha256": "cacdb1277d7772a22cde6d5be1893f5e5b484b26d66ca1bdcb9e53d27078616e",
+      "end": 36258,
+      "hunk": 0,
+      "id": "runtime_extra_ffp",
+      "proof": {
+        "member": "ffp",
+        "object_sha256s": {
+          "ffp": "971926c062fc74b9298c8365eeee0caf064fb4b27b5f7dfc827f96faf7474e57"
+        },
+        "operand_identity": [
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              0
+            ],
+            "field": 2,
+            "kind": "A4",
+            "original": [
+              1,
+              46034
+            ],
+            "site": 0,
+            "symbol": "_MathBase",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 4,
+            "target": 56
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 12,
+            "target": 80
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              630
+            ],
+            "field": 18,
+            "kind": "PC",
+            "original": [
+              0,
+              35284
+            ],
+            "site": 16,
+            "symbol": "__OpenLibrary",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              0
+            ],
+            "field": 24,
+            "kind": "A4",
+            "original": [
+              1,
+              46034
+            ],
+            "site": 22,
+            "symbol": "_MathBase",
+            "width": 2
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 26,
+            "target": 52
+          },
+          {
+            "kind": "INTERNAL_PC",
+            "site": 34,
+            "target": 96
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              556
+            ],
+            "field": 40,
+            "kind": "PC",
+            "original": [
+              0,
+              34542
+            ],
+            "site": 38,
+            "symbol": "__Output",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              580
+            ],
+            "field": 46,
+            "kind": "PC",
+            "original": [
+              0,
+              34586
+            ],
+            "site": 44,
+            "symbol": "__Write",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              0,
+              112
+            ],
+            "field": 50,
+            "kind": "PC",
+            "original": [
+              0,
+              34058
+            ],
+            "site": 48,
+            "symbol": "__abort",
+            "width": 2
+          },
+          {
+            "addend": 0,
+            "candidate": [
+              1,
+              0
+            ],
+            "field": 68,
+            "kind": "A4",
+            "original": [
+              1,
+              46034
+            ],
+            "site": 66,
+            "symbol": "_MathBase",
+            "width": 2
+          }
+        ],
+        "receipt": "evidence/experiments/runtime-members-stdio-ffp.json"
+      },
+      "relocations": [],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 36146
     }
   ],
   "schema_version": 1,
@@ -8821,13 +9540,13 @@
   "totals": {
     "CLASSIFIED_PADDING": 2,
     "COMPILER_OWNED_DATA": 3884,
-    "PINNED_RUNTIME": 5296,
-    "RAW_ORACLE_DEBT": 32720,
+    "PINNED_RUNTIME": 5728,
+    "RAW_ORACLE_DEBT": 32288,
     "RECONSTRUCTED_ASM": 228,
     "RECOVERED_ASM": 48,
     "RECOVERED_C": 143606,
     "RECOVERED_DATA": 540,
-    "file_RAW_ORACLE_DEBT": 39400,
+    "file_RAW_ORACLE_DEBT": 38968,
     "file_size": 193004,
     "initialized_bytes": 186324,
     "overlap": 0,

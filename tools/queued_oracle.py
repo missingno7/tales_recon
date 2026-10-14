@@ -19,7 +19,7 @@ import file_lock
 import link_line
 
 
-def trial_plan(trial):
+def _ordinary_trial_plan(trial):
     if trial.get('object_profiles'):
         from mixed_profile_oracle import mixed_identity
         return mixed_identity(trial)
@@ -29,6 +29,13 @@ def trial_plan(trial):
                         trial.get('local_functions',()),trial.get('entry_function','recovered'),
                         trial.get('extra_libraries',()),trial.get('same_overlay_exports'),trial.get('resident_data_interfaces'))
     return key,meta,h,objects
+
+
+def trial_plan(trial):
+    if trial.get('mixed_object_dependencies'):
+        from mixed_object_dependencies import plan
+        return plan(trial,_ordinary_trial_plan)
+    return _ordinary_trial_plan(trial)
 
 
 def compile_many(trials):
@@ -86,13 +93,15 @@ def compile_many(trials):
                 commands += [f'{guest}bin/cc <compiler-input.txt >{name}-cc.log -a {flags} {name}.c',
                              f'{guest}bin/as <compiler-input.txt >{name}-as.log -o {name}.o {name}.asm']
                 proxy_args += [f'+o{proxy["node"]}',name+'.o']
+            from mixed_object_dependencies import stage
+            object_names+=stage(item['trial'],source_dir,prefix)
             node=item['trial'].get('target_node',1)
             command,argument_file=link_line.plan(guest,prefix,hp,node,object_names,proxy_args,item['meta'])
             require((argument_file is not None)==('link_argument_file' in item['meta']),'link argument-file decision differs from cache identity')
             if argument_file is not None:
                 (source_dir/argument_file[0]).write_text(argument_file[1],encoding='ascii',newline='\n')
             commands += [command]
-            mapping.append((key,item,prefix,hp,first,2*(len(object_names)+1+len(item['proxies']))+1,idx))
+            mapping.append((key,item,prefix,hp,first,len(commands)-first,idx))
         job=prepare(batch,source_dir,commands,Path('C:/Program Files/WinUAE/winuae64.exe'),aztec36=any(v['trial']['profile'].startswith('aztec36') for v in missing.values()))
         shell=shutil.which('pwsh') or shutil.which('powershell')
         require(shell,'PowerShell not found')
@@ -114,6 +123,9 @@ def compile_many(trials):
                                                     item['trial'].get('entry_function','recovered'),item['meta'].get('same_overlay_exports'),
                                                     **({'resident_data_interfaces':item['meta']['resident_data_interfaces']} if 'resident_data_interfaces' in item['meta'] else {}),
                                                     **({'resident':True} if 'resident_object_extractor_sha256' in item['meta'] else {}))
+                    if item['trial'].get('mixed_object_dependencies'):
+                        from mixed_object_dependencies import validate_linked
+                        validate_linked(dict(receipt,directory=str(dest)))
                 except (FormatError,KeyError,ValueError) as exc:receipt.update(status='EXTRACTION_BLOCKED',error=str(exc))
             receipt['artifacts']=[dict(path=f.name,size=f.stat().st_size,sha256=sha256(f.read_bytes())) for f in sorted(dest.iterdir()) if f.is_file()]
             write_json(dest/'receipt.json',receipt)

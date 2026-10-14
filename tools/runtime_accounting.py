@@ -124,6 +124,24 @@ def _capture_runtime_members(root, blob, model):
             result.append(specimen('runtime_glue_'+row['member'],0,o['offset'],payloads[0],relocations=[],
                 proof=dict(receipt=glue_output,member=row['member'],operand_identity=row['operand_identity'],
                            object_sha256s=row['object_sha256s'])))
+    from runtime_stdio_ffp_members import RECIPE as extra_recipe, OUTPUT as extra_output, verify as extra_verify, producer as extra_producer
+    if canonical_path(root,extra_recipe).exists():
+        doc=json.loads(canonical_path(root,extra_recipe).read_text())
+        report=extra_verify(root,document=doc,original=(blob,model));checked_report(root,extra_output,report)
+        contexts={key:extra_producer(root,doc,key) for key in ('stdio','ffp')}
+        for row in report['contributions']:
+            key='ffp' if row['member']=='ffp' else 'stdio'
+            prefixes=('one-lib','two-lib') if key=='ffp' else ('stdio-one','stdio-two')
+            payloads=[];o=row['original']
+            for prefix in prefixes:
+                b,m,sm=contexts[key][prefix];start=natural.symbol(sm,row['entries'][0]['name'])[1]
+                raw=natural.extent(b,m,0,start,row['size'])
+                payloads.append(resolve_fields(raw,o['offset'],row['operand_identity']))
+            require(payloads[0]==payloads[1] and sha256(payloads[0])==row['code_sha256'],
+                    'stdio/FFP resolved specimens differ')
+            result.append(specimen('runtime_extra_'+row['member'],0,o['offset'],payloads[0],relocations=[],
+                proof=dict(receipt=extra_output,member=row['member'],operand_identity=row['operand_identity'],
+                           object_sha256s=row['object_sha256s'])))
     validate_disjoint(result)
     return json.loads(json.dumps(result))
 
@@ -224,6 +242,8 @@ def input_identity(root):
     from runtime_glue_members import input_identity as glue_identity
     from runtime_entry_routes import INPUT as route_input
     values.update(glue_identity(root))
+    from runtime_stdio_ffp_members import input_identity as extra_identity
+    values.update(extra_identity(root))
     route=canonical_path(root,route_input)
     values[str(route)]=sha256(route.read_bytes()) if route.exists() else None
     return values

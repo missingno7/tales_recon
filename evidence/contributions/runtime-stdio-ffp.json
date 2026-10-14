@@ -1,0 +1,288 @@
+{
+  "anchors": {
+    "resident_F_766C": {
+      "proof": {
+        "path": "recovery/proofs/resident_F_766C.mixed.json",
+        "sha256": "e02cf2f7bacf264849f6d6e2f87a02e5660baf7e4e1b9c4e88bfb3f8b1acf11b"
+      },
+      "source": {
+        "path": "src/recovered/resident/resident_F_766C.c",
+        "sha256": "d9125ac4026fbd37038d1f8bafb36fd82eaa9f4a25f145c17f4f5d1463bf84b1"
+      }
+    },
+    "resident_F_8552": {
+      "proof": {
+        "path": "recovery/proofs/resident_F_8552.mixed.json",
+        "sha256": "5efcdd9e20c0d94a0edd3a18353e5ae310da88a89e69ec44bc7736f6682fe04a"
+      },
+      "source": {
+        "path": "src/recovered/resident/resident_F_8552.c",
+        "sha256": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab"
+      }
+    },
+    "resident_F_8640": {
+      "proof": {
+        "path": "recovery/proofs/resident_F_8640.json",
+        "sha256": "9b2075002abf517e50231a81e1cb603f42072d7fb7c0fe5acf9112b900f47257"
+      },
+      "source": {
+        "path": "src/recovered/resident/resident_F_8640.c",
+        "sha256": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
+      }
+    }
+  },
+  "ffp": {
+    "commands": [
+      "Old2:bin/lb >extract.log Old1:lib/m.lib -x ffp",
+      "Old1:bin/as >ffp-source-as.log -o ffp-source.o ffp.asm",
+      "Old1:bin/as >one-as.log -o one.o one.asm",
+      "Old1:bin/ln >one-lib-ln.log -m -t -o one-lib ffp.o one.o Old1:lib/c.lib Old1:lib/m.lib",
+      "Old1:bin/ln >one-source-ln.log -m -t -o one-source ffp-source.o one.o Old1:lib/c.lib Old1:lib/m.lib",
+      "Old1:bin/as >two-as.log -o two.o two.asm",
+      "Old1:bin/ln >two-lib-ln.log -m -t -o two-lib ffp.o two.o Old1:lib/c.lib Old1:lib/m.lib",
+      "Old1:bin/ln >two-source-ln.log -m -t -o two-source ffp-source.o two.o Old1:lib/c.lib Old1:lib/m.lib"
+    ],
+    "context_sources": {
+      "one.asm": "\tdseg\n\tpublic _MathBase\n_MathBase:\n\tdc.l 0\n\tpublic _ffp_order_control\n_ffp_order_control:\n\tdc.l 0\n",
+      "two.asm": "\tdseg\n\tpublic _ffp_order_control\n_ffp_order_control:\n\tdc.l 0\n\tpublic _MathBase\n_MathBase:\n\tdc.l 0\n"
+    },
+    "contexts": [
+      "one-lib",
+      "one-source",
+      "two-lib",
+      "two-source"
+    ],
+    "job": "build/worker-jobs/sol-glue-tail-ffp-07",
+    "receipt": {
+      "path": "build/worker-jobs/sol-glue-tail-ffp-07/result.json",
+      "sha256": "d3807e5696cb0196d420ba3e41157ff8500e982a09bcdbcd68f6f06123a99f92"
+    },
+    "request": {
+      "path": "build/worker-jobs/sol-glue-tail-ffp-07/request.json",
+      "sha256": "0a6f197bcb60589a322070314acd1185f27dd3eaece3aee20c5707ea081d4621"
+    },
+    "required_steps": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "sdk_sources": {
+      "ffp.asm": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/ffp.arc",
+          "sha256": "9d676eac450df510f4f0283a58d78585223b28d5d7879dd973218a671c85f24e"
+        },
+        "member": "ffp.a68"
+      }
+    },
+    "tools": [
+      "toolchain/installed/aztec-3.6a/SYS1/bin/cc",
+      "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "toolchain/installed/aztec-3.6a/SYS2/bin/lb",
+      "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+      "toolchain/installed/aztec-3.6a/SYS1/lib/m.lib"
+    ],
+    "work": "build/worker-jobs/sol-glue-tail-ffp-07/sys/work"
+  },
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "headers": {
+    "errno.h": {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/include/errno.h",
+      "sha256": "3edf5d5564cef4f1d49f092c4755c81777e0a67a019f023885f49a9adfe84e1e"
+    },
+    "fcntl.h": {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/include/fcntl.h",
+      "sha256": "efe382da20a87e2d279c6ace9b8352183b35876d69691d7575782274c3c9fe45"
+    },
+    "stdio.h": {
+      "path": "toolchain/installed/aztec-3.6a/SYS1/include/stdio.h",
+      "sha256": "2214bc443d0499b8064607005dc5f590fa4d07ceaa21f57d6d8e65d60f6bbdbe"
+    }
+  },
+  "schema_version": 1,
+  "stdio": {
+    "commands": [
+      "set INCLUDE=Old1:include",
+      "Old2:bin/lb >c36-extract.log Old1:lib/c.lib -x putc",
+      "copy putc.o c36-putc.o",
+      "Old1:bin/ln -m -t >c36-link.log -o c36 c36-putc.o Old1:lib/c.lib",
+      "Old2:bin/lb >c32-extract.log Old2:lib/c32.lib -x putc",
+      "copy putc.o c32-putc.o",
+      "Old1:bin/ln -m -t >c32-link.log -o c32 c32-putc.o Old2:lib/c32.lib",
+      "Old2:bin/lb >cl32-extract.log Old2:lib/cl32.lib -x putc",
+      "copy putc.o cl32-putc.o",
+      "Old1:bin/ln -m -t >cl32-link.log -o cl32 cl32-putc.o Old2:lib/cl32.lib",
+      "Tools2:bin/lb >c50-extract.log Tools2:lib/c.lib -x putc",
+      "copy putc.o c50-putc.o",
+      "Tools2:bin/ln -m -t >c50-link.log -o c50 c50-putc.o Tools2:lib/c.lib",
+      "Old1:bin/cc -a -IOld1:include +b -o putc-default.asm putc.c <empty.txt >putc-default-cc.log",
+      "Old1:bin/as -o putc-default.o putc-default.asm >putc-default-as.log",
+      "Old1:bin/ln -m -t -o putc-default putc-default.o Old1:lib/c.lib >putc-default-ln.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o putc-x3.asm putc.c <empty.txt >putc-x3-cc.log",
+      "Old1:bin/as -o putc-x3.o putc-x3.asm >putc-x3-as.log",
+      "Old1:bin/ln -m -t -o putc-x3 putc-x3.o Old1:lib/c.lib >putc-x3-ln.log",
+      "Old1:bin/cc -a -IOld1:include +b +x5 -o putc-x2.asm putc.c <empty.txt >putc-x2-cc.log",
+      "Old1:bin/as -o putc-x2.o putc-x2.asm >putc-x2-as.log",
+      "Old1:bin/ln -m -t -o putc-x2 putc-x2.o Old1:lib/c.lib >putc-x2-ln.log",
+      "Old1:bin/cc -a -IOld1:include +b +x0 -o putc-x1.asm putc.c <empty.txt >putc-x1-cc.log",
+      "Old1:bin/as -o putc-x1.o putc-x1.asm >putc-x1-as.log",
+      "Old1:bin/ln -m -t -o putc-x1 putc-x1.o Old1:lib/c.lib >putc-x1-ln.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o putchar.asm putchar.c <empty.txt >putchar-cc.log",
+      "Old1:bin/as -o putchar-source.o putchar.asm >putchar-as.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o aputc.asm aputc.c <empty.txt >aputc-cc.log",
+      "Old1:bin/as -o aputc-source.o aputc.asm >aputc-as.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o getbuff.asm getbuff.c <empty.txt >getbuff-cc.log",
+      "Old1:bin/as -o getbuff-source.o getbuff.asm >getbuff-as.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o malloc.asm malloc.c <empty.txt >malloc-cc.log",
+      "Old1:bin/as -o malloc-source.o malloc.asm >malloc-as.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o isatty.asm isatty.c <empty.txt >isatty-cc.log",
+      "Old1:bin/as -o isatty-source.o isatty.asm >isatty-as.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o unlink.asm unlink.c <empty.txt >unlink-cc.log",
+      "Old1:bin/as -o unlink-source.o unlink.asm >unlink-as.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o write.asm write.c <empty.txt >write-cc.log",
+      "Old1:bin/as -o write-source.o write.asm >write-as.log",
+      "Old1:bin/cc -a -IOld1:include +b +x3,5 -o chkabort.asm chkabort.c <empty.txt >chkabort-cc.log",
+      "Old1:bin/as -o chkabort-source.o chkabort.asm >chkabort-as.log",
+      "Old1:bin/as -o one.o one.asm >one-as.log",
+      "Old1:bin/ln -m -t -o stdio-one -f one.lnk >stdio-one-ln.log",
+      "Old1:bin/as -o two.o two.asm >two-as.log",
+      "Old1:bin/ln -m -t -o stdio-two -f two.lnk >stdio-two-ln.log"
+    ],
+    "context_sources": {
+      "empty.txt": "\n",
+      "one.asm": "\tdseg\n\tpublic _DOSBase\n_DOSBase:\n\tdc.l 0\n\tpublic _SysBase\n_SysBase:\n\tdc.l 0\n",
+      "one.lnk": "putchar-source.o aputc-source.o putc-x3.o getbuff-source.o malloc-source.o isatty-source.o unlink-source.o write-source.o chkabort-source.o one.o Old1:lib/c.lib",
+      "two.asm": "\tdseg\n\tpublic _SysBase\n_SysBase:\n\tdc.l 0\n\tpublic _DOSBase\n_DOSBase:\n\tdc.l 0\n",
+      "two.lnk": "putchar-source.o aputc-source.o putc-x3.o getbuff-source.o malloc-source.o isatty-source.o unlink-source.o write-source.o chkabort-source.o two.o Old1:lib/c.lib"
+    },
+    "contexts": [
+      "stdio-one",
+      "stdio-two"
+    ],
+    "job": "build/worker-jobs/sol-glue-tail-stdio-10",
+    "members": [
+      "putchar",
+      "aputc",
+      "putc",
+      "getbuff",
+      "malloc",
+      "isatty",
+      "unlink",
+      "write",
+      "chkabort"
+    ],
+    "receipt": {
+      "path": "build/worker-jobs/sol-glue-tail-stdio-10/result.json",
+      "sha256": "ca9b5363374336cff7554109b52467d3d26ab111aab9144349f97e8c37ce5678"
+    },
+    "request": {
+      "path": "build/worker-jobs/sol-glue-tail-stdio-10/request.json",
+      "sha256": "815866080d7af5ceb4b5b592e852ad1ec4176bea8f61bed77bdac1bba454e974"
+    },
+    "required_steps": [
+      16,
+      17,
+      18,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44
+    ],
+    "sdk_sources": {
+      "aputc.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/stdio.arc",
+          "sha256": "6709ab5b35d504276911787c5e8ba4ca3dcf01bb6769c4b0c7c656c9dd5e3e57"
+        },
+        "member": "aputc.c"
+      },
+      "chkabort.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/sysio.arc",
+          "sha256": "5fe66196ea8c93d3c043e16c4cc60a814ad91790c7f0657aeb97e6fe5f557028"
+        },
+        "member": "chkabort.c"
+      },
+      "getbuff.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/stdio.arc",
+          "sha256": "6709ab5b35d504276911787c5e8ba4ca3dcf01bb6769c4b0c7c656c9dd5e3e57"
+        },
+        "member": "getbuff.c"
+      },
+      "isatty.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/sysio.arc",
+          "sha256": "5fe66196ea8c93d3c043e16c4cc60a814ad91790c7f0657aeb97e6fe5f557028"
+        },
+        "member": "isatty.c"
+      },
+      "malloc.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/misc.arc",
+          "sha256": "87d11dd68160b0e4cde4dc0b9b4555189dedc889c677c8189d0f5493fbc701cb"
+        },
+        "member": "malloc.c"
+      },
+      "putc.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/stdio.arc",
+          "sha256": "6709ab5b35d504276911787c5e8ba4ca3dcf01bb6769c4b0c7c656c9dd5e3e57"
+        },
+        "member": "putc.c"
+      },
+      "putchar.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/stdio.arc",
+          "sha256": "6709ab5b35d504276911787c5e8ba4ca3dcf01bb6769c4b0c7c656c9dd5e3e57"
+        },
+        "member": "putchar.c"
+      },
+      "unlink.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/sysio.arc",
+          "sha256": "5fe66196ea8c93d3c043e16c4cc60a814ad91790c7f0657aeb97e6fe5f557028"
+        },
+        "member": "unlink.c"
+      },
+      "write.c": {
+        "archive": {
+          "path": "toolchain/installed/aztec-3.6a/Library Source/sysio.arc",
+          "sha256": "5fe66196ea8c93d3c043e16c4cc60a814ad91790c7f0657aeb97e6fe5f557028"
+        },
+        "member": "write.c"
+      }
+    },
+    "tools": [
+      "toolchain/installed/aztec-3.6a/SYS1/bin/cc",
+      "toolchain/installed/aztec-3.6a/SYS1/bin/as",
+      "toolchain/installed/aztec-3.6a/SYS1/bin/ln",
+      "toolchain/installed/aztec-3.6a/SYS2/bin/lb",
+      "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+      "toolchain/installed/aztec-3.6a/SYS1/lib/m.lib"
+    ],
+    "work": "build/worker-jobs/sol-glue-tail-stdio-10/sys/work"
+  }
+}

@@ -1,5 +1,5 @@
 """Validate curated source-proof inputs independently of generated topology metrics."""
-import json
+import json,re
 from common import require,sha256,json_bytes
 from repo_paths import canonical_path
 
@@ -209,6 +209,10 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
     source=stand_in_source(unit_text,skip)[0] if merged is not None else unit_text
     if unit.get('harness_struct_views'):source=struct_view_source(source)
+    if unit.get('mixed_object_dependencies'):
+        import mixed_object_dependencies as mixed
+        require(unit['mixed_object_dependencies']==compiler.get('mixed_object_dependencies')==mixed.derive([f for f in functions if f['id'] in {m['id'] for m in unit['ordered_members']}]),'mixed dependency receipt does not rederive')
+        source=re.sub(r'\brecovered\b',mixed.ENTRY,source)+'\n'+mixed.header()
     import runtime_member_routes
     runtime_member_routes.replay(unit,source,functions,game_sha256=sha256(blob))
     import resident_interfaces
@@ -509,6 +513,10 @@ def compiled_unit_source_sha256(unit,unit_text,compiler):
         viewed=struct_view_source(derived)
         require(viewed!=derived,'harness struct views do not re-derive from unit.c')
         derived=viewed
+    if unit.get('mixed_object_dependencies'):
+        import mixed_object_dependencies as mixed
+        require(unit['mixed_object_dependencies']==compiler.get('mixed_object_dependencies')==[mixed.recipe()],'mixed dependency source recipe changed')
+        derived=re.sub(r'\brecovered\b',mixed.ENTRY,derived)+'\n'+mixed.header()
     return sha256(derived.encode('ascii'))
 
 
