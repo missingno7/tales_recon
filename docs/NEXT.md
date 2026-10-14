@@ -19,7 +19,15 @@ Waves 13-18 recovered 22 functions; supervisor intake closed four of them
 aliases by library identity, post-literal entries). Every remaining target
 waits on a named structural blocker:
 
-1. CHAR_RETURN_EXTENSION (TOOLCHAIN): 411E, then 404A/4184, the 287C..2D00
+1. CHAR_RETURN_EXTENSION (TOOLCHAIN; 2026-10-14 re-measured): the user approved
+   pinning the PC-hosted Aztec C68K 3.6b ROM cross compiler (6-6-88,
+   toolchain/aztec68k-acquisition.json, run in DOSBox Staging with the
+   windowed SDL driver). It also widens every char return
+   (evidence/experiments/aztec68k-charret.json). 411E is exactly
+   `return *++G_h01_3AB4;` without ext.w, so it is ordinary C from an older
+   Amiga release. No 3.4x/3.2x Amiga release is archived at aztecmuseum.ca,
+   amigacity.xyz or archive.org.
+   Gated: 411E, then 404A/4184, the 287C..2D00
    region and 49A0; ov14 0412/04A8/0540, then ov14_F_0000. All available
    compilers widen char returns, and the game has exactly four bare byte
    returns. This needs another historical Aztec release (3.4 or 3.6 before

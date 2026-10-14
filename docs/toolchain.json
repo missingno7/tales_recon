@@ -211,6 +211,39 @@
       ],
       "validated_disks": 3,
       "version_basis": "Executed cc/as/ln 3.6a banners dated 12-18-87"
+    },
+    {
+      "name": "Manx Aztec C68K 3.6b ROM cross compiler (PC-hosted)",
+      "acquisition_receipt": "toolchain/aztec68k-acquisition.json",
+      "inventory": "evidence/toolchain/aztec68k-3.6b.json",
+      "status": "ACQUIRED_EXECUTED_CHAR_RETURN_WIDENS",
+      "provenance_class": "ANALYSIS_ONLY",
+      "historical_selection_proven": false,
+      "version_basis": "AZTEC.BAT banner: Aztec C68K 3.6b Rom 6-6-88; README: Release 3.6 of the Aztec C68k PC->68k",
+      "host_format": "MS-DOS MZ executables; run only through an isolated DOS emulator",
+      "windows_native": false,
+      "purpose": "Probe CHAR_RETURN_EXTENSION: whether this 3.6b code generator emits bare byte returns (resident_F_411E, ov14 0412/04A8/0540).",
+      "tools": [
+        {
+          "path": "BIN/AS68.EXE",
+          "sha256": "d97b277dd08d436890d6cbb3112520756fdf6f7a033cd52c99083c38092783cd"
+        },
+        {
+          "path": "BIN/C68.EXE",
+          "sha256": "69a8e8012ccc1504da277732a50a855110cdd4201b75850272456f31b14e668f"
+        },
+        {
+          "path": "BIN/LB68.EXE",
+          "sha256": "a7ff7ad0a11ebe598eda2cc85ded3916f5cc9271901eb07201b02c656298e174"
+        },
+        {
+          "path": "BIN/LN68.EXE",
+          "sha256": "065a87c873775262c371a7ea861f680983c175a0287edda1d3cd36362bd832f1"
+        }
+      ],
+      "experiments": [
+        "evidence/experiments/aztec68k-charret.json"
+      ]
     }
   ],
   "cli_parser_frontier": {

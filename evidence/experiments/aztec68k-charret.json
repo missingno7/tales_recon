@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "experiment": "aztec68k-3.6b-char-return",
+  "date": "2026-10-14",
+  "compiler": "Aztec C68K 3.6b Rom 6-6-88 (toolchain/installed/aztec68k-3.6b/BIN/C68.EXE)",
+  "runner": "DOSBox Staging (host-installed, windowed SDL driver; dummy/offscreen drivers cannot create a window)",
+  "command": "C68 -A T.C",
+  "source": "char *gp;\nchar g;\nchar f1() { return *gp; }\nchar f2() { return g; }\nchar f3(c) char c; { return c; }\nint f4() { return *gp; }\n",
+  "source_sha256": "d345df9f9538ec39254efaf4361f74a23d90f9b73f5f0d7a15cdf9e9db53078f",
+  "asm_sha256": "812c9d5b45628bf5ed1c347f83ee29950318e0f31ac2f2f9ed83b56942e21db9",
+  "banner": "Aztec C68K 3.6b Rom 6-6-88  Copyright 1982-88 Manx Software Systems, Inc.",
+  "observations": [
+    "char f(){return *gp;}, char f(){return g;}, char f(c) char c;{return c;} and int f(){return *gp;} all emit move.b ...,d0 then ext.w d0 before the epilogue.",
+    "The cross compiler frames with link a6 and an empty movem register list, unlike the game (link a5)."
+  ],
+  "conclusion": "Refuted: 3.6b (PC-hosted ROM) widens char returns like Amiga 3.6a and 5.0a. resident_F_411E is exactly `return *++G_h01_3AB4;` without ext.w, so it still needs an older Amiga Aztec release (3.4x/3.2x) or other provenance; none was found on aztecmuseum.ca, amigacity.xyz or the archive.org Amiga ADF collections."
+}
