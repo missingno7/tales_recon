@@ -1,5 +1,6 @@
 """One-command exact candidate check. Compiler and emulator details stay behind this API."""
 import argparse
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
@@ -53,16 +54,28 @@ def validated_function(fid):
 
 
 def regression_receipt():
-    """Run the host-only regression suite once; no nested compilation or emulator launch."""
+    """Run the host-only regression suite with safe parallelism when xdist is present."""
     def inputs():
         paths=sorted(list(active_files(ROOT/'tools','.py'))+list(active_files(ROOT/'tests','.py')))
         return {p.relative_to(ROOT).as_posix():sha256(p.read_bytes()) for p in paths}
     before=inputs()
-    tests=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests'],cwd=ROOT,capture_output=True,text=True)
-    require(tests.returncode==0,'promotion regression tests failed: '+tests.stdout+tests.stderr)
+    if importlib.util.find_spec('pytest') is not None and importlib.util.find_spec('xdist') is not None:
+        commands=[
+            [sys.executable,'-m','pytest','-n','16','-q','-p','no:cacheprovider',
+             '--dist=loadscope','-m','not regression_serial','tests'],
+            [sys.executable,'-m','pytest','-q','-p','no:cacheprovider',
+             '-m','regression_serial','tests'],
+        ]
+    else:
+        commands=[[sys.executable,'-m','unittest','discover','-s','tests']]
+    results=[subprocess.run(command,cwd=ROOT,capture_output=True,text=True) for command in commands]
+    output=''.join(result.stdout+result.stderr for result in results)
+    require(all(result.returncode==0 for result in results),
+            'promotion regression tests failed: '+output)
     require(inputs()==before,'regression suite inputs changed during execution; rerun verification')
-    return dict(command='python -m unittest discover -s tests',passed=True,
-                output_sha256=sha256((tests.stdout+tests.stderr).encode()),input_sha256=sha256(json_bytes(before)))
+    display=lambda command:'python '+' '.join(command[1:])
+    return dict(command=' && '.join(display(command) for command in commands),passed=True,
+                output_sha256=sha256(output.encode()),input_sha256=sha256(json_bytes(before)))
 
 
 def promotion_proof(fid,source,report,compiled,f,state,regression):

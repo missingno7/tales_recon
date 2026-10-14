@@ -614,6 +614,13 @@ python -m unittest discover -s tests -v
 python tools/hybrid_image.py --refresh --write
 ```
 
+The promotion regression gate (`check_function.regression_receipt`) runs the same
+suite as two pytest phases when pytest-xdist is installed: xdist-safe tests with
+`-n 16 --dist=loadscope`, then the `regression_serial` tests (shared repository
+state; see `tests/conftest.py`) serially. Without xdist it falls back to serial
+unittest. Per-test outcomes were compared to serial pytest and matched for all
+704 items (660 passed, 44 skipped); wall time fell from 594 s to 180 s.
+
 The normal resident CLI promotion passed the full regression gate.
 Census validates all 156 canonical proofs.
 Hybrid accounting has zero overlap and zero unaccounted file bytes, and refresh
