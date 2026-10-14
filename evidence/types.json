@@ -435,66 +435,6 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
-          "declaration": "extern char G_h01_14E6[1];",
-          "line": 19,
-          "path": "src/recovered/complete-c/ov13_F_0942.c",
-          "shape": {
-            "array": true,
-            "base": "char",
-            "category": "char",
-            "extent": 1,
-            "pointer": false
-          }
-        },
-        "order_sensitive_harness": true,
-        "relation": "ARRAY_SCALAR_VIEW_CONFLICT",
-        "right": {
-          "declaration": "extern char G_h01_14E6;",
-          "line": 19,
-          "path": "src/recovered/ov15/ov15_F_0000.c",
-          "shape": {
-            "array": false,
-            "base": "char",
-            "category": "char",
-            "extent": null,
-            "pointer": false
-          }
-        },
-        "symbol": "G_h01_14E6"
-      },
-      {
-        "disposition": "DIAGNOSTIC; no declaration was changed",
-        "left": {
-          "declaration": "extern char G_h01_14E6[1];",
-          "line": 19,
-          "path": "src/recovered/complete-c/ov13_F_0942.c",
-          "shape": {
-            "array": true,
-            "base": "char",
-            "category": "char",
-            "extent": 1,
-            "pointer": false
-          }
-        },
-        "order_sensitive_harness": true,
-        "relation": "ARRAY_SCALAR_VIEW_CONFLICT",
-        "right": {
-          "declaration": "extern char G_h01_14E6;",
-          "line": 31,
-          "path": "src/recovered/ov15/ov15_F_0C12.c",
-          "shape": {
-            "array": false,
-            "base": "char",
-            "category": "char",
-            "extent": null,
-            "pointer": false
-          }
-        },
-        "symbol": "G_h01_14E6"
-      },
-      {
-        "disposition": "DIAGNOSTIC; no declaration was changed",
-        "left": {
           "declaration": "extern struct Level *G_h01_27E4[1];",
           "line": 8,
           "path": "src/recovered/resident/resident_F_46CE.c",
@@ -3316,36 +3256,6 @@
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
           "declaration": "extern long G_h01_46CE;",
-          "line": 16,
-          "path": "src/recovered/complete-c/ov13_F_0942.c",
-          "shape": {
-            "array": false,
-            "base": "long",
-            "category": "long",
-            "extent": null,
-            "pointer": false
-          }
-        },
-        "order_sensitive_harness": true,
-        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
-        "right": {
-          "declaration": "extern struct BitmapLayout *G_h01_46CE;",
-          "line": 46,
-          "path": "src/recovered/ov04/ov04_F_1E36.c",
-          "shape": {
-            "array": false,
-            "base": "struct BitmapLayout",
-            "category": "pointer",
-            "extent": null,
-            "pointer": true
-          }
-        },
-        "symbol": "G_h01_46CE"
-      },
-      {
-        "disposition": "DIAGNOSTIC; no declaration was changed",
-        "left": {
-          "declaration": "extern long G_h01_46CE;",
           "line": 2,
           "path": "src/recovered/ov04/ov04_F_07CA.c",
           "shape": {
@@ -4451,36 +4361,6 @@
           }
         },
         "symbol": "G_h01_46CE"
-      },
-      {
-        "disposition": "DIAGNOSTIC; no declaration was changed",
-        "left": {
-          "declaration": "extern char *G_h01_46D6;",
-          "line": 18,
-          "path": "src/recovered/complete-c/ov13_F_0942.c",
-          "shape": {
-            "array": false,
-            "base": "char",
-            "category": "pointer",
-            "extent": null,
-            "pointer": true
-          }
-        },
-        "order_sensitive_harness": true,
-        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
-        "right": {
-          "declaration": "extern long G_h01_46D6;",
-          "line": 5,
-          "path": "src/recovered/ov04/ov04_F_1302.c",
-          "shape": {
-            "array": false,
-            "base": "long",
-            "category": "long",
-            "extent": null,
-            "pointer": false
-          }
-        },
-        "symbol": "G_h01_46D6"
       },
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
@@ -20353,22 +20233,21 @@
         "symbol": "G_h01_B3B0"
       }
     ],
-    "declarations_scanned": 2613,
+    "declarations_scanned": 2609,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
       "ABI_COMPATIBLE_INT_SHORT_VIEW": 164,
       "ARRAY_EXTENT_CONFLICT": 3,
-      "ARRAY_SCALAR_VIEW_CONFLICT": 57,
+      "ARRAY_SCALAR_VIEW_CONFLICT": 55,
       "DECLARATION_VIEW_REVIEW": 36,
-      "POINTER_SCALAR_VIEW_CONFLICT": 175,
+      "POINTER_SCALAR_VIEW_CONFLICT": 173,
       "SIGNEDNESS_VIEW_CONFLICT": 9,
       "STORAGE_WIDTH_CONFLICT": 79,
       "STRUCT_VIEW_DIFFERENCE_REVIEW": 155
     },
     "schema_version": 1,
     "source_hashes": {
-      "src/recovered/complete-c/ov13_F_0942.c": "9ec44cb67c12650762811a926e4718383717fcdf217135b66060ce8a0b24c631",
       "src/recovered/ov03/ov03_F_001C.c": "4430515d846a6b33e4bf088ccde23c50e5d76e1c6e7d50ae4114e4fb183f0791",
       "src/recovered/ov03/ov03_F_1500.c": "476cc57c3d4986658f6d75848cd2935706d1a62db74ac273892a2349da2838c6",
       "src/recovered/ov03/ov03_F_154E.c": "d78764027fabb840fdcb355ff239a9a74ecca2d672136a465679207ced4f9277",
@@ -171248,7 +171127,6 @@
       "function_census.py": "ac419558f027793b82b59bf606558cb44fb28a55d3d4e83af1ba19e068ef3750"
     },
     "declaration_source_hashes": {
-      "src/recovered/complete-c/ov13_F_0942.c": "9ec44cb67c12650762811a926e4718383717fcdf217135b66060ce8a0b24c631",
       "src/recovered/ov03/ov03_F_001C.c": "4430515d846a6b33e4bf088ccde23c50e5d76e1c6e7d50ae4114e4fb183f0791",
       "src/recovered/ov03/ov03_F_1500.c": "476cc57c3d4986658f6d75848cd2935706d1a62db74ac273892a2349da2838c6",
       "src/recovered/ov03/ov03_F_154E.c": "d78764027fabb840fdcb355ff239a9a74ecca2d672136a465679207ced4f9277",
