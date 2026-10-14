@@ -24,6 +24,7 @@ OUTPUT = 'evidence/experiments/runtime-members.json'
 RELOCATED_OUTPUT = 'evidence/experiments/runtime-members-relocated.json'
 NATURAL_OUTPUT = 'evidence/experiments/runtime-members-natural.json'
 TAIL_OUTPUT = 'evidence/experiments/runtime-members-tail.json'
+GLUE_OUTPUT = 'evidence/experiments/runtime-members-glue.json'
 SEGLOAD_RELOCATIONS = [
     dict(offset=0x28, type='HUNK_RELOC32', width=4,
          target=dict(kind='ROOT_HUNK_ORIGIN', hunk=0, type='CODE', addend=8)),
@@ -220,8 +221,10 @@ if __name__ == '__main__':
     mode.add_argument('--relocated', action='store_true')
     mode.add_argument('--natural-routes', action='store_true')
     mode.add_argument('--tail-leaves', action='store_true')
+    mode.add_argument('--glue-tail', action='store_true')
     args = ap.parse_args()
-    result = analyze_tail() if args.tail_leaves else analyze_natural() if args.natural_routes else analyze_relocated() if args.relocated else analyze()
-    output = TAIL_OUTPUT if args.tail_leaves else NATURAL_OUTPUT if args.natural_routes else RELOCATED_OUTPUT if args.relocated else OUTPUT
+    from runtime_glue_members import verify as glue_verify
+    result = glue_verify(ROOT) if args.glue_tail else analyze_tail() if args.tail_leaves else analyze_natural() if args.natural_routes else analyze_relocated() if args.relocated else analyze()
+    output = GLUE_OUTPUT if args.glue_tail else TAIL_OUTPUT if args.tail_leaves else NATURAL_OUTPUT if args.natural_routes else RELOCATED_OUTPUT if args.relocated else OUTPUT
     write_json(ROOT / output, result)
     print(json.dumps(dict(status=result['status'], contributions=[(c['member'], c['original'], c['size']) for c in result['contributions']])))

@@ -19,11 +19,24 @@ class RuntimeAccountingTests(unittest.TestCase):
         cls.blob=files['DT1:DuckTales']
         cls.rows=r.capture_runtime_members(ROOT,cls.blob,cls.model)
 
+    # 76 complete Aztec 3.6a c.lib DOS/exec/graphics glue objects (sol-glue-tail
+    # report member table; 1,076 bytes). Fifteen already-credited members are excluded.
+    GLUE=[(0x868c,4),(0x8690,12),(0x869c,12),(0x86a8,12),(0x86b4,12),(0x86c0,8),(0x86c8,8),(0x86d0,12),(0x86dc,
+        4),(0x86e0,14),(0x86ee,8),(0x86f6,4),(0x86fa,14),(0x8708,4),(0x870c,14),(0x871a,14),(0x8728,14),
+        (0x8736,14),(0x8744,24),(0x875c,16),(0x876c,12),(0x8778,12),(0x8866,12),(0x8872,12),(0x8938,18),
+        (0x894a,22),(0x8970,4),(0x8974,8),(0x8990,12),(0x899c,12),(0x89a8,18),(0x89ba,22),(0x89e4,8),(0x89ec,
+        14),(0x89fa,12),(0x8a06,12),(0x8a12,12),(0x8a1e,14),(0x8a2c,14),(0x8a3a,12),(0x8a46,34),(0x8a68,34),
+        (0x8a8a,18),(0x8a9c,12),(0x8aa8,18),(0x8aba,12),(0x8ac6,12),(0x8ad2,12),(0x8ade,12),(0x8aea,12),
+        (0x8b20,18),(0x8b32,12),(0x8b4c,18),(0x8b6a,12),(0x8b76,18),(0x8b88,16),(0x8b98,16),(0x8ba8,16),
+        (0x8bb8,16),(0x8bc8,16),(0x8bd8,18),(0x8bea,26),(0x8c04,12),(0x8c10,18),(0x8c22,14),(0x8c30,12),
+        (0x8c3c,12),(0x8c48,30),(0x8c66,8),(0x8c6e,16),(0x8c7e,8),(0x8c86,18),(0x8c98,30),(0x8cb6,14),(0x8cc4,
+        12),(0x8cd0,8)]
+
     def test_complete_extents_and_serialization(self):
         self.assertEqual([(x['hunk'],x['start'],x['end']-x['start']) for x in self.rows],
             [(0,0x7978,244),(0,0x7b24,180),(0,0x7bf4,936),(0,0x7bd8,28),
              (0,0x704e,112),(0,0x70be,1124),(0,0x850a,42),(0,0x8794,210),(0,0x887e,40),(0,0x88a6,128),
-             (1,0x2c64,18),(1,0x2c76,130),(1,0x2cf8,440)])
+             (1,0x2c64,18),(1,0x2c76,130),(1,0x2cf8,440)]+[(0,a,n) for a,n in self.GLUE])
         self.assertEqual(self.rows,json.loads(json.dumps(self.rows)))
         for c in r.contributions(self.rows):
             h=next(h for h in self.model['hunks'] if h['number']==c['hunk'])
@@ -76,7 +89,7 @@ class RuntimeAccountingTests(unittest.TestCase):
     def test_topology_segload_counts_once_and_data_is_separate(self):
         occupied={(0,i) for i in range(0x7978,0x7a6c)}
         union=r.candidate_union(occupied,self.rows,(0,0x7978,0x7a6c))
-        self.assertEqual(len(union),244+180+936+28+1656)
+        self.assertEqual(len(union),244+180+936+28+1656+sum(n for _,n in self.GLUE))
         self.assertTrue(all(hn==0 for hn,_ in union))
         for extent in (None,(0,0x7978,0x7a6a)):
             with self.assertRaises(FormatError):r.candidate_union(occupied,self.rows,extent)

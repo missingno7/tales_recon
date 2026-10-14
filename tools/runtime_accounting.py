@@ -106,6 +106,24 @@ def _capture_runtime_members(root, blob, model):
         hn,off=ids[0]['original']
         result.append(specimen('runtime_data_'+member,hn,off,payloads[0],relocations=[],
             proof=dict(receipt=natural.OUTPUT,member=member,symbol=symbol,identity=ids[0])))
+    from runtime_glue_members import RECIPE as glue_recipe, OUTPUT as glue_output, verify as glue_verify, producer as glue_producer
+    if canonical_path(root,glue_recipe).exists():
+        glue_doc=json.loads(canonical_path(root,glue_recipe).read_text())
+        glue=glue_verify(root,document=glue_doc,original=(blob,model))
+        checked_report(root,glue_output,glue)
+        glue_contexts,_=glue_producer(root,glue_doc)
+        for row in glue['contributions']:
+            if not row['accounting']:continue  # Already credited whole library objects.
+            payloads=[];o=row['original'];entry=row['entries'][0]['name']
+            for prefix in ('one-lib','two-lib'):
+                b,m,sm=glue_contexts[prefix];start=natural.symbol(sm,entry)[1]
+                raw=natural.extent(b,m,0,start,row['size'])
+                payloads.append(resolve_fields(raw,o['offset'],row['operand_identity']))
+            require(payloads[0]==payloads[1] and sha256(payloads[0])==row['code_sha256'],
+                    'runtime glue resolved specimens differ')
+            result.append(specimen('runtime_glue_'+row['member'],0,o['offset'],payloads[0],relocations=[],
+                proof=dict(receipt=glue_output,member=row['member'],operand_identity=row['operand_identity'],
+                           object_sha256s=row['object_sha256s'])))
     validate_disjoint(result)
     return json.loads(json.dumps(result))
 
@@ -203,4 +221,9 @@ def input_identity(root):
         other=json.loads(candidate_path(root,root/claim['path']).read_text())
         emulator=Path(other['emulator']).resolve()
         values[str(emulator)]=sha256(emulator.read_bytes())
+    from runtime_glue_members import input_identity as glue_identity
+    from runtime_entry_routes import INPUT as route_input
+    values.update(glue_identity(root))
+    route=canonical_path(root,route_input)
+    values[str(route)]=sha256(route.read_bytes()) if route.exists() else None
     return values

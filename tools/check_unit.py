@@ -236,9 +236,9 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     # that identity (synthetic fixtures) has no library entries to route.
     runtime=runtime_dependencies(l) if 'game_sha256' in l else {}
     def linked_call(call):
-        if (call.get('basis')=='PC_RELATIVE' and
+        if (call.get('basis') in {'PC_RELATIVE','A4_RELOCATED_JMP_STUB','A4_OVERLAY_TRAMPOLINE'} and
                 runtime.get((call.get('hunk'),call.get('offset')),{}).get('kind')=='LIBRARY_MEMBER'):
-            return False  # Exact exported entry only; interior offsets remain unresolved.
+            return False  # Exact entry only. A4 calls retain the existing independently bound slot path; interior offsets remain unresolved.
         return not local_calls_only or call.get('basis')=='PC_RELATIVE'
     if member_sources:
         parts[fid]=new_part(source)

@@ -251,6 +251,10 @@ def account(blob, model, contributions):
                        policy='RAW_ORACLE_DEBT never counts as reconstructed. No natural layout or closure proof is granted.')
 
 
+from evidence_snapshot import scoped
+
+
+@scoped
 def build(root=ROOT):
     blob,model,_=game();analysis=json.loads((root/'evidence/functions/ledger.json').read_text())
     promoted=load_promotions(root,blob,model,analysis);by={f['id']:f for f in analysis['functions']}

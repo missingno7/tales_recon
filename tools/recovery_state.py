@@ -99,6 +99,11 @@ def runtime_dependencies(ledger):
                     symbol=entry['name'],member=contribution['member'],extent=dict(extent),profiles=[contribution['profile']],
                     evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
                     source_contract='Call the pinned library entry; relocation identity rechecks at comparison.')
+    from runtime_entry_routes import load as entry_routes
+    for key,item in entry_routes(ROOT,ledger['game_sha256']).items():
+        require(key not in result or (result[key]['kind']=='LIBRARY_MEMBER' and result[key]['symbol']==item['symbol']),
+                'conflicting complete runtime route')
+        result.setdefault(key,item)
     return result
 
 

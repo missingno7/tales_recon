@@ -1,0 +1,3729 @@
+{
+  "anchors": {
+    "ov04_F_1E36": {
+      "proof": "recovery/proofs/ov04_F_1E36.json",
+      "proof_sha256": "d52e85d5b084516304112c8432ee0586a41d064492aba8801a7f35c5344cdcdd",
+      "source": "src/recovered/ov04/ov04_F_1E36.c",
+      "source_sha256": "5213fb9622ebaada9615432085c1bd584728935b05aa4f454f433157ab08ccf7"
+    },
+    "resident_F_7B24": {
+      "proof": "recovery/proofs/resident_F_7B24.json",
+      "proof_sha256": "610ae23fa981de7cbcdea78527ab71d003e3d9a95036cdc2f17d8c0fb603ffb4",
+      "source": "src/recovered/resident/resident_F_7B24.c",
+      "source_sha256": "1e3e2cccae6a62d7e9d43962999166766abe47a8ea645905c55b0150d0f2564a"
+    }
+  },
+  "archives": [
+    {
+      "path": "toolchain/installed/aztec-3.6a/Library Source/dos.arc",
+      "sha256": "18c0f44ba64e05761483c12f45ddd46b2da26453962127d4f02fe05dec36fc86"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/Library Source/exec.arc",
+      "sha256": "9d6a62b0ddafd602e1563e9141585c89c076f7a50e21e75e850c9bc876556d46"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/Library Source/graphics.arc",
+      "sha256": "707a6b294bcdf29eaf0a17e4fbf30b9533c06e97487f933e2a65d81164272c34"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/Library Source/intuit.arc",
+      "sha256": "9f45e1977d5a87e7e63961962d8cad94b33b48b6bbce7802e4dfb5840badcbc0"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/Library Source/layers.arc",
+      "sha256": "694f00dee670aa0a41f251446fc3c85fa3e3eff4dc6dbb050e8f3f403e549a4d"
+    },
+    {
+      "path": "toolchain/installed/aztec-3.6a/Library Source/icon.arc",
+      "sha256": "575d6edb5a4fe0bfc0606b3e0dac7867c06399ec8e35ababd9d36b9ea9c69459"
+    }
+  ],
+  "bases": [
+    "_DOSBase",
+    "_SysBase",
+    "_GfxBase",
+    "_IntuitionBase",
+    "_LayersBase",
+    "_IconBase"
+  ],
+  "commands": [
+    "Old2:bin/lb >extract.log Old1:lib/c.lib -x",
+    "Old1:bin/as >_close-as.log -o _close-source.o _close.asm",
+    "Old1:bin/as >_current-as.log -o _current-source.o _current.asm",
+    "Old1:bin/as >_deletef-as.log -o _deletef-source.o _deletef.asm",
+    "Old1:bin/as >_examine-as.log -o _examine-source.o _examine.asm",
+    "Old1:bin/as >_exit-as.log -o _exit-source.o _exit.asm",
+    "Old1:bin/as >_input-as.log -o _input-source.o _input.asm",
+    "Old1:bin/as >_ioerr-as.log -o _ioerr-source.o _ioerr.asm",
+    "Old1:bin/as >_isinter-as.log -o _isinter-source.o _isinter.asm",
+    "Old1:bin/as >_lock-as.log -o _lock-source.o _lock.asm",
+    "Old1:bin/as >_open-as.log -o _open-source.o _open.asm",
+    "Old1:bin/as >_output-as.log -o _output-source.o _output.asm",
+    "Old1:bin/as >_read-as.log -o _read-source.o _read.asm",
+    "Old1:bin/as >_rename-as.log -o _rename-source.o _rename.asm",
+    "Old1:bin/as >_seek-as.log -o _seek-source.o _seek.asm",
+    "Old1:bin/as >_unlock-as.log -o _unlock-source.o _unlock.asm",
+    "Old1:bin/as >_write-as.log -o _write-source.o _write.asm",
+    "Old1:bin/as >close-as.log -o close-source.o close.asm",
+    "Old1:bin/as >createdi-as.log -o createdi-source.o createdi.asm",
+    "Old1:bin/as >createpr-as.log -o createpr-source.o createpr.asm",
+    "Old1:bin/as >currentd-as.log -o currentd-source.o currentd.asm",
+    "Old1:bin/as >datestam-as.log -o datestam-source.o datestam.asm",
+    "Old1:bin/as >delay-as.log -o delay-source.o delay.asm",
+    "Old1:bin/as >deletefi-as.log -o deletefi-source.o deletefi.asm",
+    "Old1:bin/as >devicepr-as.log -o devicepr-source.o devicepr.asm",
+    "Old1:bin/as >duplock-as.log -o duplock-source.o duplock.asm",
+    "Old1:bin/as >examine-as.log -o examine-source.o examine.asm",
+    "Old1:bin/as >execute-as.log -o execute-source.o execute.asm",
+    "Old1:bin/as >exit-as.log -o exit-source.o exit.asm",
+    "Old1:bin/as >exnext-as.log -o exnext-source.o exnext.asm",
+    "Old1:bin/as >getpack-as.log -o getpack-source.o getpack.asm",
+    "Old1:bin/as >info-as.log -o info-source.o info.asm",
+    "Old1:bin/as >input-as.log -o input-source.o input.asm",
+    "Old1:bin/as >ioerr-as.log -o ioerr-source.o ioerr.asm",
+    "Old1:bin/as >isintera-as.log -o isintera-source.o isintera.asm",
+    "Old1:bin/as >loadseg-as.log -o loadseg-source.o loadseg.asm",
+    "Old1:bin/as >lock-as.log -o lock-source.o lock.asm",
+    "Old1:bin/as >open-as.log -o open-source.o open.asm",
+    "Old1:bin/as >output-as.log -o output-source.o output.asm",
+    "Old1:bin/as >parentdi-as.log -o parentdi-source.o parentdi.asm",
+    "Old1:bin/as >queuepac-as.log -o queuepac-source.o queuepac.asm",
+    "Old1:bin/as >read-as.log -o read-source.o read.asm",
+    "Old1:bin/as >rename-as.log -o rename-source.o rename.asm",
+    "Old1:bin/as >seek-as.log -o seek-source.o seek.asm",
+    "Old1:bin/as >setcomme-as.log -o setcomme-source.o setcomme.asm",
+    "Old1:bin/as >setprote-as.log -o setprote-source.o setprote.asm",
+    "Old1:bin/as >unloadse-as.log -o unloadse-source.o unloadse.asm",
+    "Old1:bin/as >unlock-as.log -o unlock-source.o unlock.asm",
+    "Old1:bin/as >waitforc-as.log -o waitforc-source.o waitforc.asm",
+    "Old1:bin/as >write-as.log -o write-source.o write.asm",
+    "Old1:bin/as >_allocme-as.log -o _allocme-source.o _allocme.asm",
+    "Old1:bin/as >_closeli-as.log -o _closeli-source.o _closeli.asm",
+    "Old1:bin/as >_findtas-as.log -o _findtas-source.o _findtas.asm",
+    "Old1:bin/as >_forbid-as.log -o _forbid-source.o _forbid.asm",
+    "Old1:bin/as >_freemem-as.log -o _freemem-source.o _freemem.asm",
+    "Old1:bin/as >_getmsg-as.log -o _getmsg-source.o _getmsg.asm",
+    "Old1:bin/as >_openlib-as.log -o _openlib-source.o _openlib.asm",
+    "Old1:bin/as >_replyms-as.log -o _replyms-source.o _replyms.asm",
+    "Old1:bin/as >_setsign-as.log -o _setsign-source.o _setsign.asm",
+    "Old1:bin/as >_waitpor-as.log -o _waitpor-source.o _waitpor.asm",
+    "Old1:bin/as >abortio-as.log -o abortio-source.o abortio.asm",
+    "Old1:bin/as >adddevic-as.log -o adddevic-source.o adddevic.asm",
+    "Old1:bin/as >addhead-as.log -o addhead-source.o addhead.asm",
+    "Old1:bin/as >addintse-as.log -o addintse-source.o addintse.asm",
+    "Old1:bin/as >addlibra-as.log -o addlibra-source.o addlibra.asm",
+    "Old1:bin/as >addmemli-as.log -o addmemli-source.o addmemli.asm",
+    "Old1:bin/as >addport-as.log -o addport-source.o addport.asm",
+    "Old1:bin/as >addresou-as.log -o addresou-source.o addresou.asm",
+    "Old1:bin/as >addsemap-as.log -o addsemap-source.o addsemap.asm",
+    "Old1:bin/as >addtail-as.log -o addtail-source.o addtail.asm",
+    "Old1:bin/as >addtask-as.log -o addtask-source.o addtask.asm",
+    "Old1:bin/as >alert-as.log -o alert-source.o alert.asm",
+    "Old1:bin/as >allocabs-as.log -o allocabs-source.o allocabs.asm",
+    "Old1:bin/as >allocate-as.log -o allocate-source.o allocate.asm",
+    "Old1:bin/as >allocent-as.log -o allocent-source.o allocent.asm",
+    "Old1:bin/as >allocmem-as.log -o allocmem-source.o allocmem.asm",
+    "Old1:bin/as >allocsig-as.log -o allocsig-source.o allocsig.asm",
+    "Old1:bin/as >alloctra-as.log -o alloctra-source.o alloctra.asm",
+    "Old1:bin/as >attempts-as.log -o attempts-source.o attempts.asm",
+    "Old1:bin/as >availmem-as.log -o availmem-source.o availmem.asm",
+    "Old1:bin/as >beginio-as.log -o beginio-source.o beginio.asm",
+    "Old1:bin/as >cause-as.log -o cause-source.o cause.asm",
+    "Old1:bin/as >checkio-as.log -o checkio-source.o checkio.asm",
+    "Old1:bin/as >closedev-as.log -o closedev-source.o closedev.asm",
+    "Old1:bin/as >closelib-as.log -o closelib-source.o closelib.asm",
+    "Old1:bin/as >copymem-as.log -o copymem-source.o copymem.asm",
+    "Old1:bin/as >copymemq-as.log -o copymemq-source.o copymemq.asm",
+    "Old1:bin/as >dealloca-as.log -o dealloca-source.o dealloca.asm",
+    "Old1:bin/as >debug-as.log -o debug-source.o debug.asm",
+    "Old1:bin/as >disable-as.log -o disable-source.o disable.asm",
+    "Old1:bin/as >doio-as.log -o doio-source.o doio.asm",
+    "Old1:bin/as >enable-as.log -o enable-source.o enable.asm",
+    "Old1:bin/as >enqueue-as.log -o enqueue-source.o enqueue.asm",
+    "Old1:bin/as >findname-as.log -o findname-source.o findname.asm",
+    "Old1:bin/as >findport-as.log -o findport-source.o findport.asm",
+    "Old1:bin/as >findresi-as.log -o findresi-source.o findresi.asm",
+    "Old1:bin/as >findsema-as.log -o findsema-source.o findsema.asm",
+    "Old1:bin/as >findtask-as.log -o findtask-source.o findtask.asm",
+    "Old1:bin/as >forbid-as.log -o forbid-source.o forbid.asm",
+    "Old1:bin/as >freeentr-as.log -o freeentr-source.o freeentr.asm",
+    "Old1:bin/as >freemem-as.log -o freemem-source.o freemem.asm",
+    "Old1:bin/as >freesign-as.log -o freesign-source.o freesign.asm",
+    "Old1:bin/as >freetrap-as.log -o freetrap-source.o freetrap.asm",
+    "Old1:bin/as >getcc-as.log -o getcc-source.o getcc.asm",
+    "Old1:bin/as >getmsg-as.log -o getmsg-source.o getmsg.asm",
+    "Old1:bin/as >initcode-as.log -o initcode-source.o initcode.asm",
+    "Old1:bin/as >initresi-as.log -o initresi-source.o initresi.asm",
+    "Old1:bin/as >initsema-as.log -o initsema-source.o initsema.asm",
+    "Old1:bin/as >initstru-as.log -o initstru-source.o initstru.asm",
+    "Old1:bin/as >insert-as.log -o insert-source.o insert.asm",
+    "Old1:bin/as >makefunc-as.log -o makefunc-source.o makefunc.asm",
+    "Old1:bin/as >makelibr-as.log -o makelibr-source.o makelibr.asm",
+    "Old1:bin/as >newlist-as.log -o newlist-source.o newlist.asm",
+    "Old1:bin/as >obtainse-as.log -o obtainse-source.o obtainse.asm",
+    "Old1:bin/as >obtainsl-as.log -o obtainsl-source.o obtainsl.asm",
+    "Old1:bin/as >oldopenl-as.log -o oldopenl-source.o oldopenl.asm",
+    "Old1:bin/as >opendevi-as.log -o opendevi-source.o opendevi.asm",
+    "Old1:bin/as >openlibr-as.log -o openlibr-source.o openlibr.asm",
+    "Old1:bin/as >openreso-as.log -o openreso-source.o openreso.asm",
+    "Old1:bin/as >permit-as.log -o permit-source.o permit.asm",
+    "Old1:bin/as >procure-as.log -o procure-source.o procure.asm",
+    "Old1:bin/as >putmsg-as.log -o putmsg-source.o putmsg.asm",
+    "Old1:bin/as >releasse-as.log -o releasse-source.o releasse.asm",
+    "Old1:bin/as >releassl-as.log -o releassl-source.o releassl.asm",
+    "Old1:bin/as >remdevic-as.log -o remdevic-source.o remdevic.asm",
+    "Old1:bin/as >remhead-as.log -o remhead-source.o remhead.asm",
+    "Old1:bin/as >remintse-as.log -o remintse-source.o remintse.asm",
+    "Old1:bin/as >remlibra-as.log -o remlibra-source.o remlibra.asm",
+    "Old1:bin/as >remove-as.log -o remove-source.o remove.asm",
+    "Old1:bin/as >remport-as.log -o remport-source.o remport.asm",
+    "Old1:bin/as >remresou-as.log -o remresou-source.o remresou.asm",
+    "Old1:bin/as >remsemap-as.log -o remsemap-source.o remsemap.asm",
+    "Old1:bin/as >remtail-as.log -o remtail-source.o remtail.asm",
+    "Old1:bin/as >remtask-as.log -o remtask-source.o remtask.asm",
+    "Old1:bin/as >replymsg-as.log -o replymsg-source.o replymsg.asm",
+    "Old1:bin/as >sendio-as.log -o sendio-source.o sendio.asm",
+    "Old1:bin/as >setexcep-as.log -o setexcep-source.o setexcep.asm",
+    "Old1:bin/as >setfunct-as.log -o setfunct-source.o setfunct.asm",
+    "Old1:bin/as >setintve-as.log -o setintve-source.o setintve.asm",
+    "Old1:bin/as >setsigna-as.log -o setsigna-source.o setsigna.asm",
+    "Old1:bin/as >setsr-as.log -o setsr-source.o setsr.asm",
+    "Old1:bin/as >settaskp-as.log -o settaskp-source.o settaskp.asm",
+    "Old1:bin/as >signal-as.log -o signal-source.o signal.asm",
+    "Old1:bin/as >sumkick-as.log -o sumkick-source.o sumkick.asm",
+    "Old1:bin/as >sumlibra-as.log -o sumlibra-source.o sumlibra.asm",
+    "Old1:bin/as >supersta-as.log -o supersta-source.o supersta.asm",
+    "Old1:bin/as >typeofme-as.log -o typeofme-source.o typeofme.asm",
+    "Old1:bin/as >userstat-as.log -o userstat-source.o userstat.asm",
+    "Old1:bin/as >vacate-as.log -o vacate-source.o vacate.asm",
+    "Old1:bin/as >wait-as.log -o wait-source.o wait.asm",
+    "Old1:bin/as >waitio-as.log -o waitio-source.o waitio.asm",
+    "Old1:bin/as >waitport-as.log -o waitport-source.o waitport.asm",
+    "Old1:bin/as >addanimo-as.log -o addanimo-source.o addanimo.asm",
+    "Old1:bin/as >addbob-as.log -o addbob-source.o addbob.asm",
+    "Old1:bin/as >addfont-as.log -o addfont-source.o addfont.asm",
+    "Old1:bin/as >addvspri-as.log -o addvspri-source.o addvspri.asm",
+    "Old1:bin/as >allocras-as.log -o allocras-source.o allocras.asm",
+    "Old1:bin/as >andrectr-as.log -o andrectr-source.o andrectr.asm",
+    "Old1:bin/as >andregio-as.log -o andregio-source.o andregio.asm",
+    "Old1:bin/as >animate-as.log -o animate-source.o animate.asm",
+    "Old1:bin/as >areadraw-as.log -o areadraw-source.o areadraw.asm",
+    "Old1:bin/as >areaelli-as.log -o areaelli-source.o areaelli.asm",
+    "Old1:bin/as >areaend-as.log -o areaend-source.o areaend.asm",
+    "Old1:bin/as >areamove-as.log -o areamove-source.o areamove.asm",
+    "Old1:bin/as >askfont-as.log -o askfont-source.o askfont.asm",
+    "Old1:bin/as >asksofts-as.log -o asksofts-source.o asksofts.asm",
+    "Old1:bin/as >attemptl-as.log -o attemptl-source.o attemptl.asm",
+    "Old1:bin/as >bltbitma-as.log -o bltbitma-source.o bltbitma.asm",
+    "Old1:bin/as >bltbitrp-as.log -o bltbitrp-source.o bltbitrp.asm",
+    "Old1:bin/as >bltclear-as.log -o bltclear-source.o bltclear.asm",
+    "Old1:bin/as >bltpatte-as.log -o bltpatte-source.o bltpatte.asm",
+    "Old1:bin/as >blttempl-as.log -o blttempl-source.o blttempl.asm",
+    "Old1:bin/as >bmbmrp-as.log -o bmbmrp-source.o bmbmrp.asm",
+    "Old1:bin/as >cbump-as.log -o cbump-source.o cbump.asm",
+    "Old1:bin/as >changesp-as.log -o changesp-source.o changesp.asm",
+    "Old1:bin/as >cleareol-as.log -o cleareol-source.o cleareol.asm",
+    "Old1:bin/as >clearreg-as.log -o clearreg-source.o clearreg.asm",
+    "Old1:bin/as >clearrr-as.log -o clearrr-source.o clearrr.asm",
+    "Old1:bin/as >clearscr-as.log -o clearscr-source.o clearscr.asm",
+    "Old1:bin/as >clipblit-as.log -o clipblit-source.o clipblit.asm",
+    "Old1:bin/as >closefon-as.log -o closefon-source.o closefon.asm",
+    "Old1:bin/as >cmove-as.log -o cmove-source.o cmove.asm",
+    "Old1:bin/as >copysbit-as.log -o copysbit-source.o copysbit.asm",
+    "Old1:bin/as >cwait-as.log -o cwait-source.o cwait.asm",
+    "Old1:bin/as >disownbl-as.log -o disownbl-source.o disownbl.asm",
+    "Old1:bin/as >disposer-as.log -o disposer-source.o disposer.asm",
+    "Old1:bin/as >docollis-as.log -o docollis-source.o docollis.asm",
+    "Old1:bin/as >draw-as.log -o draw-source.o draw.asm",
+    "Old1:bin/as >drawelli-as.log -o drawelli-source.o drawelli.asm",
+    "Old1:bin/as >drawglis-as.log -o drawglis-source.o drawglis.asm",
+    "Old1:bin/as >flood-as.log -o flood-source.o flood.asm",
+    "Old1:bin/as >freecolo-as.log -o freecolo-source.o freecolo.asm",
+    "Old1:bin/as >freecopl-as.log -o freecopl-source.o freecopl.asm",
+    "Old1:bin/as >freecprl-as.log -o freecprl-source.o freecprl.asm",
+    "Old1:bin/as >freegbuf-as.log -o freegbuf-source.o freegbuf.asm",
+    "Old1:bin/as >freerast-as.log -o freerast-source.o freerast.asm",
+    "Old1:bin/as >freespri-as.log -o freespri-source.o freespri.asm",
+    "Old1:bin/as >freevpor-as.log -o freevpor-source.o freevpor.asm",
+    "Old1:bin/as >getcolor-as.log -o getcolor-source.o getcolor.asm",
+    "Old1:bin/as >getgbuff-as.log -o getgbuff-source.o getgbuff.asm",
+    "Old1:bin/as >getrgb4-as.log -o getrgb4-source.o getrgb4.asm",
+    "Old1:bin/as >getsprit-as.log -o getsprit-source.o getsprit.asm",
+    "Old1:bin/as >initarea-as.log -o initarea-source.o initarea.asm",
+    "Old1:bin/as >initbitm-as.log -o initbitm-source.o initbitm.asm",
+    "Old1:bin/as >initgels-as.log -o initgels-source.o initgels.asm",
+    "Old1:bin/as >initgmas-as.log -o initgmas-source.o initgmas.asm",
+    "Old1:bin/as >initmask-as.log -o initmask-source.o initmask.asm",
+    "Old1:bin/as >initrast-as.log -o initrast-source.o initrast.asm",
+    "Old1:bin/as >inittmpr-as.log -o inittmpr-source.o inittmpr.asm",
+    "Old1:bin/as >initview-as.log -o initview-source.o initview.asm",
+    "Old1:bin/as >initvpor-as.log -o initvpor-source.o initvpor.asm",
+    "Old1:bin/as >loadrgb4-as.log -o loadrgb4-source.o loadrgb4.asm",
+    "Old1:bin/as >loadview-as.log -o loadview-source.o loadview.asm",
+    "Old1:bin/as >locklaye-as.log -o locklaye-source.o locklaye.asm",
+    "Old1:bin/as >makevpor-as.log -o makevpor-source.o makevpor.asm",
+    "Old1:bin/as >move-as.log -o move-source.o move.asm",
+    "Old1:bin/as >movespri-as.log -o movespri-source.o movespri.asm",
+    "Old1:bin/as >mrgcop-as.log -o mrgcop-source.o mrgcop.asm",
+    "Old1:bin/as >newregio-as.log -o newregio-source.o newregio.asm",
+    "Old1:bin/as >openfont-as.log -o openfont-source.o openfont.asm",
+    "Old1:bin/as >orrectre-as.log -o orrectre-source.o orrectre.asm",
+    "Old1:bin/as >orregion-as.log -o orregion-source.o orregion.asm",
+    "Old1:bin/as >ownblitt-as.log -o ownblitt-source.o ownblitt.asm",
+    "Old1:bin/as >polydraw-as.log -o polydraw-source.o polydraw.asm",
+    "Old1:bin/as >qblit-as.log -o qblit-source.o qblit.asm",
+    "Old1:bin/as >qbsblit-as.log -o qbsblit-source.o qbsblit.asm",
+    "Old1:bin/as >readpixe-as.log -o readpixe-source.o readpixe.asm",
+    "Old1:bin/as >rectfill-as.log -o rectfill-source.o rectfill.asm",
+    "Old1:bin/as >remfont-as.log -o remfont-source.o remfont.asm",
+    "Old1:bin/as >remibob-as.log -o remibob-source.o remibob.asm",
+    "Old1:bin/as >remvspri-as.log -o remvspri-source.o remvspri.asm",
+    "Old1:bin/as >scrollra-as.log -o scrollra-source.o scrollra.asm",
+    "Old1:bin/as >scrollvp-as.log -o scrollvp-source.o scrollvp.asm",
+    "Old1:bin/as >setapen-as.log -o setapen-source.o setapen.asm",
+    "Old1:bin/as >setbpen-as.log -o setbpen-source.o setbpen.asm",
+    "Old1:bin/as >setcolli-as.log -o setcolli-source.o setcolli.asm",
+    "Old1:bin/as >setdrmd-as.log -o setdrmd-source.o setdrmd.asm",
+    "Old1:bin/as >setfont-as.log -o setfont-source.o setfont.asm",
+    "Old1:bin/as >setrast-as.log -o setrast-source.o setrast.asm",
+    "Old1:bin/as >setrgb4-as.log -o setrgb4-source.o setrgb4.asm",
+    "Old1:bin/as >setrgb4c-as.log -o setrgb4c-source.o setrgb4c.asm",
+    "Old1:bin/as >setsofts-as.log -o setsofts-source.o setsofts.asm",
+    "Old1:bin/as >sortglis-as.log -o sortglis-source.o sortglis.asm",
+    "Old1:bin/as >syncsbit-as.log -o syncsbit-source.o syncsbit.asm",
+    "Old1:bin/as >text-as.log -o text-source.o text.asm",
+    "Old1:bin/as >textleng-as.log -o textleng-source.o textleng.asm",
+    "Old1:bin/as >ucopperl-as.log -o ucopperl-source.o ucopperl.asm",
+    "Old1:bin/as >unlockla-as.log -o unlockla-source.o unlockla.asm",
+    "Old1:bin/as >vbeampos-as.log -o vbeampos-source.o vbeampos.asm",
+    "Old1:bin/as >waitblit-as.log -o waitblit-source.o waitblit.asm",
+    "Old1:bin/as >waitbovp-as.log -o waitbovp-source.o waitbovp.asm",
+    "Old1:bin/as >waittof-as.log -o waittof-source.o waittof.asm",
+    "Old1:bin/as >writepix-as.log -o writepix-source.o writepix.asm",
+    "Old1:bin/as >xorrectr-as.log -o xorrectr-source.o xorrectr.asm",
+    "Old1:bin/as >xorregio-as.log -o xorregio-source.o xorregio.asm",
+    "Old1:bin/as >activgad-as.log -o activgad-source.o activgad.asm",
+    "Old1:bin/as >activwnd-as.log -o activwnd-source.o activwnd.asm",
+    "Old1:bin/as >addgadge-as.log -o addgadge-source.o addgadge.asm",
+    "Old1:bin/as >addglist-as.log -o addglist-source.o addglist.asm",
+    "Old1:bin/as >allocrem-as.log -o allocrem-source.o allocrem.asm",
+    "Old1:bin/as >alohawor-as.log -o alohawor-source.o alohawor.asm",
+    "Old1:bin/as >autorequ-as.log -o autorequ-source.o autorequ.asm",
+    "Old1:bin/as >beginref-as.log -o beginref-source.o beginref.asm",
+    "Old1:bin/as >buildsys-as.log -o buildsys-source.o buildsys.asm",
+    "Old1:bin/as >cleardmr-as.log -o cleardmr-source.o cleardmr.asm",
+    "Old1:bin/as >clearmen-as.log -o clearmen-source.o clearmen.asm",
+    "Old1:bin/as >clearpoi-as.log -o clearpoi-source.o clearpoi.asm",
+    "Old1:bin/as >closescr-as.log -o closescr-source.o closescr.asm",
+    "Old1:bin/as >closewin-as.log -o closewin-source.o closewin.asm",
+    "Old1:bin/as >closewor-as.log -o closewor-source.o closewor.asm",
+    "Old1:bin/as >currentt-as.log -o currentt-source.o currentt.asm",
+    "Old1:bin/as >displaya-as.log -o displaya-source.o displaya.asm",
+    "Old1:bin/as >displayb-as.log -o displayb-source.o displayb.asm",
+    "Old1:bin/as >doublecl-as.log -o doublecl-source.o doublecl.asm",
+    "Old1:bin/as >drawbord-as.log -o drawbord-source.o drawbord.asm",
+    "Old1:bin/as >drawimag-as.log -o drawimag-source.o drawimag.asm",
+    "Old1:bin/as >endrefre-as.log -o endrefre-source.o endrefre.asm",
+    "Old1:bin/as >endreque-as.log -o endreque-source.o endreque.asm",
+    "Old1:bin/as >freereme-as.log -o freereme-source.o freereme.asm",
+    "Old1:bin/as >freesysr-as.log -o freesysr-source.o freesysr.asm",
+    "Old1:bin/as >getdefpr-as.log -o getdefpr-source.o getdefpr.asm",
+    "Old1:bin/as >getprefs-as.log -o getprefs-source.o getprefs.asm",
+    "Old1:bin/as >getscree-as.log -o getscree-source.o getscree.asm",
+    "Old1:bin/as >initrequ-as.log -o initrequ-source.o initrequ.asm",
+    "Old1:bin/as >intuitex-as.log -o intuitex-source.o intuitex.asm",
+    "Old1:bin/as >intuitio-as.log -o intuitio-source.o intuitio.asm",
+    "Old1:bin/as >itemaddr-as.log -o itemaddr-source.o itemaddr.asm",
+    "Old1:bin/as >lockibas-as.log -o lockibas-source.o lockibas.asm",
+    "Old1:bin/as >makescre-as.log -o makescre-source.o makescre.asm",
+    "Old1:bin/as >modifyid-as.log -o modifyid-source.o modifyid.asm",
+    "Old1:bin/as >modifypr-as.log -o modifypr-source.o modifypr.asm",
+    "Old1:bin/as >movescre-as.log -o movescre-source.o movescre.asm",
+    "Old1:bin/as >movewind-as.log -o movewind-source.o movewind.asm",
+    "Old1:bin/as >newmodif-as.log -o newmodif-source.o newmodif.asm",
+    "Old1:bin/as >offgadge-as.log -o offgadge-source.o offgadge.asm",
+    "Old1:bin/as >offmenu-as.log -o offmenu-source.o offmenu.asm",
+    "Old1:bin/as >ongadget-as.log -o ongadget-source.o ongadget.asm",
+    "Old1:bin/as >onmenu-as.log -o onmenu-source.o onmenu.asm",
+    "Old1:bin/as >openintu-as.log -o openintu-source.o openintu.asm",
+    "Old1:bin/as >openscre-as.log -o openscre-source.o openscre.asm",
+    "Old1:bin/as >openwind-as.log -o openwind-source.o openwind.asm",
+    "Old1:bin/as >openwork-as.log -o openwork-source.o openwork.asm",
+    "Old1:bin/as >printite-as.log -o printite-source.o printite.asm",
+    "Old1:bin/as >refreshf-as.log -o refreshf-source.o refreshf.asm",
+    "Old1:bin/as >refreshg-as.log -o refreshg-source.o refreshg.asm",
+    "Old1:bin/as >refreshl-as.log -o refreshl-source.o refreshl.asm",
+    "Old1:bin/as >remakedi-as.log -o remakedi-source.o remakedi.asm",
+    "Old1:bin/as >removega-as.log -o removega-source.o removega.asm",
+    "Old1:bin/as >removegl-as.log -o removegl-source.o removegl.asm",
+    "Old1:bin/as >reportmo-as.log -o reportmo-source.o reportmo.asm",
+    "Old1:bin/as >request-as.log -o request-source.o request.asm",
+    "Old1:bin/as >rethinkd-as.log -o rethinkd-source.o rethinkd.asm",
+    "Old1:bin/as >screen2b-as.log -o screen2b-source.o screen2b.asm",
+    "Old1:bin/as >screen2f-as.log -o screen2f-source.o screen2f.asm",
+    "Old1:bin/as >setdmreq-as.log -o setdmreq-source.o setdmreq.asm",
+    "Old1:bin/as >setmenus-as.log -o setmenus-source.o setmenus.asm",
+    "Old1:bin/as >setpoint-as.log -o setpoint-source.o setpoint.asm",
+    "Old1:bin/as >setprefs-as.log -o setprefs-source.o setprefs.asm",
+    "Old1:bin/as >setwindo-as.log -o setwindo-source.o setwindo.asm",
+    "Old1:bin/as >showtitl-as.log -o showtitl-source.o showtitl.asm",
+    "Old1:bin/as >sizewind-as.log -o sizewind-source.o sizewind.asm",
+    "Old1:bin/as >unlockib-as.log -o unlockib-source.o unlockib.asm",
+    "Old1:bin/as >viewaddr-as.log -o viewaddr-source.o viewaddr.asm",
+    "Old1:bin/as >viewport-as.log -o viewport-source.o viewport.asm",
+    "Old1:bin/as >wbench2b-as.log -o wbench2b-source.o wbench2b.asm",
+    "Old1:bin/as >wbench2f-as.log -o wbench2f-source.o wbench2f.asm",
+    "Old1:bin/as >window2b-as.log -o window2b-source.o window2b.asm",
+    "Old1:bin/as >window2f-as.log -o window2f-source.o window2f.asm",
+    "Old1:bin/as >windowli-as.log -o windowli-source.o windowli.asm",
+    "Old1:bin/as >beginupd-as.log -o beginupd-source.o beginupd.asm",
+    "Old1:bin/as >behindla-as.log -o behindla-source.o behindla.asm",
+    "Old1:bin/as >createbe-as.log -o createbe-source.o createbe.asm",
+    "Old1:bin/as >createup-as.log -o createup-source.o createup.asm",
+    "Old1:bin/as >deletela-as.log -o deletela-source.o deletela.asm",
+    "Old1:bin/as >disposel-as.log -o disposel-source.o disposel.asm",
+    "Old1:bin/as >endupdat-as.log -o endupdat-source.o endupdat.asm",
+    "Old1:bin/as >fattenla-as.log -o fattenla-source.o fattenla.asm",
+    "Old1:bin/as >initlaye-as.log -o initlaye-source.o initlaye.asm",
+    "Old1:bin/as >installc-as.log -o installc-source.o installc.asm",
+    "Old1:bin/as >lockinfo-as.log -o lockinfo-source.o lockinfo.asm",
+    "Old1:bin/as >locklays-as.log -o locklays-source.o locklays.asm",
+    "Old1:bin/as >movefron-as.log -o movefron-source.o movefron.asm",
+    "Old1:bin/as >movelaye-as.log -o movelaye-source.o movelaye.asm",
+    "Old1:bin/as >newlayer-as.log -o newlayer-source.o newlayer.asm",
+    "Old1:bin/as >scrollla-as.log -o scrollla-source.o scrollla.asm",
+    "Old1:bin/as >sizelaye-as.log -o sizelaye-source.o sizelaye.asm",
+    "Old1:bin/as >swapbits-as.log -o swapbits-source.o swapbits.asm",
+    "Old1:bin/as >thinlaye-as.log -o thinlaye-source.o thinlaye.asm",
+    "Old1:bin/as >unlockin-as.log -o unlockin-source.o unlockin.asm",
+    "Old1:bin/as >unlockls-as.log -o unlockls-source.o unlockls.asm",
+    "Old1:bin/as >upfrontl-as.log -o upfrontl-source.o upfrontl.asm",
+    "Old1:bin/as >whichlay-as.log -o whichlay-source.o whichlay.asm",
+    "Old1:bin/as >addfreel-as.log -o addfreel-source.o addfreel.asm",
+    "Old1:bin/as >allocwbo-as.log -o allocwbo-source.o allocwbo.asm",
+    "Old1:bin/as >bumprevi-as.log -o bumprevi-source.o bumprevi.asm",
+    "Old1:bin/as >findtool-as.log -o findtool-source.o findtool.asm",
+    "Old1:bin/as >freedisk-as.log -o freedisk-source.o freedisk.asm",
+    "Old1:bin/as >freefree-as.log -o freefree-source.o freefree.asm",
+    "Old1:bin/as >freewbob-as.log -o freewbob-source.o freewbob.asm",
+    "Old1:bin/as >getdisko-as.log -o getdisko-source.o getdisko.asm",
+    "Old1:bin/as >geticon-as.log -o geticon-source.o geticon.asm",
+    "Old1:bin/as >getwbobj-as.log -o getwbobj-source.o getwbobj.asm",
+    "Old1:bin/as >matchtoo-as.log -o matchtoo-source.o matchtoo.asm",
+    "Old1:bin/as >putdisko-as.log -o putdisko-source.o putdisko.asm",
+    "Old1:bin/as >puticon-as.log -o puticon-source.o puticon.asm",
+    "Old1:bin/as >putwbobj-as.log -o putwbobj-source.o putwbobj.asm",
+    "Old1:bin/as >one-as.log -o one.o one.asm",
+    "Old1:bin/as >two-as.log -o two.o two.asm",
+    "Old1:bin/ln >one-lib.log -m -t -o one-lib -f one-lib.lnk",
+    "Old1:bin/ln >one-source.log -m -t -o one-source -f one-source.lnk",
+    "Old1:bin/ln >two-lib.log -m -t -o two-lib -f two-lib.lnk",
+    "Old1:bin/ln >two-source.log -m -t -o two-source -f two-source.lnk"
+  ],
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "job": "build/worker-jobs/sol-glue-tail-03",
+  "library": {
+    "path": "toolchain/installed/aztec-3.6a/SYS1/lib/c.lib",
+    "sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3"
+  },
+  "producer_members": [
+    {
+      "archive": "dos",
+      "member": "_close"
+    },
+    {
+      "archive": "dos",
+      "member": "_current"
+    },
+    {
+      "archive": "dos",
+      "member": "_deletef"
+    },
+    {
+      "archive": "dos",
+      "member": "_examine"
+    },
+    {
+      "archive": "dos",
+      "member": "_exit"
+    },
+    {
+      "archive": "dos",
+      "member": "_input"
+    },
+    {
+      "archive": "dos",
+      "member": "_ioerr"
+    },
+    {
+      "archive": "dos",
+      "member": "_isinter"
+    },
+    {
+      "archive": "dos",
+      "member": "_lock"
+    },
+    {
+      "archive": "dos",
+      "member": "_open"
+    },
+    {
+      "archive": "dos",
+      "member": "_output"
+    },
+    {
+      "archive": "dos",
+      "member": "_read"
+    },
+    {
+      "archive": "dos",
+      "member": "_rename"
+    },
+    {
+      "archive": "dos",
+      "member": "_seek"
+    },
+    {
+      "archive": "dos",
+      "member": "_unlock"
+    },
+    {
+      "archive": "dos",
+      "member": "_write"
+    },
+    {
+      "archive": "dos",
+      "member": "close"
+    },
+    {
+      "archive": "dos",
+      "member": "createdi"
+    },
+    {
+      "archive": "dos",
+      "member": "createpr"
+    },
+    {
+      "archive": "dos",
+      "member": "currentd"
+    },
+    {
+      "archive": "dos",
+      "member": "datestam"
+    },
+    {
+      "archive": "dos",
+      "member": "delay"
+    },
+    {
+      "archive": "dos",
+      "member": "deletefi"
+    },
+    {
+      "archive": "dos",
+      "member": "devicepr"
+    },
+    {
+      "archive": "dos",
+      "member": "duplock"
+    },
+    {
+      "archive": "dos",
+      "member": "examine"
+    },
+    {
+      "archive": "dos",
+      "member": "execute"
+    },
+    {
+      "archive": "dos",
+      "member": "exit"
+    },
+    {
+      "archive": "dos",
+      "member": "exnext"
+    },
+    {
+      "archive": "dos",
+      "member": "getpack"
+    },
+    {
+      "archive": "dos",
+      "member": "info"
+    },
+    {
+      "archive": "dos",
+      "member": "input"
+    },
+    {
+      "archive": "dos",
+      "member": "ioerr"
+    },
+    {
+      "archive": "dos",
+      "member": "isintera"
+    },
+    {
+      "archive": "dos",
+      "member": "loadseg"
+    },
+    {
+      "archive": "dos",
+      "member": "lock"
+    },
+    {
+      "archive": "dos",
+      "member": "open"
+    },
+    {
+      "archive": "dos",
+      "member": "output"
+    },
+    {
+      "archive": "dos",
+      "member": "parentdi"
+    },
+    {
+      "archive": "dos",
+      "member": "queuepac"
+    },
+    {
+      "archive": "dos",
+      "member": "read"
+    },
+    {
+      "archive": "dos",
+      "member": "rename"
+    },
+    {
+      "archive": "dos",
+      "member": "seek"
+    },
+    {
+      "archive": "dos",
+      "member": "setcomme"
+    },
+    {
+      "archive": "dos",
+      "member": "setprote"
+    },
+    {
+      "archive": "dos",
+      "member": "unloadse"
+    },
+    {
+      "archive": "dos",
+      "member": "unlock"
+    },
+    {
+      "archive": "dos",
+      "member": "waitforc"
+    },
+    {
+      "archive": "dos",
+      "member": "write"
+    },
+    {
+      "archive": "exec",
+      "member": "_allocme"
+    },
+    {
+      "archive": "exec",
+      "member": "_closeli"
+    },
+    {
+      "archive": "exec",
+      "member": "_findtas"
+    },
+    {
+      "archive": "exec",
+      "member": "_forbid"
+    },
+    {
+      "archive": "exec",
+      "member": "_freemem"
+    },
+    {
+      "archive": "exec",
+      "member": "_getmsg"
+    },
+    {
+      "archive": "exec",
+      "member": "_openlib"
+    },
+    {
+      "archive": "exec",
+      "member": "_replyms"
+    },
+    {
+      "archive": "exec",
+      "member": "_setsign"
+    },
+    {
+      "archive": "exec",
+      "member": "_waitpor"
+    },
+    {
+      "archive": "exec",
+      "member": "abortio"
+    },
+    {
+      "archive": "exec",
+      "member": "adddevic"
+    },
+    {
+      "archive": "exec",
+      "member": "addhead"
+    },
+    {
+      "archive": "exec",
+      "member": "addintse"
+    },
+    {
+      "archive": "exec",
+      "member": "addlibra"
+    },
+    {
+      "archive": "exec",
+      "member": "addmemli"
+    },
+    {
+      "archive": "exec",
+      "member": "addport"
+    },
+    {
+      "archive": "exec",
+      "member": "addresou"
+    },
+    {
+      "archive": "exec",
+      "member": "addsemap"
+    },
+    {
+      "archive": "exec",
+      "member": "addtail"
+    },
+    {
+      "archive": "exec",
+      "member": "addtask"
+    },
+    {
+      "archive": "exec",
+      "member": "alert"
+    },
+    {
+      "archive": "exec",
+      "member": "allocabs"
+    },
+    {
+      "archive": "exec",
+      "member": "allocate"
+    },
+    {
+      "archive": "exec",
+      "member": "allocent"
+    },
+    {
+      "archive": "exec",
+      "member": "allocmem"
+    },
+    {
+      "archive": "exec",
+      "member": "allocsig"
+    },
+    {
+      "archive": "exec",
+      "member": "alloctra"
+    },
+    {
+      "archive": "exec",
+      "member": "attempts"
+    },
+    {
+      "archive": "exec",
+      "member": "availmem"
+    },
+    {
+      "archive": "exec",
+      "member": "beginio"
+    },
+    {
+      "archive": "exec",
+      "member": "cause"
+    },
+    {
+      "archive": "exec",
+      "member": "checkio"
+    },
+    {
+      "archive": "exec",
+      "member": "closedev"
+    },
+    {
+      "archive": "exec",
+      "member": "closelib"
+    },
+    {
+      "archive": "exec",
+      "member": "copymem"
+    },
+    {
+      "archive": "exec",
+      "member": "copymemq"
+    },
+    {
+      "archive": "exec",
+      "member": "dealloca"
+    },
+    {
+      "archive": "exec",
+      "member": "debug"
+    },
+    {
+      "archive": "exec",
+      "member": "disable"
+    },
+    {
+      "archive": "exec",
+      "member": "doio"
+    },
+    {
+      "archive": "exec",
+      "member": "enable"
+    },
+    {
+      "archive": "exec",
+      "member": "enqueue"
+    },
+    {
+      "archive": "exec",
+      "member": "findname"
+    },
+    {
+      "archive": "exec",
+      "member": "findport"
+    },
+    {
+      "archive": "exec",
+      "member": "findresi"
+    },
+    {
+      "archive": "exec",
+      "member": "findsema"
+    },
+    {
+      "archive": "exec",
+      "member": "findtask"
+    },
+    {
+      "archive": "exec",
+      "member": "forbid"
+    },
+    {
+      "archive": "exec",
+      "member": "freeentr"
+    },
+    {
+      "archive": "exec",
+      "member": "freemem"
+    },
+    {
+      "archive": "exec",
+      "member": "freesign"
+    },
+    {
+      "archive": "exec",
+      "member": "freetrap"
+    },
+    {
+      "archive": "exec",
+      "member": "getcc"
+    },
+    {
+      "archive": "exec",
+      "member": "getmsg"
+    },
+    {
+      "archive": "exec",
+      "member": "initcode"
+    },
+    {
+      "archive": "exec",
+      "member": "initresi"
+    },
+    {
+      "archive": "exec",
+      "member": "initsema"
+    },
+    {
+      "archive": "exec",
+      "member": "initstru"
+    },
+    {
+      "archive": "exec",
+      "member": "insert"
+    },
+    {
+      "archive": "exec",
+      "member": "makefunc"
+    },
+    {
+      "archive": "exec",
+      "member": "makelibr"
+    },
+    {
+      "archive": "exec",
+      "member": "newlist"
+    },
+    {
+      "archive": "exec",
+      "member": "obtainse"
+    },
+    {
+      "archive": "exec",
+      "member": "obtainsl"
+    },
+    {
+      "archive": "exec",
+      "member": "oldopenl"
+    },
+    {
+      "archive": "exec",
+      "member": "opendevi"
+    },
+    {
+      "archive": "exec",
+      "member": "openlibr"
+    },
+    {
+      "archive": "exec",
+      "member": "openreso"
+    },
+    {
+      "archive": "exec",
+      "member": "permit"
+    },
+    {
+      "archive": "exec",
+      "member": "procure"
+    },
+    {
+      "archive": "exec",
+      "member": "putmsg"
+    },
+    {
+      "archive": "exec",
+      "member": "releasse"
+    },
+    {
+      "archive": "exec",
+      "member": "releassl"
+    },
+    {
+      "archive": "exec",
+      "member": "remdevic"
+    },
+    {
+      "archive": "exec",
+      "member": "remhead"
+    },
+    {
+      "archive": "exec",
+      "member": "remintse"
+    },
+    {
+      "archive": "exec",
+      "member": "remlibra"
+    },
+    {
+      "archive": "exec",
+      "member": "remove"
+    },
+    {
+      "archive": "exec",
+      "member": "remport"
+    },
+    {
+      "archive": "exec",
+      "member": "remresou"
+    },
+    {
+      "archive": "exec",
+      "member": "remsemap"
+    },
+    {
+      "archive": "exec",
+      "member": "remtail"
+    },
+    {
+      "archive": "exec",
+      "member": "remtask"
+    },
+    {
+      "archive": "exec",
+      "member": "replymsg"
+    },
+    {
+      "archive": "exec",
+      "member": "sendio"
+    },
+    {
+      "archive": "exec",
+      "member": "setexcep"
+    },
+    {
+      "archive": "exec",
+      "member": "setfunct"
+    },
+    {
+      "archive": "exec",
+      "member": "setintve"
+    },
+    {
+      "archive": "exec",
+      "member": "setsigna"
+    },
+    {
+      "archive": "exec",
+      "member": "setsr"
+    },
+    {
+      "archive": "exec",
+      "member": "settaskp"
+    },
+    {
+      "archive": "exec",
+      "member": "signal"
+    },
+    {
+      "archive": "exec",
+      "member": "sumkick"
+    },
+    {
+      "archive": "exec",
+      "member": "sumlibra"
+    },
+    {
+      "archive": "exec",
+      "member": "supersta"
+    },
+    {
+      "archive": "exec",
+      "member": "typeofme"
+    },
+    {
+      "archive": "exec",
+      "member": "userstat"
+    },
+    {
+      "archive": "exec",
+      "member": "vacate"
+    },
+    {
+      "archive": "exec",
+      "member": "wait"
+    },
+    {
+      "archive": "exec",
+      "member": "waitio"
+    },
+    {
+      "archive": "exec",
+      "member": "waitport"
+    },
+    {
+      "archive": "graphics",
+      "member": "addanimo"
+    },
+    {
+      "archive": "graphics",
+      "member": "addbob"
+    },
+    {
+      "archive": "graphics",
+      "member": "addfont"
+    },
+    {
+      "archive": "graphics",
+      "member": "addvspri"
+    },
+    {
+      "archive": "graphics",
+      "member": "allocras"
+    },
+    {
+      "archive": "graphics",
+      "member": "andrectr"
+    },
+    {
+      "archive": "graphics",
+      "member": "andregio"
+    },
+    {
+      "archive": "graphics",
+      "member": "animate"
+    },
+    {
+      "archive": "graphics",
+      "member": "areadraw"
+    },
+    {
+      "archive": "graphics",
+      "member": "areaelli"
+    },
+    {
+      "archive": "graphics",
+      "member": "areaend"
+    },
+    {
+      "archive": "graphics",
+      "member": "areamove"
+    },
+    {
+      "archive": "graphics",
+      "member": "askfont"
+    },
+    {
+      "archive": "graphics",
+      "member": "asksofts"
+    },
+    {
+      "archive": "graphics",
+      "member": "attemptl"
+    },
+    {
+      "archive": "graphics",
+      "member": "bltbitma"
+    },
+    {
+      "archive": "graphics",
+      "member": "bltbitrp"
+    },
+    {
+      "archive": "graphics",
+      "member": "bltclear"
+    },
+    {
+      "archive": "graphics",
+      "member": "bltpatte"
+    },
+    {
+      "archive": "graphics",
+      "member": "blttempl"
+    },
+    {
+      "archive": "graphics",
+      "member": "bmbmrp"
+    },
+    {
+      "archive": "graphics",
+      "member": "cbump"
+    },
+    {
+      "archive": "graphics",
+      "member": "changesp"
+    },
+    {
+      "archive": "graphics",
+      "member": "cleareol"
+    },
+    {
+      "archive": "graphics",
+      "member": "clearreg"
+    },
+    {
+      "archive": "graphics",
+      "member": "clearrr"
+    },
+    {
+      "archive": "graphics",
+      "member": "clearscr"
+    },
+    {
+      "archive": "graphics",
+      "member": "clipblit"
+    },
+    {
+      "archive": "graphics",
+      "member": "closefon"
+    },
+    {
+      "archive": "graphics",
+      "member": "cmove"
+    },
+    {
+      "archive": "graphics",
+      "member": "copysbit"
+    },
+    {
+      "archive": "graphics",
+      "member": "cwait"
+    },
+    {
+      "archive": "graphics",
+      "member": "disownbl"
+    },
+    {
+      "archive": "graphics",
+      "member": "disposer"
+    },
+    {
+      "archive": "graphics",
+      "member": "docollis"
+    },
+    {
+      "archive": "graphics",
+      "member": "draw"
+    },
+    {
+      "archive": "graphics",
+      "member": "drawelli"
+    },
+    {
+      "archive": "graphics",
+      "member": "drawglis"
+    },
+    {
+      "archive": "graphics",
+      "member": "flood"
+    },
+    {
+      "archive": "graphics",
+      "member": "freecolo"
+    },
+    {
+      "archive": "graphics",
+      "member": "freecopl"
+    },
+    {
+      "archive": "graphics",
+      "member": "freecprl"
+    },
+    {
+      "archive": "graphics",
+      "member": "freegbuf"
+    },
+    {
+      "archive": "graphics",
+      "member": "freerast"
+    },
+    {
+      "archive": "graphics",
+      "member": "freespri"
+    },
+    {
+      "archive": "graphics",
+      "member": "freevpor"
+    },
+    {
+      "archive": "graphics",
+      "member": "getcolor"
+    },
+    {
+      "archive": "graphics",
+      "member": "getgbuff"
+    },
+    {
+      "archive": "graphics",
+      "member": "getrgb4"
+    },
+    {
+      "archive": "graphics",
+      "member": "getsprit"
+    },
+    {
+      "archive": "graphics",
+      "member": "initarea"
+    },
+    {
+      "archive": "graphics",
+      "member": "initbitm"
+    },
+    {
+      "archive": "graphics",
+      "member": "initgels"
+    },
+    {
+      "archive": "graphics",
+      "member": "initgmas"
+    },
+    {
+      "archive": "graphics",
+      "member": "initmask"
+    },
+    {
+      "archive": "graphics",
+      "member": "initrast"
+    },
+    {
+      "archive": "graphics",
+      "member": "inittmpr"
+    },
+    {
+      "archive": "graphics",
+      "member": "initview"
+    },
+    {
+      "archive": "graphics",
+      "member": "initvpor"
+    },
+    {
+      "archive": "graphics",
+      "member": "loadrgb4"
+    },
+    {
+      "archive": "graphics",
+      "member": "loadview"
+    },
+    {
+      "archive": "layers",
+      "member": "locklaye"
+    },
+    {
+      "archive": "graphics",
+      "member": "makevpor"
+    },
+    {
+      "archive": "graphics",
+      "member": "move"
+    },
+    {
+      "archive": "graphics",
+      "member": "movespri"
+    },
+    {
+      "archive": "graphics",
+      "member": "mrgcop"
+    },
+    {
+      "archive": "graphics",
+      "member": "newregio"
+    },
+    {
+      "archive": "graphics",
+      "member": "openfont"
+    },
+    {
+      "archive": "graphics",
+      "member": "orrectre"
+    },
+    {
+      "archive": "graphics",
+      "member": "orregion"
+    },
+    {
+      "archive": "graphics",
+      "member": "ownblitt"
+    },
+    {
+      "archive": "graphics",
+      "member": "polydraw"
+    },
+    {
+      "archive": "graphics",
+      "member": "qblit"
+    },
+    {
+      "archive": "graphics",
+      "member": "qbsblit"
+    },
+    {
+      "archive": "graphics",
+      "member": "readpixe"
+    },
+    {
+      "archive": "graphics",
+      "member": "rectfill"
+    },
+    {
+      "archive": "graphics",
+      "member": "remfont"
+    },
+    {
+      "archive": "graphics",
+      "member": "remibob"
+    },
+    {
+      "archive": "graphics",
+      "member": "remvspri"
+    },
+    {
+      "archive": "graphics",
+      "member": "scrollra"
+    },
+    {
+      "archive": "graphics",
+      "member": "scrollvp"
+    },
+    {
+      "archive": "graphics",
+      "member": "setapen"
+    },
+    {
+      "archive": "graphics",
+      "member": "setbpen"
+    },
+    {
+      "archive": "graphics",
+      "member": "setcolli"
+    },
+    {
+      "archive": "graphics",
+      "member": "setdrmd"
+    },
+    {
+      "archive": "graphics",
+      "member": "setfont"
+    },
+    {
+      "archive": "graphics",
+      "member": "setrast"
+    },
+    {
+      "archive": "graphics",
+      "member": "setrgb4"
+    },
+    {
+      "archive": "graphics",
+      "member": "setrgb4c"
+    },
+    {
+      "archive": "graphics",
+      "member": "setsofts"
+    },
+    {
+      "archive": "graphics",
+      "member": "sortglis"
+    },
+    {
+      "archive": "graphics",
+      "member": "syncsbit"
+    },
+    {
+      "archive": "graphics",
+      "member": "text"
+    },
+    {
+      "archive": "graphics",
+      "member": "textleng"
+    },
+    {
+      "archive": "graphics",
+      "member": "ucopperl"
+    },
+    {
+      "archive": "layers",
+      "member": "unlockla"
+    },
+    {
+      "archive": "graphics",
+      "member": "vbeampos"
+    },
+    {
+      "archive": "graphics",
+      "member": "waitblit"
+    },
+    {
+      "archive": "graphics",
+      "member": "waitbovp"
+    },
+    {
+      "archive": "graphics",
+      "member": "waittof"
+    },
+    {
+      "archive": "graphics",
+      "member": "writepix"
+    },
+    {
+      "archive": "graphics",
+      "member": "xorrectr"
+    },
+    {
+      "archive": "graphics",
+      "member": "xorregio"
+    },
+    {
+      "archive": "intuit",
+      "member": "activgad"
+    },
+    {
+      "archive": "intuit",
+      "member": "activwnd"
+    },
+    {
+      "archive": "intuit",
+      "member": "addgadge"
+    },
+    {
+      "archive": "intuit",
+      "member": "addglist"
+    },
+    {
+      "archive": "intuit",
+      "member": "allocrem"
+    },
+    {
+      "archive": "intuit",
+      "member": "alohawor"
+    },
+    {
+      "archive": "intuit",
+      "member": "autorequ"
+    },
+    {
+      "archive": "intuit",
+      "member": "beginref"
+    },
+    {
+      "archive": "intuit",
+      "member": "buildsys"
+    },
+    {
+      "archive": "intuit",
+      "member": "cleardmr"
+    },
+    {
+      "archive": "intuit",
+      "member": "clearmen"
+    },
+    {
+      "archive": "intuit",
+      "member": "clearpoi"
+    },
+    {
+      "archive": "intuit",
+      "member": "closescr"
+    },
+    {
+      "archive": "intuit",
+      "member": "closewin"
+    },
+    {
+      "archive": "intuit",
+      "member": "closewor"
+    },
+    {
+      "archive": "intuit",
+      "member": "currentt"
+    },
+    {
+      "archive": "intuit",
+      "member": "displaya"
+    },
+    {
+      "archive": "intuit",
+      "member": "displayb"
+    },
+    {
+      "archive": "intuit",
+      "member": "doublecl"
+    },
+    {
+      "archive": "intuit",
+      "member": "drawbord"
+    },
+    {
+      "archive": "intuit",
+      "member": "drawimag"
+    },
+    {
+      "archive": "intuit",
+      "member": "endrefre"
+    },
+    {
+      "archive": "intuit",
+      "member": "endreque"
+    },
+    {
+      "archive": "intuit",
+      "member": "freereme"
+    },
+    {
+      "archive": "intuit",
+      "member": "freesysr"
+    },
+    {
+      "archive": "intuit",
+      "member": "getdefpr"
+    },
+    {
+      "archive": "intuit",
+      "member": "getprefs"
+    },
+    {
+      "archive": "intuit",
+      "member": "getscree"
+    },
+    {
+      "archive": "intuit",
+      "member": "initrequ"
+    },
+    {
+      "archive": "intuit",
+      "member": "intuitex"
+    },
+    {
+      "archive": "intuit",
+      "member": "intuitio"
+    },
+    {
+      "archive": "intuit",
+      "member": "itemaddr"
+    },
+    {
+      "archive": "intuit",
+      "member": "lockibas"
+    },
+    {
+      "archive": "intuit",
+      "member": "makescre"
+    },
+    {
+      "archive": "intuit",
+      "member": "modifyid"
+    },
+    {
+      "archive": "intuit",
+      "member": "modifypr"
+    },
+    {
+      "archive": "intuit",
+      "member": "movescre"
+    },
+    {
+      "archive": "intuit",
+      "member": "movewind"
+    },
+    {
+      "archive": "intuit",
+      "member": "newmodif"
+    },
+    {
+      "archive": "intuit",
+      "member": "offgadge"
+    },
+    {
+      "archive": "intuit",
+      "member": "offmenu"
+    },
+    {
+      "archive": "intuit",
+      "member": "ongadget"
+    },
+    {
+      "archive": "intuit",
+      "member": "onmenu"
+    },
+    {
+      "archive": "intuit",
+      "member": "openintu"
+    },
+    {
+      "archive": "intuit",
+      "member": "openscre"
+    },
+    {
+      "archive": "intuit",
+      "member": "openwind"
+    },
+    {
+      "archive": "intuit",
+      "member": "openwork"
+    },
+    {
+      "archive": "intuit",
+      "member": "printite"
+    },
+    {
+      "archive": "intuit",
+      "member": "refreshf"
+    },
+    {
+      "archive": "intuit",
+      "member": "refreshg"
+    },
+    {
+      "archive": "intuit",
+      "member": "refreshl"
+    },
+    {
+      "archive": "intuit",
+      "member": "remakedi"
+    },
+    {
+      "archive": "intuit",
+      "member": "removega"
+    },
+    {
+      "archive": "intuit",
+      "member": "removegl"
+    },
+    {
+      "archive": "intuit",
+      "member": "reportmo"
+    },
+    {
+      "archive": "intuit",
+      "member": "request"
+    },
+    {
+      "archive": "intuit",
+      "member": "rethinkd"
+    },
+    {
+      "archive": "intuit",
+      "member": "screen2b"
+    },
+    {
+      "archive": "intuit",
+      "member": "screen2f"
+    },
+    {
+      "archive": "intuit",
+      "member": "setdmreq"
+    },
+    {
+      "archive": "intuit",
+      "member": "setmenus"
+    },
+    {
+      "archive": "intuit",
+      "member": "setpoint"
+    },
+    {
+      "archive": "intuit",
+      "member": "setprefs"
+    },
+    {
+      "archive": "intuit",
+      "member": "setwindo"
+    },
+    {
+      "archive": "intuit",
+      "member": "showtitl"
+    },
+    {
+      "archive": "intuit",
+      "member": "sizewind"
+    },
+    {
+      "archive": "intuit",
+      "member": "unlockib"
+    },
+    {
+      "archive": "intuit",
+      "member": "viewaddr"
+    },
+    {
+      "archive": "intuit",
+      "member": "viewport"
+    },
+    {
+      "archive": "intuit",
+      "member": "wbench2b"
+    },
+    {
+      "archive": "intuit",
+      "member": "wbench2f"
+    },
+    {
+      "archive": "intuit",
+      "member": "window2b"
+    },
+    {
+      "archive": "intuit",
+      "member": "window2f"
+    },
+    {
+      "archive": "intuit",
+      "member": "windowli"
+    },
+    {
+      "archive": "layers",
+      "member": "beginupd"
+    },
+    {
+      "archive": "layers",
+      "member": "behindla"
+    },
+    {
+      "archive": "layers",
+      "member": "createbe"
+    },
+    {
+      "archive": "layers",
+      "member": "createup"
+    },
+    {
+      "archive": "layers",
+      "member": "deletela"
+    },
+    {
+      "archive": "layers",
+      "member": "disposel"
+    },
+    {
+      "archive": "layers",
+      "member": "endupdat"
+    },
+    {
+      "archive": "layers",
+      "member": "fattenla"
+    },
+    {
+      "archive": "layers",
+      "member": "initlaye"
+    },
+    {
+      "archive": "layers",
+      "member": "installc"
+    },
+    {
+      "archive": "layers",
+      "member": "lockinfo"
+    },
+    {
+      "archive": "layers",
+      "member": "locklays"
+    },
+    {
+      "archive": "layers",
+      "member": "movefron"
+    },
+    {
+      "archive": "layers",
+      "member": "movelaye"
+    },
+    {
+      "archive": "layers",
+      "member": "newlayer"
+    },
+    {
+      "archive": "layers",
+      "member": "scrollla"
+    },
+    {
+      "archive": "layers",
+      "member": "sizelaye"
+    },
+    {
+      "archive": "layers",
+      "member": "swapbits"
+    },
+    {
+      "archive": "layers",
+      "member": "thinlaye"
+    },
+    {
+      "archive": "layers",
+      "member": "unlockin"
+    },
+    {
+      "archive": "layers",
+      "member": "unlockls"
+    },
+    {
+      "archive": "layers",
+      "member": "upfrontl"
+    },
+    {
+      "archive": "layers",
+      "member": "whichlay"
+    },
+    {
+      "archive": "icon",
+      "member": "addfreel"
+    },
+    {
+      "archive": "icon",
+      "member": "allocwbo"
+    },
+    {
+      "archive": "icon",
+      "member": "bumprevi"
+    },
+    {
+      "archive": "icon",
+      "member": "findtool"
+    },
+    {
+      "archive": "icon",
+      "member": "freedisk"
+    },
+    {
+      "archive": "icon",
+      "member": "freefree"
+    },
+    {
+      "archive": "icon",
+      "member": "freewbob"
+    },
+    {
+      "archive": "icon",
+      "member": "getdisko"
+    },
+    {
+      "archive": "icon",
+      "member": "geticon"
+    },
+    {
+      "archive": "icon",
+      "member": "getwbobj"
+    },
+    {
+      "archive": "icon",
+      "member": "matchtoo"
+    },
+    {
+      "archive": "icon",
+      "member": "putdisko"
+    },
+    {
+      "archive": "icon",
+      "member": "puticon"
+    },
+    {
+      "archive": "icon",
+      "member": "putwbobj"
+    }
+  ],
+  "receipt": {
+    "path": "build/worker-jobs/sol-glue-tail-03/result.json",
+    "sha256": "1ad9fab5a3ca453765ccc2ed54b3c009d5e98be8f784c5f3332ee56b7a286fa0"
+  },
+  "request": {
+    "path": "build/worker-jobs/sol-glue-tail-03/request.json",
+    "sha256": "4d69c2547b2e3f42b5555a9b275c4cd894a4cf185bff1fcf47a9ce44666c0fa0"
+  },
+  "schema_version": 1,
+  "specs": [
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 194,
+      "entries": [
+        [
+          "_Close",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__Close"
+        }
+      },
+      "member": "close",
+      "original": 34444,
+      "size": 4,
+      "target": "__Close"
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 0,
+      "entries": [
+        [
+          "__Close",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_close",
+      "original": 34448,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 12,
+      "entries": [
+        [
+          "__CurrentDir",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_current",
+      "original": 34460,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 246,
+      "entries": [
+        [
+          "_Delay",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "delay",
+      "original": 34472,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 24,
+      "entries": [
+        [
+          "__DeleteFile",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_deletef",
+      "original": 34484,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 62,
+      "entries": [
+        [
+          "__Input",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_input",
+      "original": 34496,
+      "size": 8
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 70,
+      "entries": [
+        [
+          "__IoErr",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_ioerr",
+      "original": 34504,
+      "size": 8
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 78,
+      "entries": [
+        [
+          "__IsInteractive",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_isinter",
+      "original": 34512,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 376,
+      "entries": [
+        [
+          "_Open",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__Open"
+        }
+      },
+      "member": "open",
+      "original": 34524,
+      "size": 4,
+      "target": "__Open"
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 104,
+      "entries": [
+        [
+          "__Open",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_open",
+      "original": 34528,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 118,
+      "entries": [
+        [
+          "__Output",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_output",
+      "original": 34542,
+      "size": 8
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 408,
+      "entries": [
+        [
+          "_Read",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__Read"
+        }
+      },
+      "member": "read",
+      "original": 34550,
+      "size": 4,
+      "target": "__Read"
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 126,
+      "entries": [
+        [
+          "__Read",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_read",
+      "original": 34554,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 416,
+      "entries": [
+        [
+          "_Seek",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__Seek"
+        }
+      },
+      "member": "seek",
+      "original": 34568,
+      "size": 4,
+      "target": "__Seek"
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 154,
+      "entries": [
+        [
+          "__Seek",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_seek",
+      "original": 34572,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "dos",
+      "candidate_start": 180,
+      "entries": [
+        [
+          "__Write",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_DOSBase"
+        }
+      },
+      "member": "_write",
+      "original": 34586,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 648,
+      "entries": [
+        [
+          "_AddIntServer",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "addintse",
+      "original": 34600,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 724,
+      "entries": [
+        [
+          "_AddTail",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "addtail",
+      "original": 34614,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 762,
+      "entries": [
+        [
+          "_Alert",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "alert",
+      "original": 34628,
+      "size": 24
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 800,
+      "entries": [
+        [
+          "_Allocate",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "allocate",
+      "original": 34652,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 868,
+      "entries": [
+        [
+          "_AvailMem",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "availmem",
+      "original": 34668,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 916,
+      "entries": [
+        [
+          "_CloseDevice",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "closedev",
+      "original": 34680,
+      "size": 12
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 928,
+      "entries": [
+        [
+          "_CloseLibrary",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__CloseLibrary"
+        }
+      },
+      "member": "closelib",
+      "original": 34692,
+      "size": 4,
+      "target": "__CloseLibrary"
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 496,
+      "entries": [
+        [
+          "__CloseLibrary",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_closeli",
+      "original": 34696,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 688,
+      "entries": [
+        [
+          "_AddPort",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "addport",
+      "original": 34918,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 832,
+      "entries": [
+        [
+          "_AllocSignal",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "allocsig",
+      "original": 34930,
+      "size": 12
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 828,
+      "entries": [
+        [
+          "_AllocMem",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__AllocMem"
+        }
+      },
+      "member": "allocmem",
+      "original": 35110,
+      "size": 4,
+      "target": "__AllocMem"
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 482,
+      "entries": [
+        [
+          "__AllocMem",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_allocme",
+      "original": 35114,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 968,
+      "entries": [
+        [
+          "_Deallocate",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "dealloca",
+      "original": 35128,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1002,
+      "entries": [
+        [
+          "_DoIO",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "doio",
+      "original": 35146,
+      "size": 22
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 1096,
+      "entries": [
+        [
+          "_FindTask",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__FindTask"
+        }
+      },
+      "member": "findtask",
+      "original": 35168,
+      "size": 4,
+      "target": "__FindTask"
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 508,
+      "entries": [
+        [
+          "__FindTask",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_findtas",
+      "original": 35172,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1100,
+      "entries": [
+        [
+          "_Forbid",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__Forbid"
+        }
+      },
+      "member": "forbid",
+      "original": 35184,
+      "size": 4,
+      "target": "__Forbid"
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 520,
+      "entries": [
+        [
+          "__Forbid",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_forbid",
+      "original": 35188,
+      "size": 8
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 1116,
+      "entries": [
+        [
+          "_FreeMem",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__FreeMem"
+        }
+      },
+      "member": "freemem",
+      "original": 35196,
+      "size": 4,
+      "target": "__FreeMem"
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 528,
+      "entries": [
+        [
+          "__FreeMem",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_freemem",
+      "original": 35200,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1120,
+      "entries": [
+        [
+          "_FreeSignal",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "freesign",
+      "original": 35216,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 544,
+      "entries": [
+        [
+          "__GetMsg",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_getmsg",
+      "original": 35228,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1288,
+      "entries": [
+        [
+          "_NewList",
+          0
+        ]
+      ],
+      "fields": {},
+      "member": "newlist",
+      "original": 35240,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1342,
+      "entries": [
+        [
+          "_OpenDevice",
+          0
+        ]
+      ],
+      "fields": {
+        "16": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "opendevi",
+      "original": 35258,
+      "size": 22
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 1364,
+      "entries": [
+        [
+          "_OpenLibrary",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "PC",
+          "symbol": "__OpenLibrary"
+        }
+      },
+      "member": "openlibr",
+      "original": 35280,
+      "size": 4,
+      "target": "__OpenLibrary"
+    },
+    {
+      "accounting": false,
+      "archive": "exec",
+      "candidate_start": 556,
+      "entries": [
+        [
+          "__OpenLibrary",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_openlib",
+      "original": 35284,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1384,
+      "entries": [
+        [
+          "_Permit",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "permit",
+      "original": 35300,
+      "size": 8
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1468,
+      "entries": [
+        [
+          "_RemIntServer",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "remintse",
+      "original": 35308,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1506,
+      "entries": [
+        [
+          "_RemPort",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "remport",
+      "original": 35322,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1542,
+      "entries": [
+        [
+          "_RemTail",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "remtail",
+      "original": 35334,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 572,
+      "entries": [
+        [
+          "__ReplyMsg",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_replyms",
+      "original": 35346,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 1616,
+      "entries": [
+        [
+          "_SetIntVector",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "setintve",
+      "original": 35358,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 584,
+      "entries": [
+        [
+          "__SetSignal",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_setsign",
+      "original": 35372,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "exec",
+      "candidate_start": 598,
+      "entries": [
+        [
+          "__WaitPort",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_SysBase"
+        }
+      },
+      "member": "_waitpor",
+      "original": 35386,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2002,
+      "entries": [
+        [
+          "_BltBitMap",
+          0
+        ]
+      ],
+      "fields": {
+        "22": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "bltbitma",
+      "original": 35398,
+      "size": 34
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2036,
+      "entries": [
+        [
+          "_BltBitMapRastPort",
+          0
+        ]
+      ],
+      "fields": {
+        "22": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "bltbitrp",
+      "original": 35432,
+      "size": 34
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2070,
+      "entries": [
+        [
+          "_BltClear",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "bltclear",
+      "original": 35466,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2300,
+      "entries": [
+        [
+          "_CloseFont",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "closefon",
+      "original": 35484,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2394,
+      "entries": [
+        [
+          "_Draw",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "draw",
+      "original": 35496,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2468,
+      "entries": [
+        [
+          "_FreeColorMap",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "freecolo",
+      "original": 35514,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2492,
+      "entries": [
+        [
+          "_FreeCprList",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "freecprl",
+      "original": 35526,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2540,
+      "entries": [
+        [
+          "_FreeSprite",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "freespri",
+      "original": 35538,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2552,
+      "entries": [
+        [
+          "_FreeVPortCopLists",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "freevpor",
+      "original": 35550,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2564,
+      "entries": [
+        [
+          "_GetColorMap",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "getcolor",
+      "original": 35562,
+      "size": 12
+    },
+    {
+      "accounting": false,
+      "archive": "graphics",
+      "candidate_start": 2644,
+      "entries": [
+        [
+          "_InitBitMap",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "initbitm",
+      "original": 35574,
+      "size": 18
+    },
+    {
+      "accounting": false,
+      "archive": "graphics",
+      "candidate_start": 2736,
+      "entries": [
+        [
+          "_InitView",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "initview",
+      "original": 35592,
+      "size": 12
+    },
+    {
+      "accounting": false,
+      "archive": "graphics",
+      "candidate_start": 2748,
+      "entries": [
+        [
+          "_InitVPort",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "initvpor",
+      "original": 35604,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2760,
+      "entries": [
+        [
+          "_LoadRGB4",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "loadrgb4",
+      "original": 35616,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2778,
+      "entries": [
+        [
+          "_LoadView",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "loadview",
+      "original": 35634,
+      "size": 12
+    },
+    {
+      "accounting": false,
+      "archive": "graphics",
+      "candidate_start": 2804,
+      "entries": [
+        [
+          "_MakeVPort",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "makevpor",
+      "original": 35646,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2818,
+      "entries": [
+        [
+          "_Move",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "move",
+      "original": 35660,
+      "size": 18
+    },
+    {
+      "accounting": false,
+      "archive": "graphics",
+      "candidate_start": 2856,
+      "entries": [
+        [
+          "_MrgCop",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "mrgcop",
+      "original": 35678,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2876,
+      "entries": [
+        [
+          "_OpenFont",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "openfont",
+      "original": 35690,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 2984,
+      "entries": [
+        [
+          "_RectFill",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "rectfill",
+      "original": 35702,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3086,
+      "entries": [
+        [
+          "_SetAPen",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "setapen",
+      "original": 35720,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3102,
+      "entries": [
+        [
+          "_SetBPen",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "setbpen",
+      "original": 35736,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3132,
+      "entries": [
+        [
+          "_SetDrMd",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "setdrmd",
+      "original": 35752,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3148,
+      "entries": [
+        [
+          "_SetFont",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "setfont",
+      "original": 35768,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3164,
+      "entries": [
+        [
+          "_SetRast",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "setrast",
+      "original": 35784,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3180,
+      "entries": [
+        [
+          "_SetRGB4",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "setrgb4",
+      "original": 35800,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3258,
+      "entries": [
+        [
+          "_Text",
+          0
+        ]
+      ],
+      "fields": {
+        "14": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "text",
+      "original": 35818,
+      "size": 26
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3348,
+      "entries": [
+        [
+          "_WaitBOVP",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "waitbovp",
+      "original": 35844,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "graphics",
+      "candidate_start": 3368,
+      "entries": [
+        [
+          "_WritePixel",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_GfxBase"
+        }
+      },
+      "member": "writepix",
+      "original": 35856,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "icon",
+      "candidate_start": 4948,
+      "entries": [
+        [
+          "_FindToolType",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_IconBase"
+        }
+      },
+      "member": "findtool",
+      "original": 35874,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "icon",
+      "candidate_start": 4962,
+      "entries": [
+        [
+          "_FreeDiskObject",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_IconBase"
+        }
+      },
+      "member": "freedisk",
+      "original": 35888,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "icon",
+      "candidate_start": 4998,
+      "entries": [
+        [
+          "_GetDiskObject",
+          0
+        ]
+      ],
+      "fields": {
+        "6": {
+          "kind": "A4",
+          "symbol": "_IconBase"
+        }
+      },
+      "member": "getdisko",
+      "original": 35900,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "intuit",
+      "candidate_start": 3520,
+      "entries": [
+        [
+          "_AutoRequest",
+          0
+        ]
+      ],
+      "fields": {
+        "18": {
+          "kind": "A4",
+          "symbol": "_IntuitionBase"
+        }
+      },
+      "member": "autorequ",
+      "original": 35912,
+      "size": 30
+    },
+    {
+      "accounting": true,
+      "archive": "intuit",
+      "candidate_start": 3652,
+      "entries": [
+        [
+          "_CloseWorkBench",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_IntuitionBase"
+        }
+      },
+      "member": "closewor",
+      "original": 35942,
+      "size": 8
+    },
+    {
+      "accounting": true,
+      "archive": "intuit",
+      "candidate_start": 3832,
+      "entries": [
+        [
+          "_GetPrefs",
+          0
+        ]
+      ],
+      "fields": {
+        "10": {
+          "kind": "A4",
+          "symbol": "_IntuitionBase"
+        }
+      },
+      "member": "getprefs",
+      "original": 35950,
+      "size": 16
+    },
+    {
+      "accounting": true,
+      "archive": "intuit",
+      "candidate_start": 4158,
+      "entries": [
+        [
+          "_OpenWorkBench",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_IntuitionBase"
+        }
+      },
+      "member": "openwork",
+      "original": 35966,
+      "size": 8
+    },
+    {
+      "accounting": true,
+      "archive": "intuit",
+      "candidate_start": 4390,
+      "entries": [
+        [
+          "_SetPrefs",
+          0
+        ]
+      ],
+      "fields": {
+        "12": {
+          "kind": "A4",
+          "symbol": "_IntuitionBase"
+        }
+      },
+      "member": "setprefs",
+      "original": 35974,
+      "size": 18
+    },
+    {
+      "accounting": true,
+      "archive": "layers",
+      "candidate_start": 4608,
+      "entries": [
+        [
+          "_CreateUpfrontLayer",
+          0
+        ]
+      ],
+      "fields": {
+        "18": {
+          "kind": "A4",
+          "symbol": "_LayersBase"
+        }
+      },
+      "member": "createup",
+      "original": 35992,
+      "size": 30
+    },
+    {
+      "accounting": true,
+      "archive": "layers",
+      "candidate_start": 4638,
+      "entries": [
+        [
+          "_DeleteLayer",
+          0
+        ]
+      ],
+      "fields": {
+        "8": {
+          "kind": "A4",
+          "symbol": "_LayersBase"
+        }
+      },
+      "member": "deletela",
+      "original": 36022,
+      "size": 14
+    },
+    {
+      "accounting": true,
+      "archive": "layers",
+      "candidate_start": 4652,
+      "entries": [
+        [
+          "_DisposeLayerInfo",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_LayersBase"
+        }
+      },
+      "member": "disposel",
+      "original": 36036,
+      "size": 12
+    },
+    {
+      "accounting": true,
+      "archive": "layers",
+      "candidate_start": 4776,
+      "entries": [
+        [
+          "_NewLayerInfo",
+          0
+        ]
+      ],
+      "fields": {
+        "2": {
+          "kind": "A4",
+          "symbol": "_LayersBase"
+        }
+      },
+      "member": "newlayer",
+      "original": 36048,
+      "size": 8
+    }
+  ],
+  "work": "build/worker-jobs/sol-glue-tail-03/sys/work"
+}

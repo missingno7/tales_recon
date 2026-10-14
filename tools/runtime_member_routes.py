@@ -28,7 +28,7 @@ def derive(members, source, *, game_sha256=None):
             if call.get('basis')!='PC_RELATIVE' or key in local or item.get('kind')!='LIBRARY_MEMBER':continue
             symbol=item['symbol']
             # Private/register-ABI dot entries cannot be guessed into C linkage.
-            if not re.fullmatch(r'_[A-Za-z][A-Za-z_0-9]*',symbol):continue
+            if not re.fullmatch(r'_[A-Za-z_][A-Za-z_0-9]*',symbol):continue
             name='F_h%02d_%04X'%key
             require(re.search(r'\bextern\s+[^;{}]*\b'+name+r'\s*\(\s*\)\s*;',source),
                     'runtime call lacks mechanical extern declaration: '+name)

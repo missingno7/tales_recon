@@ -203,8 +203,16 @@ def region_tasks(regions, canonical):
     return out
 
 
+def runtime_route_ids(functions):
+    """Only exact exported C entries satisfy a region's library prerequisite."""
+    from recovery_state import runtime_dependencies, evidence
+    routes=runtime_dependencies(evidence())
+    return {f['id'] for f in functions if routes.get((f['hunk'],f['start']),{}).get('kind')=='LIBRARY_MEMBER'
+            and re.fullmatch(r'_[A-Za-z_][A-Za-z_0-9]*',routes[(f['hunk'],f['start'])]['symbol'])}
+
+
 def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=1024, max_review_tasks=24,
-                include_abi_blockers=False, hypothesis_functions=(), intakes=(), regions=None, region_context=None):
+                include_abi_blockers=False, hypothesis_functions=(), intakes=(), regions=None, region_context=None, runtime_satisfied=()):
     """Deterministic task list from supplied ledgers (pure helper).
 
     Canonical exact recoveries never become targets. A strongly connected
@@ -390,7 +398,8 @@ def build_tasks(functions, ranked_items, recovery_ledger, packages, max_bytes=10
     for task in tasks:
         if task["kind"] != "region":
             continue
-        external = task["origin"]["region"]["external_prerequisites"]
+        external = [d for d in task["origin"]["region"]["external_prerequisites"]
+                    if d not in runtime_satisfied]
         task["dependencies"] = sorted({final_target[d] for d in external if d in final_target} - {task["id"]})
         untasked = [d for d in external if d not in final_target and d not in canonical]
         if untasked:
@@ -492,7 +501,8 @@ def plan(fleet, max_bytes=1024, max_review_tasks=24, include_abi_blockers=False,
                                     intake_status=item.get("intake_status") or item.get("outcome")))
     tasks, extra = build_tasks(functions, items, rec, report["packages"], max_bytes, max_review_tasks,
                                include_abi_blockers, hyp, list(latest.values()),
-                               region_context=region_context(fleet, functions, rec))
+                               region_context=region_context(fleet, functions, rec),
+                               runtime_satisfied=runtime_route_ids(functions))
     frontier = dict(recovery_ledger_sha256=sha256((ROOT / "recovery/ledger.json").read_bytes()),
                     function_ledger_sha256=sha256((ROOT / "evidence/functions/ledger.json").read_bytes()))
     document = dict(schema_version=1, generated=iso(now_epoch()), frontier=frontier,
