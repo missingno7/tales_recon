@@ -109,6 +109,8 @@ def _derive_uncached(root, promotion_evidence=None):
     analysis_current=analysis_current and analysis.get('data_fact_identity',{})==audio_sequence_data.identity(root)
     import curated_unreferenced_entries
     analysis_current=analysis_current and analysis.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(root)
+    import dead_code_extents
+    analysis_current=analysis_current and analysis.get('dead_code_input_identity',{})==dead_code_extents.identity(root)
     promoted=load_promotions(root,exe,model,analysis)
     from resident_mixed import load_source_objects
     ledger_path = root / 'recovery/ledger.json'

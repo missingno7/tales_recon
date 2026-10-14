@@ -15,7 +15,8 @@ from repo_paths import candidate_path,active_files
 
 
 def validated_function(fid):
-    ledger=evidence();blob,model,_=game()
+    import dead_code_extents
+    ledger=dead_code_extents.current_analysis() or evidence();blob,model,_=game()
     require(sha256(blob)==ledger['game_sha256'],'stale function ledger: game changed')
     require(all(sha256((ROOT/'tools'/p).read_bytes())==digest for p,digest in ledger['analysis_identity'].items()),
             'stale analysis implementation: run tools/function_census.py')
@@ -45,7 +46,10 @@ def validated_function(fid):
             cursor=hi
         require(cursor==f['size'],'closed function has unaccounted bytes')
         require(not f['boundary_stops'] and not f['undecoded_gaps'] and f['return_sites'],'closed function evidence not complete')
-    return f,ledger
+    import dead_code_extents
+    require(ledger.get('dead_code_input_identity',{})==dead_code_extents.identity(ROOT),
+            'stale dead-code input: run tools/function_census.py')
+    return dead_code_extents.selected_view(f,ledger,blob,model,ROOT),ledger
 
 
 def regression_receipt():
@@ -195,6 +199,8 @@ def isolated_output_root(output_dir):
 
 @scoped
 def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regression=None):
+    import dead_code_extents
+    require(not dead_code_extents.mode_active() or isolated,'dead-code view requires isolated exact comparison')
     if isolated:promote_equal=False
     output_root=isolated_output_root(output_dir) if isolated else None
     prepared=[];trials=[]

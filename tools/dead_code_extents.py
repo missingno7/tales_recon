@@ -1,0 +1,237 @@
+"""Strict staged complete-C views, preserving the original reachable CFG.
+
+Pending intervals are not census extents or source acceptance. Only an explicit
+isolated unit check may use a pending view; a verified admission must replay
+that entire exact natural unit with unchanged source and producing inputs.
+"""
+from contextlib import contextmanager
+from contextvars import ContextVar
+import copy,json
+from common import require,sha256,json_bytes
+from repo_paths import canonical_path
+from analysis_support import K,decoder,instruction,basic
+INPUT='evidence/rules/dead-code-extents/entries.json'
+STATUS='COMPLETE_C_SOURCE_OBJECT_WITH_DEAD_CODE'
+_ACTIVE=ContextVar('staged_dead_code_entry',default=None)
+_ANALYSIS=ContextVar('fresh_dead_code_analysis',default=None)
+def current_analysis():return _ANALYSIS.get()
+def mode_active():return _ACTIVE.get() is not None
+
+@contextmanager
+def isolated_view(fid,analysis=None):
+ token=_ACTIVE.set(fid);other=_ANALYSIS.set(analysis)
+ try:yield
+ finally:_ACTIVE.reset(token);_ANALYSIS.reset(other)
+
+def active_entry(fid):return _ACTIVE.get()==fid
+
+def inputs(root):
+ names=[INPUT,'evidence/rules/dead-code-extents/admissions.json']
+ p=canonical_path(root,names[1])
+ if p.exists():
+  doc=json.loads(p.read_bytes())
+  for row in doc.get('admissions',[]):
+   specs=[row['source'],row['entry_source'],row['receipt'],row['compiler']]+list(row['member_sources'].values())
+   for spec in specs:
+    name=spec['path'];canonical_path(root,name);names.append(name)
+   compiled=canonical_path(root,row['compiler']['path'])
+   if compiled.exists():
+    producer=json.loads(compiled.read_bytes());require(isinstance(producer.get('artifacts'),list),'dead-code producer artifacts missing')
+    for artifact in producer['artifacts']:
+     path=canonical_path(root,compiled.parent/artifact['path']);names.append(path.relative_to(root).as_posix())
+ return sorted(set(names))
+
+def identity(root):
+ return {name:sha256(canonical_path(root,name).read_bytes()) for name in inputs(root) if canonical_path(root,name).exists()}
+
+def row_for(root,blob,fid):
+ p=canonical_path(root,INPUT);require(p.exists(),'dead-code input missing')
+ doc=json.loads(p.read_bytes())
+ require(set(doc)=={'schema_version','game_sha256','source_acceptance','entries'},'dead-code input schema differs')
+ require(type(doc['schema_version']) is int and doc['schema_version']==1 and doc['source_acceptance'] is False and doc['game_sha256']==sha256(blob),'dead-code input identity differs')
+ fields={'id','hunk','start','code_end','contribution_end','dead_spans','next_entry','justification','admission'}
+ require(isinstance(doc['entries'],list),'dead-code entries must be a list')
+ seen=set();found=None
+ for row in doc['entries']:
+  require(isinstance(row,dict) and set(row)==fields,'dead-code entry schema differs')
+  require(row['id'] not in seen,'duplicate dead-code entry');seen.add(row['id'])
+  require(all(type(row[k]) is int for k in ['hunk','start','code_end','contribution_end']),'dead-code coordinates must be integers')
+  require(row['hunk']>=3 and row['id']=='ov%02d_F_%04X'%(row['hunk'],row['start']),'dead-code overlay identity differs')
+  require(0<=row['start']<row['code_end']<=row['contribution_end'] and all(row[k]%2==0 for k in ['start','code_end','contribution_end']),'dead-code bounds differ')
+  require(isinstance(row['justification'],str) and row['justification'].strip(),'dead-code justification missing')
+  require(isinstance(row['dead_spans'],list) and row['dead_spans'],'dead-code spans missing')
+  require(isinstance(row['next_entry'],str),'dead-code next entry missing')
+  require(row['admission'] is None,'pending entry cannot assert admission')
+  if row['id']==fid:found=row
+ require(found is not None,'dead-code entry not listed: '+fid)
+ return found
+
+def make_view(base,ledger,blob,model,root):
+ row=row_for(root,blob,base['id']);h=base['hunk'];start=base['start'];end=row['code_end']
+ require((row['hunk'],row['start'])==(h,start),'dead-code measured entry changed')
+ require(end>=base['end'],'dead-code view truncates reachable body')
+ hu=next(x for x in model['hunks'] if x['number']==h);data=blob[hu['content_offset']:hu['content_offset']+hu['initialized_size']]
+ require(end<=len(data),'dead-code object outside hunk')
+ spans=[];cursor=start
+ for span in row['dead_spans']:
+  require(isinstance(span,list) and len(span)==2 and all(type(v) is int for v in span),'dead-code span schema differs')
+  a,b=span;require(start<a<b<=end and a%2==b%2==0 and a>=cursor,'dead-code span bounds/ordering differ');cursor=b;spans.append((a,b))
+ reachable=[(i['offset'],i['offset']+i['size']) for i in base['instructions']]
+ require(not base['boundary_stops'],'dead-code base has unresolved stops')
+ require(not any(a<d and c<b for a,b in spans for c,d in reachable),'dead-code overlaps reachable instructions')
+ require(sorted(spans)==sorted([tuple(x) for x in base['undecoded_gaps']]+([(base['end'],end)] if end>base['end'] else [])),'dead-code spans are not exactly the reachable CFG holes/tail')
+ require(not base['jump_tables'] and not base['indirect_control_flow'],'dead-code view requires direct decoded control flow')
+ from function_census import Census,function_id
+ c=Census(blob,model,[]);md=decoder();items=[];calls=[];refs=[];edges=[];returns=[];pc=start
+ while pc<end:
+  ins=instruction(md,data,pc);require(ins is not None and pc+ins.size<=end,'dead-code bytes do not decode completely')
+  items.append(basic(ins));mn=ins.mnemonic.split('.')[0];nxt=pc+ins.size
+  require(pc==start or mn!='link','dead-code hides another LINK entry')
+  if mn in ['rts','rte','rtr','rtd']:
+   require(mn=='rts' and data[pc-2:pc]==b'\x4e\x5d','dead-code return is not terminal UNLK/RTS');returns.append(pc)
+  require(mn not in ['stop','illegal','trap','trapv'],'dead-code contains terminal trap')
+  is_call=mn in ['jsr','bsr'];branch=mn in ['bra','jmp'] or (ins.operands and ins.operands[-1].type==K.M68K_OP_BR_DISP and not is_call)
+  if is_call or branch:
+   target=c.target(h,ins);require(target is not None,'dead-code has unresolved control flow')
+   th,to,basis=target
+   if is_call:calls.append(dict(site=pc,hunk=th,offset=to,id=function_id(th,to),basis=basis))
+   else:
+    require(th==h and start<=to<end,'dead-code branch escapes complete object');edges.append(dict(source=pc,target=to,kind='UNCONDITIONAL' if mn in ['bra','jmp'] else 'CONDITIONAL'))
+    if mn not in ['bra','jmp']:edges.append(dict(source=pc,target=nxt,kind='FALLTHROUGH'))
+  for o in ins.operands:
+   if o.type!=K.M68K_OP_MEM:continue
+   ref=None
+   if o.address_mode==K.M68K_AM_PCI_DISP and mn not in ['jsr','jmp']:ref=dict(hunk=h,offset=pc+2+o.mem.disp,kind='PC_RELATIVE_DATA')
+   elif o.mem.base_reg==K.M68K_REG_A4 and o.address_mode==K.M68K_AM_REGI_ADDR_DISP and c.a4_bias is not None:ref=dict(hunk=1,offset=c.a4_bias+o.mem.disp,kind='A4_RELATIVE')
+   if ref:ref['instruction_offset']=pc;refs.append(ref)
+  pc=nxt
+ terminal=items[-1];terminal_targets=[e['target'] for e in edges if e['source']==terminal['offset']]
+ require(returns and (terminal['mnemonic']=='rts' or (terminal['mnemonic'].split('.')[0] in ['bra','jmp'] and len(terminal_targets)==1 and terminal_targets[0]+2 in returns)), 'dead-code terminal instruction does not close at its UNLK/RTS epilogue')
+ boundaries={i['offset'] for i in items}
+ require(all(e['target'] in boundaries for e in edges),'dead-code branch target splits an instruction')
+ # Every byte not reachable from the original entry is exactly a listed span.
+ by={i['offset']:i for i in items};edgeby={}
+ for e in edges:edgeby.setdefault(e['source'],[]).append(e['target'])
+ seen=set();todo=[start]
+ while todo:
+  at=todo.pop()
+  if at in seen:continue
+  require(at in by,'complete object falls into non-instruction bytes');seen.add(at);i=by[at];mn=i['mnemonic'].split('.')[0]
+  if mn=='rts':continue
+  if at in edgeby:todo+=edgeby[at]
+  elif at+i['size']<end:todo.append(at+i['size'])
+  else:require(False,'complete object falls through its end')
+ deadbytes={v for a,b in spans for v in range(a,b)}
+ measured={v for i in items if i['offset'] not in seen for v in range(i['offset'],i['offset']+i['size'])}
+ require(measured==deadbytes,'listed dead bytes are not exactly unreachable from entry')
+ # No other function may own, call, branch or take data addresses into dead bytes or own literals.
+ foreign_intervals=spans+([(end,row['contribution_end'])] if end<row['contribution_end'] else [])
+ from curated_unreferenced_entries import claimed_ranges
+ for owner,hh,a,b in claimed_ranges(root):
+  require(owner==base['id'] or hh!=h or not any(a<d and c0<b for c0,d in foreign_intervals),'dead-code overlaps foreign owned contribution')
+ for fact in ledger.get('classified_code_data',[]):
+  iv=fact['interval'];require(iv['hunk']!=h or not any(iv['start']<b and a<iv['end'] for a,b in foreign_intervals),'dead-code overlaps classified data')
+ def inside(hh,off):return hh==h and any(a<=off<b for a,b in foreign_intervals)
+ for other in ledger['functions']:
+  if other['id']==base['id']:continue
+  require(other['hunk']!=h or not any(other['start']<b and a<other['end'] for a,b in foreign_intervals),'dead-code overlaps foreign function')
+  targets=[(r['hunk'],r['offset']) for r in other['direct_callees']+other['referenced_data']]
+  if other['hunk']==h:targets += [(h,e['target']) for e in other['cfg']]
+  require(not any(inside(hh,off) for hh,off in targets),'dead-code has foreign reference')
+ for r in model['relocations']:
+  require(not inside(r['target_hunk'],r['addend_raw']) or (r['source_hunk']==h and start<=r['source_offset']<end),'dead-code has foreign relocation')
+ nxt=next((f for f in ledger['functions'] if f['id']==row['next_entry']),None)
+ if row['next_entry']=='TERMINAL_LITERAL_BOUNDARY':
+  require(row['contribution_end']>end and 0<=len(data)-row['contribution_end']<=2 and all(v==0 for v in data[row['contribution_end']:]),'dead-code terminal literal boundary differs')
+  require(not any(o['hunk']==h and o['start']>=end for o in ledger['functions']),'dead-code terminal tail precedes another function')
+ else:require(nxt is not None and nxt['hunk']==h and nxt['start']==row['contribution_end'] and nxt['extent_status']=='CLOSED_CFG','dead-code next closed boundary differs')
+ f=copy.deepcopy(base);f.update(end=end,size=end-start,raw_bytes=data[start:end].hex(),sha256=sha256(data[start:end]),instructions=items,direct_callees=calls,referenced_data=refs,referenced_strings=[],return_sites=returns,relocations=[dict(r,relative_offset=r['source_offset']-start) for r in model['relocations'] if r['source_hunk']==h and start<=r['source_offset']<end],extent_status=STATUS)
+ for r in refs:
+  if r['kind']!='PC_RELATIVE_DATA' or r['hunk']!=h:continue
+  off=r['offset'];nul=data.find(b'\0',off,min(len(data),off+160));raw=data[off:nul] if nul>=off else b''
+  if nul>=off and all(32<=v<127 or v in (9,10,13) for v in raw):f['referenced_strings'].append(dict(hunk=h,offset=off,text=raw.decode('ascii')))
+ if row['contribution_end']>end:
+  from owned_code_data import expected_string_tail
+  tail,own=expected_string_tail(f,context=dict(blob=blob,model=model));require(own['end']==row['contribution_end'] and tail==data[end:own['end']],'dead-code literal tail is not complete')
+ else:require(not any(r['kind']=='PC_RELATIVE_DATA' and r['hunk']==h for r in refs),'dead-code literal references lack owned tail')
+ f['dead_code_extent']=dict(input=INPUT,input_sha256=identity(root)[INPUT],validator_sha256=sha256((root/'tools/dead_code_extents.py').read_bytes()),reachable_extent={k:base[k] for k in ['start','end','size','sha256','extent_status']},dead_spans=row['dead_spans'],contribution_end=row['contribution_end'],source_acceptance=False)
+ return f
+
+def selected_view(f,ledger,blob,model,root):
+ return make_view(f,ledger,blob,model,root) if _ACTIVE.get()==f['id'] else f
+
+def comparison_allowed(f,context=None):
+ if f.get('extent_status')!=STATUS or _ACTIVE.get()!=f['id']:return False
+ from analysis_support import game,ROOT
+ from recovery_state import evidence
+ blob,model,_=game() if context is None else (context['blob'],context['model'],None)
+ root=ROOT if context is None else context['root'];ledger=(current_analysis() or evidence()) if context is None else context['analysis']
+ base=next(x for x in ledger['functions'] if x['id']==f['id']);view=make_view(base,ledger,blob,model,root)
+ require(f==view,'dead-code comparison view does not re-derive')
+ return True
+
+ADMISSIONS='evidence/rules/dead-code-extents/admissions.json'
+
+def admission_boundary(view):
+ """Physical policy: no admission of a tail after the final epilogue."""
+ spans=view['dead_code_extent']['dead_spans']
+ require(spans[-1][1]<=max(view['return_sites'])-2 or view['dead_code_extent']['contribution_end']>view['end'], 'dead-code bytes follow terminal UNLK/RTS without an owned literal boundary; keep pending')
+
+def verified_admissions(root,blob,model,analysis):
+ """Re-derive exact complete source objects; never rewrite CLOSED_CFG evidence.
+
+ Admissions are active, reviewed producing inputs, not a cached PASS. Both the
+ current natural-unit recipe and every retained producing artifact must match,
+ followed by a new all-member exact comparison. Any changed dependency blocks.
+ """
+ p=canonical_path(root,ADMISSIONS)
+ if not p.exists():return []
+ doc=json.loads(p.read_bytes())
+ require(set(doc)=={'schema_version','admissions'} and doc['schema_version']==1 and isinstance(doc['admissions'],list),'dead-code admission schema differs')
+ results=[];seen=set()
+ for row in doc['admissions']:
+  require(set(row)=={'id','unit_entry','source','entry_source','receipt','compiler','member_sources'},'dead-code admission entry schema differs')
+  fid=row['id'];entry=row['unit_entry'];require(fid not in seen,'duplicate dead-code admission');seen.add(fid)
+  base=next((f for f in analysis['functions'] if f['id']==fid),None);require(base is not None,'dead-code admission entry missing')
+  admission_boundary(make_view(base,analysis,blob,model,root))
+  def pinned(spec):
+   require(isinstance(spec,dict) and set(spec)=={'path','sha256'},'dead-code retained input schema differs')
+   path=canonical_path(root,spec['path']);require(sha256(path.read_bytes())==spec['sha256'],'dead-code retained input changed: '+spec['path']);return path
+  source_path=pinned(row['source']);entry_path=pinned(row['entry_source']);receipt_path=pinned(row['receipt']);compiler_path=pinned(row['compiler'])
+  receipt=json.loads(receipt_path.read_bytes());producer=json.loads(compiler_path.read_bytes())
+  source=source_path.read_text(encoding='ascii');entry_source=entry_path.read_text(encoding='ascii');member_paths={k:pinned(v) for k,v in row['member_sources'].items()}
+  require(receipt.get('verdict')=='EQUAL' and receipt.get('id')==entry and receipt.get('unclaimed_bytes')==0,'dead-code admission lacks exact whole-unit verdict')
+  require(receipt.get('source_sha256')==sha256(entry_source.encode('ascii')),'dead-code admission candidate source changed')
+  require((fid==entry and source_path==entry_path) or (fid in member_paths and source_path==member_paths[fid]),'dead-code source is not a producing unit member')
+  require(all(receipt.get('member_sources',{}).get(k)==sha256(v.read_text(encoding='ascii').encode('ascii')) for k,v in member_paths.items()),'dead-code member source changed')
+  from recovery_state import recovery
+  state=recovery()
+  require(all(state['functions'].get(k,{}).get('source_sha256')==v for k,v in receipt['dependency_sources'].items()),'dead-code canonical dependencies changed')
+  # The receipt's verifier identity is retained provenance. Acceptance comes
+  # from the complete exact replay below with today's comparator (as for every
+  # other proof class), so later tooling changes do not stale the admission.
+  require(isinstance(receipt.get('verifier_identity'),dict) and receipt['verifier_identity'],'dead-code receipt lacks verifier provenance')
+  require(producer['status']=='COMPILED' and producer['cache_key']==receipt['cache_key'] and sha256(json_bytes(producer['identity']))==producer['cache_key'],'dead-code producer identity differs')
+  directory=compiler_path.parent
+  for a in producer['artifacts']:
+   path=canonical_path(root,directory/a['path']);require(sha256(path.read_bytes())==a['sha256'],'dead-code producing artifact changed: '+a['path'])
+  from compiler_oracle import extract
+  meta=producer['identity'];prefix=producer['prefix']
+  contribution=extract(directory,prefix,meta.get('object_labels'),meta.get('entry_function','recovered'),meta.get('same_overlay_exports'))
+  require(contribution==producer['contribution'],'dead-code compiler object/executable extraction differs')
+  compiled=dict(producer,directory=str(directory),cache_hit=True)
+  import check_unit
+  with isolated_view(fid,analysis):
+   plans=check_unit.check(entry,entry_path,[receipt['profile']],promote_equal=False,owned_code_data=bool(receipt.get('owned_code_tails')),isolated=True,member_sources=member_paths,natural_interval=receipt['natural_interval']['interval'],prepare_only=True,object_groups=receipt.get('object_groups'),per_member_profiles=receipt.get('per_member_profiles',False),with_m_lib=bool(meta.get('additional_libraries')))
+   require(len(plans)==1 and plans[0]['trials'][0]['cache_key']==producer['cache_key'],'dead-code current natural-unit producer recipe changed')
+   require(plans[0]['natural_interval']==receipt['natural_interval'],'dead-code natural interval or gap encoding changed')
+   members,names,parts,combined,ledger=check_unit.prepare_unit(entry,entry_source,True,remove_stale_externs=False,member_sources={k:v.read_text(encoding='ascii') for k,v in member_paths.items()},natural_interval=receipt['natural_interval']['interval'])
+   # The normal exact comparator re-derives every CODE byte, literal and field.
+   compared=check_unit.compare_unit(members,names,compiled,ledger['a4']['bias'],bool(receipt.get('owned_code_tails')),source_text=combined,natural=receipt['natural_interval'])
+   require(compared['verdict']=='EQUAL' and compared['unclaimed_bytes']==0,'dead-code exact full-unit replay differs')
+   target=next(m for m in members if m['id']==fid)
+   # Compare the extent facts; the validator's own file hash is provenance.
+   facts=lambda w:{k:v for k,v in (w or {}).items() if k!='validator_sha256'}
+   require(facts(next(m for m in receipt['members'] if m['id']==fid).get('dead_code_extent'))==facts(target['dead_code_extent']),'dead-code extent witness changed')
+  results.append(dict(id=fid,status='VERIFIED_COMPLETE_C_SOURCE_OBJECT',original_cfg=target['dead_code_extent']['reachable_extent'],complete_extent={k:target[k] for k in ['hunk','start','end','size','sha256']},dead_spans=target['dead_code_extent']['dead_spans'],owned_literal_end=target['dead_code_extent']['contribution_end'],source=row['source'],receipt=row['receipt'],source_acceptance=False,proof_level=None))
+ return results

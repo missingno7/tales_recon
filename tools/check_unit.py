@@ -184,10 +184,11 @@ def gap_crossings(members,layout):
 
 def natural_interval_plan(members,interval,new_ids,owned_code_data=False,target_id=None,all_functions=()):
     """Layout plus gap-crossing classification for a natural-interval unit."""
+    import dead_code_extents
     ledger=recovery();tails={}
     for f in members:
         tail,_=proven_tail(f,ledger)
-        if owned_code_data and f['id']==target_id and not tail:
+        if owned_code_data and ((f['id']==target_id and not dead_code_extents.mode_active()) or (dead_code_extents.mode_active() and any(r['kind']=='PC_RELATIVE_DATA' and r['hunk']==f['hunk'] for r in f['referenced_data']))) and not tail:
             from owned_code_data import expected_string_tail
             tail,_=expected_string_tail(f)
         if tail:tails[f['id']]=len(tail)
@@ -260,6 +261,8 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
         name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
+        import dead_code_extents
+        if dead_code_extents.active_entry(fid):parts[dep_id]=new_part(parts[dep_id])
         # The routine's own local calls must stay in this translation unit as
         # well.  Leaving them as externs can preserve a plausible instruction
         # shape while changing the original PC-relative call identity.
@@ -363,6 +366,7 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
         result['reason']='UNIT_DATA_OWNERSHIP_UNPROVEN';return result
     ledger=context['ledger'] if context is not None else recovery();tails={};tail_receipts=[]
     try:
+        import dead_code_extents
         target_id=next(fid for fid,name in names.items() if name=='recovered')
         for f in members:
             tail,ownership=proven_tail(f,ledger,context=context) if context is not None else proven_tail(f,ledger)
@@ -371,7 +375,7 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             # it in this compact proof.  The requested tail always belongs to
             # the target, not to whichever member happens to be last by
             # original address.
-            if owned_code_data and f['id']==target_id and not tail:
+            if owned_code_data and ((f['id']==target_id and not dead_code_extents.mode_active()) or (dead_code_extents.mode_active() and any(r['kind']=='PC_RELATIVE_DATA' and r['hunk']==f['hunk'] for r in f['referenced_data']))) and not tail:
                 from owned_code_data import expected_string_tail
                 tail,ownership=expected_string_tail(f,context=context) if context is not None else expected_string_tail(f)
             tails[f['id']]=tail
@@ -437,6 +441,10 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             report=compare_owned_code_data(f,piece,a4_bias,source_text,**({'context':context} if context is not None else {}))
         else:
             report=compare_function(f,piece,a4_bias,source_text=source_text,**({'context':context} if context is not None else {}))
+        if f.get('dead_code_extent'):
+            report['dead_code_extent']=f['dead_code_extent']
+            report['source_acceptance']=False
+            report['extent_basis']='STAGED_COMPLETE_C_SOURCE_OBJECT'
         report['id']=f['id'];result['members'].append(report)
         cursor=stop+len(owned_tail)
     require(cursor==len(raw),'unclaimed code bytes in unit')
@@ -530,6 +538,8 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         verifier_files+=('profile_compat.py','mixed_profile_oracle.py')
     if report.get('runtime_library_routes'):verifier_files+=('runtime_member_routes.py','runtime_members.py')
     verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in verifier_files}
+    import dead_code_extents
+    if dead_code_extents.mode_active():verifier_identity['dead_code_extents.py']=sha256((ROOT/'tools/dead_code_extents.py').read_bytes())
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
     base=None
@@ -1063,6 +1073,8 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     ``per_member_profiles`` (separate objects) compiles canonical members with
     their own proof's profile and new members with the requested profile or
     ``member_profiles`` ({id: profile}, a recorded hypothesis)."""
+    import dead_code_extents
+    require(not dead_code_extents.mode_active() or isolated,'dead-code view requires isolated exact comparison')
     if isolated or prepare_only:promote_equal=False
     member_profiles=dict(member_profiles or {})
     per_member_profiles=bool(per_member_profiles or member_profiles)
@@ -1196,6 +1208,7 @@ def main():
     ap.add_argument('--allow-original-gaps',action='store_true',help='with separate objects, prove compact linked source ownership across known but unreconstructed original gaps')
     ap.add_argument('--join-direct-callees',action='store_true',help='compile the target and its following direct same-node callees as one ordinary source object')
     ap.add_argument('--replace-canonical',action='store_true',help='replace the existing canonical source with this EQUAL source (single target, no --member)')
+    ap.add_argument('--dead-code-extent',nargs='?',const='ENTRY',help='isolated only: exact complete-C object comparison using a strict staged dead-code view; never promotion')
     ap.add_argument('--isolated',action='store_true',help='run exact unit comparison without writing recovery units, proofs, ledger, or ranking')
     ap.add_argument('--output-dir',type=Path,help='with --isolated, save source and JSON reports under experiments/ or build/')
     ap.add_argument('--member',action='append',default=[],metavar='ID=SOURCE',
@@ -1229,11 +1242,13 @@ def main():
         member_id,sep,member_path=item.partition('=')
         require(sep and member_id and member_path and member_id not in member_sources,'--member expects a unique ID=SOURCE')
         member_sources[member_id]=Path(member_path)
+    require(not a.dead_code_extent or a.isolated,'--dead-code-extent requires --isolated; no promotion')
+    import dead_code_extents
     from evidence_snapshot import isolated_verification
-    with isolated_verification(ROOT,a.isolated):
-     reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
-                  a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles,
-                  a.replace_canonical,a.with_m_lib)
+    with isolated_verification(ROOT,a.isolated),          dead_code_extents.isolated_view((a.id if a.dead_code_extent=='ENTRY' else a.dead_code_extent) if a.dead_code_extent else None):
+        reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
+                      a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles,
+                      a.replace_canonical,a.with_m_lib)
     for r in reports:print(json.dumps(r))
     if a.prepare_only:return 0
     return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1

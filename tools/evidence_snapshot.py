@@ -69,6 +69,8 @@ class Snapshot:
         read(root / 'evidence/fixture-lock.json')
         from curated_unreferenced_entries import INPUT as uncalled_entry_input
         read(root / uncalled_entry_input)
+        from dead_code_extents import inputs as dead_code_inputs
+        for name in dead_code_inputs(root):read(root / name)
         from audio_sequence_data import inputs as code_data_inputs
         for name in code_data_inputs(root):read(root / name)
         if strict:

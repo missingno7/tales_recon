@@ -382,6 +382,10 @@ def build():
     report['analysis_identity']['curated_unreferenced_entries.py']=sha256((ROOT/'tools/curated_unreferenced_entries.py').read_bytes())
     report['unreferenced_entry_identity']=curated_unreferenced_entries.identity(ROOT)
     report['curated_unreferenced_entries']=admitted
+    import dead_code_extents
+    report['analysis_identity']['dead_code_extents.py']=sha256((ROOT/'tools/dead_code_extents.py').read_bytes())
+    report['dead_code_input_identity']=dead_code_extents.identity(ROOT)
+    report['verified_dead_code_objects']=dead_code_extents.verified_admissions(ROOT,blob,model,report)
     return report
 
 if __name__=='__main__':

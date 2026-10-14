@@ -130,7 +130,10 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
     report['data_contributions']=dict(candidate_data=c['data_size'],candidate_bss=c['bss_size'],expected_owned_data='NOT_CLAIMED')
     report['raw_first_difference']=first_bytes(expected,actual)
     report['first_structural_instruction_difference']=first_structural_instruction_difference(expected,actual,table_spans)
-    if f['extent_status']!='CLOSED_CFG':report['reason']='UNCERTAIN_EVIDENCE_EXTENT';return report
+    if f['extent_status']!='CLOSED_CFG':
+        import dead_code_extents
+        if not dead_code_extents.comparison_allowed(f,context):
+            report['reason']='UNCERTAIN_EVIDENCE_EXTENT';return report
     if c['data_size'] or c['bss_size'] or ebad is not None or abad is not None:
         report['reason']='DATA_OR_UNDECODED_CONTRIBUTION_REQUIRES_OWNERSHIP_PROOF';return report
     norm=bytearray(actual);proof=[];issues=[]
