@@ -14,6 +14,19 @@ independently named targets. Each provider object is compiled and verified exact
 relocations included. Never use opaque char/byte arrays, padding fillers or guessed
 extents. Untyped spans stay RAW_ORACLE_DEBT. This never permits original CODE bytes.
 
+Reconstructed assembly policy (user decision 2026-10-14): a span may be
+reconstructed as Manx assembly source only with machine-checked non-C evidence,
+re-derived per span: instruction, ABI or register use the pinned compilers
+cannot emit, such as register/CCR calling conventions or A4 reused as a general
+pointer. Use mnemonics, symbolic labels and named relocation targets only.
+Never use dc.w/dc.l instruction encodings or opaque byte carriers for code; an
+encoding the pinned `as` cannot select is a blocker. Assemble with the pinned
+`as` and verify CODE, relocations and object structure exactly. Account it as
+RECONSTRUCTED_ASM, separate from C and from provenance-backed RECOVERED_ASM;
+it never claims original-source provenance. Tables inside such modules follow
+the DATA initializer policy (typed, independently bounded). Code that is
+compatible with C stays on the C route.
+
 Numeric overlay directories reflect historical containers; source filenames
 and semantic labels require explicit provenance. Printable runs are candidates,
 not established string boundaries. Unknown ownership/classification must remain
