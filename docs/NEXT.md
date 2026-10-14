@@ -204,9 +204,23 @@ waits on a named structural blocker:
    (beyond +/-32762) reference needs one. Every resident jsr to that symbol
    then uses the slot (4EAC). Under this rule, unchanged wbparse, the SDK
    format.c built with +x3, and printf reproduce in natural link contexts
-   (EQUAL_CANDIDATE). The next step is a curated natural-link recipe plus a
-   strict whole-member address-field consumer. Opcodes are never
-   normalized.
+   (EQUAL_CANDIDATE).
+   PROVEN (Sol patch, reviewed). The curated recipe
+   evidence/contributions/runtime-natural-members.json uses unchanged pinned
+   objects, the SDK format.c with +x3, and a real compiled `+o1` consumer
+   that allocates the shared slots. `runtime_members.py --natural-routes`
+   builds evidence/experiments/runtime-members-natural.json from it with
+   COMPLETE_RUNTIME_CODE_MATCH:
+   - wbparse: 180 bytes;
+   - format: 936 CODE bytes plus 18 DATA bytes (the digits initializer at
+     H1+0x2C64);
+   - printf: 28 bytes.
+   Every external PC/A4 operand is bound independently, including the
+   putchar PEA, ctype, ldiv and strlen. Opcodes are never normalized, and
+   wrong-entry and slot-PEA negatives reject. The producer job lives in
+   build/worker-jobs/routing-proof-02, and the test negatives in
+   build/worker-jobs/routing-04 and routing-proof-01. Accounting credit and
+   alias integration are a separate step.
 
 ## Current campaign (2026-10-12): resident-first fleet
 
