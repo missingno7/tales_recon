@@ -1,0 +1,132 @@
+{
+  "byte_only_callers": [
+    {
+      "caller": "ov14_F_0000",
+      "site": 158
+    }
+  ],
+  "candidate_length": 152,
+  "claim": "Exact after deleting the listed byte-return widenings; every caller reads only D0.b. Not a match: the pinned compilers cannot emit the bare byte return.",
+  "deletions": [
+    {
+      "mnemonic": "ext.w",
+      "offset": 146,
+      "operands": "d0",
+      "raw": "4880"
+    }
+  ],
+  "id": "ov14_F_0412",
+  "original": {
+    "end": 1192,
+    "hunk": 14,
+    "sha256": "6b748df1fcafe9b5c429a4d095b53cd5c02ad18e5a9c9ed507b0b1cc934da18b",
+    "size": 150,
+    "start": 1042
+  },
+  "profile": "aztec36",
+  "reduced_comparison": {
+    "cache_key": "65be682bc84f4dadaa9b6e3467cf7fa5d2b3150c7ace8d41ee31b5f8f2315e89",
+    "compiler": "aztec36",
+    "expected_sha256": "6b748df1fcafe9b5c429a4d095b53cd5c02ad18e5a9c9ed507b0b1cc934da18b",
+    "flags": [],
+    "normalized_sha256": "6b748df1fcafe9b5c429a4d095b53cd5c02ad18e5a9c9ed507b0b1cc934da18b",
+    "reason": "COMPLETE_CONTRIBUTION",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_proof": [
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 44
+      },
+      {
+        "expected": [
+          1,
+          17710
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 17710,
+          "symbol": "_G_h01_452E"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 48
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 68
+      },
+      {
+        "expected": [
+          1,
+          17711
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 17711,
+          "symbol": "_G_h01_452F"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 72
+      },
+      {
+        "expected": [
+          0,
+          31488
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 31488,
+          "symbol": "F_h00_7B00"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 92
+      },
+      {
+        "expected": [
+          1,
+          17704
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 17704,
+          "symbol": "_G_h01_4528"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 96
+      }
+    ],
+    "verdict": "EQUAL"
+  },
+  "regression": {
+    "command": "python -m pytest -n 16 -q -p no:cacheprovider --dist=loadscope -m not regression_serial tests && python -m pytest -q -p no:cacheprovider -m regression_serial tests",
+    "input_sha256": "bff95037d2424a89bddec26f7017eabad3fc013219d7af9536f382227e15663e",
+    "output_sha256": "87755dceb275b2a4d5bcd726aa3bc4eccb2f394eeef460846dcedff8f66c0107",
+    "passed": true
+  },
+  "source_sha256": "3c5c3048e19e800bf82689930dc5f764693587cf77196f1a247b587d70f0583c",
+  "state": "BEHAVIORAL_CHAR_RETURN"
+}

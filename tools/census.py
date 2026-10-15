@@ -145,6 +145,8 @@ def _derive_uncached(root, promotion_evidence=None):
                 [dict(hunk=row['original']['hunk'],start=p['start'],end=p['end']) for row in mixed for p in row['partitions']]+[dict(hunk=r['span']['hunk'],start=r['span']['start'],end=r['span']['end']) for r in reconstructed_asm])
     from code_data_providers import rows as code_data_rows
     code_data_providers=code_data_rows(root,exe,model,analysis,ledger)
+    from behavioral import contributions as behavioral_rows
+    behavioral=behavioral_rows(root,exe,model,analysis,ledger)
     outputs['evidence/code-data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
         objects=code_data_providers,policy='TYPED_CODE_DATA; no C or ASM instruction credit; owner/TU/layout UNKNOWN.')
     outputs['evidence/executable/code-data.json']=dict(schema_version=1,
@@ -349,6 +351,7 @@ def _derive_uncached(root, promotion_evidence=None):
         reconstructed_asm_objects=len(reconstructed_asm),matched_reconstructed_asm_bytes=sum(r['span']['size'] for r in reconstructed_asm),
         reconstructed_code_data_providers=len(code_data_providers),matched_typed_code_data_bytes=sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers),
         reconstructed_mixed_objects=len(mixed),
+        behavioral_functions=len(behavioral),behavioral_c_bytes=sum(r['end']-r['start'] for r in behavioral),
         matched_mixed_c_bytes=sum(row['c_compiler_bytes'] for row in mixed),
         matched_asm_bytes=sum(row['sdk_asm_bytes'] for row in mixed),
         highest_individual_contribution_proof=('FUNCTION_WITH_DATA_MATCH' if any(x['state']=='FUNCTION_WITH_DATA_MATCH' for x in promoted) or any(r['status']=='FUNCTION_WITH_DATA_MATCH' for r in accepted_dead)

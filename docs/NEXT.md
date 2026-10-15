@@ -73,18 +73,26 @@ never let C block A or B.
 
 Proof categories stay separate and are never merged in reporting:
 exact C, recovered ASM (provenance-backed), reconstructed ASM (machine-proven
-non-C), behaviorally reconstructed (not yet implemented; see priority 1), and
+non-C), behaviorally reconstructed (`BEHAVIORAL_C`, see priority 1), and
 unresolved. Never describe behavioral equivalence as a match. Never replace
 an accepted source with an unverified rewrite.
 
 ## Priorities
 
-1. **Behavioral route for the char-return group.** The code is understood,
-   and the 3.6a candidates differ only by the widening. Add one explicit
-   category: compile with the pinned 3.6a, and machine-check that every
-   difference is an `ext.w`/`andi` after a byte return. Account it separately,
-   and keep it upgradeable to exact if a 3.4x compiler ever appears. This
-   unblocks about 3.6 KB without pretending to match.
+1. **Behavioral route for the char-return group (in progress).**
+   `tools/behavioral.py` verifies a candidate with the pinned compiler. It
+   deletes only `ext.w d0` widenings that directly follow a byte return. The
+   unchanged exact comparison must then be EQUAL, relocations included, and
+   every original caller must read only D0.b. Accepted entries live in the
+   `behavioral_functions` ledger map. They are accounted as `BEHAVIORAL_C` and
+   are never counted as matches. ov14 0412/04A8/0540 (500 bytes) are accepted.
+   Next is resident_F_411E. It is blocked by a verifier weak spot: when a
+   function's only PC-relative calls go to proven library entries (411E's
+   `Read` glue), check_function builds a unit that pulls in A4-slot callees
+   and contradicts the resident interface derivation. Every accepted function
+   in that situation was proved on the single-function path, so restore that
+   path there. 404A/4184 follow; they hold the `.arc` RLE graphics decoder
+   (formats/arc.md). Then 291E/287C/49A0 and ov14_F_0000.
 2. **Audio driver closure.** Implement the calibrated FRAMELESS_ENTRY
    predicate (all 272 canonical C functions start with LINK) for the IRQ and
    wrapper entries, then admit 50E8/53E6. Driver behavior (Paula channels,
@@ -118,6 +126,9 @@ not convert any code yet.
 ```powershell
 python tools/behavior.py
 python tools/grinder.py facts TARGET
+python tools/behavioral.py TARGET SOURCE        # byte-return widening only; isolated
+python tools/behavioral.py --promote MANIFEST.json   # one regression gate for a batch
+python tools/boundary_refresh.py                # after every promotion
 python tools/declaration_views.py --function TARGET --block
 # Write build/workers/NAME/candidate.c, then verify without promoting:
 python tools/check_function.py TARGET build/workers/NAME/candidate.c --profile aztec36 --isolated --no-promote

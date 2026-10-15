@@ -103,6 +103,17 @@ hashes remain provenance. Existing reachable-prefix proofs stay valid; census
 and hybrid accounting subtract that prefix before crediting new C bytes.
 Original filename, translation unit and natural overlay layout remain unproved.
 
+Behaviorally reconstructed C (`BEHAVIORAL_CHAR_RETURN`, user decision
+2026-10-15) uses the separate `behavioral_functions` map,
+`recovery/proofs/behavioral/` and `tools/behavioral.py`. It applies only when
+the pinned compilers cannot emit a bare byte return. The candidate must be
+exact under the ordinary comparison after deleting only `ext.w d0`
+instructions that directly follow a `move.b` into D0 on a return path, with
+crossing displacements re-encoded and relocations shifted. Every original
+caller must read only D0.b before redefining D0. Accounting credits the
+extent as `BEHAVIORAL_C`. It is never RECOVERED_C and never a match. It
+establishes equivalent observable behavior, not original source or code.
+
 Reconstructed assembly uses the separate `reconstructed_asm` ownership map,
 `src/recovered/asm-reconstructed/` and `recovery/proofs/asm-reconstructed/`.
 Every admission, census and accounting read rederives a complete non-C predicate

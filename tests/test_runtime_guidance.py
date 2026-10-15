@@ -41,11 +41,21 @@ class RuntimeGuidanceTests(unittest.TestCase):
             self.assertEqual(runtime_dependencies(dict(game_sha256='unused')), {})
 
     def test_ranking_guidance_does_not_promote_runtime(self):
+        # Runtime guidance removes identified library code from the frontier
+        # and only lowers the scores of game candidates (30 per helper call);
+        # it never changes a state. Accepted behavioral entries leave the frontier.
         with patch('recovery_state.runtime_dependencies',return_value={}):
-            before=next(x for x in ranked() if x['id']=='ov14_F_0412')
-        after=next(x for x in ranked() if x['id']=='ov14_F_0412')
-        self.assertEqual(before['score']-after['score'],90)
-        self.assertEqual(after['state'],'BLOCKED')
+            before={x['id']:x for x in ranked()}
+        after={x['id']:x for x in ranked()}
+        self.assertLess(set(after),set(before))
+        lowered=[k for k in after if before[k]['score']!=after[k]['score']]
+        self.assertTrue(lowered)
+        for k in after:
+            self.assertEqual(before[k]['state'],after[k]['state'])
+            self.assertEqual((before[k]['score']-after[k]['score'])%30,0)
+            self.assertGreaterEqual(before[k]['score'],after[k]['score'])
+        accepted=json.loads((Path(__file__).resolve().parents[1]/'recovery/ledger.json').read_text()).get('behavioral_functions',{})
+        self.assertFalse(set(accepted)&set(after))
 
 
 if __name__=='__main__':unittest.main()

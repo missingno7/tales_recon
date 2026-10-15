@@ -90,6 +90,14 @@ from ordinary rg searches. Never override these exclusions for worker context.
 Retire historical files by moving them to `to_delete/` with a manifest entry.
 The user may manually delete reviewed quarantine contents.
 
+Milestone self-check (before each commit): run `python tools/behavior.py` and
+note what moved; keep the regression gate near 7 minutes (profile it with
+`--durations` before adding real-repo tests); justify any new infrastructure
+by the bytes or behavior it unlocks; say which requirement category (A/B/C,
+docs/VISION.md) the work served; never run a gated promotion while a worker
+can write under `tests/` or `tools/`. `docs/REUSE.md` records what transfers
+to the next project.
+
 Exact acceptance remains absolute. Diagnostics run per hypothesis; census,
 canonical proof checks, hybrid accounting and regression tests run at promotion
 or tooling boundaries. RAW_ORACLE_DEBT is accounting only and grants no proof.

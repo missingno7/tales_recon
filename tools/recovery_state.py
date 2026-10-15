@@ -29,6 +29,7 @@ def canonical_state(value):
         result['mixed_source_objects'] = value['mixed_source_objects']
     if 'dead_code_functions' in value:result['dead_code_functions']=value['dead_code_functions']
     if 'reconstructed_asm' in value:result['reconstructed_asm']=value['reconstructed_asm']
+    if 'behavioral_functions' in value:result['behavioral_functions']=value['behavioral_functions']
     if 'code_data_providers' in value:result['code_data_providers']=value['code_data_providers']
     if 'data_providers' in value:
         result['data_providers'] = value['data_providers']
@@ -180,7 +181,7 @@ def ranked(node=None):
     l=evidence();r=recovery();result=[];runtime=runtime_dependencies(l)
     r['functions']={fid:item for fid,item in r['functions'].items() if
                     not item.get('source') or is_active_repo_path(ROOT/item['source'],ROOT)}
-    mixed=set(r.get('mixed_source_objects',{}))|set(r.get('dead_code_functions',{}))
+    mixed=set(r.get('mixed_source_objects',{}))|set(r.get('dead_code_functions',{}))|set(r.get('behavioral_functions',{}))
     floor=runtime_floor(l['functions'])
     incoming={f['id']:sum(any(c['id']==f['id'] for c in caller['direct_callees'])
                          for caller in l['functions'] if caller['id'] not in r['functions']) for f in l['functions']}

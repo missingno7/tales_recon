@@ -104,8 +104,8 @@ class Snapshot:
             # can change during a batch without changing any derived output.
             if values[str(ledger_path.resolve())] is not None:
                 values[str(ledger_path.resolve())] = sha256(json_bytes(dict(
-                    functions=ledger['functions'], code_data_providers=ledger.get('code_data_providers', {}), reconstructed_asm=ledger.get('reconstructed_asm', {}), mixed_source_objects=ledger.get('mixed_source_objects', {}), dead_code_functions=ledger.get('dead_code_functions', {}), data_providers=ledger.get('data_providers', {}))))
-            for item in list(ledger.get('mixed_source_objects', {}).values())+list(ledger.get('dead_code_functions', {}).values()):
+                    functions=ledger['functions'], code_data_providers=ledger.get('code_data_providers', {}), reconstructed_asm=ledger.get('reconstructed_asm', {}), mixed_source_objects=ledger.get('mixed_source_objects', {}), dead_code_functions=ledger.get('dead_code_functions', {}), data_providers=ledger.get('data_providers', {}), behavioral_functions=ledger.get('behavioral_functions', {}))))
+            for item in list(ledger.get('mixed_source_objects', {}).values())+list(ledger.get('dead_code_functions', {}).values())+list(ledger.get('behavioral_functions', {}).values()):
                 read(root / item['source']); read(root / item['proof'])
             for item in ledger.get('functions', {}).values():
                 read(root / item['source'])

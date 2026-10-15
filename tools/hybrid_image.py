@@ -20,8 +20,8 @@ from repo_paths import canonical_path
 from library_a4 import load_library_a4
 from runtime_accounting import capture_runtime_members, contributions as runtime_contributions, merge_accounting
 
-CATEGORIES = ('RECOVERED_C', 'RECOVERED_ASM', 'RECONSTRUCTED_ASM', 'COMPILER_OWNED_DATA', 'RECOVERED_DATA', 'TYPED_CODE_DATA',
-              'PINNED_RUNTIME', 'CLASSIFIED_PADDING', 'RAW_ORACLE_DEBT')
+CATEGORIES = ('RECOVERED_C', 'BEHAVIORAL_C', 'RECOVERED_ASM', 'RECONSTRUCTED_ASM', 'COMPILER_OWNED_DATA', 'RECOVERED_DATA',
+              'TYPED_CODE_DATA', 'PINNED_RUNTIME', 'CLASSIFIED_PADDING', 'RAW_ORACLE_DEBT')
 SPECIMENS = 'evidence/contributions/compiled.json'
 
 
@@ -301,6 +301,9 @@ def build(root=ROOT):
     contributions.extend(data_contributions(providers))
     from reconstructed_asm import rows as asm_rows,contributions as asm_contributions
     contributions.extend(asm_contributions(root,asm_rows(root,blob,model,analysis,ledger)))
+    # Behaviorally reconstructed C is credited separately and never as a match.
+    from behavioral import contributions as behavioral_contributions
+    contributions.extend(behavioral_contributions(root,blob,model,analysis,ledger))
     from code_data_providers import rows as code_data_rows,contributions as code_data_contributions
     contributions.extend(code_data_contributions(root,code_data_rows(root,blob,model,analysis,ledger)))
     members=capture_runtime_members(root,blob,model)
@@ -316,8 +319,8 @@ def build(root=ROOT):
 
 def human(report):
     lines=['# Whole-image validation accounting','',report['policy'],'',
-           '| Node | C | Recovered ASM | Reconstructed ASM | Compiler data | Recovered DATA | Typed CODE data | Runtime | Padding | RAW_ORACLE_DEBT |',
-           '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
+           '| Node | C | Behavioral C | Recovered ASM | Reconstructed ASM | Compiler data | Recovered DATA | Typed CODE data | Runtime | Padding | RAW_ORACLE_DEBT |',
+           '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
     for node,c in report['by_overlay'].items():lines.append('| '+node+' | '+' | '.join(str(c[k]) for k in CATEGORIES)+' |')
     t=report['totals'];lines+=['',f"File: {t['file_size']:,} bytes. Initialized content: {t['initialized_bytes']:,} bytes.",
         f"File structure debt: {t['structural_RAW_ORACLE_DEBT']:,}; total file RAW_ORACLE_DEBT: {t['file_RAW_ORACLE_DEBT']:,}.",

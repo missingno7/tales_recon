@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 CODE_CLASSES = {
     'RECOVERED_C': 'exact_c',
+    'BEHAVIORAL_C': 'behavioral',
     'RECOVERED_ASM': 'asm',
     'RECONSTRUCTED_ASM': 'asm',
     'TYPED_CODE_DATA': 'code_data',
@@ -138,7 +139,7 @@ def report(root=ROOT):
 
 def render(r):
     out = ['Code bytes by proof class (CODE hunks)', '']
-    cols = ['exact_c', 'asm', 'code_data', 'runtime', 'unresolved']
+    cols = ['exact_c', 'behavioral', 'asm', 'code_data', 'runtime', 'unresolved']
     out.append('| Node | ' + ' | '.join(cols) + ' |')
     out.append('| --- |' + ' ---: |' * len(cols))
     total = Counter()
