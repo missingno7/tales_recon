@@ -1,0 +1,163 @@
+{
+  "binder": {
+    "CODE": 4,
+    "DATA": 224,
+    "exports": [
+      {
+        "hunk": 0,
+        "name": "_recon_h00_5A76",
+        "offset": 2
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h00_5E6C",
+        "offset": 0
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_292E",
+        "offset": 4
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_29FA",
+        "offset": 8
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2A0A",
+        "offset": 12
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4A",
+        "offset": 16
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4E",
+        "offset": 20
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B6E",
+        "offset": 24
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B86",
+        "offset": 28
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8A",
+        "offset": 32
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8C",
+        "offset": 36
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8D",
+        "offset": 40
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_B39A",
+        "offset": 44
+      }
+    ],
+    "sha256": "6bfbb8415ae2b0e696cf5060a6b3bcb955563098f44a1e4f78ea35e3b9572c1b",
+    "source": "bind_handlers_c.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "TAIL",
+      "site": 23932,
+      "target": 23158
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0002/handlers_c.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_5D78",
+      "offset": 0,
+      "original": 23928
+    },
+    {
+      "name": "_end_handlers_c",
+      "offset": 8,
+      "original": null
+    }
+  ],
+  "external_code": [
+    {
+      "hunk": 0,
+      "name": "_recon_h00_5A76",
+      "target": 23158
+    }
+  ],
+  "external_data": [],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_driver_5D78",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 23936,
+    "hunk": 0,
+    "sha256": "757170ac10179f9957b8e830c1e6851870c228025e497aa71a2630252c8a85e2",
+    "size": 8,
+    "start": 23928
+  },
+  "original_filename": null,
+  "predicate": {
+    "c_compatible": false,
+    "dispatch": 23194,
+    "entries": [
+      23928
+    ],
+    "kind": "DISPATCH_PROVED_A0_D7_A1_D0_REGISTER_ABI_COMPONENT",
+    "no_new_call_frame": true,
+    "opcodes": [
+      135
+    ],
+    "ordinary_c_stack_argument_entry": false,
+    "prefetch": 23192,
+    "register_inputs": [
+      "A0 channel",
+      "D7 channel index",
+      "A1 stream",
+      "D0 prefetched byte"
+    ],
+    "rewind_sites": [],
+    "root_non_c_witness": {
+      "c_compatible": false,
+      "caller": 22818,
+      "caller_channel_read": 22802,
+      "caller_channel_timer_write": 22812,
+      "channel_argument": "A0",
+      "dispatch": 23194,
+      "entry": 23154,
+      "first_channel_read": 23154,
+      "kind": "UNSTACKED_A0_CHANNEL_A1_STREAM_REGISTER_ARGUMENT_ENTRY_AND_JMP_ABI",
+      "parameter_prefetch": 23192,
+      "return_site": 23152,
+      "return_tail": 23120,
+      "stack_argument_fetch": false,
+      "stack_argument_push": false
+    },
+    "shared_tail_edges": [
+      {
+        "site": 23932,
+        "target": 23158
+      }
+    ]
+  },
+  "prefix": "handlers_c",
+  "relocations": [],
+  "schema_version": 2,
+  "source": "src/recovered/asm-reconstructed/resident_driver_5D78.asm",
+  "source_sha256": "6189d207c8ebc64e496922c110a7d08b69e827f02a21187cf544815e4bc821fb"
+}

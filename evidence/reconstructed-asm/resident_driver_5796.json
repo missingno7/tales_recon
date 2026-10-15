@@ -1,0 +1,191 @@
+{
+  "binder": {
+    "CODE": 4,
+    "DATA": 224,
+    "exports": [
+      {
+        "hunk": 0,
+        "name": "_recon_h00_5064",
+        "offset": 2
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h00_5E6C",
+        "offset": 0
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_292E",
+        "offset": 4
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_29FA",
+        "offset": 8
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2A0A",
+        "offset": 12
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4A",
+        "offset": 16
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4E",
+        "offset": 20
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B6E",
+        "offset": 24
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B86",
+        "offset": 28
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8A",
+        "offset": 32
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8C",
+        "offset": 36
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8D",
+        "offset": 40
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_B39A",
+        "offset": 44
+      }
+    ],
+    "sha256": "d173b4f4eda4add650972881638c96b114892c3304b507af442f3168108bc661",
+    "source": "bind_world.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 22428,
+      "target": null
+    },
+    {
+      "kind": "CALL",
+      "operands": "$5064(pc)",
+      "site": 22440,
+      "target": 20580
+    },
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 22452,
+      "target": null
+    },
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 22462,
+      "target": null
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0002/world.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_5796",
+      "offset": 0,
+      "original": 22422
+    },
+    {
+      "name": "_recon_h00_579E",
+      "offset": 8,
+      "original": 22430
+    },
+    {
+      "name": "_recon_h00_57B6",
+      "offset": 32,
+      "original": 22454
+    },
+    {
+      "name": "_end_world",
+      "offset": 42,
+      "original": null
+    }
+  ],
+  "external_code": [
+    {
+      "hunk": 0,
+      "name": "_recon_h00_5064",
+      "target": 20580
+    }
+  ],
+  "external_data": [
+    {
+      "hunk": 1,
+      "name": "_G_h01_2B4A",
+      "target": 11082
+    }
+  ],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_driver_5796",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 22464,
+    "hunk": 0,
+    "sha256": "f066021baaed4e9923fd473eb8dc95a433304f6cd3cfb27a823bc7b054ef54b1",
+    "size": 42,
+    "start": 22422
+  },
+  "original_filename": null,
+  "predicate": {
+    "bank": "A4",
+    "c_compatible": false,
+    "caller_world_restored": 22446,
+    "entries": [
+      22422,
+      22430,
+      22454
+    ],
+    "kind": "A4_WORLD_LOAD_REGISTER_ARGUMENT_BRIDGE_AND_WORLD_CAPTURE",
+    "register_arguments": [
+      "A0",
+      "A1"
+    ],
+    "temporary_world_call": 22438,
+    "world_global": [
+      1,
+      11082
+    ]
+  },
+  "prefix": "world",
+  "relocations": [
+    {
+      "addend_raw": 11082,
+      "source_hunk": 0,
+      "source_offset": 22424,
+      "symbol": "_G_h01_2B4A",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11082,
+      "source_hunk": 0,
+      "source_offset": 22456,
+      "symbol": "_G_h01_2B4A",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 2,
+  "source": "src/recovered/asm-reconstructed/resident_driver_5796.asm",
+  "source_sha256": "e46eb1fb31c642f48dd0e002c7a1b7e191f9059bda05c3c743a76b9a8af3e26e"
+}

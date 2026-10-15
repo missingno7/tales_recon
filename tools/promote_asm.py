@@ -24,6 +24,11 @@ def stage(root,blob,model,analysis,ledger):
 
 
 def main():
+    from audio_driver_asm import MANIFEST as next_manifest
+    args=sys.argv[1:]
+    if any(a=='--manifest='+next_manifest or a=='--manifest' and i+1<len(args) and args[i+1]==next_manifest for i,a in enumerate(args)):
+        from promote_driver_asm import main as next_main
+        return next_main()
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default=asm.MANIFEST)
     mode=ap.add_mutually_exclusive_group(required=True);mode.add_argument('--verify-only',action='store_true');mode.add_argument('--promote',action='store_true');a=ap.parse_args()
     from analysis_support import ROOT,game

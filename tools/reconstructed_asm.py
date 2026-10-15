@@ -252,8 +252,10 @@ def rows(root,blob,model,analysis,ledger,*,staged=False):
     from common import require,sha256
     from repo_paths import canonical_path
     entries=ledger.get(MAP,{})
-    require(set(entries)<=set(SPECS),'unknown canonical reconstructed ASM entry')
-    if not entries and not staged:return []
+    from audio_driver_asm import SPECS as driver_specs,rows as driver_rows
+    require(set(entries)<=set(SPECS)|set(driver_specs),'unknown canonical reconstructed ASM entry')
+    extra=driver_rows(root,blob,model,analysis,ledger)
+    if not (set(entries)&set(SPECS)) and not staged:return extra
     batch=document(root,MANIFEST);results=[]
     for name in FACTS:
         fact=document(root,name);ident=fact['id']
@@ -274,7 +276,7 @@ def rows(root,blob,model,analysis,ledger,*,staged=False):
                 p=document(root,rec['proof']);e=p.get('complete_extent') or p.get('evidence_extent') or p.get('original')
                 if e:require(e['hunk']!=0 or e['end']<=fact['original']['start'] or e['start']>=fact['original']['end'],'ASM overlaps another source route')
         results.append(dict(report,acceptance=True,source_acceptance=True,proof_level='FUNCTION_CODE_MATCH',source=fact['source'],proof=proof_path))
-    return results
+    return results+extra
 
 
 def contributions(root,records):
@@ -283,6 +285,9 @@ def contributions(root,records):
     result=[]
     for r in records:
         if not r.get('acceptance'):continue
+        if r['id'] not in SPECS:
+            from audio_driver_asm import contributions as driver_contributions
+            result.extend(driver_contributions(root,[r]));continue
         obj=root/r['producer']['job']/('sys/work/'+SPECS[r['id']]['prefix']+'.o');code,fixups,_=(object_rng if r['id']=='resident_asm_559E' else object_note)(obj.read_bytes());out=bytearray(code);rels=[]
         for f,b in zip(fixups,r['named_relocation_bindings']):
             require(f['symbol']==b['symbol'] and f['offset']==b['offset'],'ASM fixup identity')
@@ -312,7 +317,8 @@ def input_identity(root):
     state=document(root,'recovery/ledger.json') if ledger_path.exists() else {}
     for item in state.get(MAP,{}).values():names.update([item['source'],item['proof'],item['fact']])
     def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
-    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external}
+    from audio_driver_asm import input_identity as driver_identity
+    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external,**driver_identity(root)}
 
 SPECS={'resident_asm_559E':dict(start=0x559e,end=0x55d6,prefix='rng'),
        'resident_asm_59A4':dict(start=0x59a4,end=0x5a50,prefix='note')}
