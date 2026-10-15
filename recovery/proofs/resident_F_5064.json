@@ -1,0 +1,338 @@
+{
+  "artifacts": [
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+      "size": 40
+    },
+    {
+      "path": "h003-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "h003-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "h003.asm",
+      "sha256": "f413ec76eafeb9dd4bffa3ea22b7157a123183edafd3e238a4be790135645f4c",
+      "size": 527
+    },
+    {
+      "path": "h003.c",
+      "sha256": "166bb5debfdeae3da95647ada4b4b184cd7f08180b0c098ce0f1772ad155bd8b",
+      "size": 331
+    },
+    {
+      "path": "h003.o",
+      "sha256": "a27fcc1952b05fc1f592c505af49d0044af176042f9c18502bca53490450130d",
+      "size": 172
+    },
+    {
+      "path": "t003-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "t003-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "t003-ln.log",
+      "sha256": "2dba0b9e7add1919d08f2dc33805595ceb89e41128e9f347f6baa5f6b93b1e8e",
+      "size": 105
+    },
+    {
+      "path": "t003.asm",
+      "sha256": "525a1db63ecc48e0aaab3586f94b89ddd6e404bab89bdc9ae37773d11dbe4342",
+      "size": 756
+    },
+    {
+      "path": "t003.c",
+      "sha256": "762b049eb676104a15c45ca50520ae1cded5390f97d52c9d62e30e8e992e6495",
+      "size": 584
+    },
+    {
+      "path": "t003.exe",
+      "sha256": "98ed3e2ab12560414a316803b9cd25635f603e735ed50aaae794640f27b08a39",
+      "size": 2076
+    },
+    {
+      "path": "t003.o",
+      "sha256": "caa92c26eda4a51bf5a2c9532e1cfce794a50800375c03a118c13495f6bc9cc5",
+      "size": 244
+    },
+    {
+      "path": "t003.sym",
+      "sha256": "cb8d69eb57d8dc5eadb497cf3f5807bd36e2e3ee754660d5cbd6b1c263728934",
+      "size": 1436
+    }
+  ],
+  "cache_key": "8502341be45347c28276cb4c2bf81519a08a4d90316738c11ef9aa3f7bb39f27",
+  "comparison": {
+    "actual_length": 132,
+    "actual_sha256": "148034b3ed730e937bcf24277df30d47a673c73e1e9f0600951a723eff9b8148",
+    "cache_hit": true,
+    "cache_key": "8502341be45347c28276cb4c2bf81519a08a4d90316738c11ef9aa3f7bb39f27",
+    "comparison_identity": "eec2de7628eaab631f53d622e8ea1e32bfe1ddd8973708492acb9ccdfd1db2ee",
+    "compiler": "aztec36-large-data",
+    "data_contributions": {
+      "candidate_bss": 0,
+      "candidate_data": 0,
+      "expected_owned_data": "NOT_CLAIMED"
+    },
+    "epilogue": {
+      "actual": [
+        {
+          "mnemonic": "moveq",
+          "offset": 126,
+          "operands": "#$0, d0",
+          "raw": "7000",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 128,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 130,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "moveq",
+          "offset": 126,
+          "operands": "#$0, d0",
+          "raw": "7000",
+          "size": 2
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 128,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 130,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ]
+    },
+    "expected_length": 132,
+    "expected_sha256": "e7a2f12b0e4bbb368df71f6e458d273d628e2af03c9732ee0b565c842263a591",
+    "first_structural_instruction_difference": null,
+    "flags": [
+      "+D"
+    ],
+    "id": "resident_F_5064",
+    "mnemonic_similarity": 1.0,
+    "normalized_first_difference": null,
+    "normalized_sha256": "e7a2f12b0e4bbb368df71f6e458d273d628e2af03c9732ee0b565c842263a591",
+    "prologue": {
+      "actual": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fffa",
+          "raw": "4e55fffa",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 4,
+          "operands": "$8(a5), -$4(a5)",
+          "raw": "2b6d0008fffc",
+          "size": 6
+        },
+        {
+          "mnemonic": "movea.l",
+          "offset": 10,
+          "operands": "-$4(a5), a0",
+          "raw": "206dfffc",
+          "size": 4
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fffa",
+          "raw": "4e55fffa",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 4,
+          "operands": "$8(a5), -$4(a5)",
+          "raw": "2b6d0008fffc",
+          "size": 6
+        },
+        {
+          "mnemonic": "movea.l",
+          "offset": 10,
+          "operands": "-$4(a5), a0",
+          "raw": "206dfffc",
+          "size": 4
+        }
+      ]
+    },
+    "proof_level": "FUNCTION_CODE_MATCH",
+    "raw_first_difference": {
+      "actual": "ffd4206d000c30105240c07c007f3b40",
+      "actual_size": 132,
+      "expected": "38f4206d000c30105240c07c007f3b40",
+      "expected_size": 132,
+      "offset": 24
+    },
+    "reason": "COMPLETE_CONTRIBUTION",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_profiles": {
+      "actual": [],
+      "expected": []
+    },
+    "relocation_proof": [
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 35184,
+          "symbol": "_F_h00_8970"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 24,
+        "width": 2
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 35300,
+          "symbol": "_F_h00_89E4"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 90,
+        "width": 2
+      }
+    ],
+    "source_sha256": "762b049eb676104a15c45ca50520ae1cded5390f97d52c9d62e30e8e992e6495",
+    "unit_blocker": "unit requires a recovered same-node dependency",
+    "verdict": "EQUAL"
+  },
+  "compiler": {
+    "candidate_overlay_node": 0,
+    "compiler_version": "3.6a",
+    "flags": [
+      "+D"
+    ],
+    "harness_sha256": "166bb5debfdeae3da95647ada4b4b184cd7f08180b0c098ce0f1772ad155bd8b",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o candidate.o c.lib; -m -t",
+    "profile": "aztec36-large-data",
+    "resident_link_sha256": "5b11675ab8a3a0d134cc831ca12c92d54498b335f82e16b2992fe41ccf05d540",
+    "resident_object_extractor_sha256": "9237d6da6308d7d499d3bcf0dece674b85a726d745798f9641bd56cc82ce40cc",
+    "service_version": 1,
+    "source_sha256": "762b049eb676104a15c45ca50520ae1cded5390f97d52c9d62e30e8e992e6495",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "2bbbdc20815156d038f9f214cfd0318d6f73a29d8c379918a1d7fc7006a68d6f"
+  },
+  "compiler_selection": "Matching candidate; historical release remains ambiguous",
+  "data_ownership": "External references only; no candidate-owned data or padding omitted",
+  "dependencies": [
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_8970",
+      "offset": 35184,
+      "site": 20602
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_89E4",
+      "offset": 35300,
+      "site": 20668
+    }
+  ],
+  "evidence_extent": {
+    "end": 20712,
+    "extent_status": "CLOSED_CFG",
+    "hunk": 0,
+    "sha256": "e7a2f12b0e4bbb368df71f6e458d273d628e2af03c9732ee0b565c842263a591",
+    "size": 132,
+    "start": 20580
+  },
+  "id": "resident_F_5064",
+  "object_hash": "caa92c26eda4a51bf5a2c9532e1cfce794a50800375c03a118c13495f6bc9cc5",
+  "regression": {
+    "batch_inputs_sha256": "cadf2e32b0f67190917e2a993a4b9e1de86f9f6cfcff0bf6fc964c7a45eba95b",
+    "batch_members": [
+      "resident_F_1306",
+      "resident_F_39C0",
+      "resident_F_39F8",
+      "resident_F_5064",
+      "resident_F_5030",
+      "resident_F_504C",
+      "resident_F_5428"
+    ],
+    "command": "python -m pytest -n 16 -q -p no:cacheprovider --dist=loadscope -m not regression_serial tests && python -m pytest -q -p no:cacheprovider -m regression_serial tests",
+    "input_sha256": "e5222d6ed37a14f7daf4e51249579deb5d41d07dbaa78444bbcf6ce3005f93a6",
+    "output_sha256": "9bdb41d3170004148c8485cff3ca1154d0ea962b5a45270e44dba3f423dee29a",
+    "passed": true
+  },
+  "relocation_proof": [
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 35184,
+        "symbol": "_F_h00_8970"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 24,
+      "width": 2
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 35300,
+        "symbol": "_F_h00_89E4"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 90,
+      "width": 2
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/resident/resident_F_5064.c",
+  "source_sha256": "762b049eb676104a15c45ca50520ae1cded5390f97d52c9d62e30e8e992e6495",
+  "state": "FUNCTION_CODE_MATCH",
+  "verifier_identity": {
+    "check_function.py": "5bfbabf50fc8330c2f488869b924a13cae19b5a5b479bef735d8a52ec8dba7b0",
+    "compiler_oracle.py": "3f7d4da820be17368a455df315c5ef217902ca276edad1ba4754a460f88a9bb1",
+    "function_compare.py": "1d705a1bcc33f314719448883f95deddecbbd885ea01735bee2b0b84ed2b741c",
+    "runtime_arithmetic.py": "3b9cf4f3cc4defad6cc7834b28433e53d481b49b71e8d6556f14f00158c5dbe7"
+  }
+}
