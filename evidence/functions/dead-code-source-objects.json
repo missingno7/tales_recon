@@ -490,7 +490,7 @@
       "status": "FUNCTION_WITH_DATA_MATCH"
     },
     {
-      "acceptance": false,
+      "acceptance": true,
       "boundary": {
         "kind": "POST_EPILOGUE_OWNER_BACK_TRANSFER",
         "last_reachable_epilogue": 26426,
@@ -526,6 +526,7 @@
         "start": 26366
       },
       "owned_literal_end": 26544,
+      "proof": "recovery/proofs/complete-c/ov11_F_66FE.json",
       "proof_level": null,
       "reachable_cfg": {
         "boundary_stops": [],
@@ -566,12 +567,9 @@
         "path": "evidence/rules/dead-code-extents/ov11_F_66FE/receipt.json",
         "sha256": "0153af965a5f931c2aa840534f1a5f9239db449435d4d9f095058dedbee7c066"
       },
-      "source": {
-        "path": "evidence/rules/dead-code-extents/ov11_F_66FE/source.c",
-        "sha256": "27cb0bc8037b56cf6125ead609ba87fd9c2b3d308ac8ca1f91ac855372be0896"
-      },
-      "source_acceptance": false,
-      "status": "VERIFIED_COMPLETE_C_SOURCE_OBJECT"
+      "source": "src/recovered/complete-c/ov11_F_66FE.c",
+      "source_acceptance": true,
+      "status": "FUNCTION_CODE_MATCH"
     }
   ],
   "policy": "Complete C source-object basis is separate from reachable CFG; only current exact canonical proofs grant acceptance.",

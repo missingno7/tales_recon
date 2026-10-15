@@ -1,0 +1,138 @@
+{
+  "boundary": {
+    "kind": "POST_EPILOGUE_OWNER_BACK_TRANSFER",
+    "last_reachable_epilogue": 26426,
+    "tail": [
+      26430,
+      26544
+    ],
+    "terminal_transfer": {
+      "site": 26542,
+      "target": 26426
+    }
+  },
+  "candidate": {
+    "path": "evidence/rules/dead-code-extents/ov11_F_66FE/source.c",
+    "sha256": "27cb0bc8037b56cf6125ead609ba87fd9c2b3d308ac8ca1f91ac855372be0896"
+  },
+  "compiler": {
+    "path": "evidence/rules/dead-code-extents/ov11_F_66FE/compiler.json",
+    "sha256": "55b31b139f0f310c49ad0a7a8746f9032a34d88191d67508f90b331390ea7fb4"
+  },
+  "complete_extent": {
+    "end": 26544,
+    "hunk": 11,
+    "sha256": "c5227eb6b7b4e24f3d36e6970b06a68d0ef8249aedbf681811d1b766c4d8cf80",
+    "size": 178,
+    "start": 26366
+  },
+  "dead_spans": [
+    [
+      26430,
+      26544
+    ]
+  ],
+  "entry_source": {
+    "path": "evidence/rules/dead-code-extents/ov11_F_66FE/entry.c",
+    "sha256": "7d7983e08b6383e19a52f4a59c9cc1ebbd76453e3e4f396e3503c9ce51c1f0e5"
+  },
+  "exact_receipt": {
+    "path": "evidence/rules/dead-code-extents/ov11_F_66FE/receipt.json",
+    "sha256": "0153af965a5f931c2aa840534f1a5f9239db449435d4d9f095058dedbee7c066"
+  },
+  "extent_basis": "CURATED_UNREACHABLE_C_OBJECT_AND_EXACT_NATURAL_UNIT",
+  "game_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "id": "ov11_F_66FE",
+  "kind": "EXACT_C_OBJECT_WITH_DEAD_CODE",
+  "member_sources": {
+    "ov11_F_20AE": {
+      "path": "evidence/rules/dead-code-extents/ov11_F_66FE/ov11_F_20AE.c",
+      "sha256": "446331236414d7f382832e4181fe6286ae19fb8eeeeb712a16a7baf5290a79b7"
+    },
+    "ov11_F_2664": {
+      "path": "evidence/rules/dead-code-extents/ov11_F_66FE/ov11_F_2664.c",
+      "sha256": "eaba1a47c1eaad3b497481ea4e047df51c5095d613896744222ffbb80898528a"
+    },
+    "ov11_F_59E6": {
+      "path": "evidence/rules/dead-code-extents/ov11_F_66FE/ov11_F_59E6.c",
+      "sha256": "13f921a23e7fbca4cb9be595511108dc840b2ad0349af8ed329e2eb2a8982b03"
+    },
+    "ov11_F_5CEA": {
+      "path": "evidence/rules/dead-code-extents/ov11_F_66FE/ov11_F_5CEA.c",
+      "sha256": "628b5c8bd067c5e583678e839f31fcec95ac613a13dc73ef7cb07e1afb431e2c"
+    },
+    "ov11_F_5F2A": {
+      "path": "evidence/rules/dead-code-extents/ov11_F_66FE/ov11_F_5F2A.c",
+      "sha256": "19adba9c234c4ee847019b10caeb1e753c14a2a69861c79af331fea1aaf8a889"
+    },
+    "ov11_F_5F90": {
+      "path": "evidence/rules/dead-code-extents/ov11_F_66FE/ov11_F_5F90.c",
+      "sha256": "f68ea6ffb291a4d290b12a34a5f914f318f7990074a35f0e61ad1818241e80bb"
+    },
+    "ov11_F_66FE": {
+      "path": "evidence/rules/dead-code-extents/ov11_F_66FE/source.c",
+      "sha256": "27cb0bc8037b56cf6125ead609ba87fd9c2b3d308ac8ca1f91ac855372be0896"
+    }
+  },
+  "natural_overlay_layout_proved": false,
+  "original_filename": "UNKNOWN",
+  "original_translation_unit": "UNKNOWN",
+  "owned_literal_end": 26544,
+  "reachable_cfg": {
+    "boundary_stops": [],
+    "cfg": [
+      {
+        "kind": "CONDITIONAL",
+        "source": 26406,
+        "target": 26416
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 26406,
+        "target": 26408
+      },
+      {
+        "kind": "CONDITIONAL",
+        "source": 26414,
+        "target": 26426
+      },
+      {
+        "kind": "FALLTHROUGH",
+        "source": 26414,
+        "target": 26416
+      }
+    ],
+    "confidence": "HIGH",
+    "end": 26430,
+    "extent_status": "CLOSED_CFG",
+    "return_sites": [
+      26428
+    ],
+    "sha256": "5fd081309419a482855f78694d603fd0535b3bd0fce4ee0eb6f0b2e6558e5f42",
+    "size": 64,
+    "start": 26366,
+    "undecoded_gaps": []
+  },
+  "regression_provenance": {
+    "command": "python -m pytest -n 16 -q -p no:cacheprovider --dist=loadscope -m not regression_serial tests && python -m pytest -q -p no:cacheprovider -m regression_serial tests",
+    "input_sha256": "2bfb4dfe762318c88bd9f17f797825dede9f2182788580f9e7b923830dff2eb1",
+    "output_sha256": "1cc63a0d1d1612b80eb514a45872ae444956c0567026ec630f6f66f289411f2c",
+    "passed": true
+  },
+  "schema_version": 1,
+  "source": "src/recovered/complete-c/ov11_F_66FE.c",
+  "source_acceptance": true,
+  "source_sha256": "27cb0bc8037b56cf6125ead609ba87fd9c2b3d308ac8ca1f91ac855372be0896",
+  "state": "FUNCTION_CODE_MATCH",
+  "unit_entry": "ov11_F_0000",
+  "verifier_provenance": {
+    "check_function.py": "dc6a862a0a9937a0fcb5d3f8d6dd8f03a709fa19299d922ae7fc4020dc94df8e",
+    "check_unit.py": "43ff2ae92a775655f2ff080659b87db4dd23676d158b5bf09b6f4a5b70d1a787",
+    "compiler_oracle.py": "3f7d4da820be17368a455df315c5ef217902ca276edad1ba4754a460f88a9bb1",
+    "dead_code_extents.py": "12d156e543bb6115e4f391baf8d7f49c7e2258163b4316ac63b7b70eb4766e7e",
+    "function_compare.py": "27cf1c22f1c11ed82e4a9c24423532051984ab1ae8b3cb38ca1ad0448f9503cf",
+    "mixed_profile_oracle.py": "7f836efd274ce1715a95c4928315347db325f252e865b8a6ae4f36b795a177b2",
+    "profile_compat.py": "57201e67db87331f1555ca730bbb0720f1f3660f4e926c82fe5f4cdd4f697507",
+    "runtime_arithmetic.py": "3b9cf4f3cc4defad6cc7834b28433e53d481b49b71e8d6556f14f00158c5dbe7"
+  }
+}
