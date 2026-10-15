@@ -14,6 +14,7 @@ confirmed.
 | Proof classes kept separate (exact, asm, behavioral, unresolved) | `docs/proof-levels.md`, `behavioral.py` | The behavioral route (exact after deleting a whitelisted codegen delta + caller observability check) generalizes to other compiler-version gaps. |
 | Whole-image accounting, every byte classified | `hybrid_image.py` | Needs only a parsed executable and per-class contributions. |
 | Behavior coverage report | `behavior.py` | Derived view; no stored state. |
+| Semantic naming layer | `recovery/names.json`, `readable.py` | Reviewed names with evidence notes; applied only to a generated readable view, never to matched sources. |
 | Compile cache/queue, hypothesis ledger, declaration views | `compile_queue.py`, `shape_search.py`, `declaration_views.py` | |
 | Supervisor + Codex worker briefs | `codex-workers` skill, AGENTS.md worker loop | One target per worker, supervisor owns canonical writes. |
 
@@ -54,7 +55,12 @@ code-data providers, the story tables, and the `.arc`/`.as` formats
    blocker record. Pruned attempt history forced re-authoring.
 5. **One admission interface per proof class:** check, validate,
    contributions, promote, replay (`behavioral.py` is the template). Do not
-   grow a provider, promoter and catalogue triple per byte class.
+   grow a provider, promoter and catalogue triple per byte class. Measured
+   cost of not doing so: admitting the first unit with a behavioral member
+   meant finding seven separate hard-coded "verdict == EQUAL" gates (unit
+   compare, unit promotion, member comparison, retain_unit, durable_unit,
+   the census receipt validator and the hybrid replay). A shared acceptance
+   predicate per class would have been one edit.
 6. **No gated promotion while any worker can write under `tests/` or
    `tools/`.** The gate fails closed, and the run is wasted.
 7. **Build orchestration only for a large frontier.** A fleet scheduler

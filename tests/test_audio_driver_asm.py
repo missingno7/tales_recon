@@ -45,8 +45,9 @@ class DriverASMTests(unittest.TestCase):
   self.assertEqual(cal['callee_saved'],['a2','a3','d4','d5','d6','d7'])
   self.assertEqual(cal['scratch'],['a0','a1','d0','d1','d2'])
   self.assertEqual(cal['unmeasured'],['a4','d3'])
-  self.assertEqual(cal['observations']['d2'],dict(preserved=0,unsaved=11))
-  self.assertEqual(cal['observations']['d7'],dict(preserved=2,unsaved=0))
+  # Counts grow with the canonical corpus; the classification may not change.
+  self.assertEqual(cal['observations']['d2']['preserved'],0);self.assertGreaterEqual(cal['observations']['d2']['unsaved'],11)
+  self.assertEqual(cal['observations']['d7']['unsaved'],0);self.assertGreaterEqual(cal['observations']['d7']['preserved'],2)
   self.assertEqual(set(cal['d2_counterexamples']),{'resident_F_31AA','ov08_F_1F4C'})
  def test_d2_canonical_counterexamples_never_establish_non_c_bank(self):
   import audio_register_calibration as cal
@@ -68,8 +69,9 @@ class DriverASMTests(unittest.TestCase):
   for control in self.calibration['controls']:
    self.assertIn('d7',control['saved']);self.assertIn('d7',control['paired']);self.assertIn('d7',control['preserved']);self.assertNotIn('d7',control['unsaved'])
    self.assertEqual(control['DATA'],0);self.assertTrue(control['d7_live_across_named_c_call']['definition']<control['d7_live_across_named_c_call']['call']<control['d7_live_across_named_c_call']['use']);self.assertFalse(any(control['predicate_rejections'].values()))
-  # D7 was unknown from canonical C; both independent compiled shapes supply it.
-  self.assertEqual(sum('d7' in x['preserved'] for x in self.calibration['controls']),self.calibration['observations']['d7']['preserved'])
+  # Both independent compiled shapes supply D7 on top of any canonical C witnesses.
+  self.assertEqual(sum('d7' in x['preserved'] for x in self.calibration['controls']),
+                   self.calibration['observations']['d7']['preserved']-self.calibration['canonical_observations']['d7']['preserved'])
  def test_envelope_and_dispatch_have_no_d2_preservation_premise(self):
   env=self.facts[0]['predicate'];self.assertEqual(env['kind'],'CALLER_SUPPLIED_A0_CHANNEL_REGISTER_ARGUMENT_ENTRY')
   self.assertEqual((env['first_parameter_read'],env['caller']),(0x544c,0x5936));self.assertFalse(env['stack_argument_fetch'] or env['stack_argument_push'])

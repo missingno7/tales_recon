@@ -27,6 +27,7 @@ which platform services game code uses.
 
 ```powershell
 python tools/behavior.py
+python tools/readable.py      # readable view with reviewed names -> build/readable/
 python tools/grinder.py facts ov04_F_0536
 python tools/census.py --check
 python tools/hybrid_image.py --check

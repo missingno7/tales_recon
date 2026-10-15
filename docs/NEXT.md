@@ -108,9 +108,12 @@ an accepted source with an unverified rewrite.
    growth, which looks like an LZW decoder (a hypothesis). Derive the
    container, compression and record formats from this code. Validate host
    decoders against the original disks. The port needs this directly.
-5. **Semantic naming.** Add a reviewed mechanical-to-semantic name map
-   (functions, globals, struct fields) with evidence notes. Apply it only when
-   generating a readable view; matched sources and proofs stay mechanical.
+5. **Semantic naming (started).** `recovery/names.json` is the curated map from
+   mechanical to semantic names. Every function or global entry needs an
+   evidence note. `python tools/readable.py` renders `build/readable/` with
+   those names applied; `--check` validates the map. Matched sources and proofs
+   stay mechanical. Struct fields come next, after the data-model map
+   (priority 3).
 6. **Platform surface.** `behavior.py` lists the 88 runtime/OS members that
    game code calls and the 21 functions with absolute custom-chip or CIA
    access. That list is the port's platform-layer contract. Annotate its
@@ -125,6 +128,7 @@ not convert any code yet.
 
 ```powershell
 python tools/behavior.py
+python tools/readable.py      # readable view with reviewed names -> build/readable/
 python tools/grinder.py facts TARGET
 python tools/behavioral.py TARGET SOURCE        # byte-return widening only; isolated
 python tools/behavioral.py --promote MANIFEST.json   # one regression gate for a batch

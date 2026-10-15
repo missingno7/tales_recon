@@ -671,7 +671,22 @@ def _load_promotions(root,blob,model,analysis):
                         'unit members are not partitioned into new sources and canonical dependencies')
                 source_ok=member_sources.get(fid)==proof['source_sha256']
             require(unit['object_sha256']==proof['object_hash'] and source_ok,'unit object/source identity differs')
-            require(unit['verdict']=='EQUAL' and unit['unclaimed_bytes']==0,'unit is not completely proven')
+            # A unit may carry canonical behavioral dependencies (tools/behavioral.py):
+            # they are re-proved against their own recorded claim and never
+            # confer exact credit; the promoted member must itself be exact.
+            behavioral_map=ledger.get('behavioral_functions',{})
+            behavioral_members=set(unit.get('behavioral_members',()))
+            if behavioral_members:
+                import behavioral
+                require(unit['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and unit.get('exact_unit') is False and
+                        fid in unit.get('accepted_exact_members',()) and behavioral_members<=set(behavioral_map) and
+                        behavioral_members<=set(unit['dependency_sources']),'mixed unit receipt is not a recorded behavioral dependency')
+                behavioral_claims={m:behavioral.validate(root,next(v for v in analysis['functions'] if v['id']==m),
+                                                          behavioral_map[m],analysis) for m in behavioral_members}
+            else:
+                require(unit['verdict']=='EQUAL','unit is not completely proven')
+                behavioral_claims={}
+            require(unit['unclaimed_bytes']==0,'unit is not completely proven')
             # A complete unit normally contains only closed function CODE.
             # It can also carry literal tails already proved for internal
             # canonical members.  Every such byte is revalidated below; no
@@ -708,12 +723,14 @@ def _load_promotions(root,blob,model,analysis):
                     tail_size+=len(payload)
                 if item['state']=='FUNCTION_WITH_DATA_MATCH':
                     require(fid in seen_tail_ids,'unit omitted promoted target CODE-data tail')
-            require(unit['actual_length']==unit['expected_length']+tail_size,
+            widening=sum(2*len(c['deletions']) for c in behavioral_claims.values())
+            require(unit['actual_length']==unit['expected_length']+tail_size+widening,
                     'unit has unproven bytes beyond its complete contribution')
             if item['state']=='FUNCTION_WITH_DATA_MATCH' and tails is None and tail_size:
                 require(unit['ordered_members'][-1]['id']==fid,
                         'owned CODE-data target is not the final unit member')
-            require(unit['expected_sha256']==unit['normalized_sha256'],'unit normalized bytes differ')
+            require(unit['expected_sha256']==unit['normalized_sha256'] or behavioral_claims and unit['normalized_sha256'] is None,
+                    'unit normalized bytes differ')
             require(any(m['id']==fid for m in unit['ordered_members']),'promoted function missing from unit')
             unit_raw=[];unit_compiled_raw=[]
             for m in unit['ordered_members']:
@@ -727,7 +744,14 @@ def _load_promotions(root,blob,model,analysis):
                 normalized=mr.get('normalized_sha256') if mr else None
                 if normalized is None and mr:
                     normalized=mr.get('code_comparison',{}).get('normalized_sha256')
-                require(mr and mr['verdict']=='EQUAL' and normalized==m['sha256'],'unmatched member in unit')
+                if m['id'] in behavioral_claims:
+                    claim=behavioral_claims[m['id']]
+                    reduced=(mr or {}).get('reduced_comparison') or {}
+                    require(mr and mr['verdict']=='BEHAVIORAL_EQUAL' and mr.get('deletions')==claim['deletions'] and
+                            reduced.get('verdict')=='EQUAL' and reduced.get('normalized_sha256')==m['sha256'],
+                            'behavioral unit member does not reproduce its recorded claim')
+                else:
+                    require(mr and mr['verdict']=='EQUAL' and normalized==m['sha256'],'unmatched member in unit')
                 # The linker's CODE contribution places a member's compiler-
                 # owned literal bundle immediately after that member, before
                 # the following separately linked source object.  It is
@@ -752,7 +776,8 @@ def _load_promotions(root,blob,model,analysis):
                 require(unit['expected_sha256']==body_hash and unit['expected_compiled_sha256']==compiled_hash,
                         'complete unit compiled bytes disagree')
             for dep,digest in unit['dependency_sources'].items():
-                require(ledger['functions'].get(dep,{}).get('source_sha256')==digest,'unit dependency source changed')
+                canonical_dep=ledger['functions'].get(dep) or behavioral_map.get(dep,{})
+                require(canonical_dep.get('source_sha256')==digest,'unit dependency source changed')
         else:
             from resident_interfaces import evidence as resident_interface_evidence
             if proof['compiler'].get('candidate_overlay_node')==0:

@@ -122,6 +122,8 @@ def report(root=ROOT):
         globals_with_conflicting_views=sum(1 for v in views.values() if len(v) > 1),
         distinct_mechanical_callees=len({g for t in texts for g in MECHANICAL_CALLEE.findall(t)}),
         shared_headers=len(list((root / 'include').glob('*.h'))),
+        semantic_names=len(json.loads((root / 'recovery/names.json').read_text())['functions'])
+        if (root / 'recovery/names.json').exists() else 0,
     )
     totals = accounting['totals']
     return dict(

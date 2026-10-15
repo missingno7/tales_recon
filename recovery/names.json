@@ -1,0 +1,587 @@
+{
+  "functions": {
+    "ov03_F_001C": {
+      "evidence": "Loads DT1:main.arc and runs the day, location, travel, treasure, and ending state machine using the location and overlay functions it calls (src/recovered/ov03/ov03_F_001C.c).",
+      "name": "game_run_adventure"
+    },
+    "ov04_F_0104": {
+      "evidence": "Opens DT1:loc.arc and parses each location record's four numeric fields and name into the resident location table (src/recovered/ov04/ov04_F_0104.c).",
+      "name": "arc_load_locations"
+    },
+    "ov04_F_037E": {
+      "evidence": "Opens DT1:loot.arc and assigns unique treasure values and names to the location reward records (src/recovered/ov04/ov04_F_037E.c).",
+      "name": "arc_load_treasures"
+    },
+    "ov04_F_0536": {
+      "evidence": "Reads DT1:invest.arc company records and DT1:chart.arc price series into the investment tables (src/recovered/ov04/ov04_F_0536.c).",
+      "name": "invest_load_market_data"
+    },
+    "ov04_F_149C": {
+      "evidence": "Displays Easy Money, Standard Wages, and Hard Earned Cash and cycles the three difficulty values from input (src/recovered/ov04/ov04_F_149C.c).",
+      "name": "ui_choose_difficulty"
+    },
+    "ov04_F_1B94": {
+      "evidence": "Displays PLAY AGAIN? with YES/NO choices and updates the game flow from the selection (src/recovered/ov04/ov04_F_1B94.c).",
+      "name": "ui_prompt_play_again"
+    },
+    "ov04_F_1E36": {
+      "evidence": "Opens graphics.library, intuition.library, and layers.library, allocates display resources, and reports InitAV failures (src/recovered/ov04/ov04_F_1E36.c).",
+      "name": "initialize_av"
+    },
+    "ov04_F_26F0": {
+      "evidence": "Builds an AutoRequest with an OK gadget and releases the associated display resources after presenting the supplied message (src/recovered/ov04/ov04_F_26F0.c).",
+      "name": "show_system_request"
+    },
+    "ov04_F_27FE": {
+      "evidence": "Releases display bitmaps, layers, fonts, screen state, and graphics/intuition/layers library bases during AV cleanup (src/recovered/ov04/ov04_F_27FE.c).",
+      "name": "shutdown_av"
+    },
+    "ov05_F_0000": {
+      "evidence": "Loads DT1:plane.arc and draws the scene's $50 price marker while running its plane-related gameplay sequence (src/recovered/ov05/ov05_F_0000.c).",
+      "name": "plane_scene"
+    },
+    "ov07_F_0000": {
+      "evidence": "Loads DT1:invart.arc, presents the stock portfolio and return-to-office controls, and dispatches company share transactions (src/recovered/ov07/ov07_F_0000.c).",
+      "name": "invest_run_office_menu"
+    },
+    "ov07_F_03CC": {
+      "evidence": "Draws the STOCK PORTFOLIO title and COMPANY NAME, PRICE, and SHARES column headings for the investment list (src/recovered/ov07/ov07_F_03CC.c).",
+      "name": "invest_draw_portfolio_header"
+    },
+    "ov07_F_04AC": {
+      "evidence": "Draws six company rows with current share prices, names, share counts, and the RETURN TO OFFICE row, highlighting the selected slot (src/recovered/ov07/ov07_F_04AC.c).",
+      "name": "invest_draw_portfolio_rows"
+    },
+    "ov07_F_0612": {
+      "evidence": "Loads DT1:invest.arc company data and handles share purchases and sales with explicit insufficient-funds, bankruptcy, and share-limit messages (src/recovered/ov07/ov07_F_0612.c).",
+      "name": "invest_trade_company_shares"
+    },
+    "ov07_F_0EC0": {
+      "evidence": "Combines a company record value with that company category current-day percentage from the chart table to calculate its share price (src/recovered/ov07/ov07_F_0EC0.c).",
+      "name": "invest_calculate_share_price"
+    },
+    "ov07_F_1424": {
+      "evidence": "Reads investment records and displays STOCK IS UP/DOWN BY percentages plus the expected major price-change day (src/recovered/ov07/ov07_F_1424.c).",
+      "name": "invest_show_stock_change"
+    },
+    "ov07_F_1A02": {
+      "evidence": "Advances market state through the current game day and applies scheduled price changes and random major rises or falls using difficulty and chart history (src/recovered/ov07/ov07_F_1A02.c; called by the adventure loop after day advances).",
+      "name": "invest_update_daily_market"
+    },
+    "ov07_F_1F6E": {
+      "evidence": "Draws NEWS INFORMATION and a NEWS BULLETIN FROM DAY heading before formatting the current news record (src/recovered/ov07/ov07_F_1F6E.c).",
+      "name": "invest_draw_news_bulletin"
+    },
+    "ov09_F_2C22": {
+      "evidence": "Displays OUT OF MEMORY, waits, and routes to the Out of Memory request (src/recovered/ov09/ov09_F_2C22.c).",
+      "name": "show_out_of_memory"
+    },
+    "ov12_F_0000": {
+      "evidence": "Loads DT1:mbin.arc and uses its indexed records to initialize and run the Money Bin scene (src/recovered/ov12/ov12_F_0000.c; called for the corresponding main-game location state).",
+      "name": "money_bin_scene"
+    },
+    "ov13_F_02BE": {
+      "evidence": "Presents MONEY BIN, CONTROL CENTER, and INVESTMENTS choices and dispatches the selected office destination (src/recovered/ov13/ov13_F_02BE.c).",
+      "name": "office_select_destination"
+    },
+    "ov13_F_0942": {
+      "evidence": "Displays Gyro's SUPER ANTI-SPY SECURITY SYSTEM instructions and builds the four-letter decode choices (src/recovered/complete-c/ov13_F_0942.c; dead-code ledger entry).",
+      "name": "security_decode_challenge"
+    },
+    "ov15_F_0000": {
+      "evidence": "Draws the map, resolves clicked locations against the location table, and returns a selected destination or OFFICE (src/recovered/ov15/ov15_F_0000.c).",
+      "name": "map_select_destination"
+    },
+    "ov15_F_0C12": {
+      "evidence": "Reads the selected location and treasure from loc.arc/loot.arc and displays treasure name, description, value, and travel time (src/recovered/ov15/ov15_F_0C12.c).",
+      "name": "map_show_location_details"
+    },
+    "resident_F_04FE": {
+      "evidence": "Reads DT2:clues.arc, selects an indexed clue record, and draws its three text lines (src/recovered/resident/resident_F_04FE.c).",
+      "name": "show_random_clue"
+    },
+    "resident_F_0A44": {
+      "evidence": "Draws the quit confirmation prompt, accepts Y/N, and on Y restores the archive state before calling the exit path (src/recovered/resident/resident_F_0A44.c).",
+      "name": "confirm_quit_game"
+    },
+    "resident_F_0D36": {
+      "evidence": "Draws \" GAME PAUSED \" via 35DC and waits for p/P (src/recovered/resident/resident_F_0D36.c).",
+      "name": "pause_game"
+    },
+    "resident_F_0FDE": {
+      "evidence": "Builds \"DT1\"/\"DT2\" volume names and draws \" INSERT DISK 1 \" / \" INSERT DISK 2 \" via 35DC.",
+      "name": "request_disk"
+    },
+    "resident_F_2816": {
+      "evidence": "Seeks to 0, reads a u16 count (2D66), rejects >104, reads that many u32 offsets (2DBA) into G_h01_A7EE (formats/arc.md).",
+      "name": "arc_read_index"
+    },
+    "resident_F_2D66": {
+      "evidence": "Called by arc_read_index for the record count; reads 2 bytes via Read and reverses them (little-endian u16; formats/arc.md).",
+      "name": "read_le16"
+    },
+    "resident_F_2DBA": {
+      "evidence": "Called by arc_read_index per offset; reads 4 bytes via Read and reverses them (little-endian u32; formats/arc.md).",
+      "name": "read_le32"
+    },
+    "resident_F_3674": {
+      "evidence": "Prints loader and allocation error codes with Chip/Fast memory totals, then calls the AV cleanup/exit path with the System Error argument (src/recovered/resident/resident_F_3674.c).",
+      "name": "report_loader_error"
+    },
+    "resident_F_3870": {
+      "evidence": "Wraps the tracked allocator and reports the failed byte range and remaining memory before showing Memory Alloc Failure (src/recovered/resident/resident_F_3870.c).",
+      "name": "allocate_memory_or_report"
+    },
+    "resident_F_3930": {
+      "evidence": "Checks a deallocation range against the tracked allocator bounds, reports BAD POINTER when outside them, and otherwise calls Deallocate (src/recovered/resident/resident_F_3930.c).",
+      "name": "free_memory_checked"
+    },
+    "resident_F_39C0": {
+      "evidence": "Prints a supplied label with the tracked memory total in decimal and hexadecimal (src/recovered/resident/resident_F_39C0.c).",
+      "name": "report_memory_usage"
+    },
+    "resident_F_3A06": {
+      "evidence": "Walks the allocator list and prints each node address and recorded byte count beneath MEM LIST (src/recovered/resident/resident_F_3A06.c).",
+      "name": "dump_memory_list"
+    },
+    "resident_F_3C4C": {
+      "evidence": "Initializes 9-bit codes, next code 0x102, width boundary 0x200, fills a 0x400 read buffer; decodes .arc kind-4 records (formats/arc.md).",
+      "name": "lzw_decode"
+    },
+    "resident_F_411E": {
+      "evidence": "Returns the next byte of a 0x400-byte buffer, refilling it with Read from G_h01_46DA and failing with error 8000 via 3674 (BEHAVIORAL_CHAR_RETURN).",
+      "name": "arc_next_byte"
+    },
+    "resident_F_704E": {
+      "evidence": "Accounting id runtime_member_sscanf is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "sscanf"
+    },
+    "resident_F_7522": {
+      "evidence": "Accounting id runtime_root_freeseg is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "FreeSeg"
+    },
+    "resident_F_75D8": {
+      "evidence": "Accounting id runtime_index is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "index"
+    },
+    "resident_F_7956": {
+      "evidence": "Accounting id runtime_strncpy is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "strncpy"
+    },
+    "resident_F_7978": {
+      "evidence": "Accounting id runtime_member_segload is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "LoadSeg"
+    },
+    "resident_F_7A6C": {
+      "evidence": "Accounting id runtime_movmem is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "movmem"
+    },
+    "resident_F_7A96": {
+      "evidence": "Accounting id runtime_strcat is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "strcat"
+    },
+    "resident_F_7AC0": {
+      "evidence": "Accounting id runtime_strcmp is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "strcmp"
+    },
+    "resident_F_7AF0": {
+      "evidence": "Accounting id runtime_strcpy is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "strcpy"
+    },
+    "resident_F_7B00": {
+      "evidence": "Accounting id runtime_mul36 is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "mul36"
+    },
+    "resident_F_7B24": {
+      "evidence": "Accounting id runtime_member_wbparse is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "wbparse"
+    },
+    "resident_F_7BD8": {
+      "evidence": "Accounting id runtime_member_printf is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "printf"
+    },
+    "resident_F_7F9C": {
+      "evidence": "Accounting id runtime_div36 is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "div36"
+    },
+    "resident_F_8044": {
+      "evidence": "Accounting id runtime_strlen is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "strlen"
+    },
+    "resident_F_850A": {
+      "evidence": "Accounting id runtime_member_abort is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "abort"
+    },
+    "resident_F_868C": {
+      "evidence": "PINNED_RUNTIME runtime_glue_close (evidence/hybrid/accounting.json): dos.library Close glue.",
+      "name": "Close"
+    },
+    "resident_F_8690": {
+      "evidence": "Accounting id runtime_glue__close is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "close"
+    },
+    "resident_F_869C": {
+      "evidence": "Accounting id runtime_glue__current is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CurrentDir"
+    },
+    "resident_F_86A8": {
+      "evidence": "Accounting id runtime_glue_delay is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Delay"
+    },
+    "resident_F_86C0": {
+      "evidence": "Accounting id runtime_glue__input is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Input"
+    },
+    "resident_F_86DC": {
+      "evidence": "PINNED_RUNTIME runtime_glue_open: dos.library Open glue; game calls pass (\"DT1:x.arc\", 1005L = MODE_OLDFILE).",
+      "name": "Open"
+    },
+    "resident_F_86E0": {
+      "evidence": "Accounting id runtime_glue__open is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "open"
+    },
+    "resident_F_86EE": {
+      "evidence": "Accounting id runtime_glue__output is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Output"
+    },
+    "resident_F_86F6": {
+      "evidence": "PINNED_RUNTIME runtime_glue_read: dos.library Read glue.",
+      "name": "Read"
+    },
+    "resident_F_8708": {
+      "evidence": "Accounting id runtime_glue_seek is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Seek"
+    },
+    "resident_F_871A": {
+      "evidence": "Accounting id runtime_glue__write is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "write"
+    },
+    "resident_F_8728": {
+      "evidence": "Accounting id runtime_glue_addintse is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "AddIntServer"
+    },
+    "resident_F_8736": {
+      "evidence": "Accounting id runtime_glue_addtail is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "AddTail"
+    },
+    "resident_F_8744": {
+      "evidence": "Accounting id runtime_glue_alert is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Alert"
+    },
+    "resident_F_875C": {
+      "evidence": "Accounting id runtime_glue_allocate is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Allocate"
+    },
+    "resident_F_876C": {
+      "evidence": "Accounting id runtime_glue_availmem is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "AvailMem"
+    },
+    "resident_F_8778": {
+      "evidence": "Accounting id runtime_glue_closedev is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CloseDevice"
+    },
+    "resident_F_8784": {
+      "evidence": "Accounting id runtime_closelib_unit is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CloseLibrary"
+    },
+    "resident_F_8794": {
+      "evidence": "Accounting id runtime_member_createpo is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CreatePort"
+    },
+    "resident_F_887E": {
+      "evidence": "Accounting id runtime_member_createst is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CreateStdIO"
+    },
+    "resident_F_8926": {
+      "evidence": "Accounting id runtime_allocmem_unit is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "AllocMem"
+    },
+    "resident_F_8938": {
+      "evidence": "Accounting id runtime_glue_dealloca is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Deallocate"
+    },
+    "resident_F_894A": {
+      "evidence": "Accounting id runtime_glue_doio is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "DoIO"
+    },
+    "resident_F_8960": {
+      "evidence": "Accounting id runtime_findtask_unit is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "FindTask"
+    },
+    "resident_F_8970": {
+      "evidence": "Accounting id runtime_glue_forbid is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Forbid"
+    },
+    "resident_F_8974": {
+      "evidence": "Accounting id runtime_glue__forbid is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "forbid"
+    },
+    "resident_F_897C": {
+      "evidence": "Accounting id runtime_freemem_unit is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "FreeMem"
+    },
+    "resident_F_899C": {
+      "evidence": "Accounting id runtime_glue__getmsg is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "GetMsg"
+    },
+    "resident_F_89A8": {
+      "evidence": "Accounting id runtime_glue_newlist is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "NewList"
+    },
+    "resident_F_89BA": {
+      "evidence": "Accounting id runtime_glue_opendevi is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "OpenDevice"
+    },
+    "resident_F_89D0": {
+      "evidence": "Accounting id runtime_openlibrary_unit is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "OpenLibrary"
+    },
+    "resident_F_89E4": {
+      "evidence": "Accounting id runtime_glue_permit is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Permit"
+    },
+    "resident_F_89EC": {
+      "evidence": "Accounting id runtime_glue_remintse is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "RemIntServer"
+    },
+    "resident_F_8A06": {
+      "evidence": "Accounting id runtime_glue_remtail is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "RemTail"
+    },
+    "resident_F_8A12": {
+      "evidence": "Accounting id runtime_glue__replyms is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "ReplyMsg"
+    },
+    "resident_F_8A1E": {
+      "evidence": "Accounting id runtime_glue_setintve is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "SetIntVector"
+    },
+    "resident_F_8A3A": {
+      "evidence": "Accounting id runtime_glue__waitpor is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "WaitPort"
+    },
+    "resident_F_8A46": {
+      "evidence": "Accounting id runtime_glue_bltbitma is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "BltBitMap"
+    },
+    "resident_F_8A68": {
+      "evidence": "Accounting id runtime_glue_bltbitrp is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "BltBitMapRastPort"
+    },
+    "resident_F_8A8A": {
+      "evidence": "Accounting id runtime_glue_bltclear is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "BltClear"
+    },
+    "resident_F_8A9C": {
+      "evidence": "Accounting id runtime_glue_closefon is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CloseFont"
+    },
+    "resident_F_8AA8": {
+      "evidence": "Accounting id runtime_glue_draw is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Draw"
+    },
+    "resident_F_8ABA": {
+      "evidence": "Accounting id runtime_glue_freecolo is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "FreeColorMap"
+    },
+    "resident_F_8AC6": {
+      "evidence": "Accounting id runtime_glue_freecprl is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "FreeCprList"
+    },
+    "resident_F_8AD2": {
+      "evidence": "Accounting id runtime_glue_freespri is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "FreeSprite"
+    },
+    "resident_F_8ADE": {
+      "evidence": "Accounting id runtime_glue_freevpor is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "FreeVPort"
+    },
+    "resident_F_8AEA": {
+      "evidence": "Accounting id runtime_glue_getcolor is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "GetColorMap"
+    },
+    "resident_F_8AF6": {
+      "evidence": "Accounting id runtime_initbitm is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "InitBitMap"
+    },
+    "resident_F_8B08": {
+      "evidence": "Accounting id runtime_initview is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "InitView"
+    },
+    "resident_F_8B14": {
+      "evidence": "Accounting id runtime_initvpor is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "InitVPort"
+    },
+    "resident_F_8B32": {
+      "evidence": "Accounting id runtime_glue_loadview is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "LoadView"
+    },
+    "resident_F_8B3E": {
+      "evidence": "Accounting id runtime_makevpor is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "MakeVPort"
+    },
+    "resident_F_8B4C": {
+      "evidence": "Accounting id runtime_glue_move is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Move"
+    },
+    "resident_F_8B5E": {
+      "evidence": "Accounting id runtime_mrgcop is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "MrgCop"
+    },
+    "resident_F_8B6A": {
+      "evidence": "Accounting id runtime_glue_openfont is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "OpenFont"
+    },
+    "resident_F_8B76": {
+      "evidence": "Accounting id runtime_glue_rectfill is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "RectFill"
+    },
+    "resident_F_8B88": {
+      "evidence": "Accounting id runtime_glue_setapen is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "SetAPen"
+    },
+    "resident_F_8B98": {
+      "evidence": "Accounting id runtime_glue_setbpen is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "SetBPen"
+    },
+    "resident_F_8BA8": {
+      "evidence": "Accounting id runtime_glue_setdrmd is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "SetDrMd"
+    },
+    "resident_F_8BB8": {
+      "evidence": "Accounting id runtime_glue_setfont is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "SetFont"
+    },
+    "resident_F_8BC8": {
+      "evidence": "Accounting id runtime_glue_setrast is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "SetRast"
+    },
+    "resident_F_8BEA": {
+      "evidence": "Accounting id runtime_glue_text is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "Text"
+    },
+    "resident_F_8C04": {
+      "evidence": "Accounting id runtime_glue_waitbovp is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "WaitBOVP"
+    },
+    "resident_F_8C10": {
+      "evidence": "Accounting id runtime_glue_writepix is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "WritePixel"
+    },
+    "resident_F_8C48": {
+      "evidence": "Accounting id runtime_glue_autorequ is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "AutoRequest"
+    },
+    "resident_F_8C66": {
+      "evidence": "Accounting id runtime_glue_closewor is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CloseWorkBench"
+    },
+    "resident_F_8C6E": {
+      "evidence": "Accounting id runtime_glue_getprefs is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "GetPrefs"
+    },
+    "resident_F_8C7E": {
+      "evidence": "Accounting id runtime_glue_openwork is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "OpenWorkBench"
+    },
+    "resident_F_8C86": {
+      "evidence": "Accounting id runtime_glue_setprefs is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "SetPrefs"
+    },
+    "resident_F_8C98": {
+      "evidence": "Accounting id runtime_glue_createup is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "CreateUpfrontLayer"
+    },
+    "resident_F_8CB6": {
+      "evidence": "Accounting id runtime_glue_deletela is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "DeleteLayer"
+    },
+    "resident_F_8CC4": {
+      "evidence": "Accounting id runtime_glue_disposel is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "DisposeLayer"
+    },
+    "resident_F_8CD0": {
+      "evidence": "Accounting id runtime_glue_newlayer is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
+      "name": "NewLayer"
+    }
+  },
+  "globals": {
+    "G_h01_4524": {
+      "evidence": "The table supplies location names and coordinates to the map UI and its point values select the matching overlay family (ov15_F_0000, resident_F_01BA, ov03_F_154E).",
+      "name": "map_location_table"
+    },
+    "G_h01_452E": {
+      "evidence": "The main loop sets this per-location flag after acquisition and checks it to reject a treasure already collected by the player (ov03_F_001C).",
+      "name": "player_treasure_collected"
+    },
+    "G_h01_452F": {
+      "evidence": "The main loop checks this per-location flag for the rival's ?too late? treasure outcome and selects locations only while both collection flags are clear (ov03_F_001C).",
+      "name": "rival_treasure_collected"
+    },
+    "G_h01_46CA": {
+      "evidence": "The global is passed as the RastPort argument to SetAPen, Move, and Draw across screen-rendering routines (resident_F_0A44; accounting IDs runtime_glue_setapen, runtime_glue_move, runtime_glue_draw).",
+      "name": "screen_rast_port"
+    },
+    "G_h01_46DA": {
+      "evidence": "Assigned from Open(\"DT1:<name>.arc\", 1005L) in every overlay loader and passed to arc_read_index and Close.",
+      "name": "arc_file"
+    },
+    "G_h01_46E0": {
+      "evidence": "The difficulty menu sets this value to 0-2, and the main loop plus gameplay overlays branch on it to scale game values (ov04_F_149C, ov03_F_001C, ov05_F_467E).",
+      "name": "difficulty_level"
+    },
+    "G_h01_46E1": {
+      "evidence": "The main loop advances this counter by travel time and daily ticks, caps it at 30, and multiple screens display it as the current day (ov03_F_001C and its callers).",
+      "name": "game_day"
+    },
+    "G_h01_46E3": {
+      "evidence": "The adventure loop stores the active location index here and passes it to travel-time and location-table operations (ov03_F_001C, ov15_F_0000).",
+      "name": "current_location"
+    },
+    "G_h01_46E4": {
+      "evidence": "The adventure loop sets this flag when the Bombastium event unlocks the matter transmitter, and map/treasure screens use it to expose extra choices (ov03_F_001C, ov15_F_0000, ov15_F_0C12).",
+      "name": "matter_transmitter_unlocked"
+    },
+    "G_h01_46E6": {
+      "evidence": "Gameplay and investment routines add treasure and sale proceeds, subtract purchases and losses, and draw this value as the player's money total (ov03_F_001C, ov07_F_0612, ov08_F_1F4C).",
+      "name": "total_money"
+    },
+    "G_h01_4700": {
+      "evidence": "The main-adventure routine saves the active main.arc file handle here and restores it after loading other archives; the quit path also restores it (ov03_F_001C, resident_F_0A44).",
+      "name": "main_arc_file_handle"
+    },
+    "G_h01_4D60": {
+      "evidence": "The market loader resets this marker and the daily updater advances it until it reaches the current game day (ov04_F_0536, ov07_F_1A02).",
+      "name": "market_update_day"
+    },
+    "G_h01_4D62": {
+      "evidence": "The investment loader fills these company rows and the portfolio/trading screens read their names and owned-share fields (ov04_F_0536, ov07_F_04AC, ov07_F_0612).",
+      "name": "investment_company_table"
+    },
+    "G_h01_4D82": {
+      "evidence": "Daily market updates change company state and price-event fields while trading code reads the price base and share count (ov07_F_1A02, ov07_F_0612).",
+      "name": "investment_market_state"
+    },
+    "G_h01_5014": {
+      "evidence": "The loader fills this category-by-day table from chart.arc and the price calculation and daily market updater index it by category and game day (ov04_F_0536, ov07_F_0EC0, ov07_F_1A02).",
+      "name": "market_price_history"
+    },
+    "G_h01_5374": {
+      "evidence": "InitAV stores the result of OpenLibrary(\"graphics.library\") here and later passes it to CloseLibrary (ov04_F_1E36, ov04_F_26F0, ov04_F_27FE).",
+      "name": "graphics_library_base"
+    },
+    "G_h01_5378": {
+      "evidence": "InitAV stores the result of OpenLibrary(\"intuition.library\") here and the cleanup/error paths close that library base (ov04_F_1E36, ov04_F_26F0, ov04_F_27FE).",
+      "name": "intuition_library_base"
+    },
+    "G_h01_537C": {
+      "evidence": "InitAV stores OpenLibrary(\"layers.library\") here and the AV cleanup path closes that library base (ov04_F_1E36, ov04_F_27FE).",
+      "name": "layers_library_base"
+    },
+    "G_h01_A7EE": {
+      "evidence": "Filled by arc_read_index with up to 104 u32 record offsets (formats/arc.md).",
+      "name": "arc_offsets"
+    }
+  },
+  "schema_version": 1
+}

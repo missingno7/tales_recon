@@ -124,14 +124,18 @@ def capture(root=ROOT):
                                     owned_code_data=any(t['id']==unit['id'] for t in unit.get('owned_code_tails',[])),
                                     allow_gaps=bool(unit.get('original_gaps')),
                                     source_text=(unit_path.parent/'unit.c').read_text(),natural=unit.get('natural_interval'))
-                require(report['verdict']=='EQUAL','canonical unit replay failed: '+unit_name)
+                require(report['verdict']=='EQUAL' or report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and
+                        report['verdict']==unit['verdict'] and fid in report.get('accepted_exact_members',()),
+                        'canonical unit replay failed: '+unit_name)
                 replayed[unit_name]=report
             cursor=0
             for m in unit['ordered_members']:
                 mr=next(r for r in unit['members'] if r['id']==m['id'])
+                # A recorded behavioral member spans its widened candidate length.
+                length=mr['actual_length'] if 'actual_length' in mr else mr['candidate_length']
                 if m['id']==fid:
-                    raw=raw[cursor:cursor+mr['actual_length']];break
-                cursor+=mr['actual_length']
+                    raw=raw[cursor:cursor+length];break
+                cursor+=length
         else:
             replay=(compare_owned_code_data(by[fid],compiled,analysis['a4']['bias']) if
                     item['state']=='FUNCTION_WITH_DATA_MATCH' else compare_function(by[fid],compiled,analysis['a4']['bias']))

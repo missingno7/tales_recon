@@ -1,7 +1,8 @@
 """Prove a caller plus adjacent recovered callees as one complete natural object.
 
 No code fragment is accepted alone: every byte in the full compiled unit must
-belong to a closed function extent and every member must pass exact comparison.
+belong to a closed function extent. Exact members must pass exact comparison;
+canonical behavioral members must re-prove their separately recorded claim.
 """
 import argparse
 import copy
@@ -231,6 +232,13 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     """
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
     member_sources=dict(member_sources or {})
+    behavioral_entries=r.get('behavioral_functions',{})
+    require(not set(member_sources)&set(behavioral_entries),'behavioral dependencies must use canonical ledger sources')
+    if fid in behavioral_entries:
+        import behavioral
+        behavioral.validate(verification_root(),f,behavioral_entries[fid],l)
+        require(sha256(source.encode())==behavioral_entries[fid]['source_sha256'],
+                'behavioral entry must use its canonical source')
     require(fid not in member_sources,'the entry member source is the positional candidate, not a --member')
     entry_name=mechanical_name(f)
     def new_part(text):
@@ -267,9 +275,14 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             for call in df['direct_callees']:
                 if call['hunk']==df['hunk'] and call['id']!=dep_id and linked_call(call):add_recovered(call['id'])
             return
-        dep=r['functions'].get(dep_id)
+        dep=r['functions'].get(dep_id) or r.get('behavioral_functions',{}).get(dep_id)
         require(dep is not None,'unrecovered same-node dependency: '+dep_id)
-        df,_=validated_function(dep_id);text=canonical_path(verification_root(),dep['source']).read_text()
+        df,_=validated_function(dep_id)
+        if dep_id in r.get('behavioral_functions',{}):
+            import behavioral
+            require(dep_id not in r['functions'],'behavioral entry is also exact C')
+            behavioral.validate(verification_root(),df,dep,l)
+        text=canonical_path(verification_root(),dep['source']).read_text()
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
         name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
@@ -312,7 +325,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             if candidate['hunk']!=f['hunk'] or candidate['end']<=lo or candidate['start']>=hi:continue
             require(lo<=candidate['start'] and candidate['end']<=hi,'natural interval splits function '+candidate['id'])
             if candidate['id'] in members:continue
-            require(candidate['id'] in r['functions'],
+            require(candidate['id'] in r['functions'] or candidate['id'] in r.get('behavioral_functions',{}),
                     'natural interval contains an unrecovered function without a member source: '+candidate['id'])
             add_recovered(candidate['id'])
     elif not allow_gaps:
@@ -351,7 +364,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
 
 
 def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps=False,source_text=None,natural=None,*,context=None):
-    """Exact comparison of a complete linked unit.
+    """Compare a complete unit, separating exact and recorded behavioral members.
 
     ``natural`` is a ``natural_interval_plan`` layout.  Members are then
     compared in compact linked coordinates (like ``allow_gaps``), and the unit
@@ -397,11 +410,27 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             if tail:tail_receipts.append(dict(id=f['id'],**ownership,expected_tail_sha256=sha256(tail)))
     except FormatError as exc:
         return dict(verdict='BLOCKED',reason='UNIT_OWNED_CODE_DATA_UNPROVEN: '+str(exc),members=[])
+    # Only canonical, hash-bound behavioral claims may enlarge a member's
+    # partition. All other members retain their exact historical extents.
+    import behavioral
+    behavioral_proofs={}
+    for f in members:
+        item=ledger.get(behavioral.MAP,{}).get(f['id'])
+        if item is None:continue
+        require(f['id'] not in ledger['functions'],'behavioral entry is also exact C')
+        require(not tails[f['id']],'behavioral member cannot own an unproved CODE tail')
+        analysis=context['analysis'] if context is not None else evidence()
+        behavioral_proofs[f['id']]=behavioral.validate(
+            context['root'] if context is not None else verification_root(),f,item,analysis)
+    lengths={f['id']:behavioral_proofs[f['id']]['candidate_length'] if f['id'] in behavioral_proofs else f['size']
+             for f in members}
     expected_compiled=b''.join(bytes.fromhex(f['raw_bytes'])+tails[f['id']] for f in members)
     expected_compiled_length=len(expected_compiled)
     result['expected_compiled_length']=expected_compiled_length
     if tail_receipts:result['owned_code_tails']=tail_receipts
-    if len(raw)!=expected_compiled_length:
+    candidate_length=sum(lengths[f['id']]+len(tails[f['id']]) for f in members)
+    if behavioral_proofs:result['expected_candidate_length']=candidate_length
+    if len(raw)!=candidate_length:
         result.update(verdict='DIFFER',reason='COMPLETE_UNIT_SIZE_DIFFERS');return result
     cursor=0
     # The standalone oracle has only one emitted overlay CODE hunk.  Its
@@ -432,12 +461,12 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
     for f in members:
         symbol=next((s for s in c['symbols'] if s['hunk']==c['hunk'] and s['name']=='_'+names[f['id']]),None)
         require(symbol is not None and symbol['offset']==linked_base+cursor,'natural function ordering/extent differs; no slice accepted')
-        stop=cursor+f['size'];piece=copy.deepcopy(compiled);pc=piece['contribution']
+        stop=cursor+lengths[f['id']];piece=copy.deepcopy(compiled);pc=piece['contribution']
         owned_tail=tails[f['id']]
         code_offset=linked_base+cursor if resident else cursor if allow_gaps else original_base+cursor
         # Compare the linked literal bytes themselves. Appending the expected
         # tail here would conceal a same-size source literal corruption.
-        pc.update(code_hex=raw[cursor:stop+len(owned_tail)].hex(),code_size=f['size']+len(owned_tail),code_offset=code_offset,entry_offset=0)
+        pc.update(code_hex=raw[cursor:stop+len(owned_tail)].hex(),code_size=lengths[f['id']]+len(owned_tail),code_offset=code_offset,entry_offset=0)
         pc['hunk']=original_hunk
         pc['symbols']=[dict(s) for s in symbols] if resident else [dict(s,hunk=original_hunk,offset=s['offset'] if allow_gaps else s['offset']+original_base) if s['hunk']==source_hunk else dict(s)
                        for s in symbols]
@@ -451,7 +480,22 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             if end<=cursor or at>=stop:continue
             require(cursor<=at<end<=stop,'unit boundary splits a relocation')
             pc['relocations'].append(dict(relocation,relative_offset=at-cursor))
-        if owned_tail:
+        if f['id'] in behavioral_proofs:
+            proof=behavioral_proofs[f['id']]
+            try:
+                spans=[(t['table_start']-f['start'],t['table_end']-f['start']) for t in f.get('jump_tables',[])]
+                reduced,deletions=behavioral.reduced_contribution(bytes.fromhex(f['raw_bytes']),pc,spans)
+                require(deletions==proof['deletions'],'behavioral unit deletions differ from recorded claim')
+                reduced_report=compare_function(f,dict(piece,contribution=reduced),a4_bias,source_text=source_text,
+                                                **({'context':context} if context is not None else {}))
+                passed=reduced_report['verdict']=='EQUAL'
+                report=dict(id=f['id'],verdict='BEHAVIORAL_EQUAL' if passed else 'DIFFER',
+                            state=behavioral.STATE,proof_level=None,reason='RECORDED_BEHAVIORAL_CLAIM' if passed else 'BEHAVIORAL_MEMBER_DIFFERS',
+                            deletions=deletions,candidate_length=lengths[f['id']],reduced_comparison=reduced_report)
+            except FormatError as exc:
+                report=dict(id=f['id'],verdict='DIFFER',state=behavioral.STATE,proof_level=None,
+                            reason='BEHAVIORAL_MEMBER_DIFFERS: '+str(exc))
+        elif owned_tail:
             from owned_code_data import compare_owned_code_data
             report=compare_owned_code_data(f,piece,a4_bias,source_text,**({'context':context} if context is not None else {}))
         else:
@@ -463,14 +507,20 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
         report['id']=f['id'];result['members'].append(report)
         cursor=stop+len(owned_tail)
     require(cursor==len(raw),'unclaimed code bytes in unit')
-    equal=all(m['verdict']=='EQUAL' for m in result['members'])
-    result.update(verdict='EQUAL' if equal else 'DIFFER',reason='ENTIRE_OBJECT_AND_ALL_MEMBER_CONTRIBUTIONS' if equal else 'MEMBER_DIFFERS',
+    equal=all(m['verdict']==('BEHAVIORAL_EQUAL' if m['id'] in behavioral_proofs else 'EQUAL') for m in result['members'])
+    verdict=('ACCEPTED_WITH_BEHAVIORAL' if behavioral_proofs else 'EQUAL') if equal else 'DIFFER'
+    if behavioral_proofs:
+        result.update(exact_members=[m['id'] for m in result['members'] if m['id'] not in behavioral_proofs],
+                      behavioral_members=list(behavioral_proofs),exact_unit=False,
+                      accepted_exact_members=[m['id'] for m in result['members'] if m['id'] not in behavioral_proofs] if equal else [])
+    result.update(verdict=verdict,reason=('ENTIRE_OBJECT_EXACT_MEMBERS_AND_RECORDED_BEHAVIORAL_CLAIMS' if behavioral_proofs else
+                                        'ENTIRE_OBJECT_AND_ALL_MEMBER_CONTRIBUTIONS') if equal else 'MEMBER_DIFFERS',
                   # Keep the historical function-extent hash stable for
                   # generated coverage.  The explicit compiled hash includes
                   # any independently proved literal bundles in physical
                   # source-object order.
                   expected_sha256=sha256(expected),expected_compiled_sha256=sha256(expected_compiled),actual_sha256=sha256(raw),
-                  normalized_sha256=sha256(expected) if equal else None,unclaimed_bytes=0)
+                  normalized_sha256=sha256(expected) if equal and not behavioral_proofs else None,unclaimed_bytes=0)
     return result
 
 
@@ -478,7 +528,11 @@ def member_comparison(report,fid,source_sha256,base=None):
     """One member's promotion comparison, bound to the whole unit verdict."""
     comparison=next((m for m in report['members'] if m['id']==fid),None)
     require(comparison is not None,'unit member has no comparison: '+fid)
-    comparison=dict(comparison,id=fid,verdict=report['verdict'],reason=report['reason'],
+    # An exact member of a unit with recorded behavioral dependencies carries
+    # its own exact verdict; the unit receipt keeps ACCEPTED_WITH_BEHAVIORAL.
+    verdict=('EQUAL' if report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and fid in report.get('accepted_exact_members',())
+             else report['verdict'])
+    comparison=dict(comparison,id=fid,verdict=verdict,reason=report['reason'],
                     source_sha256=source_sha256,
                     unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
     if base is not None:
@@ -530,7 +584,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     report.update(id=fid,profile=compiled['identity']['profile'],cache_key=compiled['cache_key'],cache_hit=compiled['cache_hit'],
                       compiler=compiled['identity'],
                       combined_source_sha256=sha256(combined.encode()),source_sha256=sha256(source.encode()),
-                      dependency_sources={f['id']:recovery()['functions'][f['id']]['source_sha256'] for f in members if f['id'] not in new_ids},
+                      dependency_sources={f['id']:(recovery()['functions'].get(f['id']) or recovery().get('behavioral_functions',{})[f['id']])['source_sha256'] for f in members if f['id'] not in new_ids},
                       ordered_members=[{k:f[k] for k in ('id','hunk','start','end','size','sha256')} for f in members],
                       verification_policy=(NATURAL_POLICY if natural is not None else
                                            'Every byte and member of the complete naturally compiled object; no omitted padding or data'
@@ -552,6 +606,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         report.update(profile_record)
         verifier_files+=('profile_compat.py','mixed_profile_oracle.py')
     if report.get('runtime_library_routes'):verifier_files+=('runtime_member_routes.py','runtime_members.py')
+    if report.get('behavioral_members'):verifier_files+=('behavioral.py',)
     verifier_identity={p:sha256((verification_root()/'tools'/p).read_bytes()) for p in verifier_files}
     import dead_code_extents
     if dead_code_extents.mode_active():verifier_identity['dead_code_extents.py']=sha256((verification_root()/'tools/dead_code_extents.py').read_bytes())
@@ -572,7 +627,9 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     comparison=next((m for m in report['members'] if m['id']==fid),None)
     if comparison is None:
         comparison=compare_function(target,compiled,a4_bias);comparison['actual_length']=None
-    comparison=dict(comparison,id=fid,verdict=report['verdict'],reason=report['reason'],
+    verdict=('EQUAL' if report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and fid in report.get('accepted_exact_members',())
+             else report['verdict'])
+    comparison=dict(comparison,id=fid,verdict=verdict,reason=report['reason'],
                     source_sha256=report['source_sha256'],
                     unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
     if base is not None:
@@ -860,8 +917,11 @@ def promote_unit_members(fid,source,member_sources,members,report,comparison,com
     all proofs name the same complete-unit receipt.
     """
     import check_function
-    require(report['verdict']=='EQUAL' and all(m['verdict']=='EQUAL' for m in report['members']),
-            'multi-member promotion requires every unit member EQUAL')
+    behavioral_deps=set(report.get('behavioral_members',()))
+    require(report['verdict'] in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') and
+            all(m['verdict']==('BEHAVIORAL_EQUAL' if m['id'] in behavioral_deps else 'EQUAL') for m in report['members']),
+            'multi-member promotion requires every exact member EQUAL and every behavioral dependency re-proved')
+    require(not behavioral_deps&({fid}|set(member_sources)),'behavioral members are never promoted as exact')
     require(comparison.get('complete_unit_receipt'),'multi-member promotion requires a retained unit receipt')
     sources={fid:source,**member_sources};by_id={f['id']:f for f in members}
     ledger=recovery()['functions'];plan=[]
@@ -872,7 +932,7 @@ def promote_unit_members(fid,source,member_sources,members,report,comparison,com
         require(not canonical or canonical['source_sha256']==digest,
                 'already promoted with another source; preserve canonical source: '+member_id)
         f=by_id[member_id]
-        for other,item in ledger.items():
+        for other,item in list(ledger.items())+list(recovery().get('behavioral_functions',{}).items()):
             e=item['evidence_extent']
             require(other==member_id or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
                     'promotion would overlap canonical source ownership: '+other)
@@ -908,7 +968,7 @@ def external_stand_in_source(combined,local_functions,target_node):
 def canonical_member_profile(member_id,ledger=None):
     """Profile of a canonical member, read from its own hash-checked proof."""
     from profile_compat import proof_profile
-    ledger=ledger or recovery();item=ledger['functions'].get(member_id)
+    ledger=ledger or recovery();item=ledger['functions'].get(member_id) or ledger.get('behavioral_functions',{}).get(member_id)
     require(item is not None and item.get('proof'),'canonical member has no proof receipt: '+member_id)
     path=verification_root()/item['proof']
     require(path.is_file() and sha256(path.read_bytes())==item.get('proof_sha256'),
@@ -916,7 +976,8 @@ def canonical_member_profile(member_id,ledger=None):
     proof=json.loads(path.read_text())
     require(proof.get('id')==member_id and proof.get('source_sha256')==item['source_sha256'],
             'canonical proof identity differs: '+member_id)
-    return dict(profile=proof_profile(proof,member_id),basis='CANONICAL_PROOF',proof=item['proof'],
+    profile=proof['profile'] if item.get('state')=='BEHAVIORAL_CHAR_RETURN' else proof_profile(proof,member_id)
+    return dict(profile=profile,basis='CANONICAL_PROOF',proof=item['proof'],
                 proof_sha256=item['proof_sha256'],proof_cache_key=proof.get('cache_key'))
 
 
@@ -1038,7 +1099,11 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
         if dependencies:
             mixed.configure(trial,dependencies)
         import runtime_member_routes
-        routes=runtime_member_routes.derive(members,trial['source'])
+        # Behavioral dependencies retain their accepted standalone mechanical
+        # external bindings. Routing them to library symbols would introduce
+        # an alias proof absent from their recorded comparison (e.g. Read).
+        routed_members=[m for m in members if m['id'] not in recovery().get('behavioral_functions',{})]
+        routes=runtime_member_routes.derive(routed_members,trial['source'])
         if routes:
             runtime_member_routes.register(trial['source'],routes)
             trial['runtime_library_routes']=routes
@@ -1087,7 +1152,7 @@ def trial_cache_key(trial,inspect_cache=True):
 @scoped
 def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_objects=True,allow_gaps=False,join_direct_callees=False,isolated=False,output_dir=None,member_sources=None,natural_interval=None,prepare_only=False,
           object_groups=None,per_member_profiles=False,member_profiles=None,replace_canonical=False,with_m_lib=False):
-    """Exact complete-unit check.  ``member_sources`` ({id: path}) adds new
+    """Complete-unit check (exact members plus recorded behavioral dependencies). ``member_sources`` ({id: path}) adds new
     members authored with the entry; acceptance is then the complete unit.
 
     ``natural_interval`` (``START..END``) links every function of that
@@ -1191,7 +1256,11 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                                       object_record=record,parts=parts if record else None,
                                       profile_record=trial.get('profile_record'),
                                       harness_struct_views=trial.get('harness_struct_views',False))
-        if report['verdict']=='EQUAL' and promote_equal:
+        new_ids={fid,*member_sources}
+        accepted=(report['verdict']=='EQUAL' or report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and
+                  new_ids<=set(report.get('accepted_exact_members',())))
+        if accepted and promote_equal:
+            require(report['verdict']=='EQUAL' or not replace_canonical,'canonical replacement requires an exact unit')
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
             if owned_code_data:
                 from check_function import owned_code_data_boundary
@@ -1281,7 +1350,7 @@ def main():
                       a.replace_canonical,a.with_m_lib)
     for r in reports:print(json.dumps(r))
     if a.prepare_only:return 0
-    return 0 if any(r['verdict']=='EQUAL' for r in reports) else 1
+    return 0 if any(r['verdict'] in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') for r in reports) else 1
 
 if __name__=='__main__':
     try:sys.exit(main())

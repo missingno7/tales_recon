@@ -119,7 +119,11 @@ def durable_unit(report):
     path=(ROOT/name).resolve()
     if not path.is_relative_to(ROOT/'build/recovery/units'):return report
     require(sha256(path.read_bytes())==report['complete_unit_receipt_sha256'],'unit receipt changed before retention')
-    unit=json.loads(path.read_text());require(unit['verdict']=='EQUAL','only exact units can become durable')
+    unit=json.loads(path.read_text())
+    # A unit with recorded behavioral dependencies is durable only for the
+    # exact members it accepted (recovery_evidence re-proves both kinds).
+    require(unit['verdict']=='EQUAL' or unit['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and unit.get('exact_unit') is False and
+            report.get('id') in unit.get('accepted_exact_members',()),'only exact units or exact members can become durable')
     destination=ROOT/'recovery/units'/path.parent.relative_to(ROOT/'build/recovery/units')
     destination.mkdir(parents=True,exist_ok=True)
     inputs=[path,path.parent/'unit.c']
