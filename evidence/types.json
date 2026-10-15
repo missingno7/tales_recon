@@ -20385,6 +20385,36 @@
       {
         "disposition": "DIAGNOSTIC; no declaration was changed",
         "left": {
+          "declaration": "extern long G_h01_B1F2;",
+          "line": 8,
+          "path": "src/recovered/resident/resident_F_48D4.c",
+          "shape": {
+            "array": false,
+            "base": "long",
+            "category": "long",
+            "extent": null,
+            "pointer": false
+          }
+        },
+        "order_sensitive_harness": true,
+        "relation": "POINTER_SCALAR_VIEW_CONFLICT",
+        "right": {
+          "declaration": "extern char *G_h01_B1F2;",
+          "line": 4,
+          "path": "src/recovered/resident/resident_F_4AF0.c",
+          "shape": {
+            "array": false,
+            "base": "char",
+            "category": "pointer",
+            "extent": null,
+            "pointer": true
+          }
+        },
+        "symbol": "G_h01_B1F2"
+      },
+      {
+        "disposition": "DIAGNOSTIC; no declaration was changed",
+        "left": {
           "declaration": "extern struct Cell *G_h01_B206[1];",
           "line": 17,
           "path": "src/recovered/resident/resident_F_4D04.c",
@@ -20503,7 +20533,7 @@
         "symbol": "G_h01_B3B0"
       }
     ],
-    "declarations_scanned": 2614,
+    "declarations_scanned": 2617,
     "parser": "single-line extern scalar/pointer/array declarations only",
     "policy": "int/short are ABI-compatible 16-bit views in observed Manx target use; struct views are review items because partial tags may be intentional. Harness declaration deduplication is first-declaration-wins.",
     "relation_counts": {
@@ -20511,7 +20541,7 @@
       "ARRAY_EXTENT_CONFLICT": 3,
       "ARRAY_SCALAR_VIEW_CONFLICT": 57,
       "DECLARATION_VIEW_REVIEW": 36,
-      "POINTER_SCALAR_VIEW_CONFLICT": 175,
+      "POINTER_SCALAR_VIEW_CONFLICT": 176,
       "SIGNEDNESS_VIEW_CONFLICT": 9,
       "STORAGE_WIDTH_CONFLICT": 79,
       "STRUCT_VIEW_DIFFERENCE_REVIEW": 160
@@ -20738,6 +20768,7 @@
       "src/recovered/resident/resident_F_4676.c": "1832ca7f70409a6b1931a23b85e74928bb1e3f9d995b6300010e0ed104673831",
       "src/recovered/resident/resident_F_46CE.c": "cabcf0aebad58a23662d161ba3f0898410fb2b3710903b5c9ffae4f85b5a131b",
       "src/recovered/resident/resident_F_48D4.c": "6d505f21b4c7a0900cc35830aa00a067df4fc6768539da4117f9df32758c3e06",
+      "src/recovered/resident/resident_F_4AF0.c": "b2d917633e4ed2b4a10e1cfed55ee18378bab934308622b3698d8ab184d47e33",
       "src/recovered/resident/resident_F_4D04.c": "0ea595381460e419481ec947e86a873b5275cbe36e585822ae3b48e326d98e41",
       "src/recovered/resident/resident_F_4EC6.c": "7f37d4f7f9a41dadf5239545652bdae7a6700589bfc47f147c11bb6c814140a0",
       "src/recovered/resident/resident_F_4F40.c": "5ffe0459f66a8827b73fe6f1abbfbd9852a7c6ff067d9bf5308ee306a5814e7b",
@@ -20750,7 +20781,7 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "symbols_with_multiple_views": 455
+    "symbols_with_multiple_views": 456
   },
   "frame_access_candidates": [
     {
@@ -171619,6 +171650,7 @@
       "src/recovered/resident/resident_F_4676.c": "1832ca7f70409a6b1931a23b85e74928bb1e3f9d995b6300010e0ed104673831",
       "src/recovered/resident/resident_F_46CE.c": "cabcf0aebad58a23662d161ba3f0898410fb2b3710903b5c9ffae4f85b5a131b",
       "src/recovered/resident/resident_F_48D4.c": "6d505f21b4c7a0900cc35830aa00a067df4fc6768539da4117f9df32758c3e06",
+      "src/recovered/resident/resident_F_4AF0.c": "b2d917633e4ed2b4a10e1cfed55ee18378bab934308622b3698d8ab184d47e33",
       "src/recovered/resident/resident_F_4D04.c": "0ea595381460e419481ec947e86a873b5275cbe36e585822ae3b48e326d98e41",
       "src/recovered/resident/resident_F_4EC6.c": "7f37d4f7f9a41dadf5239545652bdae7a6700589bfc47f147c11bb6c814140a0",
       "src/recovered/resident/resident_F_4F40.c": "5ffe0459f66a8827b73fe6f1abbfbd9852a7c6ff067d9bf5308ee306a5814e7b",

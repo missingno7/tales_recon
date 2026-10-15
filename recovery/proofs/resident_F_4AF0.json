@@ -1,0 +1,1089 @@
+{
+  "artifacts": [
+    {
+      "path": "compiler-input.txt",
+      "sha256": "bc62744ffb6430d058216443dc92255bdf9542f478d8f886ac965c533574d2a3",
+      "size": 40
+    },
+    {
+      "path": "h000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "h000-cc.log",
+      "sha256": "89018b617219e307c623470eb1f6ccd8c45f316749e05dc985d9e441688b1085",
+      "size": 72
+    },
+    {
+      "path": "h000.asm",
+      "sha256": "ce2ab1895503045ac93991c7c7537123ea29470ba501e3d4d14337b6117126ab",
+      "size": 729
+    },
+    {
+      "path": "h000.c",
+      "sha256": "0d497fadc2573a97afaa819d7722398f1aac580c8ee5abd067a513bf2a12cd01",
+      "size": 348
+    },
+    {
+      "path": "h000.o",
+      "sha256": "6a9ba362a629fdff4b6901610dba63caf2611332c7b563d72f8d6d7b9ea28127",
+      "size": 248
+    },
+    {
+      "path": "t000-as.log",
+      "sha256": "cf00113fba50f72ef0adaa6f085365df59b6f16847685fdc46e20962d4904382",
+      "size": 37
+    },
+    {
+      "path": "t000-cc.log",
+      "sha256": "45129742a7f0bf8be4c6a014db5a73d7c3c89871d91d63d953eae054c8373d6f",
+      "size": 176
+    },
+    {
+      "path": "t000-ln.log",
+      "sha256": "3d74a9d06b0a1b2a586bb7218ed876604c3f8297fee87c59c2c810f7e9be51c0",
+      "size": 105
+    },
+    {
+      "path": "t000.asm",
+      "sha256": "ffdc9314369e9382f907485a6dd5bb536eb61c2c72c4961692131f845d632667",
+      "size": 2590
+    },
+    {
+      "path": "t000.c",
+      "sha256": "b2d917633e4ed2b4a10e1cfed55ee18378bab934308622b3698d8ab184d47e33",
+      "size": 1417
+    },
+    {
+      "path": "t000.exe",
+      "sha256": "b2185415d2d80e5738a94d35d943c3b8f63d69d40a67f5d57ddda7624f0b08cc",
+      "size": 2552
+    },
+    {
+      "path": "t000.o",
+      "sha256": "d6f2d2aabb17142cac505c6ec9c6a350f511b47bfb2d77cffcbbb68b21b79a6f",
+      "size": 728
+    },
+    {
+      "path": "t000.sym",
+      "sha256": "de44851769951c48c16228203f46a5ac761af0957dfcafac5bf25835826605d0",
+      "size": 1524
+    }
+  ],
+  "cache_key": "4fc5d1a6755735cb0796e487ca14bf59369e781d0a16179b58695a7cc86c2118",
+  "comparison": {
+    "actual_length": 532,
+    "actual_sha256": "fe054c76df424866750542bfa6fe4449a715c5e6da7e0d0d2baafd116c0d6912",
+    "cache_hit": false,
+    "cache_key": "4fc5d1a6755735cb0796e487ca14bf59369e781d0a16179b58695a7cc86c2118",
+    "comparison_identity": "908dcc20b7d79a4d3970d7961e2c2d00dd1e4ddbab0af5501c2d90321942c65f",
+    "compiler": "aztec36-large-data",
+    "data_contributions": {
+      "candidate_bss": 0,
+      "candidate_data": 0,
+      "expected_owned_data": "NOT_CLAIMED"
+    },
+    "epilogue": {
+      "actual": [
+        {
+          "mnemonic": "jsr",
+          "offset": 524,
+          "operands": "$fffffff6(pc)",
+          "raw": "4ebafde8",
+          "size": 4
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 528,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 530,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "jsr",
+          "offset": 524,
+          "operands": "$fffffeb0(pc)",
+          "raw": "4ebafca2",
+          "size": 4
+        },
+        {
+          "mnemonic": "unlk",
+          "offset": 528,
+          "operands": "a5",
+          "raw": "4e5d",
+          "size": 2
+        },
+        {
+          "mnemonic": "rts",
+          "offset": 530,
+          "operands": "",
+          "raw": "4e75",
+          "size": 2
+        }
+      ]
+    },
+    "expected_length": 532,
+    "expected_sha256": "5150300986069ddc9d396bfd3c047c04ab5fd134bae99ebd8200332e2067f46e",
+    "first_structural_instruction_difference": null,
+    "flags": [
+      "+D"
+    ],
+    "id": "resident_F_4AF0",
+    "mnemonic_similarity": 1.0,
+    "normalized_first_difference": null,
+    "normalized_sha256": "5150300986069ddc9d396bfd3c047c04ab5fd134bae99ebd8200332e2067f46e",
+    "prologue": {
+      "actual": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fff0",
+          "raw": "4e55fff0",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 4,
+          "operands": "$10.l, $14.l",
+          "raw": "23f90000001000000014",
+          "size": 10
+        },
+        {
+          "mnemonic": "clr.w",
+          "offset": 14,
+          "operands": "-$2(a5)",
+          "raw": "426dfffe",
+          "size": 4
+        }
+      ],
+      "expected": [
+        {
+          "mnemonic": "link.w",
+          "offset": 0,
+          "operands": "a5, #$fff0",
+          "raw": "4e55fff0",
+          "size": 4
+        },
+        {
+          "mnemonic": "move.l",
+          "offset": 4,
+          "operands": "$5422.l, $b1f2.l",
+          "raw": "23f9000054220000b1f2",
+          "size": 10
+        },
+        {
+          "mnemonic": "clr.w",
+          "offset": 14,
+          "operands": "-$2(a5)",
+          "raw": "426dfffe",
+          "size": 4
+        }
+      ]
+    },
+    "proof_level": "FUNCTION_CODE_MATCH",
+    "raw_first_difference": {
+      "actual": "001000000014426dfffe302dfffe2079",
+      "actual_size": 532,
+      "expected": "54220000b1f2426dfffe302dfffe2079",
+      "expected_size": 532,
+      "offset": 8
+    },
+    "reason": "COMPLETE_CONTRIBUTION",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_profiles": {
+      "actual": [
+        {
+          "addend_raw": 16,
+          "entry_offset": 2416,
+          "record_offset": 2404,
+          "relative_offset": 6,
+          "source_hunk": 0,
+          "source_offset": 50,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2420,
+          "record_offset": 2404,
+          "relative_offset": 10,
+          "source_hunk": 0,
+          "source_offset": 54,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2424,
+          "record_offset": 2404,
+          "relative_offset": 24,
+          "source_hunk": 0,
+          "source_offset": 68,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2428,
+          "record_offset": 2404,
+          "relative_offset": 56,
+          "source_hunk": 0,
+          "source_offset": 100,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2432,
+          "record_offset": 2404,
+          "relative_offset": 90,
+          "source_hunk": 0,
+          "source_offset": 134,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2436,
+          "record_offset": 2404,
+          "relative_offset": 160,
+          "source_hunk": 0,
+          "source_offset": 204,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2440,
+          "record_offset": 2404,
+          "relative_offset": 194,
+          "source_hunk": 0,
+          "source_offset": 238,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2444,
+          "record_offset": 2404,
+          "relative_offset": 240,
+          "source_hunk": 0,
+          "source_offset": 284,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2448,
+          "record_offset": 2404,
+          "relative_offset": 274,
+          "source_hunk": 0,
+          "source_offset": 318,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2452,
+          "record_offset": 2404,
+          "relative_offset": 310,
+          "source_hunk": 0,
+          "source_offset": 354,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2456,
+          "record_offset": 2404,
+          "relative_offset": 338,
+          "source_hunk": 0,
+          "source_offset": 382,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2460,
+          "record_offset": 2404,
+          "relative_offset": 368,
+          "source_hunk": 0,
+          "source_offset": 412,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2464,
+          "record_offset": 2404,
+          "relative_offset": 396,
+          "source_hunk": 0,
+          "source_offset": 440,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2468,
+          "record_offset": 2404,
+          "relative_offset": 464,
+          "source_hunk": 0,
+          "source_offset": 508,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 24,
+          "entry_offset": 2472,
+          "record_offset": 2404,
+          "relative_offset": 488,
+          "source_hunk": 0,
+          "source_offset": 532,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 20,
+          "entry_offset": 2476,
+          "record_offset": 2404,
+          "relative_offset": 500,
+          "source_hunk": 0,
+          "source_offset": 544,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        }
+      ],
+      "expected": [
+        {
+          "addend_raw": 21538,
+          "entry_offset": 39128,
+          "record_offset": 36300,
+          "relative_offset": 6,
+          "source_hunk": 0,
+          "source_offset": 19190,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39132,
+          "record_offset": 36300,
+          "relative_offset": 10,
+          "source_hunk": 0,
+          "source_offset": 19194,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39136,
+          "record_offset": 36300,
+          "relative_offset": 24,
+          "source_hunk": 0,
+          "source_offset": 19208,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39140,
+          "record_offset": 36300,
+          "relative_offset": 56,
+          "source_hunk": 0,
+          "source_offset": 19240,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39144,
+          "record_offset": 36300,
+          "relative_offset": 90,
+          "source_hunk": 0,
+          "source_offset": 19274,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39148,
+          "record_offset": 36300,
+          "relative_offset": 160,
+          "source_hunk": 0,
+          "source_offset": 19344,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39152,
+          "record_offset": 36300,
+          "relative_offset": 194,
+          "source_hunk": 0,
+          "source_offset": 19378,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39156,
+          "record_offset": 36300,
+          "relative_offset": 240,
+          "source_hunk": 0,
+          "source_offset": 19424,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39160,
+          "record_offset": 36300,
+          "relative_offset": 274,
+          "source_hunk": 0,
+          "source_offset": 19458,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39164,
+          "record_offset": 36300,
+          "relative_offset": 310,
+          "source_hunk": 0,
+          "source_offset": 19494,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39168,
+          "record_offset": 36300,
+          "relative_offset": 338,
+          "source_hunk": 0,
+          "source_offset": 19522,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39172,
+          "record_offset": 36300,
+          "relative_offset": 368,
+          "source_hunk": 0,
+          "source_offset": 19552,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39176,
+          "record_offset": 36300,
+          "relative_offset": 396,
+          "source_hunk": 0,
+          "source_offset": 19580,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39180,
+          "record_offset": 36300,
+          "relative_offset": 464,
+          "source_hunk": 0,
+          "source_offset": 19648,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 10436,
+          "entry_offset": 39184,
+          "record_offset": 36300,
+          "relative_offset": 488,
+          "source_hunk": 0,
+          "source_offset": 19672,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 45554,
+          "entry_offset": 39188,
+          "record_offset": 36300,
+          "relative_offset": 500,
+          "source_hunk": 0,
+          "source_offset": 19684,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        }
+      ]
+    },
+    "relocation_proof": [
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 21538,
+          "symbol": "_G_h01_5422"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 6
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 10
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 24
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 56
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 90
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 160
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 194
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 240
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 274
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 310
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 338
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 368
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 396
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 464
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 10436,
+          "symbol": "_G_h01_28C4"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 488
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45554,
+          "symbol": "_G_h01_B1F2"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 500
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 18644,
+          "symbol": "_F_h00_48D4"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 116,
+        "width": 2
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 18644,
+          "symbol": "_F_h00_48D4"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 426,
+        "width": 2
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 21918,
+          "symbol": "_F_h00_559E"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 436,
+        "width": 2
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 21918,
+          "symbol": "_F_h00_559E"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 444,
+        "width": 2
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 18848,
+          "symbol": "_F_h00_49A0"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 526,
+        "width": 2
+      }
+    ],
+    "source_sha256": "b2d917633e4ed2b4a10e1cfed55ee18378bab934308622b3698d8ab184d47e33",
+    "unit_blocker": "unrecovered same-node dependency: resident_F_559E",
+    "verdict": "EQUAL"
+  },
+  "compiler": {
+    "candidate_overlay_node": 0,
+    "compiler_version": "3.6a",
+    "flags": [
+      "+D"
+    ],
+    "harness_sha256": "0d497fadc2573a97afaa819d7722398f1aac580c8ee5abd067a513bf2a12cd01",
+    "headers_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library": "c.lib",
+    "library_guest": "Old1:",
+    "library_sha256": "246d79a1761a784c4c45b9b9ee2274262f43cef1ec826c43561de3b1691e81c3",
+    "link_recipe": "harness.o candidate.o c.lib; -m -t",
+    "profile": "aztec36-large-data",
+    "resident_link_sha256": "5b11675ab8a3a0d134cc831ca12c92d54498b335f82e16b2992fe41ccf05d540",
+    "resident_object_extractor_sha256": "6dd909b9e3bb72ca096c790d9852b8e054d8f88fb4c9b10d04607aff1ad39678",
+    "service_version": 1,
+    "source_sha256": "b2d917633e4ed2b4a10e1cfed55ee18378bab934308622b3698d8ab184d47e33",
+    "tools": {
+      "as": "96ddb35c570786993fe3c32b9535bb9b61251754f3774678132a0fa73209f098",
+      "cc": "22edc2b6067fc0dfb201f69d894e0c5e9fa4500467cd8a34c1c5cb5199d924fa",
+      "ln": "1d93d91c7fbe7a97291a0a2441a713354937e4e8a6bf221e734a199ccb6cab45"
+    },
+    "worker_sha256": "2bbbdc20815156d038f9f214cfd0318d6f73a29d8c379918a1d7fc7006a68d6f"
+  },
+  "compiler_selection": "Matching candidate; historical release remains ambiguous",
+  "data_ownership": "External references only; no candidate-owned data or padding omitted",
+  "dependencies": [
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_48D4",
+      "offset": 18644,
+      "site": 19298
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_48D4",
+      "offset": 18644,
+      "site": 19608
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_559E",
+      "offset": 21918,
+      "site": 19618
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_559E",
+      "offset": 21918,
+      "site": 19626
+    },
+    {
+      "basis": "PC_RELATIVE",
+      "hunk": 0,
+      "id": "resident_F_49A0",
+      "offset": 18848,
+      "site": 19708
+    }
+  ],
+  "evidence_extent": {
+    "end": 19716,
+    "extent_status": "CLOSED_CFG",
+    "hunk": 0,
+    "sha256": "5150300986069ddc9d396bfd3c047c04ab5fd134bae99ebd8200332e2067f46e",
+    "size": 532,
+    "start": 19184
+  },
+  "id": "resident_F_4AF0",
+  "object_hash": "d6f2d2aabb17142cac505c6ec9c6a350f511b47bfb2d77cffcbbb68b21b79a6f",
+  "regression": {
+    "command": "python -m pytest -n 16 -q -p no:cacheprovider --dist=loadscope -m not regression_serial tests && python -m pytest -q -p no:cacheprovider -m regression_serial tests",
+    "input_sha256": "eceefe42836cbaadd318a206590b849e612290ff93dfd79cbe3deb94df6521e8",
+    "output_sha256": "0f206578b25e818174ca1075247e34b6eefc37366503d821d280384c5147618d",
+    "passed": true
+  },
+  "relocation_proof": [
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 21538,
+        "symbol": "_G_h01_5422"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 6
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 10
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 24
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 56
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 90
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 160
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 194
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 240
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 274
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 310
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 338
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 368
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 396
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 464
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 10436,
+        "symbol": "_G_h01_28C4"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 488
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 1,
+        "offset": 45554,
+        "symbol": "_G_h01_B1F2"
+      },
+      "kind": "HUNK_RELOCATION",
+      "offset": 500
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 18644,
+        "symbol": "_F_h00_48D4"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 116,
+      "width": 2
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 18644,
+        "symbol": "_F_h00_48D4"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 426,
+      "width": 2
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 21918,
+        "symbol": "_F_h00_559E"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 436,
+      "width": 2
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 21918,
+        "symbol": "_F_h00_559E"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 444,
+      "width": 2
+    },
+    {
+      "identity": {
+        "addend": 0,
+        "hunk": 0,
+        "offset": 18848,
+        "symbol": "_F_h00_49A0"
+      },
+      "kind": "PC_RELATIVE_CALL_SYMBOL",
+      "offset": 526,
+      "width": 2
+    }
+  ],
+  "schema_version": 1,
+  "source": "src/recovered/resident/resident_F_4AF0.c",
+  "source_sha256": "b2d917633e4ed2b4a10e1cfed55ee18378bab934308622b3698d8ab184d47e33",
+  "state": "FUNCTION_CODE_MATCH",
+  "verifier_identity": {
+    "check_function.py": "2a5fc7711dd78b4aa4e015f46265c1f10ee0f98318b27600032b22d0f58f5a82",
+    "compiler_oracle.py": "3f7d4da820be17368a455df315c5ef217902ca276edad1ba4754a460f88a9bb1",
+    "function_compare.py": "27cf1c22f1c11ed82e4a9c24423532051984ab1ae8b3cb38ca1ad0448f9503cf",
+    "runtime_arithmetic.py": "3b9cf4f3cc4defad6cc7834b28433e53d481b49b71e8d6556f14f00158c5dbe7"
+  }
+}
