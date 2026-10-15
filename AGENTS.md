@@ -53,11 +53,16 @@ future reconstruction work. `docs/blockers.json` and `docs/toolchain.json` are
 curated ledgers; retain failed experiments there.
 
 For parser/evidence changes run `python tools/census.py --write`,
-`python tools/census.py --check`, and the two-phase regression gate that
-promotions use (`check_function.regression_receipt`): `python -m pytest -n 16
---dist=loadscope -m "not regression_serial" tests`, then `python -m pytest -m
-regression_serial tests`. No normal game build exists yet. Do not describe the
-analysis pipeline as one.
+`python tools/census.py --check`, and the full two-phase regression suite:
+`python -m pytest -n 16 --dist=loadscope -m "not regression_serial" tests`, then
+`python -m pytest -m regression_serial tests`. The promotion gate
+(`check_function.regression_receipt`) is tiered: it runs that full suite only
+when `tools/` or `tests/` differ from the last full pass on this host
+(`build/regression/full-pass.json`); otherwise it re-proves canonical state
+(census, hybrid and type-evidence checks, a few minutes). `TALES_FULL_GATE=1`
+forces the full suite. Every commit follows a full pass. Tool file hashes are
+provenance only: generated evidence does not record them. No normal game
+build exists yet. Do not describe the analysis pipeline as one.
 
 # Current worker loop
 
@@ -91,8 +96,10 @@ Retire historical files by moving them to `to_delete/` with a manifest entry.
 The user may manually delete reviewed quarantine contents.
 
 Milestone self-check (before each commit): run `python tools/behavior.py` and
-note what moved; keep the regression gate near 7 minutes (profile it with
-`--durations` before adding real-repo tests); justify any new infrastructure
+note what moved; keep the full regression suite near 7 minutes (profile it
+with `--durations` before adding real-repo tests); tests assert invariants,
+never progress snapshots (no pinned function ids or corpus counts that grow as
+recovery advances); justify any new infrastructure
 by the bytes or behavior it unlocks; say which requirement category (A/B/C,
 docs/VISION.md) the work served; never run a gated promotion while a worker
 can write under `tests/` or `tools/`. `docs/REUSE.md` records what transfers

@@ -44,7 +44,11 @@ code-data providers, the story tables, and the `.arc`/`.as` formats
 1. **Measure behavior coverage from day one** (`behavior.py`), not only
    matched bytes. Matched bytes hid that nothing was named, no asset was
    decoded and nothing had run.
-2. **Keep the gate fast.** Profile it with `--durations` and cProfile when it
+2. **Tier the gate by what changed.** A promotion that adds only canonical
+   sources and proofs re-proves canonical state; the full tooling suite runs
+   when tools or tests change, and before every commit. Never let tool file
+   hashes leak into generated evidence (every tool edit then forces a
+   regeneration). **Keep the full suite fast.** Profile it with `--durations` and cProfile when it
    passes about 10 minutes. One per-instruction disassembler construction cost
    15 minutes of every gate run. Prefer synthetic fixtures. Keep real-repo
    replays few.

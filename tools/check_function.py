@@ -58,12 +58,37 @@ def validated_function(fid):
     return dead_code_extents.selected_view(f,ledger,blob,model,root),ledger
 
 
-def regression_receipt():
-    """Run the host-only regression suite with safe parallelism when xdist is present."""
+FULL_PASS=ROOT/'build/regression/full-pass.json'
+CANONICAL_TIER=('tools/census.py --check','tools/hybrid_image.py --check','tools/type_evidence.py --check')
+
+
+def regression_receipt(full=None):
+    """Run the promotion gate; the full suite only when tools/ or tests/ changed.
+
+    Tooling behavior depends only on tools/ and tests/. When both are byte-equal
+    to the last full pass on this host, the gate re-proves the complete canonical
+    state instead (census, hybrid accounting and type evidence checks), which is
+    what a source/proof-only promotion can affect. TALES_FULL_GATE=1 or
+    full=True forces the full suite; commits should always follow a full pass.
+    """
+    import os
     def inputs():
         paths=sorted(list(active_files(ROOT/'tools','.py'))+list(active_files(ROOT/'tests','.py')))
         return {p.relative_to(ROOT).as_posix():sha256(p.read_bytes()) for p in paths}
-    before=inputs()
+    before=inputs();input_sha256=sha256(json_bytes(before))
+    try:stamp=json.loads(FULL_PASS.read_text())
+    except (OSError,ValueError):stamp={}
+    if full is None:
+        full=os.environ.get('TALES_FULL_GATE')=='1' or stamp.get('input_sha256')!=input_sha256
+    if not full:
+        commands=[[sys.executable,*c.split()] for c in CANONICAL_TIER]
+        results=[subprocess.run(command,cwd=ROOT,capture_output=True,text=True) for command in commands]
+        output=''.join(result.stdout+result.stderr for result in results)
+        require(all(result.returncode==0 for result in results),'promotion canonical checks failed: '+output)
+        require(inputs()==before,'regression suite inputs changed during execution; rerun verification')
+        return dict(command=' && '.join('python '+c for c in CANONICAL_TIER),passed=True,tier='CANONICAL',
+                    output_sha256=sha256(output.encode()),input_sha256=input_sha256,
+                    full_pass=dict(output_sha256=stamp.get('output_sha256'),input_sha256=stamp.get('input_sha256')))
     if importlib.util.find_spec('pytest') is not None and importlib.util.find_spec('xdist') is not None:
         commands=[
             [sys.executable,'-m','pytest','-n','16','-q','-p','no:cacheprovider',
@@ -79,8 +104,11 @@ def regression_receipt():
             'promotion regression tests failed: '+output)
     require(inputs()==before,'regression suite inputs changed during execution; rerun verification')
     display=lambda command:'python '+' '.join(command[1:])
-    return dict(command=' && '.join(display(command) for command in commands),passed=True,
-                output_sha256=sha256(output.encode()),input_sha256=sha256(json_bytes(before)))
+    receipt=dict(command=' && '.join(display(command) for command in commands),passed=True,tier='FULL',
+                 output_sha256=sha256(output.encode()),input_sha256=input_sha256)
+    FULL_PASS.parent.mkdir(parents=True,exist_ok=True)
+    FULL_PASS.write_text(json.dumps(receipt,indent=1),encoding='utf-8')
+    return receipt
 
 
 def promotion_proof(fid,source,report,compiled,f,state,regression):

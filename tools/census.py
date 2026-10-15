@@ -60,6 +60,16 @@ def advisory_image():
         _PROMOTION_EVIDENCE[0] = saved
 
 
+def without_tool_hashes(rows):
+    """Generated acceptance rows without verifier file hashes.
+
+    Exact replay is the acceptance check; verifier hashes are provenance only
+    and stay in the canonical proofs. Generated evidence must not change
+    when a tool is edited without changing what it derives.
+    """
+    return [{k: v for k, v in r.items() if k != 'verifier_identity'} for r in rows]
+
+
 def derive(root, promotion_evidence=None):
     if promotion_evidence is None:
         promotion_evidence = _PROMOTION_EVIDENCE[0]
@@ -82,9 +92,6 @@ def _derive_uncached(root, promotion_evidence=None):
     if promotion_evidence is None:
         promotion_evidence = _PROMOTION_EVIDENCE[0]
     outputs, files, disks = {}, {}, []
-    outputs['evidence/analysis-tools.json'] = dict(schema_version=1, classification='ANALYSIS_ONLY',
-        tools=[dict(path=p.relative_to(root).as_posix(), sha256=sha256(p.read_bytes()), size=p.stat().st_size)
-               for p in sorted((root / 'tools').glob('*.py'))])
     for index, path in enumerate(sorted((root / 'assets').glob('*.adf')), 1):
         disk = OFSDisk(path.read_bytes())
         manifest = disk.parse()
@@ -136,10 +143,10 @@ def _derive_uncached(root, promotion_evidence=None):
     # to regenerate. This transient view never supplies strict game outputs.
     providers=[] if dead_code_extents.refreshing_analysis() else load_data_providers(root,exe,model,analysis,ledger,promoted)
     outputs['evidence/data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
-        objects=providers,policy='Strict source-produced typed DATA; historical owner/TU unknown; no root-layout proof.')
+        objects=without_tool_hashes(providers),policy='Strict source-produced typed DATA; historical owner/TU unknown; no root-layout proof.')
     from reconstructed_asm import rows as asm_rows
     reconstructed_asm=asm_rows(root,exe,model,analysis,ledger)
-    outputs['evidence/reconstructed-asm/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),objects=reconstructed_asm,policy='RECONSTRUCTED_ASM only; independently decoded non-C predicate, exact source/object/relocations; historical owner UNKNOWN.')
+    outputs['evidence/reconstructed-asm/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),objects=without_tool_hashes(reconstructed_asm),policy='RECONSTRUCTED_ASM only; independently decoded non-C predicate, exact source/object/relocations; historical owner UNKNOWN.')
     code_data_facts=audio_sequence_data.load(root,exe,model,analysis=analysis,
         claimed=[dict(hunk=f['hunk'],start=f['start'],end=f['end']) for f in promoted]+
                 [dict(hunk=row['original']['hunk'],start=p['start'],end=p['end']) for row in mixed for p in row['partitions']]+[dict(hunk=r['span']['hunk'],start=r['span']['start'],end=r['span']['end']) for r in reconstructed_asm])
