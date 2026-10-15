@@ -595,6 +595,38 @@
       ],
       "missing_artifact": "Independent entry/ABI evidence for the remaining fragments and IRQ routines; typed, independently bounded DATA providers for envelope/handler tables.",
       "next_experiment": "Find independent registration/call or CCR-consumer evidence for55D6/5646/56B6/5726. If their ABI is C-compatible, keep them on C. For the unreferenced fragments, establish a real entry/boundary before another assembler trial. Coordinate separately typed tables with the DATA-provider owner."
+    },
+    {
+      "id": "AUDIO-CALLERS-REOPENED",
+      "category": "RUNTIME/LIBRARY",
+      "status": "RESOLVED",
+      "target": "resident_F_4AF0, resident_F_50E8, resident_F_53E6",
+      "current_evidence": [
+        "2026-10-15: the audio driver entries they call are canonical RECONSTRUCTED_ASM (026be8e, 8232105) or C-compatible wrappers; glue callees are PINNED_RUNTIME with exported routes (be12304, 2f23404). The NON_C_AUDIO_DRIVER_PROVENANCE function blockers are removed so the callers rank as ordinary C targets again; 4AF0 still depends on 49A0, which waits on CHAR_RETURN_EXTENSION through 287C."
+      ],
+      "retained_function_blockers": {
+        "resident_F_4AF0": {
+          "category": "RUNTIME/LIBRARY",
+          "next_action": "Superseded 2026-10-14 by the user-approved reconstructed assembly policy (AGENTS.md): prove the driver spans as RECONSTRUCTED_ASM (machine-checked non-C evidence, symbolic Manx asm, exact as/ln verification; build/workers/sol-audio-asm), then retry this caller on the C route with the driver entries bound. Earlier rule, retained for history: obtain positive provenance (original source, object or byte-level published replayer) and never transcribe disassembly. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
+          "ownership_unchanged": true,
+          "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (559E). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
+          "state": "BLOCKED"
+        },
+        "resident_F_50E8": {
+          "category": "RUNTIME/LIBRARY",
+          "next_action": "Superseded 2026-10-14 by the user-approved reconstructed assembly policy (AGENTS.md): prove the driver spans as RECONSTRUCTED_ASM (machine-checked non-C evidence, symbolic Manx asm, exact as/ln verification; build/workers/sol-audio-asm), then retry this caller on the C route with the driver entries bound. Earlier rule, retained for history: obtain positive provenance (original source, object or byte-level published replayer) and never transcribe disassembly. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
+          "ownership_unchanged": true,
+          "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (57B6/5868). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
+          "state": "BLOCKED"
+        },
+        "resident_F_53E6": {
+          "category": "RUNTIME/LIBRARY",
+          "next_action": "Superseded 2026-10-14 by the user-approved reconstructed assembly policy (AGENTS.md): prove the driver spans as RECONSTRUCTED_ASM (machine-checked non-C evidence, symbolic Manx asm, exact as/ln verification; build/workers/sol-audio-asm), then retry this caller on the C route with the driver entries bound. Earlier rule, retained for history: obtain positive provenance (original source, object or byte-level published replayer) and never transcribe disassembly. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
+          "ownership_unchanged": true,
+          "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (5594/5868). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
+          "state": "BLOCKED"
+        }
+      }
     }
   ],
   "function_blockers": {
@@ -634,7 +666,7 @@
       "category": "TOOLCHAIN",
       "next_action": "Determine the historical byte-return ABI/compiler mode; do not retry ordinary candidate C until that mechanism changes. Measured 2026-10-13 (build/workers/opus-charret): a minimal char return widens with ext.w under aztec36 for 11 source forms (local, register, cast, index, member, global, predeclared, int/short return, assignment return), under +X1..+X5 and the 17 accepted of 46 single-letter options, and under aztec50/aztec50-short; a bare expression statement is dead-code eliminated. The whole game has no ext.w-widened byte return and exactly these four bare signed byte returns (resident_F_3008 is the ordinary unsigned moveq #0 form), so the mechanism needs a different historical compiler release or non-C provenance. 2026-10-14: the PC-hosted Aztec C68K 3.6b ROM cross compiler (6-6-88, pinned, run in DOSBox) also widens every char return (evidence/experiments/aztec68k-charret.json). 411E is exactly `return *++G_h01_3AB4;` minus ext.w. Only an older Amiga release (3.4x/3.2x) remains; none is archived on aztecmuseum.ca, amigacity.xyz or the archive.org Amiga ADF collections. 2026-10-14 (user-approved BS1 download): Aztec C68K 3.20a (02-25-86) emits BARE byte returns in default and +D models, but allocates A6/D3/D2 temporaries and uses cmpi.l #0 instead of tst.l; 411E is 106 vs 102 bytes and ov14_F_0412 162 vs 150 (build/workers/sol-aztec320a/report.txt). So the extension appeared between 3.20a and 3.6a. The needed compiler is an intermediate 3.3x/3.4x release (likely 3.40b) with 3.6a-style allocation and bare byte returns.",
       "ownership_unchanged": true,
-      "reason": "CHAR_RETURN_EXTENSION: original returns *G_h01_3AB4 as a bare move.b (a0),d0 with no widening; under aztec36-large-data char and implicit int returns add ext.w, unsigned char adds moveq #0,d0, void rejects a value return (7 trials). Same mechanism as ov14_F_0412/04A8/0540. Best v6 is 2 bytes long; the F_h00_86F6 Read call binding is otherwise ordinary. Evidence build/workers/fn-resident_F_411E.",
+      "reason": "CHAR_RETURN_EXTENSION: original returns *G_h01_3AB4 as a bare move.b (a0),d0 with no widening; under aztec36-large-data char and implicit int returns add ext.w, unsigned char adds moveq #0,d0, void rejects a value return (7 trials). Same mechanism as ov14_F_0412/04A8/0540. Best v6 is 2 bytes long; the F_h00_86F6 Read call binding is otherwise ordinary. Evidence build/workers/fn-resident_F_411E. 2026-10-15: archive.org item amiga-floppy-aztec-c-34-sys3 (Manx Aztec C 3.4 SYS3, sha256 dad3094d...a3e5, user-approved download) holds only utilities, db, examples and m8/mx libraries, no cc/as/ln; disks 1-2 are not public. An EAB thread (showthread.php?t=115742) reports a complete 3.4a three-disk set in the members-only EAB file zone (needs a user login).",
       "state": "BLOCKED"
     },
     "resident_F_463E": {
@@ -642,27 +674,6 @@
       "next_action": "Only an independent minimal probe with positive evidence for another register-allocation rule or compiler; do not repeat casts, operand permutations, temporaries or register locals.",
       "ownership_unchanged": true,
       "reason": "XOR_RESULT_REGISTER_ORIENTATION: 56-byte candidate (aztec36-large-data) matches length and relocations; only eor.w d0,d1 (result in right register) differs from original eor.w d1,d0. Haiku wave 2026-10-12 tested 15 trials/10 families (types, casts, temporaries, shift spellings, operand order, aztec36-x3, aztec50-short): orientation never changes; a stored temporary flips it only with an extra frame slot. Evidence build/workers/fn-resident_F_463E (fleet intake NEAR_RECORDED). 2026-10-13 Sol probe (build/workers/blk-resident_F_463E, ledger 330-332): explicit register locals (r = a >> 3; r = r ^ (b << 13) or r ^= ...) do emit first-computed-result eor.w d0,d4, but add d4 preservation and a return copy absent from the original. Open: a positively evidenced allocation rule or compiler that keeps the first-result XOR in transient d0 with no saved register.",
-      "state": "BLOCKED"
-    },
-    "resident_F_4AF0": {
-      "category": "RUNTIME/LIBRARY",
-      "next_action": "Superseded 2026-10-14 by the user-approved reconstructed assembly policy (AGENTS.md): prove the driver spans as RECONSTRUCTED_ASM (machine-checked non-C evidence, symbolic Manx asm, exact as/ln verification; build/workers/sol-audio-asm), then retry this caller on the C route with the driver entries bound. Earlier rule, retained for history: obtain positive provenance (original source, object or byte-level published replayer) and never transcribe disassembly. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
-      "ownership_unchanged": true,
-      "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (559E). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
-      "state": "BLOCKED"
-    },
-    "resident_F_50E8": {
-      "category": "RUNTIME/LIBRARY",
-      "next_action": "Superseded 2026-10-14 by the user-approved reconstructed assembly policy (AGENTS.md): prove the driver spans as RECONSTRUCTED_ASM (machine-checked non-C evidence, symbolic Manx asm, exact as/ln verification; build/workers/sol-audio-asm), then retry this caller on the C route with the driver entries bound. Earlier rule, retained for history: obtain positive provenance (original source, object or byte-level published replayer) and never transcribe disassembly. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
-      "ownership_unchanged": true,
-      "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (57B6/5868). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
-      "state": "BLOCKED"
-    },
-    "resident_F_53E6": {
-      "category": "RUNTIME/LIBRARY",
-      "next_action": "Superseded 2026-10-14 by the user-approved reconstructed assembly policy (AGENTS.md): prove the driver spans as RECONSTRUCTED_ASM (machine-checked non-C evidence, symbolic Manx asm, exact as/ln verification; build/workers/sol-audio-asm), then retry this caller on the C route with the driver entries bound. Earlier rule, retained for history: obtain positive provenance (original source, object or byte-level published replayer) and never transcribe disassembly. 4AF0 also needs 49A0, which waits on CHAR_RETURN_EXTENSION.",
-      "ownership_unchanged": true,
-      "reason": "NON_C_AUDIO_DRIVER_PROVENANCE (2026-10-14 Sol, build/workers/sol-audio-id/report.md and fingerprint.json): calls the resident audio driver (5594/5868). The driver is a custom four-channel Paula bytecode engine (44 relocated opcode handlers 0x80..0xAB, packed pitch/tick notes, priority preemption, register/CCR ABI, A4 reused as a sample pointer) and is not ordinary Aztec C. No independently pinned source or object exists. Developer-internal assembly is the leading hypothesis. The only published comparator, UADE Cinemaware.asm, is a third-party re-implementation and cannot give byte provenance.",
       "state": "BLOCKED"
     },
     "resident_F_7C82": {
