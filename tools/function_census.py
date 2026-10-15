@@ -386,7 +386,7 @@ def build():
     import dead_code_extents
     report['analysis_identity']['dead_code_extents.py']=sha256((ROOT/'tools/dead_code_extents.py').read_bytes())
     report['dead_code_input_identity']=dead_code_extents.identity(ROOT)
-    report['verified_dead_code_objects']=dead_code_extents.verified_admissions(ROOT,blob,model,report)
+    report['verified_dead_code_objects']=dead_code_extents.verified_admissions(ROOT,blob,model,report,report_stale=True)
     from recovery_state import recovery
     if recovery().get('dead_code_functions'):
         from dead_code_promotion import canonical_rows

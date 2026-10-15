@@ -4,10 +4,10 @@ Pending intervals are not census extents or source acceptance. Only an explicit
 isolated unit check may use a pending view; a verified admission must replay
 that entire exact natural unit with unchanged source and producing inputs.
 """
-from contextlib import contextmanager
+from contextlib import contextmanager,nullcontext
 from contextvars import ContextVar
 import copy,json
-from common import require,sha256,json_bytes
+from common import require,sha256,json_bytes,FormatError
 from repo_paths import canonical_path
 from analysis_support import K,decoder,instruction,basic
 INPUT='evidence/rules/dead-code-extents/entries.json'
@@ -16,6 +16,9 @@ _ACTIVE=ContextVar('staged_dead_code_entry',default=None)
 _ANALYSIS=ContextVar('fresh_dead_code_analysis',default=None)
 _IMAGE=ContextVar('exact_dead_code_image',default=None)
 _REFRESH=ContextVar('refresh_dead_code_analysis',default=False)
+_REPLAY=ContextVar('dead_code_replay_context',default=None)
+def replay_context():return _REPLAY.get()
+def replay_root(default):return (_REPLAY.get() or {}).get('root',default)
 def refreshing_analysis():return _REFRESH.get()
 @contextmanager
 def analysis_refresh():
@@ -27,31 +30,49 @@ def current_analysis():return _ANALYSIS.get()
 def mode_active():return _ACTIVE.get() is not None
 
 @contextmanager
-def isolated_view(fid,analysis=None,image=None):
- token=_ACTIVE.set(fid);other=_ANALYSIS.set(analysis);picture=_IMAGE.set(image)
+def isolated_view(fid,analysis=None,image=None,context=None):
+ token=_ACTIVE.set(fid);other=_ANALYSIS.set(analysis);picture=_IMAGE.set(image);scope=_REPLAY.set(context)
  try:yield
- finally:_ACTIVE.reset(token);_ANALYSIS.reset(other);_IMAGE.reset(picture)
+ finally:_ACTIVE.reset(token);_ANALYSIS.reset(other);_IMAGE.reset(picture);_REPLAY.reset(scope)
 
 def active_entry(fid):return _ACTIVE.get()==fid
 
-def inputs(root):
+def inputs(root,*,resolve=None):
+ """Enumerate readable dependencies, also for a stale noncanonical record.
+ Schema/ownership decisions belong to verified_admissions. A malformed or
+ missing retained file still changes the registry/compiler hash and cannot
+ reuse a successful replay; it must not break unrelated snapshot creation.
+ """
+ resolve=resolve or (lambda name:canonical_path(root,name))
  names=[INPUT,'evidence/rules/dead-code-extents/admissions.json']
- p=canonical_path(root,names[1])
- if p.exists():
-  doc=json.loads(p.read_bytes())
-  for row in doc.get('admissions',[]):
-   specs=[row['source'],row['entry_source'],row['receipt'],row['compiler']]+list(row['member_sources'].values())
-   for spec in specs:
-    name=spec['path'];canonical_path(root,name);names.append(name)
-   compiled=canonical_path(root,row['compiler']['path'])
-   if compiled.exists():
-    producer=json.loads(compiled.read_bytes());require(isinstance(producer.get('artifacts'),list),'dead-code producer artifacts missing')
-    for artifact in producer['artifacts']:
-     path=canonical_path(root,compiled.parent/artifact['path']);names.append(path.relative_to(root).as_posix())
+ def document(path):
+  try:return json.loads(path.read_bytes())
+  except (OSError,ValueError):return {}
+ def add(name):
+  try:path=resolve(name)
+  except (FormatError,TypeError):return None
+  names.append(path.relative_to(root).as_posix());return path
+ p=resolve(names[1]);doc=document(p)
+ rows=doc.get('admissions',[]) if isinstance(doc,dict) else []
+ for row in rows if isinstance(rows,list) else []:
+  if not isinstance(row,dict):continue
+  specs=[row.get(k) for k in ['source','entry_source','receipt','compiler']]
+  if isinstance(row.get('member_sources'),dict):specs+=list(row['member_sources'].values())
+  for spec in specs:
+   if isinstance(spec,dict) and isinstance(spec.get('path'),str):add(spec['path'])
+  compiler=row.get('compiler',{})
+  if not isinstance(compiler,dict) or not isinstance(compiler.get('path'),str):continue
+  compiled=add(compiler['path'])
+  producer=document(compiled) if compiled is not None else {}
+  artifacts=producer.get('artifacts',[]) if isinstance(producer,dict) else []
+  for artifact in artifacts if isinstance(artifacts,list) else []:
+   if isinstance(artifact,dict) and isinstance(artifact.get('path'),str):add(compiled.parent/artifact['path'])
  return sorted(set(names))
 
 def identity(root):
- return {name:sha256(canonical_path(root,name).read_bytes()) for name in inputs(root) if canonical_path(root,name).exists()}
+ # CFG identity tracks curated decisions. Producing artifacts are checked by
+ # replay_identity and exact admission, not once for each decoded member.
+ return {name:sha256(canonical_path(root,name).read_bytes()) for name in [INPUT,ADMISSIONS] if canonical_path(root,name).exists()}
 
 def row_for(root,blob,fid):
  p=canonical_path(root,INPUT);require(p.exists(),'dead-code input missing')
@@ -164,7 +185,7 @@ def make_view(base,ledger,blob,model,root):
   from owned_code_data import expected_string_tail
   tail,own=expected_string_tail(f,context=dict(blob=blob,model=model));require(own['end']==row['contribution_end'] and tail==data[end:own['end']],'dead-code literal tail is not complete')
  else:require(not any(r['kind']=='PC_RELATIVE_DATA' and r['hunk']==h for r in refs),'dead-code literal references lack owned tail')
- f['dead_code_extent']=dict(input=INPUT,input_sha256=identity(root)[INPUT],validator_sha256=sha256((root/'tools/dead_code_extents.py').read_bytes()),reachable_extent={k:base[k] for k in ['start','end','size','sha256','extent_status']},dead_spans=row['dead_spans'],contribution_end=row['contribution_end'],source_acceptance=False)
+ f['dead_code_extent']=dict(input=INPUT,input_sha256=sha256(canonical_path(root,INPUT).read_bytes()),validator_sha256=sha256(__import__('pathlib').Path(__file__).read_bytes()),reachable_extent={k:base[k] for k in ['start','end','size','sha256','extent_status']},dead_spans=row['dead_spans'],contribution_end=row['contribution_end'],source_acceptance=False)
  return f
 
 def selected_view(f,ledger,blob,model,root):
@@ -198,61 +219,162 @@ def admission_boundary(view):
  return dict(kind='POST_EPILOGUE_OWNER_BACK_TRANSFER',last_reachable_epilogue=last-2,tail=[last+2,view['end']],terminal_transfer=dict(site=terminal['offset'],target=last-2))
 
 
-def verified_admissions(root,blob,model,analysis):
+def verified_admissions(root,blob,model,analysis,ledger=None,*,report_stale=False):
  """Re-derive exact complete source objects; never rewrite CLOSED_CFG evidence.
 
  Admissions are active, reviewed producing inputs, not a cached PASS. Both the
  current natural-unit recipe and every retained producing artifact must match,
- followed by a new all-member exact comparison. Any changed dependency blocks.
+ followed by an all-member exact comparison. Identical replay is memoized
+ only by its complete current content identity; changed inputs always miss.
  """
  p=canonical_path(root,ADMISSIONS)
  if not p.exists():return []
  doc=json.loads(p.read_bytes())
  require(set(doc)=={'schema_version','admissions'} and doc['schema_version']==1 and isinstance(doc['admissions'],list),'dead-code admission schema differs')
- results=[];seen=set()
+ if ledger is None:
+  state_path=canonical_path(root,'recovery/ledger.json')
+  ledger=json.loads(state_path.read_bytes()) if state_path.exists() else dict(functions={})
+ results=[];seen=set();common_key=None
  for row in doc['admissions']:
   require(set(row)=={'id','unit_entry','source','entry_source','receipt','compiler','member_sources'},'dead-code admission entry schema differs')
   fid=row['id'];entry=row['unit_entry'];require(fid not in seen,'duplicate dead-code admission');seen.add(fid)
-  base=next((f for f in analysis['functions'] if f['id']==fid),None);require(base is not None,'dead-code admission entry missing')
-  admission_boundary(make_view(base,analysis,blob,model,root))
-  def pinned(spec):
-   require(isinstance(spec,dict) and set(spec)=={'path','sha256'},'dead-code retained input schema differs')
-   path=canonical_path(root,spec['path']);require(sha256(path.read_bytes())==spec['sha256'],'dead-code retained input changed: '+spec['path']);return path
-  source_path=pinned(row['source']);entry_path=pinned(row['entry_source']);receipt_path=pinned(row['receipt']);compiler_path=pinned(row['compiler'])
-  receipt=json.loads(receipt_path.read_bytes());producer=json.loads(compiler_path.read_bytes())
-  source=source_path.read_text(encoding='ascii');entry_source=entry_path.read_text(encoding='ascii');member_paths={k:pinned(v) for k,v in row['member_sources'].items()}
-  require(receipt.get('verdict')=='EQUAL' and receipt.get('id')==entry and receipt.get('unclaimed_bytes')==0,'dead-code admission lacks exact whole-unit verdict')
-  require(receipt.get('source_sha256')==sha256(entry_source.encode('ascii')),'dead-code admission candidate source changed')
-  require((fid==entry and source_path==entry_path) or (fid in member_paths and source_path==member_paths[fid]),'dead-code source is not a producing unit member')
-  require(all(receipt.get('member_sources',{}).get(k)==sha256(v.read_text(encoding='ascii').encode('ascii')) for k,v in member_paths.items()),'dead-code member source changed')
-  from recovery_state import recovery
-  state=recovery()
-  require(all(state['functions'].get(k,{}).get('source_sha256')==v for k,v in receipt['dependency_sources'].items()),'dead-code canonical dependencies changed')
-  # The receipt's verifier identity is retained provenance. Acceptance comes
-  # from the complete exact replay below with today's comparator (as for every
-  # other proof class), so later tooling changes do not stale the admission.
-  require(isinstance(receipt.get('verifier_identity'),dict) and receipt['verifier_identity'],'dead-code receipt lacks verifier provenance')
-  require(producer['status']=='COMPILED' and producer['cache_key']==receipt['cache_key'] and sha256(json_bytes(producer['identity']))==producer['cache_key'],'dead-code producer identity differs')
-  directory=compiler_path.parent
-  for a in producer['artifacts']:
-   path=canonical_path(root,directory/a['path']);require(sha256(path.read_bytes())==a['sha256'],'dead-code producing artifact changed: '+a['path'])
-  from compiler_oracle import extract
-  meta=producer['identity'];prefix=producer['prefix']
-  contribution=extract(directory,prefix,meta.get('object_labels'),meta.get('entry_function','recovered'),meta.get('same_overlay_exports'))
-  require(contribution==producer['contribution'],'dead-code compiler object/executable extraction differs')
-  compiled=dict(producer,directory=str(directory),cache_hit=True)
-  import check_unit
-  with isolated_view(fid,analysis,(blob,model,{})):
-   plans=check_unit.check(entry,entry_path,[receipt['profile']],promote_equal=False,owned_code_data=bool(receipt.get('owned_code_tails')),isolated=True,member_sources=member_paths,natural_interval=receipt['natural_interval']['interval'],prepare_only=True,object_groups=receipt.get('object_groups'),per_member_profiles=receipt.get('per_member_profiles',False),with_m_lib=bool(meta.get('additional_libraries')))
-   require(len(plans)==1 and plans[0]['trials'][0]['cache_key']==producer['cache_key'],'dead-code current natural-unit producer recipe changed')
-   require(plans[0]['natural_interval']==receipt['natural_interval'],'dead-code natural interval or gap encoding changed')
-   members,names,parts,combined,ledger=check_unit.prepare_unit(entry,entry_source,True,remove_stale_externs=False,member_sources={k:v.read_text(encoding='ascii') for k,v in member_paths.items()},natural_interval=receipt['natural_interval']['interval'])
-   # The normal exact comparator re-derives every CODE byte, literal and field.
-   compared=check_unit.compare_unit(members,names,compiled,ledger['a4']['bias'],bool(receipt.get('owned_code_tails')),source_text=combined,natural=receipt['natural_interval'])
-   require(compared['verdict']=='EQUAL' and compared['unclaimed_bytes']==0,'dead-code exact full-unit replay differs')
-   target=next(m for m in members if m['id']==fid)
-   # Compare the extent facts; the validator's own file hash is provenance.
-   facts=lambda w:{k:v for k,v in (w or {}).items() if k!='validator_sha256'}
-   require(facts(next(m for m in receipt['members'] if m['id']==fid).get('dead_code_extent'))==facts(target['dead_code_extent']),'dead-code extent witness changed')
-  results.append(dict(id=fid,status='VERIFIED_COMPLETE_C_SOURCE_OBJECT',original_cfg=target['dead_code_extent']['reachable_extent'],complete_extent={k:target[k] for k in ['hunk','start','end','size','sha256']},dead_spans=target['dead_code_extent']['dead_spans'],owned_literal_end=target['dead_code_extent']['contribution_end'],source=row['source'],receipt=row['receipt'],source_acceptance=False,proof_level=None))
+  try:
+   if common_key is None:common_key=replay_identity(root,blob,model,analysis,ledger,None)
+   key=_row_identity(common_key,row)
+   from evidence_snapshot import memoized
+   results.append(memoized(root,'exact-dead-code:'+fid,key,lambda:_stable_replay(root,blob,model,analysis,ledger,row,key),process_cache=True))
+  except (FormatError,OSError,ValueError,KeyError,TypeError) as error:
+   if not report_stale or fid in ledger.get('dead_code_functions',{}):raise
+   results.append(dict(id=fid,status='STALE_ADMISSION',reason=str(error),source_acceptance=False,proof_level=None))
  return results
+
+
+def _verify_admission(root,blob,model,analysis,ledger,row):
+ fid=row['id'];entry=row['unit_entry']
+ base=next((f for f in analysis['functions'] if f['id']==fid),None);require(base is not None,'dead-code admission entry missing')
+ admission_boundary(make_view(base,analysis,blob,model,root))
+ def pinned(spec):
+  require(isinstance(spec,dict) and set(spec)=={'path','sha256'},'dead-code retained input schema differs')
+  path=canonical_path(root,spec['path']);require(sha256(path.read_bytes())==spec['sha256'],'dead-code retained input changed: '+spec['path']);return path
+ source_path=pinned(row['source']);entry_path=pinned(row['entry_source']);receipt_path=pinned(row['receipt']);compiler_path=pinned(row['compiler'])
+ receipt=json.loads(receipt_path.read_bytes());producer=json.loads(compiler_path.read_bytes())
+ source=source_path.read_text(encoding='ascii');entry_source=entry_path.read_text(encoding='ascii');member_paths={k:pinned(v) for k,v in row['member_sources'].items()}
+ require(receipt.get('verdict')=='EQUAL' and receipt.get('id')==entry and receipt.get('unclaimed_bytes')==0,'dead-code admission lacks exact whole-unit verdict')
+ require(receipt.get('source_sha256')==sha256(entry_source.encode('ascii')),'dead-code admission candidate source changed')
+ require((fid==entry and source_path==entry_path) or (fid in member_paths and source_path==member_paths[fid]),'dead-code source is not a producing unit member')
+ require(all(receipt.get('member_sources',{}).get(k)==sha256(v.read_text(encoding='ascii').encode('ascii')) for k,v in member_paths.items()),'dead-code member source changed')
+ state=ledger
+ require(all(state['functions'].get(k,{}).get('source_sha256')==v for k,v in receipt['dependency_sources'].items()),'dead-code canonical dependencies changed')
+ # The receipt's verifier identity is retained provenance. Acceptance comes
+ # from the complete exact replay below with today's comparator (as for every
+ # other proof class), so later tooling changes do not stale the admission.
+ require(isinstance(receipt.get('verifier_identity'),dict) and receipt['verifier_identity'],'dead-code receipt lacks verifier provenance')
+ require(producer['status']=='COMPILED' and producer['cache_key']==receipt['cache_key'] and sha256(json_bytes(producer['identity']))==producer['cache_key'],'dead-code producer identity differs')
+ directory=compiler_path.parent
+ for a in producer['artifacts']:
+  path=canonical_path(root,directory/a['path']);require(sha256(path.read_bytes())==a['sha256'],'dead-code producing artifact changed: '+a['path'])
+ from compiler_oracle import extract
+ meta=producer['identity'];prefix=producer['prefix']
+ contribution=extract(directory,prefix,meta.get('object_labels'),meta.get('entry_function','recovered'),meta.get('same_overlay_exports'))
+ require(contribution==producer['contribution'],'dead-code compiler object/executable extraction differs')
+ compiled=dict(producer,directory=str(directory),cache_hit=True)
+ import check_unit
+ context=dict(root=root,ledger=ledger)
+ with isolated_view(fid,analysis,(blob,model,{}),context):
+  plans=check_unit.check(entry,entry_path,[receipt['profile']],promote_equal=False,owned_code_data=bool(receipt.get('owned_code_tails')),isolated=True,member_sources=member_paths,natural_interval=receipt['natural_interval']['interval'],prepare_only=True,object_groups=receipt.get('object_groups'),per_member_profiles=receipt.get('per_member_profiles',False),with_m_lib=bool(meta.get('additional_libraries')))
+  require(len(plans)==1 and plans[0]['trials'][0]['cache_key']==producer['cache_key'],'dead-code current natural-unit producer recipe changed')
+  require(plans[0]['natural_interval']==receipt['natural_interval'],'dead-code natural interval or gap encoding changed')
+  members,names,parts,combined,prepared_ledger=context['prepared_unit']
+  expected_dependencies={m['id']:ledger['functions'][m['id']]['source_sha256'] for m in members if m['id']!=entry and m['id'] not in member_paths}
+  require(receipt['dependency_sources']==expected_dependencies,'dead-code retained dependencies are not the complete planned set')
+  # The normal exact comparator re-derives every CODE byte, literal and field.
+  compared=check_unit.compare_unit(members,names,compiled,prepared_ledger['a4']['bias'],bool(receipt.get('owned_code_tails')),source_text=combined,natural=receipt['natural_interval'])
+  require(compared['verdict']=='EQUAL' and compared['unclaimed_bytes']==0,'dead-code exact full-unit replay differs')
+  target=next(m for m in members if m['id']==fid)
+  # Compare the extent facts; the validator's own file hash is provenance.
+  facts=lambda w:{k:v for k,v in (w or {}).items() if k!='validator_sha256'}
+  require(facts(next(m for m in receipt['members'] if m['id']==fid).get('dead_code_extent'))==facts(target['dead_code_extent']),'dead-code extent witness changed')
+ return dict(id=fid,status='VERIFIED_COMPLETE_C_SOURCE_OBJECT',original_cfg=target['dead_code_extent']['reachable_extent'],complete_extent={k:target[k] for k in ['hunk','start','end','size','sha256']},dead_spans=target['dead_code_extent']['dead_spans'],owned_literal_end=target['dead_code_extent']['contribution_end'],source=row['source'],receipt=row['receipt'],source_acceptance=False,proof_level=None)
+
+
+def replay_identity(root,blob,model,analysis,ledger,row,*,input_files=None):
+ """Complete exact-replay closure; every content hash is current.
+ DATA provider jobs are not read by the supplied-image unit comparator.
+ """
+ from pathlib import Path
+ from replay_inputs import ContentScan
+ scan=ContentScan(root)
+ read=scan.read
+ documents={}
+ def document(path):
+  target=scan.canonical(path);name=str(target)
+  if name not in documents:
+   raw=read(target);documents[name]=json.loads(raw) if raw is not None else {}
+  return documents[name]
+ for path in sorted((root/'tools').glob('*.py')):read(path)
+ for name in inputs(root,resolve=scan.canonical):read(name)
+ for name in ['recovery/ledger.json','evidence/fixture-lock.json','evidence/functions/ledger.json','evidence/executable/overlay-tree.json','evidence/types.json','toolchain/candidate-lock.json','evidence/rules/unreferenced-entries/entries.json']:
+  read(name)
+ for directory in [root/'evidence/experiments',root/'evidence/contributions']:
+  for path in sorted(directory.glob('*.json')):read(path)
+ registry=document(ADMISSIONS);required=set()
+ for admission in registry.get('admissions',[]):
+  # A stale noncanonical receipt cannot block another admission's inventory.
+  # Its raw contents are hashed above; the strict per-row pin check rejects it.
+  spec=admission.get('receipt') if isinstance(admission,dict) else None
+  if not isinstance(spec,dict) or not isinstance(spec.get('path'),str):continue
+  try:retained=document(spec['path'])
+  except (FormatError,OSError,ValueError):continue
+  if isinstance(retained,dict) and isinstance(retained.get('dependency_sources'),dict):required.update(retained['dependency_sources'])
+ cache_keys=set()
+ # Both supplied ownership and the on-disk ownership consulted by make_view.
+ actual=document('recovery/ledger.json')
+ for state in [ledger,actual]:
+  for map_name in ['functions','mixed_source_objects','dead_code_functions']:
+   for fid,item in state.get(map_name,{}).items():
+    planned=map_name=='functions' and fid in required
+    ownership=map_name=='mixed_source_objects' or item.get('state')=='FUNCTION_WITH_DATA_MATCH'
+    if not planned and not ownership:continue
+    if planned and item.get('source'):read(item['source'])
+    if not item.get('proof'):continue
+    proof=document(item['proof']);unit_name=proof.get('comparison',{}).get('complete_unit_receipt')
+    if planned and unit_name:
+     unit_path=scan.canonical(unit_name);unit=document(unit_path);read(unit_path.parent/'unit.c')
+     if unit.get('cache_key'):cache_keys.add(unit['cache_key'])
+     if unit.get('object_groups') is not None:
+      for member in unit.get('ordered_members',[]):read(unit_path.parent/'parts'/(member['id']+'.c'))
+ # Object-group planning reads these canonical units' hash-checked compile
+ # receipts and assembler/object artifacts, including absence of a cache entry.
+ from compiler_oracle import CACHE,ROOT as compiler_root
+ cache_scan=scan if compiler_root.resolve()==root.resolve() else ContentScan(compiler_root)
+ for cache_key in sorted(cache_keys):
+  require(isinstance(cache_key,str) and len(cache_key)==64 and all(c in '0123456789abcdef' for c in cache_key),'canonical unit cache identity differs')
+  directory=CACHE/cache_key;raw=cache_scan.read(directory/'receipt.json',scratch=True)
+  if raw is None:continue
+  producer=json.loads(raw)
+  for artifact in producer.get('artifacts',[]):cache_scan.read(directory/artifact['path'],scratch=True)
+ values=dict(scan.values);values.update(cache_scan.values)
+ # Minimal explicit-context fixtures may lack tools/toolchain. Hash the actual
+ # comparator implementations and compiler binaries used by this interpreter.
+ from compiler_oracle import PROFILES,ROOT as compiler_root
+ actual_scan=scan if compiler_root.resolve()==root.resolve() else ContentScan(compiler_root)
+ for path in sorted(Path(__file__).parent.glob('*.py')):actual_scan.read(path)
+ for profile in PROFILES.values():
+  for name in ['bin/cc','bin/as','bin/ln','lib/c.lib','lib/c16.lib','lib/c32.lib','lib/m.lib']:
+   actual_scan.read(compiler_root/profile['base']/name)
+ values.update(actual_scan.values)
+ if input_files is not None:input_files.update(values)
+ return sha256(json.dumps(dict(row=row,oracle=sha256(blob),model=model,analysis=analysis,ledger=ledger,contents=values),sort_keys=True,separators=(',',':')).encode('utf-8'))
+
+
+def _row_identity(common_key,row):return sha256(json_bytes([common_key,row]))
+
+
+def _stable_replay(root,blob,model,analysis,ledger,row,key):
+ from evidence_snapshot import snapshot,content_stage
+ # The exact replay closure supplies the nested memoization stage identity.
+ # The fresh full content check below is its mandatory exit check.
+ with snapshot(),content_stage(root,key):
+  result=_verify_admission(root,blob,model,analysis,ledger,row)
+  require(_row_identity(replay_identity(root,blob,model,analysis,ledger,None),row)==key,'dead-code replay inputs changed during verification')
+  return result

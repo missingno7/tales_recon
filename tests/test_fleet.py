@@ -462,7 +462,7 @@ class RegionTests(unittest.TestCase):
     def test_region_packet_and_verify_argv(self):
         tasks, _ = fleet.build_tasks(self.functions, self.items, self.ledger, [])
         region = next(t for t in tasks if t["kind"] == "region")
-        packets = ROOT / "build" / ("test-packets-" + uuid.uuid4().hex)
+        packets = ROOT / "build" / ("packets-" + uuid.uuid4().hex)
         ledger = "build/test-fleet-" + uuid.uuid4().hex + ".jsonl"
         try:
             with tempfile.TemporaryDirectory() as temp:

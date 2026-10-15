@@ -109,7 +109,10 @@ class DeadCodeTests(unittest.TestCase):
   raw=producer['contribution']['code_hex'];producer['contribution']['code_hex']=('00' if raw[:2]!='00' else '01')+raw[2:]
   compiler.write_bytes(json.dumps(producer).encode());row['compiler']['sha256']=sha256(compiler.read_bytes())
   (self.root/dead.ADMISSIONS).write_bytes(json.dumps(registry).encode())
-  with self.assertRaisesRegex(FormatError,'extraction differs'):dead.verified_admissions(self.root,blob,model,analysis)
+  # This fixture supplies the real dependency metadata explicitly; it is
+  # testing extraction before planning, not a global-ledger fallback.
+  from recovery_state import recovery
+  with self.assertRaisesRegex(FormatError,'extraction differs'):dead.verified_admissions(self.root,blob,model,analysis,recovery())
  def test_foreign_cfg_edge_into_dead_tail_rejected(self):
   x=self.fixture(True);x[1]['functions'][1]['cfg'].append(dict(source=14,target=8,kind='UNCONDITIONAL'))
   with self.assertRaisesRegex(FormatError,'foreign reference'):self.view(x)

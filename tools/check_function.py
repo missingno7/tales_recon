@@ -17,12 +17,13 @@ from repo_paths import candidate_path,active_files
 
 def validated_function(fid):
     import dead_code_extents
+    root=dead_code_extents.replay_root(ROOT)
     ledger=dead_code_extents.current_analysis() or evidence();blob,model,_=game()
     require(sha256(blob)==ledger['game_sha256'],'stale function ledger: game changed')
-    require(all(sha256((ROOT/'tools'/p).read_bytes())==digest for p,digest in ledger['analysis_identity'].items()),
+    require(all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in ledger['analysis_identity'].items()),
             'stale analysis implementation: run tools/function_census.py')
     import curated_unreferenced_entries
-    require(ledger.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(ROOT),
+    require(ledger.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(root),
             'stale uncalled entry input: run tools/function_census.py')
     f=next((f for f in ledger['functions'] if f['id']==fid),None)
     require(f is not None,'unknown function '+fid)
@@ -48,9 +49,10 @@ def validated_function(fid):
         require(cursor==f['size'],'closed function has unaccounted bytes')
         require(not f['boundary_stops'] and not f['undecoded_gaps'] and f['return_sites'],'closed function evidence not complete')
     import dead_code_extents
-    require(ledger.get('dead_code_input_identity',{})==dead_code_extents.identity(ROOT),
+    root=dead_code_extents.replay_root(ROOT)
+    require(ledger.get('dead_code_input_identity',{})==dead_code_extents.identity(root),
             'stale dead-code input: run tools/function_census.py')
-    return dead_code_extents.selected_view(f,ledger,blob,model,ROOT),ledger
+    return dead_code_extents.selected_view(f,ledger,blob,model,root),ledger
 
 
 def regression_receipt():
@@ -262,7 +264,10 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
                 except FormatError as gap_exc:unit_blocker=str(gap_exc)
         profiles=req.get('profiles',['aztec36'] if 'm.lib' in req.get('extra_libraries',()) else ['aztec36','aztec50-short'])
         from resident_interfaces import derive as resident_interface_recipe
-        original_blob,original_model,_=game()
+        # ABI/harness controls use the immutable image; validated_function
+        # already performed the strict canonical proof read.
+        from census import advisory_image
+        with advisory_image():original_blob,original_model,_=game()
         # Original A4 helper routes (and the complete FFP stub group) need the
         # runtime helper export control.
         import helper_exports

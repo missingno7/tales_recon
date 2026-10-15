@@ -117,7 +117,7 @@ def _derive_uncached(root, promotion_evidence=None):
     ledger_path = root / 'recovery/ledger.json'
     ledger = json.loads(ledger_path.read_bytes()) if ledger_path.exists() else dict(functions={})
     from dead_code_promotion import canonical_rows as dead_rows,coverage as dead_coverage
-    complete_c=dead_rows(root,exe,model,analysis,ledger) if ledger.get('dead_code_functions') and not dead_code_extents.refreshing_analysis() else []
+    complete_c=dead_rows(root,exe,model,analysis,ledger) if (root/dead_code_extents.ADMISSIONS).exists() and not dead_code_extents.refreshing_analysis() else []
     outputs['evidence/functions/dead-code-source-objects.json']=dict(schema_version=1,objects=complete_c,policy='Complete C source-object basis is separate from reachable CFG; only current exact canonical proofs grant acceptance.')
     accepted_dead=[r for r in complete_c if r['acceptance']]
     dead_code_spans=[dict(id=r['id'],hunk=r['complete_extent']['hunk'],start=a,end=b,proof=r['proof']) for r in accepted_dead for a,b in dead_coverage(r,promoted)]
@@ -129,7 +129,9 @@ def _derive_uncached(root, promotion_evidence=None):
         policy='Complete source-object extents remain separate from CFG reachability. Only rederived canonical mixed proofs grant coverage; historical ownership remains unknown.')
     mixed = [row for row in source_objects if row['acceptance']]
     from data_providers import load_data_providers
-    providers=load_data_providers(root,exe,model,analysis,ledger,promoted)
+    # CFG refresh cannot replay DATA proofs keyed to the ledger it is about
+    # to regenerate. This transient view never supplies strict game outputs.
+    providers=[] if dead_code_extents.refreshing_analysis() else load_data_providers(root,exe,model,analysis,ledger,promoted)
     outputs['evidence/data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
         objects=providers,policy='Strict source-produced typed DATA; historical owner/TU unknown; no root-layout proof.')
     from reconstructed_asm import rows as asm_rows

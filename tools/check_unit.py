@@ -11,6 +11,8 @@ import re
 import sys
 from common import require,sha256,write_json,FormatError,json_bytes
 from analysis_support import ROOT
+from dead_code_extents import replay_root
+def verification_root():return replay_root(ROOT)
 from recovery_state import recovery,evidence,save_rank
 from check_function import validated_function,promote
 from compiler_oracle import compile_many,PROFILES
@@ -22,7 +24,9 @@ from recovery_evidence import joined_source as joined_texts
 def unit_export_roots(members,names,fid):
     from analysis_support import game
     from recovery_evidence import same_overlay_exports
-    blob,model,_=game()
+    # Export roots are immutable executable facts, not canonical ownership.
+    from census import advisory_image
+    with advisory_image():blob,model,_=game()
     return same_overlay_exports(members,names,fid,blob,model)
 from evidence_snapshot import scoped
 from repo_paths import candidate_path,canonical_path
@@ -42,7 +46,7 @@ def proven_tail(f,ledger,*,context=None):
     if not item or item['state']!='FUNCTION_WITH_DATA_MATCH':return b'',None
     from owned_code_data import expected_string_tail
     tail,ownership=expected_string_tail(f,context=context) if context is not None else expected_string_tail(f)
-    proof=json.loads(((context['root'] if context is not None else ROOT)/item['proof']).read_text())
+    proof=json.loads(((context['root'] if context is not None else verification_root())/item['proof']).read_text())
     claimed=proof.get('data_ownership',{})
     require(claimed.get('start')==ownership['start'] and claimed.get('end')==ownership['end'] and
             claimed.get('expected_tail_sha256')==sha256(tail),'canonical owned CODE-data proof changed')
@@ -265,7 +269,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             return
         dep=r['functions'].get(dep_id)
         require(dep is not None,'unrecovered same-node dependency: '+dep_id)
-        df,_=validated_function(dep_id);text=canonical_path(ROOT,dep['source']).read_text()
+        df,_=validated_function(dep_id);text=canonical_path(verification_root(),dep['source']).read_text()
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
         name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
@@ -478,7 +482,7 @@ def member_comparison(report,fid,source_sha256,base=None):
                     source_sha256=source_sha256,
                     unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
     if base is not None:
-        comparison['complete_unit_receipt']=(base/'receipt.json').relative_to(ROOT).as_posix()
+        comparison['complete_unit_receipt']=(base/'receipt.json').relative_to(verification_root()).as_posix()
         comparison['complete_unit_receipt_sha256']=sha256((base/'receipt.json').read_bytes())
     return comparison
 
@@ -548,14 +552,14 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         report.update(profile_record)
         verifier_files+=('profile_compat.py','mixed_profile_oracle.py')
     if report.get('runtime_library_routes'):verifier_files+=('runtime_member_routes.py','runtime_members.py')
-    verifier_identity={p:sha256((ROOT/'tools'/p).read_bytes()) for p in verifier_files}
+    verifier_identity={p:sha256((verification_root()/'tools'/p).read_bytes()) for p in verifier_files}
     import dead_code_extents
-    if dead_code_extents.mode_active():verifier_identity['dead_code_extents.py']=sha256((ROOT/'tools/dead_code_extents.py').read_bytes())
+    if dead_code_extents.mode_active():verifier_identity['dead_code_extents.py']=sha256((verification_root()/'tools/dead_code_extents.py').read_bytes())
     report['verifier_identity']=verifier_identity
     version=sha256(json_bytes(verifier_identity))[:16]
     base=None
     if not isolated:
-        base=ROOT/'build/recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
+        base=verification_root()/'build/recovery/units'/fid/compiled['cache_key']/version;base.mkdir(parents=True,exist_ok=True)
         (base/'unit.c').write_text(combined,encoding='ascii',newline='\n')
         (base/'candidate.c').write_text(source,encoding='ascii',newline='\n')
         for member_id,text in member_sources.items():
@@ -572,7 +576,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
                     source_sha256=report['source_sha256'],
                     unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
     if base is not None:
-        comparison['complete_unit_receipt']=(base/'receipt.json').relative_to(ROOT).as_posix()
+        comparison['complete_unit_receipt']=(base/'receipt.json').relative_to(verification_root()).as_posix()
         comparison['complete_unit_receipt_sha256']=sha256((base/'receipt.json').read_bytes())
     return report,comparison
 
@@ -665,12 +669,12 @@ def proven_object_members(fid,ledger):
     """
     item=(ledger.get('functions') or {}).get(fid)
     if not item or not item.get('proof'):return []
-    proof_path=ROOT/item['proof']
+    proof_path=verification_root()/item['proof']
     if not proof_path.is_file():return []
     comparison=json.loads(proof_path.read_text()).get('comparison') or {}
     receipt_path=comparison.get('complete_unit_receipt')
     if not receipt_path:return []
-    path=ROOT/receipt_path
+    path=verification_root()/receipt_path
     if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):return []
     receipt=json.loads(path.read_text())
     if receipt.get('verdict')!='EQUAL' or len(receipt.get('ordered_members') or [])<2:return []
@@ -703,7 +707,7 @@ def proven_unit_groups(members,new_ids,ledger=None):
     for m in members:
         item=functions.get(m['id'])
         if m['id'] in new_ids or not item or not item.get('proof'):continue
-        proof_path=ROOT/item['proof']
+        proof_path=verification_root()/item['proof']
         if not proof_path.is_file():continue
         comparison=json.loads(proof_path.read_text()).get('comparison') or {}
         receipt_path=comparison.get('complete_unit_receipt')
@@ -711,7 +715,7 @@ def proven_unit_groups(members,new_ids,ledger=None):
         seen.add(receipt_path)
         def skip(reason,ids=None):
             skipped.append(dict(receipt=receipt_path,reason=reason,**({'object':ids} if ids else {})))
-        path=ROOT/receipt_path
+        path=verification_root()/receipt_path
         if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):
             skip('RECEIPT_MISSING_OR_CHANGED');continue
         receipt=json.loads(path.read_text())
@@ -906,7 +910,7 @@ def canonical_member_profile(member_id,ledger=None):
     from profile_compat import proof_profile
     ledger=ledger or recovery();item=ledger['functions'].get(member_id)
     require(item is not None and item.get('proof'),'canonical member has no proof receipt: '+member_id)
-    path=ROOT/item['proof']
+    path=verification_root()/item['proof']
     require(path.is_file() and sha256(path.read_bytes())==item.get('proof_sha256'),
             'canonical proof receipt missing or changed: '+member_id)
     proof=json.loads(path.read_text())
@@ -1064,20 +1068,20 @@ def stand_in_summary(trial):
                 merged_external_declarations=trial.get('merged_external_declarations',{}))
 
 
-def trial_cache_key(trial):
+def trial_cache_key(trial,inspect_cache=True):
     """The compile-cache identity of one trial, computed without compiling."""
     from compiler_oracle import identity,object_specs,cached
     if trial.get('object_profiles'):
         from mixed_profile_oracle import trial_key
-        key=trial_key(trial);return key,cached(key) is not None
+        key=trial_key(trial);return key,inspect_cache and cached(key) is not None
     if trial.get('mixed_object_dependencies'):
         from queued_oracle import trial_plan
-        key=trial_plan(trial)[0];return key,cached(key) is not None
+        key=trial_plan(trial)[0];return key,inspect_cache and cached(key) is not None
     objects=object_specs(trial) if trial.get('objects') is not None else None
     key=identity(trial['source'],trial['profile'],trial.get('target_node',1),objects,trial.get('local_functions',()),
                  extra_libraries=trial.get('extra_libraries',()),
                  same_overlay_exports=trial.get('same_overlay_exports'),resident_data_interfaces=trial.get('resident_data_interfaces'))[0]
-    return key,cached(key) is not None
+    return key,inspect_cache and cached(key) is not None
 
 
 @scoped
@@ -1110,9 +1114,9 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     if isolated and output_dir is not None:
         from check_function import isolated_output_root
         output_root=isolated_output_root(output_dir)
-    member_sources={k:candidate_path(ROOT,v).read_text() for k,v in (member_sources or {}).items()}
+    member_sources={k:candidate_path(verification_root(),v).read_text() for k,v in (member_sources or {}).items()}
     resident_groups=bool(object_groups) and validated_function(fid)[0]['node']=='resident'
-    source=candidate_path(ROOT,path).read_text();members,names,parts,combined,ledger=prepare_unit(
+    source=candidate_path(verification_root(),path).read_text();members,names,parts,combined,ledger=prepare_unit(
         fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources,
         natural_interval=natural_interval,local_calls_only=resident_groups)
     natural=None
@@ -1157,7 +1161,10 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                 '--with-m-lib requires the standard aztec36 link profile')
         for t in trials:t['extra_libraries']=['m.lib']
     if prepare_only:
-        keys=[trial_cache_key(t) for t in trials]
+        from dead_code_extents import replay_context
+        replay=replay_context()
+        if replay is not None:replay['prepared_unit']=(members,names,parts,combined,ledger)
+        keys=[trial_cache_key(t,inspect_cache=replay is None) for t in trials]
         plan=dict(verdict='PREPARED_NOT_COMPILED',id=fid,
                   ordered_members=[dict(id=m['id'],start=m['start'],end=m['end'],size=m['size'],
                                         role='new' if m['id']==fid or m['id'] in member_sources else 'canonical',
@@ -1268,7 +1275,7 @@ def main():
     require(not a.dead_code_extent or a.isolated,'--dead-code-extent requires --isolated; no promotion')
     import dead_code_extents
     from evidence_snapshot import isolated_verification
-    with isolated_verification(ROOT,a.isolated),          dead_code_extents.isolated_view((a.id if a.dead_code_extent=='ENTRY' else a.dead_code_extent) if a.dead_code_extent else None):
+    with isolated_verification(verification_root(),a.isolated),          dead_code_extents.isolated_view((a.id if a.dead_code_extent=='ENTRY' else a.dead_code_extent) if a.dead_code_extent else None):
         reports=check(a.id,a.source,a.profile or ['aztec36','aztec50-short'],not a.no_promote,a.owned_code_data,a.separate_objects,a.allow_original_gaps,a.join_direct_callees,a.isolated,a.output_dir,member_sources,
                       a.natural_interval,a.prepare_only,parse_object_groups(a.object_group),a.per_member_profiles,member_profiles,
                       a.replace_canonical,a.with_m_lib)

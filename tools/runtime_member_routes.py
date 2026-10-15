@@ -16,7 +16,10 @@ def derive(members, source, *, game_sha256=None):
     from recovery_state import runtime_dependencies
     from analysis_support import game
     if game_sha256 is None:
-        blob,_,_=game()
+        # Entry guidance is an immutable-image fact. The caller's ordinary
+        # function/proof validation remains strict.
+        from census import advisory_image
+        with advisory_image():blob,_,_=game()
         game_sha256=sha256(blob)
     runtime=runtime_dependencies(dict(game_sha256=game_sha256))
     rows={}

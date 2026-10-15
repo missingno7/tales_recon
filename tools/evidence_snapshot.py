@@ -1,18 +1,22 @@
 """Bounded, content-checked reuse of read-only game derivations.
 
-No on-disk cache, fixture relocking, or cached verification verdicts. Outside
-an explicit scope every read derives afresh. Strict and advisory images have
-separate entries, and every reuse hashes the current inputs rather than stats.
+No on-disk cache or fixture relocking. Strict and advisory images have separate
+entries. Exact replay may opt into bounded process reuse with a complete,
+freshly content-hashed identity; ordinary reads need an explicit snapshot scope.
 """
 from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import wraps
 import json
+from collections import OrderedDict
 from pathlib import Path
 import pickle
 import time
 
-from common import require, sha256, json_bytes
+from common import require, sha256, json_bytes, FormatError
+from repo_paths import batched_paths,canonical_path
+
+_PROCESS = OrderedDict()
 
 _ACTIVE = ContextVar('evidence_snapshot', default=None)
 _VALIDATED = ContextVar('evidence_snapshot_inputs', default=())
@@ -26,6 +30,7 @@ class Snapshot:
         self.hits = self.misses = self.invalidations = 0
         self.hash_seconds = self.derive_seconds = 0.0
 
+    @batched_paths
     def inputs(self, root, strict):
         """Actual census/proof dependencies, including ledger-directed paths."""
         started = time.perf_counter()
@@ -37,14 +42,16 @@ class Snapshot:
         def target(path):
             key = str(path)
             if key not in resolved:
-                resolved[key] = path.resolve()
+                try:resolved[key]=canonical_path(root,path)
+                except FormatError:
+                    actual=path.resolve()
+                    require(actual.is_relative_to(root),'snapshot input escapes workspace: '+str(actual))
+                    raise
             return resolved[key]
 
         def read(path):
             path = target(path)
             require(path.is_relative_to(root), 'snapshot input escapes workspace: ' + str(path))
-            from repo_paths import canonical_path
-            canonical_path(root, path)
             if str(path) in contents:return contents[str(path)]
             try:raw = path.read_bytes()
             except FileNotFoundError:raw = None
@@ -140,7 +147,15 @@ class Snapshot:
         if namespace == 'game':self.misses += 1
         started = time.perf_counter()
         try:
-            value = loader()
+            # The enclosing load already hashes this complete closure before
+            # and after the loader. Nested reads of the same strictness share
+            # that observation instead of hashing it at every namespace layer.
+            token=None
+            if stage is None:
+                token=_VALIDATED.set(_VALIDATED.get()+((self,root_key,strict,before),))
+            try:value = loader()
+            finally:
+                if token is not None:_VALIDATED.reset(token)
             if stage is None:
                 after = current_inputs()
                 require(after == before,
@@ -239,9 +254,38 @@ def game_read(root, loader):
     return active.load(root, bool(_PROMOTION_EVIDENCE[0]), loader, namespace='game')
 
 
-def memoized(root, namespace, identity, loader, strict=True):
+def memoized(root, namespace, identity, loader, strict=True, *, process_cache=False):
     """Memoize a read-only derivation only inside the active, rehashing scope."""
+    if process_cache:
+        # The caller must supply a complete, freshly content-hashed identity.
+        # Only in-memory results created by this process are deserialized.
+        key = str(Path(root).resolve()), bool(strict), namespace, identity
+        packed = _PROCESS.get(key)
+        if packed is None:
+            packed = pickle.dumps(loader(), protocol=pickle.HIGHEST_PROTOCOL)
+            _PROCESS[key] = packed
+            while len(_PROCESS) > 16:_PROCESS.popitem(last=False)
+        else:_PROCESS.move_to_end(key)
+        return pickle.loads(packed)
     active = _ACTIVE.get()
     if active is None or not active.enabled:
         return loader()
     return active.load(root, bool(strict), loader, namespace=namespace, identity=identity)
+
+
+
+@contextmanager
+def content_stage(root,identity):
+    """Nested derivations of a caller-checked complete content replay.
+
+    Only a caller that hashes the complete closure before AND after its replay
+    may use this scope. It grants no acceptance and changes no ordinary stage.
+    """
+    active=_ACTIVE.get()
+    if active is None or not active.enabled:
+        yield
+        return
+    root_key=str(Path(root).resolve());values={'@complete-content-replay':identity}
+    token=_VALIDATED.set(_VALIDATED.get()+tuple((active,root_key,strict,values) for strict in [True,False]))
+    try:yield
+    finally:_VALIDATED.reset(token)

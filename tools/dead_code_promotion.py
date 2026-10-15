@@ -29,11 +29,13 @@ def proof_for(root,blob,model,analysis,row,record):
   original_translation_unit='UNKNOWN',natural_overlay_layout_proved=False)
 
 def canonical_rows(root,blob,model,analysis,ledger):
- rows=dead.verified_admissions(root,blob,model,analysis)
+ rows=dead.verified_admissions(root,blob,model,analysis,ledger,report_stale=True)
  registry=records(root);entries=ledger.get(MAP,{})
- require(set(entries)<=set(r['id'] for r in rows),'canonical dead-code admission missing')
+ require(set(entries)<=set(r['id'] for r in rows if r['status']=='VERIFIED_COMPLETE_C_SOURCE_OBJECT'),'canonical dead-code admission missing')
  result=[]
  for row in rows:
+  if row['status']=='STALE_ADMISSION':
+   result.append(dict(row,acceptance=False,extent_basis=BASIS));continue
   expected=proof_for(root,blob,model,analysis,row,registry[row['id']]);fid=row['id']
   fact=dict(row,acceptance=False,extent_basis=BASIS,boundary=expected['boundary'],reachable_cfg=expected['reachable_cfg'])
   if fid in entries:

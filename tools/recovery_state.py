@@ -11,6 +11,9 @@ LEDGER=ROOT/'recovery/ledger.json'
 
 
 def recovery():
+    from dead_code_extents import replay_context
+    context=replay_context()
+    if context is not None:return context['ledger']
     result=json.loads(LEDGER.read_text()) if LEDGER.exists() else dict(schema_version=1,functions={},attempts={},blockers={})
     root=LEDGER.parent.parent
     scratch=root/'build/recovery/state.json'
@@ -51,7 +54,9 @@ def evidence():
 
 def runtime_dependencies(ledger):
     """Read measured entry identities for guidance, never source ownership."""
-    path=ROOT/'evidence/experiments/runtime-arithmetic.json'
+    from dead_code_extents import replay_root
+    root=replay_root(ROOT)
+    path=root/'evidence/experiments/runtime-arithmetic.json'
     if not path.exists():return {}
     proof=json.loads(path.read_text())
     require(proof['game_sha256']==ledger['game_sha256'],'runtime guidance belongs to another executable')
@@ -64,13 +69,13 @@ def runtime_dependencies(ledger):
             key=(extent['hunk'],extent['offset']+entry['offset'])
             item=result.setdefault(key,dict(state='MATCHED_RUNTIME_CONTRIBUTION',
                 kind='COMPILER_GENERATED_HELPER',symbol=entry['name'],profiles=[],
-                evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
+                evidence=path.relative_to(root).as_posix(),evidence_sha256=sha256(path.read_bytes()),
                 source_contract='Express the C operation; let the compiler emit this helper. Do not declare a C function for its register ABI.'))
             require(item['symbol']==entry['name'],'conflicting runtime entry names')
             item['profiles'].append(contribution['profile'])
     # Complete library members linked alone (runtime_members.py): calls into
     # their entries are runtime calls, and their bytes are no game candidate.
-    path=ROOT/'evidence/experiments/runtime-members.json'
+    path=root/'evidence/experiments/runtime-members.json'
     if path.exists():
         proof=json.loads(path.read_text())
         require(proof['game_sha256']==ledger['game_sha256'],'runtime member guidance belongs to another executable')
@@ -82,10 +87,10 @@ def runtime_dependencies(ledger):
                 key=(extent['hunk'],extent['offset']+entry['offset'])
                 item=result.setdefault(key,dict(state='MATCHED_RUNTIME_CONTRIBUTION',kind='LIBRARY_MEMBER',
                     symbol=entry['name'],member=contribution['member'],extent=dict(extent),profiles=[contribution['profile']],
-                    evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
+                    evidence=path.relative_to(root).as_posix(),evidence_sha256=sha256(path.read_bytes()),
                     source_contract='Call the library entry by its mechanical name; its code is pinned runtime, not game source.'))
     # Separate so legacy runtime-members.json keeps its digest.
-    path=ROOT/'evidence/experiments/runtime-members-relocated.json'
+    path=root/'evidence/experiments/runtime-members-relocated.json'
     if path.exists():
         proof=json.loads(path.read_text())
         require(proof['game_sha256']==ledger['game_sha256'] and proof['status']=='COMPLETE_RUNTIME_CODE_MATCH',
@@ -98,10 +103,10 @@ def runtime_dependencies(ledger):
                 require(key not in result,'conflicting relocated runtime entry')
                 result[key]=dict(state='MATCHED_RUNTIME_CONTRIBUTION',kind='LIBRARY_MEMBER',
                     symbol=entry['name'],member=contribution['member'],extent=dict(extent),profiles=[contribution['profile']],
-                    evidence=path.relative_to(ROOT).as_posix(),evidence_sha256=sha256(path.read_bytes()),
+                    evidence=path.relative_to(root).as_posix(),evidence_sha256=sha256(path.read_bytes()),
                     source_contract='Call the pinned library entry; relocation identity rechecks at comparison.')
     from runtime_entry_routes import load as entry_routes
-    for key,item in entry_routes(ROOT,ledger['game_sha256']).items():
+    for key,item in entry_routes(root,ledger['game_sha256']).items():
         require(key not in result or (result[key]['kind']=='LIBRARY_MEMBER' and result[key]['symbol']==item['symbol']),
                 'conflicting complete runtime route')
         result.setdefault(key,item)
