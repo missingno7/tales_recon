@@ -26,9 +26,13 @@ def validation_inputs(root,path):
         names.add(name)
         batch=fact['producer']['batch'];names.add(batch)
         names.update(producer_paths(root,document(root,batch)))
-        for d in fact['definitions']:
-            item=document(root,'recovery/ledger.json')['functions'][d['evidence']['function']]
-            names.update([item['source'],item['proof']])
+        if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+            from data_provider_pointers import evidence_paths
+            names.update(evidence_paths(root,fact))
+        else:
+            for d in fact['definitions']:
+                item=document(root,'recovery/ledger.json')['functions'][d['evidence']['function']]
+                names.update([item['source'],item['proof']])
     names.update(p.relative_to(root).as_posix() for p in active_files(root/'tools','.py'))
     return dict(explicit=[dict(path=n,sha256=sha256((candidate_path(root,Path(root)/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)).read_bytes())) for n in sorted(names)],closure=Snapshot().inputs(root,True))
 

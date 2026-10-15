@@ -25,6 +25,9 @@ def document(root, path):
 
 
 def shape(fact):
+    if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+        from data_provider_pointers import shape as external_shape
+        return external_shape(fact)
     require(fact.get('schema_version')==1 and re.fullmatch(r'resident_data_[0-9A-F]{4}',fact.get('id','')), 'provider identity/schema')
     require(fact.get('source')==ROOT_SOURCE+fact['id']+'.c','provider source path')
     origin=fact['original']; require(origin['hunk']==1 and type(origin['start']) is int and type(origin['size']) is int and origin['start']>=0 and origin['start']%2==0,'naturally aligned initialized H1 DATA only')
@@ -89,6 +92,9 @@ def struct_control_fact():
 
 def definition_size(d):
     ty=d.get('type')
+    if ty=='CODE_ENTRY_POINTER':
+        require(type(d.get('count')) is int and 0<d['count']<=44,'bounded CODE pointer count')
+        return 4*d['count']
     if isinstance(ty,str) and ty.startswith('struct '):
         fields=struct_layout(d);return (fields[-1]['offset']+WIDTHS[fields[-1]['type']]+1)&~1
     require(ty in WIDTHS,'unsupported/opaque element type')
@@ -100,6 +106,9 @@ def definition_size(d):
 
 
 def source(fact):
+    if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+        from data_provider_pointers import source as external_source
+        return external_source(fact)
     shape(fact);lines=[];tags=set()
     for d in fact['definitions']:
         name=d['symbol'];ty=d['type']
@@ -115,6 +124,11 @@ def source(fact):
 
 
 def typed_evidence(root,fact,analysis,ledger,promotions):
+    if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+        from data_provider_pointers import typed_evidence as external_evidence
+        from analysis_support import game
+        blob,model,_=game()
+        return external_evidence(root,fact,blob,model,analysis,ledger)
     """Require current accepted consumers, exact declarations and bound operands."""
     shape(fact); accepted={p['id'] for p in promotions}
     types=document(root,'evidence/types.json')
@@ -276,6 +290,9 @@ def data_object(raw):
 
 
 def compare_data(original,original_model,fact,obj,linked,map_text):
+    if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+        from data_provider_pointers import compare_data as external_compare
+        return external_compare(original,original_model,fact,obj,linked,map_text)
     """Complete DATA and named RELOC32 identities; no byte masks or search."""
     size=shape(fact); parsed=data_object(obj); require(parsed['sections']==fact['object_sections'],'object section mismatch')
     expected_defs=[dict(name='_'+d['symbol'],offset=d['offset']) for d in fact['definitions']]
@@ -357,7 +374,7 @@ def producer(root,fact,retained=None):
         name=item['path'];require(Path(name).name==name and '/' not in name and '\\' not in name,'artifact escapes worker work')
         raw=read_job('sys/work/'+name);require(len(raw)==item['size'] and sha256(raw)==item['sha256'],'producer artifact changed');files[name]=raw
     prefixes=recipe['prefixes'];require(len(prefixes)==len(set(prefixes)) and all(re.fullmatch(r'[a-z][a-z0-9]*',p) for p in prefixes),'invalid producer prefixes')
-    controls=recipe.get('controls',[]);require(controls in ([],['structprobe']),'unsupported batch control')
+    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe']),'unsupported batch control')
     require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe']+controls,'one job must contain the entire provider batch and control')
     require(recipe['sources']=={r['path']:r['sha256'] for r in request['source_files']} and recipe['commands']==[r['command'] for r in request['steps']],'curated source/command pins differ')
     require(set(recipe['toolchain_inventory_sha256'])=={'evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json'},'incomplete toolchain inventory pins')
@@ -367,8 +384,11 @@ def producer(root,fact,retained=None):
     for p in prefixes:commands += [f'Old1:bin/cc >{p}-cc.log -a +b {p}.c',f'Old1:bin/as >{p}-as.log -o {p}.o {p}.asm']
     commands += ['Old1:bin/as >h000-as.log -o h000.o h000.asm']
     for p in prefixes:commands += [f'Old1:bin/ln >{p}-ln.log -m -t -o {p}.exe h000.o {p}.o']
+    if controls==['extprobe']:
+        from data_provider_pointers import commands as external_commands
+        commands=external_commands(prefixes)
     require([s['command'] for s in request['steps']]==commands and receipt['steps']==[dict(s,returncode=0) for s in request['steps']],'changed producing commands/status')
-    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm'])],'source inventory')
+    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm']+(['bindptr.asm'] if controls==['extprobe'] else []))],'source inventory')
     for member in recipe['members']:
         member_fact=document(root,member['fact'])
         require(sha256(json_bytes(member_fact))==member['fact_sha256'],'batch provider fact changed')
@@ -416,11 +436,19 @@ def producer(root,fact,retained=None):
     control_report=compare_data(files['relprobe.exe'],parse(files['relprobe.exe']),control,files['relprobe.o'],files['relprobe.exe'],files['relprobe.sym'].decode('ascii'))
     require(control_report['relocation_bindings']==[dict(offset=2,width=4,type='HUNK_RELOC32',symbol='_DP_test_target',addend=0)],'named relocation positive control differs')
     result=dict(job=recipe['job'],request_sha256=recipe['request_sha256'],result_sha256=recipe['result_sha256'],artifact_sha256=recipe['artifacts'],cache_key=recipe['cache_key'],relocation_control='EXACT_NAMED_INTERNAL_RELOC32; TEST_ONLY_NO_GAME_CREDIT')
-    if controls:
+    if controls==['structprobe']:
         require(files['structprobe.c']==STRUCT_CONTROL_SOURCE,'struct ABI control source changed')
         padfact=struct_control_fact()
         checked=compare_data(files['structprobe.exe'],parse(files['structprobe.exe']),padfact,files['structprobe.o'],files['structprobe.exe'],files['structprobe.sym'].decode('ascii'))
         result['struct_control']=dict(DATA=checked['sections']['DATA'],padding_offsets=[1,7],game_credit=0)
+    if controls==['extprobe']:
+        from data_provider_pointers import binder_names,binder_source,binder_object,CONTROL_SOURCE,control_report
+        facts=[document(root,m['fact']) for m in recipe['members']]
+        require(all(f.get('kind')=='EXTERNAL_CODE_POINTER_TABLE' for f in facts),'external batch member kind')
+        names=binder_names(facts)
+        require(files['bindptr.asm']==binder_source(names) and files['extprobe.c']==CONTROL_SOURCE,'independent external binder/control recipe changed')
+        binder_object(files['bindptr.o'],names)
+        result['external_pointer_control']=control_report(files,names)
     return files,result
 
 def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained):
@@ -434,6 +462,9 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
     if any(d['bounds']['kind'] in ('STRUCT_ABI','GUARDED_BYTE','COORDINATES','STATE16') for d in fact['definitions']):
         import data_provider_bounds
         report['verifier_identity']['data_provider_bounds.py']=sha256(Path(data_provider_bounds.__file__).read_bytes())
+    if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+        import data_provider_pointers
+        report['verifier_identity']['data_provider_pointers.py']=sha256(Path(data_provider_pointers.__file__).read_bytes())
     return report
 
 
@@ -482,6 +513,9 @@ def input_identity(root):
         names.update([item['source'],item['proof']]);facts.append(item['fact'])
     for name in facts:
         names.add(name);fact=document(root,name);batch=fact['producer']['batch'];names.add(batch)
+        if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+            from data_provider_pointers import evidence_paths
+            names.update(evidence_paths(root,fact))
         recipe=document(root,batch);names.update(producer_paths(root,recipe))
         names.update(recipe['toolchain_inventory_sha256'])
         request_path=candidate_path(root,root/recipe['job']/'request.json')
