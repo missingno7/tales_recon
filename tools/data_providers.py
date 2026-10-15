@@ -1,4 +1,6 @@
-"""Strict typed DATA providers. No CODE, guessed arrays, filler or unknown fixups.
+"""Strict typed DATA providers, including independently bounded C string literals.
+
+No instructions, guessed arrays, filler or unknown fixups.
 
 Admits initialized scalars, independently bounded lookup arrays and one internal int-pointer fixup to
 an independently evidenced first int scalar. BSS/COMMON must both be zero.
@@ -25,6 +27,9 @@ def document(root, path):
 
 
 def shape(fact):
+    if fact.get('kind')=='LITERAL_LINE_RECORDS':
+        from data_provider_literals import shape as literal_shape
+        return literal_shape(fact)
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         from data_provider_pointers import shape as external_shape
         return external_shape(fact)
@@ -92,6 +97,9 @@ def struct_control_fact():
 
 def definition_size(d):
     ty=d.get('type')
+    if ty=='LITERAL_LINE_RECORD':
+        require(type(d.get('count')) is int and d['count'] in (15,26),'closed story array count')
+        return 8*d['count']
     if ty=='CODE_ENTRY_POINTER':
         require(type(d.get('count')) is int and 0<d['count']<=44,'bounded CODE pointer count')
         return 4*d['count']
@@ -106,6 +114,9 @@ def definition_size(d):
 
 
 def source(fact):
+    if fact.get('kind')=='LITERAL_LINE_RECORDS':
+        from data_provider_literals import source as literal_source
+        return literal_source(fact)
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         from data_provider_pointers import source as external_source
         return external_source(fact)
@@ -124,6 +135,13 @@ def source(fact):
 
 
 def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
+    if fact.get('kind')=='LITERAL_LINE_RECORDS':
+        from data_provider_literals import typed_evidence as literal_evidence
+        if image is None:
+            from census import advisory_image
+            from analysis_support import game
+            with advisory_image():image=game()[:2]
+        return literal_evidence(root,fact,*image,analysis,ledger,promotions)
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         from data_provider_pointers import typed_evidence as external_evidence
         if image is None:
@@ -296,6 +314,9 @@ def data_object(raw):
 
 
 def compare_data(original,original_model,fact,obj,linked,map_text):
+    if fact.get('kind')=='LITERAL_LINE_RECORDS':
+        from data_provider_literals import compare_data as literal_compare
+        return literal_compare(original,original_model,fact,obj,linked,map_text)
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         from data_provider_pointers import compare_data as external_compare
         return external_compare(original,original_model,fact,obj,linked,map_text)
@@ -380,7 +401,7 @@ def producer(root,fact,retained=None):
         name=item['path'];require(Path(name).name==name and '/' not in name and '\\' not in name,'artifact escapes worker work')
         raw=read_job('sys/work/'+name);require(len(raw)==item['size'] and sha256(raw)==item['sha256'],'producer artifact changed');files[name]=raw
     prefixes=recipe['prefixes'];require(len(prefixes)==len(set(prefixes)) and all(re.fullmatch(r'[a-z][a-z0-9]*',p) for p in prefixes),'invalid producer prefixes')
-    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe']),'unsupported batch control')
+    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe']),'unsupported batch control')
     require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe']+controls,'one job must contain the entire provider batch and control')
     require(recipe['sources']=={r['path']:r['sha256'] for r in request['source_files']} and recipe['commands']==[r['command'] for r in request['steps']],'curated source/command pins differ')
     require(set(recipe['toolchain_inventory_sha256'])=={'evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json'},'incomplete toolchain inventory pins')
@@ -455,6 +476,10 @@ def producer(root,fact,retained=None):
         require(files['bindptr.asm']==binder_source(names) and files['extprobe.c']==CONTROL_SOURCE,'independent external binder/control recipe changed')
         binder_object(files['bindptr.o'],names)
         result['external_pointer_control']=control_report(files,names)
+    if controls==['litprobe']:
+        from data_provider_literals import control_report
+        require(all(document(root,m['fact']).get('kind')=='LITERAL_LINE_RECORDS' for m in recipe['members']),'literal batch member kind')
+        result['literal_control']=control_report(files)
     return files,result
 
 def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained):
@@ -471,6 +496,9 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         import data_provider_pointers
         report['verifier_identity']['data_provider_pointers.py']=sha256(Path(data_provider_pointers.__file__).read_bytes())
+    if fact.get('kind')=='LITERAL_LINE_RECORDS':
+        import data_provider_literals
+        report['verifier_identity']['data_provider_literals.py']=sha256(Path(data_provider_literals.__file__).read_bytes())
     return report
 
 
@@ -492,7 +520,7 @@ def load_data_providers(root,blob,model,analysis,ledger,promotions):
                 'provider proof lacks verifier provenance')
         require(proof['fact']==fact and facts(proof['comparison'])==facts(replay),
                 'provider canonical receipt no longer rederives')
-        o=replay['original'];points=set(range(o['start'],o['start']+o['size']));require(not(points&occupied),'overlapping DATA providers');occupied|=points
+        points={(c['hunk'],p) for c in contributions([replay]) for p in range(c['start'],c['end'])};require(not(points&occupied),'overlapping DATA/literal providers');occupied|=points
         records.append(replay)
     return records
 
@@ -502,6 +530,8 @@ def contributions(records):
     for r in records:
         o=r['original'];rels=[dict(source_offset=o['start']+p['offset'],target_hunk=p['target_hunk'],type=p['type'],width=p['width'],addend_raw=p['addend']) for p in r['original_relocations']]
         out.append(dict(id=r['id'],hunk=o['hunk'],start=o['start'],end=o['start']+o['size'],category='RECOVERED_DATA',bytes=bytes.fromhex(r['data_hex']),relocations=rels))
+        for lit in r.get('owned_literals',[]):
+            out.append(dict(id=r['id']+':literals',hunk=lit['hunk'],start=lit['start'],end=lit['start']+lit['size'],category='COMPILER_OWNED_DATA',bytes=bytes.fromhex(lit['bytes_hex']),relocations=lit['relocations']))
     return out
 
 
@@ -521,6 +551,9 @@ def input_identity(root):
         names.add(name);fact=document(root,name);batch=fact['producer']['batch'];names.add(batch)
         if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
             from data_provider_pointers import evidence_paths
+            names.update(evidence_paths(root,fact))
+        if fact.get('kind')=='LITERAL_LINE_RECORDS':
+            from data_provider_literals import evidence_paths
             names.update(evidence_paths(root,fact))
         recipe=document(root,batch);names.update(producer_paths(root,recipe))
         names.update(recipe['toolchain_inventory_sha256'])

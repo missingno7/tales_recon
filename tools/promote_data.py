@@ -9,7 +9,7 @@ from repo_paths import canonical_path,candidate_path,active_files
 from recovery_evidence import load_promotions
 from recovery_state import canonical_state
 from recovery_transaction import ledger_lock,publish
-from data_providers import document,source,verify,load_data_providers,producer_paths
+from data_providers import document,source,verify,load_data_providers,producer_paths,contributions
 from check_function import regression_receipt
 
 
@@ -29,6 +29,9 @@ def validation_inputs(root,path):
         if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
             from data_provider_pointers import evidence_paths
             names.update(evidence_paths(root,fact))
+        elif fact.get('kind')=='LITERAL_LINE_RECORDS':
+            from data_provider_literals import evidence_paths
+            names.update(evidence_paths(root,fact))
         else:
             for d in fact['definitions']:
                 item=document(root,'recovery/ledger.json')['functions'][d['evidence']['function']]
@@ -42,12 +45,12 @@ def stage_entries(root,blob,model,analysis,ledger,promotions,path):
     recipe=document(root,facts[0][1]['producer']['batch'])
     require([n for n,f in facts]==[m['fact'] for m in recipe['members']],'manifest must select the complete producer batch')
     existing=load_data_providers(root,blob,model,analysis,ledger,promotions)
-    occupied={(r['original']['hunk'],p) for r in existing for p in range(r['original']['start'],r['original']['start']+r['original']['size'])}
+    occupied={(c['hunk'],p) for c in contributions(existing) for p in range(c['start'],c['end'])}
     for name,fact in facts:
         src=source(fact);original=canonical_path(root,fact['source'])
         require(not original.exists() or original.read_bytes()==src,'existing provider source differs')
         report=verify(root,blob,model,analysis,ledger,promotions,fact,src,None)
-        o=report['original'];points={(o['hunk'],p) for p in range(o['start'],o['start']+o['size'])}
+        points={(c['hunk'],p) for c in contributions([report]) for p in range(c['start'],c['end'])}
         require(not(points&seen),'overlapping batch providers');seen|=points
         require(fact['id'] not in ledger.get('data_providers',{}),'provider already admitted; replay it through census/accounting')
         require(not(points&occupied),'provider overlaps accepted DATA')
@@ -57,9 +60,10 @@ def stage_entries(root,blob,model,analysis,ledger,promotions,path):
     from hybrid_image import build
     _,accounting=build(root)
     for row in rows:
-        o=row['proof']['comparison']['original'];start=o['start'];end=start+o['size']
-        covered=[r for r in accounting['ranges'] if r['hunk']==o['hunk'] and r['start']<end and start<r['end']]
-        require(covered and all(r['category']=='RAW_ORACLE_DEBT' for r in covered),'DATA provider overlaps already credited bytes')
+        for c in contributions([row['proof']['comparison']]):
+            start,end=c['start'],c['end']
+            covered=[r for r in accounting['ranges'] if r['hunk']==c['hunk'] and r['start']<end and start<r['end']]
+            require(covered and all(r['category']=='RAW_ORACLE_DEBT' for r in covered),'DATA/literal provider overlaps already credited bytes')
     return rows
 
 

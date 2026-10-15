@@ -31,7 +31,7 @@ def pins(root,rows,job,controls=(),manifest=None):
     request_raw=(job/'request.json').read_bytes();result_raw=(job/'result.json').read_bytes()
     request=json.loads(request_raw);receipt=json.loads(result_raw)
     members=[dict(fact=n,fact_sha256=sha256(json_bytes(f)),prefix=f['producer']['prefix']) for n,f in rows]
-    require(list(controls) in ([],['structprobe'],['extprobe']),'unsupported ABI control')
+    require(list(controls) in ([],['structprobe'],['extprobe'],['litprobe']),'unsupported ABI control')
     prefixes=[m['prefix'] for m in members]+['relprobe']+list(controls)
     require(receipt['all_steps_succeeded'] and receipt['request']==request,'collect a successful batch job before pinning')
     require([s['command'] for s in request['steps']]==commands(prefixes,controls),'job does not produce complete batch')
@@ -44,6 +44,9 @@ def pins(root,rows,job,controls=(),manifest=None):
         from data_provider_pointers import binder_names,binder_source,CONTROL_SOURCE
         require((job/'sys/work/extprobe.c').read_bytes()==CONTROL_SOURCE and (job/'sys/work/bindptr.asm').read_bytes()==binder_source(binder_names([f for n,f in rows])),'external control/binder differs')
         recipe['controls']=list(controls)
+    if list(controls)==['litprobe']:
+        from data_provider_literals import CONTROL_SOURCE
+        require((job/'sys/work/litprobe.c').read_bytes()==CONTROL_SOURCE,'literal control differs');recipe['controls']=list(controls)
     if manifest:recipe['manifest']=manifest
     recipe['cache_key']=batch_key(recipe);return recipe
 
@@ -52,7 +55,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default='evidence/data-providers/batch.json');ap.add_argument('--job',required=True)
     ap.add_argument('--prepare',action='store_true');ap.add_argument('--pins',action='store_true');ap.add_argument('--source-dir',default='build/workers/data-provider-regeneration');ap.add_argument('--emulator',default='C:/Program Files/WinUAE/winuae64.exe');a=ap.parse_args()
     require(a.job.startswith('tu-layout-') and a.prepare!=a.pins,'choose --prepare or --pins for a tu-layout-* job')
-    rows=manifest_facts(ROOT,a.manifest);controls=document(ROOT,a.manifest).get('controls',[]);require(controls in ([],['structprobe'],['extprobe']),'unsupported control');prefixes=[f['producer']['prefix'] for n,f in rows]+['relprobe']+controls
+    rows=manifest_facts(ROOT,a.manifest);controls=document(ROOT,a.manifest).get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe']),'unsupported control');prefixes=[f['producer']['prefix'] for n,f in rows]+['relprobe']+controls
     if a.prepare:
         directory=candidate_path(ROOT,ROOT/a.source_dir)
         require(directory.is_relative_to(ROOT/'build/workers') and not directory.exists(),'fresh worker source directory required')
@@ -62,6 +65,9 @@ def main():
         if controls==['extprobe']:
             from data_provider_pointers import binder_names,binder_source,CONTROL_SOURCE
             (directory/'extprobe.c').write_bytes(CONTROL_SOURCE);(directory/'bindptr.asm').write_bytes(binder_source(binder_names([f for n,f in rows])))
+        if controls==['litprobe']:
+            from data_provider_literals import CONTROL_SOURCE
+            (directory/'litprobe.c').write_bytes(CONTROL_SOURCE)
         (directory/'relprobe.c').write_bytes(CONTROL);(directory/'h000.asm').write_bytes(HARNESSSOURCE)
         print(prepare(a.job,directory,commands(prefixes,controls),Path(a.emulator),aztec36=True))
     else:print(json_bytes(pins(ROOT,rows,a.job,controls,a.manifest if controls else None)).decode('utf-8'),end='')
