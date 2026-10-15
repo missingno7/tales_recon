@@ -140,6 +140,10 @@ def _derive_uncached(root, promotion_evidence=None):
     code_data_facts=audio_sequence_data.load(root,exe,model,analysis=analysis,
         claimed=[dict(hunk=f['hunk'],start=f['start'],end=f['end']) for f in promoted]+
                 [dict(hunk=row['original']['hunk'],start=p['start'],end=p['end']) for row in mixed for p in row['partitions']]+[dict(hunk=r['span']['hunk'],start=r['span']['start'],end=r['span']['end']) for r in reconstructed_asm])
+    from code_data_providers import rows as code_data_rows
+    code_data_providers=code_data_rows(root,exe,model,analysis,ledger)
+    outputs['evidence/code-data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
+        objects=code_data_providers,policy='TYPED_CODE_DATA; no C or ASM instruction credit; owner/TU/layout UNKNOWN.')
     outputs['evidence/executable/code-data.json']=dict(schema_version=1,
         facts=code_data_facts,source_acceptance=False,proof_level=None)
 
@@ -318,6 +322,7 @@ def _derive_uncached(root, promotion_evidence=None):
             functions_reconstructed=sum(f['hunk'] in node['hunks'] for f in promoted)+sum(r['id'] in new_dead_ids and r['complete_extent']['hunk'] in node['hunks'] for r in accepted_dead),
             code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks'])+sum(r['end']-r['start'] for r in dead_code_spans if r['hunk'] in node['hunks']),data_matched_bytes=sum(r['original']['size'] for r in providers if r['original']['hunk'] in node['hunks']),
             reconstructed_asm_bytes=sum(r['span']['size'] for r in reconstructed_asm if r['span']['hunk'] in node['hunks']),
+            typed_code_data_bytes=sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers if r['original']['hunk'] in node['hunks']),
             mixed_source_objects=sum(row['original']['hunk'] in node['hunks'] for row in mixed),
             mixed_code_matched_bytes=sum(row['size'] for row in mixed if row['original']['hunk'] in node['hunks']),
             relocation_records=sum(r['source_hunk'] in node['hunks'] for r in model['relocations']),
@@ -339,6 +344,7 @@ def _derive_uncached(root, promotion_evidence=None):
         reconstructed_dead_code_objects=len(accepted_dead),matched_dead_code_c_bytes=sum(r['end']-r['start'] for r in dead_code_spans),current_proof_level=None,
         reconstructed_data_providers=len(providers),matched_data_provider_bytes=sum(r['original']['size'] for r in providers),
         reconstructed_asm_objects=len(reconstructed_asm),matched_reconstructed_asm_bytes=sum(r['span']['size'] for r in reconstructed_asm),
+        reconstructed_code_data_providers=len(code_data_providers),matched_typed_code_data_bytes=sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers),
         reconstructed_mixed_objects=len(mixed),
         matched_mixed_c_bytes=sum(row['c_compiler_bytes'] for row in mixed),
         matched_asm_bytes=sum(row['sdk_asm_bytes'] for row in mixed),

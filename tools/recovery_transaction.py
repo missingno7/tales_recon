@@ -60,6 +60,7 @@ def target(root, relative, ledger):
     allowed = (path == ledger or
                (path.is_relative_to(root / 'src/recovered') and path.suffix == '.c') or
                (path.is_relative_to(root / 'src/recovered/asm-reconstructed') and path.suffix == '.asm') or
+               (path.is_relative_to(root / 'src/recovered/code-data') and path.suffix == '.asm') or
                (path.is_relative_to(root / 'recovery/proofs') and path.suffix == '.json'))
     require(allowed, 'unsupported promotion transaction target: ' + relative)
     return path
