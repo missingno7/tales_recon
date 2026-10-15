@@ -1,5 +1,6 @@
-import copy,json,pathlib,unittest
+import copy,json,pathlib,sys,unittest
 from unittest.mock import patch
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/'tools'))
 from common import FormatError
 from analysis_support import ROOT,game
 from evidence_snapshot import isolated_verification
