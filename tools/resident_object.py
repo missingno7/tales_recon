@@ -71,8 +71,11 @@ def bounds(directory, prefix, labels, model, symbols, entry_function):
     require(0 <= harness_start < start < cursor <= root['initialized_size'],
             'resident object block outside initialized root CODE')
     entry = symbols.get((0, '_' + entry_function))
-    require(entry is not None and start <= entry < start + objects[0]['size'],
-            'resident entry must be in the first source object')
+    entry_object=next((obj for obj in objects if entry is not None and obj['start']<=entry<obj['start']+obj['size']),None)
+    require(entry_object is not None,'resident entry must be inside a complete source object')
+    entry_name=prefix if entry_object['label']=='candidate' else prefix+'_'+entry_object['label']
+    require('_'+entry_function in code_labels(directory/(entry_name+'.asm')),
+            'resident entry is not authored by its containing source object')
     require(all(name in owned_symbols for (hunk, name), offset in symbols.items()
                 if hunk == 0 and start <= offset < cursor and not name.startswith('__H')),
             'resident object extent absorbs another linked contribution')

@@ -95,6 +95,7 @@ class Snapshot:
             for name in startup_inputs(root):read(root / name)
             analysis = document(root / 'evidence/functions/ledger.json')
             for name in analysis.get('analysis_identity', {}):read(root / 'tools' / name)
+            for name in analysis.get('callback_reference_identity', {}):read(root / name)
             for name in ('runtime-matches.json', 'overlay-topology.json'):
                 read(root / 'evidence/experiments' / name)
             ledger_path = root / 'recovery/ledger.json'

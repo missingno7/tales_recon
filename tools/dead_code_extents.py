@@ -359,6 +359,12 @@ def replay_identity(root,blob,model,analysis,ledger,row,*,input_files=None):
  from compiler_oracle import PROFILES,ROOT as compiler_root
  actual_scan=scan if compiler_root.resolve()==root.resolve() else ContentScan(compiler_root)
  for path in sorted(Path(__file__).parent.glob('*.py')):actual_scan.read(path)
+ # Callback ABI validation reads these SDK headers even during an ordinary
+ # complete-C replay. Include every header, including its absence, in the
+ # actual interpreter/toolchain closure (minimal fixture roots may lack it).
+ from function_pointer_evidence import HEADERS,PREFIX
+ actual_scan.read(compiler_root/'evidence/toolchain/aztec-3.6a.json')
+ for header in HEADERS:actual_scan.read(compiler_root/(PREFIX+header))
  for profile in PROFILES.values():
   for name in ['bin/cc','bin/as','bin/ln','lib/c.lib','lib/c16.lib','lib/c32.lib','lib/m.lib']:
    actual_scan.read(compiler_root/profile['base']/name)

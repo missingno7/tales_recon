@@ -1,14 +1,14 @@
 {
   "counts": {
-    "address_taken_sites": 1637,
+    "address_taken_sites": 1638,
     "extension_context_sites": 184,
-    "frame_access_sites": 1147,
+    "frame_access_sites": 1156,
     "frame_address_taken_sites": 2,
     "frame_extension_context_sites": 88,
-    "frame_slots": 404,
-    "functions_scanned": 627,
+    "frame_slots": 408,
+    "functions_scanned": 644,
     "global_accesses": 8845,
-    "global_identities": 1899
+    "global_identities": 1900
   },
   "declaration_conflicts": {
     "conflicts": [
@@ -36819,6 +36819,141 @@
       "extension_context": [],
       "frame_offset": 9,
       "function": "resident_F_4D04",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "resident_F_5064",
+          "hunk": 0,
+          "mnemonic": "move.l",
+          "offset": 20584,
+          "operands": "$8(a5), -$4(a5)",
+          "raw": "2b6d0008fffc",
+          "width_bytes": 4
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "resident_F_5064",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "resident_F_5064",
+          "hunk": 0,
+          "mnemonic": "movea.l",
+          "offset": 20606,
+          "operands": "$c(a5), a0",
+          "raw": "206d000c",
+          "width_bytes": 4
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "resident_F_5064",
+          "hunk": 0,
+          "mnemonic": "movea.l",
+          "offset": 20622,
+          "operands": "$c(a5), a0",
+          "raw": "206d000c",
+          "width_bytes": 4
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "resident_F_5064",
+          "hunk": 0,
+          "mnemonic": "movea.l",
+          "offset": 20640,
+          "operands": "$c(a5), a1",
+          "raw": "226d000c",
+          "width_bytes": 4
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "resident_F_5064",
+          "hunk": 0,
+          "mnemonic": "adda.l",
+          "offset": 20650,
+          "operands": "$c(a5), a1",
+          "raw": "d3ed000c",
+          "width_bytes": 4
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "resident_F_5064",
+          "hunk": 0,
+          "mnemonic": "movea.l",
+          "offset": 20660,
+          "operands": "$c(a5), a0",
+          "raw": "206d000c",
+          "width_bytes": 4
+        },
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 12,
+          "function": "resident_F_5064",
+          "hunk": 0,
+          "mnemonic": "movea.l",
+          "offset": 20686,
+          "operands": "$c(a5), a0",
+          "raw": "206d000c",
+          "width_bytes": 4
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 12,
+      "function": "resident_F_5064",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 8,
+          "function": "resident_F_5428",
+          "hunk": 0,
+          "mnemonic": "move.l",
+          "offset": 21568,
+          "operands": "$8(a5), $2c26.l",
+          "raw": "23ed000800002c26",
+          "width_bytes": 4
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 8,
+      "function": "resident_F_5428",
+      "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
+    },
+    {
+      "accesses": [
+        {
+          "basis": "decoded A5 displacement; argument boundary unproved",
+          "frame_offset": 15,
+          "function": "resident_F_5428",
+          "hunk": 0,
+          "mnemonic": "move.b",
+          "offset": 21560,
+          "operands": "$f(a5), $2c2c.l",
+          "raw": "13ed000f00002c2c",
+          "width_bytes": 1
+        }
+      ],
+      "address_taken": [],
+      "extension_context": [],
+      "frame_offset": 15,
+      "function": "resident_F_5428",
       "interpretation": "FRAME_ACCESS_CANDIDATE; not a parameter declaration"
     },
     {
@@ -117005,6 +117140,24 @@
       "width_interpretation": "ACCESS_FACT_ONLY"
     },
     {
+      "accesses": [],
+      "address_taken": [
+        {
+          "basis": "A4 identity + LEA",
+          "function": "resident_F_617C",
+          "hunk": 1,
+          "mnemonic": "lea.l",
+          "offset": 24956,
+          "operands": "-$2c5c(a4), a1",
+          "raw": "43ecd3a4"
+        }
+      ],
+      "data_hunk_offset": 21410,
+      "extension_context": [],
+      "observed_widths_bytes": [],
+      "width_interpretation": "ACCESS_FACT_ONLY"
+    },
+    {
       "accesses": [
         {
           "basis": "A4 bias + decoded displacement",
@@ -171425,9 +171578,10 @@
     "analysis_identity": {
       "analysis_support.py": "5b701a2fa046fca1d2c0f33886fab25754a25db0d3dcfc119100987f718c9f0f",
       "audio_sequence_data.py": "a485ebb5f2683d634069c1a43957936db916db2d5a8dd4d4ca54530d776c34c0",
-      "curated_unreferenced_entries.py": "6867b637d72dbaf25084f3f75b75c41c329936587048c116db228aad162bc42e",
-      "dead_code_extents.py": "041b89367046a0b800760b7d67e04e8fe49f75d6dd3fe66aeee2a8fc070de79b",
-      "function_census.py": "24dd79f4a1076fd0638fa2a253c7f59fcbcf0a656a142515eb4f2b24ba4d0c9e"
+      "curated_unreferenced_entries.py": "8d21be34217e4f9f835446cce5111e33d931607520d2287257c4d5dedd585938",
+      "dead_code_extents.py": "4dc5ddbffcae6208f06051a7030a9fa3c81b966f3ce42dc2278912ce917dc53f",
+      "function_census.py": "a88a36402e310a3c82d8be965b8d81445c24c4fe0eb4a1c1749741b174eb50bb",
+      "function_pointer_evidence.py": "7e3cbe203170b6bd9ae8093f406ec2096d6085ea58d5566e7972f8255c29a8b1"
     },
     "declaration_source_hashes": {
       "src/recovered/complete-c/ov11_F_66FE.c": "27cb0bc8037b56cf6125ead609ba87fd9c2b3d308ac8ca1f91ac855372be0896",
@@ -171663,8 +171817,8 @@
       "src/recovered/resident/resident_F_8552.c": "e9ecf37aed8c5965e7aabbb12c790fad12eedc08ff75cd3f585c0ed02cff25ab",
       "src/recovered/resident/resident_F_8640.c": "d097d976f628d96ce2b0e0340968ee0853d1862303a0a77cf95f82d29a782dbc"
     },
-    "function_ledger_sha256": "cebf751c4f9ea7e568e146ce0fab99df2fa9b5db867d76703cc7f53e37b4dc74",
-    "instruction_index_sha256": "4e03421158e9be955bb4ace798d46c35c49886c71f84bc02636d810f9f3e0a03",
+    "function_ledger_sha256": "639d9f49b5afa38d48457701e990f124068e9f5b70ea4dda2d6e78056022e0b3",
+    "instruction_index_sha256": "ea83d2acf37d3aea95f0eac8cf5335d2548abddfccfdb903e913d99efa59e679",
     "miner_sha256": "49d0a4fdad9dfeae210ef913ff0f9fed5a74aa000a6a18770e812b1a4cc187ed"
   },
   "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
