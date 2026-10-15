@@ -123,6 +123,17 @@ an accepted source with an unverified rewrite.
    access. That list is the port's platform-layer contract. Annotate its
    semantics (blitter, copper, Paula, input, timing, DOS I/O) as the driver and
    data model become clear.
+7. **Differential behavior harness (prototype works).**
+   build/workers/opus-difftest/difftest.py runs the original 68000 bytes of a
+   function under Unicorn (Aztec stack ABI, result in D0.w). It compiles the
+   matched C for the host with gcc and `int` mapped to 16 bits, then compares
+   the two on random and boundary inputs. ov11_F_25D6 and ov11_F_262E agree on
+   20,000 inputs each, and a one-character mutant is caught at once. To grow
+   it into `tools/difftest.py`: map resident DATA at the A4 bias for globals,
+   pass struct pointers, handle stubbed callees, and record per-function
+   results. It gives behavioral evidence for BEHAVIORAL_C and unresolved code,
+   and later checks modernized port code against the original. Host tools:
+   MSYS2 `gcc` and the installed `unicorn` 2.1.4.
 
 Future portability concerns: the 16-bit `int`, big-endian data, A4-relative
 small data, overlay paging, FFP floats, and hardware timing. Record them; do
