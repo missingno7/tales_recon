@@ -1,4 +1,4 @@
-"""Strict re-derived overlay entry boundaries; no source acceptance."""
+"""Strict re-derived anchored entry boundaries; no source acceptance."""
 import json
 from common import require, sha256
 from repo_paths import canonical_path
@@ -22,8 +22,8 @@ def load(root,blob):
         require(isinstance(r,dict) and set(r)==fields,'uncalled entry schema differs')
         require(all(type(r[k]) is int for k in ('hunk','start','end','contribution_end')),'uncalled coordinates must be integers')
         h,a,b=r['hunk'],r['start'],r['end']
-        require(h>=3 and 0<=a<b<=r['contribution_end'] and a%2==0,'uncalled entry is not an aligned overlay interval')
-        require(r['id']=='ov%02d_F_%04X'%(h,a),'uncalled identity differs')
+        require((h==0 or h>=3) and 0<=a<b<=r['contribution_end'] and a%2==0,'uncalled entry is not an aligned CODE interval')
+        require(r['id']==(('resident' if h==0 else 'ov%02d'%h)+'_F_%04X'%a),'uncalled identity differs')
         require(isinstance(r['predecessor'],str) and (r['next_entry'] is None or isinstance(r['next_entry'],str)),'uncalled neighbor identity differs')
         require(isinstance(r['justification'],str) and r['justification'].strip(),'uncalled justification missing')
         require(r['id'] not in ids and (h,a) not in coords,'duplicate uncalled entry')
@@ -50,7 +50,8 @@ def closed_shape(c,f):
     require(f['instructions'] and f['instructions'][0]['offset']==f['start'] and data[f['start']:f['start']+2]==b'\x4e\x55','uncalled entry lacks LINK')
     require(not f['boundary_stops'] and not f['undecoded_gaps'] and f['return_sites'],'uncalled CFG does not close')
     require(not f['indirect_control_flow'],'uncalled entry has unresolved control flow')
-    require(data[f['end']-4:f['end']]==b'\x4e\x5d\x4e\x75','uncalled entry lacks terminal UNLK/RTS')
+    from function_census import ends_in_epilogue
+    require(ends_in_epilogue(c,f),'uncalled entry lacks a closed local epilogue')
     require(all(data[a:a+2]==b'\x4e\x75' for a in f['return_sites']),'uncalled CFG has a non-RTS return')
     spans=[(i['offset'],i['offset']+i['size']) for i in f['instructions']]
     spans += [(t['table_start'],t['table_end']) for t in f.get('jump_tables',[])]
@@ -81,6 +82,23 @@ def claimed_ranges(root):
         proof=canonical_path(root,item['proof']);require(sha256(proof.read_bytes())==item['proof_sha256'],'uncalled mixed ownership proof changed')
         e=json.loads(proof.read_bytes())['original'];out.append((fid,e['hunk'],e['start'],e['end']))
     return out
+
+def independently_referenced_entry(c, target, functions):
+    """A next boundary may be a non-C entry; rederive an actual incoming edge.
+
+    This does not close that neighbor's CFG, change its language, or grant any
+    entry strength to an adjacent LINK. No curated text/source-match shortcut.
+    """
+    from analysis_support import instruction
+    for caller in functions:
+        for call in caller['direct_callees']:
+            if (call['hunk'],call['offset']) != (target['hunk'],target['start']):continue
+            ins=instruction(c.md,c.data[caller['hunk']],call['site'])
+            if ins is None:continue
+            derived=c.target(caller['hunk'],ins)
+            if derived and derived[:2]==(target['hunk'],target['start']):return True
+    return False
+
 
 def validate(c,root):
     """Validate all listed CFGs before admitting any coordinate-ordered chain.
@@ -116,7 +134,8 @@ def validate(c,root):
         require(pred is not None and pred['hunk']==f['hunk'] and pred['start']<f['start'],'uncalled predecessor differs')
         if pred['id'] in listed:closed_shape(c,pred)
         else:require(pred['extent_status']=='CLOSED_CFG','uncalled predecessor is not closed')
-        require(c.data[f['hunk']][pred['end']-4:pred['end']]==b'\x4e\x5d\x4e\x75','uncalled predecessor lacks UNLK/RTS')
+        from function_census import ends_in_epilogue
+        require(ends_in_epilogue(c,pred),'uncalled predecessor lacks a closed local epilogue')
         require(tail_end(c,pred)==f['start'],'uncalled entry does not follow complete predecessor')
         if r['next_entry'] is None:
             require(r['contribution_end']>f['end'] and r['contribution_end']==len(c.data[f['hunk']]),'uncalled terminal entry lacks bounded literal tail')
@@ -124,7 +143,7 @@ def validate(c,root):
             nxt=by.get(r['next_entry'])
             require(nxt is not None and nxt['hunk']==f['hunk'] and nxt['start']==r['contribution_end'],'uncalled next boundary differs')
             if nxt['id'] in listed:closed_shape(c,nxt)
-            else:require(nxt['extent_status']=='CLOSED_CFG','uncalled next anchor is not closed')
+            else:require(nxt['extent_status']=='CLOSED_CFG' or independently_referenced_entry(c,nxt,fs),'uncalled next anchor is not independently bounded')
     for r in ordered:
         pred=r['predecessor'];seen=set()
         while pred in listed:
