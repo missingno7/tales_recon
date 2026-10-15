@@ -123,11 +123,17 @@ def source(fact):
     return ''.join(lines).encode('ascii')
 
 
-def typed_evidence(root,fact,analysis,ledger,promotions):
+def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         from data_provider_pointers import typed_evidence as external_evidence
-        from analysis_support import game
-        blob,model,_=game()
+        if image is None:
+            # Census replays providers while deriving the game itself, so a
+            # strict game() read here would re-enter derivation. Only the
+            # immutable image is needed.
+            from census import advisory_image
+            from analysis_support import game
+            with advisory_image():image=game()[:2]
+        blob,model=image
         return external_evidence(root,fact,blob,model,analysis,ledger)
     """Require current accepted consumers, exact declarations and bound operands."""
     shape(fact); accepted={p['id'] for p in promotions}
@@ -453,7 +459,7 @@ def producer(root,fact,retained=None):
 
 def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained):
     require(source_bytes==source(fact),'source differs from strict evidence-derived scalar definitions')
-    evidence=typed_evidence(root,fact,analysis,ledger,promotions)
+    evidence=typed_evidence(root,fact,analysis,ledger,promotions,image=(blob,model))
     files,producer_proof=producer(root,fact,retained);p=fact['producer']['prefix']
     report=compare_data(blob,model,fact,files[p+'.o'],files[p+'.exe'],files[p+'.sym'].decode('ascii'))
     report.update(typed_evidence=evidence,producer=producer_proof,fact_sha256=sha256(json_bytes(fact)),
