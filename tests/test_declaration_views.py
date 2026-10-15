@@ -8,7 +8,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import declaration_views as dv
-import fleet
 
 
 SOURCES = {
@@ -125,35 +124,6 @@ class DeclarationViewTests(unittest.TestCase):
         self.assertEqual(report["struct_tag_variants"], [dict(tag="Object", distinct_bodies=2, sources=3)])
         self.assertEqual(report["top"][0]["cluster"], "G_h01_94xx")
         self.assertGreaterEqual(report["top"][0]["pairwise_conflicts"], 1)
-
-
-class PacketDeclarationTests(unittest.TestCase):
-    VIEWS = dict(symbols=[dict(name="G_h01_94AE")], conflicting_symbols=["G_h01_94AE"], struct_conflicts=[],
-                 without_canonical_view=[], structs=[])
-
-    def test_section_points_to_sidecar_and_inlines_block_within_target(self):
-        text, block = fleet.declaration_section(dict(self.VIEWS, symbols=[
-            dict(name="G_h01_94AE", declaration="extern int G_h01_94AE;", count=2, alternatives=[])]), "experiments/fleet/fn-x")
-        self.assertIn("candidate views, not provenance", text)
-        self.assertIn("experiments/fleet/fn-x/" + fleet.DECLARATIONS_SIDECAR, text)
-        self.assertIn("controlled change", text)
-        self.assertIn("extern int G_h01_94AE;", block)
-        inline = fleet._clip_block(block, 4000)
-        self.assertTrue(inline.startswith("```c\n") and "extern int G_h01_94AE;" in inline)
-        self.assertEqual(fleet._clip_block(block, 50), "")
-
-    def test_unavailable_views_never_block_a_packet(self):
-        text, block = fleet.declaration_section(dict(status="UNAVAILABLE", reason="boom"), "d")
-        self.assertIn("Unavailable: boom", text)
-        self.assertEqual(block, "")
-
-    def test_clip_section_prefers_line_ends(self):
-        text = "".join("- line %02d xxxxxxxxxx\n" % i for i in range(40))
-        clipped = fleet._clip_section(text, 200)
-        self.assertLessEqual(len(clipped), 260)
-        self.assertTrue(clipped.split("\n")[-3].endswith("xxxxxxxxxx"))
-        self.assertIn("clipped", clipped)
-        self.assertEqual(fleet._clip_section("short\n", 200), "short\n")
 
 
 if __name__ == "__main__":

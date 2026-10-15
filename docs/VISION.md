@@ -17,6 +17,40 @@ The goal is to recover the software project behind the binary.
 
 ---
 
+## Priorities (user decision 2026-10-15)
+
+The end product is the game's code, data model and behavior as readable
+source, backed by enough evidence to trust it, so that a faithful native SDL3
+port can be built on it. Exact matching decompilation is the preferred way to
+recover and verify that source. It is not the deliverable by itself.
+
+The stages are:
+
+1. Exact matching recovery.
+2. Behavioral completeness for whatever cannot be matched.
+3. A dedicated cleanup and modernization pass.
+4. The SDL3 port.
+
+Stages 3 and 4 have not started.
+
+Every effort belongs to one of three kinds:
+
+- **A. Game behavior:** logic, control flow, data structures, state, resource
+  formats, timing, rendering, audio and input. Essential.
+- **B. Recovery enablers:** compiler ABI and profiles, symbol and relocation
+  binding, function boundaries, object groups, overlay routing and
+  runtime-library identification. Valuable while they recover or verify code.
+- **C. Historical executable reproduction:** natural link order, padding,
+  startup and runtime objects, byte-identical HUNK layout and whole-file
+  identity. Proven results are kept, and this work may resume later. It is
+  not a prerequisite for the port, and it never blocks A or B.
+
+The later sections about natural layout and a historically faithful build
+describe category C. Read them as the long-term historical ideal, not as gates
+on current progress.
+
+---
+
 ## The long-term picture
 
 We want to move from:

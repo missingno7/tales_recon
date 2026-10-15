@@ -3,7 +3,6 @@ import json
 import sys
 import tempfile
 import unittest
-import uuid
 from pathlib import Path
 from unittest.mock import patch
 
@@ -52,8 +51,11 @@ class QuarantineTests(unittest.TestCase):
     def test_fresh_context_and_ranking_ignore_quarantine(self):
         # Add deliberately conflicting source to the actual quarantine. It must
         # have no effect on an active worker packet, ranking, or hybrid output.
+        # `hybrid_image.py --check` proves the committed report equals a clean
+        # build, so it stands in for a second full build here.
         target=ROOT/'to_delete/isolation-control.c'
-        before=(rs.facts('ov04_F_0536',max_instructions=1000,max_bytes=150000),rs.ranked('ov04'),build()[1])
+        before=(rs.facts('ov04_F_0536',max_instructions=1000,max_bytes=150000),rs.ranked('ov04'),
+                json.loads((ROOT/'evidence/hybrid/accounting.json').read_text()))
         if target.exists():self.fail('isolation fixture already exists')
         target.write_text('struct Flags { long corrupt; }; recovered(){return 666;}\n')
         try:
@@ -62,8 +64,8 @@ class QuarantineTests(unittest.TestCase):
             self.assertEqual(after[0]['previous_attempts'],[])
             self.assertEqual(after[0]['previous_sources'],{})
         finally:
-            # Preserve even this newly created control under quarantine.
-            target.rename(ROOT/('to_delete/isolation-control-'+uuid.uuid4().hex+'.c'))
+            # A test-made control, not historical material: leave no litter.
+            target.unlink()
 
 
 class AccountingTests(unittest.TestCase):

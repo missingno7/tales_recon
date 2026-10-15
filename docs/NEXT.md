@@ -1,961 +1,169 @@
-# Current handoff - 2026-10-12
+# Current state and next work - 2026-10-15
 
-This is a validated consolidation checkpoint. The original requested pass is
-not complete: AJ/FFP private-helper binding, live runtime-trace ingestion, and
-the remaining legacy workflow/documentation audit still have open gates.
+The end goal is complete, readable source for DuckTales whose behavior we can
+trust, as the base for a later native SDL3 port. Exact matching decompilation
+is the preferred recovery and verification technique, not the deliverable.
+The stages are:
 
-Canonical coverage is 255 functions / 142,312 C bytes, plus two complete mixed
-objects with 500 C bytes, 48 ASM bytes and a 2-byte compiler literal. The generated
-`progress.json` is the measurement authority. Whole-file accounting has 2,800
-compiler-owned data bytes, 588 pinned runtime bytes, 2 classified padding bytes and 60,558 file bytes of
-RAW_ORACLE_DEBT (including 6,680 structural bytes). Allocation-only zero fill
-is separate. Accounting grants no new reconstruction proof.
+1. Exact matching recovery.
+2. Behavioral completeness for whatever cannot be matched.
+3. A dedicated cleanup and modernization pass.
+4. The SDL3 port.
 
-## Frontier state (2026-10-13, after wave 18)
+We are in stages 1-2. Do not modernize matched sources, and do not add SDL3
+code or dependencies to this repository yet. Git history holds the earlier
+handoff narratives (waves 12-18, Sol campaigns 1-18).
 
-The Haiku frontier is drained (`fleet.py wave N --dry-run` claims nothing).
-Waves 13-18 recovered 22 functions; supervisor intake closed four of them
-(3870, 0D36, 0640, ov10_F_0000) and widened two verifier rules (helper
-aliases by library identity, post-literal entries). Every remaining target
-waits on a named structural blocker:
+## Where we are
 
-1. CHAR_RETURN_EXTENSION (TOOLCHAIN; 2026-10-14 re-measured): the user approved
-   pinning the PC-hosted Aztec C68K 3.6b ROM cross compiler (6-6-88,
-   toolchain/aztec68k-acquisition.json, run in DOSBox Staging with the
-   windowed SDL driver). It also widens every char return
-   (evidence/experiments/aztec68k-charret.json). 411E is exactly
-   `return *++G_h01_3AB4;` without ext.w, so it is ordinary C from an older
-   Amiga release. No 3.4x/3.2x Amiga release is archived at aztecmuseum.ca,
-   amigacity.xyz or archive.org.
-   NARROWED (2026-10-14). The user approved pinning Aztec C68K 3.20a
-   (02-25-86) from the Bamiga Sector One cleaned part 10
-   (toolchain/aztec320a-acquisition.json). It emits BARE byte returns, but
-   it allocates A6/D3/D2 temporaries and uses cmpi.l #0, so 411E builds to
-   106 bytes against 102 and ov14_F_0412 to 162 against 150
-   (build/workers/sol-aztec320a/report.txt). The widening therefore arrived
-   between 3.20a and 3.6a. The needed compiler is an intermediate 3.3x/3.4x
-   Amiga release with 3.6a-style allocation. Exhaustive public searches found
-   none (build/workers/sol-aztec-hunt/report*.md). The only known copy is an
-   imaged Aztec C v3.40b Amiga 4-disk set in typewritten.org's private
-   inventory.
-   Gated: 411E, then 404A/4184, the 287C..2D00
-   region and 49A0; ov14 0412/04A8/0540, then ov14_F_0000. All available
-   compilers widen char returns, and the game has exactly four bare byte
-   returns. This needs another historical Aztec release (3.4 or 3.6 before
-   3.6a) or positive provenance for non-C code. No candidate C should be
-   retried.
-2. RESOLVED resident_F_033E (2026-10-13; SAME_OBJECT_SHORT_CALL). Explicit
-   resident object groups now close over PC-relative calls only
-   (`prepare_unit(local_calls_only=True)`, gated to `--object-group` on a
-   resident entry). A4-slot callees stay external stand-ins, as in a
-   single-function resident proof, so the unit no longer pulls in 36
-   slot-reached members or the unrecovered runtime tail.
-   resident_interfaces.py is unchanged. `--object-group 033E,04FE` is
-   EQUAL: the bsr.b forms, and 04FE's owned "DT2:clues.arc" tail matches.
-   The only source change in the worker candidate was one shared physical
-   declaration, `long F_h00_291E()`, because 04FE stores its result as a
-   long. 01BA is now ready.
-3. RESOLVED FFP "private helpers" (CALL_BINDING). The resident gateway at
-   0x8CD8 is m.lib's FFP operator members (.Fadd .Fcmp .Fneg .Ftst .Ffix .Fsub
-   .Fdiv .Fflt .Fmul, ten-byte stubs that jmp to amiga_ffp, the lazy
-   mathffp.library opener). Linked in library order they reproduce the
-   original 90 bytes exactly (runtime_members.py group evidence). Float code
-   is therefore ordinary Aztec C. A stub's jmp depends on how many stubs
-   follow it, so helper_exports makes any caller's link pull the complete
-   group, and runtime aliases bind m.lib members by linked library identity.
-   ov05_F_1EFC (3,544) closed. The worker had read .Fsub as .Fmul; the rest
-   were per-arm shape idioms (pre-decrement conditions, `x = x op y`
-   double loads, case order, `default: break;`, and the FFP constant 134).
-   Released: ov05 0000 (4,874), 131C, 1860, 2CD4, 318E, 3836, ov11_F_5FB2,
-   then ov11_F_0B4C and the ov05 region (about 12 KB).
-4. RESOLVED STALE_PROVEN_OBJECT_GROUP for ov11_F_2272 (2026-10-13). First,
-   ov11_F_407C was replaced canonically by a natural-interval unit
-   (0x407C..0x4790, 13 members, `--object-group 407C,40AE,40E0`). The
-   retained 2272 unit (0x2272..0x5FB2, group 2272+23F4+2430+247C, 61
-   members) then failed only on 407C's A4 identity: it was a HARNESS defect.
-   The oracle harness keeps the first body of a struct tag. Two member
-   objects define different `struct Record` bodies, so the storage for
-   G_h01_A15E got another object's 14-byte view, and `A15E+14` bound to the
-   next symbol. `recovery_evidence.struct_view_source` renames later
-   differing bodies in the harness input (`TAG__vN`), but only when a
-   global's own view is larger than the body the harness picked. It is a
-   recorded receipt field (`harness_struct_views`), so the six retained
-   units that would otherwise change keep re-deriving exactly
-   (tests/test_harness_struct_views.py). ov11_F_2272 is promoted, and
-   ov11_F_0000 is now unblocked.
-5. FRESH RE-VERIFICATION AUDIT (2026-10-13; build/workers/opus-audit). All 247
-   canonical sources were re-verified fresh and isolated. 230 are EQUAL with
-   plain check_function. 4 more are EQUAL with their recorded object groups
-   (ov03_F_001C, ov05_F_467E, ov07_F_1F6E, ov08_F_1AB8), 3 are members of
-   other units, and ov08_F_1C30 was a lock collision (EQUAL on retry).
-   9 drift: seven ov11 automatic-dependency units in the 2272 region (13DC,
-   2430, 25F8, 3532, 407C, 6CFE, 70DC; units 2-4 bytes off), plus
-   ov10_F_22E6 and ov13_F_02BE (COMPILE_ERROR). Each predates a later proven
-   grouping (583A+5962, 1FDE+2160+22E6, 407C+40AE+40E0) that today's unit
-   closure applies. Stored proofs remain valid, but these sources cannot be
-   replaced or restructured, and new units linking them may fail, until they
-   are re-proved under current grouping. This is STALE_PROVEN_OBJECT_GROUP at
-   wider scope. The audit also unmasked pinned-key positive controls that had
-   silently skipped on a cold cache; they now assert the exact verdict and
-   derive the key, skipping explicitly when the fixture's entry has joined a
-   proven multi-member object.
-   Original note: canonical ov11_F_3532 still
-   re-derives from its cached proof artifacts, but a fresh check_function now
-   builds its dependency unit with ov11_F_583A+5962 as one object. That
-   grouping was proven later, by ov11_F_51C0. The relayout shifts 5962 by
-   2 bytes (unit 2,196 vs 2,194), so 3532 is DIFFER under today's closure.
-   Restructuring work on 3532 waits for a re-proof under the current
-   grouping. A fresh re-verification audit of every canonical source would
-   find any other drift; it is a mechanical, parallel task.
-6. Exhausted shape residual: resident_F_463E (eor orientation).
-   RESOLVED ov08_F_1F4C (5,634): an Opus pass from the worker's v4a closed
-   it in about ten diff-guided steps (build/workers/opus-1f4c). The fixes were all
-   per-site idioms. Countdown arms are `if (--e->t <= 0) {advance} else {hold}`;
-   `== 0` is the form for the 15..17 states. Advances post-increment
-   (`sl->st = e->active++ - 5`) and ternary arms keep source order
-   (`c < 10 ? a : b`). Inner switches have no `default: break;`. `x <= 0`
-   exits with `break` rather than an else. `(e->t & 1)` stores
-   through if/else, and `F_h00_463E()` takes no argument. The worker had also
-   swapped the names of the two resident callees (34E0 is the sprite draw,
-   57D2 the sound call). Relocation issues showed this at once. The map read
-   needs a TU-local `char *G_h01_6EB0` view indexed by `(long)row * 21 + col`.
-   The canonical `long` view of 1C30 casts the base into the long sum, and no
-   cast spelling reproduces the original index-then-base order. The tail
-   `if (e - n)` reads an uninitialized `unsigned char` frame slot (-$f, read
-   once, never written) exactly as the original does.
-   RESOLVED ov08_F_0000 (6,828; the ov08 entry): every known ov08 function is
-   now canonical. The Haiku worker's NEAR draft (24 bytes short) was
-   finished in about 12 diff-guided steps (build/workers/opus-0000):
-   - The frame gaps were one 54-byte struct local with the sprite-slot
-     layout of G_h01_6EB8. Adding locals hit "Local table full!".
-   - Byte locals are `unsigned char`, apart from one signed `char`.
-   - The `c60` map read is `(int)` before its byte store.
-   - Two jump tables carry `case 0: case 5: default:`.
-   - The `c60` switch cases are 1..7, '0', '8' and 'F'.
-   - The draft also had wrong globals or arm orders in cases 6..10, all
-     caught by relocation identity.
-   - Case 6 compares G_h01_6F26 > 0x118 but clamps G_h01_6F24, exactly as
-     the original does.
+Run `python tools/behavior.py` (read-only, under a second) for the current
+numbers. It derives everything from the accounting, function, ownership and
+blocker ledgers. At this checkpoint:
 
-7. RESOLVED ov11_F_0000 (1,180; Codex wave 2026-10-13/14). The Haiku draft
-   differed only because the original reaches the adjacent 049C with `bsr.b`.
-   The Sol worker (build/workers/sol-ov11-0000) accounted for every byte of
-   the 92-member closure, which led to two verifier fixes:
-   - proven-group readers now include `receipt.member_sources`, so the
-     proven 2272+23F4+2430+247C object applies again;
-   - check_unit `--with-m-lib` works with `--per-member-profiles`, because
-     727A/729C are canonical under +D. mixed_profile_oracle allows only the
-     pinned m.lib on an aztec36 link.
-   The promotion used `--natural-interval 0x0000..0x0558 --with-m-lib
-   --per-member-profiles --object-group ov11_F_0000,ov11_F_049C`. All 92
-   members are EQUAL with 0 unclaimed bytes. Editing mixed_profile_oracle.py
-   changes the runner hash in the ov04 padding recipe, so run
-   tools/padding_refresh.py after any change to it.
-8. LIBRARY IDENTIFICATION (Sol, build/workers/sol-lib-7BF4, comparison*.json).
-   The resident span 0x7956..0x8100 between identified c.lib members holds
-   further c.lib code, not game code:
-   - 0x7978..0x7A6C is `segload`, byte-equal and unique. The sweep missed it
-     only because its A4 fields address the root overlay structure and get
-     no symbol votes.
-   - 0x7B24..0x7BD8 is `wbparse`, and 0x7BD8..0x7BF4 is `printf` (its
-     putchar PEA is a link-context address).
-   - 0x7BF4..0x7C82 is `_fmtcvt`, and 0x7C82..0x7F9C is `_format`. The SDK's
-     misc.arc format.c compiled with `+x3` reproduces the 936-byte shape.
-   The residual opcode in wbparse and format is a call through an A4
-   jump-table slot (jsr d16(a4)) where the library object emits a
-   PC-relative jsr. That is a linker routing context (CALL_BINDING), not a
-   different compiler build. Next: a separate curated library-identification
-   input that unit preparation consults, so calls into identified library
-   code stay external.
-   RESOLVED for segload (Sol, build/workers/sol-lib-route, reviewed patch).
-   runtime_members.py `--relocated` proves a complete library member with
-   exact relocations (site, type, width and structural target; nothing
-   masked) into the separate opt-in ledger
-   evidence/experiments/runtime-members-relocated.json. The legacy
-   runtime-members.json is unchanged. Unit preparation treats a PC-relative
-   call to an exact proven library entry as external. runtime_member_routes
-   (a recorded receipt field `runtime_library_routes`, like helper_exports)
-   spells the mechanical callee as the library symbol in the object input.
-   The harness omits that stand-in and the comparison binds the call to the
-   linked library code. resident_F_01BA, the overlay dispatcher
-   (`segload(entry)`, call, 7522), is now canonical as one object with
-   033E+04FE. The worker candidate needed one declaration change: an
-   `unsigned int` field selector, which gives an `lsr` shift. Accounting
-   credit for the 244 library bytes is a follow-up: hybrid specimens must
-   carry the relocation identities, and census already counts the span in
-   overlay-topology, so it must not be counted twice.
-9. AUDIO SEQUENCE DATA IN CODE (Luna reviews, then Sol,
-   build/workers/sol-data-13B8). H0 [0x13B8,0x2816) (5,214 bytes;
-   0x13B8..0x1BA6 measured in detail) is audio-sequence bytecode:
-   variable-length commands, note/duration events, pattern calls, jumps and
-   counted loops. RELOC32 operands point at command starts, so some targets
-   are odd. The interpreter is reached through 57D2/57E4 and the
-   0x6200 -> H1+0xB39A tables. The 32 UNCERTAIN "functions" in the span are
-   phantom entries; never grind them as C. Pinned 3.6a C probes place
-   initialized records in DATA, so an assembled data module is plausible but
-   unproven.
-   APPLIED (Sol patch, reviewed). The curated fact
-   evidence/data-facts/resident-audio-sequences.json keeps ownership,
-   language, file and object UNKNOWN and grants no source acceptance.
-   function_census consumes it, so the 52 phantom candidates in
-   [0x13B8,0x2816) are gone from the census, ranking and review tasks.
-   The 131 data references stay visible in evidence/executable/code-data.json.
-   tools/check_data_contribution.py proves the 72-byte stream
-   [0x16E4,0x172C) exactly from independently authored score macros
-   (evidence/rules/audio-score-16e4), including its single internal RELOC32
-   field: EQUAL_CANDIDATE with no copied bytes and no fixed placement.
-   After any data-fact change, run tools/function_census.py before
-   boundary_refresh; census refuses stale function analysis. The producer
-   audit tests are opt-in (AUDIO_DATA_JOB) and need a job prepared by
-   aztec_worker, whose config embeds native job paths.
-   AUDIO DRIVER (Sol reviews rev-uncertain_extent-resident_F_{5504,57D2}).
-   The resident routines around 0x54B6..0x5B62 that interpret this
-   bytecode have no LINK frames and use register and CCR contracts, shared
-   tails and a dispatch through H1 relocation slots:
-   - 57D2 is an 18-byte dual entry into 57E4;
-   - 5A76 is the interpreter, with opcode handlers at 5ACA (0x98), 5B06
-     (0x8B) and 5B20 (0xA0);
-   - 59A4 repurposes A4 as a sample pointer.
-   Aztec C emits none of this. Treat the driver and its bytecode as a
-   probable assembly module (producer unproven). Do not grind its UNCERTAIN
-   entries as C. Game functions that wait on it (4AF0, 50E8, 53E6) need
-   curated entry/ABI admission of these routines first.
-   LIBRARY: 0x704E is c.lib sscanf (wrapper plus callback; needs its 6-byte
-   private BSS mapped to DATA 0x3ABA/0x3ABE and the _scanfmt binding at
-   0x70BE). 0x4692 (60 bytes; blocks 34E0) is graphics.library
-   BltMaskBitMapRastPort glue: vector -636, ten register arguments,
-   GfxBase taken from G_h01_5374 as proven by ov04_F_1E36. It saves
-   D4-D6/A2-A6 and loads each argument from the stack individually, and no
-   pinned c.lib/c32/5.0a member or MAPFD/SDK producer emits that form. It
-   needs an independently pinned period amiga.lib-style glue object
-   (RUNTIME/LIBRARY).
-   PROVENANCE (Sol, build/workers/sol-audio-id): a custom four-channel Paula
-   bytecode engine with 44 opcode handlers (0x80..0xAB), packed pitch/tick
-   notes, priority preemption and pattern call/return. Developer-internal
-   assembly is the leading hypothesis; no pinned source or object exists.
-   UADE's Cinemaware.asm is a third-party re-implementation and cannot give
-   byte provenance, so it was not acquired. 4AF0, 50E8 and 53E6 are
-   BLOCKED (NON_C_AUDIO_DRIVER_PROVENANCE).
-10. LIBRARY CALL ROUTING (Sol, build/workers/sol-a4-routing). The Manx 3.6a
-   linker gives a symbol a root DATA JMP slot when an overlay or distant
-   (beyond +/-32762) reference needs one. Every resident jsr to that symbol
-   then uses the slot (4EAC). Under this rule, unchanged wbparse, the SDK
-   format.c built with +x3, and printf reproduce in natural link contexts
-   (EQUAL_CANDIDATE).
-   PROVEN (Sol patch, reviewed). The curated recipe
-   evidence/contributions/runtime-natural-members.json uses unchanged pinned
-   objects, the SDK format.c with +x3, and a real compiled `+o1` consumer
-   that allocates the shared slots. `runtime_members.py --natural-routes`
-   builds evidence/experiments/runtime-members-natural.json from it with
-   COMPLETE_RUNTIME_CODE_MATCH:
-   - wbparse: 180 bytes;
-   - format: 936 CODE bytes plus 18 DATA bytes (the digits initializer at
-     H1+0x2C64);
-   - printf: 28 bytes.
-   Every external PC/A4 operand is bound independently, including the
-   putchar PEA, ctype, ldiv and strlen. Opcodes are never normalized, and
-   wrong-entry and slot-PEA negatives reject. The producer job lives in
-   build/worker-jobs/routing-proof-02, and the test negatives in
-   build/worker-jobs/routing-04 and routing-proof-01. Accounting credit and
-   alias integration are a separate step.
+| CODE hunks | Bytes |
+| --- | ---: |
+| Exact C (FUNCTION_CODE_MATCH / WITH_DATA, unit and complete-C proofs) | 145,968 |
+| Assembly (RECOVERED_ASM 48 + RECONSTRUCTED_ASM 2,110) | 2,158 |
+| Typed CODE data, compiler literals, padding | 13,743 |
+| Pinned Aztec runtime library (c.lib, m.lib members) | 5,444 |
+| Unresolved | 7,055 |
 
-11. LIBRARY TAIL AND ACCOUNTING (2026-10-14, Sol patches, reviewed).
-    - `runtime_members.py --tail-leaves` proves seven complete c.lib
-      leaves (88 bytes: _output, _write, addport, allocsig, freesign,
-      newlist, remport). sscanf, scan/_scanfmt, abort, createport,
-      createstdio and createextio are identified only. They need natural
-      call routing, and the sscanf/scan private BSS at H1+0x3ABA needs an
-      ownership map; build/workers/sol-lib-tail/handoff.md has the job
-      recipe.
-    - tools/runtime_accounting.py credits every exact relocated, natural
-      and tail runtime proof as PINNED_RUNTIME, CODE plus the member-owned
-      DATA it proves. RAW_ORACLE_DEBT goes from 39,002 to 37,206
-      initialized bytes (file level 45,682 to 43,886), and PINNED_RUNTIME
-      from 588 to 2,564.
-    - resident_F_7B24's canonical C proof (158 C + 22 literal bytes) is
-      c.lib wbparse. The proof stays, but the pinned object is now counted
-      once, as runtime.
-    - Follow-up (Sol, build/workers/sol-lib-tail result2/report2): sscanf
-      (112), scan (1,124), abort, createport, createstdio and createextio
-      are proven through the natural route. That is 1,656 CODE bytes, with
-      the producer job in build/worker-jobs/sol-lib-tail-routes-04 and
-      every A4/PC operand bound. RAW_ORACLE_DEBT goes to 35,550 (file level
-      42,230) and PINNED_RUNTIME to 4,220. The private storage at
-      H1+0x3ABA..0x3AC6 stays UNKNOWN; no storage is credited.
-    - The H1 DATA map in build/workers/sol-data-map/data-map.json
-      partitions all 11,956 DATA bytes: 588 are proven library DATA and
-      6,933 are UNKNOWN.
+- Overlays ov03-ov13 and ov15 are completely exact C, apart from four 2-byte
+  terminal gaps. ov14 (the bootstrap overlay) has 1,444 unresolved bytes.
+- The resident CODE hunk has 5,603 unresolved bytes. They are listed in the
+  next section.
+- Resident DATA has 1,044 typed bytes, 588 runtime bytes and 10,324 raw
+  bytes. BSS (34,092 bytes) has no typed layout.
+- No source has a semantic name. Of the 287 accepted C files, 274 define the
+  mechanical entry `recovered`. They reference 1,620 mechanical globals
+  (194 with conflicting per-file views) and 350 mechanical callees. There is
+  no shared header.
+- No asset format is decoded (FORMAT-001), and nothing reconstructed has
+  been executed. Matching proves code equivalence one function at a time.
+  Data initialization, the link and runtime behavior are not exercised.
 
-12. LINKER-GENERATED DATA (Sol, build/workers/sol-linker-slots; NEAR,
-    deferred). Fresh natural links reproduce only 96 raw-equal overlay-ABI
-    bytes (12 relocation-free records). The 576-byte resident JMP-slot prefix
-    and 118 more ABI bytes need the original root/overlay object references
-    and TU layout, including the unexplained H1+0xE4 slot and the
-    H1[204,210) slot to 0x57D2. The proposal embeds producer artifacts as
-    hex in a 10K-line evidence file. Redo it with a job referenced under
-    build/worker-jobs (as the runtime routes do) once the prefix is
-    explained; the 96 bytes alone do not justify it now.
+## Remaining code, by cause
 
-13. UNREFERENCED OVERLAY FUNCTIONS (Sol, build/workers/sol-ovl-gaps). The
-    remaining overlay RAW_ORACLE_DEBT gaps hold eight uncalled LINK
-    routines the census never seeds:
-    - ov09 0x2C22 (with a literal tail) and ov10 0x2C52;
-    - ov11 0x2664, 0x59E6, 0x5CEA, 0x5F2A (two routines) and 0x6F20;
-    - plus the weakly seeded ov11_F_20AE.
-    ov11 0x66FE has a 114-byte unreachable tail. ov13_F_0942 has 226
-    unreachable bytes and four literal references that are missing, so its
-    owned-tail proof rejects. Diagnostic compiles reproduce the sizes but
-    are not exact proofs. Plan: weak POST_FUNCTION_PROLOGUE seeds (the
-    proposal.patch there), then a separate curated strong-entry input for
-    uncalled routines, backed by exact natural-interval verification, then
-    grinding.
-14. TYPED DATA PROVIDERS (Sol, build/workers/sol-tu-layout; 2026-10-14).
-    The approved strict-typing DATA policy now has a separate route:
-    evidence/data-providers facts, one producer job per batch pinned by
-    SHA-256, and tools/promote_data.py behind the shared regression gate.
-    Five resident providers (320 bytes: int[8] at 0A92, the two int[64]
-    sine/cosine tables at 1322, int scalars at 1608/1708, the 32-entry
-    input lookup at 1F14) are accepted as RECOVERED_DATA. Original TU, owner
-    and root layout stay UNKNOWN. 1608 and 1708 have identical payloads; they
-    are bound only by their consumers. Next: a 12-byte Entry-struct
-    provider at 12B4 after struct-field/ABI controls. The other 12 spans
-    and their evidence gaps are listed in next-candidates4.json. No pointer
-    table earns credit until it has bounds and named proved targets.
-    Batch 0002 (cd2119a; 220 bytes) is also accepted: 0A3A, 0AA2, 12B4 and
-    1EA4. The new bounds recipes are STRUCT_ABI, GUARDED_BYTE, COORDINATES
-    and STATE16. Inventory (build/workers/sol-tu-layout/inventory5.json):
-    about 20 KB of resident debt is unknown, 5.2 KB is audio bytecode,
-    3.4 KB is printable candidates and 1.2 KB is pointer tables.
+| Cause | Functions | Approx. bytes | Category |
+| --- | --- | ---: | --- |
+| Char-return widening: every pinned compiler adds `ext.w`; needs Aztec 3.3x/3.4x | 411E, ov14 0412/04A8/0540, then 404A, 4184, 287C, 291E, 49A0, ov14 0000 | 3,600 | TOOLCHAIN |
+| Audio driver, frameless IRQ and register-ABI entries | 55D6..5796, 5594, 57D2, 5868, 615E, and small residues in 5E7C..704E | 1,100 | needs a FRAMELESS_ENTRY non-C predicate |
+| Game callers of the audio driver | 50E8 (exact against the 6200 provider, needs a harness recipe), 53E6 | 680 | CALL_BINDING |
+| Unpinned amiga.lib glue (BltMaskBitMapRastPort) | 4692, which gates 34E0 | 312 | RUNTIME/LIBRARY |
+| One codegen residual | 463E (eor operand order) | 56 | SOURCE_SHAPE, exhausted |
+| FFP gateway stubs and stdio (`putc` differs in 4 bytes), startup header | 8CD8.., 806C..83E0, 0000..0018 | 1,000 | runtime, category C |
 
-15. RUNTIME GLUE AND ROUTES (Sol, build/workers/sol-glue-tail; be12304).
-    91 complete Aztec c.lib glue members in 0x868C..0x8CD8 are exact, adding
-    1,076 PINNED_RUNTIME bytes. tools/runtime_entry_routes.py exports the exact
-    C-ABI entries of the natural, tail and glue proofs to unit preparation, so
-    printf, Read and Seek are now routable. Open items:
-    - the stdio family 8056..850A (putc differs in 4 bytes);
-    - amiga_ffp 8D32 (MathBase binding);
-    - a mixed-object dependency recipe, because C units cannot import the
-      canonical mixed object resident_F_8552.
-    The 287C/291E region still waits on 404A/4184 and therefore on 411E
-    (TOOLCHAIN).
+## Requirement categories
 
-16. COMPLETE-C DEAD CODE (Sol, build/workers/sol-ovl-gaps). The route is
-    5bb8b48 and the replay fixes are 58e4cec: admissions validate against the
-    ledger under test, and identical replays are memoized by their complete
-    input identity. ov13_F_0942 (a4eebff) and ov11_F_66FE (85265d8) are
-    canonical complete-C objects. ov11 and ov13 are now down to 2 bytes of
-    debt each. The earlier attempt (7101c7d) was reverted because a canonical
-    entry broke 8 tests and slowed the gate to 25 min.
+Every effort is one of three kinds. Prefer A, use B where it unlocks code, and
+never let C block A or B.
 
-17. RECONSTRUCTED ASM (user decision 2026-10-14, AGENTS.md; Sol,
-    build/workers/sol-audio-asm). The pinned SYS1 `as`, with the referenced
-    data declared in `dseg`, reproduces the 56-byte audio RNG at 559E
-    exactly, including both named RELOC32 fields (its non-C predicate is the
-    CCR-X rotation chain). The route is 2ab1db0, and 026be8e promoted 559E
-    and 59A4 (228 bytes; 59A4's predicate is the saved and replaced A4
-    record cursor). The interpreter and handlers 5A72.. are in progress with
-    sol-audio-asm-4, and the 13B8..2816 score as a typed bytecode provider
-    with sol-audio-score. 558A/5594 are C-compatible and stay on the C
-    route.
+- **A. Game behavior:** logic, control flow, data structures, state, resource
+  loading, timing, rendering, audio, input. Essential.
+- **B. Recovery enablers:** compiler profiles and ABI, symbol and relocation
+  binding, function boundaries, object groups, overlay call routing,
+  runtime-library identification (it removes library bytes from the game
+  denominator). Valuable while they unlock or verify game code.
+- **C. Historical executable reproduction:** natural link order, the ov04
+  node link, root JMP-slot prefix and linker-generated data, padding, CRT0
+  and startup objects, exact stdio/malloc/amiga_ffp members, dead-code
+  objects, and the hunt for a 3.4x compiler. Keep what is proven. These are
+  not prerequisites for the port, so open no new C campaigns before the A
+  items below.
 
-18. STATE AT STOP (2026-10-15). File RAW_ORACLE_DEBT is 24,059 (it was
-    41,244 on 2026-10-14) and resident debt is 15,927. Compiler knowledge
-    now lives in docs/COMPILER_LEARNINGS.md: read it first. Fleet packets
-    and AGENTS.md point to it.
-    Resumable work (Codex sessions in build/workers/NAME):
-    - 50E8 (614 C + 68 literal bytes) is EXACT against the canonical
-      _G_h00_6200 provider. The standard verifier needs a
-      "provider-object externals" harness recipe, which is not done
-      (sol-driver-c, report4.md).
-    - FRAMELESS_ENTRY is a calibrated non-C predicate: all 272 canonical C
-      functions start with LINK. It is not yet implemented. It covers the
-      IRQ routines 55D6..5796, the wrappers 558A/5594, 5868, 615E and
-      57C0..57E4 (sol-audio-asm FOLLOWUP5.md). 53E6+5392 then follows
-      once 5594 is canonical.
-    - The remaining H1 tables and strings follow the story-table pattern
-      (sol-tu-layout report8.md). The stdio members aputc, putc, getbuff
-      and malloc are still unproved: putc differs in 4 bytes and malloc's
-      Free cell has no ownership map.
-    - CHAR_RETURN (about 3.6 KB) needs Aztec 3.4a. See
-      docs/toolchain.json public_search_2026_10_15.
-    Housekeeping: build/ was pruned into to_delete/cleanup-2026-10-15.
-    Compile jobs are redundant once cached (worker_job is provenance
-    only). Producer jobs are found by receipt hash. Some tests look up
-    computed compile-cache keys. All three must survive any future pruning.
+Proof categories stay separate and are never merged in reporting:
+exact C, recovered ASM (provenance-backed), reconstructed ASM (machine-proven
+non-C), behaviorally reconstructed (not yet implemented; see priority 1), and
+unresolved. Never describe behavioral equivalence as a match. Never replace
+an accepted source with an unverified rewrite.
 
-## Current campaign (2026-10-12): resident-first fleet
+## Priorities
 
-The ov04 campaign below recovered all 24 known ov04 functions; its natural
-link is now blocked mainly by root content (root CODE 2,744 of 36,260 bytes),
-not by ov04 source. Recovering real resident game functions is therefore the
-route to ov04 closure, and it is also the largest ready pool: resident code
-below the first runtime candidate (0x75D8) had no prior attempts.
+1. **Behavioral route for the char-return group.** The code is understood,
+   and the 3.6a candidates differ only by the widening. Add one explicit
+   category: compile with the pinned 3.6a, and machine-check that every
+   difference is an `ext.w`/`andi` after a byte return. Account it separately,
+   and keep it upgradeable to exact if a 3.4x compiler ever appears. This
+   unblocks about 3.6 KB without pretending to match.
+2. **Audio driver closure.** Implement the calibrated FRAMELESS_ENTRY
+   predicate (all 272 canonical C functions start with LINK) for the IRQ and
+   wrapper entries, then admit 50E8/53E6. Driver behavior (Paula channels,
+   44 opcodes, note packing) is what the port's audio backend must reproduce.
+3. **Data model.** Turn the 194 conflicting global views into one evidence
+   map: address -> extent, type and consumers, from `declaration_views.py`
+   conflict clusters and the type evidence. Type the remaining resident DATA
+   (10.3 KB raw) under the DATA initializer policy, and map BSS. Keep this as
+   a separate reconstructed interpretation. Matched sources stay unchanged.
+4. **Asset formats.** The file loaders and decoders (resident readers
+   2D66/2DBA/3C4C/3E9C, `.arc` users in ov03-ov15) are now exact C.
+   3C4C sets up 9-bit codes with the first free code 0x102 and 0x200 table
+   growth, which looks like an LZW decoder (a hypothesis). Derive the
+   container, compression and record formats from this code. Validate host
+   decoders against the original disks. The port needs this directly.
+5. **Semantic naming.** Add a reviewed mechanical-to-semantic name map
+   (functions, globals, struct fields) with evidence notes. Apply it only when
+   generating a readable view; matched sources and proofs stay mechanical.
+6. **Platform surface.** `behavior.py` lists the 88 runtime/OS members that
+   game code calls and the 21 functions with absolute custom-chip or CIA
+   access. That list is the port's platform-layer contract. Annotate its
+   semantics (blitter, copper, Paula, input, timing, DOS I/O) as the driver and
+   data model become clear.
 
-Work selection is now evidence-based (see `fleet.md`):
+Future portability concerns: the 16-bit `int`, big-endian data, A4-relative
+small data, overlay paging, FFP floats, and hardware timing. Record them; do
+not convert any code yet.
 
-- Resident functions below the runtime floor, with a single measured data
-  model and the ordinary safety limits, are normal `READY_FOR_HAIKU` tasks.
-  The runtime tail, mixed data models, uncertain extents and indirect flow
-  stay deferred with explicit reasons.
-- `data_model`/`profile_hints` come from measured addressing: absolute DATA
-  relocations mean `aztec36-large-data`, A4-relative data means `aztec36`.
-  Jump-table call slots are not data.
-- Leverage counts real PC-relative dependants (400) above A4-stub callers
-  (100); stub callers already verify independently.
-- `python tools/fleet.py wave N` leases independent tasks and writes Agent
-  dispatch specs for Haiku workers; intake re-verifies, the supervisor promotes.
-
-Measured first session (2026-10-12): canonical coverage rose from 156
-functions / 42,116 C bytes to 183 / 54,134; whole-file RAW_ORACLE_DEBT fell
-from 148,254 to 136,134. Haiku workers (29 tasks, 4-7 concurrent, six waves,
-110 compiler trials in total) produced 26 promoted exact matches (20 resident;
-overlay ov07_F_1A02 1,388, ov07_F_0F30 1,268, ov15_F_0C12 1,972+98 literal,
-ov10_F_2634 1,366, ov10_F_3288, ov10_F_2CF4): 10,410 bytes, a median of 3
-trials per match, about 9,500 accepted bytes per 100 trials. The other three
-tasks ended as precise shared blockers. Every claim was re-verified at intake and
-published through the batch regression gate; review renamed three
-offset-forcing `pad` locals and rejected none. Opus re-measured Luna's retired
-`ov11_F_2EEA` near-miss and made it exact (1,608 bytes: one wrong global name
-and two if/else join shapes), and fixed proven-object dependency units, which
-released ov10_F_2634/3288/2CF4 (2,624 bytes).
-
-Continuation (2026-10-12, later): two static/planning rules reopened the
-queue. (1) The census now proves Manx `switch` word tables whose `default`
-arm precedes the dispatch: 18 functions (46,576 bytes) became CLOSED_CFG,
-including all known ov09 code; the remaining UNCERTAIN pool is ~10 KB of
-small resident/runtime fragments. (2) A resident game caller's PC-relative
-call into the runtime tail (DOS/exec glue such as `resident_F_86F6` Read) is
-no longer a pending source dependency: check_function already verifies such
-callers standalone and binds the call by mechanical symbol, as for canonical
-`resident_F_7B24`. Waves 7-8 (17 Haiku tasks, up to 11 concurrent) promoted
-16 functions; `resident_F_411E` joined the char-return EXT.W mechanism with
-`ov14_F_0412/04A8/0540` (now four functions). Blocker categories are taken
-from the leading `MECHANISM:` token first.
-
-Wave 10 and two Opus fixes (2026-10-13): the owned-literal tail proof now
-decodes around switch tables (closed ov06_F_063A, 2,690 bytes), and an
-original `bsr` between a new and a standalone-proved canonical function
-admits an evidence-backed object group (closed ov07_F_1F6E, ov05_F_467E
-5,438 bytes, ov08_F_1AB8 with unchanged worker sources). Also promoted:
-ov12_F_0000 (2,998, all known ov12 code), ov15_F_0000 (2,190), resident_F_3008.
-ov09_F_0000 (6,334 + 18 literal bytes, all known ov09 code now canonical) closed in four one-factor Opus steps from the worker's NEAR: empty `if (x) ;`, unsigned `c > 0`, `(char)` of an int member (low-byte displacement), and `while (!changed)`; these idioms are now in the packet lessons.
-Wave 11 promoted ov07_F_1424, ov06_F_0000 (ov06 known code complete) and ov05_F_3B6C. ov08_F_1F4C stays 12 bytes short after two rounds (SOURCE_SHAPE_RESIDUAL); its claimed MOVEQ mechanism is refuted (the assembler turns move.l #small into moveq). ov10_F_0000 (7,990) remains approximate.
-ov03_F_001C (4,494 + 854 literal bytes) closed after two tool fixes: the Manx
-symbol map prints hunk numbers in decimal (the parser read them as hex, so
-every proxy symbol in hunk 10+ was unbindable, e.g. calls into ov14/ov15),
-and same-object evidence now also counts a PC-relative JSR to an
-overlay-exported callee (separately compiled callers route exports through
-the A4 trampoline), admitting members between an evidenced pair. Its 38
-worker gotos were then removed by a restructuring worker (EQUAL, zero gotos;
-the decisive form was one `if (rv == 0 && f1f == 0) ... else if (f1f != 0 &&
-rv == 0)` chain). ov03_F_0000 followed once the census evidenced a
-PC-relative empty literal `""` (a NUL right after `rts`), so all known ov03
-code is canonical (ov03 RAW_ORACLE_DEBT 0).
-Canonical replacement is now transactional (`tools/canonical_replacement.py`,
-via `check_function`/`check_unit --replace-canonical`): a complete-unit
-receipt pins its canonical dependencies' source hashes, so replacing one
-re-proves every pinning dependent in the same transaction (dependents are
-withdrawn while re-proved, one regression gate on the pre-state, full
-rollback on any failure); grouped or chained dependents refuse, and
-promote_batch refuses replacements that would stale a receipt.
-Runtime below the tail: resident 0x6FD8..0x704E is c.lib's `kputchar`
-debug-output member (kputchar/kputs/kgetchar/KMayGetChar/KPutFmt/kprintf/
-KDoFmt), matched exactly, uniquely and relocation-free when linked alone
-(`tools/runtime_members.py`, `evidence/experiments/runtime-members.json`).
-The planner now treats calls into pinned member entries as runtime calls
-and never tasks the member's bytes; the runtime floor is unchanged because
-real game code follows the member. This released resident 3930, 3A06 and
-3674 (which call `kprintf` at 0x701A), and through them 3870, 3A6E, 3AE4
-and 0FDE. resident_F_08FC (squared distance, `.mulu` via A4) closed first
-try under the new helper route.
-CHAR_RETURN_EXTENSION is now a measured TOOLCHAIN blocker: every char
-return widens under Aztec 3.6a (11 source forms, +X1..+X5, 17 accepted
-single-letter options) and 5.0a; the game has no widened byte return and
-exactly four bare signed ones (411E, ov14 0412/04A8/0540). It needs another
-historical compiler release (3.4/3.6 pre-a) or non-C provenance; it gates
-404A/4184, the 287C region and ov14_F_0000.
-ov10_F_0000 (7,990 + 90 literal bytes; all known ov10 code) closed in an
-Opus pass from the round-2 NEAR in six one-factor steps: an `else if` chain
-that re-tests `(action & 128) &&` in every arm (the original's repeated
-`btst #7`), two removed redundant calls, a missing three-iteration draw
-loop and its `(64L, 40L, ..., 176L, 160L)` box arguments, no `default:
-break;` (it adds a dispatch jump and an end jump), and 54-byte record
-indexing as pointer arithmetic (`(struct Rec54 *)&G + i`; `char * + 54 * i`
-adds `ext.l`). The last residuals were relocation identities only (two
-swapped/shifted globals and a 4EC6/435E callee name). Three unused locals
-remain under neutral names because the 134-byte frame requires them.
-Wave 14 (5 Haiku workers) promoted every target: resident 3C0E, 3B84,
-3870, 3AE4 and ov07_F_0000. Two closed only at supervisor intake. 3870's
-worker was denied its own `--owned-code-data` verification by the
-auto-mode classifier, and the unchanged v1 was EQUAL. 3AE4 needed
-runtime-helper aliases to match on the pinned library identity rather
-than the profile name, since aztec36 and +D large-data link the same SYS1
-c.lib and the complete byte proofs still gate every alias.
-OWNED_TAIL_UNBOUNDED resolved (CFG/BOUNDARY): the census now seeds a weak
-`POST_LITERAL_PROLOGUE` entry where a function's referenced literal bundle
-(NUL-terminated printable runs it references, plus one alignment byte) is
-followed directly by an uncovered `link a5`. Such entries stay UNCERTAIN
-(no caller) but bound the preceding tail. Four entries appeared (ov11 20AE,
-resident 1306/39C0/39F8; no existing extent changed); ov11_F_15C8 (2,778)
-and resident_F_3930 then promoted unchanged apart from neutral struct names.
-`tools/boundary_refresh.py` now writes the census before type evidence (a
-census change regenerates the instruction index) and checks type evidence.
-ov07_F_0612 (1,684 + tail) closed unchanged once ov07_F_1424 filled its
-gap (NONCONTIGUOUS_LOCAL_UNIT_LAYOUT resolved by recovery, not tooling).
-Open: ov11_F_15C8 is EQUAL but its tail is followed by unreferenced code at
-0x20AE (OWNED_TAIL_UNBOUNDED); ov09_F_0000 is two residuals from exact;
-ov03_F_001C matches shape and its 853-byte tail but needs ov03_F_154E/1500;
-ov05_F_1EFC joins the FFP family. `tools/boundary_refresh.py` replaces the
-manual post-promotion steps (two refused gates came from skipping them).
-
-Wave 9 (10 tasks) promoted ov09_F_1B1C (2,986), ov08_F_354E (2,214),
-ov11_F_0D8E (1,508) and resident 3C4C/2FE2/2816. Four ended as shared
-mechanisms: SAME_OBJECT_SHORT_CALL (a `bsr.b` to a canonical callee proved
-standalone: resident_F_033E, ov07_F_1F6E), NONCONTIGUOUS_LOCAL_UNIT_LAYOUT
-(ov07_F_0612 calls 18F8 across an unowned gap), TAIL_PROOF_TABLE_SPANS
-(ov06_F_063A: the owned-tail proof decodes without jump-table spans, a
-verifier fix), and STALE_PROVEN_OBJECT_GROUP (ov11_F_2272: all 60 members of
-its grouped natural unit are now EQUAL after ov11_F_40AE, but the recorded
-407C+40E0 object predates 40AE). Lesson: keeping runtime-tail/A4-stub
-callees external inside `prepare_unit` was tried and reverted; it broke the
-proven standalone stand-in fallback (resident_F_2FE2 EXTRACTION_BLOCKED).
-Rank-level exclusion (runtime_tail_call) is the working rule.
-
-Earlier handoff state: the READY_FOR_HAIKU queue was drained (`fleet.py wave N
---dry-run` returns nothing claimable). Further gains need, in leverage order:
-(a) runtime-tail identification below; (b) the IMPLICIT_HELPER_A4_ROUTE
-harness export control; (c) the G_h01_A15E natural-unit view decision;
-(d) the AJ/FFP binding that also gates `ov11_F_0B4C`; (e) static extent
-recovery for UNCERTAIN functions (384 resident, all of ov09). Re-plan after
-each; newly canonical callees release waiting callers automatically.
-
-Next resident frontier: of 38 eligible resident functions, 15 wait on
-PC-relative calls into unidentified runtime-tail code (`resident_F_86F6`,
-`8708`, `8820`, `894A`, ...). Identifying those library contributions
-(RUNTIME/LIBRARY) is the next Opus campaign; 15 more wait only on game
-callees and open as waves land.
-
-Opus-owned shared blockers now in `blockers.json` `function_blockers`:
-
-1. RESOLVED `IMPLICIT_HELPER_A4_ROUTE` (CALL_BINDING): resident callers
-   reach `.mulu/.divs/.mods/.modu/.divu` through A4 jump-table slots because
-   overlays call those helpers. Measured: an overlay object that calls the
-   helpers, referenced from the root harness, turns a resident candidate's
-   `jsr .mods` into `jsr d16(a4)` and changes nothing else.
-   `tools/helper_exports.py` adds that control (harness only, never claimed)
-   for exactly the sources whose original functions call pinned
-   runtime-arithmetic entries through A4 stubs; verifier, unit trials and
-   proof re-derivation register the same route. `compiler_oracle.py` stays
-   byte-identical (a comment-only edit stales 15 resident DATA-interface
-   proofs), so the module wraps its harness/proxy builders for registered
-   sources only. `resident_F_09C0`'s unchanged worker source is now
-   canonical; 08FC, 3AE4 and 7430 re-enter the queue.
-2. RESOLVED `PROVEN_OBJECT_GROUP_DEPENDENCY` (OBJECT/TU_LAYOUT; `ov10_F_2634`,
-   which gates `ov10_F_3288` and `ov10_F_2CF4`, ~2.6 KB): automatic dependency
-   units compiled canonical `ov10_F_22E6` outside its proven
-   `1FDE+2160+22E6` object (undefined externs it inherits from `2160`).
-   `check_unit.prepare_unit` now closes over hash-checked proven object
-   membership (`proven_object_members`), so the unit compiles; the Luna-era
-   draft is 30 bytes short of the 2,842-byte unit and is back with Haiku.
-3. `XOR_RESULT_REGISTER_ORIENTATION` (SOURCE_SHAPE; `resident_F_463E`, 56
-   bytes): no tested form or release puts the `eor.w` result in the
-   first-evaluated register.
-4. `NATURAL_UNIT_DECLARATION_VIEW` (DECLARATION_VIEW; `ov11_F_2272`, 386
-   bytes): with `--object-group 2272,23F4,2430,247C` in natural interval
-   0x2272..0x5FB2 the entry and its group are EQUAL (positive TU evidence), but
-   canonical `ov11_F_407C` differs: `G_h01_A15E` has two canonical views
-   (`struct Record`/`struct Event`) and the harness keeps one per symbol.
-5. Existing: ov14 char-return `EXT.W`, AJ/FFP (`ov11_F_5FB2`, `ov05_F_3836`),
-   `ov05_F_2CD4` (real source-shape residual, 0.94 similarity), uncertain CFG
-   extents.
-
-Time-boxed: `RESIDENT-VARS-LAYOUT-001` (two indistinguishable vars providers).
-Return to it when recovered resident readers/writers bind the actual storage
-and first-reference COMMON order. Opus-owned shared blockers, in order:
-resident DATA/COMMON ownership, ov14 char-return `EXT.W` (TOOLCHAIN),
-AJ/FFP private helper binding (`ov11_F_5FB2`), uncertain CFG boundaries.
-
-## First closure campaign: ov04
-
-All 24 known closed-CFG functions are canonical: 9,758 C bytes,
-1,008 compiler-owned data bytes, 2 proved terminal padding bytes and zero initialized debt bytes.
-`../evidence/closure/ov04.json` lists canonical and remaining function identities;
-`../evidence/hybrid/accounting.json` contains the complete ownership partition.
-
-The strict curated claim in `../evidence/contributions/padding.json` explains
-2A0E..2A10 using the actual full-link output. Its loader re-derives all source,
-proof, object-group, profile, compiler and retained unit inputs, replays all
-24 members including actual literal bytes, and rejects incoming references,
-changed allocation or stale dependencies. Zero accounting debt grants no
-natural node or whole-file proof.
-No ov04 pinned runtime contribution is proved.
-Resolve relocations against independently established target identities, and
-review separately compiled source/object ordering. Existing accepted grouping
-receipts constrain historical hypotheses without establishing original TUs.
-
-The first bounded wave accepted F0536's 622-byte body and 38-byte literal tail,
-plus F1302's 410-byte body through seven separately compiled dependency objects.
-F1E36 is now accepted at FUNCTION_WITH_DATA_MATCH: 1,784 body bytes and its
-complete 450-byte literal bundle. The three separately compiled objects match
-all 3,032 contribution bytes, including canonical F26F0 and F27FE and their
-previously proved tails. Independent linker controls explain
-F27FE's A4 overlay trampoline: a resident initialized function-pointer reference
-exports it and changes separate callers' route, while an unreferenced helper
-remains PC-relative. `../evidence/rules/ov04-export-routing/proof.json` retains
-the authored sources and positive/negative controls; it grants no source or TU
-acceptance. The evidence-rooted recipe now propagates through ordinary, queued
-and mixed-profile compiler/cache/unit identities, with strict inventory/member/
-harness re-derivation and complete-unit trampoline mapping. Legacy recipes stay
-valid. Owned automatic units now use existing per-member tail verification.
-The accepted compile has five F27FE A4 trampoline calls and five F26F0
-PC-relative calls. Its distinct resident call targets and G2EE8/G2EF0 references
-are independently bound. Canonical batch verification and the regression gate
-accepted the unchanged source; census and hybrid replay validate the new proof.
-
-Independent natural interval checks match 07CA..1302 and 26F0..2A10; the latter
-includes the linker's two-byte terminal zero pad. This is evidence for the
-layout hypothesis, not accepted padding ownership or full overlay closure.
-`../evidence/rules/ov04-natural-intervals.json` retains the compact inputs.
-Pinned Aztec 3.6a linker controls establish `+ccd` as a natural CHIP allocation
-selector for CODE and initialized DATA. The retained rule does not establish
-the original release or a complete ov04 link.
-
-Exit gate: every initialized byte independently explained; all game-owned
-C/ASM reconstructed; compiler literals/data proved; runtime contributions
-identified or independently separated; all relocations/layout reproduced by
-the ordinary historical overlay link; zero ov04 RAW_ORACLE_DEBT. An accounting
-image assembled with oracle debt cannot satisfy this gate.
-
-## Top five blockers by leverage
-
-1. Resident DATA/COMMON: recover real initialized contributions and intervening
-   allocations. SDK-compatible RasInfo/BitMap views now pass exact source
-   verification, but establish no original ownership or TU order. Their first
-   92-byte COMMON cluster covers only 16 of ov04's 185 root relocation sites.
-   Categories DATA_OWNERSHIP / OBJECT/TU_LAYOUT.
-2. ov04 natural node link: the refreshed 15-object link matches all 24 functions,
-   literals, 185 relocation layouts and 10 ordered exports. Its 1,496 raw byte
-   differences are confined to independently proved address fields. Root CODE
-   is 2,744 versus 36,260 bytes; root DATA initializes 556 versus 11,956 and
-   allocates 4,960 versus 46,044. Preserve these open obligations and the full
-   14-slot topology requirement. Category OBJECT/TU_LAYOUT.
-3. AJ/FFP external identities: controlled AJ specimens now establish a bounded
-   external-word grammar and natural PC binding. The real FFP object still uses
-   unsupported records. Extend only with positive/negative specimens, consume
-   the proved identities in the strict verifier, and leave ov11_F_5FB2 blocked
-   until private helpers resolve independently. Category CALL_BINDING.
-4. Indirect control flow: the small WinUAE pipe history collector and bounded
-   event validator exist, but no live-game trace/overlay-load adapter has been
-   validated. Establish a load epoch and a genuine single-step edge, then
-   return to static table/extent proof. History adjacency is only a candidate
-   edge, and an observed target never proves completeness. Category CFG/BOUNDARY.
-5. Declaration/object isolation: verify actual dependency units with distinct
-   compatible partial views and explicit same-object conflict controls.
-   Compiler-identity changes leave several old cache controls skipped until
-   rerun. Categories DECLARATION_VIEW / OBJECT/TU_LAYOUT.
-
-## Normal worker commands
+## Worker loop
 
 ```powershell
-python tools/grinder.py rank --node ov04 --limit 5
-python tools/grinder.py facts ov04_F_1E36 --max-instructions 1000 --max-bytes 150000
-# Write candidate to build/workers/NAME/candidate.c, then diagnose locally.
+python tools/behavior.py
+python tools/grinder.py facts TARGET
+python tools/declaration_views.py --function TARGET --block
+# Write build/workers/NAME/candidate.c, then verify without promoting:
 python tools/check_function.py TARGET build/workers/NAME/candidate.c --profile aztec36 --isolated --no-promote
-# After an exact result, promote the unchanged candidate.
+# Promote the unchanged candidate after reviewing the exact result:
 python tools/check_function.py TARGET build/workers/NAME/candidate.c --profile aztec36
-# Existing batch alternative for independent promotions:
-python tools/promote_batch.py build/workers/wave.json --verify-only
-python tools/promote_batch.py build/workers/wave.json
+python tools/promote_batch.py MANIFEST --verify-only
 ```
 
-Dependencies compile as separate objects by default. `--object-group` is an
-evidence-backed hypothesis; arbitrary canonical concatenation is not a default.
-Only expose declarations needed by the candidate TU. No universal struct
-merger or inferred shared header is an authority. Ranking favors closure and
-caller unlocks; report a blocker category and smallest changed experiment on
-failure rather than repeatedly spawning the same hypothesis.
+Workers are Codex sessions (`build/workers/NAME`) or Agent subagents. Each
+gets one target and a task card, as AGENTS.md describes. The supervisor owns
+all canonical writes. Read `docs/COMPILER_LEARNINGS.md` before writing C.
 
-## Validation and assumptions
+Validation at tooling and promotion boundaries:
 
 ```powershell
-python tools/type_evidence.py --write
 python tools/census.py --write
 python tools/census.py --check
 python tools/hybrid_image.py --check
-python -m unittest discover -s tests -v
-# Re-derive produced specimens only with the validated historical caches/tools:
-python tools/hybrid_image.py --refresh --write
+python -m pytest tests -n 16 --dist=loadscope -m "not regression_serial" -q
+python -m pytest tests -m regression_serial -q
 ```
 
-The promotion regression gate (`check_function.regression_receipt`) runs the same
-suite as two pytest phases when pytest-xdist is installed: xdist-safe tests with
-`-n 16 --dist=loadscope`, then the `regression_serial` tests (shared repository
-state; see `tests/conftest.py`) serially. Without xdist it falls back to serial
-unittest. Per-test outcomes were compared to serial pytest and matched for all
-704 items (660 passed, 44 skipped); wall time fell from 594 s to 180 s.
+Canonical re-derivation reads ignored `build/compile-cache` and
+`build/worker-jobs` (producer jobs found by receipt hash). Prune neither.
+A cold cache means re-running the WinUAE worker.
 
-The normal resident CLI promotion passed the full regression gate.
-Census validates all 156 canonical proofs.
-Hybrid accounting has zero overlap and zero unaccounted file bytes, and refresh
-replays all 156 retained exact artifacts.
-Queue/batch regression tests remain active; fresh compilation of the skipped
-controls is still due. The automatic-unit producer now retains raw conflicting
-TU declarations and derives only the harness's filtered view. The strict
-consumer caught the earlier invalid F1302 receipt; it was withdrawn and replaced
-through normal verification and promotion, with negative provenance controls.
+Gate cost is a first-class concern. A strict derivation re-validates every
+accepted proof from scratch, and many tests run one against the real
+repository. Profile with `--durations` before adding another real-repo test.
+Prefer synthetic fixtures for mechanism tests. Keep real-repo replays to the
+few that guard canonical results.
 
-Pinned Aztec 3.6a is the primary profile; compatible 5.0a/short-int and existing
-member-specific profiles remain available where receipts justify them. Exact
-historical release attribution is unproved. Do not relock original fixtures,
-force addresses, patch linked outputs or normalize unproved helper identities.
+## Retired 2026-10-15
 
-Proof levels are defined in `proof-levels.md`: semantic/similarity is advisory;
-FUNCTION_CODE_MATCH requires complete bytes and independently resolved fixups;
-FUNCTION_WITH_DATA_MATCH adds a proved compiler-owned tail; overlay/executable
-levels additionally require independent content, relocation and natural layout.
-RAW_ORACLE_DEBT is validation/accounting only, never reconstructed source.
+These moved to `to_delete/` (see its manifest). Git history keeps them too.
 
-Scratch and new attempts go under ignored `build/`; retirements go under
-`to_delete/`. The user manually deleted the historical quarantine before this
-push. No deleted archive is reintroduced in the active project or pushed.
-
-Recommended next wave: bind the original resident runtime DATA consumers.
-Independent SDK compilation reproduces the tested 3.6a/5.0a vars layouts,
-but none of their complete ten-byte initialized contributions occurs in the
-original. Do not reuse them as original providers or clip a two-byte match.
-See `../evidence/experiments/runtime-vars.json`. The terminal word has three
-original consumers; resident766C is a closed 310-byte startup CFG, while the
-pinned complete object emits312 bytes including the same nonzero trailing
-two bytes. Verify that whole unit's callee/global bindings before identifying
-the original runtime DATA variant and its COMMON ownership. Natural COMMON
-merging controls are measured; they do not select original object order or
-compiler release. (Superseded 2026-10-12: this kept ov04 closure ahead of
-unrelated targets while ov04 functions remained; all are canonical now and the
-resident-first campaign above is the route to its natural root link.)
-
-Startup routing controls now match all ordinary bytes of the complete312-byte
-object. Eight global and eleven PC target bindings remain pending; callback
-main uses logical node1, and exit requires a validated DATA jump entry.
-The allocator/task public-private units add34 strictly accepted runtime bytes.
-See `../evidence/experiments/startup-bindings.json`. No startup DATA or complete
-root layout is accepted.
-
-Alert, WaitPort and GetMsg now have independent complete-object/source/two-DATA-
-order matches, adding48 experimental target bytes. Strict accepted-caller
-entry checks remain intact and no bytes are counted. The CurrentDir target
-at869C must not be confused with Forbid at8974. Next, bind DOSBase and the
-remaining parser/global relationships; see startup-targets.json.
-
-DOSBase is independently bound at H1+A98E by the CRT0 initializer. Five complete
-DOS library/source leaves match54 candidate bytes in two DATA orders; CurrentDir,
-Input, Output and Open resolve four startup correspondences (42 bytes). These
-remain unpromoted. See `../evidence/experiments/dosbase-bindings.json`. Next verify
-complete CRT0 identities, parser/global relationships and original storage
-providers; preserve strict accepted-caller entry checks.
-
-The bounded complete CRT0 review matches108 ordinary bytes and its one DATA
-relocation. All differences occupy seven SDK fields; H1 end/BSS start and clear
-count derive from original allocations. Saved-stack and startup-entry identities
-remain pending. Source/library links equal while object files differ. See
-`../evidence/experiments/crt0-bindings.json`; no runtime acceptance is added.
-
-The first resident source contribution is now canonical: resident_F_77A4,
-432 C bytes plus its2-byte compiler-owned literal, at FUNCTION_WITH_DATA_MATCH.
-The unmodified456-byte pinned/SDK object differs; this is a reconstructed runtime
-variant, without original filename, TU, provider or exact release attribution.
-Fresh normal root verification proves all CODE and bindings under aztec36-x3.
-Root-unit comparisons preserve actual root coordinates; strict named DATA
-interfaces rederive source, original call facts, payloads, CODE relocations and
-body mapping. Tampered/stale inputs reject. See
-`../evidence/experiments/resident-cli-source.json`.
-
-CLI global access views are now function-proved, but original DATA/COMMON
-ownership and natural root placement remain UNKNOWN. The tested vars object
-still contradicts whole original initialized DATA. Next verify the Workbench
-parser and remaining startup/provider identities; use the normal isolated
-verification boundary. All24 ov04 members and actual0000 padding replay under
-the refreshed tool provenance; natural overlay/root/executable closure is open.
-
-Workbench parser resident_F_7B24 is now canonical at FUNCTION_WITH_DATA_MATCH:
-158 C bytes plus22 compiler-owned literal bytes. The bounded failed declaration
-wave is retained; changing only two result declarations and long mode arguments
-closed exactness. Normal promotion regression passed after refreshing stale type
-evidence and making the queue fairness test independent of timestamp ties.
-Original filenames, TU membership, runtime release and DATA/COMMON ownership
-remain unknown. Next bind remaining startup consumers and the original provider.
-See `../evidence/experiments/resident-workbench-source.json`.
-
-Startup-called exit wrapper resident_F_8534 is now canonical:30 C bytes at
-FUNCTION_CODE_MATCH, with its callback access and deeper exit callee bound.
-The deeper resident_F_8552 CFG ends six bytes before the next entry; that
-epilogue remains unclaimed. A complete unmodified SDK exit compile/assemble/link
-produced284 CODE bytes against the original238-byte complete-object hypothesis.
-Retained toolchain failures and full inputs are in resident-exit-object.json;
-next compare cleanup branches before changing source. No original DATA/COMMON
-provider or root layout is accepted. See
-`../evidence/experiments/resident-exit-wrapper.json`,
-`../evidence/experiments/resident-exit-boundary.json` and
-`../evidence/experiments/resident-exit-object.json`.
-
-The complete SDK-derived exit variant removes exactly three cleanup branches
-absent from the original CFG and naturally produces238 CODE bytes. All180
-ordinary bytes match, including the FPU thunk and six-byte terminal epilogue.
-The58 address-field bytes have diagnostic source/symbol correspondences only;
-no acceptance, runtime accounting, canonical boundary or provider claim changes.
-Replay: `python evidence/rules/resident-exit-variant/replay.py`. Next independently
-bind complete callees8640/8980/8788/8974/8A12 and cross-routine globals; a strict
-whole-object consumer is still required. Retained newline and symbol-file
-failures are in `../evidence/experiments/resident-exit-variant.json`.
-
-Complete resident_F_8640 close source is canonical:76 C bytes. Its SDK-compatible
-6-byte device-record accesses and all mechanical bindings pass normal exact and
-regression checks. Strict FreeMem20 and CloseLibrary16 public/private units add
-36 runtime bytes, using accepted ov04 public entries and both DATA orders. The
-private-entry substitution negative control preserves the existing guard.
-Three of five deeper exit callee identities are now independent; Forbid and
-ReplyMsg, mixed-source whole-object acceptance and global/provider roles remain
-open. See `../evidence/experiments/resident-close-source.json` and
-`../evidence/experiments/resident-exit-bindings.json`.
-
-All five exit callee identities now have independent source/library or canonical
-source evidence. Forbid8 and ReplyMsg12 match uniquely at the proved SysBase
-identity in both DATA orders; they remain outside runtime accounting. A complete
-mechanical mixed-source control produces238 bytes with180 ordinary bytes and all
-29 address fields matching. The two SDK assembly blocks are unchanged except
-for saved-stack symbol spelling. Normal C promotion still rejects assembly.
-Next add curated complete-source facts and a strict mixed-runtime recipe with
-C/ASM partitions, inbound canonical anchor and rehashed negative controls;
-retain all existing C and accepted-public-entry guards. See
-`../evidence/experiments/resident-exit-message-leaves.json` and
-`../evidence/experiments/resident-exit-mechanical.json`. No coverage/debt changes.
-
-A label-only source control preserves complete CODE and all mechanical binding
-coordinates and measures196 C-compiler bytes plus42 SDK ASM bytes. The terminal
-six-byte epilogue belongs to C compiler output. This is source-language evidence
-only; no canonical source extent, historical TU or accounting acceptance. Replay
-`python evidence/rules/resident-exit-mechanical/replay.py`; partition inputs are
-in `../evidence/experiments/resident-exit-partition.json`.
-
-Strict staged verification now lives in `tools/resident_mixed.py`; curated
-source-object facts are separate in `evidence/source-facts/resident-exit.json`.
-It rederives the candidate from pinned SDK source, checks the exact harness and
-producing commands, verifies whole-object bounds and all independent callees,
-and decodes all238 bytes with coprocessor support confined to this SDK recipe.
-The16 focused negative/positive controls preserve normal C rejection of inline
-assembly and the runtime public-entry guard. Run `python tools/resident_mixed.py`.
-Its VERIFIED_STAGED_MIXED_OBJECT result explicitly grants no acceptance. Next
-integrate the curated extent and196 C/42 ASM partitions into canonical proofs
-and accounting, with unchanged-source revalidation at that promotion boundary.
-No generated function extent or coverage metric is hand-edited.
-
-The normal census now revalidates curated mixed source-object facts into
-`evidence/functions/source-objects.json`. It retains both the232-byte uncertain
-CFG and independently proved238-byte complete object, with196 C/42 ASM bytes;
-this staged view grants no canonical acceptance or coverage. Nested entries,
-conflicting descent extents, accepted-source overlaps and attempted substitution
-for a canonical proof are rejected. Scoped census reuse hashes the curated fact,
-SDK source, retained artifact graph and independently checked library inputs;
-edits or removed facts invalidate reuse. A fresh isolated historical-toolchain run
-reproduces the unchanged sources, assembly, objects, linked executable and symbol
-map byte for byte, and passes the strict verifier. See
-`../evidence/experiments/resident-exit-refresh.json`. Next implement canonical
-mixed-source proof/promotion and language-aware accounting using this separate
-extent basis; keep ordinary C and runtime public-entry guards intact.
-
-The complete SDK-derived resident_F_8552 mixed object is now canonical at
-FUNCTION_CODE_MATCH in the separate recovery `mixed_source_objects` map.
-Its source, complete238-byte extent,29 independent fields and196 C/42 ASM
-partitions rederive on census and accounting reads. Normal C remains CLOSED_CFG
-only and rejects assembly. A fresh unchanged historical compile and unchanged
-validation input graph precede admission; ordinary recovery writes preserve the
-mixed map. Whole-file debt falls by238 to148566, with no aggregate layout proof.
-Forbid/ReplyMsg complete identity controls remain outside runtime accounting.
-Next resolve the original DATA/COMMON provider and natural resident linking
-needed for ov04 closure; original filename/TU/release and provider remain unknown.
-See `../evidence/experiments/resident-exit-admission.json`.
-
-Two bounded SDK vars hypotheses now naturally compile and link in two DATA
-orders: remove the DETACH globals, or retain them without explicit initializers.
-Both own zero CODE/two DATA bytes; their complete COMMON allocations differ64
-versus72 bytes. The rounded00140000 DATA pattern appears at original H1 offsets
-1002,1074 and11952. Canonical exit independently references11952, but neither
-provider membership nor original COMMON allocation follows from the equal word.
-No DATA, padding or COMMON bytes are promoted. Retained whole objects, header
-pins, commands, maps and replay are in `evidence/rules/runtime-vars-variant/`;
-see `../evidence/experiments/runtime-vars-variant.json`. Next bind complete
-startup/CRT0 consumers and natural first-reference COMMON order before choosing
-a provider hypothesis. Do not prune unreferenced globals merely because an exit
-cleanup branch is absent.
-
-The complete startup mechanical source now matches with LONG/D0 views for
-the three pointer-returning assembly helpers and aztec36-x3. Pointer-return
-views/default and LONG views/default both emit316 bytes; the one-factor+X3
-control emits312. Decoded operands account for all38 address/literal fields,
-including immediate-to-A4 and two-A4 instructions. Original and candidate
-main/exit routes are checked through the overlay tree and DATA JMP relocation.
-A label-only+X3 control preserves every byte and binding and measures304 C,
-6 SDK ASM and2 compiler literal bytes (`*\0`). The whole object owns no DATA/BSS.
-Retained recipes/replay in `evidence/rules/startup-mechanical/` use canonical
-evidence paths, not ignored build inputs. Separate staged source facts are in
-`evidence/source-facts/resident-startup.json`; no canonical acceptance or coverage
-is granted. Next implement strict complete callee/producer verification and
-mixed code/literal admission, then use startup/CRT0 objects for COMMON ordering.
-See `../evidence/experiments/startup-mechanical.json`.
-
-The retained startup producer now has a bounded audit in
-`tools/startup_producer.py`. It rederives both sources and harnesses from the
-pinned SDK recipe, requires the complete tool/header and artifact inventories,
-checks exact producing commands and whole-object bounds, and preserves the
-304 C / 6 ASM / 2 literal partition under the label-only control. Thirteen
-retained-input tests cover omitted inventories, consistently rehashed source,
-header and object edits, failed commands, partition claims and quarantine paths.
-Its `VERIFIED_STARTUP_PRODUCER_ONLY` result grants no source acceptance or
-coverage and is not wired into canonical promotion. Next independently verify
-the complete callee bodies and original field identities, then require a fresh
-unchanged compilation at the mixed code/literal admission boundary. DATA/COMMON
-provider and natural resident layout remain unknown.
-
-Validation for this producer-audit boundary: census write/check, hybrid check,
-the unchanged startup field replay and all 468 regression tests passed (9
-skipped). Canonical source acceptance and accounting totals did not change.
-
-The complete resident_F_766C startup is now canonical in `mixed_source_objects`
-at FUNCTION_WITH_DATA_MATCH: 304 C bytes, 6 SDK assembly bytes and the 2-byte
-compiler literal. The 310-byte closed CFG and complete 312-byte source object
-remain separate extents. All 38 fields rederive, including the actual node1
-main route and relocated DATA exit entry. CLI, Workbench and exit anchors are
-canonical; allocator/task helpers retain independent public/private bindings.
-Fresh complete library/SDK-source links bind the seven remaining leaves (90
-bytes) in two DATA orders, without adding runtime accounting. The DOSBase
-initializer is checked independently. Open's 14-byte object remains distinct
-from its control link's two-byte alignment.
-
-Fresh startup and label-only compilations reproduce all retained source,
-assembly, objects, executables and symbol maps unchanged. Canonical admission
-rechecks the recorded validation inputs after the full 481-test regression
-(9 skipped). Census and accounting consumers rederive the mixed proof and
-count its literal separately. Normal C and public-entry library guards remain
-intact. See `../evidence/experiments/startup-admission.json`.
-
-Fresh complete CRT0 controls now establish natural COMMON ordering under the
-pinned candidate linker. The unchanged library and SDK-source objects produce
-identical whole executables in three contexts (16 successful guest steps).
-Adding a separate four-byte DATA/eight-byte COMMON provider changes the seven
-expected fields; all 108 other bytes and the DATA relocation remain unchanged.
-Placing the unchanged library `_close` object before CRT0 moves DOSBase before
-saved SP and SysBase without a filler object or fixed address. This explains a
-possible mechanism for the original ordering, not its original provider.
-`../tools/crt0_controls.py` replays pinned inputs, complete object boundaries,
-source recipes, all fields, relocation and both whole outputs; the measured
-report is `../evidence/experiments/crt0-controls.json`. It grants no acceptance.
-
-Next complete CRT0 saved-stack/startup bindings using the canonical consumers
-and review full runtime admission separately. Then identify the original
-earlier DOS consumers and real DATA providers. Neither vars hypothesis is
-selected: original DATA/COMMON provider, TU, filename, release and natural
-resident/ov04 closure remain unknown. Coverage/accounting is unchanged.
-
-CRT0 control validation: all 493 regression tests passed (9 skipped), including
-12 new producer/order rejection tests. Census write/check, hybrid accounting
-check and exact retained-report replay passed. The full regression log is
-`../build/recovery/crt0-controls-regression.log` (ignored attempt output).
+- Supervised Haiku fleet: `fleet.py`, `fleet_regions.py`, `docs/fleet.md`.
+  The function frontier is drained, and every remaining target is blocked
+  above. Its compile-queue, file-lock and resident-recovery tests live on in
+  `test_compile_queue.py` and `test_resident_recovery.py`. Its worker
+  lessons are now an appendix of `COMPILER_LEARNINGS.md`.
+- Local-LLM proposer stack (`local_*`, `model_proposer`, GPU telemetry).
+  It produced zero promotions (LOCAL-GRINDER-QUALITY-001).
+- DOS secondary-oracle pilot (`dos_*`, `evidence/dos`, its docs). The
+  executable stays in `assets/dos` as a possible behavior cross-reference
+  for the port.
+- ov11 cycle-gap and frontier audits. ov11 is now exact.
+- Stale docs: the consolidation checkpoint, the grinder narrative, the
+  recovery-planning note, and the placeholder overlay READMEs.

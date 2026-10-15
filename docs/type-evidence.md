@@ -100,8 +100,8 @@ python tools/declaration_views.py --clusters                      # conflict bre
 
 These are candidate source views that already compiled exactly in other
 routines. They are not historical type provenance. Access widths do not
-determine a C type uniquely. Fleet packets use the block to keep worker
-declarations consistent (docs/fleet.md). A worker that needs another view
+determine a C type uniquely. Workers paste the block to keep declarations
+consistent. A worker that needs another view
 records that view as a controlled change.
 
 `--clusters` groups the pairwise conflicts of the single-line scanner above

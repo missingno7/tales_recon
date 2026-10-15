@@ -146,18 +146,4 @@ class RouteTests(unittest.TestCase):
                             member_sources={'resident_F_0200':'recovered() { return 0; }'},natural_interval=(0x100,0x204))
                         self.assertEqual({m['id'] for m in members},{f['id'] for f in functions})
 
-    def test_fleet_region_excludes_only_satisfied_runtime_ids(self):
-        import fleet
-        sys.path.insert(0,str(ROOT/'tests'))
-        from test_fleet import RegionTests
-        fixture=RegionTests();fixture.setUp()
-        import fleet_regions
-        regions=fleet_regions.build_regions(fixture.functions,fixture.items,fixture.canonical,fixture.ledger['blockers'],fixture.ledger['attempts'])
-        regions[0]['external_prerequisites']=['ov11_F_9000','ov11_F_9004']
-        tasks,_=fleet.build_tasks(fixture.functions,fixture.items,fixture.ledger,[],regions=regions,runtime_satisfied={'ov11_F_9000'})
-        task=next(t for t in tasks if t['kind']=='region')
-        self.assertEqual(task['origin']['untasked_prerequisites'],['ov11_F_9004'])
-        tasks,_=fleet.build_tasks(fixture.functions,fixture.items,fixture.ledger,[],regions=regions)
-        self.assertEqual(next(t for t in tasks if t['kind']=='region')['origin']['untasked_prerequisites'],['ov11_F_9000','ov11_F_9004'])
-
 if __name__=='__main__':unittest.main(verbosity=2)

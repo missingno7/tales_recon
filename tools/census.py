@@ -382,10 +382,9 @@ def frontier_next_action(analysis, promoted, mixed, ov04_pending):
     pending = [f for f in functions if f['extent_status'] == 'CLOSED_CFG' and f.get('ownership') == 'UNKNOWN'
                and f['id'] not in owned]
     resident = [f for f in pending if f['hunk'] == 0 and floor is not None and f['start'] < floor]
-    return (f'Recover the {len(pending)} unowned closed-CFG functions ({sum(f["size"] for f in pending)} bytes), '
-            f'including {len(resident)} resident functions ({sum(f["size"] for f in resident)} bytes) below the first '
-            'runtime candidate, through the supervised fleet (docs/fleet.md). All known ov04 functions are canonical; '
-            'its natural link still needs the missing resident root CODE, DATA/COMMON ownership and the full topology.')
+    return (f'{len(pending)} closed-CFG candidates ({sum(f["size"] for f in pending)} bytes, {len(resident)} resident) '
+            'have no C ownership; some are covered by assembly, typed-data or runtime proofs. '
+            'Run tools/behavior.py for behavior coverage; priorities are in docs/NEXT.md.')
 
 
 def lock_document(root, files):

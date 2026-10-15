@@ -10,7 +10,6 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import recovery_state
 from common import sha256
-from local_fact_pack import representation
 import recovery_feedback
 import grinder
 
@@ -56,23 +55,6 @@ class RecoveryFeedbackTests(unittest.TestCase):
         self.assertEqual(result['recovery_review'], review)
         self.assertEqual(result['proposals'], [])
         self.assertEqual(result['promoted'], [])
-
-    def test_advice_is_optional_during_local_context_reduction(self):
-        package = dict(id='test', extent={}, instructions=[], cfg=[],
-                       advisory_feedback=dict(status='DIAGNOSTIC_ONLY'))
-        self.assertIn('advisory_feedback', representation(package, stage=0)[0])
-        self.assertNotIn('advisory_feedback', representation(package, stage=4)[0])
-
-    def test_local_prompt_does_not_mix_another_candidates_diagnostic(self):
-        package = dict(id='test', extent={}, instructions=[], cfg=[],
-                       previous_attempts=[dict(compiler='aztec36', source_sha256='current')],
-                       advisory_feedback=dict(based_on=dict(profile='aztec50', source_sha256='other'),
-                                              compiler_diagnostic=dict(status='DIAGNOSTIC_ONLY'),
-                                              type_evidence=dict(policy='ACCESS_FACT_ONLY')))
-        base, _, _ = representation(package)
-        self.assertNotIn('compiler_diagnostic', base['advisory_feedback'])
-        self.assertIn('type_evidence', base['advisory_feedback'])
-        self.assertIn('compiler_diagnostic', package['advisory_feedback'])
 
     def test_fresh_context_excludes_prior_candidate_text(self):
         source = 'int recovered() { return 3; }\n'

@@ -137,9 +137,9 @@ variant then receives an in-flight reservation under `build/hypothesis-inflight/
 A concurrent identical hypothesis waits for that reservation and is then
 rejected as a duplicate instead of compiling again. A reservation left by a
 dead process is replaced and reported as `stale_reservations_replaced`. Cache
-misses go through the coalescing compile queue (see [fleet](fleet.md)). The
-ledger also accepts `fleet_intake` records from `tools/fleet.py`. They never
-count as compiler trials. v1 manifests do not use the ledger.
+misses go through the coalescing compile queue (`tools/compile_queue.py`).
+Older ledgers may hold `fleet_intake` records from the retired fleet tool. They
+never count as compiler trials. v1 manifests do not use the ledger.
 
 For bounded workers, set `--ledger build/workers/NAME/hypotheses.jsonl`.
 New trials also retain `emitted_identity`: separate profile, complete linked

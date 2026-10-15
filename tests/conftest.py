@@ -4,8 +4,8 @@ from pathlib import Path
 SERIAL_MODULES = {
     'test_evidence_snapshot.py',
     'test_terminal_padding.py',
-    'test_fleet.py',
-    'test_resident_fleet.py',
+    'test_compile_queue.py',
+    'test_resident_recovery.py',
 }
 SERIAL_CLASSES = {
     ('test_consolidation.py', 'QuarantineTests'),

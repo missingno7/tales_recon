@@ -20,7 +20,7 @@ cache identity of cross-overlay proxy and named-entry trials. The legacy mixed
 runner is also kept unchanged; ``queued_oracle`` reuses both identities.
 ``install()``
 routes ``check_function``/``check_unit`` through this queue for the current
-process only (used by ``shape_search.py`` and ``fleet.py``).
+process only (used by ``shape_search.py``).
 """
 import json
 import math

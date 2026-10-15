@@ -1,10 +1,23 @@
-# Historical reconstruction constraints
+# Reconstruction constraints
 
-Read `docs/VISION.md`, `docs/progress.json`, `docs/blockers.json`, and
-`docs/proof-levels.md` before extending the reconstruction. The current work is
-historical reconstruction, not a source port. `assets/` is immutable oracle
-evidence. Never relock fixtures automatically or feed original code bytes into
-reconstructed outputs. Keep natural object/hunk/overlay layout as the target.
+Goal (user decision 2026-10-15): complete, readable source of the game whose
+behavior we can trust, as the base for a later native SDL3 port. Exact matching
+decompilation is the preferred recovery and verification technique, not the
+deliverable. We are in the recovery stages: do not modernize matched source and
+do not add SDL3 code or dependencies here.
+
+Read `docs/NEXT.md`, `docs/VISION.md`, `docs/blockers.json` and
+`docs/proof-levels.md` before extending the reconstruction. `assets/` is
+immutable oracle evidence. Never relock fixtures automatically or feed original
+code bytes into reconstructed outputs. Keep every proven natural
+object/hunk/overlay result, but historical executable reproduction (link order,
+padding, startup/runtime objects, whole-file identity) never blocks behavior
+recovery.
+
+Proof categories stay separate in every report: exact C, recovered ASM,
+reconstructed ASM, behaviorally reconstructed (requires explicit evidence and
+stated limits), unresolved. Never present behavioral equivalence as a match, and
+never replace accepted source with an unverified rewrite.
 
 DATA initializer policy (user decision 2026-10-14): measured initializer values
 from the original DATA may be curated into reconstructed C as recovered-source
@@ -40,20 +53,26 @@ future reconstruction work. `docs/blockers.json` and `docs/toolchain.json` are
 curated ledgers; retain failed experiments there.
 
 For parser/evidence changes run `python tools/census.py --write`,
-`python tools/census.py --check`, and `python -m unittest discover -s tests -v`.
-No normal game build exists yet. Do not describe the analysis pipeline as one.
+`python tools/census.py --check`, and the two-phase regression gate that
+promotions use (`check_function.regression_receipt`): `python -m pytest -n 16
+--dist=loadscope -m "not regression_serial" tests`, then `python -m pytest -m
+regression_serial tests`. No normal game build exists yet. Do not describe the
+analysis pipeline as one.
 
 # Current worker loop
 
-Read `docs/NEXT.md` for the current campaign and open gates. Canonical ownership
+Read `docs/NEXT.md` for the current priorities; `python tools/behavior.py`
+reports behavior coverage from the ledgers. Canonical ownership
 is `recovery/ledger.json`; accepted source is `src/`, backed by compact proofs
 and the retained unit inputs they actually reference. Current blockers are
 `docs/blockers.json`. Attempt history and generated candidates belong under
 ignored `build/recovery/`; worker source belongs under `build/workers/NAME/`.
 
-Supervised waves (Opus supervisor, Haiku Agent workers, `fleet.py wave`) follow
-`docs/fleet.md`. Read `docs/COMPILER_LEARNINGS.md` (Aztec rules, patterns and dead ends) before writing
-C. Use `python tools/grinder.py facts TARGET` for context, then write a candidate,
+Workers are Codex sessions (gpt-6-luna xhigh for mechanical work, gpt-6.1-sol
+for hard blockers), one target each, briefed directly by the supervisor. Read
+`docs/COMPILER_LEARNINGS.md` (Aztec rules, patterns and dead ends) before writing
+C. Use `python tools/grinder.py facts TARGET` and `python tools/declaration_views.py
+--function TARGET --block` for context, then write a candidate,
 run lightweight diagnostics, and use `check_function.py TARGET SOURCE --isolated
 --no-promote --profile aztec36` for exact verification. Promote the unchanged
 candidate with `check_function.py TARGET SOURCE --profile aztec36` only after

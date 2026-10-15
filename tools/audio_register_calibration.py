@@ -3,6 +3,7 @@ import re
 from common import require,sha256,json_bytes
 from repo_paths import canonical_path
 from audio_sequence_data import payload
+from functools import lru_cache
 from analysis_support import decoder
 from audio_driver_objects import parse
 from hunk import parse as hunk_parse
@@ -28,10 +29,18 @@ def registers(text):
   elif re.fullmatch('[ad][0-7]',piece):result.add(piece)
  return result
 
+# One decoder per process: Capstone construction costs an import lookup,
+# and this is called for every instruction window during canonical replay.
+_decoder=lru_cache(maxsize=None)(decoder)
+
+@lru_cache(maxsize=None)
+def _decoded(raw,start):
+ return tuple((i.address,i.size,i.mnemonic,i.op_str) for i in _decoder().disasm(raw,start))
+
 def instructions(raw,start=0):
- items=list(decoder().disasm(raw,start))
- require(sum(i.size for i in items)==len(raw) and not any(i.mnemonic.startswith('dc.') for i in items),'calibration instruction boundaries')
- return [dict(offset=i.address,size=i.size,mnemonic=i.mnemonic,operands=i.op_str) for i in items]
+ items=_decoded(bytes(raw),start)
+ require(sum(i[1] for i in items)==len(raw) and not any(i[2].startswith('dc.') for i in items),'calibration instruction boundaries')
+ return [dict(offset=a,size=n,mnemonic=m,operands=o) for a,n,m,o in items]
 
 def save(i):
  m=i['mnemonic'];o=i['operands']

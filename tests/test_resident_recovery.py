@@ -1,4 +1,4 @@
-"""Resident eligibility, measured data model, advisory routes and Claude waves."""
+"""Resident eligibility, measured data model, runtime-library routing and object-group evidence."""
 import json
 from pathlib import Path
 import sys
@@ -11,7 +11,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 from common import FormatError
-import fleet
 from grinder import deferral_reason, eligible
 from recovery_plan import _constraints
 from recovery_state import data_model, resident_deferral, resident_gate, runtime_floor
@@ -93,86 +92,6 @@ def rank_item(fid, **kw):
                 same_node_unit_ready=True, state="DISCOVERED", resident_deferral=None, unlock_value=0)
     base.update(kw)
     return base
-
-
-class RouteAndWaveTests(unittest.TestCase):
-    def setUp(self):
-        self.temp = tempfile.TemporaryDirectory()
-        self.ledger = "build/test-fleet-" + uuid.uuid4().hex + ".jsonl"
-        self.fleet = fleet.Fleet(Path(self.temp.name) / "fleet", self.ledger,
-                                 ROOT / "build" / ("test-packets-" + uuid.uuid4().hex))
-
-    def tearDown(self):
-        import shutil
-        for suffix in ("", ".lock"):
-            path = ROOT / (self.ledger + suffix)
-            if path.exists():
-                path.unlink()
-        shutil.rmtree(self.fleet.packets, ignore_errors=True)
-        self.temp.cleanup()
-
-    def build(self, intakes=()):
-        functions = [dict(id=x, hunk=0, start=s, end=s + 56) for x, s in
-                     (("resident_F_463E", 0x463E), ("resident_F_4F62", 0x4F62), ("resident_F_435E", 0x435E),
-                      ("resident_F_88A6", 0x88A6), ("resident_F_2EAC", 0x2EAC))]
-        items = [rank_item("resident_F_463E", unlock_value=1800),
-                 rank_item("resident_F_2EAC", unlock_value=400),
-                 rank_item("resident_F_4F62", unlock_value=800),
-                 rank_item("resident_F_435E", pending_local_dependencies=["resident_F_4F62"], unlock_value=2000),
-                 rank_item("resident_F_88A6", resident_deferral="RESIDENT_RUNTIME_TAIL")]
-        ledger = dict(functions={}, attempts={}, blockers={}, mixed_source_objects={"resident_F_766C": {}})
-        tasks, _ = fleet.build_tasks(functions, items, ledger, [], regions=[], intakes=intakes)
-        return {t["targets"][0]: t for t in tasks}, tasks
-
-    def test_routes_and_leverage_order(self):
-        by_target, tasks = self.build()
-        self.assertEqual(by_target["resident_F_463E"]["route"], "READY_FOR_HAIKU")
-        self.assertEqual(by_target["resident_F_88A6"]["route"], "NEEDS_STRUCTURAL_EVIDENCE")
-        self.assertEqual(by_target["resident_F_435E"]["dependencies"], ["fn-resident_F_4F62"])
-        # The dependency unlock outranks; equal priorities fall back to leverage.
-        order = [t["targets"][0] for t in tasks if t["route"] == "READY_FOR_HAIKU"]
-        self.assertEqual(order[:3], ["resident_F_4F62", "resident_F_463E", "resident_F_2EAC"])
-        exhausted = [dict(intake_status="BLOCKED_FOR_CURATION", kind="function", targets=["resident_F_2EAC"])]
-        by_target, _ = self.build(exhausted)
-        self.assertEqual(by_target["resident_F_2EAC"]["route"], "ALREADY_EXHAUSTED")
-        self.assertEqual(fleet.classify_route(dict(kind="blocker-probe", targets=["x"],
-                                                   origin=dict(mechanism="ABI_OR_CODEGEN_PROFILE"))),
-                         "BLOCKED_BY_SHARED_MECHANISM")
-
-    def write_plan(self, tasks, ledger_hash):
-        self.fleet.dir.mkdir(parents=True, exist_ok=True)
-        self.fleet.tasks.write_text(json.dumps(dict(schema_version=1, tasks=tasks,
-                                                    frontier=dict(recovery_ledger_sha256=ledger_hash))))
-
-    def test_wave_leases_independent_tasks_and_writes_agent_specs(self):
-        _, tasks = self.build()
-        from common import sha256
-        self.write_plan(tasks, sha256((ROOT / "recovery/ledger.json").read_bytes()))
-        with patch.object(fleet, "canonical_ids", return_value=set()), \
-             patch.object(fleet, "write_packet", side_effect=lambda f, tid: (f.task_dir(tid) / "PROMPT.md", 100)):
-            preview = fleet.wave(self.fleet, 5, dry_run=True)
-            doc = fleet.wave(self.fleet, 5)
-        ids = [e["task_id"] for e in doc["entries"]]
-        self.assertEqual([e["task_id"] for e in preview["entries"]], ids)
-        # The dependent caller waits and the runtime-tail review is not a Haiku route.
-        self.assertEqual(ids, ["fn-resident_F_4F62", "fn-resident_F_463E", "fn-resident_F_2EAC"])
-        targets = [t for e in doc["entries"] for t in e["targets"]]
-        self.assertEqual(len(targets), len(set(targets)))
-        spec = doc["entries"][0]["agent"]
-        self.assertEqual((spec["model"], spec["subagent_type"], spec["run_in_background"]),
-                         ("haiku", "general-purpose", True))
-        self.assertIn("PROMPT.md", spec["prompt"])
-        self.assertIn("Never promote", spec["prompt"])
-        self.assertTrue(doc["entries"][0]["worker"].startswith(fleet.WORKER_PREFIX))
-        self.assertTrue((self.fleet.dir / "waves" / (doc["wave_id"] + ".json")).is_file())
-        with patch.object(fleet, "canonical_ids", return_value=set()):
-            self.assertEqual(fleet.wave(self.fleet, 5)["entries"], [])  # everything open is now leased
-
-    def test_wave_refuses_a_stale_plan(self):
-        _, tasks = self.build()
-        self.write_plan(tasks, "0" * 64)
-        with self.assertRaisesRegex(FormatError, "predates"):
-            fleet.wave(self.fleet, 2)
 
 
 class CanonicalReplacementTests(unittest.TestCase):

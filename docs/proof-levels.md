@@ -34,8 +34,8 @@ contribution. Proven external address fields may be normalized through independe
 symbol/relocation identities in the comparison buffer. This does not prove the
 data objects' contents, allocation order, or whole-overlay layout. Its canonical
 ledger is `recovery/ledger.json`; generated topology metrics validate those proofs
-before counting reconstructed bytes. See `docs/grinder-pipeline.md` for the API,
-unsupported cases, and reserved stronger states.
+before counting reconstructed bytes. `tools/check_function.py` and
+`tools/check_unit.py` define the API and its unsupported cases.
 
 A complete unit may introduce several new members at once (`check_unit.py
 --member`), for example a same-node call cycle in which no member can be proved
