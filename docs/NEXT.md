@@ -340,18 +340,22 @@ waits on a named structural blocker:
     (TOOLCHAIN).
 
 16. COMPLETE-C DEAD CODE (Sol, build/workers/sol-ovl-gaps). The route is
-    5bb8b48. The ov13_F_0942 promotion (7101c7d) was reverted (13d12cf): with
-    a canonical dead_code_functions entry present, 8 regression tests failed,
-    and the gate took 25 min because every census replays the 88-part ov11
-    unit. Fix in progress (sol-ovl-gaps-e). Then promote ov13_F_0942 and
-    ov11_F_66FE again.
+    5bb8b48 and the replay fixes are 58e4cec: admissions validate against the
+    ledger under test, and identical replays are memoized by their complete
+    input identity. ov13_F_0942 (a4eebff) and ov11_F_66FE (85265d8) are
+    canonical complete-C objects. ov11 and ov13 are now down to 2 bytes of
+    debt each. The earlier attempt (7101c7d) was reverted because a canonical
+    entry broke 8 tests and slowed the gate to 25 min.
 
 17. RECONSTRUCTED ASM (user decision 2026-10-14, AGENTS.md; Sol,
     build/workers/sol-audio-asm). The pinned SYS1 `as`, with the referenced
     data declared in `dseg`, reproduces the 56-byte audio RNG at 559E
     exactly, including both named RELOC32 fields (its non-C predicate is the
-    CCR-X rotation chain). The route and the scaling to 5428..558A and
-    55D6..5E6C are in progress. 558A/5594 are C-compatible and stay on the C
+    CCR-X rotation chain). The route is 2ab1db0, and 026be8e promoted 559E
+    and 59A4 (228 bytes; 59A4's predicate is the saved and replaced A4
+    record cursor). The interpreter and handlers 5A72.. are in progress with
+    sol-audio-asm-4, and the 13B8..2816 score as a typed bytecode provider
+    with sol-audio-score. 558A/5594 are C-compatible and stay on the C
     route.
 
 ## Current campaign (2026-10-12): resident-first fleet
