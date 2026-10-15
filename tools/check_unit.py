@@ -231,6 +231,12 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
     the unit.
     """
     f,l=validated_function(fid);r=recovery();members={fid:f};parts={fid:source};names={fid:'recovered'}
+    # Resident A4-slot callees stay external stand-ins for every resident unit,
+    # not only explicit object groups: following them pulled interface members
+    # (e.g. 2816, 8044) into the unit and contradicted the resident DATA
+    # interface derivation. Every accepted automatic resident unit (435E+4F62,
+    # 4F62+504C) is PC-relative only, so its closure is unchanged.
+    local_calls_only=local_calls_only or f.get('node')=='resident'
     member_sources=dict(member_sources or {})
     behavioral_entries=r.get('behavioral_functions',{})
     require(not set(member_sources)&set(behavioral_entries),'behavioral dependencies must use canonical ledger sources')

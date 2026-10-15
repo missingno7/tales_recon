@@ -137,7 +137,10 @@ class RouteTests(unittest.TestCase):
                 with patch.object(check_unit,'validated_function',side_effect=validated), \
                      patch.object(check_unit,'recovery',return_value=dict(functions={})), \
                      patch('recovery_state.runtime_dependencies',return_value=self.rows):
-                    if interior:
+                    # Resident A4-slot callees stay external stand-ins (their slot
+                    # identity is proved by the resident interface route); only a
+                    # PC-relative call into a library interior is a missing member.
+                    if interior and basis=='PC_RELATIVE':
                         with self.assertRaisesRegex(FormatError,'unrecovered same-node dependency'):
                             check_unit.prepare_unit('resident_F_0100','recovered() { return 0; }',
                                 member_sources={'resident_F_0200':'recovered() { return 0; }'},natural_interval=(0x100,0x204))
