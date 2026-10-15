@@ -518,7 +518,7 @@ def load_data_providers(root,blob,model,analysis,ledger,promotions):
         facts=lambda c:{k:v for k,v in c.items() if k!='verifier_identity'}
         require(isinstance(proof['comparison'].get('verifier_identity'),dict) and proof['comparison']['verifier_identity'],
                 'provider proof lacks verifier provenance')
-        require(proof['fact']==fact and facts(proof['comparison'])==facts(replay),
+        require(proof['fact']==fact and facts(proof['comparison'])==facts(json.loads(json_bytes(replay))),
                 'provider canonical receipt no longer rederives')
         points={(c['hunk'],p) for c in contributions([replay]) for p in range(c['start'],c['end'])};require(not(points&occupied),'overlapping DATA/literal providers');occupied|=points
         records.append(replay)
