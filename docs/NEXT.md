@@ -150,6 +150,14 @@ repository. Profile with `--durations` before adding another real-repo test.
 Prefer synthetic fixtures for mechanism tests. Keep real-repo replays to the
 few that guard canonical results.
 
+Measured on 2026-10-15: a strict `hybrid_image.build()` takes about 70 s,
+and it is now mostly file I/O. The audio, code-data and data provider
+verifications run 2-5 times per build: once inside the census derivation and
+again for accounting. The structural fix is to compute each provider's rows
+once per derivation and pass them on. A content-keyed memo outside the census
+stage was tried and is slower, because each lookup rehashes the whole input
+closure. Do not retry that.
+
 ## Retired 2026-10-15
 
 These moved to `to_delete/` (see its manifest). Git history keeps them too.
