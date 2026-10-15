@@ -166,7 +166,7 @@ def input_identity(root):
   batch=doc(root,MANIFEST);job=batch['job'];names.update(job+'/'+n for n in ['request.json','result.json','worker.uae','kick.rom','sys/s/startup-sequence']);names.update(job+'/sys/work/'+n for n in batch['artifacts']);request=json.loads(candidate_path(root,root/job/'request.json').read_bytes());names.update(p['path'] for p in request['pinned_inputs']);names.update(['toolchain/candidate-lock.json','evidence/toolchain/aztec-3.6a.json','evidence/toolchain/aztec-5.0a.json']);names.add(doc(root,'toolchain/candidate-lock.json')['archive'])
   for folder in ('c','l','libs','devs'):names.update(p.relative_to(root).as_posix() for p in active_files(root/job/'sys'/folder))
   external[request['emulator']]=sha256(Path(request['emulator']).read_bytes())
- item=doc(root,'recovery/ledger.json').get(MAP,{}).get(IDENT)
+ item=(doc(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').exists() else {}).get(MAP,{}).get(IDENT)
  if item:names.update([item['fact'],item['proof'],*item['sources']])
  def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
  return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external}
