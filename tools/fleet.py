@@ -944,7 +944,7 @@ RULES = """## Rules (binding; from AGENTS.md)
 """
 
 PROTOCOL = """## Protocol
-1. Inspect evidence (read-only): `python tools/grinder.py facts ID --max-instructions 2000 --max-bytes 2000000 > {dir}/facts-ID.json` then query that file (full disassembly/CFG/relocations), `python tools/diag.py ID --cache-key KEY` for any cached key, `python tools/type_evidence.py --function ID`, `python tools/shape_search.py --ledger-summary ID`, docs/source-shape-search.md, docs/m68k-diagnostics.md{unit_doc}.
+1. Inspect evidence (read-only): `python tools/grinder.py facts ID --max-instructions 2000 --max-bytes 2000000 > {dir}/facts-ID.json` then query that file (full disassembly/CFG/relocations), `python tools/diag.py ID --cache-key KEY` for any cached key, `python tools/type_evidence.py --function ID`, `python tools/shape_search.py --ledger-summary ID`, docs/COMPILER_LEARNINGS.md (read first: Aztec rules and dead ends), docs/source-shape-search.md, docs/m68k-diagnostics.md{unit_doc}.
 2. BEFORE compiling, record each hypothesis with a machine-checkable prediction. {record}
 3. Each variant makes ONE controlled change from its parent. Do not resubmit a hypothesis listed under prior hypotheses; the ledger rejects normalized duplicates and returns the earlier record, which you must read instead.
 4. Compile via: {run}

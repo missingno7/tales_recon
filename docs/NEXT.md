@@ -358,6 +358,31 @@ waits on a named structural blocker:
     with sol-audio-score. 558A/5594 are C-compatible and stay on the C
     route.
 
+18. STATE AT STOP (2026-10-15). File RAW_ORACLE_DEBT is 24,059 (it was
+    41,244 on 2026-10-14) and resident debt is 15,927. Compiler knowledge
+    now lives in docs/COMPILER_LEARNINGS.md: read it first. Fleet packets
+    and AGENTS.md point to it.
+    Resumable work (Codex sessions in build/workers/NAME):
+    - 50E8 (614 C + 68 literal bytes) is EXACT against the canonical
+      _G_h00_6200 provider. The standard verifier needs a
+      "provider-object externals" harness recipe, which is not done
+      (sol-driver-c, report4.md).
+    - FRAMELESS_ENTRY is a calibrated non-C predicate: all 272 canonical C
+      functions start with LINK. It is not yet implemented. It covers the
+      IRQ routines 55D6..5796, the wrappers 558A/5594, 5868, 615E and
+      57C0..57E4 (sol-audio-asm FOLLOWUP5.md). 53E6+5392 then follows
+      once 5594 is canonical.
+    - The remaining H1 tables and strings follow the story-table pattern
+      (sol-tu-layout report8.md). The stdio members aputc, putc, getbuff
+      and malloc are still unproved: putc differs in 4 bytes and malloc's
+      Free cell has no ownership map.
+    - CHAR_RETURN (about 3.6 KB) needs Aztec 3.4a. See
+      docs/toolchain.json public_search_2026_10_15.
+    Housekeeping: build/ was pruned into to_delete/cleanup-2026-10-15.
+    Compile jobs are redundant once cached (worker_job is provenance
+    only). Producer jobs are found by receipt hash. Some tests look up
+    computed compile-cache keys. All three must survive any future pruning.
+
 ## Current campaign (2026-10-12): resident-first fleet
 
 The ov04 campaign below recovered all 24 known ov04 functions; its natural

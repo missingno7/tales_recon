@@ -286,22 +286,12 @@ The current matrix contains 49 programs × six profiles = 294 compiled trials:
 3.6a default / `+X3` / `+D` / `+L`, 5.0a default / `-ps`. It covers integer widths/signs,
 arguments/returns, frames/registers/MOVEM, branches/loops/switches, pointers,
 structs/arrays, globals/statics, indirect calls, library calls and K&R varargs.
-The latest additions measure signed and unsigned byte returns, integer/long
-returns of a byte local, and expression fallthrough.  In the installed 3.6a
-profiles a signed or integer return emits `EXT.W`, an unsigned-byte return clears
-`D0`, and a long return adds `EXT.L`. Typed signed and unsigned fall-through forms
-emit no final `D0` load at all, so they cannot impersonate the game's bare byte
-return; none of the measured forms emits it.
-This is a named `BYTE_RETURN_ABI_MISMATCH` blocker; the equivalent historical
-`CHAR_RETURN_EXTENSION` receipts use the same action, so the grinder does not
-spend ordinary candidate-C attempts on either form. The matrix also retains
-embedded string literals and compiler-generated arithmetic helpers.
+The matrix also measures byte/integer/long returns, byte extraction, embedded string
+literals and compiler-generated arithmetic helpers. The resulting rules (char-return
+`EXT.W`, unsigned-byte `moveq #0` (`as` assembles the printed `move.l #0,d0` as MOVEQ, so
+there is no zero-extension blocker), and the four game-wide bare byte returns that need a
+3.4x compiler) are kept in docs/COMPILER_LEARNINGS.md.
 
-Four byte-extraction probes distinguish a direct byte copy, a pointer byte copy,
-a promoted pointer byte, and a high-byte mask. The direct copies omit extension;
-the promoted form emits `MOVE.L #0,D0`, and the mask shifts a word. None emits
-`MOVEQ #0,D0`, so the measured `BYTE_ZERO_EXTENSION_CODEGEN_MISMATCH` remains
-blocked instead of spending more ordinary candidate-C attempts.
 A forward local-call probe covers both public and static declarations. The
 normal historical link shortens each forward call to `BSR.B`, so compact proofs
 must keep adjacent same-node caller/callee pairs in one ordinary source object
