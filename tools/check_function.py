@@ -233,7 +233,13 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
             retained=ROOT/'build/recovery/candidates'/f['id']/(source_hash+'.c')
             retained.parent.mkdir(parents=True,exist_ok=True);retained.write_text(source,encoding='utf-8',newline='\n')
         unit=None;unit_blocker=None;compile_source=source;objects=None;local_functions=()
-        if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id']!=f['id']
+        # A PC-relative call into a proven library entry needs no dependency
+        # unit: the harness stand-in binds it by mechanical identity, as for
+        # every accepted function whose only local calls are library entries.
+        from recovery_state import runtime_dependencies
+        runtime=runtime_dependencies(l) if 'game_sha256' in l else {}
+        if any(c['basis']=='PC_RELATIVE' and c['hunk']==f['hunk'] and c['id']!=f['id'] and
+               runtime.get((c['hunk'],c.get('offset')),{}).get('kind')!='LIBRARY_MEMBER'
                for c in f.get('direct_callees',[])):
             from check_unit import prepare_unit
             try:

@@ -1,0 +1,177 @@
+{
+  "byte_only_callers": [
+    {
+      "caller": "resident_F_404A",
+      "site": 16552
+    },
+    {
+      "caller": "resident_F_404A",
+      "site": 16602
+    },
+    {
+      "caller": "resident_F_404A",
+      "site": 16588
+    },
+    {
+      "caller": "resident_F_4184",
+      "site": 16806
+    }
+  ],
+  "candidate_length": 104,
+  "claim": "Exact after deleting the listed byte-return widenings; every caller reads only D0.b. Not a match: the pinned compilers cannot emit the bare byte return.",
+  "deletions": [
+    {
+      "mnemonic": "ext.w",
+      "offset": 98,
+      "operands": "d0",
+      "raw": "4880"
+    }
+  ],
+  "id": "resident_F_411E",
+  "original": {
+    "end": 16772,
+    "hunk": 0,
+    "sha256": "2794087824a692811f9b2124dc80d00df4940a3f37514186e1a3cd17d9663c1c",
+    "size": 102,
+    "start": 16670
+  },
+  "profile": "aztec36-large-data",
+  "reduced_comparison": {
+    "cache_key": "e9eacd9b8100e94ac6e604f34f87a094c3c3636fb6c7599c42db220caf7bd911",
+    "compiler": "aztec36-large-data",
+    "expected_sha256": "2794087824a692811f9b2124dc80d00df4940a3f37514186e1a3cd17d9663c1c",
+    "flags": [
+      "+D"
+    ],
+    "normalized_sha256": "2794087824a692811f9b2124dc80d00df4940a3f37514186e1a3cd17d9663c1c",
+    "reason": "COMPLETE_CONTRIBUTION",
+    "relocation_equal": true,
+    "relocation_issues": [],
+    "relocation_proof": [
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45544,
+          "symbol": "_G_h01_B1E8"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 6
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45544,
+          "symbol": "_G_h01_B1E8"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 14
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 43466,
+          "symbol": "_G_h01_A9CA"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 26
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 18138,
+          "symbol": "_G_h01_46DA"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 32
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 45544,
+          "symbol": "_G_h01_B1E8"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 66
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 43466,
+          "symbol": "_G_h01_A9CA"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 72
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 15028,
+          "symbol": "_G_h01_3AB4"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 78
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 15028,
+          "symbol": "_G_h01_3AB4"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 86
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 1,
+          "offset": 15028,
+          "symbol": "_G_h01_3AB4"
+        },
+        "kind": "HUNK_RELOCATION",
+        "offset": 92
+      },
+      {
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 34550,
+          "symbol": "_F_h00_86F6"
+        },
+        "kind": "PC_RELATIVE_CALL_SYMBOL",
+        "offset": 38,
+        "width": 2
+      },
+      {
+        "expected": [
+          0,
+          13940
+        ],
+        "identity": {
+          "addend": 0,
+          "hunk": 0,
+          "offset": 13940,
+          "symbol": "_F_h00_3674"
+        },
+        "kind": "A4_D16_SYMBOL",
+        "offset": 60
+      }
+    ],
+    "verdict": "EQUAL"
+  },
+  "regression": {
+    "command": "python -m pytest -n 16 -q -p no:cacheprovider --dist=loadscope -m not regression_serial tests && python -m pytest -q -p no:cacheprovider -m regression_serial tests",
+    "input_sha256": "07764956171380cf589c12440d6c36531fa3f6155314e1468d53bc24b1b6fc84",
+    "output_sha256": "6a0f5bcfb4406e0b66a505359974820b280f84e1825ddb122d3e192708c1306c",
+    "passed": true
+  },
+  "source_sha256": "14efc493014c648ee791f0a99e4b77f36d023f50e411ef7c645fd8d0165b0fc3",
+  "state": "BEHAVIORAL_CHAR_RETURN"
+}
