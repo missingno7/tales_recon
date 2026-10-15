@@ -1,0 +1,258 @@
+{
+  "binder": {
+    "CODE": 2,
+    "DATA": 232,
+    "exports": [
+      {
+        "hunk": 1,
+        "name": "_G_h01_2A0A",
+        "offset": 0
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2A12",
+        "offset": 4
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4A",
+        "offset": 8
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4E",
+        "offset": 12
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B52",
+        "offset": 16
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B56",
+        "offset": 20
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B5A",
+        "offset": 24
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B5E",
+        "offset": 28
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B62",
+        "offset": 32
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B66",
+        "offset": 36
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B6A",
+        "offset": 40
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8C",
+        "offset": 44
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8D",
+        "offset": 48
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_B1EC",
+        "offset": 52
+      }
+    ],
+    "sha256": "ed0c0bfb1f4cf371994e49605bfae2976d0c753ff0c10cd70c06fa5f8e501ec7",
+    "source": "bind_irq0.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 22074,
+      "target": null
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0004/irq0.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_55D6",
+      "offset": 0,
+      "original": 21974
+    },
+    {
+      "name": "_recon_h00_55EC",
+      "offset": 22,
+      "original": 21996
+    },
+    {
+      "name": "_recon_h00_561C",
+      "offset": 70,
+      "original": 22044
+    },
+    {
+      "name": "_recon_h00_5632",
+      "offset": 92,
+      "original": 22066
+    },
+    {
+      "name": "_recon_h00_563C",
+      "offset": 102,
+      "original": 22076
+    },
+    {
+      "name": "_end_irq0",
+      "offset": 112,
+      "original": null
+    }
+  ],
+  "external_code": [],
+  "external_data": [
+    {
+      "hunk": 1,
+      "name": "_G_h01_2B4E",
+      "target": 11086
+    },
+    {
+      "hunk": 1,
+      "name": "_G_h01_2B52",
+      "target": 11090
+    }
+  ],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_frameless_55D6",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 22086,
+    "hunk": 0,
+    "sha256": "9779711fa746c6ac109ea26f96c6126197ee990a04f32f50a8a4bd9f282a7551",
+    "size": 112,
+    "start": 21974
+  },
+  "original_filename": null,
+  "predicate": {
+    "c_compatible": false,
+    "calibration": "PINNED_36A_ALL_ACCEPTED_OPTIONS_AND_CANONICAL_C",
+    "entry": 21974,
+    "entry_evidence": {
+      "api": "_SetIntVector",
+      "caller": 20712,
+      "code_field_offset": 18,
+      "header_identity": {
+        "toolchain/installed/aztec-3.6a/SYS1/include/devices/input.h": "97f6a283b9cf17c70da82b71afef2da051c9e5f14e98b7e510268d2918e5ffe6",
+        "toolchain/installed/aztec-3.6a/SYS1/include/exec/interrupts.h": "4cb8a60bbdc69c1a008590268da24a03720f57bae665cd1704985848e0212e98",
+        "toolchain/installed/aztec-3.6a/SYS1/include/exec/io.h": "c563a0c0e865eeb18206e669b93367e3ce81e574beff79e9d76305c3cbf1b773",
+        "toolchain/installed/aztec-3.6a/SYS1/include/exec/nodes.h": "8dd9267d06640bc15547064bbad5c3ab9a30e5ae71cb11e6dbf8f771bb46f404"
+      },
+      "kind": "SDK_INTERRUPT_IS_CODE",
+      "record_hunk": 1,
+      "record_offset": 45886,
+      "registration_site": 20968,
+      "site": 20948,
+      "store_site": 20952
+    },
+    "kind": "FRAMELESS_ENTRY",
+    "reachable_instructions": [
+      21974,
+      21980,
+      21984,
+      21986,
+      21994,
+      21996,
+      22002,
+      22004,
+      22010,
+      22012,
+      22014,
+      22016,
+      22018,
+      22024,
+      22030,
+      22036,
+      22042,
+      22044,
+      22050,
+      22058,
+      22066,
+      22074,
+      22076,
+      22084
+    ],
+    "return_sites": [
+      22074
+    ],
+    "stack_frame": false
+  },
+  "prefix": "irq0",
+  "relocations": [
+    {
+      "addend_raw": 11086,
+      "source_hunk": 0,
+      "source_offset": 21998,
+      "symbol": "_G_h01_2B4E",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11090,
+      "source_hunk": 0,
+      "source_offset": 22006,
+      "symbol": "_G_h01_2B52",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11086,
+      "source_hunk": 0,
+      "source_offset": 22020,
+      "symbol": "_G_h01_2B4E",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11090,
+      "source_hunk": 0,
+      "source_offset": 22038,
+      "symbol": "_G_h01_2B52",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11086,
+      "source_hunk": 0,
+      "source_offset": 22046,
+      "symbol": "_G_h01_2B4E",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11086,
+      "source_hunk": 0,
+      "source_offset": 22080,
+      "symbol": "_G_h01_2B4E",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 4,
+  "source": "src/recovered/asm-reconstructed/resident_frameless_55D6.asm",
+  "source_sha256": "bb28ab0e9e250be89c97a895e5ba53fa209fbc5b92f35d56b177e5180e88fcd4"
+}

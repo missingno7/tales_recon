@@ -217,6 +217,8 @@ def verify(root,blob,model,fact,batch=None,contract=None,audit=None,cctrl=None):
 def rows(root,blob,model,analysis,ledger):
  import audio_callback_asm as callback
  extra=callback.rows(root,blob,model,analysis,ledger)
+ import audio_frameless_asm as frameless
+ extra+=frameless.rows(root,blob,model,analysis,ledger)
  entries={k:v for k,v in ledger.get(MAP,{}).items() if k in BATCH2_SPECS}
  if not entries:return extra
  batch=document(root,MANIFEST);audit=producer(root,batch);cctrl=control(root,batch,blob,model);contract=contracts.derive(blob,model,cctrl['register_calibration']);result=[]
@@ -245,6 +247,9 @@ def contributions(root,records):
  result=[]
  for r in records:
   if not r.get('acceptance'):continue
+  if r['id'].startswith('resident_frameless_'):
+   import audio_frameless_asm as frameless
+   result.extend(frameless.contributions(root,[r]));continue
   if r['id'] not in BATCH2_SPECS:
    import audio_callback_asm as callback
    result.extend(callback.contributions(root,[r]));continue
@@ -283,8 +288,10 @@ def input_identity(root):
  for k,item in ledger.get(MAP,{}).items():
   if k in SPECS:names.update([item['source'],item['proof'],item['fact']])
  def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
- return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes()),**(__import__('audio_callback_asm').input_identity(root) if canonical_path(root,__import__('audio_callback_asm').MANIFEST).exists() else {})}
+ return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes()),**(__import__('audio_frameless_asm').input_identity(root) if canonical_path(root,__import__('audio_frameless_asm').MANIFEST).exists() else {}),**(__import__('audio_callback_asm').input_identity(root) if canonical_path(root,__import__('audio_callback_asm').MANIFEST).exists() else {})}
 
 # Extend ownership recognition without changing batch0002 producer recipes.
+from audio_frameless_asm import SPECS as FRAMELESS_SPECS
+SPECS.update(FRAMELESS_SPECS)
 from audio_callback_asm import SPECS as CALLBACK_SPECS
 SPECS.update(CALLBACK_SPECS)

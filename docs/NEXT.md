@@ -93,10 +93,14 @@ an accepted source with an unverified rewrite.
    in that situation was proved on the single-function path, so restore that
    path there. 404A/4184 follow; they hold the `.arc` RLE graphics decoder
    (formats/arc.md). Then 291E/287C/49A0 and ov14_F_0000.
-2. **Audio driver closure.** Implement the calibrated FRAMELESS_ENTRY
-   predicate (all 272 canonical C functions start with LINK) for the IRQ and
-   wrapper entries, then admit 50E8/53E6. Driver behavior (Paula channels,
-   44 opcodes, note packing) is what the port's audio backend must reproduce.
+2. **Audio driver closure (mostly done).** FRAMELESS_ENTRY is implemented
+   (tools/audio_frame_calibration.py: every canonical C function and all 24
+   compiler controls are framed). Batch 0004 admits the four Paula IRQ
+   handlers 55D6..5726, the wrappers 5594/5868 and callback 615E as
+   RECONSTRUCTED_ASM (572 bytes). Still open: 72 bytes whose entries lack
+   proof, and 50E8/53E6, which need an ASM-dependency recipe for C units.
+   Driver behavior (Paula channels, 44 opcodes, note packing) is what the
+   port's audio backend must reproduce.
 3. **Data model.** Turn the 194 conflicting global views into one evidence
    map: address -> extent, type and consumers, from `declaration_views.py`
    conflict clusters and the type evidence. Type the remaining resident DATA

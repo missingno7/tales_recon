@@ -6,12 +6,13 @@ unknown records, masked references and trailers reject.
 """
 from common import require,sha256
 
-def parse(raw,initial_transition=True):
+def parse(raw,initial_transition=True,object_model=0x80):
+ require(type(object_model) is int and object_model in [0x80,0xc0],'unmeasured AJ object model')
  require(len(raw)>=36 and raw[:10]==b'AJ'+bytes(8),'driver AJ header')
  u16=lambda p:int.from_bytes(raw[p:p+2],'big');u32=lambda p:int.from_bytes(raw[p:p+4],'big')
  size=u32(10);require(size>0 and u32(14)==u32(18)==0,'complete CODE-only AJ sections')
  start=u32(24)*4;syms=u16(28)*4;end=u16(30)*4
- require(start==36 and start<=syms<=end==u16(32)*4==len(raw) and raw[34:36]==b'\x80\0','driver AJ object bounds/model')
+ require(start==36 and start<=syms<=end==u16(32)*4==len(raw) and raw[34:36]==bytes([object_model,0]),'driver AJ object bounds/model')
  count=u16(22);symbols=[];p=syms
  for n in range(count):
   require(p+4<=end,'truncated driver symbol');kind,attr=raw[p:p+2];value=u16(p+2);p+=4;reference_count=None

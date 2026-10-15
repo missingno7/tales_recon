@@ -24,6 +24,10 @@ def stage(root,blob,model,analysis,ledger):
 
 
 def main():
+    from audio_frameless_asm import MANIFEST as frame_manifest
+    if any(a=='--manifest='+frame_manifest or a=='--manifest' and i+1<len(sys.argv[1:]) and sys.argv[1:][i+1]==frame_manifest for i,a in enumerate(sys.argv[1:])):
+        from promote_frameless_asm import main as frame_main
+        return frame_main()
     from audio_driver_asm import MANIFEST as next_manifest
     args=sys.argv[1:]
     if any(a=='--manifest='+next_manifest or a=='--manifest' and i+1<len(args) and args[i+1]==next_manifest for i,a in enumerate(args)):

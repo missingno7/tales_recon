@@ -130,3 +130,14 @@ validation inputs. Verifier identities are provenance only; exact replay is
 the acceptance check. DATA declarations have zero credit. Historical source
 provenance, object/TU membership, owner and natural layout stay UNKNOWN.
 Accounting uses RECONSTRUCTED_ASM, separate from C and RECOVERED_ASM.
+
+
+The calibrated FRAMELESS_ENTRY predicate uses the bound first instruction of
+every canonical ordinary, complete and behavioral C entry plus pinned C controls
+for every accepted 3.6a option set. Behavioral entries remain in their separate
+proof category. A missing option control or frameless counterexample rejects.
+Each candidate also needs independently rederived entry evidence and a complete,
+reachable, frame-free CFG with an RTS/RTE. Absence of LINK by itself is never
+entry evidence. See `docs/reconstructed-asm.md`, batch 0004. This is measured
+non-C evidence for the pinned reconstruction profiles, not original-language or
+original-source provenance.

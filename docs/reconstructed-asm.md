@@ -40,7 +40,8 @@ have zero DATA/provider credit. No table or record initializers are included.
 Historical owner, author, filename, object/TU membership and root layout stay
 UNKNOWN. Source accounting uses RECONSTRUCTED_ASM, separate from C and from
 provenance-backed RECOVERED_ASM. Ordinary C acceptance is unchanged. The hardware
-store wrappers558A/5594 reject both non-C predicates and remain on C.
+store wrappers558A/5594 reject these two predicates. Batch 0004 below supplies a
+separate calibrated entry witness for5594;558A remains unrooted.
 
 The handler table has44 relocated slots80..AB. The interpreter's CMP#2C/BLE also
 permits index44 to address adjoining period DATA; this is not a45th handler.
@@ -126,3 +127,72 @@ python tools/hybrid_image.py --check
 The promotion tool runs the actual shared regression receipt, checks unchanged
 inputs, replays the complete batch again, and publishes source/proofs/ledger
 atomically. The supervisor is the only publisher.
+
+
+## Frameless audio entries: batch 0004
+
+`audio_frame_calibration.py` rederives FRAMELESS_ENTRY from hash-bound canonical
+C sources/proofs and fresh pinned 3.6a controls. The measured corpus has 272
+ordinary exact C entries, two complete-C entries and four behavioral C entries.
+Behavioral C contributes only its bound entry instruction to this measurement;
+it remains BEHAVIORAL_C, never an exact C match.
+
+The four control functions cover an empty void leaf, constant-return leaf,
+void store with no locals and six register variables live across a named C call.
+Each is compiled under default, +D, +X3, +x3, +x3,5 and +L: 24 LINK A5 entries,
+with UNLK A5 before every RTS. All accepted 3.6a profile option sets must occur
+in this matrix; an added profile without a control rejects. A frameless entry
+in any canonical C entry or available control rejects the calibration. Pinned
+5.0a default/-ps, 3.20a and 3.6b ROM observations agree (the ROM uses A6).
+The older supplemental jobs are observations, not required premises; unavailable
+retained artifacts are reported as unavailable, while changed available pins
+reject. No general claim about every C compiler or original source is made.
+
+A span needs independent entry evidence and its own fully decoded CFG. Its entry
+must not be LINK, all instructions must be reachable, at least one path must
+reach RTS/RTE, and no reachable path may execute LINK/UNLK or leave an unproved
+boundary. Edges are regenerated from instructions; supplied edges cannot conceal
+a frame. A compiled LINK-framed C function is an explicit rejection control.
+The prior register, CCR-X and A4 predicates remain unchanged.
+
+| H0 half-open span | Candidate CODE bytes | Independent entry |
+| --- | ---: | --- |
+| 5594..559E | 10 | Direct JSR from 53E6 at 53EA |
+| 55D6..5646 | 112 | SDK SetIntVector registration in 50E8 |
+| 5646..56B6 | 112 | SDK SetIntVector registration in 50E8 |
+| 56B6..5726 | 112 | SDK SetIntVector registration in 50E8 |
+| 5726..5796 | 112 | SDK SetIntVector registration in 50E8 |
+| 5868..58BC | 84 | Direct JSR from 50E8 and 53E6 |
+| 615E..617C | 30 | SDK AddIntServer registration in 50E8 |
+
+All seven complete mnemonic source objects and named fields verify exactly,
+totaling 572 RECONSTRUCTED_ASM candidate bytes and zero DATA/BSS/COMMON credit.
+The fresh producer is `build/worker-jobs/sol-audio-score-frameless0004-001`:
+50 successful guest commands, with complete request/result/artifact pins in
+`evidence/reconstructed-asm/batch-0004.json`. Sources are under
+`evidence/rules/asm-reconstructed/batch-0004/`. Promotion remains the supervisor's
+step; these curated candidates do not themselves grant ownership.
+
+The cbwrap one-past label at 617C names the independently proved callback entry
+for its short BSR. It owns zero bytes and does not export a second definition
+of that callback. Its export has `original: null`, so the canonical pointer
+registry cannot credit a one-past CODE entry. Owner, filename, original object/TU and natural layout remain
+UNKNOWN. Diagnostic binders, scalar allocations and linker alignment own no
+original game DATA or CODE.
+
+558A, 57C0..57E4 and 5CC2/5D74/5D80 remain unresolved: no independently proved
+entry/consumer was established. Adjacency and a relocated pointer alone do not
+supply one. Canonical ASM ownership also does not yet make 53E6's C unit usable:
+`check_unit` lacks a reconstructed-ASM dependency recipe and still reports
+`unrecovered same-node dependency: resident_F_5594`. The next experiment is a
+provider recipe that links the complete proved ASM objects under the C unit's
+mechanical names and checks every physical named binding. No C stub substitutes.
+
+```powershell
+python tools/promote_asm.py --manifest evidence/reconstructed-asm/batch-0004.json --verify-only
+python tools/promote_asm.py --manifest evidence/reconstructed-asm/batch-0004.json --promote
+```
+
+The publisher runs the unchanged shared regression gate and rechecks all input
+pins before atomic publication. Only after publication should the supervisor
+refresh census/boundaries and hybrid accounting.

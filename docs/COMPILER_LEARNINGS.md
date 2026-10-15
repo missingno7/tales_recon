@@ -19,7 +19,7 @@ Evidence shorthand:
 - ✔ 5.0a is not the game compiler: its `movem.l` is always emitted and `long*3` is inlined. 3.20a is not it either: it allocates A6/D3/D2 and uses `cmpi.l #0`. (FP, BJ resident_F_411E)
 
 ## Frame and ABI
-- ✔ Every compiled C function starts with `link a5,#n`, even `#0`. All 272 canonical functions do. A frameless entry is therefore not 3.6a C. The calibration lives in tools/audio_register_calibration.py.
+- ✔ Every compiled C function starts with `link a5,#n`, even `#0`. The measured corpus has 272 ordinary exact C entries, two complete-C entries and four behavioral C entries. The scoped FRAMELESS_ENTRY calibration and pinned option controls live in tools/audio_frame_calibration.py; an independent entry and frame-free CFG are also required.
 - ✔ No `movem` at all when nothing is saved. Register variables go to D4, D5… in declaration order (and A2, A3).
 - ✔ D0–D2/A0–A1 are scratch: D2 is written unsaved in 11 canonical functions, e.g. resident_F_31AA@32D0. ? D3 and A4 preservation are unmeasured. (docs/reconstructed-asm.md)
 - ✔ Arguments: all on the stack, the caller pops them with `addq.w #n,sp`. char and int are pushed as words; a char parameter is read at `9(a5)`. Parameters start at 8(a5); long and pointer are 4 bytes. Results return in D0. A returned pointer is `lea x,a0; move.l a0,d0`. (FP)

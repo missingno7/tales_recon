@@ -1,0 +1,209 @@
+{
+  "binder": {
+    "CODE": 4,
+    "DATA": 232,
+    "exports": [
+      {
+        "hunk": 0,
+        "name": "_recon_h00_58BC",
+        "offset": 2
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2A0A",
+        "offset": 0
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2A12",
+        "offset": 4
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4A",
+        "offset": 8
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B4E",
+        "offset": 12
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B52",
+        "offset": 16
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B56",
+        "offset": 20
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B5A",
+        "offset": 24
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B5E",
+        "offset": 28
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B62",
+        "offset": 32
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B66",
+        "offset": 36
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B6A",
+        "offset": 40
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8C",
+        "offset": 44
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B8D",
+        "offset": 48
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_B1EC",
+        "offset": 52
+      }
+    ],
+    "sha256": "1b1c5b9f65c076740200e97e2a986e443fee462a61b3155a9412eacf64f76758",
+    "source": "bind_cbwrap.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "CALL",
+      "operands": "$617c",
+      "site": 24942,
+      "target": 24956
+    },
+    {
+      "kind": "CALL",
+      "operands": "$58bc(pc)",
+      "site": 24944,
+      "target": 22716
+    },
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 24954,
+      "target": null
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0004/cbwrap.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_615E",
+      "offset": 0,
+      "original": 24926
+    },
+    {
+      "name": "_end_cbwrap",
+      "offset": 30,
+      "original": null
+    }
+  ],
+  "external_code": [
+    {
+      "hunk": 0,
+      "name": "_recon_h00_58BC",
+      "target": 22716
+    }
+  ],
+  "external_data": [
+    {
+      "hunk": 1,
+      "name": "_G_h01_2B4A",
+      "target": 11082
+    },
+    {
+      "hunk": 1,
+      "name": "_G_h01_B1EC",
+      "target": 45548
+    }
+  ],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_frameless_615E",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 24956,
+    "hunk": 0,
+    "sha256": "6a1e30bb18b497a859d01705ac38e4fe0536ccf7234fffb9838ef8e4ceb77442",
+    "size": 30,
+    "start": 24926
+  },
+  "original_filename": null,
+  "predicate": {
+    "c_compatible": false,
+    "calibration": "PINNED_36A_ALL_ACCEPTED_OPTIONS_AND_CANONICAL_C",
+    "entry": 24926,
+    "entry_evidence": {
+      "api": "_AddIntServer",
+      "caller": 20712,
+      "code_field_offset": 18,
+      "header_identity": {
+        "toolchain/installed/aztec-3.6a/SYS1/include/devices/input.h": "97f6a283b9cf17c70da82b71afef2da051c9e5f14e98b7e510268d2918e5ffe6",
+        "toolchain/installed/aztec-3.6a/SYS1/include/exec/interrupts.h": "4cb8a60bbdc69c1a008590268da24a03720f57bae665cd1704985848e0212e98",
+        "toolchain/installed/aztec-3.6a/SYS1/include/exec/io.h": "c563a0c0e865eeb18206e669b93367e3ce81e574beff79e9d76305c3cbf1b773",
+        "toolchain/installed/aztec-3.6a/SYS1/include/exec/nodes.h": "8dd9267d06640bc15547064bbad5c3ab9a30e5ae71cb11e6dbf8f771bb46f404"
+      },
+      "kind": "SDK_INTERRUPT_IS_CODE",
+      "record_hunk": 1,
+      "record_offset": 45842,
+      "registration_site": 21220,
+      "site": 21200,
+      "store_site": 21204
+    },
+    "kind": "FRAMELESS_ENTRY",
+    "reachable_instructions": [
+      24926,
+      24930,
+      24936,
+      24942,
+      24944,
+      24948,
+      24952,
+      24954
+    ],
+    "return_sites": [
+      24954
+    ],
+    "stack_frame": false
+  },
+  "prefix": "cbwrap",
+  "relocations": [
+    {
+      "addend_raw": 45548,
+      "source_hunk": 0,
+      "source_offset": 24932,
+      "symbol": "_G_h01_B1EC",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11082,
+      "source_hunk": 0,
+      "source_offset": 24938,
+      "symbol": "_G_h01_2B4A",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 4,
+  "source": "src/recovered/asm-reconstructed/resident_frameless_615E.asm",
+  "source_sha256": "13a115ca66f0c54c3838c9e28ca5ecfa6e17da8f96145e29e789a21d75dc7442"
+}
