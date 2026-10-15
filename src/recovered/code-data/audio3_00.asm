@@ -1,0 +1,591 @@
+; Typed CODE-resident audio data; historical ownership/TU UNKNOWN.
+T3_HEADER macro
+	dc.b \1,\2
+	endm
+T3_NOTE macro
+	dc.b \1,\2
+	endm
+T3_SELECTOR macro
+	dc.l \1
+	endm
+T3_ENVELOPE_PTR macro
+	dc.l \1
+	endm
+T3_ENV_INITIAL macro
+	dc.b \1
+	endm
+T3_ENV_DELTA macro
+	dc.b \1
+	endm
+T3_ENV_TARGET macro
+	dc.b \1
+	endm
+T3_ENV_DELAY macro
+	dc.b \1
+	endm
+T3_ENV_ZERO macro
+	dc.b 0
+	endm
+T3_COUNT macro
+	dc.b $80,\1
+	endm
+T3_LOOP macro
+	dc.b $81
+	ds 0
+	dc.l \1
+	endm
+T3_TRIGGER macro
+	dc.b $82,\1
+	endm
+T3_JUMP macro
+	dc.b $84
+	ds 0
+	dc.l \1
+	endm
+T3_CALL macro
+	dc.b $85
+	ds 0
+	dc.l \1
+	endm
+T3_RETURN macro
+	dc.b $86
+	endm
+T3_TRANSPOSE macro
+	dc.b $87,\1
+	endm
+T3_END macro
+	dc.b $88
+	endm
+T3_REST macro
+	dc.b $89,\1
+	endm
+T3_PLAY_NOTE macro
+	dc.b $8b,\1,\2
+	endm
+T3_PITCH_ADJUST macro
+	dc.b $8c,\1
+	endm
+T3_ENVELOPE macro
+	dc.b $8f,\1
+	endm
+T3_BANK macro
+	dc.b $90,\1
+	endm
+T3_RAMP macro
+	dc.b $91,\1,\2
+	endm
+T3_VIBRATO macro
+	dc.b $95,\1,\2
+	endm
+T3_TICK_INCREMENT macro
+	dc.b $97,\1
+	endm
+T3_HOLD macro
+	dc.b $a0,\1
+	endm
+T3_ATTENUATION macro
+	dc.b $ab,\1
+	endm
+T3_FLAGS macro
+	dc.b $83,\1
+	endm
+T3_RAMP_OFF macro
+	dc.b $92
+	endm
+T3_RANDOM_NOTE macro
+	dc.b $99,\1
+	endm
+T3_CHANNEL_ATTENUATION macro
+	dc.b $9e,\1
+	endm
+T3_SOUND_ENABLE macro
+	dc.b $9f,\1
+	endm
+T3_MASTER_ATTENUATION macro
+	dc.b $a3,\1
+	endm
+T3_ADD_MASTER_ATTENUATION macro
+	dc.b $a4,\1
+	endm
+	cseg
+	public _audio3_00_begin
+	public _audio3_00_end
+	public _audio3_c_66B4
+	public _audio3_c_66EE
+	public _audio3_e_5FAC
+	public _audio3_e_5FB2
+	public _audio3_e_5FB7
+	public _audio3_e_5FBC
+	public _audio3_e_5FDD
+	public _audio3_e_601C
+	public _audio3_e_6021
+	public _audio3_e_6028
+	public _audio3_e_6038
+	public _audio3_e_6049
+	public _audio3_e_6059
+	public _audio3_e_606A
+	public _audio3_e_6075
+	public _audio3_e_6078
+	public _audio3_e_6083
+	public _audio3_e_6088
+	public _audio3_e_608C
+	public _audio3_e_608E
+	public _audio3_e_6097
+	public _audio3_e_609A
+	public _audio3_e_609F
+	public _audio3_e_60A2
+	public _audio3_e_60AF
+	public _audio3_e_60B2
+	public _audio3_e_60B9
+	public _audio3_e_60D2
+	public _audio3_e_60D9
+	public _audio3_e_60DE
+	public _audio3_e_60E5
+	public _audio3_e_60EA
+	public _audio3_e_60F1
+	public _audio3_e_6109
+	public _audio3_e_610E
+	public _audio3_e_6111
+	public _audio3_e_6118
+	public _audio3_e_611B
+	public _audio3_e_611F
+	public _audio3_e_612B
+	public _audio3_e_6141
+	public _audio3_e_6148
+	public _audio3_e_614D
+	public _audio3_e_6151
+	public _audio3_e_615A
+	public _audio3_h_66A7
+	public _audio3_h_66AE
+	public _audio3_h_66DB
+	public _audio3_h_66E6
+	public _audio3_h_6708
+	public _audio3_h_6726
+	public _audio3_h_6861
+	public _audio3_h_68B5
+	public _audio3_h_68C3
+	public _audio3_e_60F4
+	public _audio3_e_60FC
+	public _audio3_e_6102
+	public _audio3_e_6106
+	public _audio3_e_6122
+	public _audio3_e_6126
+	public _audio3_e_6132
+_audio3_00_begin:
+	T3_ENVELOPE_PTR _audio3_e_6028
+	T3_ENVELOPE_PTR _audio3_e_6038
+	T3_ENVELOPE_PTR _audio3_e_6049
+	T3_ENVELOPE_PTR _audio3_e_6059
+	T3_ENVELOPE_PTR _audio3_e_606A
+	T3_ENVELOPE_PTR _audio3_e_6075
+	T3_ENVELOPE_PTR _audio3_e_6078
+	T3_ENVELOPE_PTR _audio3_e_6083
+	T3_ENVELOPE_PTR _audio3_e_6088
+	T3_ENVELOPE_PTR _audio3_e_608C
+	T3_ENVELOPE_PTR _audio3_e_608E
+	T3_ENVELOPE_PTR _audio3_e_6097
+	T3_ENVELOPE_PTR _audio3_e_609A
+	T3_ENVELOPE_PTR _audio3_e_609F
+	T3_ENVELOPE_PTR _audio3_e_60A2
+	T3_ENVELOPE_PTR _audio3_e_60AF
+	T3_ENVELOPE_PTR _audio3_e_60B2
+	T3_ENVELOPE_PTR _audio3_e_60B9
+	T3_ENVELOPE_PTR _audio3_e_60D2
+	T3_ENVELOPE_PTR _audio3_e_60D9
+	T3_ENVELOPE_PTR _audio3_e_60DE
+	T3_ENVELOPE_PTR _audio3_e_60E5
+	T3_ENVELOPE_PTR _audio3_e_60EA
+	T3_ENVELOPE_PTR _audio3_e_60F1
+	T3_ENVELOPE_PTR _audio3_e_60F4
+	T3_ENVELOPE_PTR _audio3_e_60FC
+	T3_ENVELOPE_PTR _audio3_e_6102
+	T3_ENVELOPE_PTR _audio3_e_6106
+	T3_ENVELOPE_PTR _audio3_e_6109
+	T3_ENVELOPE_PTR _audio3_e_610E
+	T3_ENVELOPE_PTR _audio3_e_6111
+	T3_ENVELOPE_PTR _audio3_e_6118
+	T3_ENVELOPE_PTR _audio3_e_611B
+	T3_ENVELOPE_PTR _audio3_e_611F
+	T3_ENVELOPE_PTR _audio3_e_6122
+	T3_ENVELOPE_PTR _audio3_e_6126
+	T3_ENVELOPE_PTR _audio3_e_612B
+	T3_ENVELOPE_PTR _audio3_e_6132
+	T3_ENVELOPE_PTR _audio3_e_6141
+	T3_ENVELOPE_PTR _audio3_e_6148
+	T3_ENVELOPE_PTR _audio3_e_614D
+	T3_ENVELOPE_PTR _audio3_e_6132
+	T3_ENVELOPE_PTR _audio3_e_6151
+	T3_ENVELOPE_PTR _audio3_e_615A
+	T3_ENVELOPE_PTR _audio3_e_601C
+	T3_ENVELOPE_PTR _audio3_e_608C
+	T3_ENVELOPE_PTR _audio3_e_6021
+	T3_ENVELOPE_PTR _audio3_e_608C
+	T3_ENVELOPE_PTR _audio3_e_5FDD
+	T3_ENVELOPE_PTR _audio3_e_608C
+	T3_ENVELOPE_PTR _audio3_e_5FBC
+	T3_ENVELOPE_PTR _audio3_e_608C
+	T3_ENVELOPE_PTR _audio3_e_5FB7
+	T3_ENVELOPE_PTR _audio3_e_608C
+	T3_ENVELOPE_PTR _audio3_e_5FB2
+	T3_ENVELOPE_PTR _audio3_e_608C
+	T3_ENVELOPE_PTR _audio3_e_5FAC
+	T3_ENVELOPE_PTR _audio3_e_608C
+_audio3_e_5FAC:
+	T3_ENV_INITIAL 0
+	T3_ENV_DELTA 14
+	T3_ENV_TARGET 40
+	T3_ENV_DELTA -16
+	T3_ENV_TARGET 12
+	T3_ENV_ZERO
+_audio3_e_5FB2:
+	T3_ENV_DELAY 255
+	T3_ENV_DELTA -8
+	T3_ENV_TARGET 192
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_5FB7:
+	T3_ENV_INITIAL 20
+	T3_ENV_ZERO
+	T3_ENV_DELAY 48
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 0
+_audio3_e_5FBC:
+	T3_ENV_INITIAL 0
+	T3_ENV_DELTA 2
+	T3_ENV_TARGET 192
+	T3_ENV_DELTA -2
+	T3_ENV_TARGET 0
+_audio3_e_5FDD:
+	T3_ENV_INITIAL 204
+	T3_ENV_ZERO
+	T3_ENV_DELAY 2
+	T3_ENV_DELTA -15
+	T3_ENV_TARGET 0
+_audio3_e_601C:
+	T3_ENV_INITIAL 64
+	T3_ENV_DELTA 1
+	T3_ENV_TARGET 112
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6021:
+	T3_ENV_INITIAL 64
+	T3_ENV_ZERO
+	T3_ENV_DELAY 8
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 32
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6028:
+	T3_ENV_INITIAL 255
+	T3_ENV_ZERO
+	T3_ENV_DELAY 8
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 128
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6049:
+	T3_ENV_INITIAL 128
+	T3_ENV_DELTA 8
+	T3_ENV_TARGET 255
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 128
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6038:
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 0
+_audio3_e_606A:
+	T3_ENV_INITIAL 160
+	T3_ENV_DELTA 48
+	T3_ENV_TARGET 255
+	T3_ENV_DELTA -27
+	T3_ENV_TARGET 160
+	T3_ENV_ZERO
+	T3_ENV_DELAY 255
+	T3_ENV_ZERO
+	T3_ENV_DELAY 255
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6075:
+	T3_ENV_DELTA -32
+	T3_ENV_TARGET 0
+_audio3_e_6059:
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 0
+_audio3_e_609F:
+	T3_ENV_DELTA -5
+	T3_ENV_TARGET 0
+_audio3_e_6109:
+	T3_ENV_INITIAL 128
+	T3_ENV_DELTA 16
+	T3_ENV_TARGET 240
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_610E:
+	T3_ENV_DELTA -4
+	T3_ENV_TARGET 0
+_audio3_e_6078:
+	T3_ENV_INITIAL 255
+	T3_ENV_ZERO
+	T3_ENV_DELAY 12
+	T3_ENV_DELTA -44
+	T3_ENV_TARGET 128
+	T3_ENV_ZERO
+	T3_ENV_DELAY 255
+	T3_ENV_ZERO
+	T3_ENV_DELAY 255
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6083:
+	T3_ENV_DELTA -17
+	T3_ENV_TARGET 64
+	T3_ENV_DELTA -16
+	T3_ENV_TARGET 0
+_audio3_e_6111:
+	T3_ENV_INITIAL 32
+	T3_ENV_DELTA 6
+	T3_ENV_TARGET 48
+	T3_ENV_DELTA -21
+	T3_ENV_TARGET 16
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6118:
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6088:
+	T3_ENV_INITIAL 255
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_611B:
+	T3_ENV_INITIAL 255
+	T3_ENV_DELTA -3
+	T3_ENV_TARGET 0
+_audio3_e_608C:
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_608E:
+	T3_ENV_INITIAL 128
+	T3_ENV_DELTA 95
+	T3_ENV_TARGET 255
+	T3_ENV_DELTA -92
+	T3_ENV_TARGET 112
+	T3_ENV_ZERO
+	T3_ENV_DELAY 255
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6097:
+	T3_ENV_DELTA -5
+	T3_ENV_TARGET 0
+_audio3_e_611F:
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_612B:
+	T3_ENV_INITIAL 160
+	T3_ENV_DELTA 24
+	T3_ENV_TARGET 255
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_609A:
+	T3_ENV_INITIAL 240
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 0
+_audio3_e_6141:
+	T3_ENV_INITIAL 255
+	T3_ENV_ZERO
+	T3_ENV_DELAY 8
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 128
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6148:
+	T3_ENV_ZERO
+	T3_ENV_DELAY 13
+	T3_ENV_DELTA -26
+	T3_ENV_TARGET 0
+_audio3_e_60A2:
+	T3_ENV_INITIAL 0
+	T3_ENV_DELTA 1
+	T3_ENV_TARGET 14
+	T3_ENV_ZERO
+	T3_ENV_DELAY 24
+	T3_ENV_DELTA 1
+	T3_ENV_TARGET 64
+	T3_ENV_ZERO
+	T3_ENV_DELAY 16
+	T3_ENV_DELTA 1
+	T3_ENV_TARGET 96
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_60AF:
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_614D:
+	T3_ENV_INITIAL 192
+	T3_ENV_DELTA -3
+	T3_ENV_TARGET 0
+_audio3_e_60B2:
+	T3_ENV_INITIAL 0
+	T3_ENV_DELTA 7
+	T3_ENV_TARGET 19
+	T3_ENV_ZERO
+	T3_ENV_DELAY 255
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_60B9:
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_6151:
+	T3_ENV_INITIAL 216
+	T3_ENV_DELTA 12
+	T3_ENV_TARGET 255
+	T3_ENV_ZERO
+	T3_ENV_DELAY 8
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 224
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_615A:
+	T3_ENV_DELTA -16
+	T3_ENV_TARGET 0
+_audio3_e_60D2:
+	T3_ENV_INITIAL 255
+	T3_ENV_DELTA -24
+	T3_ENV_TARGET 160
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 128
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_60D9:
+	T3_ENV_ZERO
+	T3_ENV_DELAY 5
+	T3_ENV_DELTA -3
+	T3_ENV_TARGET 0
+_audio3_h_66A7:
+	T3_HEADER 2,0
+	T3_JUMP _audio3_c_66B4
+_audio3_h_66AE:
+	T3_HEADER 1,0
+	T3_TRIGGER 147
+	T3_REST 9
+_audio3_c_66B4:
+	T3_ENVELOPE 0
+	T3_BANK 6
+	T3_ATTENUATION 192
+	T3_FLAGS 255
+	T3_NOTE 80,28
+	T3_RAMP 249,136
+	T3_HOLD 24
+	T3_RAMP 0,0
+	T3_VIBRATO 0,149
+	T3_PLAY_NOTE 90,24
+	T3_VIBRATO 0,0
+	T3_NOTE 91,24
+	T3_HOLD 32
+	T3_VIBRATO 0,150
+	T3_TRIGGER 148
+	T3_NOTE 87,128
+	T3_END
+_audio3_h_66DB:
+	T3_HEADER 3,0
+	T3_TRANSPOSE 240
+	T3_PITCH_ADJUST 4
+	T3_JUMP _audio3_c_66EE
+_audio3_h_66E6:
+	T3_HEADER 2,0
+	T3_TRIGGER 143
+	T3_TRANSPOSE 0
+	T3_PITCH_ADJUST 0
+_audio3_c_66EE:
+	T3_BANK 9
+	T3_ENVELOPE 10
+	T3_ATTENUATION 192
+	T3_NOTE 32,16
+	T3_NOTE 34,3
+	T3_NOTE 36,3
+	T3_NOTE 37,3
+	T3_NOTE 39,3
+	T3_NOTE 41,3
+	T3_NOTE 43,3
+	T3_VIBRATO 4,133
+	T3_NOTE 48,32
+	T3_END
+_audio3_h_6708:
+	T3_HEADER 2,0
+	T3_ENVELOPE 10
+	T3_BANK 9
+	T3_ATTENUATION 192
+	T3_RAMP 216,0
+	T3_NOTE 16,7
+	T3_NOTE 17,7
+	T3_NOTE 18,7
+	T3_NOTE 19,7
+	T3_RAMP 0,0
+	T3_NOTE 16,6
+	T3_VIBRATO 4,133
+	T3_NOTE 23,20
+	T3_END
+_audio3_h_6726:
+	T3_HEADER 2,0
+	T3_ENVELOPE 10
+	T3_BANK 9
+	T3_ATTENUATION 224
+	T3_RAMP 236,0
+	T3_NOTE 0,16
+	T3_END
+_audio3_e_60DE:
+	T3_ENV_INITIAL 255
+	T3_ENV_DELTA -24
+	T3_ENV_TARGET 160
+	T3_ENV_DELTA -1
+	T3_ENV_TARGET 128
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_60E5:
+	T3_ENV_ZERO
+	T3_ENV_DELAY 1
+	T3_ENV_DELTA -5
+	T3_ENV_TARGET 0
+_audio3_h_6861:
+	T3_HEADER 0,0
+	T3_ENVELOPE 46
+	T3_BANK 0
+	T3_ATTENUATION 96
+	T3_NOTE 5,2
+	T3_RAMP 242,0
+	T3_HOLD 16
+	T3_RAMP_OFF
+	T3_HOLD 4
+	T3_RAMP 16,0
+	T3_HOLD 16
+	T3_RAMP_OFF
+	T3_HOLD 16
+	T3_END
+_audio3_e_60EA:
+	T3_ENV_INITIAL 0
+	T3_ENV_DELTA 21
+	T3_ENV_TARGET 192
+	T3_ENV_ZERO
+	T3_ENV_DELAY 255
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_e_60F1:
+	T3_ENV_ZERO
+	T3_ENV_ZERO
+_audio3_h_68B5:
+	T3_HEADER 1,0
+	T3_ATTENUATION 0
+	T3_ENVELOPE 18
+	T3_BANK 56
+	T3_RAMP 248,0
+	T3_NOTE 7,80
+	T3_END
+_audio3_h_68C3:
+	T3_HEADER 1,0
+	T3_ATTENUATION 0
+	T3_ENVELOPE 18
+	T3_BANK 56
+	T3_RAMP 7,0
+	T3_NOTE 15,80
+	T3_END
+_audio3_00_end:
+	end
