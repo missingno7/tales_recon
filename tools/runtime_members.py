@@ -25,6 +25,7 @@ RELOCATED_OUTPUT = 'evidence/experiments/runtime-members-relocated.json'
 NATURAL_OUTPUT = 'evidence/experiments/runtime-members-natural.json'
 TAIL_OUTPUT = 'evidence/experiments/runtime-members-tail.json'
 GLUE_OUTPUT = 'evidence/experiments/runtime-members-glue.json'
+ROOT_OUTPUT = 'evidence/experiments/runtime-members-root.json'
 STDIO_FFP_OUTPUT = 'evidence/experiments/runtime-members-stdio-ffp.json'
 SEGLOAD_RELOCATIONS = [
     dict(offset=0x28, type='HUNK_RELOC32', width=4,
@@ -224,10 +225,12 @@ if __name__ == '__main__':
     mode.add_argument('--tail-leaves', action='store_true')
     mode.add_argument('--glue-tail', action='store_true')
     mode.add_argument('--stdio-ffp', action='store_true')
+    mode.add_argument('--root-members', action='store_true')
     args = ap.parse_args()
     from runtime_glue_members import verify as glue_verify
     from runtime_stdio_ffp_members import verify as extra_verify
-    result = extra_verify(ROOT) if args.stdio_ffp else glue_verify(ROOT) if args.glue_tail else analyze_tail() if args.tail_leaves else analyze_natural() if args.natural_routes else analyze_relocated() if args.relocated else analyze()
-    output = STDIO_FFP_OUTPUT if args.stdio_ffp else GLUE_OUTPUT if args.glue_tail else TAIL_OUTPUT if args.tail_leaves else NATURAL_OUTPUT if args.natural_routes else RELOCATED_OUTPUT if args.relocated else OUTPUT
+    from runtime_root_members import verify as root_verify
+    result = root_verify(ROOT) if args.root_members else extra_verify(ROOT) if args.stdio_ffp else glue_verify(ROOT) if args.glue_tail else analyze_tail() if args.tail_leaves else analyze_natural() if args.natural_routes else analyze_relocated() if args.relocated else analyze()
+    output = ROOT_OUTPUT if args.root_members else STDIO_FFP_OUTPUT if args.stdio_ffp else GLUE_OUTPUT if args.glue_tail else TAIL_OUTPUT if args.tail_leaves else NATURAL_OUTPUT if args.natural_routes else RELOCATED_OUTPUT if args.relocated else OUTPUT
     write_json(ROOT / output, result)
     print(json.dumps(dict(status=result['status'], contributions=[(c['member'], c['original'], c['size']) for c in result['contributions']])))

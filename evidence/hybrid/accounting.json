@@ -172,8 +172,8 @@
     "resident": {
       "CLASSIFIED_PADDING": 0,
       "COMPILER_OWNED_DATA": 534,
-      "PINNED_RUNTIME": 5728,
-      "RAW_ORACLE_DEBT": 18848,
+      "PINNED_RUNTIME": 6032,
+      "RAW_ORACLE_DEBT": 18544,
       "RECONSTRUCTED_ASM": 1978,
       "RECOVERED_ASM": 48,
       "RECOVERED_C": 12544,
@@ -1957,9 +1957,10 @@
       "start": 28862
     },
     {
-      "category": "RAW_ORACLE_DEBT",
+      "category": "PINNED_RUNTIME",
       "end": 30168,
       "hunk": 0,
+      "id": "runtime_root_freeseg",
       "start": 29986
     },
     {
@@ -1970,9 +1971,10 @@
       "start": 30168
     },
     {
-      "category": "RAW_ORACLE_DEBT",
+      "category": "PINNED_RUNTIME",
       "end": 30316,
       "hunk": 0,
+      "id": "runtime_root_crt0",
       "start": 30194
     },
     {
@@ -10793,6 +10795,144 @@
       "relocations": [],
       "representation": "RESOLVED_VALIDATION_COMPARISON",
       "start": 36146
+    },
+    {
+      "actual_sha256": "84562eda19c470e3adcaac7788f74e08511a5580a7a178f7942a4902956a10b3",
+      "end": 30168,
+      "hunk": 0,
+      "id": "runtime_root_freeseg",
+      "proof": {
+        "field_values": {},
+        "member": "freeseg",
+        "object_sha256s": {
+          "freeseg": "012d50eeee18be969ba1b491b0783600774d9e0ac98ae68b258470056418a127"
+        },
+        "receipt": "evidence/experiments/runtime-members-root.json",
+        "relocation_identity": [
+          {
+            "offset": 18,
+            "target": {
+              "addend": 12,
+              "hunk": 0,
+              "kind": "ROOT_HUNK_ORIGIN",
+              "type": "CODE"
+            },
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "offset": 24,
+            "target": {
+              "addend": 0,
+              "hunk": 1,
+              "kind": "ROOT_HUNK_ORIGIN",
+              "type": "DATA"
+            },
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "offset": 66,
+            "target": {
+              "addend": 0,
+              "hunk": 1,
+              "kind": "ROOT_HUNK_ORIGIN",
+              "type": "DATA"
+            },
+            "type": "HUNK_RELOC32",
+            "width": 4
+          },
+          {
+            "offset": 84,
+            "target": {
+              "addend": 16,
+              "hunk": 0,
+              "kind": "ROOT_HUNK_ORIGIN",
+              "type": "CODE"
+            },
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ]
+      },
+      "relocations": [
+        {
+          "addend_raw": 12,
+          "source_offset": 30004,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 16,
+          "source_offset": 30070,
+          "target_hunk": 0,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 0,
+          "source_offset": 30010,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        },
+        {
+          "addend_raw": 0,
+          "source_offset": 30052,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        }
+      ],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 29986
+    },
+    {
+      "actual_sha256": "01425dae6a6cb10c1a130cc36543fb99cc1ee8fda36c9b50b4353b290657159f",
+      "end": 30316,
+      "hunk": 0,
+      "id": "runtime_root_crt0",
+      "proof": {
+        "field_values": {
+          "16": 8521,
+          "30": 13216,
+          "38": 13220,
+          "4": -20810,
+          "78": 10640,
+          "8": -20810,
+          "96": 26
+        },
+        "member": "crt0",
+        "object_sha256s": {
+          "crt0": "6f246c03977d0c797411f62e42d0a9c3c2ed180e72db01c3047d9e03c352e75f"
+        },
+        "receipt": "evidence/experiments/runtime-members-root.json",
+        "relocation_identity": [
+          {
+            "offset": 116,
+            "target": {
+              "addend": 32766,
+              "hunk": 1,
+              "kind": "ROOT_HUNK_ORIGIN",
+              "type": "DATA"
+            },
+            "type": "HUNK_RELOC32",
+            "width": 4
+          }
+        ]
+      },
+      "relocations": [
+        {
+          "addend_raw": 32766,
+          "source_offset": 30310,
+          "target_hunk": 1,
+          "type": "HUNK_RELOC32",
+          "width": 4
+        }
+      ],
+      "representation": "RESOLVED_VALIDATION_COMPARISON",
+      "start": 30194
     }
   ],
   "schema_version": 1,
@@ -10819,14 +10959,14 @@
   "totals": {
     "CLASSIFIED_PADDING": 2,
     "COMPILER_OWNED_DATA": 4104,
-    "PINNED_RUNTIME": 5728,
-    "RAW_ORACLE_DEBT": 20300,
+    "PINNED_RUNTIME": 6032,
+    "RAW_ORACLE_DEBT": 19996,
     "RECONSTRUCTED_ASM": 1978,
     "RECOVERED_ASM": 48,
     "RECOVERED_C": 145628,
     "RECOVERED_DATA": 716,
     "TYPED_CODE_DATA": 7820,
-    "file_RAW_ORACLE_DEBT": 26980,
+    "file_RAW_ORACLE_DEBT": 26676,
     "file_size": 193004,
     "initialized_bytes": 186324,
     "overlap": 0,

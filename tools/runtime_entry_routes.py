@@ -10,7 +10,7 @@ from common import require,sha256,json_bytes
 from repo_paths import canonical_path
 
 INPUT='evidence/contributions/runtime-library-routes.json'
-INPUT_DIGEST='b900a3e294235ea3b7dac46a8a994cc30b852ebe0f1dd69b04af6bebdf2e4e0b'
+INPUT_DIGEST='2ac89d07794206820a14ca6da89af7b4d32839cc3727d1be0da8d3b94a816628'
 
 
 def export(proof,path,digest):
@@ -21,7 +21,7 @@ def export(proof,path,digest):
         require(ex['size']==size and size>0,'runtime route complete extent differs')
         for entry in c['entries']:
             require(0<=entry['offset']<size,'runtime route entry outside complete member')
-            if not re.fullmatch(r'_[A-Za-z_][A-Za-z_0-9]*',entry['name']):continue
+            if entry.get('abi','C_STACK')!='C_STACK' or not re.fullmatch(r'_[A-Za-z_][A-Za-z_0-9]*',entry['name']):continue
             key=(ex['hunk'],ex['offset']+entry['offset'])
             require(key not in rows,'runtime route duplicate exact entry')
             rows[key]=dict(state='MATCHED_RUNTIME_CONTRIBUTION',kind='LIBRARY_MEMBER',symbol=entry['name'],
@@ -48,7 +48,8 @@ def load(root,game_sha256,*,document=None,original=None,audit=False):
         import runtime_tail_members as tail
         import runtime_glue_members as glue
         import runtime_stdio_ffp_members as extra
-        verifiers={'natural':natural.verify,'tail':tail.verify,'glue':glue.verify,'stdio_ffp':extra.verify}
+        import runtime_root_members as root_members
+        verifiers={'root':root_members.verify,'natural':natural.verify,'tail':tail.verify,'glue':glue.verify,'stdio_ffp':extra.verify}
         rows={}
         for provider in document['providers']:
             raw=canonical_path(root,provider['path']).read_bytes()

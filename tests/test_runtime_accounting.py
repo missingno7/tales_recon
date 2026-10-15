@@ -36,7 +36,7 @@ class RuntimeAccountingTests(unittest.TestCase):
         self.assertEqual([(x['hunk'],x['start'],x['end']-x['start']) for x in self.rows],
             [(0,0x7978,244),(0,0x7b24,180),(0,0x7bf4,936),(0,0x7bd8,28),
              (0,0x704e,112),(0,0x70be,1124),(0,0x850a,42),(0,0x8794,210),(0,0x887e,40),(0,0x88a6,128),
-             (1,0x2c64,18),(1,0x2c76,130),(1,0x2cf8,440)]+[(0,a,n) for a,n in self.GLUE]+[(0,0x8056,22),(0,0x83e0,88),(0,0x8438,36),(0,0x84da,48),(0,0x845c,126),(0,0x8d32,112)])
+             (1,0x2c64,18),(1,0x2c76,130),(1,0x2cf8,440)]+[(0,a,n) for a,n in self.GLUE]+[(0,0x8056,22),(0,0x83e0,88),(0,0x8438,36),(0,0x84da,48),(0,0x845c,126),(0,0x8d32,112),(0,0x7522,182),(0,0x75f2,122)])
         self.assertEqual(self.rows,json.loads(json.dumps(self.rows)))
         for c in r.contributions(self.rows):
             h=next(h for h in self.model['hunks'] if h['number']==c['hunk'])
@@ -89,7 +89,7 @@ class RuntimeAccountingTests(unittest.TestCase):
     def test_topology_segload_counts_once_and_data_is_separate(self):
         occupied={(0,i) for i in range(0x7978,0x7a6c)}
         union=r.candidate_union(occupied,self.rows,(0,0x7978,0x7a6c))
-        self.assertEqual(len(union),244+180+936+28+1656+sum(n for _,n in self.GLUE)+432)
+        self.assertEqual(len(union),244+180+936+28+1656+sum(n for _,n in self.GLUE)+432+304)
         self.assertTrue(all(hn==0 for hn,_ in union))
         for extent in (None,(0,0x7978,0x7a6a)):
             with self.assertRaises(FormatError):r.candidate_union(occupied,self.rows,extent)

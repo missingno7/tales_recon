@@ -142,6 +142,9 @@ def _capture_runtime_members(root, blob, model):
             result.append(specimen('runtime_extra_'+row['member'],0,o['offset'],payloads[0],relocations=[],
                 proof=dict(receipt=extra_output,member=row['member'],operand_identity=row['operand_identity'],
                            object_sha256s=row['object_sha256s'])))
+    from runtime_root_members import verify as root_verify, specimens as root_specimens, OUTPUT as root_output
+    report=root_verify(root,original=(blob,model));checked_report(root,root_output,report)
+    result.extend(root_specimens(root,report,original=(blob,model)))
     validate_disjoint(result)
     return json.loads(json.dumps(result))
 
@@ -244,6 +247,8 @@ def input_identity(root):
     values.update(glue_identity(root))
     from runtime_stdio_ffp_members import input_identity as extra_identity
     values.update(extra_identity(root))
+    from runtime_root_members import input_identity as root_identity
+    values.update(root_identity(root))
     route=canonical_path(root,route_input)
     values[str(route)]=sha256(route.read_bytes()) if route.exists() else None
     return values
