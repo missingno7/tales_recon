@@ -15,6 +15,7 @@ RULES='evidence/rules/asm-reconstructed/batch-0002/'
 SPECS={'resident_driver_%04X'%a:dict(start=a,end=z,prefix=p) for a,z,p in contracts.SPANS}
 FACTS=['evidence/reconstructed-asm/'+i+'.json' for i in SPECS]
 MAP='reconstructed_asm'
+BATCH2_SPECS=dict(SPECS)
 CONTROL=b'''extern int (*C_handlers[44])();
 int C_dispatch(p, i)
 char *p;
@@ -77,7 +78,7 @@ def source_policy(raw,fact):
 
 def commands():
  result=[]
- for s in SPECS.values():
+ for s in BATCH2_SPECS.values():
   p=s['prefix'];result+=['Old1:bin/as -o '+p+'.o '+p+'.asm >'+p+'-as.log','Old1:bin/as -o bind_'+p+'.o bind_'+p+'.asm >bind_'+p+'-as.log','Old1:bin/ln -m -t -o '+p+'.exe '+p+'.o bind_'+p+'.o >'+p+'-ln.log']
  result+=['Old1:bin/as -o bind_control.o bind_control.asm >bind_control-as.log','Old1:bin/cc -a +D cctrl.c >cctrl-cc.log','Old1:bin/as -o cctrl.o cctrl.asm >cctrl-as.log','Old1:bin/ln -m -t -o cctrl.exe cctrl.o bind_control.o >cctrl-ln.log']
  result+=['Old1:bin/as -o bind_regs.o bind_regs.asm >bind_regs-as.log']
@@ -214,8 +215,10 @@ def verify(root,blob,model,fact,batch=None,contract=None,audit=None,cctrl=None):
 
 
 def rows(root,blob,model,analysis,ledger):
- entries={k:v for k,v in ledger.get(MAP,{}).items() if k in SPECS}
- if not entries:return []
+ import audio_callback_asm as callback
+ extra=callback.rows(root,blob,model,analysis,ledger)
+ entries={k:v for k,v in ledger.get(MAP,{}).items() if k in BATCH2_SPECS}
+ if not entries:return extra
  batch=document(root,MANIFEST);audit=producer(root,batch);cctrl=control(root,batch,blob,model);contract=contracts.derive(blob,model,cctrl['register_calibration']);result=[]
  for name in FACTS:
   fact=document(root,name);ident=fact['id']
@@ -235,13 +238,16 @@ def rows(root,blob,model,analysis,ledger):
     if o:require(o['hunk']!=0 or o['end']<=fact['original']['start'] or o['start']>=fact['original']['end'],'driver overlaps another source route')
   result.append(dict(report,acceptance=True,source_acceptance=True,proof_level='FUNCTION_CODE_MATCH',source=fact['source'],proof=dest))
  # All source categories are checked globally again by hybrid overlap accounting.
- return result
+ return result+extra
 
 
 def contributions(root,records):
  result=[]
  for r in records:
   if not r.get('acceptance'):continue
+  if r['id'] not in BATCH2_SPECS:
+   import audio_callback_asm as callback
+   result.extend(callback.contributions(root,[r]));continue
   spec=SPECS[r['id']];raw=(root/r['producer']['job']/('sys/work/'+spec['prefix']+'.o')).read_bytes();code,refs,_=aj_parse(raw);out=bytearray(code);relocations=[]
   require(len(refs)==len(r['named_relocation_bindings']),'complete contribution references')
   for x,b in zip(refs,r['named_relocation_bindings']):
@@ -277,4 +283,8 @@ def input_identity(root):
  for k,item in ledger.get(MAP,{}).items():
   if k in SPECS:names.update([item['source'],item['proof'],item['fact']])
  def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
- return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes())}
+ return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes()),**(__import__('audio_callback_asm').input_identity(root) if canonical_path(root,__import__('audio_callback_asm').MANIFEST).exists() else {})}
+
+# Extend ownership recognition without changing batch0002 producer recipes.
+from audio_callback_asm import SPECS as CALLBACK_SPECS
+SPECS.update(CALLBACK_SPECS)

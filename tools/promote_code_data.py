@@ -7,11 +7,12 @@ from recovery_state import canonical_state
 import code_data_providers as provider
 import audio_score_measured as measured
 import audio_region_provider as region
+import audio_stateful_provider as stateful
 
 
 def stage(root,blob,model,ledger,manifest=None):
-    backend=region if manifest==region.MANIFEST else measured
-    require(manifest in (None,measured.MANIFEST,region.MANIFEST),'unsupported CODE-data manifest')
+    backend=stateful if manifest==stateful.MANIFEST else region if manifest==region.MANIFEST else measured
+    require(manifest in (None,measured.MANIFEST,region.MANIFEST,stateful.MANIFEST),'unsupported CODE-data manifest')
     require(backend.IDENT not in ledger.get(provider.MAP,{}),'CODE-data already admitted; replay through census')
     fact=provider.document(root,backend.FACT);report=backend.verify(root,blob,model,fact)
     from hybrid_image import build
@@ -39,8 +40,8 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default=measured.MANIFEST)
     mode=ap.add_mutually_exclusive_group(required=True)
     mode.add_argument('--verify-only',action='store_true');mode.add_argument('--promote',action='store_true')
-    args=ap.parse_args();require(args.manifest in (measured.MANIFEST,region.MANIFEST),'unsupported CODE-data batch')
-    backend=region if args.manifest==region.MANIFEST else measured
+    args=ap.parse_args();require(args.manifest in (measured.MANIFEST,region.MANIFEST,stateful.MANIFEST),'unsupported CODE-data batch')
+    backend=stateful if args.manifest==stateful.MANIFEST else region if args.manifest==region.MANIFEST else measured
     from analysis_support import ROOT,game
     from evidence_snapshot import snapshot,Snapshot
     from check_function import regression_receipt

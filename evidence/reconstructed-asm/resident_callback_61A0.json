@@ -1,0 +1,213 @@
+{
+  "binder": {
+    "CODE": 2,
+    "DATA": 200,
+    "exports": [
+      {
+        "hunk": 1,
+        "name": "_G_h01_2BC2",
+        "offset": 0
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2BFE",
+        "offset": 4
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C26",
+        "offset": 8
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C2A",
+        "offset": 12
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C2B",
+        "offset": 16
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C2C",
+        "offset": 20
+      }
+    ],
+    "sha256": "c4302c34a70728049a35600e1bcbac240576988661eae9cc9902dcbbb562fa23",
+    "source": "bind_cbcopy.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 25006,
+      "target": null
+    },
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 25086,
+      "target": null
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0003/cbcopy.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_61A0",
+      "offset": 0,
+      "original": 24992
+    },
+    {
+      "name": "_recon_h00_61B0",
+      "offset": 16,
+      "original": 25008
+    },
+    {
+      "name": "_recon_h00_61D8",
+      "offset": 56,
+      "original": 25048
+    },
+    {
+      "name": "_recon_h00_61F6",
+      "offset": 86,
+      "original": 25078
+    },
+    {
+      "name": "_end_cbcopy",
+      "offset": 96,
+      "original": null
+    }
+  ],
+  "external_code": [],
+  "external_data": [
+    {
+      "hunk": 1,
+      "name": "_G_h01_2BFE",
+      "target": 11262
+    },
+    {
+      "hunk": 1,
+      "name": "_G_h01_2C26",
+      "target": 11302
+    },
+    {
+      "hunk": 1,
+      "name": "_G_h01_2C2A",
+      "target": 11306
+    },
+    {
+      "hunk": 1,
+      "name": "_G_h01_2C2B",
+      "target": 11307
+    },
+    {
+      "hunk": 1,
+      "name": "_G_h01_2C2C",
+      "target": 11308
+    }
+  ],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_callback_61A0",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 25088,
+    "hunk": 0,
+    "sha256": "de48381f4c0fc65e4b9307e887fa68dc89885a19be6fd4edfff206210a81daa5",
+    "size": 96,
+    "start": 24992
+  },
+  "original_filename": null,
+  "predicate": {
+    "a2_write": 25016,
+    "argument": "A1 destination",
+    "argument_use": 25072,
+    "c_compatible": false,
+    "d2_is_not_a_witness": true,
+    "d7_loop": 25082,
+    "d7_write": 25074,
+    "entry": 24992,
+    "kind": "CALIBRATED_UNPRESERVED_D7_AND_A2_IN_A1_REGISTER_CALLBACK",
+    "preservation_premise": {
+      "compiler": "3.6a",
+      "controls": [
+        "reg4",
+        "reg6"
+      ],
+      "registers": [
+        "d7",
+        "a2"
+      ]
+    },
+    "return_site": 25086,
+    "saved": false
+  },
+  "prefix": "cbcopy",
+  "relocations": [
+    {
+      "addend_raw": 11308,
+      "source_hunk": 0,
+      "source_offset": 24994,
+      "symbol": "_G_h01_2C2C",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11306,
+      "source_hunk": 0,
+      "source_offset": 25000,
+      "symbol": "_G_h01_2C2A",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11306,
+      "source_hunk": 0,
+      "source_offset": 25012,
+      "symbol": "_G_h01_2C2A",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11262,
+      "source_hunk": 0,
+      "source_offset": 25018,
+      "symbol": "_G_h01_2BFE",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11302,
+      "source_hunk": 0,
+      "source_offset": 25024,
+      "symbol": "_G_h01_2C26",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11307,
+      "source_hunk": 0,
+      "source_offset": 25036,
+      "symbol": "_G_h01_2C2B",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11307,
+      "source_hunk": 0,
+      "source_offset": 25050,
+      "symbol": "_G_h01_2C2B",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 3,
+  "source": "src/recovered/asm-reconstructed/resident_callback_61A0.asm",
+  "source_sha256": "a457ca013d40f3ac27019310bf53bff1a95e297bbb84a9bf462de4afafc5342a"
+}

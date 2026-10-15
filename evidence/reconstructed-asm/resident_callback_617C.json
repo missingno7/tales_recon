@@ -1,0 +1,138 @@
+{
+  "binder": {
+    "CODE": 2,
+    "DATA": 200,
+    "exports": [
+      {
+        "hunk": 1,
+        "name": "_G_h01_2BC2",
+        "offset": 0
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2BFE",
+        "offset": 4
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C26",
+        "offset": 8
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C2A",
+        "offset": 12
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C2B",
+        "offset": 16
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2C2C",
+        "offset": 20
+      }
+    ],
+    "sha256": "c4302c34a70728049a35600e1bcbac240576988661eae9cc9902dcbbb562fa23",
+    "source": "bind_cbbridge.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "INDIRECT_CALLBACK",
+      "operands": "(a0)",
+      "site": 24988,
+      "target": null
+    },
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 24990,
+      "target": null
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0003/cbbridge.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_617C",
+      "offset": 0,
+      "original": 24956
+    },
+    {
+      "name": "_recon_h00_619E",
+      "offset": 34,
+      "original": 24990
+    },
+    {
+      "name": "_end_cbbridge",
+      "offset": 36,
+      "original": null
+    }
+  ],
+  "external_code": [],
+  "external_data": [
+    {
+      "hunk": 1,
+      "name": "_G_h01_2BC2",
+      "target": 11202
+    },
+    {
+      "hunk": 1,
+      "name": "_G_h01_2C26",
+      "target": 11302
+    }
+  ],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_callback_617C",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 24992,
+    "hunk": 0,
+    "sha256": "9073a6900ded76256d5949e83058acd26880a6dde837fc26c7d71e0ca181f851",
+    "size": 36,
+    "start": 24956
+  },
+  "original_filename": null,
+  "predicate": {
+    "argument_setup": [
+      24956,
+      24960,
+      24964,
+      24968
+    ],
+    "c_compatible": false,
+    "call": 24988,
+    "callee": 24992,
+    "callee_use": 25072,
+    "caller": 24942,
+    "entry": 24956,
+    "kind": "CALLER_PREPARED_A1_REGISTER_ARGUMENT_TO_INDEPENDENT_RELOCATED_CALLBACK",
+    "no_stack_arguments": true,
+    "ordinary_C_controls": "ARGUMENT_8_A5",
+    "parameter": "A1 destination"
+  },
+  "prefix": "cbbridge",
+  "relocations": [
+    {
+      "addend_raw": 11202,
+      "source_hunk": 0,
+      "source_offset": 24972,
+      "symbol": "_G_h01_2BC2",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    },
+    {
+      "addend_raw": 11302,
+      "source_hunk": 0,
+      "source_offset": 24978,
+      "symbol": "_G_h01_2C26",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 3,
+  "source": "src/recovered/asm-reconstructed/resident_callback_617C.asm",
+  "source_sha256": "d75b5218df0a2ad1fc6575029ce9edba4554a7e4282a1f2b7129c59a87fd893c"
+}
