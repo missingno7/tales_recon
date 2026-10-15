@@ -13,30 +13,6 @@ def function_id(hunk,start):
     return ('resident' if hunk==0 else 'ov%02d'%hunk)+'_F_%04X'%start
 
 
-def ends_in_epilogue(c,f):
-    """A complete final instruction is RTS or BRA to this body's UNLK/RTS.
-
-    Aztec's early return epilogue can precede the last reachable basic block.
-    This is weak discovery/bounds evidence only; never a strong entry rule.
-    """
-    if not f.get('instructions') or not f.get('return_sites'):return False
-    last=f['instructions'][-1]
-    if last['offset']+last['size']!=f['end']:return False
-    ins=instruction(c.md,c.data[f['hunk']],last['offset'])
-    if ins is None:return False
-    if ins.mnemonic=='rts':at=ins.address-2
-    elif ins.mnemonic.split('.')[0]=='bra':
-        target=c.target(f['hunk'],ins)
-        if target is None or target[0]!=f['hunk']:return False
-        at=target[1]
-        if not f['start']<at<ins.address:return False
-    else:return False
-    by={i['offset']:i for i in f['instructions']}
-    return (at in by and at+2 in by and
-            (by[at]['mnemonic'],by[at]['operands'],by[at]['size'])==('unlk','a5',2) and
-            by[at+2]['mnemonic']=='rts' and at+2 in f['return_sites'])
-
-
 class Census:
     def __init__(self,blob,model,ranges,classified_data=()):
         self.blob=blob;self.model=model;self.md=decoder()
@@ -55,7 +31,7 @@ class Census:
         for r in ranges:
             if r['classification'] in ('DATA','STRING','BSS'):
                 self.blocked[r['hunk']].append((r['start'],r['end'],r['classification']))
-        self.entries=defaultdict(list);self.runtime=[];self.function_references={};self.callback_apis={}
+        self.entries=defaultdict(list);self.runtime=[]
         self.relocs={(r['source_hunk'],r['source_offset']):r for r in model['relocations']}
         self.a4_bias=None
         # Establish A4 solely from LEA abs.l,A4 plus its independent relocation.
@@ -93,7 +69,7 @@ class Census:
 
     def target(self,h,ins):
         if not ins.operands:return None
-        o=ins.operands[0] if ins.mnemonic.split('.')[0] in ('lea','pea') else ins.operands[-1]
+        o=ins.operands[-1]
         if o.type==K.M68K_OP_BR_DISP:
             return h,ins.address+2+o.br_disp.disp,'PC_RELATIVE'
         if o.type==K.M68K_OP_MEM and o.address_mode==K.M68K_AM_PCI_DISP:
@@ -191,14 +167,8 @@ class Census:
                 # its address is passed as a callback rather than invoked at
                 # this site.  Keep it out of generic DATA references so later
                 # proof can require its code identity.
-                pointer_target=self.target(h,ins) if mn in ('lea','pea') else None
-                if pointer_target and pointer_target[2]=='A4_RELOCATED_JMP_STUB':
-                    stub=self.a4_bias+ins.operands[0].mem.disp
-                    rr=self.relocs.get((1,stub+2))
-                    if not rr or rr['type']!='HUNK_RELOC32' or rr['width']!=4:pointer_target=None
-                registered=self.function_references.get((h,pc))
-                if registered is not None:pointer_target=(registered['hunk'],registered['offset'],registered['basis'])
-                if pointer_target and (pointer_target[2] in ('A4_OVERLAY_TRAMPOLINE','A4_RELOCATED_JMP_STUB') or registered is not None) and self.valid(pointer_target[0],pointer_target[1]):
+                pointer_target=self.target(h,ins) if mn=='pea' else None
+                if pointer_target and pointer_target[2]=='A4_OVERLAY_TRAMPOLINE' and self.valid(pointer_target[0],pointer_target[1]):
                     th,to,basis=pointer_target
                     calls.append(dict(site=pc,hunk=th,offset=to,id=function_id(th,to),basis=basis,reference_kind='FUNCTION_POINTER'))
                     self.seed(th,to,dict(kind='FUNCTION_REFERENCE',caller=function_id(h,start),site=pc,basis=basis))
@@ -206,7 +176,7 @@ class Census:
                     if o.type==K.M68K_OP_MEM:
                         ref=None
                         if o.address_mode==K.M68K_AM_PCI_DISP and mn not in ('jsr','jmp'):
-                            ref=None if registered is not None else dict(hunk=h,offset=pc+2+o.mem.disp,kind='PC_RELATIVE_DATA')
+                            ref=dict(hunk=h,offset=pc+2+o.mem.disp,kind='PC_RELATIVE_DATA')
                         elif o.mem.base_reg==K.M68K_REG_A4 and o.address_mode==K.M68K_AM_REGI_ADDR_DISP and self.a4_bias is not None and pointer_target is None:
                             ref=dict(hunk=1,offset=self.a4_bias+o.mem.disp,kind='A4_RELATIVE')
                         if ref:
@@ -256,7 +226,7 @@ class Census:
             if i['offset']!=cursor:gaps.append([cursor,i['offset']])
             cursor=i['offset']+i['size']
         evidence=self.entries[(h,start)]
-        strong=any(e['kind'] in ('OVERLAY_EXPORT','DIRECT_CALL','PROVEN_RUNTIME','EXECUTABLE_ENTRY','CURATED_UNREFERENCED_ENTRY','FUNCTION_REFERENCE') for e in evidence)
+        strong=any(e['kind'] in ('OVERLAY_EXPORT','DIRECT_CALL','PROVEN_RUNTIME','EXECUTABLE_ENTRY','CURATED_UNREFERENCED_ENTRY') for e in evidence)
         complete=bool(ordered and returns and not stops and not gaps and strong and ordered[0]['mnemonic'].startswith('link') and all(p>=start for p in seen))
         return dict(id=function_id(h,start),hunk=h,node=self.hunks[h]['node'],start=start,end=end,size=end-start,
             raw_bytes=self.data[h][start:end].hex(),sha256=sha256(self.data[h][start:end]),entry_evidence=evidence,
@@ -317,9 +287,9 @@ class Census:
         added=0
         for f in functions:
             h=f['hunk'];cursor=f['end'];data=self.data.get(h,b'')
-            if (h!=0 and h<3) or not f['stack_frames'] or f['stack_frames'][0]['offset']!=f['start']:continue
+            if h<3 or not f['stack_frames'] or f['stack_frames'][0]['offset']!=f['start']:continue
             if f['boundary_stops'] or f['undecoded_gaps']:continue
-            if not ends_in_epilogue(self,f):continue
+            if data[cursor-4:cursor]!=b'\x4e\x5d\x4e\x75':continue
             if any(r['kind']=='PC_RELATIVE_DATA' and r['hunk']==h and r['offset']>=cursor
                    for r in f['referenced_data']):continue
             if data[cursor:cursor+2]!=b'\x4e\x55' or cursor in covered[h] or (h,cursor) in self.entries:continue
@@ -340,8 +310,7 @@ class Census:
         self.discover()
         while True:
             walked=[self.walk(h,s) for h,s in sorted(self.entries)]
-            from function_pointer_evidence import discover as discover_pointers
-            if not (self.post_literal_seeds(walked)+self.post_function_seeds(walked)+discover_pointers(self,walked)):break
+            if not (self.post_literal_seeds(walked)+self.post_function_seeds(walked)):break
             self.discover()
         functions=[self.walk(h,s) for h,s in sorted(self.entries)]
         by_id={f['id']:f for f in functions};coverage=defaultdict(set)
@@ -395,8 +364,6 @@ def build():
     facts=audio_sequence_data.load(ROOT,blob,model,analysis=analysis,
                                   claimed=[r for r in byte_ranges if r['classification']=='CODE'])
     c=Census(blob,model,byte_ranges,classified_data=facts)
-    from function_pointer_evidence import callback_apis, identity as pointer_identity
-    c.callback_apis=callback_apis(ROOT,blob,model)
     for file in ('runtime-matches.json','overlay-topology.json'):
         p=ROOT/'evidence/experiments'/file
         if not p.exists():continue
@@ -413,8 +380,6 @@ def build():
     admitted=curated_unreferenced_entries.validate(c,ROOT)
     for row in admitted:c.seed(row['hunk'],row['start'],row)
     report=c.run()
-    report['callback_reference_identity']=pointer_identity(ROOT)
-    report['analysis_identity']['function_pointer_evidence.py']=sha256((ROOT/'tools/function_pointer_evidence.py').read_bytes())
     report['analysis_identity']['curated_unreferenced_entries.py']=sha256((ROOT/'tools/curated_unreferenced_entries.py').read_bytes())
     report['unreferenced_entry_identity']=curated_unreferenced_entries.identity(ROOT)
     report['curated_unreferenced_entries']=admitted

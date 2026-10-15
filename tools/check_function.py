@@ -25,9 +25,6 @@ def validated_function(fid):
     import curated_unreferenced_entries
     require(ledger.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(root),
             'stale uncalled entry input: run tools/function_census.py')
-    import function_pointer_evidence
-    require(not ledger.get('analysis_identity') or ledger.get('callback_reference_identity',{})==function_pointer_evidence.identity(root),
-            'stale callback ABI evidence: run tools/function_census.py')
     f=next((f for f in ledger['functions'] if f['id']==fid),None)
     require(f is not None,'unknown function '+fid)
     h=next(h for h in model['hunks'] if h['number']==f['hunk'])

@@ -220,18 +220,6 @@ def compare_function(f,compiled,a4_bias,allow_pc_relative_data=False,source_text
                         issues.append(dict(kind='A4_IDENTITY',offset=a.address,expected=expected_identity,actual=identity));continue
                     at=a.address+site;norm[at:at+2]=(eo.mem.disp&65535).to_bytes(2,'big')
                     proof.append(dict(kind='A4_D16_SYMBOL',offset=at,identity=identity,expected=expected_identity))
-            if e.mnemonic.split('.')[0] in ('lea','pea'):
-                call=next((x for x in f['direct_callees'] if x['site']-f['start']==e.address and x.get('reference_kind')=='FUNCTION_POINTER'),None)
-                if call and call['basis']=='PC_RELATIVE':
-                    eo=e.operands[0];ao=a.operands[0]
-                    if e.size==a.size==4 and eo.type==ao.type==K.M68K_OP_MEM and eo.address_mode==ao.address_mode==K.M68K_AM_PCI_DISP:
-                        target=c.get('code_offset',0)+a.address+2+ao.mem.disp
-                        identity=target_identity(c['hunk'],target,symbol_map)
-                        if identity and (identity['hunk'],identity['offset'])==(call['hunk'],call['offset']):
-                            norm[a.address+2:a.address+4]=bytes(e.bytes)[2:4]
-                            proof.append(dict(kind='PC_RELATIVE_FUNCTION_POINTER_SYMBOL',offset=a.address+2,width=2,identity=identity))
-                        else:issues.append(dict(kind='FUNCTION_POINTER_BINDING_UNPROVEN',offset=e.address,target=call['id']))
-                    else:issues.append(dict(kind='FUNCTION_POINTER_ENCODING_DIFFERS',offset=e.address))
             if e.mnemonic.split('.')[0] in ('bsr','jsr') and e.operands[-1].address_mode != K.M68K_AM_REGI_ADDR_DISP:
                 call=next((x for x in f['direct_callees'] if x['site']-f['start']==e.address),None)
                 if call:

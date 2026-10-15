@@ -110,9 +110,6 @@ def _derive_uncached(root, promotion_evidence=None):
     analysis_current=analysis_current and analysis.get('data_fact_identity',{})==audio_sequence_data.identity(root)
     import curated_unreferenced_entries
     analysis_current=analysis_current and analysis.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(root)
-    import function_pointer_evidence
-    if 'function_pointer_evidence.py' in analysis.get('analysis_identity',{}):
-        analysis_current=analysis_current and analysis.get('callback_reference_identity',{})==function_pointer_evidence.identity(root)
     import dead_code_extents
     analysis_current=analysis_current and analysis.get('dead_code_input_identity',{})==dead_code_extents.identity(root)
     promoted=load_promotions(root,exe,model,analysis)
