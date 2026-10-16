@@ -321,7 +321,8 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
                 # Validate the candidate source before batching.  The oracle
                 # assigns stable object labels to the optional partition.
                 extra_libraries=req.get('extra_libraries',())
-                identity(compile_source,profile,target_node,extra_libraries=extra_libraries,resident_data_interfaces=interfaces)
+                identity(compile_source,profile,target_node,local_functions=local_functions,
+                         extra_libraries=extra_libraries,resident_data_interfaces=interfaces)
                 trial=dict(source=compile_source,profile=profile,target_node=target_node,
                            objects=objects,local_functions=local_functions,extra_libraries=extra_libraries)
                 if interfaces is not None:trial['resident_data_interfaces']=interfaces

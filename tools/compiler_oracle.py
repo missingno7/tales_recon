@@ -251,10 +251,10 @@ def cached(key):
     if r['status']=='COMPILED':
         if 'resident_data_interfaces' in r['identity']:
             import resident_interfaces
-            require(r['identity'].get('resident_interface_producer_sha256')==resident_interfaces.provenance() and
-                    r['identity'].get('resident_interface_extractor_sha256')==sha256(Path(__file__).read_bytes()) and
-                    r['identity']['resident_data_interfaces']['source_sha256']==r['identity']['source_sha256'],
-                    'stale resident DATA interface producer/source identity')
+            # Tool hashes record provenance; current exact extraction below is the gate.
+            resident_interfaces.validate_provenance(r['identity'])
+            require(r['identity']['resident_data_interfaces']['source_sha256']==r['identity']['source_sha256'],
+                    'resident DATA interface source identity differs')
         require(extract(dest,r['prefix'],r['identity'].get('object_labels'),
                         r['identity'].get('entry_function','recovered'),r['identity'].get('same_overlay_exports'),
                         **({'resident_data_interfaces':r['identity']['resident_data_interfaces']} if 'resident_data_interfaces' in r['identity'] else {}),

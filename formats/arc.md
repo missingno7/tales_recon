@@ -1,99 +1,127 @@
-# `.arc` indexed resources
+# Indexed DuckTales resource containers and record codecs
 
-## Container and header
+## Container
 
-`resident_F_2816` seeks to byte zero, reads a little-endian `u16` count with
-`resident_F_2D66`, then that many little-endian `u32` offsets with
-`resident_F_2DBA` into `G_h01_A7EE[104]`. It rejects counts over 104. The
-reader `resident_F_287C` indexes that table, seeks to the record offset, reads
-the `u32` at `+0` into `G_h01_A7D6`, then six `u16` words at `+4..+15` into
-`G_h01_A7DA..G_h01_A7E4`. This establishes the 16-byte header:
+resident_F_2816 seeks to byte zero, reads the little-endian u16 count via
+resident_F_2D66, then that many little-endian u32 record offsets via
+resident_F_2DBA into G_h01_A7EE[104]. Counts above 104 are rejected.
+resident_F_287C seeks to an indexed offset and reads a 16-byte header using
+read_le32 / read_le16:
 
-| Offset | Field | Evidence |
+| Offset | Meaning | Evidence |
 | --- | --- | --- |
-| `+0` | `u32` stored-data byte count | `resident_F_287C` / `G_h01_A7D6`; supplied spans equal `16 + count`. |
-| `+4` | `u16` kind | `resident_F_287C` / `G_h01_A7DA`; dispatch in `resident_F_291E`. |
-| `+6..+15` | five `u16` metadata words | `resident_F_287C` / `G_h01_A7DC..G_h01_A7E4`; meanings depend on kind. |
+| +0 | u32 stored/read byte count | resident_F_287C -> G_h01_A7D6; kind-specific uses in resident_F_291E. For kinds 1/2, 404A is not passed this count. |
+| +4 | u16 record kind | resident_F_287C -> G_h01_A7DA; switch in resident_F_291E. |
+| +6 | kind-specific u16 | resident_F_287C -> G_h01_A7DC; meanings below. |
+| +8 | kind-specific u16 | resident_F_287C -> G_h01_A7DE; meanings below. |
+| +10 | kind-specific u16 | resident_F_287C -> G_h01_A7E0; kind 2 stride multiplier. |
+| +12 | u16, meaning UNKNOWN for kinds 1/2/5/6 | resident_F_287C -> G_h01_A7E2; not consumed in those resident_F_291E branches. |
+| +14 | kind-specific u16 | resident_F_287C -> G_h01_A7E4; kind 6 allocation length. Other meanings UNKNOWN here. |
 
-`ov04_F_07CA` loads `main.arc` record 3 into the preconfigured `G_h01_46CE`
-bitmap and calls `F_h00_8A46` for a 320×200 blit. `ov05_F_0000`,
-`ov06_F_0000`, `ov08_F_0000`, `ov09_F_0000`, `ov10_F_0000`, and
-`ov12_F_0000` also request indexed records before graphics drawing; their
-`runtime_glue_bltbitma` caller status is listed by `python tools/behavior.py
---json`.
+In the supplied files, each distinct offset bounds a record whose physical
+span is 16 bytes plus the header +0 count; repeated offsets are table references
+to the same body. This measured span does not bound kind-1/2 reads, as described
+below.
 
-## Kind 1 and kind 2: bitmap RLE
+The on-disk header and index words are little-endian because resident_F_287C
+uses read_le16 and read_le32. The C bitmap and ADPCM tables reside in big-endian
+Amiga DATA.
 
-Both kinds reach `resident_F_404A` from the kind switch in the
-`resident_F_291E` disassembly (kind 1 at function offset `+0x7c`, kind 2 at
-`+0x172`). The byte reader `resident_F_411E` refills a `0x400`-byte buffer
-through AmigaDOS `Read`. `resident_F_404A` consumes controls whose low seven
-bits are the output count: with bit 7 set it copies that many following
-literal bytes; with bit 7 clear it repeats the following byte that many
-times. It writes a `BitMap` plane buffer using the fields at `+0` (`BytesPerRow`),
-`+2` (`Rows`), `+5` (`Depth`), and the plane pointers from `+8`; the inner
-stride is the low byte of `BytesPerRow`. The loop visits byte-column offsets,
-then planes, then rows, writing each byte at `column + row * BytesPerRow`.
-This token grammar and destination layout come from `resident_F_404A` disassembly, not an accepted C body.
+The 291E-v1.c candidate in build/workers/sol-arc-loader has a function-level
+exact comparison; its worker report does not claim complete-unit promotion.
+resident_F_404A and resident_F_4184 are accepted FUNCTION_CODE_MATCH
+functions. The byte reader resident_F_411E remains separately
+BEHAVIORAL_CHAR_RETURN, not exact C. python tools/readable.py renders their
+named views under build/readable/resident/.
 
-For kind 1, `resident_F_291E` passes the caller-supplied destination to
-`resident_F_404A`. Its `+6` and `+8` words are used only in the null-destination
-allocation path. Calling them image width and height is a **hypothesis**:
-`main.arc` record 3 has `(320, 200, 1, 65535, 0)`, matching the 320×200
-bitmap/blit in `ov04_F_07CA`; kind 1’s `+10..+15` meanings are **UNKNOWN**.
+## Kinds 1 and 2: five-plane RLE bitmaps
 
-For kind 2, `resident_F_291E` allocates an outer descriptor, writes `+6 >> 3`
-to its width-bytes field and `+8` to its row fields, then sets the embedded
-bitmap’s `BytesPerRow` to `(+6 >> 3) * +10`, `Rows` to `+8`, and `Depth` to
-the global `G_h01_0971`. It allocates the plane pointers through
-`resident_F_3A6E` and calls `resident_F_404A` on that embedded bitmap. Thus
-`+6` is a pixel-width value, `+8` is row count, and `+10` is a row-stride
-multiplier; the code does **not** establish `+10` as color depth. The global
-plane count is `G_h01_0970`, initialized to 5 at resident DATA offset `0x970`
-and used as bitmap depth by `ov04_F_1E36` and by `resident_F_3A6E`.
-Kind 2 words `+12` and `+14` are not consumed by this path and remain
-**UNKNOWN**.
+resident_F_291E sends kinds 1 and 2 to resident_F_404A. The latter's exact C
+body establishes this token grammar: token & 0x7f is the number of output
+bytes; if bit 7 is set, that many following bytes are literals; otherwise the
+next byte is repeated that many times. remaining is an unsigned 16-bit C
+counter. Output traversal is byte-column, plane, then row, and each byte is
+written at column + row * BytesPerRow (resident_F_404A).
 
-Neither the kind 1/2 loader path nor the matched graphics callers bind the
-remaining metadata to a palette. No matched `LoadRGB4`/`SetRGB4` caller was
-found, so palette values and the color-index mapping are **UNKNOWN**. The host
-decoder currently extracts kind 1/2 compressed payloads byte-for-byte; it does
-not claim pixel-plane output. No PNG dump is provided without the palette and
-complete per-kind display mapping.
+The global G_h01_0970 is the 16-bit word 5 in resident DATA at +0x970;
+G_h01_0971 is its low byte. resident_F_3A6E allocates and fills five plane
+pointers, while resident_F_291E / resident_F_3B16 set bitmap depth from
+G_h01_0971. Thus the supplied bitmaps use five planes.
+
+| Header field | Kind 1 | Kind 2 | Evidence |
+| --- | --- | --- | --- |
+| +6 | pixel width | pixel width | resident_F_291E; kind 1 passes it to resident_F_3B16 only when destination is null. |
+| +8 | row count | row count | resident_F_291E; kind 1 passes it to resident_F_3B16 only when destination is null. |
+| +10 | UNKNOWN / unused by this branch | row-stride multiplier | kind 2 sets BytesPerRow = (+6 >> 3) * +10 in resident_F_291E. |
+| +12, +14 | UNKNOWN | UNKNOWN | Not read by these branches in resident_F_291E. |
+
+For a standalone kind-1 decode, resident_F_3B16 constructs BytesPerRow =
++6 >> 3, Rows = +8, and depth 5. If the caller supplies an existing bitmap,
+its actual fields control resident_F_404A; those caller fields are not
+serialized in the record and are UNKNOWN to this decoder. For kind 2,
+resident_F_291E constructs an embedded bitmap with BytesPerRow =
+(+6 >> 3) * +10, Rows = +8, and depth 5, then calls resident_F_3A6E for the
+planes.
+
+For supplied records, the decoded plane-buffer size is BytesPerRow * Rows * 5:
+kind 1 uses (+6 >> 3) * +8 * 5; kind 2 uses ((+6 >> 3) * +10) * +8 * 5.
+The host decoder preserves all five planes in plane-major order. Its image
+preview uses +6 by +8 as the visible rectangle; extra row bytes implied by
+kind-2 +10 remain in the decoded buffer and are not shown in the preview.
+
+The RLE routine receives no stored-length argument. resident_F_404A sets
+G_h01_B1E8 to 0x400; behaviorally reconstructed resident_F_411E refills its
+byte buffer with Read(arc_file, ..., 1024) and does not cap reads at header +0.
+The host decoder therefore starts at the payload and models the contiguous
+archive byte stream. DT2:jg.arc entry 16 has +0 = 1468, but the bitmap loop
+consumes 1543 bytes (75 bytes beyond that indexed span) to fill its metadata-
+described output. This cross-boundary read follows the matched 404A loop and
+the 411E readable view; whether the record's declared count is intended to
+bound that stream is UNKNOWN. This behavior is retained in record_output and
+reported by --verbose.
+
+formats/decode.py --dump DIR writes kind-1/2 PNG previews using a 32-level
+grey ramp. It uses the Amiga planar bit order (plane 0 as the low color-index
+bit, high bit first within each byte) to construct the visualization. The game
+palette and color-index-to-RGB mapping are UNKNOWN; the grey ramp is only for
+inspection, not recovered palette data.
 
 ## Kind 4: LZW
 
-`resident_F_3C4C` and `resident_F_3E9C` establish a clear/end-code LZW stream:
-CLEAR `0x100`, END `0x101`, first dictionary code `0x102`, 9-bit initial
-codes growing to 12 bits, and low-bit-first packing. `resident_F_4032`
-appends output. For supplied kind-4 records, metadata `+6` equals the decoded
-byte count; `formats/decode.py` checks it. Kinds other than 1, 2, and 4 were
-not observed in `.arc` files.
+resident_F_3C4C / resident_F_3E9C establish CLEAR 0x100, END 0x101, first
+dictionary code 0x102, 9-to-12-bit codes, and low-bit-first packing.
+resident_F_4032 appends decoded bytes. resident_F_291E passes header +6 as
+the output allocation/count; the host decoder verifies that it equals the
+expanded output length.
 
-## Limits
+## Kind 5: packed adaptive delta samples
 
-The record table and kind-4 codec are host-decoded. Kind-1/2 records are
-identified as RLE bitmaps from loader disassembly, but the host tool retains
-their stored streams because kind 1 relies on caller bitmap setup and a supplied
-kind-2 stream (`DT2:jg.arc`, index 16) does not reach the expected five-plane
-output length under the recovered stride model. Palette and kind-1 metadata
-semantics remain **UNKNOWN**.
+resident_F_291E allocates the output length from header +6 and calls
+resident_F_4184 with the stored byte count from +0. For each input byte,
+resident_F_4184 decodes the high nibble then low nibble, updates a signed
+16-bit sample and step index, and writes one output byte per nibble
+(sample >> 4, narrowed to char). Thus output size is exactly twice the stored
+input size, and +6 is the decoded byte count. The signed 16-bit table values
+are resident DATA G_h01_1E32[8] at +0x1e32 and G_h01_1E42[49] at +0x1e42;
+the host decoder uses those measured words. In the supplied disks, kind 5
+occurs in dt1.as and dt2.as, not in an .arc file. All supplied kind-5 records
+have +6 == 2 * +0.
 
-## Graphics call evidence and palette limits
+## Kinds 3 and 6
 
-`ov04_F_07CA` sends the kind-1 destination bitmap `G_h01_46CE` to
-`F_h00_8A46` with source/destination origins `(0,0)`, size `320×200`, minterm
-`192`, mask `255`, and flags `0`; the call is the `runtime_glue_bltbitma` service.
-`ov12_F_0000` likewise loads `mbin.arc` record 0 into `G_h01_46CE` and blits
-`320×200`. `ov08_F_0000` loads `mt.arc` records and later blits its record-0
-bitmap through the same service. These calls establish draw rectangles and
-buffer identity, not color palette values.
+Kind 3 reads +0 stored bytes and uses its low 16-bit word as the
+TextBlock.length (resident_F_291E); the rest of its metadata meaning is
+UNKNOWN here. Kind 6 allocates +14 bytes, then reads +0 stored bytes.
+Therefore +14 is an allocation length, not necessarily the number of valid
+bytes read. If +14 exceeds +0, the trailing allocated bytes are not
+initialized by the loader and are UNKNOWN. The host decoder exposes only
+the bytes actually read and checks +0 <= +14.
 
-`runtime_glue_setrast` callers include resource-consuming overlays such as
-`ov05_F_0000`, `ov06_F_0000`, `ov09_F_0000`, `ov10_F_0000`, and
-`ov12_F_0000`; they operate on raster-port state and do not consume the header
-palette words. `runtime_glue_writepix` callers are `ov10_F_1FDE` and
-`ov15_F_08B0`; those pass a raster port, current pen, and pixel coordinates.
-No `LoadRGB4`/`SetRGB4` caller appears in matched C or the behavior service
-ledger. Palette contents, palette index mapping, and any implicit palette
-resource are **UNKNOWN**.
+## Remaining semantic unknowns
+
+ov04_F_07CA and ov12_F_0000 blit kind-1 screen bitmaps at 320 by 200;
+other overlay callers use loaded records with graphics routines. Those calls
+establish draw sizes and destination identity, not palette contents. No matched
+LoadRGB4 / SetRGB4 call was found. Kind-1 +10..+14, kind-2 +12/+14,
+kind-3 auxiliary fields, the palette, and kind-5 +12 remain UNKNOWN unless
+stated above.

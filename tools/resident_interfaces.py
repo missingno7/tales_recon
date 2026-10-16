@@ -1,8 +1,8 @@
 """Evidence-derived named resident DATA call interfaces; no CODE bytes supplied.
 
-The harness bodies remain ordinary function-level stand-ins.  This recipe proves
-only the call route: an authored JMP record in DATA points to a distinct CODE
-body, and the callable mechanical symbol names that record itself.
+External harness bodies remain ordinary function-level stand-ins. Linked unit
+members keep their real CODE symbol; an overlay control makes Manx emit their
+root DATA JMP slot. Both routes prove the complete slot and its CODE relocation.
 """
 import re
 from pathlib import Path
@@ -10,6 +10,10 @@ from common import require, sha256
 
 FIELD='resident_data_interfaces'
 FUNCTION=r'(?:(?:unsigned|signed)\s+)?(?:int|long|short|char|void)\s+(F_h00_[0-9A-Fa-f]+)\s*\(\s*\)'
+
+CONTROL='resident_slot_export_control'
+_routes={}
+_installed=False
 
 
 def original_a4_bias(blob,model):
@@ -34,6 +38,13 @@ def declarations(source):
             require(name not in result or result[name]==m[1].strip(), 'conflicting resident interface declarations')
             result[name]=m[1].strip()
     return result
+
+
+def defines(source,name):
+    """Recognize the unit member's ordinary old-style C definition, not an extern."""
+    clean=re.sub(r'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"', '', source, flags=re.S)
+    parameters=r'(?:(?:(?:unsigned|signed|register)\s+)*(?:int|long|short|char|void|struct\s+\w+)\s+[^;{}]+;\s*)*'
+    return re.search(r'\b'+re.escape(name)+r'\s*\([^;{}]*\)\s*'+parameters+r'\{',clean) is not None
 
 
 def derive(functions,source,blob,model,a4_bias):
@@ -79,12 +90,21 @@ def derive(functions,source,blob,model,a4_bias):
             require(all(prior[k]==member[k] for k in member if k!='sites'),'resident DATA call has conflicting interfaces')
             prior['sites'].append(dict(id=f['id'],start=f['start'],sha256=f['sha256'],offset=site))
     if not members:return None
-    return dict(executable_sha256=sha256(blob),source_sha256=sha256(source.encode('ascii')),
+    for member in members.values():
+        name=member['name']
+        # A real definition, independently present in the unit's member list.
+        # The entry is named recovered and cannot accidentally select this route.
+        if any(f['hunk']==0 and f['start']==member['start'] for f in functions) and \
+                defines(source,name):
+            member.update(binding='LINKED_MEMBER',body=name)
+    recipe=dict(executable_sha256=sha256(blob),source_sha256=sha256(source.encode('ascii')),
                 members=[dict(m,sites=sorted(m['sites'],key=lambda s:(s['id'],s['offset'])))
                          for _,m in sorted(members.items())])
+    register(source,recipe)
+    return recipe
 
 
-def validate(recipe,source=None,target_node=0,local_functions=()):
+def validate(recipe,source=None,target_node=0,local_functions=None):
     if recipe is None:return
     require(target_node==0,'resident DATA interfaces require the root node')
     require(isinstance(recipe,dict) and set(recipe)=={'executable_sha256','source_sha256','members'},'invalid resident DATA interface recipe')
@@ -95,17 +115,21 @@ def validate(recipe,source=None,target_node=0,local_functions=()):
     if source is not None:require(sha256(source.encode('ascii'))==recipe['source_sha256'],'resident DATA interface source identity differs')
     seen=set();locations=set()
     for m in recipe['members']:
-        require(isinstance(m,dict) and set(m)=={'name','body','hunk','start','data_hunk','data_offset','payload_sha256','sites'},
+        linked=isinstance(m,dict) and m.get('binding')=='LINKED_MEMBER'
+        require(isinstance(m,dict) and set(m)=={'name','body','hunk','start','data_hunk','data_offset','payload_sha256','sites'}|({'binding'} if linked else set()),
                 'invalid resident DATA interface member')
         require(type(m['start']) is int and m['start']>=0 and m['hunk']==0 and m['data_hunk']==1 and
                 type(m['data_offset']) is int and m['data_offset']>=0 and
-                m['name']=='F_h00_%04X'%m['start'] and m['body']=='resident_body_'+m['name'] and
-                m['name'] not in seen and m['data_offset'] not in locations and m['name'] not in local_functions,
-                'resident DATA interface is not a unique external root member')
+                m['name']=='F_h00_%04X'%m['start'] and m['body']==(m['name'] if linked else 'resident_body_'+m['name']) and
+                m['name'] not in seen and m['data_offset'] not in locations,
+                'resident DATA interface is not a unique root member')
+        if local_functions is not None:
+            require((m['name'] in local_functions)==linked,
+                    'resident DATA interface linked-member binding disagrees with local functions')
         require(isinstance(m['payload_sha256'],str) and re.fullmatch('[0-9a-f]{64}',m['payload_sha256']),
                 'invalid resident DATA interface payload identity')
         if declared is not None:
-            require(m['name'] in declared and not re.search(r'\b'+re.escape(m['body'])+r'\b',source),
+            require(m['name'] in declared and ((linked and defines(source,m['name'])) or (not linked and not re.search(r'\b'+re.escape(m['body'])+r'\b',source))),
                     'resident DATA interface needs an explicit external function and distinct body')
         require(isinstance(m['sites'],list) and m['sites'],'resident DATA interface needs decoded call sites')
         sites=set()
@@ -128,14 +152,62 @@ def definition(decl,member):
             'struct resident_jump_'+name+' '+name+' = { 0x4ef9, '+body+' };')
 
 
+def register(source,recipe):
+    """Opt-in linker control, like helper_exports; candidate objects are untouched."""
+    names=tuple(m['name'] for m in recipe['members'] if m.get('binding')=='LINKED_MEMBER')
+    if not names:return
+    require(_routes.get(source,names)==names,'one source has conflicting resident slot exports')
+    _routes[source]=names
+    install()
+
+
+def install():
+    global _installed
+    if _installed:return
+    import sys
+    import compiler_oracle
+    base_harness,base_proxies=compiler_oracle.harness,compiler_oracle.overlay_proxies
+    def harness(source,target_node=1,local_functions=(),entry_function='recovered',same_overlay_exports=None,resident_data_interfaces=None):
+        text=base_harness(source,target_node,local_functions,entry_function,same_overlay_exports,resident_data_interfaces)
+        if target_node==0 and any(m.get('binding')=='LINKED_MEMBER' for m in (resident_data_interfaces or {}).get('members',[])):
+            text+=('/* Linked resident member slot export control. */\nextern int '+CONTROL+'();\n'
+                   'int (*resident_slot_export_reference)() = '+CONTROL+';\n')
+        return text
+    def overlay_proxies(source,target_node):
+        proxies=base_proxies(source,target_node)
+        names=_routes.get(source,()) if target_node==0 else ()
+        if names:
+            require(all(p['name']!=CONTROL for p in proxies),'resident slot export control name collides')
+            text=''.join('extern int '+name+'();\n' for name in names)
+            text+=CONTROL+'() {\n'+''.join('    '+name+'();\n' for name in names)+'    return 0;\n}\n'
+            proxies=proxies+[dict(name=CONTROL,hunk=3,node=1,source=text)]
+        return proxies
+    compiler_oracle.harness,compiler_oracle.overlay_proxies=harness,overlay_proxies
+    for name in ('queued_oracle','mixed_profile_oracle','resident_mixed'):
+        module=sys.modules.get(name)
+        if module is not None:
+            if getattr(module,'harness',None) is base_harness:module.harness=harness
+            if getattr(module,'overlay_proxies',None) is base_proxies:module.overlay_proxies=overlay_proxies
+    _installed=True
+
+
 def extract(recipe,blob,model,symbols):
     """Validate emitted payload, callable symbol, and unique distinct CODE body."""
     validate(recipe)
     data=next(h for h in model['hunks'] if h['number']==1);code=next(h for h in model['hunks'] if h['number']==0)
     result=[]
     for member in recipe['members']:
-        entries=[(h,v) for (h,n),v in symbols.items() if n=='_'+member['name']]
         bodies=[(h,v) for (h,n),v in symbols.items() if n=='_'+member['body']]
+        if member.get('binding')=='LINKED_MEMBER':
+            require(len(bodies)==1 and bodies[0][0]==0,'resident DATA interface linked CODE member symbol differs')
+            # Manx's root slots have no DATA symbol. Select the unique JMP
+            # relocation to the actual member, never a substitute CODE body.
+            entries=[(1,r['source_offset']-2) for r in model['relocations']
+                     if r['source_hunk']==1 and r['target_hunk']==0 and r['type']=='HUNK_RELOC32' and
+                     r['width']==4 and r['addend_raw']==bodies[0][1] and r['source_offset']>=2 and
+                     blob[data['content_offset']+r['source_offset']-2:data['content_offset']+r['source_offset']]==b'\x4e\xf9']
+        else:
+            entries=[(h,v) for (h,n),v in symbols.items() if n=='_'+member['name']]
         require(len(entries)==len(bodies)==1 and entries[0][0]==1 and bodies[0][0]==0,
                 'resident DATA interface callable/body symbols differ')
         stub=entries[0][1];body=bodies[0][1]
@@ -154,8 +226,40 @@ def extract(recipe,blob,model,symbols):
     return result
 
 
+def local_call_issues(function,contribution,recipe,blob):
+    """Bind each original slot site to the validated emitted slot, not any pointer.
+
+    Called on a complete member (or the independently reduced behavioral member).
+    The ordinary comparator still proves instruction shape and CODE target identity.
+    """
+    members=[m for m in (recipe or {}).get('members',[]) if m.get('binding')=='LINKED_MEMBER']
+    sites=[(m,s) for m in members for s in m['sites'] if s['id']==function['id']]
+    if not sites:return []
+    model=dict(hunks=contribution['hunks'],relocations=contribution['all_relocations'])
+    symbols={(s['hunk'],s['name']):s['offset'] for s in contribution['symbols']}
+    emitted=extract(recipe,blob,model,symbols)
+    bias=original_a4_bias(blob,model)
+    raw=bytes.fromhex(contribution['code_hex']);issues=[]
+    for member,site in sites:
+        at=site['offset']-function['start']
+        slot=next(e for e in emitted if e['name']==member['name'])
+        stub=bias+int.from_bytes(raw[at+2:at+4],'big',signed=True)
+        if raw[at:at+2] not in (b'\x4e\xac',b'\x4e\xec') or stub!=slot['offset']:
+            issues.append(dict(kind='LINKED_MEMBER_SLOT',offset=at,name=member['name'],
+                               expected_slot=slot['offset'],actual_slot=stub))
+    return issues
+
+
 def provenance():
     return sha256(Path(__file__).read_bytes())
+
+
+def validate_provenance(compiler):
+    # These hashes identify the historical producer, not acceptance. Current
+    # recipe/harness re-derivation and cached artifact extraction remain strict.
+    require(all(isinstance(compiler.get(k),str) and re.fullmatch('[0-9a-f]{64}',compiler[k])
+                for k in ('resident_interface_producer_sha256','resident_interface_extractor_sha256')),
+            'invalid resident DATA interface producer provenance')
 
 
 def evidence(functions,source,compiler,blob,model,a4_bias,unit=None):
@@ -174,11 +278,8 @@ def evidence(functions,source,compiler,blob,model,a4_bias,unit=None):
     require(expected is not None and compiler.get(FIELD)==expected and
             (unit is None or unit.get(FIELD)==expected),
             'resident DATA interfaces do not re-derive from original calls and source')
-    require(compiler.get('resident_interface_producer_sha256')==provenance(),
-            'stale resident DATA interface producer identity')
+    validate_provenance(compiler)
     from compiler_oracle import harness
-    require(compiler.get('resident_interface_extractor_sha256')==sha256(Path(__file__).with_name('compiler_oracle.py').read_bytes()),
-            'stale resident DATA interface extractor identity')
     text=harness(source,compiler.get('candidate_overlay_node',1),compiler.get('local_functions',()),
                  compiler.get('entry_function','recovered'),compiler.get('same_overlay_exports'),expected)
     require(sha256(text.encode('ascii'))==compiler.get('harness_sha256'),

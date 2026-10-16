@@ -87,9 +87,13 @@ class ResidentInterfaceTests(unittest.TestCase):
             bad=copy.deepcopy(self.recipe);bad['members'][0][field]=value
             with self.subTest(field=field),self.assertRaisesRegex(FormatError,'do not re-derive'):
                 interfaces.evidence([self.function],self.source,dict(compiler,resident_data_interfaces=bad),self.blob,self.model,32766)
-        for field in ('harness_sha256','resident_interface_producer_sha256'):
+        for field in ('harness_sha256',):
             with self.assertRaises(FormatError):
                 interfaces.evidence([self.function],self.source,dict(compiler,**{field:'0'*64}),self.blob,self.model,32766)
+        for field in ('resident_interface_producer_sha256','resident_interface_extractor_sha256'):
+            interfaces.evidence([self.function],self.source,dict(compiler,**{field:'0'*64}),self.blob,self.model,32766)
+            with self.assertRaisesRegex(FormatError,'provenance'):
+                interfaces.evidence([self.function],self.source,dict(compiler,**{field:'bad'}),self.blob,self.model,32766)
         for removed in ([interfaces.FIELD],[interfaces.FIELD,'resident_interface_producer_sha256','resident_interface_extractor_sha256']):
             bad={k:v for k,v in compiler.items() if k not in removed}
             with self.assertRaises(FormatError):interfaces.evidence([self.function],self.source,bad,self.blob,self.model,32766)
@@ -160,7 +164,134 @@ class ResidentInterfaceTests(unittest.TestCase):
                 stale_key=sha256(json_bytes(stale));newdir=cache/stale_key;directory.rename(newdir);directory=newdir
                 receipt.update(identity=stale,cache_key=stale_key,artifacts=artifacts())
                 (directory/'receipt.json').write_text(json.dumps(receipt))
-                with self.assertRaisesRegex(FormatError,'stale resident DATA'):oracle.cached(stale_key)
+                self.assertEqual(oracle.cached(stale_key)['contribution'],contribution)
+                # A stale tool hash grants no exemption from exact extraction.
+                (directory/'candidate.exe').write_bytes(bad);receipt['artifacts']=artifacts()
+                (directory/'receipt.json').write_text(json.dumps(receipt))
+                with self.assertRaisesRegex(FormatError,'complete JMP'):oracle.cached(stale_key)
+
+
+class LinkedResidentInterfaceTests(unittest.TestCase):
+    """Synthetic PC/A4 calls to one real member, without canonical corpus reads."""
+    def setUp(self):
+        raw=bytes.fromhex('4eac000061024e754e75')
+        self.blob=raw+bytes.fromhex('4ef900000008')
+        def function(start,end,calls):
+            return dict(id='resident_F_%04X'%start,hunk=0,node='resident',start=start,end=end,size=end-start,
+                        raw_bytes=raw[start:end].hex(),sha256=sha256(raw[start:end]),extent_status='CLOSED_CFG',
+                        referenced_data=[],relocations=[],direct_callees=calls)
+        self.caller=function(0,8,[dict(id='resident_F_0008',hunk=0,offset=8,site=0,basis='A4_RELOCATED_JMP_STUB'),
+                                  dict(id='resident_F_0008',hunk=0,offset=8,site=4,basis='PC_RELATIVE')])
+        self.member=function(8,10,[])
+        self.members=[self.caller,self.member]
+        self.model=dict(hunks=[dict(number=0,content_offset=0,initialized_size=10),
+                               dict(number=1,content_offset=10,initialized_size=6)],
+                        relocations=[dict(source_hunk=1,source_offset=2,target_hunk=0,type='HUNK_RELOC32',width=4,addend_raw=8)])
+        self.source='extern int F_h00_0008();\nrecovered() { F_h00_0008(); F_h00_0008(); }\nF_h00_0008() {}\n'
+        self.recipe=interfaces.derive(self.members,self.source,self.blob,self.model,0)
+
+    def specimen(self):
+        raw=bytearray(224)
+        raw[:8]=bytes.fromhex('49f900007ffe4e75')
+        raw[100:110]=bytes.fromhex('4eac800e61024e754e75')
+        raw[212:218]=bytes.fromhex('4ef90000006c')
+        model=dict(hunks=[dict(number=0,content_offset=0,initialized_size=200),
+                          dict(number=1,content_offset=200,initialized_size=24,allocated_size=24),
+                          dict(number=2,content_offset=224,allocated_size=0)],
+                   relocations=[dict(source_hunk=0,source_offset=2,target_hunk=1,type='HUNK_RELOC32',width=4,addend_raw=32766),
+                                dict(source_hunk=1,source_offset=14,target_hunk=0,type='HUNK_RELOC32',width=4,addend_raw=108)])
+        symbols={(0,'_recovered'):100,(0,'_F_h00_0008'):108,(0,'_F_h00_0010'):110}
+        return raw,model,symbols
+
+    def test_real_member_export_control_and_all_runner_identities(self):
+        self.assertEqual(self.recipe['members'][0]['binding'],'LINKED_MEMBER')
+        self.assertEqual(self.recipe['members'][0]['body'],'F_h00_0008')
+        trial=dict(source=self.source,profile='aztec36',target_node=0,local_functions=['F_h00_0008'],
+                   objects=[dict(source=self.source)],resident_data_interfaces=self.recipe)
+        key,meta,harness=oracle.identity(self.source,'aztec36',0,oracle.object_specs(trial),trial['local_functions'],
+                                        resident_data_interfaces=self.recipe)
+        self.assertNotIn('resident_body_F_h00_0008',harness)
+        self.assertNotIn('F_h00_0008() { return 0; }',harness)
+        self.assertIn('resident_slot_export_reference',harness)
+        proxy=next(p for p in oracle.overlay_proxies(self.source,0) if p['name']==interfaces.CONTROL)
+        self.assertIn('F_h00_0008();',proxy['source'])
+        self.assertEqual(oracle.object_specs(trial)[0]['source'],self.source)
+        self.assertEqual(queued_oracle.trial_plan(trial)[:3],(key,meta,harness))
+        self.assertEqual(compile_queue.trial_key(trial),key)
+        trial.update(object_profiles=['aztec36-large-data'])
+        self.assertEqual(mixed_profile_oracle.mixed_identity(trial)[2],harness)
+        for local in ([],['F_h00_0010']):
+            with self.assertRaisesRegex(FormatError,'local functions'):
+                oracle.identity(self.source,'aztec36',0,local_functions=local,resident_data_interfaces=self.recipe)
+        # Re-derivation and harness proof survive a fresh process registration.
+        interfaces._routes.pop(self.source)
+        interfaces.evidence(self.members,self.source,meta,self.blob,self.model,0)
+        self.assertIn(self.source,interfaces._routes)
+        bad={k:v for k,v in meta.items() if k not in (interfaces.FIELD,'resident_interface_producer_sha256','resident_interface_extractor_sha256')}
+        with self.assertRaisesRegex(FormatError,'harness hash'):
+            interfaces.evidence(self.members,self.source,bad,self.blob,self.model,0)
+
+    def test_extern_or_comment_does_not_establish_a_linked_definition(self):
+        for text in ('extern int F_h00_0008(); recovered() {}',
+                     '/* F_h00_0008() {} */ extern int F_h00_0008(); recovered() {}'):
+            recipe=interfaces.derive(self.members,text,self.blob,self.model,0)
+            self.assertNotIn('binding',recipe['members'][0])
+        self.assertTrue(interfaces.defines('long F_h00_0008(a,c) long a; long c; {}','F_h00_0008'))
+
+    def test_slot_is_unique_complete_and_targets_exact_linked_member(self):
+        raw,model,symbols=self.specimen()
+        extracted=interfaces.extract(self.recipe,bytes(raw),model,symbols)
+        self.assertEqual((extracted[0]['offset'],extracted[0]['target_offset']),(12,108))
+        for mutation in ('different_member','non_member','missing_slot','missing_relocation','duplicate',
+                         'wrong_opcode','wrong_hunk','missing_member_symbol','wrong_body','bad_slot_offset'):
+            blob=bytearray(raw);m=copy.deepcopy(model);s=dict(symbols)
+            if mutation in ('different_member','non_member'):
+                target=110 if mutation=='different_member' else 150
+                blob[214:218]=target.to_bytes(4,'big');m['relocations'][1]['addend_raw']=target
+            elif mutation=='missing_slot':m['hunks'][1]['initialized_size']=12
+            elif mutation=='missing_relocation':m['relocations'].pop()
+            elif mutation=='duplicate':m['relocations'].append(copy.deepcopy(m['relocations'][1]))
+            elif mutation=='wrong_opcode':blob[212]=0
+            elif mutation=='wrong_hunk':m['relocations'][1]['target_hunk']=1
+            elif mutation=='missing_member_symbol':del s[(0,'_F_h00_0008')]
+            elif mutation=='wrong_body':blob[214:218]=(110).to_bytes(4,'big')
+            else:m['relocations'][1]['source_offset']=16
+            with self.subTest(mutation=mutation),self.assertRaises(FormatError):
+                interfaces.extract(self.recipe,bytes(blob),m,s)
+        bad=copy.deepcopy(self.recipe);bad['members'][0]['body']='F_h00_0010'
+        with self.assertRaises(FormatError):interfaces.extract(bad,bytes(raw),model,symbols)
+
+    def test_complete_unit_proves_both_call_routes_and_rejects_redirected_slot(self):
+        from check_unit import compare_unit
+        raw,model,symbols=self.specimen()
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'candidate.exe').write_bytes(raw)
+            compiled=dict(status='COMPILED',identity=dict(profile='aztec36',flags=[],resident_data_interfaces=self.recipe),cache_key='synthetic',cache_hit=True,
+                          directory=str(root),prefix='candidate',contribution=dict(hunk=0,code_offset=100,entry_offset=0,
+                          resident_bounds=dict(start=100,end=110),code_hex=raw[100:110].hex(),code_size=10,
+                          data_size=0,bss_size=0,object_sha256='synthetic',relocations=[],all_relocations=model['relocations'],
+                          hunks=model['hunks'],symbols=[dict(hunk=h,name=n,offset=v) for (h,n),v in symbols.items()],
+                          resident_data_interfaces=interfaces.extract(self.recipe,bytes(raw),model,symbols)))
+            context=dict(root=root,ledger=dict(functions={},behavioral_functions={}),analysis=dict(functions=self.members),
+                         blob=self.blob,model=self.model)
+            names={self.caller['id']:'recovered',self.member['id']:'F_h00_0008'}
+            report=compare_unit(self.members,names,compiled,0,allow_gaps=True,source_text=self.source,context=context)
+            self.assertEqual(report['verdict'],'EQUAL')
+            kinds=[p['kind'] for p in report['members'][0]['relocation_proof']]
+            self.assertIn('A4_D16_SYMBOL',kinds)
+            self.assertIn('PC_RELATIVE_CALL_SYMBOL',kinds)
+            # Keep a valid slot at DATA+12, but redirect the A4 call to a
+            # non-JMP pointer at +18 with the same member relocation. Ordinary
+            # CODE identity alone must not accept that alternate call route.
+            bad=copy.deepcopy(compiled);c=bad['contribution']
+            raw[102:104]=bytes.fromhex('8014');raw[220:224]=(108).to_bytes(4,'big')
+            c['code_hex']=raw[100:110].hex()
+            c['all_relocations'].append(dict(source_hunk=1,source_offset=20,target_hunk=0,
+                                             type='HUNK_RELOC32',width=4,addend_raw=108))
+            (root/'candidate.exe').write_bytes(raw)
+            report=compare_unit(self.members,names,bad,0,allow_gaps=True,source_text=self.source,context=context)
+            self.assertEqual(report['verdict'],'DIFFER')
+            self.assertIn('LINKED_MEMBER_SLOT',[i['kind'] for i in report['members'][0]['relocation_issues']])
 
 
 if __name__=='__main__':unittest.main()

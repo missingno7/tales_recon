@@ -486,12 +486,14 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             if end<=cursor or at>=stop:continue
             require(cursor<=at<end<=stop,'unit boundary splits a relocation')
             pc['relocations'].append(dict(relocation,relative_offset=at-cursor))
+        slot_contribution=pc
         if f['id'] in behavioral_proofs:
             proof=behavioral_proofs[f['id']]
             try:
                 spans=[(t['table_start']-f['start'],t['table_end']-f['start']) for t in f.get('jump_tables',[])]
                 reduced,deletions=behavioral.reduced_contribution(bytes.fromhex(f['raw_bytes']),pc,spans)
                 require(deletions==proof['deletions'],'behavioral unit deletions differ from recorded claim')
+                slot_contribution=reduced
                 reduced_report=compare_function(f,dict(piece,contribution=reduced),a4_bias,source_text=source_text,
                                                 **({'context':context} if context is not None else {}))
                 passed=reduced_report['verdict']=='EQUAL'
@@ -506,6 +508,16 @@ def _compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gap
             report=compare_owned_code_data(f,piece,a4_bias,source_text,**({'context':context} if context is not None else {}))
         else:
             report=compare_function(f,piece,a4_bias,source_text=source_text,**({'context':context} if context is not None else {}))
+        # A real local CODE symbol also resolves ordinary DATA pointers. The
+        # A4 caller must use the very JMP slot independently checked by extraction.
+        import resident_interfaces
+        recipe=compiled['identity'].get(resident_interfaces.FIELD)
+        if any(m.get('binding')=='LINKED_MEMBER' for m in (recipe or {}).get('members',[])):
+            blob=(Path(compiled['directory'])/(compiled['prefix']+'.exe')).read_bytes()
+            slot_issues=resident_interfaces.local_call_issues(f,slot_contribution,recipe,blob)
+            if slot_issues:
+                report.update(verdict='DIFFER',proof_level=None,reason='LINKED_MEMBER_SLOT_DIFFERS')
+                report.setdefault('relocation_issues',[]).extend(slot_issues)
         if f.get('dead_code_extent'):
             report['dead_code_extent']=f['dead_code_extent']
             report['source_acceptance']=False

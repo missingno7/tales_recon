@@ -188,6 +188,16 @@ once per derivation and pass them on. A content-keyed memo outside the census
 stage was tried and is slower, because each lookup rehashes the whole input
 closure. Do not retry that.
 
+Known tool-hash coupling that remains (2026-10-16). Compiler identities and
+cache keys embed the source hash of `compiler_oracle.py`
+(`same_overlay_export_extractor_sha256`, resident interface
+producer/extractor). Editing that file therefore re-keys overlay trials and
+stales the ov04 padding recipe (run `tools/padding_refresh.py`, about 1 min).
+The cached-artifact gate now treats these hashes as provenance, because
+exact re-extraction runs on every read. Dropping them from new identities
+would re-key the whole compile cache once. Do that only together with a
+planned cache rebuild.
+
 ## Retired 2026-10-15
 
 These moved to `to_delete/` (see its manifest). Git history keeps them too.
