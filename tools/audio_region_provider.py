@@ -1,4 +1,5 @@
 """Exact rooted envelope/selector/score DATA provider for H0 5E6C..704E."""
+from validation_memo import shared
 import json
 from pathlib import Path
 from collections import Counter
@@ -139,6 +140,7 @@ def verify(root,blob,model,fact,batch=None):
   reports.append(dict(o,kind=KIND,original=dict(hunk=0,start=min(p['original_start'] for p in o['parts']),end=max(p['original_end'] for p in o['parts']),size=max(p['original_end'] for p in o['parts'])-min(p['original_start'] for p in o['parts'])),bindings=bindings,object_definitions=aj['definitions'],object_sha256=aj['object_sha256'],linked_start=offset,padding_credit=0))
  return dict(id=IDENT,kind=KIND,category=CATEGORY,typed_bytes=layout['typed_bytes'],objects=reports,producer=producer,roots=layout['roots'],envelope_views=layout['envelope_views'],blocked_selectors=layout['blocked_selectors'],unproved_intervals=layout['unproved_intervals'],named_relocations=len(layout['bindings']),contract_sha256=fact['contract_sha256'],layout_sha256=fact['layout_sha256'],fact_sha256=sha256(json_bytes(fact)),linked_sha256=sha256(linked),whole_CODE_bytes=total,padding_control=padding,packed_index_control=dict(max_index=201,object_sha256=control['object_sha256'],game_credit=0),c_bytes=0,asm_instruction_bytes=0,padding_credit=0,source_acceptance=False,proof_level=None,historical_owner='UNKNOWN',historical_tu='UNKNOWN',natural_root_layout_proof=False,verifier_identity={n:sha256(canonical_path(root,'tools/'+n).read_bytes()) for n in ('audio_region_catalogue.py','audio_region_provider.py','audio_score_grammar.py','audio_score_commands.py','audio_score_measured.py','reconstructed_asm.py','hunk.py','repo_paths.py')})
 
+@shared
 def rows(root,blob,model,analysis,ledger):
  item=ledger.get(MAP,{}).get(IDENT)
  if item is None:return []

@@ -3,6 +3,7 @@
 V1 admits the independently bounded RNG CCR-X and saved-A4 record consumers.
 Other driver spans require separately measured predicates/object grammars.
 """
+from validation_memo import shared
 import argparse
 import json
 import sys
@@ -248,6 +249,7 @@ def verify(root,blob,model,analysis,fact,batch=None):
     return report
 
 
+@shared
 def rows(root,blob,model,analysis,ledger,*,staged=False):
     from common import require,sha256
     from repo_paths import canonical_path

@@ -109,3 +109,16 @@ Stale documentation: the 2026-10-05 consolidation checkpoint, the grinder/local-
 | src/overlays/ov14/README.md | 326 | 9e68556ed0306f2f5061c0480612c86bf8cd2701b6cbe21a8996c76da516385a |
 | src/overlays/ov15/README.md | 326 | b638d3f0cd9223831de569485091cec3c319b27f5748231ce988c40009f79235 |
 | src/asm/README.md | 172 | 766e1d3c6c460a45e9f6de0ea9860024a675306dab029b7451786dcd4407d955 |
+
+## 2026-10-16 admission interface
+
+Moved under `to_delete/retired-2026-10-16-admission/` with original relative paths.
+The three batch wrappers duplicated ASM staging, publication and regression
+checks. `tools/promote.py asm MANIFEST` now dispatches all five ASM predicates
+through the shared `promote_asm.py` publisher. Validators remain separate.
+
+| Original path | Bytes | SHA-256 | Reason |
+| --- | ---: | --- | --- |
+| tools/promote_driver_asm.py | 3950 | 2a9b0e887789f48bcede276dc95baa8e769a569834a970196e23092abd8dfa55 | Duplicate per-batch ASM publisher. |
+| tools/promote_callback_asm.py | 3957 | a46d80e7a1be6068fcd474d0034da5ac76d72d647e57fa8b23561672b1eb1a64 | Duplicate per-batch ASM publisher. |
+| tools/promote_frameless_asm.py | 4031 | 24a53c91017509e74bd5b46d3ef039c209c840c80a83e795366444ccbc656957 | Duplicate per-batch ASM publisher. |

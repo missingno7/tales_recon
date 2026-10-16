@@ -1,4 +1,5 @@
 """Batch 0004: independent audio entries under calibrated FRAMELESS_ENTRY."""
+from validation_memo import shared
 import json,re
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -111,6 +112,7 @@ def commands(batch):
  for p,opts in [('frame50',''),('frame50s','-ps')]:result+=['Tools2:bin/cc -a '+opts+' '+p+'.c >'+p+'-cc.log','Tools2:bin/as -o '+p+'.o '+p+'.asm >'+p+'-as.log']
  return result
 
+@shared
 def producer(root,batch):
  import audio_frame_calibration as frame
  names={x['prefix']+suffix for x in SPECS.values() for suffix in ['.asm']}|{'bind_'+x['prefix']+'.asm' for x in SPECS.values()}|{'reg4.c','reg6.c','bind_regs.asm'}|{'frame%d.c'%k for k in range(len(frame.FLAGS))}|{'frame50.c','frame50s.c'}
@@ -122,6 +124,7 @@ def producer(root,batch):
  import audio_frame_calibration as frame
  for n in ['frame%d'%k for k in range(len(frame.FLAGS))]+['frame50','frame50s']:require(expected[n+'.c']==frame.SOURCE,'frame matrix source pins')
  return score.audit_producer(root,batch,expected,commands(batch))
+@shared
 def control(root,batch,blob,model):
  import audio_frame_calibration as frame
  return dict(register_calibration=calibration.derive(root,blob,model,batch),frame_calibration=frame.derive(root,blob,model,batch),ordinary_c_controls='LINK_FRAMED_VOID_LEAF_NO_LOCALS_REGISTER_VARIABLE_OPTION_MATRIX')

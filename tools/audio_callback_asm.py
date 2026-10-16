@@ -1,4 +1,5 @@
 """Separate callback ABI batch; no inherited eligibility for 615E wrapper."""
+from validation_memo import shared
 import json,re
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -70,12 +71,14 @@ def commands(batch):
  result+=['Old1:bin/as -o bind_regs.o bind_regs.asm >bind_regs-as.log']
  for n in (4,6):result+=['Old1:bin/cc -a +D reg%d.c >reg%d-cc.log'%(n,n),'Old1:bin/as -o reg%d.o reg%d.asm >reg%d-as.log'%(n,n,n),'Old1:bin/ln -m -t -o reg%d.exe reg%d.o bind_regs.o >reg%d-ln.log'%(n,n,n)]
  return result
+@shared
 def producer(root,batch):
  expected={n:canonical_path(root,RULES+n).read_bytes() for n in batch['source_files']}
  require(batch['source_files']=={n:sha256(raw) for n,raw in expected.items()},'callback source pins')
  for n in (4,6):require(expected['reg%d.c'%n]==calibration.source(n),'callback C control recipe')
  require(expected['bind_regs.asm']==calibration.BINDER,'callback register binder')
  return score.audit_producer(root,batch,expected,commands(batch))
+@shared
 def control(root,batch,blob,model):return dict(register_calibration=calibration.derive(root,blob,model,batch),ordinary_c_controls='PINNED_REG4_REG6_STACK_ARGUMENT_AND_SAVED_D7')
 def validate_fact(root,blob,model,contract,fact):
  import audio_driver_asm as driver

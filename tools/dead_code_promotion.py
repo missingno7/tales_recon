@@ -68,10 +68,10 @@ def coverage(row,promotions):
   covered.append((p['start'],p['end']))
  return subtract(e['start'],e['end'],covered)
 
-def accepted_contributions(root,blob,model,analysis,promotions,ledger):
+def accepted_contributions(root,blob,model,analysis,promotions,ledger,*,rows=None):
  # Staged experiments have no accounting authority. Canonical entries still replay.
  if not ledger.get(MAP):return []
- rows=canonical_rows(root,blob,model,analysis,ledger)
+ if rows is None:rows=canonical_rows(root,blob,model,analysis,ledger)
  registry=records(root);out=[]
  from hybrid_image import normalize
  for row in rows:

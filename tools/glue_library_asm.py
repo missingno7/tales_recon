@@ -1,4 +1,5 @@
 """Independently bounded graphics register bridge, never library provenance."""
+from validation_memo import shared
 import json
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -74,6 +75,7 @@ def base(root):
  refs=[x for x in p['comparison'].get('relocation_proof',[]) if x.get('identity',{}).get('symbol')=='_G_h01_5374']
  require(refs and all(x['identity']==dict(addend=0,hunk=1,offset=0x5374,symbol='_G_h01_5374') for x in refs),'graphics base named relocation identities')
  return dict(id='ov04_F_1E36',source=item['source'],source_sha256=item['source_sha256'],proof=item['proof'],proof_sha256=item['proof_sha256'],symbol='_G_h01_5374',hunk=1,target=0x5374,storage_ownership='UNKNOWN')
+@shared
 def control(root,blob,model):
  import audio_frameless_asm as batch
  import audio_frame_calibration as frame
@@ -115,6 +117,7 @@ def make_fact(root,blob,model,contract):
 def source_for(ident):
  require(ident==ID,'unknown library glue source');return ASM
 
+@shared
 def producer(root,batch):
  import audio_score_measured as score
  require(set(batch)=={'schema_version','profile','facts','fact_sha256','job','request_sha256','receipt_sha256','artifacts','source_files'} and batch['schema_version']==1 and batch['profile']=='aztec36' and batch['facts']==FACTS,'glue batch schema')

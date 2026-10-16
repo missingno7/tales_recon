@@ -1,4 +1,5 @@
 """Whole measured typed score provider, including complete AJ objects and debt partitions."""
+from validation_memo import shared
 import json,re
 from pathlib import Path
 from collections import Counter
@@ -222,6 +223,7 @@ def verify(root,blob,model,fact,batch=None):
                 verifier_identity={n:sha256(canonical_path(root,'tools/'+n).read_bytes()) for n in ['audio_score_measured.py','audio_score_catalogue.py','audio_score_commands.py','audio_score_grammar.py','check_data_contribution.py','hunk.py','repo_paths.py']})
 
 
+@shared
 def rows(root,blob,model,analysis,ledger):
     item=ledger.get(MAP,{}).get(IDENT)
     if item is None:return []

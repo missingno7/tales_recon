@@ -67,9 +67,9 @@ class CallbackTests(unittest.TestCase):
   import tempfile
   with tempfile.TemporaryDirectory() as tmp:self.assertEqual(list(p.input_identity(Path(tmp)).values()),[None])
  def test_failed_shared_gate_never_publishes(self):
-  import promote_callback_asm as promote,check_function,evidence_snapshot,analysis_support
+  import promote_asm as promote,check_function,evidence_snapshot,analysis_support
   from contextlib import nullcontext
-  with patch.object(sys,'argv',['promote_callback_asm','--promote']),patch.object(promote,'ledger_lock',lambda p:nullcontext()),patch.object(promote,'stage',return_value=[]),patch.object(check_function,'regression_receipt',return_value={'passed':False}),patch.object(evidence_snapshot.Snapshot,'inputs',return_value={}),patch.object(analysis_support,'game',return_value=(self.blob,self.model,None)),patch.object(promote,'publish') as publish:
+  with patch.object(sys,'argv',['promote_asm','--manifest',p.MANIFEST,'--promote']),patch.object(promote,'ledger_lock',lambda p:nullcontext()),patch.object(promote,'stage',return_value=[]),patch.object(check_function,'regression_receipt',return_value={'passed':False}),patch.object(evidence_snapshot.Snapshot,'inputs',return_value={}),patch.object(analysis_support,'game',return_value=(self.blob,self.model,None)),patch.object(promote,'publish') as publish:
    with self.assertRaisesRegex(FormatError,'passing shared regression'):promote.main()
    publish.assert_not_called()
 

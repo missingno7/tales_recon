@@ -1,4 +1,5 @@
 """Second reconstructed-ASM batch: independently checked audio register ABI spans."""
+from validation_memo import shared
 import json,re
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -95,6 +96,7 @@ def binder_source(code,data):
  return ('\n'.join(lines)+'\n').encode('ascii'),exports,2+2*len(code),d+176
 
 
+@shared
 def producer(root,batch):
  """Full retained producer graph; no embedded job receipts in curated evidence."""
  import check_data_contribution as score
@@ -137,6 +139,7 @@ def producer(root,batch):
 
 def document_job(p):return json.loads(p.read_bytes())
 
+@shared
 def control(root,batch,blob,model):
  measured=calibration.derive(root,blob,model,batch)
  work=root/batch['job']/'sys/work';raw=(work/'cctrl.o').read_bytes();code,refs,structure=aj_parse(raw,False)

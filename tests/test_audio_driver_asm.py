@@ -158,9 +158,9 @@ class DriverASMTests(unittest.TestCase):
    ledger['functions']['conflict']={'evidence_extent':dict(hunk=0,start=0x544c,end=0x544e)}
    with self.assertRaisesRegex(FormatError,'overlaps canonical C'):a.rows(ROOT,self.blob,self.model,{},ledger)
  def test_failed_shared_gate_prevents_publication(self):
-  import promote_driver_asm as promote,check_function,evidence_snapshot,analysis_support
+  import promote_asm as promote,check_function,evidence_snapshot,analysis_support
   from contextlib import nullcontext
-  with patch.object(sys,'argv',['promote_driver_asm','--promote']),patch.object(promote,'ledger_lock',lambda p:nullcontext()),patch.object(promote,'stage',return_value=[]),patch.object(check_function,'regression_receipt',return_value={'passed':False}),patch.object(evidence_snapshot.Snapshot,'inputs',return_value={}),patch.object(analysis_support,'game',return_value=(self.blob,self.model,None)),patch.object(promote,'publish') as publish:
+  with patch.object(sys,'argv',['promote_asm','--manifest',a.MANIFEST,'--promote']),patch.object(promote,'ledger_lock',lambda p:nullcontext()),patch.object(promote,'stage',return_value=[]),patch.object(check_function,'regression_receipt',return_value={'passed':False}),patch.object(evidence_snapshot.Snapshot,'inputs',return_value={}),patch.object(analysis_support,'game',return_value=(self.blob,self.model,None)),patch.object(promote,'publish') as publish:
    with self.assertRaisesRegex(FormatError,'passing shared regression'):promote.main()
    publish.assert_not_called()
  def test_optional_empty_repository_inputs(self):

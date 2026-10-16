@@ -9,7 +9,7 @@ import sys
 from common import FormatError, json_bytes, require, sha256
 from ofs import OFSDisk
 from hunk import parse, manx_overlay, overlay_shape
-from recovery_evidence import load_promotions
+from recovery_evidence import load_promotions  # Public canonical-validation hook.
 import audio_sequence_data
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -122,38 +122,35 @@ def _derive_uncached(root, promotion_evidence=None):
         analysis_current=analysis_current and analysis.get('callback_reference_identity',{})==function_pointer_evidence.identity(root)
     import dead_code_extents
     analysis_current=analysis_current and analysis.get('dead_code_input_identity',{})==dead_code_extents.identity(root)
-    promoted=load_promotions(root,exe,model,analysis)
-    from resident_mixed import load_source_objects
     ledger_path = root / 'recovery/ledger.json'
     ledger = json.loads(ledger_path.read_bytes()) if ledger_path.exists() else dict(functions={})
-    from dead_code_promotion import canonical_rows as dead_rows,coverage as dead_coverage
-    complete_c=dead_rows(root,exe,model,analysis,ledger) if (root/dead_code_extents.ADMISSIONS).exists() and not dead_code_extents.refreshing_analysis() else []
+    from acceptance import Context,validate
+    accepted=validate(root,Context(exe,model,analysis,ledger)).rows
+    promoted=accepted['functions']
+    from dead_code_promotion import coverage as dead_coverage
+    complete_c=accepted['dead_code']
     outputs['evidence/functions/dead-code-source-objects.json']=dict(schema_version=1,objects=complete_c,policy='Complete C source-object basis is separate from reachable CFG; only current exact canonical proofs grant acceptance.')
     accepted_dead=[r for r in complete_c if r['acceptance']]
     dead_code_spans=[dict(id=r['id'],hunk=r['complete_extent']['hunk'],start=a,end=b,proof=r['proof']) for r in accepted_dead for a,b in dead_coverage(r,promoted)]
     dead_literal_spans=[dict(hunk=r['complete_extent']['hunk'],start=r['complete_extent']['end'],end=r['owned_literal_end'],proof=r['proof']) for r in accepted_dead if r['owned_literal_end']>r['complete_extent']['end']]
     new_dead_ids={r['id'] for r in accepted_dead}-{r['id'] for r in promoted}
-    source_objects = load_source_objects(root, exe, model, analysis, promoted, ledger)
+    source_objects = accepted['mixed']
     outputs['evidence/functions/source-objects.json'] = dict(schema_version=1,
         game_sha256=sha256(exe), objects=source_objects,
         policy='Complete source-object extents remain separate from CFG reachability. Only rederived canonical mixed proofs grant coverage; historical ownership remains unknown.')
     mixed = [row for row in source_objects if row['acceptance']]
-    from data_providers import load_data_providers
     # CFG refresh cannot replay DATA proofs keyed to the ledger it is about
     # to regenerate. This transient view never supplies strict game outputs.
-    providers=[] if dead_code_extents.refreshing_analysis() else load_data_providers(root,exe,model,analysis,ledger,promoted)
+    providers=accepted['data']
     outputs['evidence/data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
         objects=without_tool_hashes(providers),policy='Strict source-produced typed DATA; historical owner/TU unknown; no root-layout proof.')
-    from reconstructed_asm import rows as asm_rows
-    reconstructed_asm=asm_rows(root,exe,model,analysis,ledger)
+    reconstructed_asm=accepted['asm']
     outputs['evidence/reconstructed-asm/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),objects=without_tool_hashes(reconstructed_asm),policy='RECONSTRUCTED_ASM only; independently decoded non-C predicate, exact source/object/relocations; historical owner UNKNOWN.')
     code_data_facts=audio_sequence_data.load(root,exe,model,analysis=analysis,
         claimed=[dict(hunk=f['hunk'],start=f['start'],end=f['end']) for f in promoted]+
                 [dict(hunk=row['original']['hunk'],start=p['start'],end=p['end']) for row in mixed for p in row['partitions']]+[dict(hunk=r['span']['hunk'],start=r['span']['start'],end=r['span']['end']) for r in reconstructed_asm])
-    from code_data_providers import rows as code_data_rows
-    code_data_providers=code_data_rows(root,exe,model,analysis,ledger)
-    from behavioral import contributions as behavioral_rows
-    behavioral=behavioral_rows(root,exe,model,analysis,ledger)
+    code_data_providers=accepted['code_data']
+    behavioral=accepted['behavioral']
     outputs['evidence/code-data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
         objects=code_data_providers,policy='TYPED_CODE_DATA; no C or ASM instruction credit; owner/TU/layout UNKNOWN.')
     outputs['evidence/executable/code-data.json']=dict(schema_version=1,

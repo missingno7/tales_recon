@@ -101,6 +101,13 @@ def index_job_receipts(root, wanted):
 
 
 def capture(root=ROOT):
+    from evidence_snapshot import isolated_verification
+    from validation_memo import scope
+    with isolated_verification(root),scope(root):
+        return _capture(root)
+
+
+def _capture(root):
     """Freeze only compiler-produced contribution bytes, not worker environments.
 
     Each specimen's raw hash is already in its accepted comparison. --refresh
@@ -132,8 +139,8 @@ def capture(root=ROOT):
                                     owned_code_data=any(t['id']==unit['id'] for t in unit.get('owned_code_tails',[])),
                                     allow_gaps=bool(unit.get('original_gaps')),
                                     source_text=(unit_path.parent/'unit.c').read_text(),natural=unit.get('natural_interval'))
-                require(report['verdict']=='EQUAL' or report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and
-                        report['verdict']==unit['verdict'] and fid in report.get('accepted_exact_members',()),
+                from acceptance import accepted_unit
+                require(accepted_unit(report,[fid]) and (report['verdict']=='EQUAL' or report['verdict']==unit['verdict']),
                         'canonical unit replay failed: '+unit_name)
                 replayed[unit_name]=report
             cursor=0
@@ -268,23 +275,18 @@ from evidence_snapshot import scoped
 
 @scoped
 def build(root=ROOT):
+    from validation_memo import scope
+    with scope(root):
+        return _build(root)
+
+
+def _build(root):
     blob,model,_=game();analysis=json.loads((root/'evidence/functions/ledger.json').read_text())
-    promoted=load_promotions(root,blob,model,analysis);by={f['id']:f for f in analysis['functions']}
+    from acceptance import Context,validate,contributions as accepted_contributions
+    ledger=json.loads((root/'recovery/ledger.json').read_bytes())
+    accepted=validate(root,Context(blob,model,analysis,ledger));promoted=accepted.promoted
     specimens=json.loads(canonical_path(root,SPECIMENS).read_text());require(specimens['game_sha256']==sha256(blob),'specimens belong to another oracle')
-    ledger=json.loads((root/'recovery/ledger.json').read_text());contributions=[]
-    require(set(specimens['functions'])==set(ledger['functions']),'compiled specimens do not name precisely canonical source')
-    for p in promoted:
-        fid=p['id'];item=ledger['functions'][fid];s=specimens['functions'][fid]
-        require(s['proof_sha256']==item['proof_sha256'] and s['source_sha256']==item['source_sha256'],'specimen proof binding changed')
-        proof=json.loads(canonical_path(root,item['proof']).read_text());actual=bytes.fromhex(s['actual_hex'])
-        raw=normalize(by[fid],actual,proof['comparison'],analysis['a4']['bias'])
-        rels=[{k:r[k] for k in ('source_offset','target_hunk','type','width','addend_raw')}
-              for r in model['relocations'] if r['source_hunk']==p['hunk'] and p['start']<=r['source_offset']<p['end']]
-        # load_promotions and normalize check each source relocation against
-        # independently resolved identities before this accounting projection.
-        contributions.append(dict(id=fid,hunk=p['hunk'],start=p['start'],end=p['end'],category='RECOVERED_C',bytes=raw[:p['size']],relocations=rels))
-        if len(raw)>p['size']:
-            contributions.append(dict(id=fid+'_tail',hunk=p['hunk'],start=p['end'],end=p['start']+len(raw),category='COMPILER_OWNED_DATA',bytes=raw[p['size']:]))
+    contributions=accepted_contributions(root,accepted)
     for s in specimens['runtime']:
         receipt_bytes=canonical_path(root,s['receipt']).read_bytes()
         require(sha256(receipt_bytes)==s['receipt_sha256'],'runtime receipt changed')
@@ -304,20 +306,6 @@ def build(root=ROOT):
         contributions.append(dict(id=s['id'],hunk=s['hunk'],start=s['offset'],end=s['offset']+s['size'],bytes=raw,category='PINNED_RUNTIME'))
     contributions.extend(load_terminal_padding(root,blob,model,analysis,promoted,ledger))
     contributions.extend(load_library_a4(root,blob,model,analysis,promoted,ledger))
-    from resident_mixed import accepted_contributions
-    contributions.extend(accepted_contributions(root,blob,model,analysis,promoted,ledger))
-    from dead_code_promotion import accepted_contributions as complete_c_contributions
-    contributions.extend(complete_c_contributions(root,blob,model,analysis,promoted,ledger))
-    from data_providers import load_data_providers, contributions as data_contributions
-    providers=load_data_providers(root,blob,model,analysis,ledger,promoted)
-    contributions.extend(data_contributions(providers))
-    from reconstructed_asm import rows as asm_rows,contributions as asm_contributions
-    contributions.extend(asm_contributions(root,asm_rows(root,blob,model,analysis,ledger)))
-    # Behaviorally reconstructed C is credited separately and never as a match.
-    from behavioral import contributions as behavioral_contributions
-    contributions.extend(behavioral_contributions(root,blob,model,analysis,ledger))
-    from code_data_providers import rows as code_data_rows,contributions as code_data_contributions
-    contributions.extend(code_data_contributions(root,code_data_rows(root,blob,model,analysis,ledger)))
     members=capture_runtime_members(root,blob,model)
     # Legacy compiled.json lacks this optional, fully replayed specimen section.
     # Once refreshed, it is a further binding and may never silently go stale.

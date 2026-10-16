@@ -407,8 +407,9 @@ def source_object_proof(root, blob, model, analysis, ledger, row):
                 exact_historical_library_release='UNKNOWN', natural_root_layout_proved=False)
 
 
-def accepted_contributions(root, blob, model, analysis, promotions, ledger):
-    rows = load_source_objects(root, blob, model, analysis, promotions, ledger)
+def accepted_contributions(root, blob, model, analysis, promotions, ledger, *, rows=None):
+    if rows is None:
+        rows = load_source_objects(root, blob, model, analysis, promotions, ledger)
     result = []
     for row in rows:
         if not row['acceptance']:

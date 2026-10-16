@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import sys
+from acceptance import accepted_unit
 from common import require,sha256,write_json,FormatError,json_bytes
 from analysis_support import ROOT
 from dead_code_extents import replay_root
@@ -590,8 +591,7 @@ def member_comparison(report,fid,source_sha256,base=None):
     require(comparison is not None,'unit member has no comparison: '+fid)
     # An exact member of a unit with recorded behavioral dependencies carries
     # its own exact verdict; the unit receipt keeps ACCEPTED_WITH_BEHAVIORAL.
-    verdict=('EQUAL' if report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and fid in report.get('accepted_exact_members',())
-             else report['verdict'])
+    verdict='EQUAL' if accepted_unit(report,[fid]) else report['verdict']
     comparison=dict(comparison,id=fid,verdict=verdict,reason=report['reason'],
                     source_sha256=source_sha256,
                     unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
@@ -690,8 +690,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     comparison=next((m for m in report['members'] if m['id']==fid),None)
     if comparison is None:
         comparison=compare_function(target,compiled,a4_bias);comparison['actual_length']=None
-    verdict=('EQUAL' if report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and fid in report.get('accepted_exact_members',())
-             else report['verdict'])
+    verdict='EQUAL' if accepted_unit(report,[fid]) else report['verdict']
     comparison=dict(comparison,id=fid,verdict=verdict,reason=report['reason'],
                     source_sha256=report['source_sha256'],
                     unit_feedback={k:report[k] for k in ('expected_length','actual_length','reason') if k in report})
@@ -797,7 +796,7 @@ def proven_object_members(fid,ledger):
     path=verification_root()/receipt_path
     if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):return []
     receipt=json.loads(path.read_text())
-    if receipt.get('verdict') not in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') or len(receipt.get('ordered_members') or [])<2:return []
+    if not accepted_unit(receipt) or len(receipt.get('ordered_members') or [])<2:return []
     partition=proven_object_partition(receipt)
     if partition is None:return []
     proved={**receipt.get('dependency_sources',{}),**receipt.get('member_sources',{}),receipt['id']:receipt.get('source_sha256')}
@@ -844,7 +843,7 @@ def proven_unit_groups(members,new_ids,ledger=None):
         if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):
             skip('RECEIPT_MISSING_OR_CHANGED');continue
         receipt=json.loads(path.read_text())
-        if receipt.get('verdict') not in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') or len(receipt.get('ordered_members') or [])<2:continue
+        if not accepted_unit(receipt) or len(receipt.get('ordered_members') or [])<2:continue
         partition=proven_object_partition(receipt)
         if partition is None:
             skip('PROVEN_OBJECT_PARTITION_UNAVAILABLE');continue
@@ -996,7 +995,7 @@ def promote_unit_members(fid,source,member_sources,members,report,comparison,com
     """
     import check_function
     behavioral_deps=set(report.get('behavioral_members',()))
-    require(report['verdict'] in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') and
+    require(accepted_unit(report) and
             all(m['verdict']==('BEHAVIORAL_EQUAL' if m['id'] in behavioral_deps else 'EQUAL') for m in report['members']),
             'multi-member promotion requires every exact member EQUAL and every behavioral dependency re-proved')
     require(not behavioral_deps&({fid}|set(member_sources)),'behavioral members are never promoted as exact')
@@ -1348,8 +1347,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                                       profile_record=trial.get('profile_record'),
                                       harness_struct_views=trial.get('harness_struct_views',False))
         new_ids={fid,*member_sources}
-        accepted=(report['verdict']=='EQUAL' or report['verdict']=='ACCEPTED_WITH_BEHAVIORAL' and
-                  new_ids<=set(report.get('accepted_exact_members',())))
+        accepted=accepted_unit(report,new_ids)
         if accepted and promote_equal:
             require(report['verdict']=='EQUAL' or not replace_canonical,'canonical replacement requires an exact unit')
             target=next(f for f in members if f['id']==fid);canonical=recovery()['functions'].get(fid)
@@ -1441,7 +1439,7 @@ def main():
                       a.replace_canonical,a.with_m_lib)
     for r in reports:print(json.dumps(r))
     if a.prepare_only:return 0
-    return 0 if any(r['verdict'] in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') for r in reports) else 1
+    return 0 if any(accepted_unit(r) for r in reports) else 1
 
 if __name__=='__main__':
     try:sys.exit(main())

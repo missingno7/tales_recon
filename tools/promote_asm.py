@@ -11,8 +11,26 @@ import reconstructed_asm as asm
 def stage(root,blob,model,analysis,ledger,*,predicate=asm):
     asm=predicate
     batch=asm.document(root,asm.MANIFEST);rows=[]
+    import audio_driver_asm as driver
+    import audio_callback_asm as callback
+    import audio_frameless_asm as frameless
+    driver_style=predicate in (driver,callback,frameless)
+    if driver_style:
+        audit=asm.producer(root,batch);control=asm.control(root,batch,blob,model)
+        if predicate is driver:
+            required={'resident_asm_559E','resident_asm_59A4'}
+            contract=asm.contracts.derive(blob,model,control['register_calibration'])
+        elif predicate is callback:
+            required={'resident_driver_58BC','resident_driver_5A50'}
+            contract=asm.derive(blob,model,control['register_calibration'])
+        else:
+            required={'resident_driver_58BC','resident_driver_5A50','resident_callback_617C','resident_callback_61A0'}
+            contract=asm.derive(blob,model,control['frame_calibration'],root)
+        require(required<=set(ledger.get(asm.MAP,{})),'canonical prerequisites must precede ASM batch')
     for name in asm.FACTS:
-        fact=asm.document(root,name);report=asm.verify(root,blob,model,analysis,fact,batch)
+        fact=asm.document(root,name)
+        report=(asm.verify(root,blob,model,fact,batch,contract,audit,control) if driver_style else
+                asm.verify(root,blob,model,analysis,fact,batch))
         require(fact['id'] not in ledger.get(asm.MAP,{}),'ASM already admitted; replay through census')
         rows.append((name,fact,report))
     # All accepted classes, including runtime/DATA, must be RAW debt here.
@@ -25,23 +43,18 @@ def stage(root,blob,model,analysis,ledger,*,predicate=asm):
 
 
 def main():
-    from audio_frameless_asm import MANIFEST as frame_manifest
-    if any(a=='--manifest='+frame_manifest or a=='--manifest' and i+1<len(sys.argv[1:]) and sys.argv[1:][i+1]==frame_manifest for i,a in enumerate(sys.argv[1:])):
-        from promote_frameless_asm import main as frame_main
-        return frame_main()
-    from audio_driver_asm import MANIFEST as next_manifest
-    args=sys.argv[1:]
-    if any(a=='--manifest='+next_manifest or a=='--manifest' and i+1<len(args) and args[i+1]==next_manifest for i,a in enumerate(args)):
-        from promote_driver_asm import main as next_main
-        return next_main()
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default=asm.MANIFEST)
     mode=ap.add_mutually_exclusive_group(required=True);mode.add_argument('--verify-only',action='store_true');mode.add_argument('--promote',action='store_true');a=ap.parse_args()
     from analysis_support import ROOT,game
     from evidence_snapshot import snapshot,Snapshot
     from check_function import regression_receipt
+    import audio_driver_asm as driver
+    import audio_callback_asm as callback
+    import audio_frameless_asm as frameless
     import glue_library_asm as glue
-    require(a.manifest in (asm.MANIFEST,glue.MANIFEST),'unsupported batch manifest')
-    predicate=glue if a.manifest==glue.MANIFEST else asm
+    predicates={p.MANIFEST:p for p in (asm,driver,callback,frameless,glue)}
+    require(a.manifest in predicates,'unsupported batch manifest')
+    predicate=predicates[a.manifest]
     root=ROOT;ledger_path=root/'recovery/ledger.json'
     with snapshot(),ledger_lock(ledger_path):
         ledger=predicate.document(root,'recovery/ledger.json');before=sha256(ledger_path.read_bytes())
@@ -60,14 +73,14 @@ def main():
         fresh=stage(root,blob,model,analysis,ledger,predicate=predicate);require(fresh==rows,'ASM replay changed after gate')
         artifacts={};updated=canonical_state(ledger)
         for name,fact,report in rows:
-            proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=predicate.source_for(fact['id'])
+            proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=canonical_path(root,fact['candidate']).read_bytes()
             proof_path='recovery/proofs/asm-reconstructed/'+fact['id']+'.json'
             for dest,raw in [(fact['source'],source),(proof_path,proof)]:
                 p=canonical_path(root,dest);require(not p.exists() or p.read_bytes()==raw,'ASM destination differs')
             updated.setdefault(predicate.MAP,{})[fact['id']]=dict(state='FUNCTION_CODE_MATCH',fact=name,source=fact['source'],source_sha256=sha256(source),proof=proof_path,proof_sha256=sha256(proof))
             artifacts[root/fact['source']]=source;artifacts[root/proof_path]=proof
         publish(root,ledger_path,artifacts,updated,before)
-        predicate.rows(root,blob,model,analysis,updated)
+        asm.rows(root,blob,model,analysis,updated)
         print(json.dumps(dict(verdict='PROMOTED',members=[f['id'] for n,f,r in rows],category='RECONSTRUCTED_ASM',bytes=sum(f['original']['size'] for n,f,r in rows))))
 
 
