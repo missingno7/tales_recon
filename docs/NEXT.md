@@ -70,6 +70,23 @@ smoke test, are clearly labelled, and never count as recovery. The link
 inventory (undefined, duplicate and conflicting symbols, overlay `ln`
 specification, layout-dependence risks) is the first step.
 
+**Porting foundation (2026-10-16).** The port is mostly mechanical once all of
+these hold:
+
+1. Complete: every game byte exists as source; no oracle bytes fill gaps.
+2. Self-consistent: link-and-run, as above.
+3. Verified as a whole: the same recorded input gives the same per-frame
+   game-state trace in the original (WinUAE), in our build and later in the
+   port. This trace is the port's acceptance test. Rendering and audio get
+   per-frame screenshot and audio-buffer references.
+4. Understood: semantic names, every global typed with fields, and the core
+   systems documented (loop, entities, collision, levels, timing).
+5. Explicit platform boundary: every OS and custom-chip touch listed with its
+   meaning. The port replaces exactly this layer.
+6. Portability hazards catalogued: 16-bit `int`, byte order, pointer width,
+   FFP floats, A4 data, overlays, layout tricks.
+7. Assets understood (done).
+
 After that come the readability pass (stage 3: names, struct fields, readable
 view) and then the SDL3 port (stage 4).
 
