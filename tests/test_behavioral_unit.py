@@ -204,3 +204,91 @@ def test_behavioral_dependencies_keep_mechanical_library_bindings(mixed):
         check_unit.unit_trials(target['id'],members,names,parts,'recovered() {}',
                                ['aztec36'],True,False,None)
     assert [m['id'] for m in routes.call_args.args[0]]==[members[i]['id'] for i in (0,2)]
+
+
+@pytest.fixture
+def accepted_object(mixed):
+    """A hash-bound accepted object with exact/behavioral/exact members."""
+    root=mixed['root'];members=mixed['members'];ledger=mixed['ledger']
+    report=mixed['compare']();entry=members[0]['id']
+    hashes={m['id']:sha256(m['id'].encode()) for m in members}
+    hashes[members[1]['id']]=ledger['behavioral_functions'][members[1]['id']]['source_sha256']
+    report.update(id=entry,ordered_members=members,source_sha256=hashes[entry],
+                  member_sources={m['id']:hashes[m['id']] for m in (members[0],members[2])},
+                  dependency_sources={members[1]['id']:hashes[members[1]['id']]})
+    receipt='recovery/units/group/receipt.json'
+    (root/receipt).parent.mkdir(parents=True)
+    def save():
+        raw=json_bytes(report);(root/receipt).write_bytes(raw)
+        for m in (members[0],members[2]):
+            proof='recovery/proofs/'+m['id']+'.json'
+            (root/proof).parent.mkdir(parents=True,exist_ok=True)
+            (root/proof).write_bytes(json_bytes(dict(comparison=dict(complete_unit_receipt=receipt,
+                                                                    complete_unit_receipt_sha256=sha256(raw)))))
+            ledger['functions'][m['id']]=dict(state='FUNCTION_CODE_MATCH',proof=proof,source_sha256=hashes[m['id']])
+    save()
+    return dict(mixed,receipt=report,save=save)
+
+
+def test_accepted_behavioral_object_group_is_preserved(accepted_object):
+    obj=accepted_object;members=obj['members'];ids=[m['id'] for m in members]
+    with patch('check_unit.verification_root',return_value=obj['root']):
+        assert check_unit.proven_object_members(ids[0],obj['ledger'])==ids[1:]
+        assert check_unit.proven_unit_groups(members,set(),obj['ledger'])==([ids],[])
+    # Grouping never changes the behavioral member's exactness category.
+    assert obj['compare']()['verdict']=='ACCEPTED_WITH_BEHAVIORAL'
+    assert obj['compare']()['behavioral_members']==[ids[1]]
+
+
+@pytest.mark.parametrize('mutation',['changed_source','missing_behavioral','differ','changed_receipt','missing_member'])
+def test_accepted_behavioral_object_group_rejects_changed_inputs(accepted_object,mutation):
+    obj=accepted_object;members=obj['members'];ids=[m['id'] for m in members]
+    if mutation=='changed_source':obj['ledger']['behavioral_functions'][ids[1]]['source_sha256']='0'*64
+    elif mutation=='missing_behavioral':obj['ledger']['behavioral_functions'].clear()
+    elif mutation=='differ':obj['receipt']['verdict']='DIFFER';obj['save']()
+    elif mutation=='changed_receipt':obj['receipt']['extra']='changed';(obj['root']/'recovery/units/group/receipt.json').write_bytes(json_bytes(obj['receipt']))
+    else:members=members[:2]
+    with patch('check_unit.verification_root',return_value=obj['root']):
+        assert check_unit.proven_unit_groups(members,set(),obj['ledger'])[0]==[]
+        if mutation!='missing_member':assert check_unit.proven_object_members(ids[0],obj['ledger'])==[]
+
+
+def test_root_slot_export_pc_jsr_proves_whole_contiguous_object():
+    a=dict(id='resident_F_0100',hunk=0,start=0x100,end=0x104,direct_callees=[],instructions=[])
+    middle=dict(id='resident_F_0104',hunk=0,start=0x104,end=0x108,direct_callees=[],instructions=[])
+    b=dict(id='resident_F_0108',hunk=0,start=0x108,end=0x10c,
+           direct_callees=[dict(id=a['id'],hunk=0,offset=0x100,site=0x108,basis='PC_RELATIVE')],
+           instructions=[dict(offset=0x108,mnemonic='jsr')])
+    caller=dict(id='resident_F_0200',hunk=0,start=0x200,end=0x204,
+                direct_callees=[dict(id=a['id'],hunk=0,offset=0x100,site=0x200,basis='A4_RELOCATED_JMP_STUB')],instructions=[])
+    members=[a,middle,b,caller];ids=[m['id'] for m in members]
+    ledger=dict(functions={i:dict(source_sha256=sha256(i.encode())) for i in ids})
+    assert check_unit.resident_slot_pairs(members)==[(b,a)]
+    with patch('check_unit.proven_tail',return_value=(b'',None)):
+        assert check_unit.proven_unit_groups(members,{caller['id']},ledger)==([ids[:3]],[])
+        with pytest.raises(FormatError,match='unowned gaps'):
+            check_unit.proven_unit_groups([a,b,caller],{caller['id']},ledger)
+    caller['direct_callees'].clear()
+    assert check_unit.resident_slot_pairs(members)==[]
+
+
+def test_root_slot_pc_jsr_closure_keeps_intervening_canonical_members():
+    # Even when original-gap compaction is otherwise permitted, the local
+    # object's intervening member cannot be omitted from its source object.
+    def f(start):
+        return dict(id='resident_F_%04X'%start,hunk=0,node='resident',start=start,end=start+2,
+                    direct_callees=[],instructions=[])
+    a,mid,b,entry=[f(x) for x in (0x100,0x102,0x104,0x200)]
+    b.update(direct_callees=[dict(id=a['id'],hunk=0,offset=a['start'],site=b['start'],basis='PC_RELATIVE')],
+             instructions=[dict(offset=b['start'],mnemonic='jsr')])
+    entry['direct_callees']=[dict(id=b['id'],hunk=0,offset=b['start'],site=entry['start'],basis='PC_RELATIVE'),
+                              dict(id=a['id'],hunk=0,offset=a['start'],site=entry['start']+4,basis='A4_RELOCATED_JMP_STUB')]
+    members=[a,mid,b,entry];text='recovered() {}\n'
+    ledger=dict(functions={m['id']:dict(source='synthetic.c',source_sha256=sha256(text.encode())) for m in members[:-1]})
+    analysis=dict(functions=members,a4=dict(bias=32766))
+    def validated(fid):return next(m for m in members if m['id']==fid),analysis
+    with patch('check_unit.validated_function',side_effect=validated),patch('check_unit.recovery',return_value=ledger), \
+         patch('check_unit.canonical_path',return_value=type('Source',(),{'read_text':lambda self:text})()), \
+         patch('check_unit.proven_object_members',return_value=[]):
+        prepared=check_unit.prepare_unit(entry['id'],text,True,allow_gaps=True)
+    assert [m['id'] for m in prepared[0]]==[m['id'] for m in members]

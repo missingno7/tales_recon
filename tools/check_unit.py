@@ -210,6 +210,20 @@ def natural_interval_plan(members,interval,new_ids,owned_code_data=False,target_
     return layout
 
 
+def resident_slot_pairs(members):
+    """PC-relative calls to a root slot export are same-object evidence (N10).
+
+    Manx routes separate-object JSRs to exported symbols through A4. An original
+    PC-relative JSR to that same symbol was therefore resolved inside its object.
+    """
+    from recovery_evidence import same_object_call
+    root=[m for m in members if m['hunk']==0]
+    exports={(c['hunk'],c['offset']) for m in root for c in m.get('direct_callees',[])
+             if c.get('basis')=='A4_RELOCATED_JMP_STUB' and c.get('hunk')==0}
+    return [(a,b) for a in root for b in root if a['id']!=b['id'] and
+            (b['hunk'],b['start']) in exports and same_object_call(a,b,exports)]
+
+
 @scoped
 def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_externs=True,member_sources=None,natural_interval=None,
                  local_calls_only=False):
@@ -318,6 +332,14 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
                 for other in proven_object_members(member_id,r):
                     if other not in members and other!=fid:
                         add_recovered(other);pending=True
+            # Root exports follow the same Manx local-call rule as overlay
+            # exports. Keep every intervening function, never compact a gap
+            # inside this independently evidenced historical object.
+            for caller,callee in resident_slot_pairs(list(members.values())):
+                lo,hi=sorted((caller['start'],callee['start']))
+                for other in l['functions']:
+                    if other['hunk']==0 and lo<=other['start']<=hi and other['id'] not in members:
+                        add_recovered(other['id']);pending=True
     if natural_interval is not None:
         # Natural interval: every discovered function of the claimed interval
         # is linked in original order, canonical ones from their exact
@@ -708,7 +730,7 @@ def partitioned_objects(members,names,parts,join_direct_callees=False,with_membe
 
 
 def proven_object_partition(receipt):
-    """Ordinary source objects of an EQUAL unit receipt, as ordered member-id lists.
+    """Ordinary source objects of an accepted unit receipt, as ordered member-id lists.
 
     A receipt compiled without an object partition was one object.  A
     partitioned receipt is read from its own hash-checked compile-cache
@@ -738,7 +760,7 @@ def proven_object_members(fid,ledger):
     """Other members of the multi-member natural object in which ``fid`` was proved.
 
     Uses the same hash-checked evidence as ``proven_unit_groups``: the
-    member's own proof, its ``complete_unit_receipt`` (EQUAL) and that
+    member's own proof, its accepted ``complete_unit_receipt`` and that
     receipt's ordinary object partition, with every co-member still canonical
     at its proved source hash.  Returns ``[]`` when there is no such object.
     """
@@ -752,11 +774,13 @@ def proven_object_members(fid,ledger):
     path=verification_root()/receipt_path
     if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):return []
     receipt=json.loads(path.read_text())
-    if receipt.get('verdict')!='EQUAL' or len(receipt.get('ordered_members') or [])<2:return []
+    if receipt.get('verdict') not in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') or len(receipt.get('ordered_members') or [])<2:return []
     partition=proven_object_partition(receipt)
     if partition is None:return []
     proved={**receipt.get('dependency_sources',{}),**receipt.get('member_sources',{}),receipt['id']:receipt.get('source_sha256')}
-    functions=ledger['functions']
+    # Grouping is an object-boundary fact, not exact credit. Behavioral
+    # co-members keep their canonical source hash and are re-proved separately.
+    functions={**ledger.get('behavioral_functions',{}),**ledger['functions']}
     for ids in partition:
         if fid in ids and len(ids)>1:
             if any((functions.get(x) or {}).get('source_sha256')!=proved.get(x) for x in ids):return []
@@ -765,18 +789,21 @@ def proven_object_members(fid,ledger):
 
 
 def proven_unit_groups(members,new_ids,ledger=None):
-    """Canonical member runs that were proved together in one natural object.
+    """Canonical member runs with independent same-object evidence.
 
-    Evidence comes only from a canonical member's own proof: its
-    ``complete_unit_receipt`` (hash-checked, verdict EQUAL) and that receipt's
+    Existing runs come from a canonical member's own proof: its
+    ``complete_unit_receipt`` (hash-checked, accepted verdict) and that receipt's
     ordinary object partition (``proven_object_partition``).  Every object of
     two or more members becomes a group here when all of its members are
     canonical in this unit, still have the proved source hashes, and are
     consecutive in this unit's address order (so no other linked function
     would have to enter that object).  Returns ``(groups, skipped)``;
-    ``skipped`` lists receipts or objects not applied and why.
+    ``skipped`` lists receipts or objects not applied and why. A local call
+    to an observed root A4-slot export also establishes same-object membership;
+    that span must contain every canonical contribution with no unowned gap.
     """
-    ledger=ledger or recovery();functions=ledger['functions']
+    ledger=ledger or recovery()
+    functions={**ledger.get('behavioral_functions',{}),**ledger['functions']}
     order=[m['id'] for m in members]
     groups=[];skipped=[];seen=set()
     for m in members:
@@ -794,7 +821,7 @@ def proven_unit_groups(members,new_ids,ledger=None):
         if not path.is_file() or sha256(path.read_bytes())!=comparison.get('complete_unit_receipt_sha256'):
             skip('RECEIPT_MISSING_OR_CHANGED');continue
         receipt=json.loads(path.read_text())
-        if receipt.get('verdict')!='EQUAL' or len(receipt.get('ordered_members') or [])<2:continue
+        if receipt.get('verdict') not in ('EQUAL','ACCEPTED_WITH_BEHAVIORAL') or len(receipt.get('ordered_members') or [])<2:continue
         partition=proven_object_partition(receipt)
         if partition is None:
             skip('PROVEN_OBJECT_PARTITION_UNAVAILABLE');continue
@@ -809,6 +836,16 @@ def proven_unit_groups(members,new_ids,ledger=None):
             if order[at:at+len(ids)]!=ids:
                 skip('PROVEN_MEMBERS_NOT_CONSECUTIVE_HERE',ids);continue
             if ids not in groups:groups.append(ids)
+    # A PC-relative call to an independently observed root A4-slot export
+    # proves a local object too. Every intervening contribution must already
+    # be canonical, present, and contiguous including its separately proved tail.
+    for caller,callee in resident_slot_pairs(members):
+        lo,hi=sorted((order.index(caller['id']),order.index(callee['id'])))
+        span=members[lo:hi+1];ids=[m['id'] for m in span]
+        if any(x in new_ids or x not in functions for x in ids):continue
+        require(all(a['end']+len(proven_tail(a,ledger)[0])==b['start'] for a,b in zip(span,span[1:])),
+                'resident slot local object has unowned gaps')
+        if ids not in groups:groups.append(ids)
     # Overlapping proven objects describe one source object here.
     merged=[]
     for ids in sorted(groups,key=lambda g:order.index(g[0])):
