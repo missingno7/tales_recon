@@ -11,6 +11,7 @@ confirmed.
 | --- | --- | --- |
 | Exact verify loop: candidate -> pinned compiler -> compare with relocation/symbol identity | `check_function.py`, `check_unit.py`, `function_compare.py` | The comparison core is generic. Profiles and harness are toolchain-specific. |
 | Ownership ledger + hash-bound proofs + quarantine | `recovery/ledger.json`, `repo_paths.py`, `to_delete/` | One map per proof class; canonical writes behind one lock (`recovery_transaction.py`). |
+| Proof-class registry, one publisher CLI, per-proof validation memo | `acceptance.py`, `promote.py`, `validation_memo.py` | Each class declares ledger map, accounting categories, validator, contributions and publisher. The memo keys each accepted row by the content of every file its validator read plus the tools import closure. |
 | Proof classes kept separate (exact, asm, behavioral, unresolved) | `docs/proof-levels.md`, `behavioral.py` | The behavioral route (exact after deleting a whitelisted codegen delta + caller observability check) generalizes to other compiler-version gaps. |
 | Whole-image accounting, every byte classified | `hybrid_image.py` | Needs only a parsed executable and per-class contributions. |
 | Behavior coverage report | `behavior.py` | Derived view; no stored state. |
@@ -64,7 +65,8 @@ code-data providers, the story tables, and the `.arc`/`.as` formats
    meant finding seven separate hard-coded "verdict == EQUAL" gates (unit
    compare, unit promotion, member comparison, retain_unit, durable_unit,
    the census receipt validator and the hybrid replay). A shared acceptance
-   predicate per class would have been one edit.
+   predicate per class would have been one edit. Now implemented as
+   `acceptance.py` with one `promote.py CLASS MANIFEST` entry point.
 6. **No gated promotion while any worker can write under `tests/` or
    `tools/`.** The gate fails closed, and the run is wasted.
 7. **Build orchestration only for a large frontier.** A fleet scheduler
@@ -76,3 +78,13 @@ code-data providers, the story tables, and the `.arc`/`.as` formats
    assembled member" twice in parallel. One rewrote a file with CRLF line
    endings (936 changed lines for 9 real ones). Brief workers to rebase onto
    the current HEAD, extend the general recipe, and keep LF only.
+10. **Memoize validation per proof, keyed by observed reads.** A memo keyed
+    by the whole input closure was slower than re-validating, because every
+    lookup rehashed everything. Keying each accepted proof by the files its
+    validator actually opened (an audit hook records them), plus the tools
+    import closure, made warm canonical checks 10x faster. "Once exact, it
+    is exact" then holds mechanically: an unchanged proof is never
+    re-derived, and any changed input still is.
+11. **Workers must not copy the repository.** A worker that cloned the tree
+    for scratch verification used 24 GB on a nearly full disk. Brief workers
+    to verify through isolated imports and their own directory.

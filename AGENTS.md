@@ -81,8 +81,9 @@ C. Use `python tools/grinder.py facts TARGET` and `python tools/declaration_view
 run lightweight diagnostics, and use `check_function.py TARGET SOURCE --isolated
 --no-promote --profile aztec36` for exact verification. Promote the unchanged
 candidate with `check_function.py TARGET SOURCE --profile aztec36` only after
-reviewing the exact result. Independent contributions can share the existing
-`promote_batch.py MANIFEST --verify-only` / `promote_batch.py MANIFEST` boundary.
+reviewing the exact result. Every proof class publishes through one CLI,
+`python tools/promote.py CLASS MANIFEST [--verify-only]` (registry:
+`tools/acceptance.py`); independent contributions share one batch manifest.
 
 Compile dependencies as separate historical objects by default. An explicit
 `--object-group` requires independent evidence of same-object membership; do
