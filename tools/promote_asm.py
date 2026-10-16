@@ -8,9 +8,9 @@ from recovery_state import canonical_state
 import reconstructed_asm as asm
 
 
-def stage(root,blob,model,analysis,ledger,*,predicate=asm):
+def stage(root,blob,model,analysis,ledger,*,predicate=asm,manifest=None):
     asm=predicate
-    batch=asm.document(root,asm.MANIFEST);rows=[]
+    batch=asm.document(root,asm.MANIFEST if manifest is None else manifest);rows=[]
     import audio_driver_asm as driver
     import audio_callback_asm as callback
     import audio_frameless_asm as frameless
@@ -25,9 +25,9 @@ def stage(root,blob,model,analysis,ledger,*,predicate=asm):
             contract=asm.derive(blob,model,control['register_calibration'])
         else:
             required={'resident_driver_58BC','resident_driver_5A50','resident_callback_617C','resident_callback_61A0'}
-            contract=asm.derive(blob,model,control['frame_calibration'],root)
+            contract=asm.derive_batch(blob,model,control['frame_calibration'],root,batch)
         require(required<=set(ledger.get(asm.MAP,{})),'canonical prerequisites must precede ASM batch')
-    for name in asm.FACTS:
+    for name in (batch['facts'] if predicate is frameless else asm.FACTS):
         fact=asm.document(root,name)
         report=(asm.verify(root,blob,model,fact,batch,contract,audit,control) if driver_style else
                 asm.verify(root,blob,model,analysis,fact,batch))
@@ -53,6 +53,7 @@ def main():
     import audio_frameless_asm as frameless
     import glue_library_asm as glue
     predicates={p.MANIFEST:p for p in (asm,driver,callback,frameless,glue)}
+    predicates[frameless.TAIL_MANIFEST]=frameless
     require(a.manifest in predicates,'unsupported batch manifest')
     predicate=predicates[a.manifest]
     root=ROOT;ledger_path=root/'recovery/ledger.json'
@@ -61,7 +62,7 @@ def main():
         print('Replaying current canonical inputs...',file=sys.stderr,flush=True)
         blob,model,_=game();analysis=predicate.document(root,'evidence/functions/ledger.json')
         print('Verifying complete ASM batch and existing accounting...',file=sys.stderr,flush=True)
-        rows=stage(root,blob,model,analysis,ledger,predicate=predicate)
+        rows=stage(root,blob,model,analysis,ledger,predicate=predicate,manifest=a.manifest)
         if a.verify_only:
             print(json.dumps(dict(verdict='EQUAL_CANDIDATE',members=[f['id'] for n,f,r in rows],size=sum(f['original']['size'] for n,f,r in rows),source_acceptance=False)));return
         inputs=Snapshot().inputs(root,True)
@@ -70,7 +71,7 @@ def main():
         require(regression.get('passed') is True,'ASM promotion requires passing shared regression')
         require(Snapshot().inputs(root,True)==inputs,'ASM validation inputs changed during regression')
         print('Gate passed; rechecking unchanged inputs and exact batch...',file=sys.stderr,flush=True)
-        fresh=stage(root,blob,model,analysis,ledger,predicate=predicate);require(fresh==rows,'ASM replay changed after gate')
+        fresh=stage(root,blob,model,analysis,ledger,predicate=predicate,manifest=a.manifest);require(fresh==rows,'ASM replay changed after gate')
         artifacts={};updated=canonical_state(ledger)
         for name,fact,report in rows:
             proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=canonical_path(root,fact['candidate']).read_bytes()

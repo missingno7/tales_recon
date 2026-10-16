@@ -53,7 +53,7 @@ are now recovered.
 | Item | Bytes | Category | State |
 | --- | ---: | --- | --- |
 | Raw resident DATA: palettes 1422..1EA4, audio periods and pointers 29DE..2C64, coordinates 0468..0A3A, map/tile rows 0AC2..12B4, index tables 1F34..292E | about 9,500 | A | typed providers in review (53 exact candidates) |
-| Audio residues 57D2, 5FC8, 6000, 60BC, 6A8E, 701A, 702E | 66 | A, CFG/BOUNDARY | worker in progress |
+| Audio envelope/bytecode candidates 5FC8, 6000, 60BC, 6A8E | 14 | A, DATA_OWNERSHIP | unrooted records; need a general audio-data provider (evidence/blockers/resident_audio_residues.json) |
 | 463E (one `eor` operand-order residual) | 56 | A | kept unresolved by decision, agrees on 4,000 executed inputs |
 | Startup header, FFP gateway stubs, stdio (`putc` differs in 4 bytes) | about 1,470 | C | identify roles and names only; no exact campaign |
 | Root JMP-slot table 0000..0320 in DATA | 800 | C | linker-generated; stays raw |
@@ -65,7 +65,11 @@ links with its `ln` (Manx overlay tree, original c.lib/m.lib) into a program,
 and that program runs in WinUAE and behaves like the original: boot, title
 screen and recorded-input gameplay. Byte-identical layout is not required
 (link order and padding are category C). No original CODE/DATA bytes, no
-patching, no ORG or placement. Temporary link-only stubs may be used in a
+patching, no ORG or placement. Known adjacency dependencies for the link:
+57D2's not-taken branch targets its object end and must fall into 57E4
+(link it directly before that object or merge them); 615E calls 617C at its
+end boundary; audio dispatch index 44 at H1+292E reads the period table at
+29DE. Temporary link-only stubs may be used in a
 smoke test, are clearly labelled, and never count as recovery. The link
 inventory (undefined, duplicate and conflicting symbols, overlay `ln`
 specification, layout-dependence risks) is the first step.

@@ -88,3 +88,8 @@ code-data providers, the story tables, and the `.arc`/`.as` formats
 11. **Workers must not copy the repository.** A worker that cloned the tree
     for scratch verification used 24 GB on a nearly full disk. Brief workers
     to verify through isolated imports and their own directory.
+
+12. **Prove entry and boundary separately.** A relocated address alone does not
+    establish executable entry. Bind the actual caller or typed SDK callback,
+    then prove every outgoing edge. Explicit tails can reuse an independently
+    replayed destination without absorbing its bytes or inheriting its predicate.

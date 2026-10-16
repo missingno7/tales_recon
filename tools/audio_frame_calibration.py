@@ -114,44 +114,61 @@ def derive(root,blob,model,batch):
  require(all(e['link'] for row in extras for e in row.get('entries',[])),'supplemental compiler produced a frameless C entry')
  return dict(method='HASH_BOUND_CANONICAL_C_ENTRY_AND_PINNED_OPTION_MATRIX',canonical_functions=len(records),canonical_categories={s:sum(r['section']==s for r in records) for s in ['functions','dead_code_functions','behavioral_functions']},corpus_sha256=sha256(json_bytes(records)),accepted_36a_flags=sorted(map(list,accepted)),controls=controls,supplemental=optional+extras,all_required_entries_link_a5=True)
 
-def cfg(items):
+def cfg(items,*,call_bindings=None):
  """Own-function flow: calls may return; no opaque computed transfer."""
  from audio_driver_contracts import target
- edges=[]
+ edges=[];bindings={} if call_bindings is None else call_bindings;used=set()
  for i in items:
   p=i['offset'];q=p+i['size'];m=i['mnemonic'].split('.')[0];t=target(i)
   if m in ['rts','rte']:
    edges.append(dict(site=p,kind='RETURN_TO_EXISTING_CALLER',target=None));continue
   if m in ['jsr','bsr']:
-   require(t is not None,'frameless computed call lacks a named contract')
-   edges.extend([dict(site=p,kind='CALL',target=t,operands=i['operands']),dict(site=p,kind='CALL_RETURN',target=q)]);continue
+   bound=bindings.get(p)
+   require(t is not None or bound is not None and bound['operands']==i['operands'],'frameless computed call lacks a named contract')
+   require(bound is None or t is None,'named contract cannot override a direct call')
+   edge=dict(site=p,kind='CALL',target=t,operands=i['operands'])
+   if bound is not None:edge['binding']=bound;used.add(p)
+   edges.extend([edge,dict(site=p,kind='CALL_RETURN',target=q)]);continue
   if m=='bra':edges.append(dict(site=p,kind='TAIL',target=t));continue
   if m.startswith('b') and m not in ['btst','bset','bclr'] or m.startswith('db'):
    require(t is not None,'unproved frameless conditional edge')
    edges.extend([dict(site=p,kind='BRANCH',target=t),dict(site=p,kind='FALLTHROUGH',target=q)]);continue
   require(m not in ['jmp','rtr','stop','reset','trap','trapv','illegal'],'unproved frameless terminal transfer')
   edges.append(dict(site=p,kind='FALLTHROUGH',target=q))
+ require(used==set(bindings),'unused computed call binding')
  return edges
 
-def witness(items,entry,edges=None):
+def witness(items,entry,edges=None,*,tail_entries=(),call_bindings=None,include_calls=False):
  by={i['offset']:i for i in items}
  require(len(by)==len(items) and entry in by,'independently proved entry outside instruction graph')
  require(by[entry]['mnemonic'].split('.')[0]!='link','LINK-framed C rejection control')
- derived=cfg(items)
+ derived=cfg(items,call_bindings=call_bindings)
  if edges is not None:require(edges==derived,'frameless CFG edges do not rederive')
- seen=set();pending=[entry];returns=[]
+ tails=set(tail_entries)
+ require(not tails.intersection(by),'tail entry is inside the claimed CFG')
+ used_tails=set();seen=set();pending=[entry];returns=[]
  while pending:
   p=pending.pop()
   if p in seen:continue
   require(p in by,'frameless path crosses an unproved CFG boundary');seen.add(p);i=by[p]
   require(i['mnemonic'].split('.')[0] not in ['link','unlk'],'frameless CFG gained frame')
   if i['mnemonic'] in ['rts','rte']:returns.append(p);continue
+  if include_calls:pending.extend(e['target'] for e in derived if e['site']==p and e['kind']=='CALL' and e['target'] in by)
   successors=[e['target'] for e in derived if e['site']==p and e['kind']!='CALL']
   require(successors and all(q is not None for q in successors),'unproved frameless CFG edge')
-  pending.extend(successors)
+  for edge in (e for e in derived if e['site']==p and e['kind']!='CALL'):
+   if edge['target'] in tails:
+    require(edge['kind'] in ('BRANCH','TAIL'),'fallthrough cannot establish a tail boundary')
+    used_tails.add(edge['target'])
+   else:pending.append(edge['target'])
+ require(used_tails==tails,'unused or unproved tail entry')
  require(returns,'frameless CFG has no RTS/RTE')
  require(seen==set(by),'frameless extent includes instructions without entry reachability')
- return dict(kind='FRAMELESS_ENTRY',entry=entry,return_sites=sorted(returns),reachable_instructions=sorted(seen),stack_frame=False,calibration='PINNED_36A_ALL_ACCEPTED_OPTIONS_AND_CANONICAL_C',c_compatible=False)
+ result=dict(kind='FRAMELESS_ENTRY',entry=entry,return_sites=sorted(returns),reachable_instructions=sorted(seen),stack_frame=False,calibration='PINNED_36A_ALL_ACCEPTED_OPTIONS_AND_CANONICAL_C',c_compatible=False)
+ if tails:result['tail_entries']=sorted(tails)
+ if call_bindings:result['call_bindings']=[dict(site=p,**b) for p,b in sorted(call_bindings.items())]
+ if include_calls:result['include_internal_calls']=True
+ return result
 
 SUPPLEMENTAL='evidence/reconstructed-asm/frame-supplemental-0004.json'
 def supplemental(root):

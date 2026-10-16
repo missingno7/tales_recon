@@ -142,6 +142,18 @@ entry evidence. See `docs/reconstructed-asm.md`, batch 0004. This is measured
 non-C evidence for the pinned reconstruction profiles, not original-language or
 original-source provenance.
 
+The same calibrated predicate can cover a direct branch to an independently
+replayed canonical ASM entry. The branch must be explicit; an unproved
+fallthrough cannot be treated as a tail. The destination earns no credit in
+the new object. A contiguous object may include an internally called routine
+only when the decoded call reaches it and every instruction is accounted for.
+A computed library call requires a rederived pinned SDK vector, base and
+register contract; a bare numeric indirect call still rejects. PC-relative
+code addresses bind named entries, including independently typed callbacks.
+These are extensions of RECONSTRUCTED_ASM, with no library/source provenance
+claim and no new proof class. Batch 0005 uses these rules for 57D2 and the
+701A..703C debug-format bridge.
+
 The separately bounded graphics glue 4692 uses a calibrated frameless register
 bridge predicate: independent entry, complete stack/register/save/restore flow,
 pinned SDK vector/register ABI and independently named graphics base. Its

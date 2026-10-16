@@ -1,0 +1,112 @@
+{
+  "binder": {
+    "CODE": 2,
+    "DATA": 180,
+    "exports": [
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B86",
+        "offset": 0
+      }
+    ],
+    "sha256": "2cd8e013e92da94d7a8a995e85a845293430c29ae690bf30a3e768d97fb9e9c4",
+    "source": "bind_stackstart.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "BRANCH",
+      "site": 22490,
+      "target": 22500
+    },
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 22498,
+      "target": null
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0005/stackstart.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_57D2",
+      "offset": 0,
+      "original": 22482
+    },
+    {
+      "name": "_end_stackstart",
+      "offset": 18,
+      "original": null
+    }
+  ],
+  "external_code": [],
+  "external_data": [
+    {
+      "hunk": 1,
+      "name": "_G_h01_2B86",
+      "target": 11142
+    }
+  ],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_frameless_57D2",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 22500,
+    "hunk": 0,
+    "sha256": "bb89202019ae5d4ef1134e4e47f4f88fc8664df807e4cccdd7634c34100c3ae3",
+    "size": 18,
+    "start": 22482
+  },
+  "original_filename": null,
+  "predicate": {
+    "c_compatible": false,
+    "calibration": "PINNED_36A_ALL_ACCEPTED_OPTIONS_AND_CANONICAL_C",
+    "entry": 22482,
+    "entry_evidence": {
+      "caller": "resident_F_4376",
+      "field": 206,
+      "kind": "CANONICAL_C_A4_RELOCATED_JMP_STUB",
+      "proof_sha256": "9f75979fe8c2948fc0a5e3cf32e5f62742a1be907c6b5e8ee0f8f95b6e51d9ab",
+      "site": 17720,
+      "slot": 204,
+      "slot_hunk": 1,
+      "source_sha256": "6e886f8f7ffee564de84d16131b71be7174d02798fbe9c2743a9551e25c4939d",
+      "target": 22482
+    },
+    "kind": "FRAMELESS_ENTRY",
+    "reachable_instructions": [
+      22482,
+      22486,
+      22490,
+      22492,
+      22498
+    ],
+    "return_sites": [
+      22498
+    ],
+    "stack_frame": false,
+    "tail_entries": [
+      22500
+    ],
+    "tail_evidence": {
+      "entry": 22500,
+      "id": "resident_driver_57E4",
+      "proof_sha256": "2e7ebb1582fc4727ba518e6a13f409d8383c3cb7d9008cc5824594bb72e070b9",
+      "source_sha256": "8995c6b3869ba7688436da4070ae6f9977858df58741f0a656aeb4e4cfd906aa"
+    }
+  },
+  "prefix": "stackstart",
+  "relocations": [
+    {
+      "addend_raw": 11142,
+      "source_hunk": 0,
+      "source_offset": 22494,
+      "symbol": "_G_h01_2B86",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 5,
+  "source": "src/recovered/asm-reconstructed/resident_frameless_57D2.asm",
+  "source_sha256": "5afe23c28511c1edcf08a730798cf576ef74531092e0e34e3aa407a078209759"
+}

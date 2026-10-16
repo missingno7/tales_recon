@@ -1,0 +1,171 @@
+{
+  "binder": {
+    "CODE": 4,
+    "DATA": 180,
+    "exports": [
+      {
+        "hunk": 0,
+        "name": "_recon_h00_6FDE",
+        "offset": 2
+      },
+      {
+        "hunk": 1,
+        "name": "_G_h01_2B86",
+        "offset": 0
+      }
+    ],
+    "sha256": "bc0974535c21fab2f0f74a8fe7e70ea16e1cbcda5a07234c65090ae234f095a3",
+    "source": "bind_debugfmt.asm"
+  },
+  "boundary_edges": [
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 28716,
+      "target": null
+    },
+    {
+      "binding": {
+        "base_address": 4,
+        "base_register": "a6",
+        "kind": "PINNED_EXEC_VECTOR",
+        "operands": "-$20a(a6)",
+        "registers": [
+          "a0",
+          "a1",
+          "a2",
+          "a3"
+        ],
+        "sdk_pins": {
+          "toolchain/installed/aztec-3.6a/Library Source/debug.arc": "c017ae4c6a0f8495eb1ed9847238cfe983ef7d2584db6b1dd9a103be1f2f5c36",
+          "toolchain/installed/aztec-3.6a/Library Source/exec.arc": "9d6a62b0ddafd602e1563e9141585c89c076f7a50e21e75e850c9bc876556d46",
+          "toolchain/installed/aztec-5.0a/Aztec1/include/functions.h": "07c0cc55c0ef3633d3eb651f9e212e924d029b15f0c37c0a5fa53789bb040d4d"
+        },
+        "symbol": "_LVORawDoFmt",
+        "vector": -522
+      },
+      "kind": "CALL",
+      "operands": "-$20a(a6)",
+      "site": 28724,
+      "target": null
+    },
+    {
+      "kind": "RETURN_TO_EXISTING_CALLER",
+      "site": 28730,
+      "target": null
+    }
+  ],
+  "candidate": "evidence/rules/asm-reconstructed/batch-0005/debugfmt.asm",
+  "exports": [
+    {
+      "name": "_recon_h00_701A",
+      "offset": 0,
+      "original": 28698
+    },
+    {
+      "name": "_recon_h00_702E",
+      "offset": 20,
+      "original": 28718
+    },
+    {
+      "name": "_end_debugfmt",
+      "offset": 34,
+      "original": null
+    }
+  ],
+  "external_code": [
+    {
+      "hunk": 0,
+      "name": "_recon_h00_6FDE",
+      "target": 28638
+    }
+  ],
+  "external_data": [],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_frameless_701A",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 28732,
+    "hunk": 0,
+    "sha256": "6356b5be41de457789c262651d36b96d94695bdcda27e59d7ae196fe16ac61cc",
+    "size": 34,
+    "start": 28698
+  },
+  "original_filename": null,
+  "predicate": {
+    "c_compatible": false,
+    "calibration": "PINNED_36A_ALL_ACCEPTED_OPTIONS_AND_CANONICAL_C",
+    "call_bindings": [
+      {
+        "base_address": 4,
+        "base_register": "a6",
+        "kind": "PINNED_EXEC_VECTOR",
+        "operands": "-$20a(a6)",
+        "registers": [
+          "a0",
+          "a1",
+          "a2",
+          "a3"
+        ],
+        "sdk_pins": {
+          "toolchain/installed/aztec-3.6a/Library Source/debug.arc": "c017ae4c6a0f8495eb1ed9847238cfe983ef7d2584db6b1dd9a103be1f2f5c36",
+          "toolchain/installed/aztec-3.6a/Library Source/exec.arc": "9d6a62b0ddafd602e1563e9141585c89c076f7a50e21e75e850c9bc876556d46",
+          "toolchain/installed/aztec-5.0a/Aztec1/include/functions.h": "07c0cc55c0ef3633d3eb651f9e212e924d029b15f0c37c0a5fa53789bb040d4d"
+        },
+        "site": 28724,
+        "symbol": "_LVORawDoFmt",
+        "vector": -522
+      }
+    ],
+    "callback_entry": {
+      "api": "_LVORawDoFmt",
+      "body_sha256": "ef9d4b51b8119109e79be83c96831485648f0991d607a2b50d128f457bc9019a",
+      "credit": 0,
+      "register": "a2",
+      "site": 28708,
+      "target": 28638
+    },
+    "entry": 28698,
+    "entry_evidence": {
+      "caller": "resident_F_3674",
+      "kind": "CANONICAL_C_DIRECT_CALL",
+      "proof_sha256": "1a36aa4ff2bcd3316d4f5a049bdb4398324e0f9a01cf1445bc9c25f04549fdde",
+      "site": 13952,
+      "source_sha256": "9fd7fb218af2bde7fa9c0d0afec37a72162aded900e7c8309837aa88f06517e0",
+      "target": 28698
+    },
+    "include_internal_calls": true,
+    "internal_entries": [
+      {
+        "kind": "DIRECT_CALL_SAME_OBJECT_SHORT_ENCODING",
+        "site": 28712,
+        "target": 28718
+      }
+    ],
+    "kind": "FRAMELESS_ENTRY",
+    "reachable_instructions": [
+      28698,
+      28702,
+      28706,
+      28708,
+      28712,
+      28714,
+      28716,
+      28718,
+      28720,
+      28724,
+      28728,
+      28730
+    ],
+    "return_sites": [
+      28716,
+      28730
+    ],
+    "stack_frame": false
+  },
+  "prefix": "debugfmt",
+  "relocations": [],
+  "schema_version": 5,
+  "source": "src/recovered/asm-reconstructed/resident_frameless_701A.asm",
+  "source_sha256": "8990fa2b54c025cfb3622249bb38ab768d8c7688e9405cd2bfa4dfb95a9934bf"
+}
