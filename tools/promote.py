@@ -69,7 +69,25 @@ def main(argv=None):
     parser.add_argument('manifest', metavar='MANIFEST')
     parser.add_argument('--verify-only', action='store_true')
     args = parser.parse_args(argv)
-    return dispatch(args.proof_class, args.manifest, args.verify_only)
+    code = dispatch(args.proof_class, args.manifest, args.verify_only)
+    if code == 0 and not args.verify_only:
+        code = refresh()
+    return code
+
+
+# A publish changes canonical inputs; the next gate's canonical tier checks the
+# generated evidence, so regenerate it here instead of leaving it stale between
+# batches.
+REFRESH = (('census.py', '--write'), ('hybrid_image.py', '--write'))
+
+
+def refresh():
+    for script, flag in REFRESH:
+        code = subprocess.run([sys.executable, str(ROOT/'tools'/script), flag]).returncode
+        if code:
+            print('BLOCKED: published, but ' + script + ' ' + flag + ' failed', file=sys.stderr)
+            return code
+    return 0
 
 
 if __name__ == '__main__':

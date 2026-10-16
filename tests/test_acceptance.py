@@ -261,3 +261,18 @@ def test_specimen_capture_uses_checked_read_only_stage(tmp_path,fail):
         else:assert hybrid_image.capture(tmp_path)=={'compiler_produced':True}
     assert events==['enter','exit']
     assert memo._SESSION.get() is None
+
+
+def test_publish_refreshes_generated_evidence_and_verify_only_does_not(tmp_path):
+    import promote
+    manifest = tmp_path / 'm.json'; manifest.write_text('[]')
+    calls = []
+    def run(argv, *a, **k):
+        calls.append([Path(x).name for x in argv[1:3]])
+        return SimpleNamespace(returncode=0)
+    with patch.object(promote.subprocess, 'run', side_effect=run):
+        assert promote.main(['data', str(manifest)]) == 0
+        assert calls[1:] == [['census.py', '--write'], ['hybrid_image.py', '--write']]
+        calls.clear()
+        assert promote.main(['data', str(manifest), '--verify-only']) == 0
+        assert len(calls) == 1

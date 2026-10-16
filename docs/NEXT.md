@@ -157,7 +157,7 @@ python tools/check_function.py TARGET build/workers/NAME/candidate.c --profile a
 python tools/check_function.py TARGET build/workers/NAME/candidate.c --profile aztec36
 # Every proof class publishes through one CLI (registry: tools/acceptance.py):
 python tools/promote.py CLASS MANIFEST --verify-only   # functions, asm, data, code_data, behavioral, dead_code, mixed
-python tools/promote.py CLASS MANIFEST                 # publish; runs the tiered regression gate
+python tools/promote.py CLASS MANIFEST                 # publish: tiered gate, then census and accounting refresh
 ```
 
 Workers are Codex sessions (`build/workers/NAME`) or Agent subagents. Each
