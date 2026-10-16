@@ -27,6 +27,9 @@ def document(root, path):
 
 
 def shape(fact):
+    if fact.get('kind')=='BOUNDED_DATA_TABLE':
+        from data_provider_tables import shape as tables_route
+        return tables_route(fact)
     if fact.get('kind')=='LITERAL_LINE_RECORDS':
         from data_provider_literals import shape as literal_shape
         return literal_shape(fact)
@@ -114,6 +117,9 @@ def definition_size(d):
 
 
 def source(fact):
+    if fact.get('kind')=='BOUNDED_DATA_TABLE':
+        from data_provider_tables import source as tables_route
+        return tables_route(fact)
     if fact.get('kind')=='LITERAL_LINE_RECORDS':
         from data_provider_literals import source as literal_source
         return literal_source(fact)
@@ -135,6 +141,9 @@ def source(fact):
 
 
 def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
+    if fact.get('kind')=='BOUNDED_DATA_TABLE':
+        from data_provider_tables import typed_evidence as tables_route
+        return tables_route(root,fact,analysis,ledger,promotions)
     if fact.get('kind')=='LITERAL_LINE_RECORDS':
         from data_provider_literals import typed_evidence as literal_evidence
         if image is None:
@@ -274,7 +283,7 @@ def array_evidence(fact,d,f,proof,c,types):
                 evidence_route='CANONICAL_SOURCE_AND_DECODED_ACCESS',historical_extent='UNKNOWN; complete reconstructed provider extent only')
 
 
-def data_object(raw):
+def data_object(raw,terminal_padding=0):
     """Bounded AJ DATA grammar from retained scalar/internal-pointer controls.
 
     The 0xfd 0x70 0x00 record is ONLY the measured zero-addend reference to
@@ -308,12 +317,18 @@ def data_object(raw):
             require(annotated and not fixups and p+2<=syms and raw[p:p+2]==b'\x70\0' and len(result)+4<=data,'unsupported DATA fixup')
             p+=2;fixups.append(dict(offset=len(result),width=4,type='HUNK_RELOC32',symbol=definitions[0]['name'],addend=0));result+=bytes(4)
         else:require(False,'unknown AJ DATA token')
-    require(len(result)==data and annotated==bool(fixups),'partial object DATA or annotation/fixup mismatch')
+    require(type(terminal_padding) is int and terminal_padding in (0,1), 'unproved object alignment request')
+    require(len(result)+terminal_padding==data and annotated==bool(fixups),'partial object DATA or annotation/fixup mismatch')
+    require(not terminal_padding or (not fixups and data%2==0 and len(result)%2==1), 'implicit alignment requires odd relocation-free DATA')
+    result+=bytes(terminal_padding)
     require(len({d['name'] for d in definitions})==len(definitions),'duplicate DATA definitions')
     return dict(bytes=bytes(result),definitions=definitions,fixups=fixups,sections=dict(CODE=0,DATA=data,BSS=0,COMMON=0))
 
 
 def compare_data(original,original_model,fact,obj,linked,map_text):
+    if fact.get('kind')=='BOUNDED_DATA_TABLE':
+        from data_provider_tables import compare_data as tables_route
+        return tables_route(original,original_model,fact,obj,linked,map_text)
     if fact.get('kind')=='LITERAL_LINE_RECORDS':
         from data_provider_literals import compare_data as literal_compare
         return literal_compare(original,original_model,fact,obj,linked,map_text)
@@ -401,7 +416,7 @@ def producer(root,fact,retained=None):
         name=item['path'];require(Path(name).name==name and '/' not in name and '\\' not in name,'artifact escapes worker work')
         raw=read_job('sys/work/'+name);require(len(raw)==item['size'] and sha256(raw)==item['sha256'],'producer artifact changed');files[name]=raw
     prefixes=recipe['prefixes'];require(len(prefixes)==len(set(prefixes)) and all(re.fullmatch(r'[a-z][a-z0-9]*',p) for p in prefixes),'invalid producer prefixes')
-    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe']),'unsupported batch control')
+    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe']),'unsupported batch control')
     require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe']+controls,'one job must contain the entire provider batch and control')
     require(recipe['sources']=={r['path']:r['sha256'] for r in request['source_files']} and recipe['commands']==[r['command'] for r in request['steps']],'curated source/command pins differ')
     require(set(recipe['toolchain_inventory_sha256'])=={'evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json'},'incomplete toolchain inventory pins')
@@ -476,6 +491,9 @@ def producer(root,fact,retained=None):
         require(files['bindptr.asm']==binder_source(names) and files['extprobe.c']==CONTROL_SOURCE,'independent external binder/control recipe changed')
         binder_object(files['bindptr.o'],names)
         result['external_pointer_control']=control_report(files,names)
+    if controls==['tableprobe']:
+        from data_provider_tables import control_report
+        result['table_control']=control_report(files)
     if controls==['litprobe']:
         from data_provider_literals import control_report
         require(all(document(root,m['fact']).get('kind')=='LITERAL_LINE_RECORDS' for m in recipe['members']),'literal batch member kind')
@@ -496,6 +514,9 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         import data_provider_pointers
         report['verifier_identity']['data_provider_pointers.py']=sha256(Path(data_provider_pointers.__file__).read_bytes())
+    if fact.get('kind')=='BOUNDED_DATA_TABLE':
+        import data_provider_tables
+        report['verifier_identity']['data_provider_tables.py']=sha256(Path(data_provider_tables.__file__).read_bytes())
     if fact.get('kind')=='LITERAL_LINE_RECORDS':
         import data_provider_literals
         report['verifier_identity']['data_provider_literals.py']=sha256(Path(data_provider_literals.__file__).read_bytes())
@@ -551,6 +572,9 @@ def input_identity(root):
         names.add(name);fact=document(root,name);batch=fact['producer']['batch'];names.add(batch)
         if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
             from data_provider_pointers import evidence_paths
+            names.update(evidence_paths(root,fact))
+        if fact.get('kind')=='BOUNDED_DATA_TABLE':
+            from data_provider_tables import evidence_paths
             names.update(evidence_paths(root,fact))
         if fact.get('kind')=='LITERAL_LINE_RECORDS':
             from data_provider_literals import evidence_paths

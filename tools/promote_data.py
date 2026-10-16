@@ -29,6 +29,9 @@ def validation_inputs(root,path):
         if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
             from data_provider_pointers import evidence_paths
             names.update(evidence_paths(root,fact))
+        elif fact.get('kind')=='BOUNDED_DATA_TABLE':
+            from data_provider_tables import evidence_paths
+            names.update(evidence_paths(root,fact))
         elif fact.get('kind')=='LITERAL_LINE_RECORDS':
             from data_provider_literals import evidence_paths
             names.update(evidence_paths(root,fact))
