@@ -71,3 +71,8 @@ code-data providers, the story tables, and the `.arc`/`.as` formats
    outlived its frontier. Plain worker briefs were enough afterwards.
 8. **Plan the semantic layer early:** a reviewed map from mechanical to
    semantic names, applied to a readable view, never to matched sources.
+9. **Parallel workers deliver patches against a named HEAD, and reuse
+   general mechanisms.** Two workers once solved "C unit depends on an
+   assembled member" twice in parallel. One rewrote a file with CRLF line
+   endings (936 changed lines for 9 real ones). Brief workers to rebase onto
+   the current HEAD, extend the general recipe, and keep LF only.

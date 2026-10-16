@@ -20,38 +20,41 @@ Run `python tools/behavior.py` (read-only, under a second) for the current
 numbers. It derives everything from the accounting, function, ownership and
 blocker ledgers. At this checkpoint:
 
-| CODE hunks | Bytes |
+| CODE hunks (2026-10-16) | Bytes |
 | --- | ---: |
-| Exact C (FUNCTION_CODE_MATCH / WITH_DATA, unit and complete-C proofs) | 145,968 |
-| Assembly (RECOVERED_ASM 48 + RECONSTRUCTED_ASM 2,110) | 2,158 |
-| Typed CODE data, compiler literals, padding | 13,743 |
+| Exact C (FUNCTION_CODE_MATCH / WITH_DATA, unit and complete-C proofs) | 149,682 |
+| Behavioral C (BEHAVIORAL_CHAR_RETURN: 411E, ov14 0412/04A8/0540) | 602 |
+| Assembly (RECOVERED_ASM 48 + RECONSTRUCTED_ASM 2,682) | 2,730 |
+| Typed CODE data, compiler literals, padding | 13,999 |
 | Pinned Aztec runtime library (c.lib, m.lib members) | 5,444 |
-| Unresolved | 7,055 |
+| Unresolved | 1,911 |
 
-- Overlays ov03-ov13 and ov15 are completely exact C, apart from four 2-byte
-  terminal gaps. ov14 (the bootstrap overlay) has 1,444 unresolved bytes.
-- The resident CODE hunk has 5,603 unresolved bytes. They are listed in the
-  next section.
+The session that started from 7,055 unresolved bytes (exact C 145,968) on
+2026-10-15 closed ov14 and the `.arc` loader and decoder path (287C, 291E,
+404A, 4184, 49A0). It also closed the Paula IRQ handlers and the audio
+setup and teardown (50E8, 53E6).
+
+- Overlays ov03-ov15 are complete, apart from five 2-byte terminal gaps.
 - Resident DATA has 1,044 typed bytes, 588 runtime bytes and 10,324 raw
-  bytes. BSS (34,092 bytes) has no typed layout.
-- No source has a semantic name. Of the 287 accepted C files, 274 define the
-  mechanical entry `recovered`. They reference 1,620 mechanical globals
-  (194 with conflicting per-file views) and 350 mechanical callees. There is
-  no shared header.
-- No asset format is decoded (FORMAT-001), and nothing reconstructed has
-  been executed. Matching proves code equivalence one function at a time.
-  Data initialization, the link and runtime behavior are not exercised.
+  bytes. BSS (34,092 bytes) has no typed layout. This, and 195 conflicting
+  global views, is now the largest gap (priority 3).
+- Names: `recovery/names.json` names 38 game functions, 88 OS/runtime entries
+  and 19 globals; `tools/readable.py` renders them. Most functions still have
+  mechanical names.
+- Assets: `formats/decode.py` decodes all 17 containers (LZW, RLE bitplanes,
+  ADPCM) and 11 recovered palettes. The title screen renders correctly.
+- Behavior: `tools/difftest.py` runs 101 functions both as original 68000 code
+  and as host C; 55 agree. The rest are emulator memory-model gaps, plus real
+  portability findings (byte order, pointer width).
 
 ## Remaining code, by cause
 
 | Cause | Functions | Approx. bytes | Category |
 | --- | --- | ---: | --- |
-| Char-return widening: every pinned compiler adds `ext.w`; needs Aztec 3.3x/3.4x | 411E, ov14 0412/04A8/0540, then 404A, 4184, 287C, 291E, 49A0, ov14 0000 | 3,600 | TOOLCHAIN |
-| Audio driver, frameless IRQ and register-ABI entries | 55D6..5796, 5594, 57D2, 5868, 615E, and small residues in 5E7C..704E | 1,100 | needs a FRAMELESS_ENTRY non-C predicate |
-| Game callers of the audio driver | 50E8 (exact against the 6200 provider, needs a harness recipe), 53E6 | 680 | CALL_BINDING |
-| Unpinned amiga.lib glue (BltMaskBitMapRastPort) | 4692, which gates 34E0 | 312 | RUNTIME/LIBRARY |
+| Library glue with a register ABI, then its caller | 4692 (asm), 34E0 (C): verified, patch being rebased | 312 | RUNTIME/LIBRARY |
 | One codegen residual | 463E (eor operand order) | 56 | SOURCE_SHAPE, exhausted |
-| FFP gateway stubs and stdio (`putc` differs in 4 bytes), startup header | 8CD8.., 806C..83E0, 0000..0018 | 1,000 | runtime, category C |
+| Audio residues whose entries lack proof | 57D2, 5FC8/6000/60BC/615E.., 6A8E, 701A/702E | about 100 | CFG/BOUNDARY |
+| FFP gateway stubs and stdio (`putc` differs in 4 bytes), startup header | 8CD8.., 806C..83E0, 0000..0018 | about 1,000 | runtime, category C |
 
 ## Requirement categories
 
