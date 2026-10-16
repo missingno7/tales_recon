@@ -80,11 +80,11 @@ the 411E readable view; whether the record's declared count is intended to
 bound that stream is UNKNOWN. This behavior is retained in record_output and
 reported by --verbose.
 
-formats/decode.py --dump DIR writes kind-1/2 PNG previews using a 32-level
-grey ramp. It uses the Amiga planar bit order (plane 0 as the low color-index
-bit, high bit first within each byte) to construct the visualization. The game
-palette and color-index-to-RGB mapping are UNKNOWN; the grey ramp is only for
-inspection, not recovered palette data.
+formats/decode.py --dump DIR uses the Amiga planar bit order (plane 0 as the
+low color-index bit, high bit first within each byte). It applies resident DATA
+palettes where a matched scene path establishes them and expands each 4-bit
+RGB channel by 17. Unmapped records use a grey ramp; dynamic exp-scene color
+indices 27 and 30 alone stay grey in otherwise color previews.
 
 ## Kind 4: LZW
 
@@ -103,7 +103,10 @@ resident_F_4184 decodes the high nibble then low nibble, updates a signed
 (sample >> 4, narrowed to char). Thus output size is exactly twice the stored
 input size, and +6 is the decoded byte count. The signed 16-bit table values
 are resident DATA G_h01_1E32[8] at +0x1e32 and G_h01_1E42[49] at +0x1e42;
-the host decoder uses those measured words. In the supplied disks, kind 5
+the host decoder reads these bounded big-endian WORD arrays from resident DATA
+hunk 1 of DT1:DuckTales at runtime (offset/count/type: +0x1e32/8/WORD and
++0x1e42/49/WORD), using the strict HUNK parser; it does not embed their values.
+A missing executable is an error. In the supplied disks, kind 5
 occurs in dt1.as and dt2.as, not in an .arc file. All supplied kind-5 records
 have +6 == 2 * +0.
 
@@ -117,11 +120,62 @@ bytes read. If +14 exceeds +0, the trailing allocated bytes are not
 initialized by the loader and are UNKNOWN. The host decoder exposes only
 the bytes actually read and checks +0 <= +14.
 
-## Remaining semantic unknowns
+## Palettes: DATA targets and scene use
 
-ov04_F_07CA and ov12_F_0000 blit kind-1 screen bitmaps at 320 by 200;
-other overlay callers use loaded records with graphics routines. Those calls
-establish draw sizes and destination identity, not palette contents. No matched
-LoadRGB4 / SetRGB4 call was found. Kind-1 +10..+14, kind-2 +12/+14,
-kind-3 auxiliary fields, the palette, and kind-5 +12 remain UNKNOWN unless
-stated above.
+`python tools/behavior.py --json` reports one `runtime_glue_getcolor` caller,
+`ov04_F_1E36`; it reports no callers for `runtime_glue_loadrgb4` or
+`runtime_glue_setrgb4`. The readable view `build/readable/ov04/initialize_av.c`
+identifies `F_h00_8AEA` as `GetColorMap`. Exact-matched `ov04_F_1E36` requests
+32 entries and sets `G_h01_5392` to the returned map's field at +4. The palette
+is then handled by exact-matched resident routines: `resident_F_3178` copies 32
+words into that field, `resident_F_31AA` moves each 0x0RGB nibble toward a
+32-word target for 16 steps, and `resident_F_30F0` copies the 32 words into
+both Copper lists starting at color register 0x180. Thus the RGB source is
+resident DATA, even though the matched code does not call LoadRGB4 or SetRGB4.
+
+The 32-word targets below are measured big-endian UWORD arrays in resident
+DATA hunk 1. `resident_F_31AA` reads target[0..31], and `resident_F_3178`
+copies the same count; the measured ranges are 64 bytes and contain no
+relocations. The word format is 0x0RGB; the PNG decoder expands each nibble by
+17. formats/decode.py reads each named 32-entry UWORD range from the DT1
+executable at runtime (resident DATA hunk 1); the descriptors retain the
+symbol, offset, count, and type rather than copying DATA values. In `ov04_F_1302`, the game loads `DT1:main.arc` entry 2 and later copies
+`G_h01_1426` directly into the ColorMap. This establishes its exact palette:
+`G_h01_1426` =
+`000 DFF BEF 7BF 47F 00F 00A 006 B70 DB3 FE7 FB5 F73 E00 A10 710 410 830 B41 E52 E85 E96 FB9 FDB 333 555 777 999 CCC EEE FFF FFB`.
+
+| Asset entry / scene | DATA palette | Code evidence |
+| --- | --- | --- |
+| `DT1:main.arc` entry 0 | `G_h01_14A6` | `ov04_F_1D32`: load entry 0, then fade to this table. |
+| `DT1:main.arc` entry 1 | `G_h01_1826` | `ov04_F_1D32`: load entry 1, then fade to this table. |
+| `DT1:main.arc` entry 2 (title) | `G_h01_1426` | `ov04_F_1302`: loads entry 2, fades and directly copies this table. |
+| `DT1:main.arc` entry 3 | `G_h01_1466` | `ov04_F_0E44` calls `ov04_F_07CA` (which loads entry 3), then fades to this table. |
+| `DT1:plane.arc` scene | `G_h01_15A6` | `ov05_F_0000` opens this archive and uses this target during the scene. |
+| `DT1:invart.arc`, `DT1:invest.arc` scenes | `G_h01_1466` | `ov07_F_0000` and `ov07_F_1424` open each archive and use this target. |
+| `DT1:mbin.arc` scene | `G_h01_18E6` | `ov12_F_0000` loads entry 0, draws it, then fades to this target. |
+| `DT2:mac.arc` scene | `G_h01_1566` | `ov06_F_0000` loads entry 5; `ov06_F_063A` draws and fades to this target. |
+| `DT2:mt.arc` scene | `G_h01_15E6` | `ov08_F_0000` opens the archive and uses this target for the scene bitmap. |
+| `DT2:ps.arc` scene | `G_h01_1626` | `ov09_F_0000` opens the archive, loads entry 0, and fades to this target. |
+| `DT2:exp.arc` scene | `G_h01_16A6` | `ov10_F_0000` opens the archive, loads entry 0, and fades to this target. |
+| `DT2:jg.arc` scene | `G_h01_16E6` | `ov11_F_0000` calls `ov11_F_15C8(1)` (loads entry 4) and uses this target in the same scene. |
+
+For `main.arc`, the entry-to-palette association is explicit in the load and
+transition order. Inference from those paths: for the other listed archives, the matched overlay
+sets one scene-wide 32-color map, so `decode.py --dump` applies that established
+scene map to image records from that archive. Their individual record roles are
+UNKNOWN where the call path does not identify an entry.
+
+`ov10_F_2634` is an exact code source for two dynamic colors: it writes
+ColorMap word 27 at `G_h01_5392 + 0x36` and word 30 at `+0x3c`, then calls
+`resident_F_30F0` to update the Copper list. A switch on `G_h01_79A2` chooses
+`(0x832,0xb20)`, `(0x842,0xb30)`, `(0x943,0xa30)`, or `(0x843,0xa20)`.
+The selected pair is runtime state, not recorded in the archive. For
+`DT2:exp.arc`, the decoder therefore uses measured `G_h01_16A6` colors for the
+other 30 indices and greys only indices 27 and 30.
+
+Other referenced DATA tables
+(e.g. `G_h01_1766`, `G_h01_17A6`, `G_h01_17E6`, `G_h01_1866`, and
+`G_h01_18A6`) are also 32-word fade targets, but their exact archive-record
+associations are UNKNOWN. Kind-1/2 metadata still has no palette field; the
+RGB tables live separately in executable DATA. Unlisted archive palettes remain
+UNKNOWN and their PNGs stay grayscale.

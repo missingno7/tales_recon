@@ -110,3 +110,24 @@ def test_supplied_record_outputs_follow_loader_header_fields() -> None:
                 assert len(record.record_output) == record.stored_size
 
         assert output_hash.hexdigest() == asset.record_output_sha256
+
+
+@pytest.mark.skipif(
+    not DEFAULT_ASSETS.is_dir() or not any(DEFAULT_ASSETS.glob("*.adf")),
+    reason="supplied assets/ disk images are absent",
+)
+def test_title_screen_shape_and_runtime_palette() -> None:
+    from formats.decode import palette_for_entry
+
+    main = next(a for a in load_supplied_assets() if a.path == "DT1:main.arc")
+    title = main.entries[2]
+    # 291E/404A: kind 1, 320x200, five bitplanes of 40-byte rows.
+    assert title.kind == 1
+    assert title.metadata[0:2] == (320, 200)
+    assert len(title.record_output) == 5 * 40 * 200
+    # The palette is read from resident DATA at run time (32 UWORDs, 0x0RGB).
+    palette = palette_for_entry(main.path, 2)
+    assert palette is not None and len(palette) == 32
+    assert all(c is None or 0 <= c <= 0x0FFF for c in palette)
+    # No matched call ties entry 4 to a table: its palette stays unknown.
+    assert palette_for_entry(main.path, 4) is None

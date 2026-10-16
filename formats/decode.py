@@ -15,6 +15,7 @@ import struct
 import sys
 import zlib
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
@@ -29,15 +30,68 @@ LZW_FIRST = 0x102
 LZW_MAX_BITS = 12
 BITMAP_DEPTH = 5  # resident DATA G_h01_0970 (+0x970), also read by 3A6E
 
-# Signed 16-bit tables read by resident_F_4184 from resident DATA:
-# G_h01_1E32[8] and G_h01_1E42[49].
-ADPCM_INDEX_DELTA = (-1, -1, -1, -1, 2, 4, 6, 8)
-ADPCM_STEP = (
-    16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66,
-    73, 80, 88, 97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253,
-    279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876,
-    963, 1060, 1166, 1282, 1411, 1552,
-)
+@dataclass(frozen=True)
+class DataArraySpec:
+    # Typed, bounded array in resident DATA hunk 1.
+    offset: int
+    count: int
+    c_type: str
+
+
+# Exact symbols and bounds recovered from resident DATA accesses. The decoder
+# reads these arrays from DT1:DuckTales at runtime; no original DATA values are
+# copied into this host-side source. The palette callers resident_F_31AA and
+# resident_F_3178 consume 32-word targets; resident_F_30F0 installs the map.
+RESIDENT_DATA_ARRAYS = {
+    # resident_F_4184 reads the signed ADPCM index and step arrays.
+    "ADPCM_INDEX_DELTA": DataArraySpec(0x1E32, 8, "WORD"),  # G_h01_1E32
+    "ADPCM_STEP": DataArraySpec(0x1E42, 49, "WORD"),  # G_h01_1E42
+    # Big-endian 0x0RGB UWORD palettes; names are resident DATA globals.
+    "PALETTE_G1426": DataArraySpec(0x1426, 32, "UWORD"),  # resident DATA +0x1426; title, ov04_F_1302
+    "PALETTE_G1466": DataArraySpec(0x1466, 32, "UWORD"),  # resident DATA +0x1466
+    "PALETTE_G14A6": DataArraySpec(0x14A6, 32, "UWORD"),  # resident DATA +0x14A6
+    "PALETTE_G15A6": DataArraySpec(0x15A6, 32, "UWORD"),  # resident DATA +0x15A6
+    "PALETTE_G1566": DataArraySpec(0x1566, 32, "UWORD"),  # resident DATA +0x1566
+    "PALETTE_G15E6": DataArraySpec(0x15E6, 32, "UWORD"),  # resident DATA +0x15E6
+    "PALETTE_G1626": DataArraySpec(0x1626, 32, "UWORD"),  # resident DATA +0x1626
+    "PALETTE_G16A6": DataArraySpec(0x16A6, 32, "UWORD"),  # resident DATA +0x16A6
+    "PALETTE_G16E6": DataArraySpec(0x16E6, 32, "UWORD"),  # resident DATA +0x16E6
+    "PALETTE_G1826": DataArraySpec(0x1826, 32, "UWORD"),  # resident DATA +0x1826
+    "PALETTE_G18E6": DataArraySpec(0x18E6, 32, "UWORD"),  # resident DATA +0x18E6
+}
+
+# Matched palette uses: main.arc selects per-entry tables; other listed assets
+# use a scene table in their exact-matched overlay. Unlisted palettes stay unknown.
+ENTRY_PALETTE_SYMBOLS = {
+    ("DT1:main.arc", 0): "PALETTE_G14A6",
+    ("DT1:main.arc", 1): "PALETTE_G1826",
+    ("DT1:main.arc", 2): "PALETTE_G1426",
+    ("DT1:main.arc", 3): "PALETTE_G1466",
+}
+ASSET_PALETTE_SYMBOLS = {
+    "DT1:plane.arc": "PALETTE_G15A6",
+    "DT1:invart.arc": "PALETTE_G1466",
+    "DT1:invest.arc": "PALETTE_G1466",
+    "DT1:mbin.arc": "PALETTE_G18E6",
+    "DT2:mac.arc": "PALETTE_G1566",
+    "DT2:mt.arc": "PALETTE_G15E6",
+    "DT2:ps.arc": "PALETTE_G1626",
+    "DT2:exp.arc": "PALETTE_G16A6",
+    "DT2:jg.arc": "PALETTE_G16E6",
+}
+# ov10_F_2634 writes code-selected values to ColorMap entries 27 and 30.
+# Their rendered colors remain UNKNOWN even though their base DATA words load.
+UNKNOWN_PALETTE_COLORS = {"PALETTE_G16A6": frozenset((27, 30))}
+
+
+@dataclass(frozen=True)
+class RuntimeTables:
+    arrays: dict[str, tuple[int, ...]]
+
+    def palette(self, symbol: str) -> tuple[int | None, ...]:
+        words = self.arrays[symbol]
+        unknown = UNKNOWN_PALETTE_COLORS.get(symbol, frozenset())
+        return tuple(None if index in unknown else word for index, word in enumerate(words))
 
 
 @dataclass(frozen=True)
@@ -230,9 +284,15 @@ def _signed16(value: int) -> int:
     return value if value < 0x8000 else value - 0x10000
 
 
-def decode_adpcm(data: bytes, *, length: int | None = None) -> bytes:
+def decode_adpcm(
+    data: bytes, *, length: int | None = None, runtime_tables: RuntimeTables | None = None
+) -> bytes:
     """Port resident_F_4184, including its 16-bit C int arithmetic."""
 
+    if runtime_tables is None:
+        runtime_tables = _runtime_tables_for_assets_path(str(DEFAULT_ASSETS.resolve()))
+    index_delta = runtime_tables.arrays["ADPCM_INDEX_DELTA"]
+    step_table = runtime_tables.arrays["ADPCM_STEP"]
     if length is None:
         length = len(data)
     if length < 0 or length > len(data):
@@ -252,11 +312,11 @@ def decode_adpcm(data: bytes, *, length: int | None = None) -> bytes:
             bit1 = nibble & 1
             magnitude = bit4 + bit2 + bit1
 
-            step = ADPCM_STEP[index - 1]
+            step = step_table[index - 1]
             half = step >> 1
             quarter = half >> 1
             delta = quarter >> 1
-            index += ADPCM_INDEX_DELTA[magnitude]
+            index += index_delta[magnitude]
             if index < 1:
                 index = 1
             elif index > 49:
@@ -279,6 +339,7 @@ def _record_output(
     stored_size: int,
     metadata: tuple[int, int, int, int, int],
     rle_input: bytes,
+    runtime_tables: RuntimeTables | None,
 ) -> tuple[bytes, int, tuple[int | None, int | None, int | None, int | None]]:
     """Return game-facing output, input bytes consumed, and image shape."""
 
@@ -300,7 +361,7 @@ def _record_output(
         output = decode_lzw(payload, expected_size=metadata[0])
         return output, len(payload), (None, None, None, None)
     if kind == 5:
-        output = decode_adpcm(payload, length=stored_size)
+        output = decode_adpcm(payload, length=stored_size, runtime_tables=runtime_tables)
         if len(output) != metadata[0]:
             raise ValueError(
                 f"kind-5 output size {len(output)} != header +6 size {metadata[0]}"
@@ -315,7 +376,9 @@ def _record_output(
     return payload, len(payload), (None, None, None, None)
 
 
-def decode_indexed_asset(path: str, disk_image: str, data: bytes) -> DecodedAsset:
+def decode_indexed_asset(
+    path: str, disk_image: str, data: bytes, runtime_tables: RuntimeTables | None = None
+) -> DecodedAsset:
     """Parse an indexed asset and model each recognized loader output."""
 
     if len(data) < 2:
@@ -357,7 +420,7 @@ def decode_indexed_asset(path: str, disk_image: str, data: bytes) -> DecodedAsse
         # refills from the archive handle in 1024-byte chunks, so supply the
         # remaining file stream for kinds 1/2; other codecs use payload only.
         output, consumed, image_shape = _record_output(
-            kind, payload, stored_size, metadata, data[payload_start:]
+            kind, payload, stored_size, metadata, data[payload_start:], runtime_tables
         )
         records[start] = Record(
             offset=start,
@@ -408,6 +471,76 @@ def _ofs_disk_class():
     return OFSDisk
 
 
+def _hunk_parse_function():
+    """Import the repository's strict HUNK parser."""
+
+    tools_dir = str(ROOT / "tools")
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    from hunk import parse  # type: ignore[import-not-found]
+
+    return parse
+
+
+def _runtime_tables_from_executable(executable: bytes, source: str) -> RuntimeTables:
+    """Read typed tables from resident DATA using strict HUNK bounds."""
+
+    try:
+        model = _hunk_parse_function()(executable)
+    except Exception as exc:
+        raise ValueError(f"{source}: strict HUNK parse failed: {exc}") from exc
+    resident_data = [
+        segment for segment in model["hunks"]
+        if segment["number"] == 1 and segment["node"] == "resident"
+    ]
+    if len(resident_data) != 1 or resident_data[0]["type"] != "DATA":
+        raise ValueError(f"{source}: expected exactly one resident DATA hunk 1")
+    segment = resident_data[0]
+    arrays: dict[str, tuple[int, ...]] = {}
+    for symbol, spec in RESIDENT_DATA_ARRAYS.items():
+        if spec.c_type == "UWORD":
+            word_format = "H"
+        elif spec.c_type == "WORD":
+            word_format = "h"
+        else:
+            raise ValueError(f"{symbol}: unsupported DATA element type {spec.c_type!r}")
+        byte_count = spec.count * 2
+        end = spec.offset + byte_count
+        if spec.offset < 0 or end > segment["initialized_size"]:
+            raise ValueError(
+                f"{source}: {symbol} {spec.c_type}[{spec.count}] at +0x{spec.offset:x} "
+                f"exceeds resident DATA hunk 1 ({segment['initialized_size']} initialized bytes)"
+            )
+        file_start = segment["content_offset"] + spec.offset
+        file_end = file_start + byte_count
+        if file_start < 0 or file_end > len(executable):
+            raise ValueError(f"{source}: {symbol} extends beyond executable bytes")
+        arrays[symbol] = struct.unpack(f">{spec.count}{word_format}", executable[file_start:file_end])
+    return RuntimeTables(arrays)
+
+
+@lru_cache(maxsize=4)
+def _runtime_tables_for_assets_path(assets_dir: str) -> RuntimeTables:
+    """Find DT1:DuckTales in supplied ADFs and read its resident DATA arrays."""
+
+    paths = sorted(Path(assets_dir).glob("*.adf"))
+    if not paths:
+        raise ValueError(f"DT1:DuckTales executable absent: no .adf images found under {assets_dir}")
+    OFSDisk = _ofs_disk_class()
+    executable = None
+    for disk_path in paths:
+        disk = OFSDisk(disk_path.read_bytes())
+        summary = disk.parse()
+        if summary["volume"] == "DT1" and "DuckTales" in disk.files:
+            executable = disk.files["DuckTales"]
+            break
+    if executable is None:
+        raise ValueError(
+            f"DT1:DuckTales executable absent from supplied ADF images under {assets_dir}"
+        )
+    return _runtime_tables_from_executable(executable, "DT1:DuckTales")
+
+
 def load_supplied_assets(
     assets_dir: Path = DEFAULT_ASSETS,
     inventory_path: Path = DEFAULT_INVENTORY,
@@ -416,11 +549,12 @@ def load_supplied_assets(
 
     disk_paths = sorted(Path(assets_dir).glob("*.adf"))
     if not disk_paths:
-        raise ValueError(f"no .adf disk images found under {assets_dir}")
+        raise ValueError(f"DT1:DuckTales executable absent: no .adf disk images found under {assets_dir}")
     inventory_doc = json.loads(Path(inventory_path).read_text(encoding="utf-8"))
     expected = {row["path"]: row for row in inventory_doc["files"]}
     seen: set[str] = set()
     results: list[DecodedAsset] = []
+    runtime_tables = _runtime_tables_for_assets_path(str(Path(assets_dir).resolve()))
     OFSDisk = _ofs_disk_class()
 
     for disk_path in disk_paths:
@@ -437,7 +571,7 @@ def load_supplied_assets(
             if len(contents) != row["size"] or _sha256(contents) != row["sha256"]:
                 raise ValueError(f"{asset_path}: supplied bytes disagree with inventory")
             seen.add(asset_path)
-            results.append(decode_indexed_asset(asset_path, disk_path.name, contents))
+            results.append(decode_indexed_asset(asset_path, disk_path.name, contents, runtime_tables))
 
     missing = sorted(set(expected) - seen)
     if missing:
@@ -503,9 +637,89 @@ def _grayscale_png(record: Record) -> bytes:
     )
 
 
-def dump_bitmaps(assets: Iterable[DecodedAsset], output_dir: Path) -> int:
+def _palette_png(record: Record, palette: tuple[int | None, ...]) -> bytes:
+    """Encode measured 0x0RGB entries; use gray only for unknown indices."""
+
+    if None in (
+        record.image_width, record.image_height,
+        record.image_row_bytes, record.image_depth,
+    ):
+        raise ValueError("PNG requested for a non-bitmap record")
+    width = int(record.image_width)
+    height = int(record.image_height)
+    row_bytes = int(record.image_row_bytes)
+    depth = int(record.image_depth)
+    required_colors = 1 << depth
+    if len(palette) < required_colors:
+        raise ValueError(
+            f"palette has {len(palette)} entries; bitmap depth {depth} requires {required_colors}"
+        )
+    plane_size = row_bytes * height
+    if width > row_bytes * 8:
+        raise ValueError("bitmap pixel width exceeds decoded row storage")
+
+    scanlines = bytearray()
+    for y in range(height):
+        scanlines.append(0)
+        for x in range(width):
+            mask = 1 << (7 - (x & 7))
+            color_index = 0
+            byte_index = y * row_bytes + (x >> 3)
+            for plane in range(depth):
+                plane_byte = record.record_output[plane * plane_size + byte_index]
+                if plane_byte & mask:
+                    color_index |= 1 << plane
+            word = palette[color_index]
+            if word is None:
+                grey = color_index * 255 // (required_colors - 1)
+                scanlines.extend((grey, grey, grey))
+            else:
+                scanlines.extend((
+                    ((word >> 8) & 0x0F) * 17,
+                    ((word >> 4) & 0x0F) * 17,
+                    (word & 0x0F) * 17,
+                ))
+
+    def chunk(tag: bytes, content: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(content)) + tag + content
+            + struct.pack(">I", zlib.crc32(tag + content) & 0xFFFFFFFF)
+        )
+
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(bytes(scanlines)))
+        + chunk(b"IEND", b"")
+    )
+
+
+def palette_for_entry(
+    asset_path: str,
+    entry_index: int,
+    runtime_tables: RuntimeTables | None = None,
+) -> tuple[int | None, ...] | None:
+    """Return a runtime-read palette whose DATA and use are established."""
+
+    symbol = ENTRY_PALETTE_SYMBOLS.get(
+        (asset_path, entry_index), ASSET_PALETTE_SYMBOLS.get(asset_path)
+    )
+    if symbol is None:
+        return None
+    if runtime_tables is None:
+        runtime_tables = _runtime_tables_for_assets_path(str(DEFAULT_ASSETS.resolve()))
+    return runtime_tables.palette(symbol)
+
+
+def dump_bitmaps(
+    assets: Iterable[DecodedAsset],
+    output_dir: Path,
+    runtime_tables: RuntimeTables | None = None,
+) -> int:
     """Write all kind-1/2 bitmap previews; return the number of PNG files."""
 
+    if runtime_tables is None:
+        runtime_tables = _runtime_tables_for_assets_path(str(DEFAULT_ASSETS.resolve()))
     output_dir.mkdir(parents=True, exist_ok=True)
     dumped = 0
     for asset in assets:
@@ -517,7 +731,9 @@ def dump_bitmaps(assets: Iterable[DecodedAsset], output_dir: Path) -> int:
                 f"{asset_stem}_entry{index:03d}_offset{record.offset:08x}_"
                 f"kind{record.kind}.png"
             )
-            (output_dir / name).write_bytes(_grayscale_png(record))
+            palette = palette_for_entry(asset.path, index, runtime_tables)
+            png = _palette_png(record, palette) if palette is not None else _grayscale_png(record)
+            (output_dir / name).write_bytes(png)
             dumped += 1
     return dumped
 
@@ -529,11 +745,12 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--verbose", action="store_true", help="print each indexed entry")
     parser.add_argument(
         "--dump", type=Path,
-        help="write kind-1/2 bitmap previews as grey-ramp PNGs under DIR",
+        help="write kind-1/2 PNGs with proven palettes, grayscale where unknown",
     )
     args = parser.parse_args(argv)
     try:
         assets = load_supplied_assets(args.assets_dir, args.inventory)
+        runtime_tables = _runtime_tables_for_assets_path(str(args.assets_dir.resolve()))
     except (OSError, ValueError, KeyError, struct.error) as exc:
         print(f"decode: {exc}", file=sys.stderr)
         return 2
@@ -556,7 +773,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                     )
                 )
     if args.dump:
-        print(f"png_bitmaps={dump_bitmaps(assets, args.dump)} output_dir={args.dump}")
+        print(f"png_bitmaps={dump_bitmaps(assets, args.dump, runtime_tables)} output_dir={args.dump}")
     print(f"decoded_files={len(assets)}")
     return 0
 
