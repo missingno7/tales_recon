@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -18,7 +19,7 @@ def field(offset, name, type_):
 
 
 def global_(type_='int', extent=2):
-    return dict(type=type_, extent=extent, evidence='consumer and bound')
+    return dict(type=type_, extent=extent, evidence='consumer and bound', basis='CURATED')
 
 
 def model(globals_=None, structs=None):
@@ -135,6 +136,143 @@ class ValidationTests(unittest.TestCase):
         dm.load_model(ROOT)
 
 
+def scalar_facts(entries):
+    """Synthetic canonical declarations plus original direct-access facts."""
+    symbols, widths, kinds = {}, {}, {}
+    for key, views, observed in entries:
+        symbols[key] = {v: list(ss) for v, ss in views.items()}
+        kinds[key] = 'data'
+        if observed is not None:
+            widths[int(key[-4:], 16)] = dict(observed_widths_bytes=sorted(set(observed)),
+                accesses=[dict(width_bytes=w, function='original', hunk=0, offset=i*2,
+                               mnemonic='move', operands='(a4),d0', direction='READ')
+                          for i, w in enumerate(observed)], address_taken=[])
+    return dict(parsed=dict(symbols=symbols, kinds=kinds, source_structs={}), widths=widths)
+
+
+class MechanicalTests(unittest.TestCase):
+    def test_scalar_pointer_and_array_proposals_and_merge_idempotence(self):
+        facts = scalar_facts([
+            ('G_h01_0100', {'int':['a.c'], 'short':['b.c']}, [2]),
+            ('G_h01_0102', {'unsigned char':['a.c']}, [1]),
+            ('G_h01_0104', {'struct Opaque *':['c.c']}, [4]),
+            ('G_h01_0108', {'long [2][3]':['a.c','b.c']}, [4]),
+            ('G_h01_0120', {'char **':['c.c']}, [4])])
+        m = model()
+        proposals = dm.propose_scalars(m, facts)
+        self.assertEqual({k:r['type'] for k,r in proposals.items()},
+            dict(G_h01_0100='int', G_h01_0102='unsigned char', G_h01_0104='struct Opaque *',
+                 G_h01_0108='long[2][3]', G_h01_0120='char **'))
+        self.assertEqual(proposals['G_h01_0108']['extent'], 24)
+        self.assertIn('consumers=2', proposals['G_h01_0100']['evidence'])
+        self.assertIn('original access widths=[2]', proposals['G_h01_0100']['evidence'])
+        m['globals'].update(proposals)
+        dm.validate(m, mechanical_facts=facts)
+        self.assertEqual(dm.propose_scalars(m, facts), {})
+        self.assertEqual(dm.derive_scalars(m, facts), proposals)
+        self.assertTrue(all(r['basis']=='MECHANICAL_CONSISTENT_VIEWS' for r in proposals.values()))
+
+    def test_no_majority_vote_no_address_only_or_partial_width_evidence(self):
+        views = [{'int':['a','b'], 'unsigned int':['c']},
+                 {'long':['a'], 'char *':['b']}, {'char':['a'], 'char [1]':['b']},
+                 {'int []':['a']}, {'struct R':['a']}, {'int':['a']}]
+        for v in views:
+            with self.subTest(views=v):
+                facts = scalar_facts([('G_h01_0100', v, [] if v==views[-1] else [2])])
+                self.assertEqual(dm.propose_scalars(model(), facts), {})
+        for width in (None, [], [1], [1,2], [4]):
+            with self.subTest(width=width):
+                facts=scalar_facts([('G_h01_0100', {'int':['a']}, width)])
+                self.assertEqual(dm.propose_scalars(model(), facts), {})
+        facts=scalar_facts([('G_h01_0100', {'int':['a']}, [2])])
+        facts['widths'][256]['observed_widths_bytes']=[1]
+        self.assertEqual(dm.propose_scalars(model(), facts), {})
+
+    def test_interior_accesses_alignment_and_region_bounds(self):
+        facts=scalar_facts([('G_h01_0100', {'int [2]':['a']}, [2])])
+        for offset,width in [(257,2),(258,1),(259,2)]:
+            with self.subTest(offset=offset,width=width):
+                changed=deepcopy(facts)
+                changed['widths'][offset]=dict(observed_widths_bytes=[width],accesses=[dict(width_bytes=width)])
+                self.assertEqual(dm.propose_scalars(model(),changed),{})
+        self.assertEqual(dm.propose_scalars(model(),facts, [('DATA',0,258)]),{})
+        odd=scalar_facts([('G_h01_0101', {'int':['a']}, [2])])
+        self.assertEqual(dm.propose_scalars(model(),odd),{})
+        # A long straddling the array's start is an overlap even when its base
+        # lies outside the candidate. Both eligible candidate rows are rejected.
+        crossed=scalar_facts([('G_h01_00FE', {'long':['a']}, [4]),
+                             ('G_h01_0100', {'int [2]':['b']}, [2])])
+        self.assertEqual(dm.propose_scalars(model(),crossed),{})
+
+    def test_overlaps_are_symmetric_and_curated_extents_take_precedence(self):
+        facts=scalar_facts([('G_h01_0100', {'int [2]':['a']}, [2]),
+                            ('G_h01_0102', {'int':['b']}, [2]),
+                            ('G_h01_0104', {'int':['c']}, [2])])
+        result=dm.propose_scalars(model(),facts)
+        self.assertEqual(list(result),['G_h01_0104'])
+        reversed_facts=deepcopy(facts)
+        reversed_facts['parsed']['symbols']=dict(reversed(list(facts['parsed']['symbols'].items())))
+        self.assertEqual(dm.propose_scalars(model(),reversed_facts),result)
+        reserved=model({'G_h01_0100':global_('UNKNOWN',4)})
+        self.assertEqual(dm.propose_scalars(reserved,facts),result)
+        reserved['globals']['G_h01_0104']=global_('UNKNOWN',None)
+        self.assertEqual(dm.propose_scalars(reserved,facts),{})
+
+    def test_every_mechanical_row_is_rederived_including_evidence_and_consumers(self):
+        facts=scalar_facts([('G_h01_0100', {'int':['a','b']}, [2])])
+        m=model(dm.propose_scalars(model(),facts))
+        for change in (dict(type='unsigned int'),dict(type='short'),dict(extent=4),
+                       dict(evidence='same width but invented facts'),dict(struct='Invented')):
+            changed=deepcopy(m);changed['globals']['G_h01_0100'].update(change)
+            with self.subTest(change=change),self.assertRaises(FormatError):
+                dm.validate(changed,mechanical_facts=facts)
+        variants=[]
+        for view in ({'int':['a']},{'int':['a','c']},{'short':['a','b']},
+                     {'int':['a','b'],'char':['c']}):
+            changed=deepcopy(facts);changed['parsed']['symbols']['G_h01_0100']=view;variants.append(changed)
+        for key,value in [('width_bytes',1),('offset',99),('function','other')]:
+            changed=deepcopy(facts);changed['widths'][256]['accesses'][0][key]=value;variants.append(changed)
+        changed=deepcopy(facts);changed['parsed']['symbols']={};variants.append(changed)
+        for changed in variants:
+            with self.subTest(facts=changed),self.assertRaises(FormatError):
+                dm.validate(m,mechanical_facts=changed)
+        # A newly discovered unanimous array overlaps the existing scalar.
+        overlap=deepcopy(facts)
+        overlap['parsed']['symbols']['G_h01_00FE']={'int [2]':['new']}
+        overlap['parsed']['kinds']['G_h01_00FE']='data'
+        overlap['widths'][254]=deepcopy(facts['widths'][256])
+        with self.assertRaises(FormatError):dm.validate(m,mechanical_facts=overlap)
+
+    def test_unparsed_declarations_prevent_false_unanimity(self):
+        facts=scalar_facts([('G_h01_0100', {'long':['a']}, [4])])
+        m=model(dm.propose_scalars(model(),facts))
+        facts['parsed']['unparsed']=[dict(source='b',statement='float G_h01_0100')]
+        self.assertEqual(dm.propose_scalars(model(),facts),{})
+        with self.assertRaises(FormatError):dm.validate(m,mechanical_facts=facts)
+
+    def test_opaque_pointee_views_are_fingerprinted_without_claiming_layout(self):
+        facts=scalar_facts([('G_h01_0100',{'struct Local *':['a']},[4])])
+        facts['parsed']['source_structs']={'a':{'Local':'int x;'}}
+        m=model(dm.propose_scalars(model(),facts))
+        dm.validate(m,mechanical_facts=facts)
+        changed=deepcopy(facts);changed['parsed']['source_structs']['a']['Local']='long x;'
+        with self.assertRaises(FormatError):dm.validate(m,mechanical_facts=changed)
+        self.assertNotIn('struct Local {',dm.render_header(m,{}))
+        self.assertTrue(readable.compatible_view('struct Local *','struct Local *',{}, {'Local':'int x;'}))
+
+    def test_required_basis_and_fresh_type_evidence(self):
+        for basis in ('GUESS', None):
+            row=global_();row['basis']=basis
+            with self.subTest(basis=basis),self.assertRaises(FormatError):dm.validate(model({'G_h01_0100':row}))
+        row=global_();del row['basis']
+        with self.assertRaises(FormatError):dm.validate(model({'G_h01_0100':row}))
+        with TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'evidence').mkdir();(root/'evidence/types.json').write_text('{"globals":[]}')
+            with patch('type_evidence.evidence_staleness',return_value=['stale widths']), patch('declaration_views.corpus') as corpus:
+                with self.assertRaisesRegex(FormatError,'stale widths'):dm.load_scalar_facts(root)
+                corpus.assert_not_called()
+
+
 class ReadableTests(unittest.TestCase):
     def setUp(self):
         self.m = model({'G_h01_0100': global_('int', 2),
@@ -202,6 +340,8 @@ class ReadableTests(unittest.TestCase):
             (root/'recovery/ledger.json').write_text(json.dumps(ledger))
             result = readable.render(root)
             self.assertEqual(result['data_model']['shared'], 1)
+            self.assertEqual(result['sources_without_private_data_externs'], 1)
+            self.assertEqual(result['sources_without_private_data_views'], 1)
             self.assertEqual(p.read_text(), source)
             rendered = (root/'build/readable/resident/resident_F_0000.c').read_text()
             self.assertIn('#include "../include/game_data.h"', rendered)

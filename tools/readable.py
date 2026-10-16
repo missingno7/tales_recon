@@ -77,20 +77,7 @@ def rename(text, fid, names):
 NON_CODE = re.compile(r"""/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'""", re.S)
 
 
-def _type_key(text):
-    """Conservative C compatibility: int/short synonyms only, not equal sizeof."""
-    parsed = data_model.parse_type(text)
-    if parsed is None:
-        return None
-    base, ptr, dims = parsed
-    if not base.startswith('struct '):
-        base = {'short': 'int', 'short int': 'int', 'signed': 'int',
-                'signed int': 'int', 'signed short': 'int', 'signed short int': 'int',
-                'unsigned': 'unsigned int', 'unsigned short': 'unsigned int',
-                'unsigned short int': 'unsigned int', 'long int': 'long',
-                'signed long': 'long', 'signed long int': 'long',
-                'unsigned long int': 'unsigned long', 'signed char': 'char'}.get(base, base)
-    return base, ''.join(ptr.split()), tuple(dims)
+_type_key = data_model.type_key
 
 
 def compatible_view(view, reviewed, structs, local_structs=None):
@@ -105,7 +92,7 @@ def compatible_view(view, reviewed, structs, local_structs=None):
     if 'struct' in base.split():
         tag = base.split()[-1]
         if tag not in structs:
-            return False  # independently named opaque pointers stay review items
+            return bool(ptr)  # same opaque tag; no shared pointee layout is asserted
         body = (local_structs or {}).get(tag)
         if body is not None and not data_model.struct_layout(tag, structs)['complete']:
             return False
@@ -168,14 +155,21 @@ def render(root=ROOT, out=None):
     ledger = json.loads((root / 'recovery/ledger.json').read_text())
     out = Path(out or root / OUT)
     rows = []
+    sources_without_private_data = 0
+    sources_without_private_views = 0
     totals = dict(shared=0, differing=0, unknown=0)
     header_path = out / 'include/game_data.h'
     header_path.parent.mkdir(parents=True, exist_ok=True)
-    header_path.write_text(data_model.render_header(model, names), encoding='ascii')
+    header_path.write_bytes(data_model.render_header(model, names).encode('ascii'))
     for kind in OWNERSHIP_MAPS:
         for fid, item in sorted(ledger.get(kind, {}).items()):
             source = canonical_path(root, item['source']).read_text()
             source, decisions = apply_data_model(source, model)
+            active = NON_CODE.sub('', source)
+            externs, _, unparsed = parse_source(active)
+            no_private_data = not unparsed and not any(e['kind'] == 'data' for e in externs)
+            sources_without_private_data += no_private_data
+            sources_without_private_views += no_private_data and decisions['differing'] == 0
             for key, count in decisions.items():
                 totals[key] += count
             node = fid.split('_F_')[0]
@@ -192,8 +186,10 @@ def render(root=ROOT, out=None):
     named = sum(1 for r in rows if r[2])
     index += ['', '%d of %d accepted functions named; %d globals named.' % (named, len(rows), len(names['globals']))]
     index += ['', 'Data model: [game_data.h](include/game_data.h). %d compatible private declarations use the shared header; %d differing views are retained as comments; %d UNKNOWN/alias views remain private.' % (totals['shared'], totals['differing'], totals['unknown']), '', 'This generated view is for review, not a compilable port. Differing struct/member and scalar/array consumer expressions are unchanged. Sparse layouts stay incomplete; no filler or initializer bytes are emitted.']
-    (out / 'index.md').write_text('\n'.join(index) + '\n')
-    return dict(functions=len(rows), named_functions=named, named_globals=len(names['globals']), data_model=totals, output=str(out))
+    index += ['', '%d of %d source views have no active private data externs; %d also have no differing-view comments. Function externs are excluded; unsupported extern statements conservatively count as private.' % (sources_without_private_data, len(rows), sources_without_private_views)]
+    (out / 'index.md').write_bytes(('\n'.join(index) + '\n').encode('ascii'))
+    return dict(functions=len(rows), named_functions=named, named_globals=len(names['globals']), data_model=totals, sources_without_private_data_externs=sources_without_private_data,
+                sources_without_private_data_views=sources_without_private_views, output=str(out))
 
 
 def main(argv=None):

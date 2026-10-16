@@ -60,16 +60,61 @@ def validated_function(fid):
 
 FULL_PASS=ROOT/'build/regression/full-pass.json'
 CANONICAL_TIER=('tools/census.py --check','tools/hybrid_image.py --check','tools/type_evidence.py --check')
+# Modules whose behavior decides acceptance: verifiers, validators, accounting
+# and publishers. Their transitive tools/ imports form the acceptance path.
+ACCEPTANCE_ROOTS=('check_function','check_unit','census','hybrid_image','recovery_evidence','boundary_refresh',
+                  'type_evidence','behavioral','promote_batch','promote_asm','promote_data','promote_code_data',
+                  'dead_code_promotion','recovery_transaction')
+
+
+def acceptance_closure(root=ROOT):
+    """Tool modules reachable by import from the acceptance roots (text scan, lazy imports included)."""
+    import re
+    names={p.stem for p in (root/'tools').glob('*.py')}
+    deps={}
+    for name in names:
+        text=(root/'tools'/(name+'.py')).read_text(encoding='utf-8',errors='replace')
+        found=set(re.findall(r'^\s*(?:from|import)\s+([A-Za-z_]\w*)',text,re.M))
+        found|={m for line in re.findall(r'^\s*import\s+([^\n#]+)',text,re.M) for m in re.findall(r'[A-Za-z_]\w*',line)}
+        deps[name]={d for d in found if d in names and d!=name}
+    seen=set();todo=[r for r in ACCEPTANCE_ROOTS if r in names]
+    while todo:
+        n=todo.pop()
+        if n in seen:continue
+        seen.add(n);todo.extend(deps.get(n,()))
+    return seen
+
+
+def gate_plan(before,stamp,root=ROOT):
+    """('FULL'|'SCOPED'|'CANONICAL', changed test files) for the current tools/tests state."""
+    previous=stamp.get('inputs')
+    if not isinstance(previous,dict):return 'FULL',[]
+    changed={p for p in set(before)|set(previous) if before.get(p)!=previous.get(p)}
+    if not changed:return 'CANONICAL',[]
+    closure=acceptance_closure(root)
+    for path in changed:
+        if path.startswith('tools/') and Path(path).stem in closure:return 'FULL',[]
+        if path in ('tests/conftest.py',):return 'FULL',[]
+    import re
+    tests={p for p in changed if p.startswith('tests/') and p in before}
+    leaves={Path(p).stem for p in changed if p.startswith('tools/') and p in before}
+    for test in (root/'tests').glob('test_*.py'):
+        text=test.read_text(encoding='utf-8',errors='replace')
+        if any(re.search(r'^\s*(?:from|import)\s+'+re.escape(m)+r'(?![A-Za-z0-9_])',text,re.M) for m in leaves):
+            tests.add(test.relative_to(root).as_posix())
+    return 'SCOPED',sorted(tests)
 
 
 def regression_receipt(full=None):
-    """Run the promotion gate; the full suite only when tools/ or tests/ changed.
+    """Run the promotion gate in proportion to what changed since the last full pass.
 
-    Tooling behavior depends only on tools/ and tests/. When both are byte-equal
-    to the last full pass on this host, the gate re-proves the complete canonical
-    state instead (census, hybrid accounting and type evidence checks), which is
-    what a source/proof-only promotion can affect. TALES_FULL_GATE=1 or
-    full=True forces the full suite; commits should always follow a full pass.
+    FULL: the two-phase suite, when any acceptance-path module (verifiers,
+    validators, accounting, publishers and their transitive tools/ imports)
+    or the test harness changed. SCOPED: only leaf tools or tests changed;
+    re-prove canonical state and run the changed test modules. CANONICAL:
+    tools/ and tests/ are byte-equal to the last full pass; re-prove canonical
+    state. TALES_FULL_GATE=1 or full=True forces FULL; commits that change the
+    acceptance path follow a full pass.
     """
     import os
     def inputs():
@@ -78,15 +123,16 @@ def regression_receipt(full=None):
     before=inputs();input_sha256=sha256(json_bytes(before))
     try:stamp=json.loads(FULL_PASS.read_text())
     except (OSError,ValueError):stamp={}
-    if full is None:
-        full=os.environ.get('TALES_FULL_GATE')=='1' or stamp.get('input_sha256')!=input_sha256
-    if not full:
+    tier,tests=('FULL',[]) if full or os.environ.get('TALES_FULL_GATE')=='1' else gate_plan(before,stamp)
+    if tier!='FULL':
         commands=[[sys.executable,*c.split()] for c in CANONICAL_TIER]
+        if tests:commands.append([sys.executable,'-m','pytest','-q','-p','no:cacheprovider',*tests])
         results=[subprocess.run(command,cwd=ROOT,capture_output=True,text=True) for command in commands]
         output=''.join(result.stdout+result.stderr for result in results)
-        require(all(result.returncode==0 for result in results),'promotion canonical checks failed: '+output)
+        require(all(result.returncode==0 for result in results),'promotion '+tier.lower()+' checks failed: '+output)
         require(inputs()==before,'regression suite inputs changed during execution; rerun verification')
-        return dict(command=' && '.join('python '+c for c in CANONICAL_TIER),passed=True,tier='CANONICAL',
+        display=lambda command:'python '+' '.join(command[1:])
+        return dict(command=' && '.join(display(c) for c in commands),passed=True,tier=tier,
                     output_sha256=sha256(output.encode()),input_sha256=input_sha256,
                     full_pass=dict(output_sha256=stamp.get('output_sha256'),input_sha256=stamp.get('input_sha256')))
     if importlib.util.find_spec('pytest') is not None and importlib.util.find_spec('xdist') is not None:
@@ -107,7 +153,7 @@ def regression_receipt(full=None):
     receipt=dict(command=' && '.join(display(command) for command in commands),passed=True,tier='FULL',
                  output_sha256=sha256(output.encode()),input_sha256=input_sha256)
     FULL_PASS.parent.mkdir(parents=True,exist_ok=True)
-    FULL_PASS.write_text(json.dumps(receipt,indent=1),encoding='utf-8')
+    FULL_PASS.write_text(json.dumps(dict(receipt,inputs=before),indent=1),encoding='utf-8')
     return receipt
 
 

@@ -4,6 +4,7 @@ The readable view uses Manx sizes: int/short 16, long/pointer 32, alignment 2.
 Sparse records and UNKNOWN extents remain explicit, never filled with byte arrays.
 """
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -100,7 +101,7 @@ def struct_layout(tag, structs, stack=()):
     return dict(complete=bool(complete), minimum_size=end)
 
 
-def validate(model, names=None, regions=None):
+def validate(model, names=None, regions=None, mechanical_facts=None, root=ROOT):
     """Validate synthetic or repository maps without reading initializer values."""
     require(isinstance(model, dict) and set(model) == {'schema_version', 'globals', 'structs'}, 'data model keys')
     require(type(model['schema_version']) is int and model['schema_version'] == 1, 'data model schema_version')
@@ -122,8 +123,9 @@ def validate(model, names=None, regions=None):
     intervals = []
     for key, row in model['globals'].items():
         require(isinstance(key, str) and GLOBAL.fullmatch(key), 'invalid resident global: ' + str(key))
-        require(isinstance(row, dict) and {'type', 'extent', 'evidence'} <= set(row)
-                and set(row) <= {'type', 'extent', 'evidence', 'struct'}, key + ': global keys')
+        require(isinstance(row, dict) and {'type', 'extent', 'evidence', 'basis'} <= set(row)
+                and set(row) <= {'type', 'extent', 'evidence', 'basis', 'struct'}, key + ': global keys')
+        require(row['basis'] in ('CURATED', 'MECHANICAL_CONSISTENT_VIEWS'), key + ': invalid basis')
         require(isinstance(row['evidence'], str) and row['evidence'].strip(), key + ': evidence required')
         name = names.get('globals', {}).get(key, {}).get('name', key)
         require(name not in emitted or emitted[name] == key, 'duplicate emitted global name: ' + name)
@@ -150,7 +152,123 @@ def validate(model, names=None, regions=None):
         require(previous is None or current[0] >= previous[1],
                 'overlapping global extents: %s / %s' % (previous[2] if previous else '', current[2]))
         previous = current
+    mechanical = {k: r for k, r in model['globals'].items() if r['basis'] == 'MECHANICAL_CONSISTENT_VIEWS'}
+    if mechanical:
+        facts = load_scalar_facts(root) if mechanical_facts is None else mechanical_facts
+        derived = derive_scalars(model, facts, regions)
+        for key, row in mechanical.items():
+            require(derived.get(key) == row, key + ': stale MECHANICAL_CONSISTENT_VIEWS entry; re-derive or curate')
     return model
+
+
+def type_key(text):
+    """Manx compatible spelling, preserving signedness, pointers and array shape."""
+    parsed = parse_type(text)
+    if parsed is None:
+        return None
+    base, ptr, dims = parsed
+    base = {'short': 'int', 'short int': 'int', 'signed': 'int',
+            'signed int': 'int', 'signed short': 'int', 'signed short int': 'int',
+            'unsigned': 'unsigned int', 'unsigned short': 'unsigned int',
+            'unsigned short int': 'unsigned int', 'long int': 'long',
+            'signed long': 'long', 'signed long int': 'long',
+            'unsigned long int': 'unsigned long', 'signed char': 'char'}.get(base, base)
+    return base, ''.join(ptr.split()), tuple(dims)
+
+
+def load_scalar_facts(root=ROOT):
+    """Read current canonical views and freshness-checked instruction-width facts."""
+    from declaration_views import corpus
+    from type_evidence import evidence_staleness
+    root = Path(root)
+    document = json.loads((root / 'evidence/types.json').read_text())
+    stale = evidence_staleness(document, root)
+    require(not stale, '; '.join(stale))
+    return dict(parsed=corpus(root), widths={g['data_hunk_offset']: g for g in document['globals']})
+
+
+def derive_scalars(model, facts, regions=None):
+    """Reproducible consistency tier, not historical declaration/boundary provenance.
+
+    Require positive original accesses exactly as wide as the declared element.
+    No by-value structs, unbounded arrays, address-only anchors or majority vote.
+    All candidate/candidate overlaps are excluded symmetrically, so selection is
+    independent of map order or which proposals have already been merged.
+    Curated UNKNOWN aliases reserve their identity, but claim no unknown bytes.
+    """
+    parsed, widths = facts['parsed'], facts['widths']
+    curated = {k: r for k, r in model['globals'].items() if r['basis'] == 'CURATED'}
+    occupied = [(int(k[-4:], 16), int(k[-4:], 16) + r['extent'])
+                for k, r in curated.items() if r['extent'] is not None]
+    candidates = {}
+    unparsed = {key for row in parsed.get('unparsed', [])
+                for key in re.findall(r'\bG_h01_[0-9A-F]{4}\b', row['statement'])}
+    for key, views in sorted(parsed['symbols'].items()):
+        if not GLOBAL.fullmatch(key) or key in curated or key in unparsed or parsed['kinds'].get(key) != 'data':
+            continue
+        try:
+            keys = {type_key(v) for v in views}
+            if len(keys) != 1 or None in keys:
+                continue
+            base, ptr, dims = next(iter(keys))
+            if not ptr and ('struct' in base.split() or base == 'void'):
+                continue
+            text = base + (' ' + ptr if ptr else '') + ''.join('[%d]' % n for n in dims)
+            extent, align = type_layout(text, {})
+            element = type_layout(base + (' ' + ptr if ptr else ''), {})[0]
+        except FormatError:
+            continue
+        start = int(key[-4:], 16)
+        stop = start + extent
+        if start % align or regions is not None and not any(lo <= start and stop <= hi for _, lo, hi in regions):
+            continue
+        if any(start < hi and lo < stop for lo, hi in occupied):
+            continue
+        observed = widths.get(start, {})
+        access_widths = sorted({a['width_bytes'] for a in observed.get('accesses', []) if a['width_bytes']})
+        if access_widths != [element] or observed.get('observed_widths_bytes') != access_widths:
+            continue
+        # Include accesses starting outside but straddling this span. Checking
+        # just base identities would incorrectly accept a word inside a long.
+        interior = {offset: row for offset, row in widths.items()
+                    if start <= offset < stop or any(a['width_bytes'] and offset < stop
+                        and start < offset + a['width_bytes'] for a in row.get('accesses', []))}
+        if any(w != element or offset < start or (offset - start) % element or offset + w > stop
+               for offset, row in interior.items() for a in row.get('accesses', [])
+               if (w := a['width_bytes'])):
+            continue
+        sources = sorted({src for consumers in views.values() for src in consumers})
+        tag = struct_tag(text)
+        # Fingerprint only recovered facts, never instruction/initializer bytes.
+        snapshot = dict(views={v: sorted(set(ss)) for v, ss in sorted(views.items())},
+                        accesses={str(o): dict(accesses=[{k: a.get(k) for k in
+                            ('function', 'hunk', 'offset', 'mnemonic', 'operands', 'width_bytes', 'direction')}
+                            for a in r.get('accesses', [])], address_taken=[{k: a.get(k) for k in
+                            ('function', 'hunk', 'offset', 'mnemonic', 'operands', 'width_bytes', 'direction')}
+                            for a in r.get('address_taken', [])],
+                            widths=r.get('observed_widths_bytes')) for o, r in sorted(interior.items())},
+                        pointee_views={src: parsed.get('source_structs', {}).get(src, {}).get(tag)
+                                       for src in sources} if tag else {})
+        digest = hashlib.sha256(json.dumps(snapshot, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        evidence = ('Canonical declaration_views: %s; consumers=%d; original access widths=%s bytes; '
+                    'accesses=%d; address-takings=%d (evidence/types.json); facts sha256=%s. '
+                    'Declared extent; mechanical consistency only, not historical type or object-boundary provenance.' %
+                    (', '.join('%s (%d)' % (v, len(set(ss))) for v, ss in sorted(views.items())), len(sources),
+                     access_widths, len(observed.get('accesses', [])), len(observed.get('address_taken', [])), digest))
+        candidates[key] = dict(type=text, extent=extent, evidence=evidence, basis='MECHANICAL_CONSISTENT_VIEWS')
+    intervals = sorted((int(k[-4:], 16), int(k[-4:], 16) + r['extent'], k) for k, r in candidates.items())
+    blocked = set()
+    for i, (lo, hi, key) in enumerate(intervals):
+        for other_lo, other_hi, other_key in intervals[i+1:]:
+            if other_lo >= hi:
+                break
+            blocked.update((key, other_key))
+    return {k: r for k, r in candidates.items() if k not in blocked}
+
+
+def propose_scalars(model, facts, regions=None):
+    """Only new rows; derivation also considers existing mechanical rows."""
+    return {k: r for k, r in derive_scalars(model, facts, regions).items() if k not in model['globals']}
 
 
 def resident_regions(root=ROOT):
@@ -174,7 +292,7 @@ def load_model(root=ROOT, names=None):
     if names is None:
         names = json.loads((root / 'recovery/names.json').read_text())
     model = json.loads((root / MODEL).read_text(), object_pairs_hook=_unique_object)
-    return validate(model, names, resident_regions(root))
+    return validate(model, names, resident_regions(root), root=root)
 
 
 def typed_bytes(text, structs):
@@ -195,8 +313,11 @@ def typed_bytes(text, structs):
 def coverage(model, regions, symbols=()):
     totals = {kind: dict(total=hi-lo, typed=0, modeled_extent=0) for kind, lo, hi in regions}
     counts = dict(fully_typed_globals=0, partial_globals=0, unknown_globals=0)
+    by_basis = {basis: dict(globals=0, typed_bytes={kind: 0 for kind, _, _ in regions})
+                for basis in ('CURATED', 'MECHANICAL_CONSISTENT_VIEWS')}
     for key, row in model['globals'].items():
         known = typed_bytes(row['type'], model['structs'])
+        by_basis[row['basis']]['globals'] += 1
         counts['unknown_globals' if row['type'] == 'UNKNOWN' else
                'fully_typed_globals' if known == row['extent'] else 'partial_globals'] += 1
         if row['extent'] is None:
@@ -205,10 +326,11 @@ def coverage(model, regions, symbols=()):
         for kind, lo, hi in regions:
             if lo <= start and start + row['extent'] <= hi:
                 totals[kind]['typed'] += known
+                by_basis[row['basis']]['typed_bytes'][kind] += known
                 totals[kind]['modeled_extent'] += row['extent']
     return dict(**counts, modeled_globals=len(model['globals']), structs=len(model['structs']),
                 canonical_declared_globals=len(set(symbols)),
-                canonical_globals_in_model=len(set(symbols) & model['globals'].keys()), bytes=totals,
+                canonical_globals_in_model=len(set(symbols) & model['globals'].keys()), bytes=totals, by_basis=by_basis,
                 policy='Readable interpretation only; no ownership/proof credit. Typed bytes exclude UNKNOWN spans and ABI padding. '
                        'BSS is the resident DATA zero tail; the separate four-byte BSS sentinel is not modeled.')
 
@@ -228,6 +350,8 @@ def render_header(model, names):
     lines = ['/* Generated from recovery/data_model.json; reconstructed interpretation only.',
              ' * Manx ABI: int/short 16, long/pointer 32, word alignment 2.',
              ' * No initializers or ownership/proof credit. Sparse layouts stay UNKNOWN.',
+             ' * MECHANICAL rows assert agreeing canonical views and access widths only;',
+             ' * their declared extents do not establish historical object boundaries.',
              ' * Readable view only: private consumer expressions have not been rewritten.',
              ' * This is not a host-port header; native sizeof is not the historical layout. */',
              '#ifndef TALES_GAME_DATA_H', '#define TALES_GAME_DATA_H', '']
@@ -263,7 +387,7 @@ def render_header(model, names):
         emit(tag)
     for key, row in sorted(model['globals'].items()):
         name = names.get('globals', {}).get(key, {}).get('name', key)
-        lines.append('/* %s: %s bytes; evidence: recovery/data_model.json/globals/%s */' % (key, row['extent'] if row['extent'] is not None else 'UNKNOWN', key))
+        lines.append('/* %s: %s bytes; basis: %s; evidence: recovery/data_model.json/globals/%s */' % (key, row['extent'] if row['extent'] is not None else 'UNKNOWN', row['basis'], key))
         parsed = parse_type(row['type'])
         if parsed is None:
             lines.append('/* %s: UNKNOWN; no extern or storage claim. */' % name)
@@ -277,11 +401,15 @@ def render_header(model, names):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
-    ap.add_argument('--check', action='store_true')
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument('--check', action='store_true')
+    mode.add_argument('--propose-scalars', action='store_true', help='JSON global entries; read-only, reproducible consistency proposals')
     args = ap.parse_args(argv)
     try:
         model = load_model()
-        if args.check:
+        if args.propose_scalars:
+            print(json.dumps(propose_scalars(model, load_scalar_facts(), resident_regions()), indent=2))
+        elif args.check:
             print('data_model.json valid (readable interpretation; no proof credit)')
         else:
             from declaration_views import corpus
