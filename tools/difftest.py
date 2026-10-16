@@ -246,8 +246,13 @@ def calls_of(ev):
                           policy="returns zero; no side effects"))
     return calls,stubs
 
-def prepare(fid):
+def prepare(fid,candidate=None):
+    """Plan one comparison. ``candidate`` (a source path) checks an unresolved
+    function's best candidate: execution evidence only, never a proof class."""
     entries,evs=catalog()
+    if candidate is not None:
+        if fid in entries: raise Unsupported("canonical functions use their accepted source")
+        entries={fid:dict(source=str(candidate),proof_category="UNRESOLVED_CANDIDATE")}
     if fid not in entries: raise Unsupported("not in canonical functions/behavioral_functions ledger")
     if fid not in evs: raise Unsupported("no original execution fixture")
     entry,ev=entries[fid],evs[fid]
@@ -256,7 +261,10 @@ def prepare(fid):
     ex=entry.get("evidence_extent")
     if ex and (ex.get("hunk"),ex.get("start"),ex.get("end"))!=(ev.get("hunk"),ev.get("start"),ev.get("end")):
         raise Unsupported("canonical extent differs from execution fixture")
-    path,src=canonical_source(entry); sig=signature(src); calls,stubs=calls_of(ev)
+    if candidate is not None:
+        path=Path(candidate).resolve();src=path.read_bytes().decode("latin-1")
+    else:path,src=canonical_source(entry)
+    sig=signature(src); calls,stubs=calls_of(ev)
     struct_layouts=data_model().get("structs",{})
     for param in sig["params"]:
         if param["kind"]=="pointer" and param["base"].startswith("struct "):
@@ -722,8 +730,8 @@ def compare_pointer_buffer(param,original,host,buffer_index):
             break
     return mismatches,portability
 
-def compare_function(fid,trials=DEFAULT_TRIALS,*,source_override=None,seed=1,im=None):
-    try:plan=prepare(fid)
+def compare_function(fid,trials=DEFAULT_TRIALS,*,source_override=None,seed=1,im=None,candidate=None):
+    try:plan=prepare(fid,candidate)
     except Unsupported as exc:return dict(id=fid,status="unsupported",eligible=False,phase="classification",reason=str(exc),portability_findings=[])
     deps=dependencies()
     if not deps["ok"]:return dict(id=fid,status="unsupported",eligible=True,phase="dependencies",reason="; ".join(deps["reasons"]),portability_findings=[])
@@ -850,6 +858,7 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description="Compare original 68000 behavior with host-compiled canonical C")
     parser.add_argument("id",nargs="?"); parser.add_argument("--all",action="store_true"); parser.add_argument("--trials",type=int,default=DEFAULT_TRIALS)
     parser.add_argument("--timeout",type=int,default=120); parser.add_argument("--no-write",action="store_true")
+    parser.add_argument("--candidate",help="check an unresolved function against this candidate source (evidence only)")
     args=parser.parse_args(argv)
     if args.trials<1:parser.error("--trials must be positive")
     if bool(args.id)==bool(args.all):parser.error("provide one ID or --all")
@@ -869,7 +878,7 @@ def main(argv=None):
                 results[fid]=dict(id=fid,status="timeout",eligible=True,phase="execution",
                     reason="host or emulated run exceeded %ds (likely a loop waiting on hardware or I/O state)"%args.timeout)
         else:
-            results[fid]=compare_function(fid,args.trials)
+            results[fid]=compare_function(fid,args.trials,candidate=args.candidate)
         print(json.dumps(results[fid],sort_keys=True),flush=True)
     if args.no_write:return 0
     path,counts=write_results(results)
