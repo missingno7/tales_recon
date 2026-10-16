@@ -287,6 +287,10 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
                 if call['hunk']==df['hunk'] and call['id']!=dep_id and linked_call(call):
                     add_recovered(call['id'])
             return
+        import reconstructed_asm_dependencies as assembled
+        if assembled.owns(dep_id,verification_root(),r):
+            for target in assembled.c_dependencies(dep_id,verification_root(),r):add_recovered(target)
+            return
         if dep_id in r.get('mixed_source_objects',{}):
             import mixed_object_dependencies as mixed
             require(dep_id==mixed.ID,'unsupported mixed same-node dependency: '+dep_id)
@@ -365,7 +369,9 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             if candidate['hunk']==f['hunk'] and lo<=candidate['start'] and candidate['end']<=hi:
                 if candidate['id'] not in members: add_recovered(candidate['id'])
     ordered=sorted(members.values(),key=lambda x:x['start'])
-    require(len(ordered)>1,'unit requires a recovered same-node dependency')
+    import reconstructed_asm_dependencies as assembled
+    require(len(ordered)>1 or assembled.has_dependencies(ordered,r),
+            'unit requires a recovered same-node dependency')
     # A canonical predecessor can own only its separately proved literal tail.
     # This permits source units to span that real compiler output, without
     # treating arbitrary bytes between recovered functions as source-owned.
@@ -399,11 +405,25 @@ def compare_unit(members,names,compiled,a4_bias,owned_code_data=False,allow_gaps
     verdict additionally requires every gap-crossing reference to be
     gap-independent; otherwise it is BLOCKED with the layout's reason.
     """
+    assembled_report=None
+    if compiled.get('status')=='COMPILED':
+        import reconstructed_asm_dependencies as assembled
+        expected_assembled=assembled.derive(members,verification_root(),context['ledger'] if context else recovery())
+        require(expected_assembled==compiled.get('identity',{}).get(assembled.FIELD),
+                'canonical ASM dependencies require their complete object recipe; use check_unit')
+        if expected_assembled is not None:
+            compiled=assembled.validate_linked(compiled,verification_root(),context)
+            assembled_report=compiled[assembled.FIELD]
     if compiled.get('identity',{}).get('mixed_object_dependencies'):
         import mixed_object_dependencies
         compiled=mixed_object_dependencies.validate_linked(compiled)
     if natural is None:
-        return _compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,source_text,context=context)
+        result=_compare_unit(members,names,compiled,a4_bias,owned_code_data,allow_gaps,source_text,context=context)
+        if assembled_report is not None:
+            result['reconstructed_asm_member_comparisons']=assembled_report
+            result['c_contribution_only']=True
+            if compiled.get('typed_dependency_comparisons'):result['typed_dependency_comparisons']=compiled['typed_dependency_comparisons']
+        return result
     result=_compare_unit(members,names,compiled,a4_bias,owned_code_data,True,source_text,context=context)
     new_ids={r['id'] for r in natural['members'] if r['role'].startswith('new')}
     result['canonical_regressions']=[dict(id=m['id'],verdict=m.get('verdict'),reason=m.get('reason'))
@@ -611,6 +631,8 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
     # Differing per-object views of one external share one harness stand-in.
     if merged_externals:report['merged_external_declarations']=merged_externals
     if harness_struct_views:report['harness_struct_views']=True
+    if 'reconstructed_asm_dependencies' in compiled['identity']:
+        report['reconstructed_asm_dependencies']=compiled['identity']['reconstructed_asm_dependencies']
     if 'same_overlay_exports' in compiled['identity']:
         report['same_overlay_exports']=compiled['identity']['same_overlay_exports']
     if 'resident_data_interfaces' in compiled['identity']:
@@ -647,6 +669,7 @@ def retain_unit(fid,source,members,names,combined,compiled,a4_bias,owned_code_da
         verifier_files+=('profile_compat.py','mixed_profile_oracle.py')
     if report.get('runtime_library_routes'):verifier_files+=('runtime_member_routes.py','runtime_members.py')
     if report.get('behavioral_members'):verifier_files+=('behavioral.py',)
+    if report.get('reconstructed_asm_dependencies'):verifier_files+=('reconstructed_asm_dependencies.py','canonical_code_data_dependencies.py','queued_oracle.py')
     verifier_identity={p:sha256((verification_root()/'tools'/p).read_bytes()) for p in verifier_files}
     import dead_code_extents
     if dead_code_extents.mode_active():verifier_identity['dead_code_extents.py']=sha256((verification_root()/'tools/dead_code_extents.py').read_bytes())
@@ -1095,6 +1118,9 @@ def apply_member_profiles(trial,plan,link_compatibility,single_object=None):
 def compile_trials(trials):
     """A capable queue takes all trials together; direct callers retain the
     legacy per-object-profile dispatcher and unchanged identities."""
+    if any(t.get('reconstructed_asm_dependencies') for t in trials):
+        import compile_queue
+        return compile_queue.compile_many(trials)
     if any(t.get('mixed_object_dependencies') for t in trials):
         import queued_oracle
         return queued_oracle.compile_many(trials)
@@ -1153,12 +1179,17 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
         dependencies=mixed.derive(members)
         if dependencies:
             mixed.configure(trial,dependencies)
+        import reconstructed_asm_dependencies as assembled
+        assembled.configure(trial,assembled.derive(members,verification_root(),recovery()))
         import runtime_member_routes
         # Behavioral dependencies retain their accepted standalone mechanical
         # external bindings. Routing them to library symbols would introduce
         # an alias proof absent from their recorded comparison (e.g. Read).
         routed_members=[m for m in members if m['id'] not in recovery().get('behavioral_functions',{})]
-        routes=runtime_member_routes.derive(routed_members,trial['source'])
+        # These new units retain the ordinary mechanical external harness
+        # bindings. Eager OS-library aliases have no linked comparison here;
+        # only the canonical ASM members are substituted by this recipe.
+        routes=runtime_member_routes.derive(routed_members,trial['source']) if not trial.get(assembled.FIELD) else []
         if routes:
             runtime_member_routes.register(trial['source'],routes)
             trial['runtime_library_routes']=routes
@@ -1194,6 +1225,9 @@ def trial_cache_key(trial,inspect_cache=True):
     if trial.get('object_profiles'):
         from mixed_profile_oracle import trial_key
         key=trial_key(trial);return key,inspect_cache and cached(key) is not None
+    if trial.get('reconstructed_asm_dependencies'):
+        from queued_oracle import trial_plan
+        key=trial_plan(trial)[0];return key,inspect_cache and cached(key) is not None
     if trial.get('mixed_object_dependencies'):
         from queued_oracle import trial_plan
         key=trial_plan(trial)[0];return key,inspect_cache and cached(key) is not None
@@ -1292,6 +1326,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
                   objects=len(trials[0].get('objects') or [None]) if trials else 0,
                   trials=[dict(profile=t['profile'],cache_key=k,cached=c,**stand_in_summary(t),
                                **({'mixed_object_dependencies':t['mixed_object_dependencies']} if t.get('mixed_object_dependencies') else {}),
+                               **({'reconstructed_asm_dependencies':t['reconstructed_asm_dependencies']} if t.get('reconstructed_asm_dependencies') else {}),
                                **({'member_profiles':t['profile_record']['member_profiles'],
                                    'object_profiles':t['profile_record']['object_profiles'],
                                    'mixed_object_profiles':t['profile_record']['mixed_object_profiles']}
@@ -1303,6 +1338,7 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
         return [plan]
     for trial,compiled in zip(trials,compile_trials(trials)):
         record=object_group_record(trial)
+        if trial.get('reconstructed_asm_dependencies'):record['reconstructed_asm_dependencies']=trial['reconstructed_asm_dependencies']
         if trial.get('mixed_object_dependencies'):record['mixed_object_dependencies']=trial['mixed_object_dependencies']
         if trial.get('runtime_library_routes'):record['runtime_library_routes']=trial['runtime_library_routes']
         report,comparison=retain_unit(fid,source,members,names,combined,compiled,ledger['a4']['bias'],owned_code_data,allow_gaps,isolated,

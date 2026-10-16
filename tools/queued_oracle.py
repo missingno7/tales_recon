@@ -32,6 +32,9 @@ def _ordinary_trial_plan(trial):
 
 
 def trial_plan(trial):
+    if trial.get('reconstructed_asm_dependencies'):
+        from reconstructed_asm_dependencies import plan
+        return plan(trial,_ordinary_trial_plan)
     if trial.get('mixed_object_dependencies'):
         from mixed_object_dependencies import plan
         return plan(trial,_ordinary_trial_plan)
@@ -95,6 +98,8 @@ def compile_many(trials):
                 proxy_args += [f'+o{proxy["node"]}',name+'.o']
             from mixed_object_dependencies import stage
             object_names+=stage(item['trial'],source_dir,prefix)
+            from reconstructed_asm_dependencies import stage as stage_assembled
+            object_names+=stage_assembled(item['trial'],source_dir,prefix)
             node=item['trial'].get('target_node',1)
             command,argument_file=link_line.plan(guest,prefix,hp,node,object_names,proxy_args,item['meta'])
             require((argument_file is not None)==('link_argument_file' in item['meta']),'link argument-file decision differs from cache identity')

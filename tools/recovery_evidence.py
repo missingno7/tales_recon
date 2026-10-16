@@ -207,12 +207,25 @@ def unit_export_evidence(unit,unit_text,compiler,blob,model,functions=()):
     require(source_hash==compiler['source_sha256'],'export harness source does not re-derive')
     merged=unit.get('merged_external_declarations')
     skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
+    if unit.get('reconstructed_asm_dependencies'):skip.update(unit['reconstructed_asm_dependencies']['aliases'])
     source=stand_in_source(unit_text,skip)[0] if merged is not None else unit_text
     if unit.get('harness_struct_views'):source=struct_view_source(source)
     if unit.get('mixed_object_dependencies'):
         import mixed_object_dependencies as mixed
         require(unit['mixed_object_dependencies']==compiler.get('mixed_object_dependencies')==mixed.derive([f for f in functions if f['id'] in {m['id'] for m in unit['ordered_members']}]),'mixed dependency receipt does not rederive')
         source=re.sub(r'\brecovered\b',mixed.ENTRY,source)+'\n'+mixed.header()
+    if unit.get('reconstructed_asm_dependencies'):
+        import reconstructed_asm_dependencies as assembled
+        from compiler_oracle import cached
+        from recovery_state import recovery,evidence
+        from analysis_support import ROOT
+        by={f['id']:f for f in functions};members=[by[m['id']] for m in unit['ordered_members']]
+        recipe=assembled.derive(members,ROOT,recovery())
+        require(recipe==unit[assembled.FIELD]==compiler.get(assembled.FIELD),'ASM dependency receipt no longer rederives')
+        source=assembled.harness_source(source,recipe)
+        artifact=cached(unit['cache_key'])
+        require(artifact is not None and artifact['status']=='COMPILED' and artifact['identity']==compiler,'ASM dependency linked producer unavailable')
+        assembled.validate_linked(artifact,ROOT,dict(blob=blob,model=model,ledger=recovery(),analysis=evidence()))
     import runtime_member_routes
     runtime_member_routes.replay(unit,source,functions,game_sha256=sha256(blob))
     import resident_interfaces
@@ -489,6 +502,9 @@ def object_partition_sources(unit,unit_text,parts_dir):
         if unit.get('runtime_library_routes'):
             from runtime_member_routes import object_source
             text=object_source(text,unit['runtime_library_routes'])
+        if unit.get('reconstructed_asm_dependencies'):
+            from reconstructed_asm_dependencies import source
+            text=source(text,unit['reconstructed_asm_dependencies'])
         hashes.append(sha256(text.encode('ascii')))
     return hashes
 
@@ -507,6 +523,7 @@ def compiled_unit_source_sha256(unit,unit_text,compiler):
         derived=unit_text
     else:
         skip=set(compiler.get('local_functions') or ())|{p['name'] for p in compiler.get('overlay_proxies') or ()}
+        if unit.get('reconstructed_asm_dependencies'):skip.update(unit['reconstructed_asm_dependencies']['aliases'])
         derived,actual=stand_in_source(unit_text,skip)
         require(merged and actual==merged,'merged external declarations do not re-derive from unit.c')
     if views:
@@ -517,6 +534,10 @@ def compiled_unit_source_sha256(unit,unit_text,compiler):
         import mixed_object_dependencies as mixed
         require(unit['mixed_object_dependencies']==compiler.get('mixed_object_dependencies')==[mixed.recipe()],'mixed dependency source recipe changed')
         derived=re.sub(r'\brecovered\b',mixed.ENTRY,derived)+'\n'+mixed.header()
+    if unit.get('reconstructed_asm_dependencies'):
+        import reconstructed_asm_dependencies as assembled
+        require(unit[assembled.FIELD]==compiler.get(assembled.FIELD),'ASM dependency source identity differs')
+        derived=assembled.harness_source(derived,unit[assembled.FIELD])
     return sha256(derived.encode('ascii'))
 
 

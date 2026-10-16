@@ -51,6 +51,14 @@ def normalize(f, actual, comparison, a4_bias):
                     'PC call identity differs')
             value=call['offset']-(site+2)
             require(-(1<<(width*8-1))<=value<(1<<(width*8-1)), 'PC reference width changed')
+        elif kind=='PC_RELATIVE_FUNCTION_POINTER_SYMBOL':
+            # lea/pea d16(pc) of a function address; the field follows the opcode word.
+            width=2;site=f['start']+off-2
+            ref=next((c for c in f['direct_callees'] if c['site']==site and c.get('reference_kind')=='FUNCTION_POINTER'),None)
+            require(ref and (identity['hunk'],identity['offset'])==(ref['hunk'],ref['offset']),
+                    'PC function-pointer identity differs')
+            value=ref['offset']-(site+2)
+            require(-(1<<15)<=value<(1<<15), 'PC reference width changed')
         elif kind=='A4_D16_SYMBOL':
             width=2
             ins=next((i for i in f['instructions'] if i['offset']-f['start']<=off<

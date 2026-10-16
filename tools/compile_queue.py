@@ -52,6 +52,9 @@ def wait_timeout():
 
 def trial_key(trial):
     """The unchanged oracle identity for one trial (same arguments as compile_many)."""
+    if trial.get('reconstructed_asm_dependencies'):
+        from queued_oracle import trial_plan
+        return trial_plan(trial)[0]
     if trial.get("object_profiles"):
         from mixed_profile_oracle import trial_key as mixed_key
         return mixed_key(trial)
@@ -156,7 +159,7 @@ def _batch(own):
 
 
 def _compile_batch(trials):
-    if any(t.get("object_profiles") for t in trials):
+    if any(t.get('reconstructed_asm_dependencies') or t.get("object_profiles") for t in trials):
         from queued_oracle import compile_many as combined_compile
         return combined_compile(trials)
     return _original_compile_many(trials)

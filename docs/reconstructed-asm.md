@@ -196,3 +196,23 @@ python tools/promote_asm.py --manifest evidence/reconstructed-asm/batch-0004.jso
 The publisher runs the unchanged shared regression gate and rechecks all input
 pins before atomic publication. Only after publication should the supervisor
 refresh census/boundaries and hybrid accounting.
+
+## Canonical reconstructed-ASM dependencies in C units
+
+The ordinary `check_unit` separate-object route can retain complete canonical
+reconstructed-ASM objects beside its C contribution. `reconstructed_asm_dependencies`
+is a distinct recipe in the compiler identity and unit receipt; ASM is never a
+C member, never a C stub, and earns no new ownership from the caller proof.
+Accepted source, fact, proof, pinned producer graph and complete assembled object
+are bound separately. The existing reconstructed-ASM comparison is replayed at
+acceptance and canonical reads; the new link checks every export, ordinary byte,
+named PC/long field and relocation. Short transfers to one-past labels require
+the independently accepted next object at the actual linked boundary.
+
+Only compatible resident 3.6a separate-object trials are supported. C members
+retain the ordinary exact comparator and mechanical external-runtime harness
+bindings. The complete typed 6200 selector provider and its complete score support
+objects can be retained too, with no new typed-data or instruction credit. Its
+physical symbol must remain in CODE. Historical object/TU membership and natural
+root layout remain unknown. Use `check_unit` explicitly; a unit missing the ASM
+recipe rejects rather than accepting a synthetic C dependency.
