@@ -253,8 +253,9 @@ def rows(root,blob,model,analysis,ledger,*,staged=False):
     from repo_paths import canonical_path
     entries=ledger.get(MAP,{})
     from audio_driver_asm import SPECS as driver_specs,rows as driver_rows
-    require(set(entries)<=set(SPECS)|set(driver_specs),'unknown canonical reconstructed ASM entry')
-    extra=driver_rows(root,blob,model,analysis,ledger)
+    from glue_library_asm import SPECS as glue_specs,rows as glue_rows
+    require(set(entries)<=set(SPECS)|set(driver_specs)|set(glue_specs),'unknown canonical reconstructed ASM entry')
+    extra=driver_rows(root,blob,model,analysis,ledger)+glue_rows(root,blob,model,analysis,ledger)
     if not (set(entries)&set(SPECS)) and not staged:return extra
     batch=document(root,MANIFEST);results=[]
     for name in FACTS:
@@ -285,6 +286,9 @@ def contributions(root,records):
     result=[]
     for r in records:
         if not r.get('acceptance'):continue
+        from glue_library_asm import ID as glue_id,contributions as glue_contributions
+        if r['id']==glue_id:
+            result.extend(glue_contributions(root,[r]));continue
         if r['id'] not in SPECS:
             from audio_driver_asm import contributions as driver_contributions
             result.extend(driver_contributions(root,[r]));continue
@@ -318,7 +322,7 @@ def input_identity(root):
     for item in state.get(MAP,{}).values():names.update([item['source'],item['proof'],item['fact']])
     def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
     from audio_driver_asm import input_identity as driver_identity
-    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external,**driver_identity(root)}
+    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external,**driver_identity(root),**__import__('glue_library_asm').input_identity(root)}
 
 SPECS={'resident_asm_559E':dict(start=0x559e,end=0x55d6,prefix='rng'),
        'resident_asm_59A4':dict(start=0x59a4,end=0x5a50,prefix='note')}

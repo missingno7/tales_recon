@@ -110,3 +110,13 @@ Evidence shorthand:
 - `movea p,a0; movea p,a1; op (a1)` is `p->x = p->x op y;` (a single load is `p->x op= y`). A `bcc` out of a switch landing on a lone `bra` after the last case means `default: break;`.
 - Byte local loaded via `moveq #0` is `unsigned char`. Word slots and gaps under one address-taken base are one struct local. "Local table full!" means fewer locals (structs/arrays). A jump table spans min..max case; entries hitting the default body are extra labels.
 - A `bsr.b` to an adjacent canonical function means one original object: report it (the supervisor tests an evidence-backed `--object-group`); source changes cannot produce it.
+
+## Graphics glue caller (4692 / 34E0)
+- Verified: 4692 is a separately admitted RECONSTRUCTED_ASM stack-to-register
+  bridge, not an identified exact library member. Its C callers stay C.
+- Verified: link its unchanged canonical AJ object through
+  reconstructed_asm_dependencies; never replace it with a C stand-in or import
+  ASM as C. Map segment 2 COMMON folds into physical DATA; verify that fold.
+- Verified: in 34E0, `width = p->field_4 << 3; stride = width;` reloads the frame
+  slot. Chaining the assignments keeps D0 and is two bytes short. The 18-byte
+  frame includes four unused word locals. The profile is aztec36-large-data.

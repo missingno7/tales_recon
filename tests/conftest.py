@@ -1,5 +1,12 @@
-"""Keep tests with shared repository state out of the xdist worker pool."""
+"""Keep tests with shared repository state out of the xdist worker pool.
+
+Also puts tools/ on sys.path for every test module, so a module need not
+carry its own path header (worker environments set PYTHONPATH and miss it).
+"""
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 
 SERIAL_MODULES = {
     'test_evidence_snapshot.py',

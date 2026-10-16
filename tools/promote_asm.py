@@ -8,7 +8,8 @@ from recovery_state import canonical_state
 import reconstructed_asm as asm
 
 
-def stage(root,blob,model,analysis,ledger):
+def stage(root,blob,model,analysis,ledger,*,predicate=asm):
+    asm=predicate
     batch=asm.document(root,asm.MANIFEST);rows=[]
     for name in asm.FACTS:
         fact=asm.document(root,name);report=asm.verify(root,blob,model,analysis,fact,batch)
@@ -38,14 +39,16 @@ def main():
     from analysis_support import ROOT,game
     from evidence_snapshot import snapshot,Snapshot
     from check_function import regression_receipt
-    require(a.manifest==asm.MANIFEST,'unsupported batch manifest')
+    import glue_library_asm as glue
+    require(a.manifest in (asm.MANIFEST,glue.MANIFEST),'unsupported batch manifest')
+    predicate=glue if a.manifest==glue.MANIFEST else asm
     root=ROOT;ledger_path=root/'recovery/ledger.json'
     with snapshot(),ledger_lock(ledger_path):
-        ledger=asm.document(root,'recovery/ledger.json');before=sha256(ledger_path.read_bytes())
+        ledger=predicate.document(root,'recovery/ledger.json');before=sha256(ledger_path.read_bytes())
         print('Replaying current canonical inputs...',file=sys.stderr,flush=True)
-        blob,model,_=game();analysis=asm.document(root,'evidence/functions/ledger.json')
+        blob,model,_=game();analysis=predicate.document(root,'evidence/functions/ledger.json')
         print('Verifying complete ASM batch and existing accounting...',file=sys.stderr,flush=True)
-        rows=stage(root,blob,model,analysis,ledger)
+        rows=stage(root,blob,model,analysis,ledger,predicate=predicate)
         if a.verify_only:
             print(json.dumps(dict(verdict='EQUAL_CANDIDATE',members=[f['id'] for n,f,r in rows],size=sum(f['original']['size'] for n,f,r in rows),source_acceptance=False)));return
         inputs=Snapshot().inputs(root,True)
@@ -54,17 +57,17 @@ def main():
         require(regression.get('passed') is True,'ASM promotion requires passing shared regression')
         require(Snapshot().inputs(root,True)==inputs,'ASM validation inputs changed during regression')
         print('Gate passed; rechecking unchanged inputs and exact batch...',file=sys.stderr,flush=True)
-        fresh=stage(root,blob,model,analysis,ledger);require(fresh==rows,'ASM replay changed after gate')
+        fresh=stage(root,blob,model,analysis,ledger,predicate=predicate);require(fresh==rows,'ASM replay changed after gate')
         artifacts={};updated=canonical_state(ledger)
         for name,fact,report in rows:
-            proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=asm.source_for(fact['id'])
+            proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=predicate.source_for(fact['id'])
             proof_path='recovery/proofs/asm-reconstructed/'+fact['id']+'.json'
             for dest,raw in [(fact['source'],source),(proof_path,proof)]:
                 p=canonical_path(root,dest);require(not p.exists() or p.read_bytes()==raw,'ASM destination differs')
-            updated.setdefault(asm.MAP,{})[fact['id']]=dict(state='FUNCTION_CODE_MATCH',fact=name,source=fact['source'],source_sha256=sha256(source),proof=proof_path,proof_sha256=sha256(proof))
+            updated.setdefault(predicate.MAP,{})[fact['id']]=dict(state='FUNCTION_CODE_MATCH',fact=name,source=fact['source'],source_sha256=sha256(source),proof=proof_path,proof_sha256=sha256(proof))
             artifacts[root/fact['source']]=source;artifacts[root/proof_path]=proof
         publish(root,ledger_path,artifacts,updated,before)
-        asm.rows(root,blob,model,analysis,updated)
+        predicate.rows(root,blob,model,analysis,updated)
         print(json.dumps(dict(verdict='PROMOTED',members=[f['id'] for n,f,r in rows],category='RECONSTRUCTED_ASM',bytes=sum(f['original']['size'] for n,f,r in rows))))
 
 

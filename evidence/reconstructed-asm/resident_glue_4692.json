@@ -1,0 +1,177 @@
+{
+  "base_binding": {
+    "hunk": 1,
+    "id": "ov04_F_1E36",
+    "proof": "recovery/proofs/ov04_F_1E36.json",
+    "proof_sha256": "d52e85d5b084516304112c8432ee0586a41d064492aba8801a7f35c5344cdcdd",
+    "source": "src/recovered/ov04/ov04_F_1E36.c",
+    "source_sha256": "5213fb9622ebaada9615432085c1bd584728935b05aa4f454f433157ab08ccf7",
+    "storage_ownership": "UNKNOWN",
+    "symbol": "_G_h01_5374",
+    "target": 21364
+  },
+  "candidate": "evidence/rules/asm-reconstructed/glue-4692/glue.asm",
+  "exports": [
+    {
+      "name": "_F_h00_4692",
+      "offset": 0,
+      "original": 18066
+    }
+  ],
+  "external_data": [
+    {
+      "hunk": 1,
+      "name": "_G_h01_5374",
+      "target": 21364
+    }
+  ],
+  "historical_owner": "UNKNOWN",
+  "historical_tu": "UNKNOWN",
+  "id": "resident_glue_4692",
+  "oracle_sha256": "00ad5a2860110701d5fe2acd6834d0a9c819d6659a8af9bdbc1a9e1a99aea481",
+  "original": {
+    "end": 18126,
+    "hunk": 0,
+    "sha256": "05d74b928626fb3ab14cfc3c4b907efdc8286366775f49bafdfc82d71adecf27",
+    "size": 60,
+    "start": 18066
+  },
+  "original_filename": null,
+  "predicate": {
+    "arguments": [
+      {
+        "register": "a0",
+        "stack_offset": 36,
+        "width": 4
+      },
+      {
+        "register": "d0",
+        "stack_offset": 40,
+        "width": 4
+      },
+      {
+        "register": "d1",
+        "stack_offset": 44,
+        "width": 4
+      },
+      {
+        "register": "a1",
+        "stack_offset": 48,
+        "width": 4
+      },
+      {
+        "register": "d2",
+        "stack_offset": 52,
+        "width": 4
+      },
+      {
+        "register": "d3",
+        "stack_offset": 56,
+        "width": 4
+      },
+      {
+        "register": "d4",
+        "stack_offset": 60,
+        "width": 4
+      },
+      {
+        "register": "d5",
+        "stack_offset": 64,
+        "width": 4
+      },
+      {
+        "register": "d6",
+        "stack_offset": 68,
+        "width": 4
+      },
+      {
+        "register": "a2",
+        "stack_offset": 72,
+        "width": 4
+      }
+    ],
+    "base_symbol": "_G_h01_5374",
+    "basis": "Measured pinned C entries use LINK; complete bridge transfers ten stack arguments into the pinned SDK register ABI and calls the A6 library vector.",
+    "c_compatible": false,
+    "entry_evidence": {
+      "caller": "resident_F_34E0",
+      "kind": "DIRECT_CALL",
+      "site": 13732,
+      "target": 18066
+    },
+    "frame": {
+      "c_compatible": false,
+      "calibration": "PINNED_36A_ALL_ACCEPTED_OPTIONS_AND_CANONICAL_C",
+      "entry": 18066,
+      "kind": "CALIBRATED_FRAMELESS_LINEAR_SDK_CALL",
+      "reachable_instructions": [
+        18066,
+        18070,
+        18074,
+        18078,
+        18082,
+        18086,
+        18090,
+        18094,
+        18098,
+        18102,
+        18106,
+        18110,
+        18116,
+        18120,
+        18124
+      ],
+      "return_sites": [
+        18124
+      ],
+      "sdk_call": {
+        "base": "a6",
+        "return_to": 18120,
+        "site": 18116,
+        "vector": -636
+      },
+      "stack_frame": false
+    },
+    "kind": "FRAMELESS_REGISTER_ABI_LIBRARY_BRIDGE",
+    "saved_registers": "d4-d6/a2-a6",
+    "saved_stack_bytes": 32,
+    "vector": -636
+  },
+  "prefix": "glue",
+  "relocations": [
+    {
+      "addend_raw": 21364,
+      "source_hunk": 0,
+      "source_offset": 18112,
+      "symbol": "_G_h01_5374",
+      "target_hunk": 1,
+      "type": "HUNK_RELOC32",
+      "width": 4
+    }
+  ],
+  "schema_version": 1,
+  "sdk": {
+    "pins": {
+      "toolchain/installed/aztec-3.6a/Library Source/graphics.arc": "707a6b294bcdf29eaf0a17e4fbf30b9533c06e97487f933e2a65d81164272c34",
+      "toolchain/installed/aztec-5.0a/Aztec1/include/functions.h": "07c0cc55c0ef3633d3eb651f9e212e924d029b15f0c37c0a5fa53789bb040d4d",
+      "toolchain/installed/aztec-5.0a/Aztec1/include/pragmas.h": "f8cfe465c59e842e48f5b2ba65fbf3eebaed77fc90530c34e109c4addcb45c32"
+    },
+    "pragma": "#pragma amicall(GfxBase, 0x27c, BltMaskBitMapRastPort(a0,d0,d1,a1,d2,d3,d4,d5,d6,a2))",
+    "prototype": "void BltMaskBitMapRastPort(struct BitMap *srcbm,long srcx,long srcy,struct RastPort *destrp,long destX,long destY,long sizeX,long sizeY,long minterm,void *bltmask);",
+    "registers": [
+      "a0",
+      "d0",
+      "d1",
+      "a1",
+      "d2",
+      "d3",
+      "d4",
+      "d5",
+      "d6",
+      "a2"
+    ],
+    "vector": -636
+  },
+  "source": "src/recovered/asm-reconstructed/resident_glue_4692.asm",
+  "source_sha256": "1ddf1a510e412789a8efc4f5fe430c1b7b4c12574b7e88b12552bd95aed5e933"
+}

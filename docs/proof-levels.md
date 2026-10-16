@@ -141,3 +141,12 @@ reachable, frame-free CFG with an RTS/RTE. Absence of LINK by itself is never
 entry evidence. See `docs/reconstructed-asm.md`, batch 0004. This is measured
 non-C evidence for the pinned reconstruction profiles, not original-language or
 original-source provenance.
+
+The separately bounded graphics glue 4692 uses a calibrated frameless register
+bridge predicate: independent entry, complete stack/register/save/restore flow,
+pinned SDK vector/register ABI and independently named graphics base. Its
+complete mnemonic-produced object is RECONSTRUCTED_ASM with unknown historical
+library/source provenance. Ordinary C callers may consume that canonical object
+through a hash-bound separate-object recipe; the whole linked ASM body and
+named base relocation rederive on every C unit replay. This adds no C, DATA or
+runtime-library credit for the assembly member or diagnostic harness.

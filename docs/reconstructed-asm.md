@@ -216,3 +216,50 @@ objects can be retained too, with no new typed-data or instruction credit. Its
 physical symbol must remain in CODE. Historical object/TU membership and natural
 root layout remain unknown. Use `check_unit` explicitly; a unit missing the ASM
 recipe rejects rather than accepting a synthetic C dependency.
+
+## Graphics register bridge: glue 4692
+
+`glue_library_asm.py` admits only H0 4692..46CE (60 bytes). Every read
+rederives the pinned C frame calibration, the independent PC-relative call at
+35A4, the fully decoded contiguous save/load/vector-call/restore/RTS sequence,
+and the next LINK-framed entry. The predicate requires all ten individual
+32-bit stack loads (SP+36..72), D4-D6/A2-A6 preservation, A6 graphics base,
+and the independently pinned SDK vector -636/register map. An ordinary framed
+C call, missing entry, changed load, clipped span or different vector rejects.
+No adjoining entry inherits eligibility. The recursive UNCERTAIN ledger and
+its conservative A4 stops stay unchanged; the separate span proof restores A4.
+
+`evidence/reconstructed-asm/batch-glue-4692.json` pins a fresh mnemonic-only
+SYS1 assembler producer. Complete AJ CODE, zero DATA/BSS/COMMON, all symbols,
+the one named HUNK_RELOC32 field and complete diagnostic link rederive.
+G_h01_5374 is independently named by the exact ov04_F_1E36 graphics.library
+OpenLibrary assignment. Its storage is unowned. Diagnostic scalar storage,
+RTS and link alignment earn no credit. Library member, author, historical
+filename, source provenance, object membership and natural layout are UNKNOWN.
+The route is RECONSTRUCTED_ASM, never PINNED_RUNTIME or RECOVERED_ASM.
+
+The existing `reconstructed_asm_dependencies.py` recipe links the unchanged
+complete canonical object at its exported mechanical entry. The fact supplies
+its prefix, entry export and independently named external DATA identity. All
+source/proof/producer pins, complete linked bytes and exhaustive named base
+relocations use the general route above. An export already spelled with the
+mechanical name reuses the checked physical symbol without a duplicate alias.
+No additional compiler, queue or C acceptance mechanism is introduced.
+`promote_asm.py` dispatches this manifest to the glue predicate and retains its
+existing stage, overlap check, shared gate and atomic publisher.
+
+The sprite caller 34E0 stays ordinary C. The retained candidate is
+`evidence/rules/glue-caller/resident_F_34E0.c`. Use aztec36-large-data (+D),
+separate objects, and the unchanged canonical 33E6 member. Its ordinary C unit
+owns 502 bytes (250 prior +252 new); the separate glue span owns 60 ASM bytes.
+
+```powershell
+python tools/promote_asm.py --manifest evidence/reconstructed-asm/batch-glue-4692.json --verify-only
+python tools/promote_asm.py --manifest evidence/reconstructed-asm/batch-glue-4692.json --promote
+python tools/check_unit.py resident_F_34E0 evidence/rules/glue-caller/resident_F_34E0.c --profile aztec36-large-data --separate-objects --per-member-profiles --isolated --no-promote
+python tools/check_unit.py resident_F_34E0 evidence/rules/glue-caller/resident_F_34E0.c --profile aztec36-large-data --separate-objects --per-member-profiles
+```
+
+The supervisor publishes only after tools/tests writers are idle and the
+fresh shared gate passes. This batch grants no original library-source
+provenance; the caller proof grants only ordinary exact C credit.

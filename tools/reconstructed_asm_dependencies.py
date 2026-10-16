@@ -17,7 +17,8 @@ def specifications():
     # A positive lookup still requires canonical facts, exports and replay.
     from reconstructed_asm import SPECS as first
     from audio_driver_asm import SPECS as driver
-    return dict(first,**driver)
+    from glue_library_asm import SPECS as glue
+    return dict(first,**driver,**glue)
 
 
 def possible_target(target,ledger):
@@ -189,6 +190,8 @@ def stage(trial,source_dir,prefix,root=ROOT):
 def object_code(ident,raw):
     from reconstructed_asm import object_rng,object_note
     from audio_driver_objects import parse
+    from glue_library_asm import ID as glue_id,object_code as glue_code
+    if ident==glue_id:return glue_code(raw)
     return object_rng(raw) if ident=='resident_asm_559E' else object_note(raw) if ident=='resident_asm_59A4' else parse(raw)
 
 
@@ -268,6 +271,9 @@ def validate_linked(compiled,root=ROOT,context=None):
     for name,actual in recipe['aliases'].items():
         matches=[(h,v) for (h,n),v in sm.items() if n=='_'+actual]
         require(len(matches)==1 and matches[0][0]==0,'ASM/C alias has no unique CODE target')
-        hunk,target=matches[0];out['contribution']['symbols'].append(dict(name='_'+name,hunk=hunk,offset=target))
+        hunk,target=matches[0];alias=dict(name='_'+name,hunk=hunk,offset=target)
+        existing=[s for s in out['contribution']['symbols'] if s['name']==alias['name']]
+        require(not existing or existing==[alias],'ASM/C alias conflicts with contribution symbols')
+        if not existing:out['contribution']['symbols'].append(alias)
     out[FIELD]=reports
     return out

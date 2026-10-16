@@ -204,3 +204,21 @@ class PhysicalAliasTests(unittest.TestCase):
         fixture=LinkedTests('test_complete_object_rebinds_common_and_has_zero_c_credit');fixture.setUp()
         self.addCleanup(fixture.doCleanups);fixture.sm[(0,'_G_h00_0100')]=2
         with self.assertRaisesRegex(FormatError,'stand-in shadows'):fixture.validate()
+
+    def test_mechanical_export_reuses_existing_physical_symbol(self):
+        fixture=LinkedTests('test_complete_object_rebinds_common_and_has_zero_c_credit');fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        fixture.fact['exports'][0]['name']='_F_h00_0100'
+        (fixture.root/'evidence/fact.json').write_text(json.dumps(fixture.fact))
+        fixture.object['fact_sha256']=sha256(json_bytes(fixture.fact))
+        fixture.sm[(0,'_F_h00_0100')]=fixture.sm.pop((0,'_entry'))
+        fixture.recipe['aliases']={'F_h00_0100':'F_h00_0100'}
+        symbol=dict(name='_F_h00_0100',hunk=0,offset=10)
+        fixture.compiled['contribution']['symbols']=[symbol]
+        out=fixture.validate()
+        self.assertEqual(out['contribution']['symbols'],[symbol])
+    def test_same_name_contribution_alias_at_wrong_address_rejects(self):
+        fixture=LinkedTests('test_complete_object_rebinds_common_and_has_zero_c_credit');fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        fixture.compiled['contribution']['symbols']=[dict(name='_F_h00_0100',hunk=0,offset=2)]
+        with self.assertRaisesRegex(FormatError,'conflicts with contribution symbols'):fixture.validate()
