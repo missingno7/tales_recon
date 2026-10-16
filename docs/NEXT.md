@@ -59,6 +59,17 @@ are now recovered.
 | Root JMP-slot table 0000..0320 in DATA | 800 | C | linker-generated; stays raw |
 | BSS layout | 34,092 | A | types come from the data model; no initializers to recover |
 
+**Completeness test (user decision 2026-10-16): link and run.** The oracle is
+complete when everything under `src/` compiles with the pinned Aztec `cc`/`as`,
+links with its `ln` (Manx overlay tree, original c.lib/m.lib) into a program,
+and that program runs in WinUAE and behaves like the original: boot, title
+screen and recorded-input gameplay. Byte-identical layout is not required
+(link order and padding are category C). No original CODE/DATA bytes, no
+patching, no ORG or placement. Temporary link-only stubs may be used in a
+smoke test, are clearly labelled, and never count as recovery. The link
+inventory (undefined, duplicate and conflicting symbols, overlay `ln`
+specification, layout-dependence risks) is the first step.
+
 After that come the readability pass (stage 3: names, struct fields, readable
 view) and then the SDL3 port (stage 4).
 
