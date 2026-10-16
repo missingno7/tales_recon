@@ -1,0 +1,492 @@
+{
+  "bounds": [
+    {
+      "symbol": "G_h01_4524",
+      "element_type": "struct GameMapLink",
+      "name": "location link records",
+      "count": {
+        "source": "src/recovered/ov04/ov04_F_000C.c",
+        "pattern": "for \\(i = 0; i < (\\d+); i\\+\\+\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov04/ov04_F_000C.c",
+        "struct": "LinkEntry"
+      },
+      "evidence": "35 iterations write location/treasure pointers and two flags at 12-byte stride; shifted arrays are field views."
+    },
+    {
+      "symbol": "G_h01_470A",
+      "element_type": "struct GameLocation",
+      "name": "location records",
+      "count": {
+        "source": "src/recovered/ov04/ov04_F_0104.c",
+        "pattern": "for \\(count = 1; count < (\\d+); \\+\\+count\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov04/ov04_F_000C.c",
+        "pattern": "G_h01_470A \\+ \\(long\\)i \\* (\\d+)"
+      },
+      "evidence": "35 location pointers use 40-byte stride; loader writes selected +30 and words +32,+34,+36,+38."
+    },
+    {
+      "symbol": "G_h01_4C82",
+      "element_type": "struct GameTreasure",
+      "name": "treasure records",
+      "count": {
+        "source": "src/recovered/ov04/ov04_F_000C.c",
+        "pattern": "for \\(i = 0; i < (\\d+); i\\+\\+\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov04/ov04_F_000C.c",
+        "pattern": "G_h01_4C82 \\+ \\(long\\)i \\* (\\d+)"
+      },
+      "evidence": "35 treasure pointers use 6-byte stride; loot loader stores record ID and parses value +2."
+    },
+    {
+      "symbol": "G_h01_4D62",
+      "element_type": "struct GameCompany",
+      "name": "company records",
+      "count": {
+        "source": "src/recovered/ov04/ov04_F_0536.c",
+        "pattern": "for \\(i = 0; i < (15); \\+\\+i\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov04/ov04_F_0536.c",
+        "pattern": "G_h01_4D62 \\+ \\(long\\)i \\* (\\d+)L"
+      },
+      "evidence": "15 companies at 46-byte stride; selection slot15 returns to office, not a sixteenth record."
+    },
+    {
+      "symbol": "G_h01_5014",
+      "element_type": "unsigned char [31]",
+      "name": "company chart rows",
+      "count": {
+        "source": "src/recovered/ov04/ov04_F_0536.c",
+        "pattern": "for \\(i = 0; i < (5); \\+\\+i\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov04/ov04_F_0536.c",
+        "pattern": "G_h01_5014 \\+ \\(long\\)i \\* (\\d+)L"
+      },
+      "evidence": "Five categories use stride31; initialization writes columns0..29; ov07 1A02 also reads lookahead column30. Column30 initializer unknown."
+    },
+    {
+      "symbol": "G_h01_5E64",
+      "element_type": "int [2]",
+      "name": "scrolling column entries",
+      "count": {
+        "source": "src/recovered/ov05/ov05_F_3B6C.c",
+        "pattern": "for \\(j = 0; j < (130); j\\+\\+\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov05/ov05_F_3B6C.c",
+        "struct": "Lookup"
+      },
+      "evidence": "130 initialized two-word entries; 5E66 is the strided index field at +2. Runtime consumers walk at stride4."
+    },
+    {
+      "symbol": "G_h01_606C",
+      "element_type": "struct GameColumnObject",
+      "name": "scrolling column objects",
+      "count": {
+        "source": "src/recovered/ov05/ov05_F_3B6C.c",
+        "pattern": "for \\(j = 0; j < (260); j\\+\\+\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov05/ov05_F_3B6C.c",
+        "struct": "Record"
+      },
+      "evidence": "260 initialized 14-byte records; 131C consumes matching Obj14 fields and pointer increments."
+    },
+    {
+      "symbol": "G_h01_8BEC",
+      "element_type": "struct GameJungleCluster",
+      "name": "jungle cluster table",
+      "count": {
+        "source": "src/recovered/ov11/ov11_F_6080.c",
+        "pattern": "G_h01_37EC > (\\d+)"
+      },
+      "stride": {
+        "source": "src/recovered/ov11/ov11_F_6080.c",
+        "struct": "BRecord"
+      },
+      "evidence": "B-input count checked against40 and records step52; next separately used cell940C. A-table capacity remains unresolved."
+    },
+    {
+      "symbol": "G_h01_9F0C",
+      "element_type": "struct GameSpriteSlot",
+      "name": "animation holder slots",
+      "count": {
+        "source": "src/recovered/ov11/ov11_F_21F8.c",
+        "pattern": "for \\(i = 0; i < (\\d+); i\\+\\+\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov11/ov11_F_21F8.c",
+        "struct": "LongSlot"
+      },
+      "evidence": "Four slots at stride16 are initialized; animation consumers use embedded pointers/coordinates. Unknown tail fields retained."
+    },
+    {
+      "symbol": "G_h01_9FCE",
+      "element_type": "struct GameJungleMover",
+      "name": "jungle mover records",
+      "count": {
+        "source": "src/recovered/ov11/ov11_F_2A3A.c",
+        "pattern": "for \\(i = 0; i < (6); i\\+\\+\\)"
+      },
+      "stride": {
+        "source": "src/recovered/ov11/ov11_F_2A3A.c",
+        "struct": "Record"
+      },
+      "evidence": "Six mover records use stride64; 2C96 parses matching fields and independently used state startsA14E. +6 remains unknown."
+    },
+    {
+      "symbol": "G_h01_A7EE",
+      "element_type": "long",
+      "name": "archive record offsets",
+      "count": {
+        "source": "src/recovered/resident/resident_F_2816.c",
+        "pattern": "if \\(n > (\\d+)\\)"
+      },
+      "stride": {
+        "source": "src/recovered/resident/resident_F_2816.c",
+        "element_of": "G_h01_A7EE"
+      },
+      "evidence": "Archive loader rejects count>104 and reads one long offset per record; offsets are file positions, no initializer claim."
+    }
+  ],
+  "dependencies": [
+    {
+      "symbols": [
+        "G_h01_4524",
+        "G_h01_4528",
+        "G_h01_452E",
+        "G_h01_452F",
+        "G_h01_46C8"
+      ],
+      "constraint": "Shared 35x12 link table uses field offsets0,4,10,11. 452F+409 equals4524+420, the separately named byte46C8 immediately after the array. Coallocate that state; do not invent a 36th row.",
+      "evidence": [
+        {
+          "source": "src/recovered/ov04/ov04_F_000C.c",
+          "text": "G_h01_4528[i].target = (char *)&G_h01_4C82 + (long)i * 6;"
+        },
+        {
+          "source": "src/recovered/ov03/ov03_F_001C.c",
+          "text": "((char *)G_h01_452F)[409] = 0;"
+        }
+      ],
+      "coallocate": true
+    },
+    {
+      "symbols": [
+        "G_h01_A15E",
+        "G_h01_A152"
+      ],
+      "constraint": "Event ring is UNBOUNDED: parser supplies rows and record indices; modulo byA152 is not a capacity proof. A464 adjacency must not supply a guessed row count.",
+      "evidence": [
+        {
+          "source": "src/recovered/ov11/ov11_F_3926.c",
+          "text": "G_h01_A152 = rows;"
+        },
+        {
+          "source": "src/recovered/ov11/ov11_F_3926.c",
+          "text": "record = &G_h01_A15E[index];"
+        },
+        {
+          "source": "src/recovered/ov11/ov11_F_3B92.c",
+          "text": "event = &G_h01_A15E[(base + i) % G_h01_A152];"
+        }
+      ],
+      "coallocate": false
+    },
+    {
+      "symbols": [
+        "G_h01_A464"
+      ],
+      "constraint": "A464 is UNBOUNDED: the initialization loop touches indices1..5, while other callers supply unchecked indices. Neither private [1]/[6] views nor adjacentA7D8 proves full capacity.",
+      "evidence": [
+        {
+          "source": "src/recovered/complete-c/ov11_F_66FE.c",
+          "text": "p=&G_h01_A464[a];"
+        },
+        {
+          "source": "src/recovered/ov11/ov11_F_68B0.c",
+          "text": "} while (i < 6);"
+        }
+      ],
+      "coallocate": false
+    },
+    {
+      "symbols": [
+        "G_h01_8B1C",
+        "G_h01_8BEC"
+      ],
+      "constraint": "A-table full extent is UNBOUNDED: parsed rows have no A-capacity guard, permissive consumers reach beyond private [40]/[41] variants; keep overlapping cluster storage in one aggregate.",
+      "evidence": [
+        {
+          "source": "src/recovered/ov11/ov11_F_6080.c",
+          "text": "&G_h01_8B1C[i].value0, &G_h01_8B1C[i].value2,"
+        },
+        {
+          "source": "src/recovered/ov11/ov11_F_6080.c",
+          "text": "if (G_h01_37EC > 40)"
+        }
+      ],
+      "coallocate": true
+    },
+    {
+      "symbols": [
+        "G_h01_292E",
+        "G_h01_29DE"
+      ],
+      "constraint": "44 valid dispatch pointers end at29DE. Inclusive index44 reads the following four bytes as an address; that is a period-DATA reinterpretation, not a 45th function pointer. Executed reachability unproved.",
+      "evidence": [
+        {
+          "source": "src/recovered/asm-reconstructed/resident_driver_5A50.asm",
+          "text": "\tcmp.b #$2c,d0\n\tble _recon_h00_5A8A"
+        },
+        {
+          "source": "src/recovered/asm-reconstructed/resident_driver_5A50.asm",
+          "text": "\tmovea.l 0(a2,d0.w),a2"
+        },
+        {
+          "source": "src/recovered/asm-reconstructed/resident_driver_5A50.asm",
+          "text": "\tlsl.w #$2,d0\n\tlea _G_h01_292E,a2"
+        }
+      ],
+      "coallocate": true
+    },
+    {
+      "symbols": [
+        "G_h01_7A9A"
+      ],
+      "constraint": "7A9A is the level-description text buffer consumed by the A/B/F and other level parsers. Its copy count comes from the loaded TextBlock length; the 4000-byte gap before8A3A is not a proved capacity.",
+      "evidence": [
+        {
+          "source": "src/recovered/ov11/ov11_F_15C8.c",
+          "text": "G_h01_7A9A[i] = G_h01_7A96->data[i];"
+        },
+        {
+          "source": "src/recovered/ov11/ov11_F_15C8.c",
+          "text": "F_h11_3926(G_h01_7A9A);"
+        }
+      ],
+      "coallocate": false
+    }
+  ],
+  "structs": {
+    "GameColumnObject": {
+      "size": 14,
+      "fields": [
+        {
+          "offset": 0,
+          "name": "column",
+          "type": "unsigned char",
+          "evidence": "131C q->id; 3B6C b0[0]"
+        },
+        {
+          "offset": 1,
+          "name": "unknown1",
+          "type": "UNKNOWN",
+          "evidence": "Unclassified field; no padding definition"
+        },
+        {
+          "offset": 2,
+          "name": "x",
+          "type": "int",
+          "evidence": "131C q->x"
+        },
+        {
+          "offset": 4,
+          "name": "y",
+          "type": "int",
+          "evidence": "131C q->w4 and 3B6C value"
+        },
+        {
+          "offset": 6,
+          "name": "unknown6",
+          "type": "UNKNOWN",
+          "evidence": "Unclassified fields; no padding definition"
+        },
+        {
+          "offset": 10,
+          "name": "height",
+          "type": "int",
+          "evidence": "131C q->w10"
+        },
+        {
+          "offset": 12,
+          "name": "kind",
+          "type": "char",
+          "evidence": "131C q->b12; 3B6C rest[6]"
+        },
+        {
+          "offset": 13,
+          "name": "unknown13",
+          "type": "UNKNOWN",
+          "evidence": "No demonstrated byte13 access; private b13 declaration alone is not a field proof."
+        }
+      ]
+    }
+  },
+  "receiver_calls": [
+    {
+      "callee": "F_h00_34E0",
+      "element_type": "struct GameGraphic",
+      "allocation": {
+        "source": "src/recovered/resident/resident_F_291E.c",
+        "pattern": "graphic = F_h00_3870\\(&G_h01_542A, (\\d+)L\\)"
+      },
+      "evidence": "34E0 consumes a GameGraphic descriptor; its recovered field accesses agree with the 54-byte case2 allocation in291E. Only direct address-of global receiver subobjects are bounded; caller allocation/TU ownership is not claimed.",
+      "consumer": {
+        "source": "src/recovered/resident/resident_F_34E0.c",
+        "struct": "Sprite"
+      }
+    }
+  ],
+  "external_bindings": [
+    {
+      "native": "_ctp_",
+      "mechanical": "G_h01_2C76",
+      "artifact": "evidence/experiments/runtime-members-natural.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "_Cbuffs",
+      "mechanical": "G_h01_2CF8",
+      "artifact": "evidence/experiments/runtime-members-stdio-ffp.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "__numdev",
+      "mechanical": "G_h01_2EB0",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "_GfxBase",
+      "mechanical": "G_h01_5374",
+      "artifact": "evidence/experiments/runtime-members-glue.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "_IntuitionBase",
+      "mechanical": "G_h01_5378",
+      "artifact": "evidence/experiments/runtime-members-glue.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "_LayersBase",
+      "mechanical": "G_h01_537C",
+      "artifact": "evidence/experiments/runtime-members-glue.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "_DOSBase",
+      "mechanical": "G_h01_A98E",
+      "artifact": "evidence/experiments/runtime-members-glue.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "__savsp",
+      "mechanical": "G_h01_B39E",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "_SysBase",
+      "mechanical": "G_h01_B3A2",
+      "artifact": "evidence/experiments/runtime-members-glue.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "__devtab",
+      "mechanical": "G_h01_B3A6",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "__stkbase",
+      "mechanical": "G_h01_B3AA",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "_Enable_Abort",
+      "mechanical": "G_h01_B3AE",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "_WBenchMsg",
+      "mechanical": "G_h01_B3B0",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "__argv",
+      "mechanical": "G_h01_B3B4",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "__argc",
+      "mechanical": "G_h01_B3B8",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "__arg_len",
+      "mechanical": "G_h01_B3BA",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "__arg_lin",
+      "mechanical": "G_h01_B3BC",
+      "artifact": "evidence/rules/startup-mechanical/source_recipe.py",
+      "kind": "STARTUP_RECIPE_SLOT"
+    },
+    {
+      "native": "_IconBase",
+      "mechanical": "G_h01_B3C0",
+      "artifact": "evidence/experiments/runtime-members-glue.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "_errno",
+      "mechanical": "G_h01_B3CC",
+      "artifact": "evidence/experiments/runtime-members-stdio-ffp.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    },
+    {
+      "native": "_MathBase",
+      "mechanical": "G_h01_B3D2",
+      "artifact": "evidence/experiments/runtime-members-stdio-ffp.json",
+      "kind": "RUNTIME_OPERAND_IDENTITY"
+    }
+  ],
+  "indexed_aliases": [
+    {
+      "base": "G_h01_452F",
+      "target": "G_h01_46C8",
+      "element_type": "char",
+      "index": {
+        "source": "src/recovered/ov03/ov03_F_001C.c",
+        "pattern": "\\(\\(char \\*\\)G_h01_452F\\)\\[(\\d+)\\] = 0;"
+      },
+      "evidence": "Exact C source writes452F+409 ==4524+420 ==46C8, crossing the 35-row table into a separately named byte."
+    },
+    {
+      "base": "G_h01_292E",
+      "target": "G_h01_29DE",
+      "element_type": "long",
+      "index": {
+        "source": "src/recovered/asm-reconstructed/resident_driver_5A50.asm",
+        "pattern": "cmp\\.b #\\$(2c),d0",
+        "radix": 16
+      },
+      "evidence": "CMP/BLE permits index44; LSL #2 and MOVEA.L read the four period-data bytes at29DE. This is an address reinterpretation; executed reachability remains unproved and no 45th pointer initializer is admitted."
+    }
+  ]
+}

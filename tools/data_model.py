@@ -399,13 +399,44 @@ def render_header(model, names):
     return '\n'.join(lines + ['#endif', ''])
 
 
+def validate_storage_plan(document, root=ROOT, facts=None):
+    """Re-derive storage partition and all aliases; no provider/proof credit."""
+    from storage_plan import collect, validate as validate_storage
+    return validate_storage(document, collect(root, document.get('curation')) if facts is None else facts)
+
+
+def derive_storage_plan(curation, root=ROOT, facts=None):
+    """Read-only proposal; curated inputs are retained and measurements re-derived."""
+    from storage_plan import POLICY, collect, derive
+    current = collect(root, curation) if facts is None else facts
+    return dict(schema_version=1, policy=POLICY, curation=curation,
+                derived=derive(curation, current))
+
+
+def load_storage_plan(root=ROOT):
+    from storage_plan import load
+    return load(root)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     mode = ap.add_mutually_exclusive_group()
     mode.add_argument('--check', action='store_true')
     mode.add_argument('--propose-scalars', action='store_true', help='JSON global entries; read-only, reproducible consistency proposals')
+    mode.add_argument('--check-storage-plan', action='store_true', help='re-derive resident storage partition and every view/alias')
+    mode.add_argument('--propose-storage-plan', action='store_true', help='write the derived plan to build/storage-plan.json; no canonical writes')
     args = ap.parse_args(argv)
     try:
+        if args.propose_storage_plan:
+            from storage_plan import OUTPUT, write
+            document = write(ROOT)
+            print('wrote ' + OUTPUT)
+            print(json.dumps(document['derived']['summary'], indent=2))
+            return 0
+        if args.check_storage_plan:
+            document = load_storage_plan()
+            print(json.dumps(document['derived']['summary'], indent=2))
+            return 0
         model = load_model()
         if args.propose_scalars:
             print(json.dumps(propose_scalars(model, load_scalar_facts(), resident_regions()), indent=2))
