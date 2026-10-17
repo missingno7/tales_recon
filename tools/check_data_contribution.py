@@ -98,7 +98,7 @@ def compare(original,original_model,fact,object_blob,linked_blob,symbol_text):
 
 
 
-def environment(root,job):
+def environment(root,job,headless=False):
     installed=Path(root)/'toolchain/installed/aztec-5.0a'
     older=Path(root)/'toolchain/installed/aztec-3.6a'
     expected_config=f'''config_description=DuckTales isolated historical build worker
@@ -127,6 +127,7 @@ filesystem2=ro,DH3:Tools4:{installed/'Aztec4'},-128
 filesystem2=ro,DH4:Old1:{older/'SYS1'},-128
 filesystem2=ro,DH5:Old2:{older/'SYS2'},-128
 '''
+    if headless:expected_config+='headless=true\ngfx_api=directdraw\n'
     startup=['C:FailAt 100','C:Assign Aztec1: Tools1:','C:Assign Aztec2: Tools2:',
              'C:Assign INCLUDE: Tools1:include','C:Assign LIB: Tools2:lib',
              'C:Path Tools2:bin ADD','C:Stack 65536','C:CD SYS:work','C:Echo booted >booted.txt']

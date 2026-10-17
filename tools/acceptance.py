@@ -139,7 +139,7 @@ class ProofClass:
             import audio_score_measured as measured
             import audio_region_provider as region
             import audio_stateful_provider as stateful
-            order={'MEASURED_TYPED_AUDIO_SCORE':1,region.KIND:2,stateful.KIND:3}
+            order={'MEASURED_TYPED_AUDIO_SCORE':1,region.KIND:2,stateful.KIND:3,'MEASURED_TYPED_AUDIO_H1':4}
             result.sort(key=lambda r:order.get(r.get('kind'),0))
         if self.name in ('data','code_data'):
             occupied=set()
@@ -205,7 +205,7 @@ REGISTRY = (
                ('data_providers', 'load_data_providers'), ('data_providers', 'contributions'), 'promote_data'),
     ProofClass('asm', 'reconstructed_asm', ('RECONSTRUCTED_ASM',),
                ('reconstructed_asm', 'rows'), ('reconstructed_asm', 'contributions'), 'promote_asm'),
-    ProofClass('code_data', 'code_data_providers', ('TYPED_CODE_DATA',),
+    ProofClass('code_data', 'code_data_providers', ('TYPED_CODE_DATA','RECOVERED_DATA'),
                ('code_data_providers', 'rows'), ('code_data_providers', 'contributions'), 'promote_code_data'),
     ProofClass('behavioral', 'behavioral_functions', ('BEHAVIORAL_C',),
                ('behavioral', 'contributions'), ('acceptance', '_identity_contributions'), 'behavioral'),

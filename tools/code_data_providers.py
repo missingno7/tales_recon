@@ -120,10 +120,11 @@ def rows(root,blob,model,analysis,ledger):
     import audio_score_measured as measured
     import audio_region_provider as region
     import audio_stateful_provider as stateful
-    require(set(entries)<={IDENT,measured.IDENT,region.IDENT,stateful.IDENT},'unknown CODE-data provider')
+    import audio_h1_provider as h1
+    require(set(entries)<={IDENT,measured.IDENT,region.IDENT,stateful.IDENT,h1.IDENT},'unknown CODE-data provider')
     out=[]
     for ident,item in entries.items():
-        if ident in (measured.IDENT,region.IDENT,stateful.IDENT):continue
+        if ident in (measured.IDENT,region.IDENT,stateful.IDENT,h1.IDENT):continue
         require(set(item)=={'state','fact','source','source_sha256','proof','proof_sha256'} and
                 item['state']==STATE and item['fact']==FACT and item['source']==SOURCE and
                 item['proof']=='recovery/proofs/code-data/'+IDENT+'.json','CODE-data ownership identity')
@@ -147,6 +148,7 @@ def rows(root,blob,model,analysis,ledger):
     out.extend(measured.rows(root,blob,model,analysis,ledger))
     out.extend(region.rows(root,blob,model,analysis,ledger))
     out.extend(stateful.rows(root,blob,model,analysis,ledger))
+    out.extend(h1.rows(root,blob,model,analysis,ledger))
     occupied=set()
     for row in out:
         intervals=row.get('parts',[dict(original_start=row['original']['start'],original_end=row['original']['end'])])
@@ -159,11 +161,13 @@ def contributions(root,records):
     import audio_score_measured as measured
     import audio_region_provider as region
     import audio_stateful_provider as stateful
+    import audio_h1_provider as h1
     out=measured.contributions(root,[r for r in records if r.get('kind')=='MEASURED_TYPED_AUDIO_SCORE'])
     out.extend(region.contributions(root,[r for r in records if r.get('kind')==region.KIND]))
     out.extend(stateful.contributions(root,[r for r in records if r.get('kind')==stateful.KIND]))
+    out.extend(h1.contributions(root,[r for r in records if r.get('kind')==h1.KIND]))
     for r in records:
-        if r.get('kind') in ('MEASURED_TYPED_AUDIO_SCORE',region.KIND,stateful.KIND):continue
+        if r.get('kind') in ('MEASURED_TYPED_AUDIO_SCORE',region.KIND,stateful.KIND,h1.KIND):continue
         require(r.get('acceptance') is True,'CODE-data contributions require canonical replay')
         obj=bounded.object_code((Path(r['producer']['job'])/'sys/work/score.o').read_bytes())
         code=bytearray(obj['code']);rel=[];o=r['original']
@@ -195,4 +199,4 @@ def input_identity(root):
         if 'source' in item:names.update([item['source'],item['proof'],item['fact']])
     def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
     import audio_score_measured as measured
-    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external,**measured.input_identity(root),**__import__('audio_region_provider').input_identity(root),**__import__('audio_stateful_provider').input_identity(root)}
+    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external,**measured.input_identity(root),**__import__('audio_region_provider').input_identity(root),**__import__('audio_stateful_provider').input_identity(root),**__import__('audio_h1_provider').input_identity(root)}

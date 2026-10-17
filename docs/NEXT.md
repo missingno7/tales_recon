@@ -84,6 +84,15 @@ free of LINK_ONLY stand-ins; (2) the readability pass (names, struct fields,
 the platform-layer contract); (3) the portable SDL3 port, accepted against the
 same traces.
 
+**Completeness rule (user decision 2026-10-17):** play-through traces define
+done. Everything the trace scripts exercise must be recovered and match the
+original; widen the scripts to real gameplay (locations, segments, money,
+endings), and they double as the SDL3 port's acceptance suite. Raw DATA that no
+trace ever reads may stay unrecovered: the port loads it at start-up from the
+user's original executable (like the disk assets), from an explicit list, never
+embedded in source. Amiga-only reproduction details (JMP slots, link padding,
+c.lib data) get no further effort unless a trace shows they change behavior.
+
 Play-through traces: `game_boot.py run --input evidence/trace/title-to-money-bin.json
 --input-offset 2100 --dump-from 2000 --dump-every 25` (add `--original` for the
 baseline), then `game_compare.py ORIG BUILD --shift N`, where N aligns the game

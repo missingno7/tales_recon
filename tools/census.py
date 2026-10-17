@@ -152,9 +152,10 @@ def _derive_uncached(root, promotion_evidence=None):
         claimed=[dict(hunk=f['hunk'],start=f['start'],end=f['end']) for f in promoted]+
                 [dict(hunk=row['original']['hunk'],start=p['start'],end=p['end']) for row in mixed for p in row['partitions']]+[dict(hunk=r['span']['hunk'],start=r['span']['start'],end=r['span']['end']) for r in reconstructed_asm])
     code_data_providers=accepted['code_data']
+    resident_audio_data=[r for r in code_data_providers if r.get('category')=='RECOVERED_DATA']
     behavioral=accepted['behavioral']
     outputs['evidence/code-data-providers/accepted.json']=dict(schema_version=1,game_sha256=sha256(exe),
-        objects=code_data_providers,policy='TYPED_CODE_DATA; no C or ASM instruction credit; owner/TU/layout UNKNOWN.')
+        objects=code_data_providers,policy=('Typed audio DATA: TYPED_CODE_DATA in CODE, RECOVERED_DATA in DATA; no C/ASM instruction credit; owner/TU/layout UNKNOWN.' if resident_audio_data else 'TYPED_CODE_DATA; no C or ASM instruction credit; owner/TU/layout UNKNOWN.'))
     outputs['evidence/executable/code-data.json']=dict(schema_version=1,
         facts=code_data_facts,source_acceptance=False,proof_level=None)
 
@@ -266,6 +267,8 @@ def _derive_uncached(root, promotion_evidence=None):
             evidence='absolute JMP bridge with independent relocation record'))
     for h in model['hunks']:
         spans = list(verified) if h['number'] == 1 else []
+        spans += [(p['original_start'],p['original_end'],'DATA','UNKNOWN',r['proof'])
+                  for r in resident_audio_data if r['original']['hunk']==h['number'] for p in r['parts']]
         spans += [(f['interval']['start'],f['interval']['end'],'DATA','UNKNOWN',f['evidence_path'])
                   for f in code_data_facts if f['interval']['hunk']==h['number']]
         spans += [(f['start'],f['end'],'CODE','GAME_C',f['proof']) for f in promoted if f['hunk']==h['number']]
@@ -331,9 +334,9 @@ def _derive_uncached(root, promotion_evidence=None):
             functions_identified=None,function_candidates=sum(f['hunk'] in node['hunks'] for f in analysis.get('functions',[])),
             overlay_entries_identified=sum(s['hunk'] in node['hunks'] for s in symbols),
             functions_reconstructed=sum(f['hunk'] in node['hunks'] for f in promoted)+sum(r['id'] in new_dead_ids and r['complete_extent']['hunk'] in node['hunks'] for r in accepted_dead),
-            code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks'])+sum(r['end']-r['start'] for r in dead_code_spans if r['hunk'] in node['hunks']),data_matched_bytes=sum(r['original']['size'] for r in providers if r['original']['hunk'] in node['hunks']),
+            code_matched_bytes=sum(f['size'] for f in promoted if f['hunk'] in node['hunks'])+sum(r['end']-r['start'] for r in dead_code_spans if r['hunk'] in node['hunks']),data_matched_bytes=sum(r['original']['size'] for r in providers if r['original']['hunk'] in node['hunks'])+sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers if r['original']['hunk'] in node['hunks'] and r.get('category')=='RECOVERED_DATA'),
             reconstructed_asm_bytes=sum(r['span']['size'] for r in reconstructed_asm if r['span']['hunk'] in node['hunks']),
-            typed_code_data_bytes=sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers if r['original']['hunk'] in node['hunks']),
+            typed_code_data_bytes=sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers if r['original']['hunk'] in node['hunks'] and r.get('category')=='TYPED_CODE_DATA'),
             mixed_source_objects=sum(row['original']['hunk'] in node['hunks'] for row in mixed),
             mixed_code_matched_bytes=sum(row['size'] for row in mixed if row['original']['hunk'] in node['hunks']),
             relocation_records=sum(r['source_hunk'] in node['hunks'] for r in model['relocations']),
@@ -342,7 +345,7 @@ def _derive_uncached(root, promotion_evidence=None):
     outputs['docs/modules.json'] = dict(schema_version=1, modules=modules)
     outputs['docs/symbols.json'] = dict(schema_version=1, symbols=symbols,recovered_functions=promoted,historical_symbols_present=False)
     outputs['docs/data-layout.json'] = dict(schema_version=1, ranges=[r for r in ranges
-        if r['hunk'] in (1,2) or r['classification'] in ('DATA','STRING')], typed_game_objects=sum(len(r['typed_evidence']) for r in providers),data_provider_bytes=sum(r['original']['size'] for r in providers))
+        if r['hunk'] in (1,2) or r['classification'] in ('DATA','STRING')], typed_game_objects=sum(len(r['typed_evidence']) for r in providers)+len(resident_audio_data),data_provider_bytes=sum(r['original']['size'] for r in providers)+sum(r['typed_bytes'] for r in resident_audio_data))
     outputs['docs/progress.json'] = dict(schema_version=1, milestone='MECHANICAL_FUNCTION_RECOVERY' if promoted else 'IMMUTABLE_TOPOLOGY_CENSUS',
         reconstruction_complete=False, pilot_complete=False, independent_game_build_available=False,
         supplied_disks=len(disks), extracted_files=len(files), executable_size=len(exe),
@@ -353,9 +356,9 @@ def _derive_uncached(root, promotion_evidence=None):
         ownership_unknown_bytes=sum(m['ownership_unknown_bytes'] for m in modules),
         reconstructed_functions=len(promoted)+len(new_dead_ids),matched_source_bytes=matched_source_bytes,
         reconstructed_dead_code_objects=len(accepted_dead),matched_dead_code_c_bytes=sum(r['end']-r['start'] for r in dead_code_spans),current_proof_level=None,
-        reconstructed_data_providers=len(providers),matched_data_provider_bytes=sum(r['original']['size'] for r in providers),
+        reconstructed_data_providers=len(providers)+len(resident_audio_data),matched_data_provider_bytes=sum(r['original']['size'] for r in providers)+sum(r['typed_bytes'] for r in resident_audio_data),
         reconstructed_asm_objects=len(reconstructed_asm),matched_reconstructed_asm_bytes=sum(r['span']['size'] for r in reconstructed_asm),
-        reconstructed_code_data_providers=len(code_data_providers),matched_typed_code_data_bytes=sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers),
+        reconstructed_code_data_providers=len(code_data_providers),matched_typed_code_data_bytes=sum(r.get('typed_bytes',r['original']['size']) for r in code_data_providers if r.get('category')=='TYPED_CODE_DATA'),
         reconstructed_mixed_objects=len(mixed),
         behavioral_functions=len(behavioral),behavioral_c_bytes=sum(r['end']-r['start'] for r in behavioral),
         matched_mixed_c_bytes=sum(row['c_compiler_bytes'] for row in mixed),

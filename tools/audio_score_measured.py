@@ -91,7 +91,7 @@ def audit_producer(root,batch,expected,commands):
     for n,k in [('kick.rom','rom_sha256'),('worker.uae','config_sha256'),('sys/s/startup-sequence','guest_script_sha256')]:
         require(sha256((job/n).read_bytes())==request[k],'score environment hash')
     previous=bounded.COMMANDS
-    try:bounded.COMMANDS=commands;bounded.environment(root,job)
+    try:bounded.COMMANDS=commands;bounded.environment(root,job,headless=request.get('backend')=='vamos')
     finally:bounded.COMMANDS=previous
     artifacts=receipt['artifacts'];names=[a['path'] for a in artifacts]
     require(len(set(names))==len(names) and set(names)=={p.relative_to(work).as_posix() for p in active_files(work)},'score complete artifact inventory')
@@ -100,6 +100,11 @@ def audit_producer(root,batch,expected,commands):
         require(Path(a['path']).name==a['path'],'score artifact path')
         raw=(work/a['path']).read_bytes();require(len(raw)==a['size'] and sha256(raw)==a['sha256'],'score artifact changed')
     require((work/'done.txt').read_bytes().strip()==b'done' and all((work/('step-%02d.rc'%i)).read_bytes().strip()==b'0' for i in range(len(commands))),'score guest completion')
+    if request.get('backend') is not None:
+        from data_provider_vamos import input_paths,validate
+        require(request['backend']==batch.get('backend')=='vamos' and batch['backend_inputs']==input_paths(root,request),'complete pinned score backend inputs')
+        validate(root,job,request,receipt,commands)
+    else:require(batch.get('backend') is None,'score producer backend differs')
     return dict(job=batch['job'],request_sha256=batch['request_sha256'],receipt_sha256=batch['receipt_sha256'],artifacts=batch['artifacts'],audit='FULL_PINNED_GRAPH_CHECKED')
 
 
