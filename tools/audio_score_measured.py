@@ -65,7 +65,7 @@ def audit_producer(root,batch,expected,commands):
     import check_data_contribution as bounded
     from aztec_worker import ROOT as actual_root
     require(Path(root).resolve()==actual_root.resolve(),'producer toolchain root differs')
-    require(re.fullmatch(r'build/worker-jobs/sol-audio-score-[A-Za-z0-9_-]+',batch['job']),'measured score job path')
+    require(re.fullmatch(r'build/(?:worker-jobs|workers/[A-Za-z0-9_-]+)/sol-audio-score-[A-Za-z0-9_-]+',batch['job']),'measured score job path')
     job=candidate_path(root,Path(root)/batch['job']);work=job/'sys/work'
     request=json.loads((job/'request.json').read_bytes());receipt=json.loads((job/'result.json').read_bytes())
     require(sha256((job/'request.json').read_bytes())==batch['request_sha256'] and sha256((job/'result.json').read_bytes())==batch['receipt_sha256'],'score batch SHA pins')

@@ -28,7 +28,10 @@ def validation_inputs(root,path):
         names.add(name)
         batch=fact['producer']['batch'];names.add(batch)
         names.update(producer_paths(root,document(root,batch)))
-        if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+        if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':
+            from data_provider_sample_tables import evidence_paths
+            names.update(evidence_paths(root,fact))
+        elif fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
             from data_provider_cells import evidence_paths
             names.update(evidence_paths(root,fact))
         elif fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':

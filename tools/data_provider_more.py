@@ -9,7 +9,7 @@ from common import require,sha256
 from repo_paths import canonical_path
 from audio_sequence_data import payload
 
-ROUTES={'PALETTE_SLICE','PALETTE_COPY32','FRAME_COORDINATES','FFP_COORDINATES32','FFP_SPEED','LZW_MASKS4','INDEXED_WORD_SUFFIX','SCALAR_CELL','ABSOLUTE_SCALAR','LOCATION_OPTION_ROWS'}
+ROUTES={'PALETTE_SLICE','PALETTE_COPY32','FRAME_COORDINATES','FFP_COORDINATES32','FFP_SPEED','LZW_MASKS4','INDEXED_WORD_SUFFIX','SCALAR_CELL','ABSOLUTE_SCALAR','LOCATION_OPTION_ROWS','CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'}
 WIDTHS={'char':1,'unsigned char':1,'short':2,'unsigned short':2,'int':2,'unsigned int':2,'long':4,'unsigned long':4,'float':4}
 
 def ffp(text):
@@ -25,6 +25,9 @@ def ffp(text):
     return mant.to_bytes(3,'big')+bytes([sign+exp+64])
 
 def shape(f):
+    if f.get('route') in ('CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'):
+        from data_provider_callback_tables import shape as callback
+        return callback(f)
     require(set(f)=={'schema_version','kind','id','source','original','definitions','route','anchors','object_sections','historical_owner','historical_tu','original_filename','producer'},'closed game-table fact fields')
     o=f['original'];route=f['route'];ds=f['definitions']
     require(f['schema_version']==1 and f['kind']=='BOUNDED_DATA_TABLE' and route in ROUTES,'closed game-table recipe')
@@ -64,6 +67,9 @@ def shape(f):
     return size
 
 def source(f):
+    if f.get('route') in ('CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'):
+        from data_provider_callback_tables import source as callback
+        return callback(f)
     shape(f);d=f['definitions'][0];ty=d['type'];vals=d['initializer'] if d['dimensions'] else [d['initializer']]
     if f['route']=='LOCATION_OPTION_ROWS':
         rows=['{'+', '.join(str(v) for v in row)+'}' for row in d['initializer']]
@@ -74,11 +80,17 @@ def source(f):
     return (ty+' '+name+' = '+value+';\n').encode('ascii')
 
 def semantic(f):
+    if f.get('route') in ('CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'):
+        from data_provider_callback_tables import semantic as callback
+        return callback(f)
     shape(f);d=f['definitions'][0];vals=d['initializer'] if d['dimensions'] else [d['initializer']]
     if f['route']=='LOCATION_OPTION_ROWS':vals=[v for row in vals for v in row]
     return b''.join(ffp(v) if d['type']=='float' else (v%(1<<(8*WIDTHS[d['type']]))).to_bytes(WIDTHS[d['type']],'big') for v in vals)
 
 def evidence_paths(root,f):
+    if f.get('route') in ('CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'):
+        from data_provider_callback_tables import evidence_paths as callback
+        return callback(root,f)
     from data_providers import document
     ledger=document(root,'recovery/ledger.json')
     names={ledger['functions'][fid][k] for fid in f['anchors'] for k in ('source','proof')}
@@ -96,6 +108,9 @@ def scalar_access(site,width):
 
 
 def typed_evidence(root,f,analysis,ledger,promotions):
+    if f.get('route') in ('CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'):
+        from data_provider_callback_tables import typed_evidence as callback
+        return callback(root,f,analysis,ledger,promotions)
     from data_provider_tables import canonical_anchors,fragments,binding,instruction,compact
     from data_providers import document
     from storage_plan import clean
@@ -200,5 +215,8 @@ def typed_evidence(root,f,analysis,ledger,promotions):
     return [dict(kind=route,anchors=f['anchors'],details=details,historical_extent='complete reconstructed provider; historical capacity/TU unknown')]
 
 def compare_data(original,model,f,obj,linked,map_text):
+    if f.get('route') in ('CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'):
+        from data_provider_callback_tables import compare_data as callback
+        return callback(original,model,f,obj,linked,map_text)
     from data_provider_tables import numeric_compare
     return numeric_compare(original,model,f,obj,linked,map_text,shape(f),semantic(f),source(f))

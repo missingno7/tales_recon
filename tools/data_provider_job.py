@@ -19,7 +19,7 @@ def commands(prefixes,controls=()):
     if list(controls) in (['extprobe'],['extprobe','entryprobe']):
         from data_provider_pointers import commands as external_commands
         return external_commands(prefixes)
-    if list(controls)==['dataprobe']:
+    if list(controls) in (['dataprobe'],['dataprobe','datatablesprobe'],['cycleprobe']):
         from data_provider_cells import commands as cell_commands
         return cell_commands(prefixes)
     out=[]
@@ -34,7 +34,7 @@ def pins(root,rows,job,controls=(),manifest=None):
     request_raw=(job/'request.json').read_bytes();result_raw=(job/'result.json').read_bytes()
     request=json.loads(request_raw);receipt=json.loads(result_raw)
     members=[dict(fact=n,fact_sha256=sha256(json_bytes(f)),prefix=f['producer']['prefix']) for n,f in rows]
-    require(list(controls) in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe'],['extprobe','entryprobe']),'unsupported ABI control')
+    require(list(controls) in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe'],['extprobe','entryprobe'],['dataprobe','datatablesprobe'],['cycleprobe']),'unsupported ABI control')
     prefixes=[m['prefix'] for m in members]+['relprobe']+list(controls)
     require(receipt['all_steps_succeeded'] and receipt['request']==request,'collect a successful batch job before pinning')
     require([s['command'] for s in request['steps']]==commands(prefixes,controls),'job does not produce complete batch')
@@ -60,6 +60,16 @@ def pins(root,rows,job,controls=(),manifest=None):
     if list(controls)==['extprobe','entryprobe']:
         from data_provider_startup import ENTRY_CONTROL
         require((job/'sys/work/entryprobe.c').read_bytes()==ENTRY_CONTROL,'symbolic offset control differs')
+    if list(controls)==['dataprobe','datatablesprobe']:
+        from data_provider_sample_tables import binder_names,CONTROL_SOURCE
+        from data_provider_cells import binder_source,CONTROL_SOURCE as CELL_CONTROL
+        require((job/'sys/work/dataprobe.c').read_bytes()==CELL_CONTROL and (job/'sys/work/datatablesprobe.c').read_bytes()==CONTROL_SOURCE and (job/'sys/work/binddata.c').read_bytes()==binder_source(binder_names([f for n,f in rows])),'DATA table controls/binder differ')
+        recipe['controls']=list(controls)
+    if list(controls)==['cycleprobe']:
+        from data_provider_callback_tables import binder_names,CONTROL_SOURCE
+        from data_provider_cells import binder_source
+        require((job/'sys/work/cycleprobe.c').read_bytes()==CONTROL_SOURCE and (job/'sys/work/binddata.c').read_bytes()==binder_source(binder_names([f for n,f in rows])),'callback controls/binder differ')
+        recipe['controls']=list(controls)
     if manifest:recipe['manifest']=manifest
     if request.get('backend') is not None:
         from data_provider_vamos import input_paths
@@ -79,7 +89,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default='evidence/data-providers/batch.json');ap.add_argument('--job',required=True)
     ap.add_argument('--prepare',action='store_true');ap.add_argument('--pins',action='store_true');ap.add_argument('--source-dir',default='build/workers/data-provider-regeneration');ap.add_argument('--backend',choices=['winuae','vamos'],default='winuae');ap.add_argument('--emulator',default='C:/Program Files/WinUAE/winuae64.exe');a=ap.parse_args()
     require(a.job.startswith('tu-layout-') and a.prepare!=a.pins,'choose --prepare or --pins for a tu-layout-* job')
-    rows=manifest_facts(ROOT,a.manifest);controls=document(ROOT,a.manifest).get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe'],['extprobe','entryprobe']),'unsupported control');prefixes=[f['producer']['prefix'] for n,f in rows]+['relprobe']+controls
+    rows=manifest_facts(ROOT,a.manifest);controls=document(ROOT,a.manifest).get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe'],['extprobe','entryprobe'],['dataprobe','datatablesprobe'],['cycleprobe']),'unsupported control');prefixes=[f['producer']['prefix'] for n,f in rows]+['relprobe']+controls
     if a.prepare:
         directory=candidate_path(ROOT,ROOT/a.source_dir)
         require(directory.is_relative_to(ROOT/'build/workers') and not directory.exists(),'fresh worker source directory required')
@@ -101,6 +111,14 @@ def main():
         if controls==['extprobe','entryprobe']:
             from data_provider_startup import ENTRY_CONTROL
             (directory/'entryprobe.c').write_bytes(ENTRY_CONTROL)
+        if controls==['dataprobe','datatablesprobe']:
+            from data_provider_sample_tables import binder_names,CONTROL_SOURCE
+            from data_provider_cells import binder_source,CONTROL_SOURCE as CELL_CONTROL
+            (directory/'dataprobe.c').write_bytes(CELL_CONTROL);(directory/'datatablesprobe.c').write_bytes(CONTROL_SOURCE);(directory/'binddata.c').write_bytes(binder_source(binder_names([f for n,f in rows])))
+        if controls==['cycleprobe']:
+            from data_provider_callback_tables import binder_names,CONTROL_SOURCE
+            from data_provider_cells import binder_source
+            (directory/'cycleprobe.c').write_bytes(CONTROL_SOURCE);(directory/'binddata.c').write_bytes(binder_source(binder_names([f for n,f in rows])))
         (directory/'relprobe.c').write_bytes(CONTROL);(directory/'h000.asm').write_bytes(HARNESSSOURCE)
         job=prepare(a.job,directory,commands(prefixes,controls),Path(a.emulator),aztec36=True)
         normalize_config(job)

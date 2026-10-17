@@ -28,6 +28,9 @@ def document(root, path):
 
 
 def shape(fact):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':
+        from data_provider_sample_tables import shape as table_route
+        return table_route(fact)
     if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
         from data_provider_cells import shape as cell_route
         return cell_route(fact)
@@ -121,6 +124,9 @@ def definition_size(d):
 
 
 def source(fact):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':
+        from data_provider_sample_tables import source as table_route
+        return table_route(fact)
     if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
         from data_provider_cells import source as cell_route
         return cell_route(fact)
@@ -148,6 +154,9 @@ def source(fact):
 
 
 def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':
+        from data_provider_sample_tables import typed_evidence as table_route
+        return table_route(root,fact,analysis,ledger,promotions)
     if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
         from data_provider_cells import typed_evidence as cell_route
         if image is None:
@@ -339,6 +348,9 @@ def data_object(raw,terminal_padding=0):
 
 
 def compare_data(original,original_model,fact,obj,linked,map_text):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':
+        from data_provider_sample_tables import compare_data as table_route
+        return table_route(original,original_model,fact,obj,linked,map_text)
     if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
         from data_provider_cells import compare_data as cell_route
         return cell_route(original,original_model,fact,obj,linked,map_text)
@@ -404,7 +416,7 @@ def compare_data(original,original_model,fact,obj,linked,map_text):
 def producer_paths(root,recipe):
     job=recipe['job']
     require(all(Path(n).name==n and '/' not in n and '\\' not in n for n in recipe['artifacts']),'producer artifact pin escapes work directory')
-    require(re.fullmatch(r'build/worker-jobs/tu-layout-[a-zA-Z0-9_-]+',job),'producer job escapes approved ignored directory')
+    require(re.fullmatch(r'build/(?:worker-jobs|workers/[a-zA-Z0-9_-]+)/tu-layout-[a-zA-Z0-9_-]+',job),'producer job escapes approved ignored directory')
     names=[job+'/'+n for n in ['request.json','result.json','worker.uae','sys/s/startup-sequence','kick.rom']]+[job+'/sys/work/'+n for n in recipe['artifacts']]
     require(('backend' in recipe)==('backend_inputs' in recipe),'complete explicit backend dependency list')
     if 'backend' in recipe:
@@ -454,7 +466,7 @@ def _audit_job(root,batch):
         name=item['path'];require(Path(name).name==name and '/' not in name and '\\' not in name,'artifact escapes worker work')
         raw=read_job('sys/work/'+name);require(len(raw)==item['size'] and sha256(raw)==item['sha256'],'producer artifact changed');files[name]=raw
     prefixes=recipe['prefixes'];require(len(prefixes)==len(set(prefixes)) and all(re.fullmatch(r'[a-z][a-z0-9]*',p) for p in prefixes),'invalid producer prefixes')
-    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe'],['extprobe','entryprobe']),'unsupported batch control')
+    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe'],['extprobe','entryprobe'],['dataprobe','datatablesprobe'],['cycleprobe']),'unsupported batch control')
     require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe']+controls,'one job must contain the entire provider batch and control')
     require(recipe['sources']=={r['path']:r['sha256'] for r in request['source_files']} and recipe['commands']==[r['command'] for r in request['steps']],'curated source/command pins differ')
     require(set(recipe['toolchain_inventory_sha256'])=={'evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json'},'incomplete toolchain inventory pins')
@@ -467,11 +479,11 @@ def _audit_job(root,batch):
     if controls in (['extprobe'],['extprobe','entryprobe']):
         from data_provider_pointers import commands as external_commands
         commands=external_commands(prefixes)
-    if controls==['dataprobe']:
+    if controls in (['dataprobe'],['dataprobe','datatablesprobe'],['cycleprobe']):
         from data_provider_cells import commands as cell_commands
         commands=cell_commands(prefixes)
     require([s['command'] for s in request['steps']]==commands and receipt['steps']==[dict(s,returncode=0) for s in request['steps']],'changed producing commands/status')
-    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm']+(['bindptr.asm'] if controls in (['extprobe'],['extprobe','entryprobe']) else ['binddata.c'] if controls==['dataprobe'] else []))],'source inventory')
+    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm']+(['bindptr.asm'] if controls in (['extprobe'],['extprobe','entryprobe']) else ['binddata.c'] if controls in (['dataprobe'],['dataprobe','datatablesprobe'],['cycleprobe']) else []))],'source inventory')
     for member in recipe['members']:
         member_fact=document(root,member['fact'])
         require(sha256(json_bytes(member_fact))==member['fact_sha256'],'batch provider fact changed')
@@ -497,7 +509,7 @@ def _audit_job(root,batch):
     require(sha256(read_job('kick.rom'))==request['rom_sha256'],'producer ROM changed')
     require(sha256(config)==request['config_sha256'] and sha256(startup)==request['guest_script_sha256'],'producer config/script hash')
     text=config.decode('utf-8');job=retained.as_posix()
-    require(recipe['job'].startswith('build/worker-jobs/tu-layout-'),'unexpected producer job')
+    require(re.fullmatch(r'build/(?:worker-jobs|workers/[a-zA-Z0-9_-]+)/tu-layout-[a-zA-Z0-9_-]+',recipe['job']),'unexpected producer job')
     require('filesystem2=rw,DH0:Worker:'+job+'/sys,0' in text.splitlines(),'producer work mount')
     expected_mounts=[f'filesystem2=rw,DH0:Worker:{job}/sys,0']
     for hn,label,vol in [(1,'Tools1','Aztec1'),(2,'Tools2','Aztec2'),(3,'Tools4','Aztec4')]:expected_mounts.append(f'filesystem2=ro,DH{hn}:{label}:{Path(root).as_posix()}/toolchain/installed/aztec-5.0a/{vol},-128')
@@ -530,6 +542,16 @@ def _audit_job(root,batch):
         require(files['bindptr.asm']==binder_source(names) and files['extprobe.c']==CONTROL_SOURCE,'independent external binder/control recipe changed')
         binder_object(files['bindptr.o'],names)
         result['external_pointer_control']=control_report(files,names)
+    if controls==['cycleprobe']:
+        from data_provider_callback_tables import binder_names,control_report
+        facts=[document(root,m['fact']) for m in recipe['members']]
+        require(all(f.get('route')=='CALLBACK_CYCLE_RECORDS' for f in facts),'callback record batch kind')
+        result['callback_record_control']=control_report(files,binder_names(facts))
+    if controls==['dataprobe','datatablesprobe']:
+        from data_provider_sample_tables import binder_names,control_report
+        facts=[document(root,m['fact']) for m in recipe['members']]
+        require(all(f.get('kind')=='EXTERNAL_DATA_POINTER_TABLE' for f in facts),'DATA table batch kind')
+        result['data_pointer_table_control']=control_report(files,binder_names(facts))
     if request.get('backend') is not None:
         from data_provider_vamos import validate
         result['backend_execution']=validate(root,retained,request,receipt,commands)
@@ -557,7 +579,10 @@ def _audit_job(root,batch):
 def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained):
     require(source_bytes==source(fact),'source differs from strict evidence-derived scalar definitions')
     evidence=typed_evidence(root,fact,analysis,ledger,promotions,image=(blob,model))
-    files,producer_proof=producer(root,fact,retained);p=fact['producer']['prefix']
+    files,producer_proof=producer(root,fact,retained)
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':require('data_pointer_table_control' in producer_proof,'aggregate DATA pointers require the independent many-target control')
+    if fact.get('route')=='CALLBACK_CYCLE_RECORDS':require('callback_record_control' in producer_proof,'mixed callback fields require the independent record control')
+    p=fact['producer']['prefix']
     report=compare_data(blob,model,fact,files[p+'.o'],files[p+'.exe'],files[p+'.sym'].decode('ascii'))
     report.update(typed_evidence=evidence,producer=producer_proof,fact_sha256=sha256(json_bytes(fact)),
         verifier_identity={'data_providers.py':sha256(Path(__file__).read_bytes()),
@@ -574,6 +599,9 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
     if fact.get('kind')=='BOUNDED_DATA_TABLE':
         import data_provider_tables
         report['verifier_identity']['data_provider_tables.py']=sha256(Path(data_provider_tables.__file__).read_bytes())
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':
+        import data_provider_sample_tables
+        report['verifier_identity']['data_provider_sample_tables.py']=sha256(Path(data_provider_sample_tables.__file__).read_bytes())
     if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
         import data_provider_cells
         report['verifier_identity']['data_provider_cells.py']=sha256(Path(data_provider_cells.__file__).read_bytes())
@@ -584,6 +612,9 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
         import data_provider_more,data_provider_sequences,data_provider_audio_fields
         for module in (data_provider_more,data_provider_sequences,data_provider_audio_fields):
             if fact.get('route') in module.ROUTES:report['verifier_identity'][Path(module.__file__).name]=sha256(Path(module.__file__).read_bytes())
+    if fact.get('route') in ('CALLBACK_CYCLE_RECORDS','CALLBACK_CYCLE_WORDS'):
+        import data_provider_callback_tables
+        report['verifier_identity']['data_provider_callback_tables.py']=sha256(Path(data_provider_callback_tables.__file__).read_bytes())
     if fact.get('route')=='LOCATION_OPTION_ROWS':
         import data_provider_locrows
         report['verifier_identity']['data_provider_locrows.py']=sha256(Path(data_provider_locrows.__file__).read_bytes())
@@ -646,6 +677,9 @@ def input_identity(root):
             names.update(evidence_paths(root,fact))
         if fact.get('kind')=='BOUNDED_DATA_TABLE':
             from data_provider_tables import evidence_paths
+            names.update(evidence_paths(root,fact))
+        if fact.get('kind')=='EXTERNAL_DATA_POINTER_TABLE':
+            from data_provider_sample_tables import evidence_paths
             names.update(evidence_paths(root,fact))
         if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
             from data_provider_cells import evidence_paths

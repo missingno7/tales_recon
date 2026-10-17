@@ -1,5 +1,6 @@
 """Serialized typed CODE-data promotion, behind the shared regression gate."""
 import argparse,json
+from contextlib import nullcontext
 from common import require,sha256,json_bytes
 from repo_paths import canonical_path
 from recovery_transaction import ledger_lock,publish
@@ -9,6 +10,7 @@ import audio_score_measured as measured
 import audio_region_provider as region
 import audio_stateful_provider as stateful
 import audio_h1_provider as h1
+import audio_envelope_prefix as envelopes
 from validation_memo import scoped
 
 
@@ -22,11 +24,11 @@ def stage(root,blob,model,ledger,manifest=None):
 
 
 def _stage(root,blob,model,ledger,manifest=None):
-    backend=h1 if manifest==h1.MANIFEST else stateful if manifest==stateful.MANIFEST else region if manifest==region.MANIFEST else measured
-    require(manifest in (None,measured.MANIFEST,region.MANIFEST,stateful.MANIFEST,h1.MANIFEST),'unsupported CODE-data manifest')
+    backend=envelopes if manifest==envelopes.MANIFEST else h1 if manifest==h1.MANIFEST else stateful if manifest==stateful.MANIFEST else region if manifest==region.MANIFEST else measured
+    require(manifest in (None,measured.MANIFEST,region.MANIFEST,stateful.MANIFEST,h1.MANIFEST,envelopes.MANIFEST),'unsupported CODE-data manifest')
     require(backend.IDENT not in ledger.get(provider.MAP,{}),'CODE-data already admitted; replay through census')
     fact=provider.document(root,backend.FACT);report=backend.verify(root,blob,model,fact)
-    if backend is h1:
+    if backend in (h1,envelopes):
         # Same overlap boundary as promote_data: the shared publication gate
         # re-proves this committed accounting before any canonical write.
         accounting=provider.document(root,'evidence/hybrid/accounting.json')
@@ -56,14 +58,14 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default=measured.MANIFEST)
     mode=ap.add_mutually_exclusive_group(required=True)
     mode.add_argument('--verify-only',action='store_true');mode.add_argument('--promote',action='store_true')
-    args=ap.parse_args();require(args.manifest in (measured.MANIFEST,region.MANIFEST,stateful.MANIFEST,h1.MANIFEST),'unsupported CODE-data batch')
-    backend=h1 if args.manifest==h1.MANIFEST else stateful if args.manifest==stateful.MANIFEST else region if args.manifest==region.MANIFEST else measured
+    args=ap.parse_args();require(args.manifest in (measured.MANIFEST,region.MANIFEST,stateful.MANIFEST,h1.MANIFEST,envelopes.MANIFEST),'unsupported CODE-data batch')
+    backend=envelopes if args.manifest==envelopes.MANIFEST else h1 if args.manifest==h1.MANIFEST else stateful if args.manifest==stateful.MANIFEST else region if args.manifest==region.MANIFEST else measured
     from analysis_support import ROOT
     from game_image import game
-    from evidence_snapshot import snapshot,Snapshot
+    from evidence_snapshot import snapshot,Snapshot,isolated_verification
     from check_function import regression_receipt
     root=ROOT;path=root/'recovery/ledger.json'
-    with snapshot(),ledger_lock(path):
+    with (isolated_verification(root) if args.verify_only else snapshot()), (nullcontext() if args.verify_only else ledger_lock(path)):
         ledger=provider.document(root,'recovery/ledger.json');before=sha256(path.read_bytes());blob,model,_=game()
         if args.verify_only:
             fact,report=stage(root,blob,model,ledger,args.manifest)

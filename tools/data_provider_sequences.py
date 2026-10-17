@@ -10,7 +10,7 @@ from repo_paths import canonical_path
 from audio_sequence_data import payload
 from overlay_experiment import relocation_profile
 
-ROUTES={'ASSET_ID_PROGRAM','ASSET_FLAG_CELL','SAMPLE_RECORD_PREFIX'}
+ROUTES={'ASSET_ID_PROGRAM','ASSET_FLAG_CELL','SAMPLE_RECORD_PREFIX','SAMPLE_RECORD_PREFIX_MEMBER','ASSET_ID_PREFIX_MEMBER','ASSET_FLAG_PREFIX_MEMBER'}
 C_SAMPLE={'resident_F_4AF0','resident_F_48D4','resident_F_49A0','resident_F_46CE','resident_F_4D04','ov05_F_0000'}
 ASM_SAMPLE={'resident_asm_59A4','resident_frameless_55D6'}
 SAMPLE_HEADER='struct DP_Sample { int duration; unsigned int length_words; char *sample_data; };\n'
@@ -24,10 +24,10 @@ def shape(f):
     require(f['historical_owner']==f['historical_tu']=='UNKNOWN' and f['original_filename'] is None,'unknown historical provenance')
     require(type(index) is int and 0<=index<=255 and isinstance(f['anchors'],dict) and f['anchors'] and isinstance(ds,list) and len(ds)==1,'one exact indexed target/cell')
     d=ds[0];require(set(d)=={'symbol','type','offset','dimensions','initializer','bounds'} and d['symbol']=='G_h01_%04X'%o['start'] and d['offset']==0,'named typed target')
-    if route=='ASSET_ID_PROGRAM':
+    if route in ('ASSET_ID_PROGRAM','ASSET_ID_PREFIX_MEMBER'):
         vals=d['initializer'];require(d['type']=='unsigned char' and isinstance(vals,list) and vals and d['dimensions']==[len(vals)] and all(type(v) is int and 0<=v<255 for v in vals[:-1]) and vals[-1]==255,'asset IDs followed by first FF sentinel only')
         size=len(vals)
-    elif route=='ASSET_FLAG_CELL':
+    elif route in ('ASSET_FLAG_CELL','ASSET_FLAG_PREFIX_MEMBER'):
         require(d['type']=='unsigned char' and d['dimensions']==[] and type(d['initializer']) is int and 0<=d['initializer']<=255 and o['start']==0x2042+index,'one archive-selector byte cell, no table-capacity inference')
         size=1
     else:
@@ -47,15 +47,15 @@ def sequence_declaration(count):
 
 def source(f):
     shape(f);d=f['definitions'][0];n=d['symbol'];v=d['initializer'];route=f['route']
-    if route=='ASSET_ID_PROGRAM':return ('unsigned char '+n+'[%d] = {'%len(v)+', '.join(map(str,v))+'};\n').encode('ascii')
-    if route=='ASSET_FLAG_CELL':return ('unsigned char '+n+' = '+str(v)+';\n').encode('ascii')
+    if route in ('ASSET_ID_PROGRAM','ASSET_ID_PREFIX_MEMBER'):return ('unsigned char '+n+'[%d] = {'%len(v)+', '.join(map(str,v))+'};\n').encode('ascii')
+    if route in ('ASSET_FLAG_CELL','ASSET_FLAG_PREFIX_MEMBER'):return ('unsigned char '+n+' = '+str(v)+';\n').encode('ascii')
     rows=['{'+str(x['duration'])+', '+str(x['length_words'])+', 0}' for x in v['records']]
     return (sequence_declaration(len(rows))+'struct DP_Sequence '+n+' = {{'+', '.join(rows)+'}, '+str(v['terminal_duration'])+'};\n').encode('ascii')
 
 def semantic(f):
     shape(f);d=f['definitions'][0];v=d['initializer']
-    if f['route']=='ASSET_ID_PROGRAM':return bytes(v)
-    if f['route']=='ASSET_FLAG_CELL':return bytes([v])
+    if f['route'] in ('ASSET_ID_PROGRAM','ASSET_ID_PREFIX_MEMBER'):return bytes(v)
+    if f['route'] in ('ASSET_FLAG_CELL','ASSET_FLAG_PREFIX_MEMBER'):return bytes([v])
     return b''.join(x['duration'].to_bytes(2,'big')+x['length_words'].to_bytes(2,'big')+bytes(4) for x in v['records'])+v['terminal_duration'].to_bytes(2,'big',signed=True)
 
 def evidence_paths(root,f):
@@ -94,6 +94,14 @@ def asset_index(a,index):
     require(witnesses,'asset index lacks a canonical literal/closed conditional argument')
     return sorted(set(witnesses))
 
+def asset_prefix(a):
+    # One independently executed literal selector is sufficient to establish
+    # a uniform pointer/flag view through that index, not historical capacity.
+    values=[int(x,0) for fid,(src,_,_) in a.items() if fid not in ('resident_F_4D04','resident_F_4EC6') for x in re.findall(r'F_h00_4D04\(\s*(0x[0-9a-fA-F]+|[0-9]+)\s*\)',src)]
+    require(values,'asset prefix lacks a literal canonical selector witness')
+    highest=max(values);return highest,asset_index(a,highest)
+
+
 def pointer_target(blob,model,base,index):
     site=base+index*4;rs=relocation_profile(model,1,site,4)
     require(len(rs)==1 and rs[0]['offset']==0 and rs[0]['type']=='HUNK_RELOC32' and rs[0]['width']==4 and rs[0]['target_hunk']==1,'typed pointer cell lacks exact resident DATA relocation')
@@ -128,19 +136,25 @@ def typed_evidence(root,f,analysis,ledger,promotions):
     from game_image import game
     shape(f);a=anchors(root,f,analysis,ledger,promotions);route=f['route'];index=f['selector_index'];o=f['original']
     with advisory_image():blob,model,_=game()
-    if route in ('ASSET_ID_PROGRAM','ASSET_FLAG_CELL'):
+    if route in ('ASSET_ID_PROGRAM','ASSET_FLAG_CELL','ASSET_ID_PREFIX_MEMBER','ASSET_FLAG_PREFIX_MEMBER'):
         require({'resident_F_4D04','resident_F_4EC6'}<=set(a),'asset reader/free-loop anchors')
-        witnesses=asset_index(a,index)
+        if route in ('ASSET_ID_PREFIX_MEMBER','ASSET_FLAG_PREFIX_MEMBER'):
+            highest,witnesses=asset_prefix(a);require(index<=highest,'asset member exceeds independently accessed prefix')
+        else:witnesses=asset_index(a,index)
         binding(a['resident_F_4D04'],'G_h01_1F9E',0x1f9e)
         fragments(a['resident_F_4EC6'][0],'G_h01_1F9E[G_h01_B1F0][i]!=0xff')
-        if route=='ASSET_ID_PROGRAM':
+        if route in ('ASSET_ID_PROGRAM','ASSET_ID_PREFIX_MEMBER'):
             require(pointer_target(blob,model,0x1f9e,index)==o['start'],'independently selected program target moved')
             details=dict(selector_index=index,witnesses=witnesses,element_semantics='archive asset ID passed to291E; first FF terminator',capacity_claim=False)
         else:
             binding(a['resident_F_4D04'],'G_h01_2042',0x2042)
             details=dict(selector_index=index,witnesses=witnesses,element_semantics='archive pointer selector byte',capacity_claim=False)
     else:
-        slots,details=sample_domain(a,blob,model);require(index in slots,'sample slot lacks independently finite C access domain')
+        slots,details=sample_domain(a,blob,model)
+        if route=='SAMPLE_RECORD_PREFIX_MEMBER':
+            require(index<=max(slots),'sample member exceeds independently accessed prefix')
+            details=dict(details,access_domain_prefix_count=max(slots)+1,member_not_individually_witnessed=True)
+        else:require(index in slots,'sample slot lacks independently finite C access domain')
         require(pointer_target(blob,model,0x27e4,index)==o['start'],'sample prefix lacks independently selected named target')
         details=dict(details,selector_index=index,records=len(f['definitions'][0]['initializer']['records']),terminal='first nonpositive signed duration; unconsumed six-byte suffix stays RAW')
     return [dict(kind=route,anchors=f['anchors'],details=details,historical_extent='complete reconstructed provider; no historical TU/capacity claim')]

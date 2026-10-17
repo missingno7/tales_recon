@@ -78,7 +78,7 @@ def typed_evidence(root,f,blob,model,analysis,ledger,promotions):
     require(rs==[dict(offset=0,type='HUNK_RELOC32',width=4,target_hunk=1,addend=d['target_offset'])],'original pointer cell target relocation differs')
     return [dict(kind='NAMED_DATA_POINTER_CELL',selector_index=d['selector_index'],target_fact=f['target_fact'],target_fact_sha256=f['target_fact_sha256'],target_symbol=d['target'],target_type=d['target_type'],target_object_sha256=report['object_sha256'],capacity_claim=False)]
 
-def object_data(raw,symbol,targets):
+def object_data(raw,symbol,targets,max_externals=2):
     """Measured030a DATA definition,072a DATA extern and fd7i00 fixups.
 
     Only packed indices1/2 are exercised by this scalar route and its independent
@@ -86,7 +86,7 @@ def object_data(raw,symbol,targets):
     """
     require(len(raw)>=36 and raw[:10]==b'AJ'+bytes(8),'external DATA AJ header')
     u16=lambda p:int.from_bytes(raw[p:p+2],'big');u32=lambda p:int.from_bytes(raw[p:p+4],'big')
-    size=4*len(targets);externs=list(dict.fromkeys(targets));require(1<=len(externs)<=2,'only measured external DATA index range')
+    size=4*len(targets);externs=list(dict.fromkeys(targets));require(max_externals in (2,14) and 1<=len(externs)<=max_externals,'only measured external DATA index range')
     require((u32(10),u32(14),u32(18))==(0,size,0),'whole external DATA-only object')
     syms=u16(28)*4;end=u16(30)*4
     require(u32(24)*4==36 and syms<=end==u16(32)*4==len(raw) and u16(22)==1+len(externs) and raw[34:36]==b'\xc0\0','whole external DATA object boundaries')
@@ -104,8 +104,8 @@ def object_data(raw,symbol,targets):
     require(syms==((p+4)//4)*4 and raw[p:syms]==bytes(syms-p),'entire pointer DATA stream/trailer')
     return dict(bytes=bytes(size),definitions=[dict(name=symbol,offset=0)],fixups=fixups,sections=dict(CODE=0,DATA=size,BSS=0,COMMON=0))
 
-def linked_view(obj,linked,map_text,symbol,targets,names):
-    parsed=object_data(obj,symbol,targets);m=parse(linked);sm=symbols(map_text);size=4*len(targets);binder=b''.join((i+1).to_bytes(2,'big') for i in range(len(names)));rounded=(size+len(binder)+3)&~3
+def linked_view(obj,linked,map_text,symbol,targets,names,max_externals=2):
+    parsed=object_data(obj,symbol,targets,max_externals);m=parse(linked);sm=symbols(map_text);size=4*len(targets);binder=b''.join((i+1).to_bytes(2,'big') for i in range(len(names)));rounded=(size+len(binder)+3)&~3
     require([(h['number'],h['type'],h['allocated_size'],h['initialized_size']) for h in m['hunks']]==[(0,'CODE',4,4),(1,'DATA',rounded,rounded),(2,'BSS',4,0)],'whole DATA-cell link topology/allocations')
     require(payload(linked,m,0)==b'\x4e\x75\0\0','independent zero-DATA harness')
     expected={(0,'__H0_org'):0,(0,'.begin'):0,(0,'__H0_end'):4,(1,'__H1_org'):0,(1,symbol):0,(1,'__H1_end'):rounded,(2,'__H2_org'):rounded,(2,'__H2_end'):rounded}
