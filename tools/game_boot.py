@@ -17,6 +17,7 @@ RUN = ROOT / 'build' / 'trace' / 'boot'
 GAME_DIR = ROOT / 'build' / 'game'
 FRAMES = 1500
 ORIGINAL = False
+FLOPPY_SPEED = 100  # WinUAE floppy_speed: 100 = real drive timing, 0 = turbo
 INPUT = None
 INPUT_OFFSET = 0
 DUMP_FROM = None
@@ -138,7 +139,7 @@ def prepare():
             raise RuntimeError('existing diagnostic directory is not an untouched trace staging copy')
     else:
         trace.select_root(RUN)
-        trace.stage_run(RUN, cfg)
+        trace.stage_run(RUN, cfg, FLOPPY_SPEED)
     disk_path = RUN / 'disk1.adf'
     original_disk = disk_path.read_bytes()
     # --original boots the untouched original executable as a baseline.
@@ -210,7 +211,8 @@ _DUMP = {}
 def state_dump(emu, executable, model, frame_number):
     """Append the program's DATA hunk (initialized data and its BSS tail) to
     state.bin and index it; the hunk base is located once in memory."""
-    if 'base' not in _DUMP:
+    if not _DUMP.get('base'):
+        # Retried until the program is loaded: a dump before that finds no hunk.
         mapping = harness.locate(emu.memory(), executable, model, harness.signatures(executable, model))
         resident = mapping.get('resident') or {}
         _DUMP['base'] = resident.get(1, resident.get('1'))
@@ -405,9 +407,11 @@ if __name__ == '__main__':
     parser.add_argument('--input-offset', type=int, default=0, help='frames added to every input event')
     parser.add_argument('--dump-from', type=int, help='first frame of DATA+BSS state dumps (state.bin)')
     parser.add_argument('--dump-every', type=int, default=0, help='dump interval in frames (0: no dumps)')
+    parser.add_argument('--turbo-floppy', action='store_true',
+                        help='WinUAE turbo floppy: load times stop depending on where files sit on disk')
     args = parser.parse_args()
     INPUT = args.input; INPUT_OFFSET = args.input_offset; DUMP_FROM = args.dump_from; DUMP_EVERY = args.dump_every
     GAME_DIR = args.game_dir.resolve(); RUN = ROOT / 'build' / 'trace' / args.run_name; FRAMES = args.frames
-    ORIGINAL = args.original
+    ORIGINAL = args.original; FLOPPY_SPEED = 0 if args.turbo_floppy else 100
     if args.action in ('prepare','run'): prepare()
     if args.action in ('boot','run'): boot()

@@ -329,7 +329,76 @@ def data_symbol_offsets(map_path):
     return offsets
 
 
-def link_with_original_data_layout(guest, stage, link, data_manifest, passes=3):
+def join_same_object_rows(rows, facts, same_object_call):
+    """Join consecutive staged C objects the way the proofs join direct callees:
+    the previous object's last function ends exactly where the next object's first
+    function starts, and one calls the other with original same-object evidence
+    (a PC-relative BSR, `recovery_evidence.same_object_call`). The joined object
+    is one natural TU (`natural_object`); everything else is unchanged."""
+    out = []
+    for row in rows:
+        if out:
+            prev = out[-1]
+            a = facts.get(Path(prev['sources'][-1]).stem); b = facts.get(Path(row['sources'][0]).stem)
+            if (a and b and a['hunk'] == b['hunk'] and a['end'] == b['start']
+                    and all(s.endswith('.c') for s in prev['sources'] + row['sources'])
+                    and set(prev.get('profiles') or []) == set(row.get('profiles') or [])
+                    and prev.get('node') == row.get('node')
+                    and (same_object_call(a, b) or same_object_call(b, a))):
+                joined = dict(prev, sources=prev['sources'] + row['sources'],
+                              members=prev.get('members', []) + row.get('members', []),
+                              definitions=prev.get('definitions', []) + row.get('definitions', []),
+                              natural_object=True)
+                exports = prev.get('link_exports', []) + row.get('link_exports', [])
+                if exports:
+                    joined['link_exports'] = exports
+                out[-1] = joined
+                continue
+        out.append(row)
+    return out
+
+
+DATA_GROUP_MAX_GAP = 16
+
+
+def data_provider_build_groups(entries):
+    """Group DATA providers (in link order) for the build. ln rounds each module's
+    DATA to an even size, so separate objects cannot reproduce an odd boundary.
+    A provider is joined to the previous one (same compiler profile) when the
+    boundary between them is odd: the previous ends, or this one starts, at an
+    odd original offset, at most DATA_GROUP_MAX_GAP raw bytes apart. Each joined
+    entry records `gap_before`, the raw bytes the build TU zero-fills before it."""
+    groups = []
+    for entry in entries:
+        entry = dict(entry, gap_before=0)
+        start = (entry.get('original') or {}).get('start')
+        if groups and start is not None:
+            last = groups[-1][-1]; last_original = last.get('original') or {}
+            if last_original.get('start') is not None and entry['profile'] == last['profile']:
+                end = last_original['start'] + (last_original.get('size') or 0)
+                if 0 <= start - end <= DATA_GROUP_MAX_GAP and (end % 2 or start % 2):
+                    entry['gap_before'] = start - end
+                    groups[-1].append(entry); continue
+        groups.append([entry])
+    return groups
+
+
+def original_data_anchor(text):
+    """(original DATA offset, label) of the lowest `_..._h01_XXXX` label in an
+    assembly source's dseg sections, or None. Such labels name the original
+    DATA offset of typed initializers that a CODE-data module carries."""
+    section, found = None, []
+    for line in text.splitlines():
+        directive = re.match(r'\s+(cseg|dseg)\b', line)
+        if directive:
+            section = directive.group(1); continue
+        label = re.match(r'(_\w+_h01_([0-9A-F]{4})):', line)
+        if label and section == 'dseg':
+            found.append((int(label.group(2), 16), label.group(1)))
+    return min(found) if found else None
+
+
+def link_with_original_data_layout(guest, stage, link, data_manifest, passes=3, extra_anchors=()):
     """Link, then lay initialized DATA out at the ORIGINAL relative offsets.
 
     Accepted DATA providers are separate objects, so raw (unadmitted) spans
@@ -351,6 +420,7 @@ def link_with_original_data_layout(guest, stage, link, data_manifest, passes=3):
             continue
         anchors.append((fact['original']['start'] + definition.get('offset', 0),
                         '_' + definition['symbol'].lstrip('_'), row['object']))
+    anchors.extend(extra_anchors)
     anchors.sort()
     guest_cmd, link_args = vb.link_guest_command(link)
     gaps = {}
@@ -371,9 +441,11 @@ def link_with_original_data_layout(guest, stage, link, data_manifest, passes=3):
         rows = [(o, placed[s] - o, obj) for o, s, obj in anchors if s in placed]
         if not rows:
             return 'no provider symbols in map'
-        steps = [(rows[i][2], rows[i-1][1] - rows[i][1]) for i in range(1, len(rows)) if rows[i][1] != rows[i-1][1]]
-        residual = [(obj, need) for obj, need in steps if need <= 0 or need % 2]
-        fixable = [(obj, need - (need % 2)) for obj, need in steps if need > 0 and need - (need % 2) > 0]
+        steps = [(rows[i][2], rows[i-1][1] - rows[i][1], rows[i][2] == rows[i-1][2])
+                 for i in range(1, len(rows)) if rows[i][1] != rows[i-1][1]]
+        residual = [(obj, need) for obj, need, inside in steps if inside or need <= 0 or need % 2]
+        fixable = [(obj, need - (need % 2)) for obj, need, inside in steps
+                   if not inside and need > 0 and need - (need % 2) > 0]
         if not fixable:
             break
         for obj, size in fixable:
@@ -570,6 +642,26 @@ def main():
         src_rows.append(row)
         existing_source_paths.add(rec['source'])
         accepted_asm_rows[key] = row
+    # Accepted assembly sources published after the static inventory was assembled
+    # (CODE-data providers, reconstructed ASM): each is its own object, exporting the
+    # labels it both defines and declares public.
+    for map_name, category in (('code_data_providers', 'TYPED_CODE_DATA'), ('reconstructed_asm', 'RECONSTRUCTED_ASM')):
+        for key, rec in sorted(ledger.get(map_name, {}).items()):
+            if digest(ROOT / rec['proof']) != rec['proof_sha256']:
+                raise SystemExit('accepted proof hash differs: ' + key)
+            for source, source_sha in sorted((rec.get('sources') or {rec['source']: rec['source_sha256']}).items()):
+                if source in existing_source_paths or source in provider_source_paths:
+                    continue
+                if not source.endswith('.asm') or digest(ROOT / source) != source_sha:
+                    raise SystemExit('accepted source is not a hash-matching assembly file: ' + source)
+                text = (ROOT / source).read_text(encoding='utf-8')
+                exported = set(re.findall(r'(?m)^\s*public\s+(\S+)', text)) & set(re.findall(r'(?m)^(_\w+):', text))
+                row = dict(source=source, source_sha256=source_sha, proof=rec['proof'], proof_category=category,
+                           definitions=sorted(exported), materialize_entry=None,
+                           data_anchor=original_data_anchor(text))
+                src_rows.append(row)
+                existing_source_paths.add(source)
+                accepted_asm_rows[Path(source).stem] = row
     selected_by_path = {r['source']: r for r in src_rows}
     selected_inventory_source_record_count = len(src_rows)
     inventory_obj_rows = []
@@ -585,8 +677,23 @@ def main():
     obj_rows = []
     # The sources are accepted function/module TUs. Preserve the inventory order and
     # profile, but don't merge independent C namespaces without object-membership evidence.
+    # A multi-source inventory object is a natural object (members proven together, whose
+    # original calls are same-object PC-relative BSRs): its C sources are one TU, joined
+    # as the proofs join them (recovery_evidence.proven_object_source).
     for inventory_obj in inventory_obj_rows:
         source_count = len(inventory_obj['sources'])
+        if source_count > 1 and all(source.endswith('.c') for source in inventory_obj['sources']):
+            staged_obj = dict(inventory_obj, _inventory_object=inventory_obj['object'], _source_index=0,
+                              members=[Path(source).stem for source in inventory_obj['sources']],
+                              definitions=[d for source in inventory_obj['sources']
+                                           for d in selected_by_path[source].get('definitions', [])],
+                              natural_object=True)
+            exports = [(selected_by_path[source].get('materialize_entry') or {}).get('emit_symbol')
+                       for source in inventory_obj['sources']]
+            if any(exports):
+                staged_obj['link_exports'] = [e for e in exports if e]
+            obj_rows.append(staged_obj)
+            continue
         for source_index, source_path in enumerate(inventory_obj['sources']):
             row = selected_by_path[source_path]
             staged_obj = dict(inventory_obj)
@@ -602,6 +709,11 @@ def main():
                 original_path = Path(inventory_obj['object'])
                 staged_obj['object'] = (original_path.parent / (original_path.stem + '_s%02d' % source_index + original_path.suffix)).as_posix()
             obj_rows.append(staged_obj)
+    from recovery_evidence import same_object_call
+    function_facts = {f['id']: f for f in read_json(ROOT / 'evidence/functions/ledger.json')['functions']}
+    joined_count = len(obj_rows)
+    obj_rows = join_same_object_rows(obj_rows, function_facts, same_object_call)
+    print('same-object joins (original BSR evidence):', joined_count - len(obj_rows))
     accepted_asm_obj_rows = {}
     for key, row in accepted_asm_rows.items():
         staged_obj = dict(_inventory_object='accepted_asm/' + key, _source_index=0,
@@ -644,6 +756,11 @@ def main():
     for old, (physical, cname) in accepted_asm_symbol_remaps.items():
         symbol_to_phys[old] = physical
         symbol_to_c[old] = cname
+    # References bound to an accepted complete table instead of an older, compacted
+    # definition that stays in its own provider (indexed reads need every slot).
+    reference_rebinds = {}
+    if '_G_h00_6200_complete' in {d for row in src_rows for d in row.get('definitions', [])}:
+        reference_rebinds['_G_h00_6200'] = '_G_h00_6200_complete'
     # Add only plan-backed aliases whose source and typed stub anchor lie inside the
     # exact same typed storage-plan member. This does not bridge unbounded gaps.
     storage_plan_aliases = []
@@ -868,7 +985,12 @@ def main():
                                 (row['source'], row.get('proof_category'), original))
             source_manifest.append(dict(source=row['source'], sha256=row['source_sha256'], proof=row.get('proof'),
                                         proof_category=row.get('proof_category'), object=obj['object'], materialize_entry=contract))
-        text = '\n'.join(contents)
+        if obj.get('natural_object'):
+            from recovery_evidence import proven_object_source
+            own_names = [(row.get('materialize_entry') or {}).get('emit_c_identifier') for row in rows]
+            text = proven_object_source(contents, [name for name in own_names if name])
+        else:
+            text = '\n'.join(contents)
         c_body_for_alias_check = text
         is_asm = all(r['source'].endswith('.asm') for r in rows)
         if any(r['source'].endswith('.asm') for r in rows) and not is_asm:
@@ -892,6 +1014,8 @@ def main():
                     if macro != cname: macros[macro] = cname
                 elif target.startswith('.'):
                     macro_unhandled.append(dict(object=obj['object'], source_symbol=sym, target_symbol=target, reason='assembler/compiler runtime entry; not a C identifier'))
+            for sym, new in reference_rebinds.items():
+                macros[sym[1:]] = new[1:]
             preamble = '/* Link-name materialization macros only. */\n' + ''.join('#define %s %s\n' % kv for kv in sorted(macros.items()))
             # Supply missing external views from the current typed storage model;
             # accepted source files remain untouched. This fixes omitted unit headers.
@@ -971,6 +1095,8 @@ def main():
             for sym, (target, addend, kind, status) in sorted(ref_map.items(), key=lambda kv: -len(kv[0])):
                 if addend: continue
                 if sym != target: text = token_replace(text, sym, target)
+            for sym, new in reference_rebinds.items():
+                if not re.search(r'(?m)^' + re.escape(sym) + r':', text): text = token_replace(text, sym, new)
         if is_asm:
             text = symbolize_a4_displacements(text, address_symbols, objname)
         relsrc = Path('tu')/(Path(objname).stem + ('.asm' if is_asm else '.c'))
@@ -987,8 +1113,12 @@ def main():
         production_inputs.append(dict(inventory_object=obj['_inventory_object'], object=obj['object'], staged_object=objname, node=obj['node'], hunk=obj['hunk'],
                                       members=obj['members'], sources=obj['sources'], profile=profile, flags=flags,
                                       expected_definitions=obj.get('link_exports') or obj.get('definitions', [])))
-    # Current accepted DATA providers postdate the static inventory. Keep each provider in its own object.
+    # Current accepted DATA providers postdate the static inventory. Each provider is
+    # its own proven object; ln pads every module's DATA to an even size, so a run of
+    # providers that the original packed across an odd offset (one-byte table cells)
+    # is compiled here as one build TU (see data_provider_build_groups).
     data_manifest = []
+    provider_entries = []
     for provider_id, rec in data_provider_rows:
         src_path = rec['source']; fact_path = ROOT/rec['fact']; src_path_abs = ROOT/src_path
         if not is_active_repo_path(src_path, ROOT) or digest(src_path_abs) != rec['source_sha256']:
@@ -996,26 +1126,38 @@ def main():
         if rec.get('proof') and rec.get('proof_sha256') and digest(ROOT/rec['proof']) != rec['proof_sha256']:
             raise SystemExit('DATA provider proof hash differs: ' + provider_id)
         fact = read_json(fact_path)
-        profile = fact.get('producer', {}).get('profile', 'aztec36')
-        flags = clean_flags(profile)
-        src = src_path_abs.read_text(encoding='utf-8')
-        # Apply only explicit object-level aliases from the inventory; provider definitions themselves keep canonical names.
-        macros = {}
-        for sym, (target, addend, kind, status) in ref_map.items():
-            if addend: continue
-            cname = symbol_to_c.get(sym) or c_name(target)
-            if cname and sym.startswith('_') and sym[1:] != cname: macros[sym[1:]] = cname
-        src = '/* staged accepted DATA provider: %s; proof class: DATA_LAYOUT_MATCH */\n' % provider_id + ''.join('#define %s %s\n' % x for x in sorted(macros.items())) + src
-        objname = 'obj_data_' + provider_id + '.o'
-        relsrc = Path('tu')/('data_' + provider_id + '.c'); (GUEST/relsrc).write_text(src,encoding='ascii',newline='\n')
+        provider_entries.append(dict(id=provider_id, rec=rec, fact=fact, original=fact.get('original'),
+                                     profile=fact.get('producer', {}).get('profile', 'aztec36')))
+    # Apply only explicit object-level aliases from the inventory; provider definitions themselves keep canonical names.
+    macros = {}
+    for sym, (target, addend, kind, status) in ref_map.items():
+        if addend: continue
+        cname = symbol_to_c.get(sym) or c_name(target)
+        if cname and sym.startswith('_') and sym[1:] != cname: macros[sym[1:]] = cname
+    for group in data_provider_build_groups(provider_entries):
+        first = group[0]['id']; profile = group[0]['profile']; flags = clean_flags(profile)
+        objname = 'obj_data_' + first + '.o'
+        src = ''.join('/* staged accepted DATA provider: %s; proof class: DATA_LAYOUT_MATCH */\n' % e['id'] for e in group)
+        if len(group) > 1:
+            src += '/* build TU: %d contiguous providers packed as in the original DATA layout */\n' % len(group)
+        src += ''.join('#define %s %s\n' % x for x in sorted(macros.items()))
+        for e in group:
+            if e['gap_before']:
+                src += ('/* LINK_ONLY_STUBS: zero placeholder for %d raw DATA byte(s) before %s; NOT recovered data */\n'
+                        'char LINK_ONLY_GAP_%04X[%d] = {0};\n' % (e['gap_before'], e['id'],
+                                                                  e['original']['start'] - e['gap_before'], e['gap_before']))
+            src += (ROOT/e['rec']['source']).read_text(encoding='utf-8')
+        relsrc = Path('tu')/('data_' + first + '.c'); (GUEST/relsrc).write_text(src,encoding='ascii',newline='\n')
         compile_entries.append(dict(source=relsrc.as_posix(),object=objname,kind='c',profile=profile,flags=flags,
                                     log=objname[:-2]+'-cc.log',as_log=objname[:-2]+'-as.log'))
         object_args.append(objname); node_objects['root'].append(objname)
-        names=[d['symbol'] for d in fact.get('definitions',[]) if d.get('symbol')]
-        for name in names: symbol_to_phys.setdefault('_'+name if not name.startswith('_') else name, '_'+name if not name.startswith('_') else name)
-        data_manifest.append(dict(id=provider_id,source=src_path,sha256=rec['source_sha256'],proof=rec['proof'],
-                                  proof_sha256=rec['proof_sha256'],profile=profile,object=objname,
-                                  original=fact.get('original'),definitions=names,proof_class='DATA_LAYOUT_MATCH'))
+        for entry in group:
+            rec = entry['rec']
+            names=[d['symbol'] for d in entry['fact'].get('definitions',[]) if d.get('symbol')]
+            for name in names: symbol_to_phys.setdefault('_'+name if not name.startswith('_') else name, '_'+name if not name.startswith('_') else name)
+            data_manifest.append(dict(id=entry['id'],source=rec['source'],sha256=rec['source_sha256'],proof=rec['proof'],
+                                      proof_sha256=rec['proof_sha256'],profile=profile,object=objname,
+                                      original=entry['original'],definitions=names,proof_class='DATA_LAYOUT_MATCH'))
     # Optional non-code aliases used by exact link-name/materialization contracts.
     alias_obj = None
     if alias_path:
@@ -1284,7 +1426,23 @@ def main():
         link_lines.extend(stage_names_by_inventory.get(original_obj, []))
     if 'resident_frameless_701A' in accepted_asm_names:
         link_lines.append(accepted_asm_names['resident_frameless_701A'])
-    for row in data_manifest: link_lines.append(row['object'])
+    # Extra accepted assembly objects follow; one that carries typed DATA at a known
+    # original offset is linked among the DATA providers at that offset instead.
+    data_anchor_rows = {}
+    for key, name in sorted(accepted_asm_names.items()):
+        if key in ('resident_frameless_57D2', 'resident_frameless_701A'): continue
+        anchor = accepted_asm_rows[key].get('data_anchor')
+        if anchor: data_anchor_rows[name] = anchor
+        else: link_lines.append(name)
+    pending = sorted((offset, name) for name, (offset, _) in data_anchor_rows.items())
+    for row in data_manifest:
+        start = (row.get('original') or {}).get('start')
+        while pending and start is not None and pending[0][0] < start:
+            link_lines.append(pending.pop(0)[1])
+        if row['object'] not in link_lines:
+            link_lines.append(row['object'])
+    link_lines.extend(name for _, name in pending)
+    extra_data_anchors = [(offset, label, name) for name, (offset, label) in data_anchor_rows.items()]
     if alias_obj: link_lines.append(alias_obj)
     link_lines.append(exit_bridge_obj)
     link_lines.extend(x['object'] for x in stub_objects)
@@ -1381,7 +1539,7 @@ def main():
         import vamos_backend as vb
         started=time.perf_counter()
         try:
-            residual=link_with_original_data_layout(GUEST,STAGE,link,data_manifest)
+            residual=link_with_original_data_layout(GUEST,STAGE,link,data_manifest,extra_anchors=extra_data_anchors)
         except Exception as exc:
             print('LINK FAILED:',exc); print((GUEST/'link-ln.log').read_text(errors='replace')[-3000:]); return 2
         print('vamos link (with DATA layout alignment): %.1fs; residual DATA drift: %s'%(time.perf_counter()-started,residual))

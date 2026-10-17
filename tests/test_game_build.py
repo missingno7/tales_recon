@@ -118,3 +118,37 @@ def test_numeric_a4_displacement_is_rewritten_to_the_original_layout_symbol():
     out = game_build.symbolize_a4_displacements(source, {0x53A2: 'G_h01_53A2'}, 'obj')
     assert 'lea.l _G_h01_53A2,a1' in out and '\tpublic _G_h01_53A2\n' in out
     assert '(a4)' not in out
+
+
+def test_data_providers_join_only_across_odd_boundaries():
+    def entry(name, start, size, profile='aztec36'):
+        return dict(id=name, profile=profile, original=dict(start=start, size=size))
+    groups = game_build.data_provider_build_groups([
+        entry('a', 0x10, 1), entry('b', 0x11, 1),      # odd end: packed together
+        entry('c', 0x13, 1),                            # odd start after 1 raw byte
+        entry('d', 0x14, 2),                            # even boundary: own object
+        entry('e', 0x17, 1, profile='other'),           # odd start, other profile
+        entry('f', 0x40, 1), entry('g', 0x60, 1),      # gap beyond the bound
+    ])
+    assert [[e['id'] for e in g] for g in groups] == [['a', 'b', 'c'], ['d'], ['e'], ['f'], ['g']]
+    assert [e['gap_before'] for e in groups[0]] == [0, 0, 1]
+
+
+def test_original_data_anchor_takes_the_lowest_dseg_h01_label():
+    text = '\tcseg\n_x_h01_0010:\n\tdc.b 1\n\tdseg\n_x_h01_0200:\n\tdc.b 2\n_x_h01_0100:\n\tdc.b 3\n'
+    assert game_build.original_data_anchor(text) == (0x100, '_x_h01_0100')
+    assert game_build.original_data_anchor('\tcseg\n_x_h01_0010:\n') is None
+
+
+def test_same_object_rows_join_only_adjacent_bsr_evidence():
+    facts = {'a': dict(hunk=1, start=0, end=10), 'b': dict(hunk=1, start=10, end=20),
+             'c': dict(hunk=1, start=24, end=30), 'd': dict(hunk=1, start=30, end=40)}
+    calls = {('a', 'b'), ('d', 'c')}
+    def same_object_call(x, y):
+        name = {id(v): k for k, v in facts.items()}
+        return (name[id(x)], name[id(y)]) in calls
+    def row(n):
+        return dict(sources=['src/%s.c' % n], members=[n], definitions=['_' + n], profiles=['aztec36'], node='ov')
+    rows = game_build.join_same_object_rows([row('a'), row('b'), row('c'), row('d')], facts, same_object_call)
+    assert [r['sources'] for r in rows] == [['src/a.c', 'src/b.c'], ['src/c.c', 'src/d.c']]
+    assert all(r.get('natural_object') for r in rows)

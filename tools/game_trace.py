@@ -38,19 +38,20 @@ def run_path(root,name):
  resolved=candidate.resolve()
  if resolved.parent!=root:raise ValueError('run directory must be a direct child of its output root')
  return resolved
-def stage_run(run,cfg):
+def stage_run(run,cfg,floppy_speed=100):
  if run.exists():
   if any(run.iterdir()):raise FileExistsError('run directory already contains files')
  else:run.mkdir(parents=True,exist_ok=False)
  emulator=resolve_path(cfg['emulator']['path']);rom_source=resolve_path(cfg['rom']['path'])
  pins={'emulator':str(emulator),'emulator_sha256':cfg['emulator']['sha256'],'rom_sha256':cfg['rom']['sha256'],'disks':[]}
+ if floppy_speed!=100:pins['floppy_speed']=floppy_speed
  for i,disc in enumerate(cfg['disks'],1):
   source=resolve_path(disc['source']);target=run/f'disk{i}.adf';shutil.copyfile(source,target)
   if hashlib.sha256(target.read_bytes()).hexdigest()!=disc['sha256']:raise RuntimeError(f'disk {i} checksum mismatch')
   os.chmod(target,0o444);pins['disks'].append({'copy':str(target.resolve()),'sha256':disc['sha256']})
  rom=run/'kick13.rom';shutil.copyfile(rom_source,rom)
  if hashlib.sha256(rom.read_bytes()).hexdigest()!=cfg['rom']['sha256']:raise RuntimeError('ROM checksum mismatch')
- profile=f'''config_description=private trace A500 PAL\nuse_gui=no\nkickstart_rom_file={rom}\ncpu_model=68000\ncpu_speed=real\ncpu_compatible=true\ncpu_24bit_addressing=true\ncpu_cycle_exact=true\ncpu_memory_cycle_exact=true\nblitter_cycle_exact=true\nchipset=ocs\nchipmem_size=1\nbogomem_size=2\nfastmem_size=0\nntsc=false\ncachesize=0\nsound_output=interrupts\nfloppy0={run/'disk1.adf'}\nfloppy1={run/'disk2.adf'}\nfloppy0wp=true\nfloppy1wp=true\nfloppy0type=0\nfloppy1type=0\nnr_floppies=2\nfloppy_speed=100\nfloppy_write_protect=true\nheadless=true\ngfx_api=directdraw\ngfx_fullscreen_amiga=false\ngfx_width_windowed=640\ngfx_height_windowed=512\ngfx_framerate=1\nwin32.start_minimized=yes\nwin32.inactive_pause=false\nwin32.minimized_pause=false\nwin32.inactive_input=0\nwin32.minimized_input=0\nwin32.rom_path={run}\nwin32.floppy_path={run}\nwin32.savestate_path={run}\nwin32.screenshot_path={run}\nrtc=none\n'''
+ profile=f'''config_description=private trace A500 PAL\nuse_gui=no\nkickstart_rom_file={rom}\ncpu_model=68000\ncpu_speed=real\ncpu_compatible=true\ncpu_24bit_addressing=true\ncpu_cycle_exact=true\ncpu_memory_cycle_exact=true\nblitter_cycle_exact=true\nchipset=ocs\nchipmem_size=1\nbogomem_size=2\nfastmem_size=0\nntsc=false\ncachesize=0\nsound_output=interrupts\nfloppy0={run/'disk1.adf'}\nfloppy1={run/'disk2.adf'}\nfloppy0wp=true\nfloppy1wp=true\nfloppy0type=0\nfloppy1type=0\nnr_floppies=2\nfloppy_speed={floppy_speed}\nfloppy_write_protect=true\nheadless=true\ngfx_api=directdraw\ngfx_fullscreen_amiga=false\ngfx_width_windowed=640\ngfx_height_windowed=512\ngfx_framerate=1\nwin32.start_minimized=yes\nwin32.inactive_pause=false\nwin32.minimized_pause=false\nwin32.inactive_input=0\nwin32.minimized_input=0\nwin32.rom_path={run}\nwin32.floppy_path={run}\nwin32.savestate_path={run}\nwin32.screenshot_path={run}\nrtc=none\n'''
  # Screenshots need rendering: TALES_TRACE_RENDER=1 drops headless; gfx_api
  # stays directdraw (GDI, CPU only), so the GPU is still not used.
  if os.environ.get('TALES_TRACE_RENDER')=='1':profile=profile.replace('headless=true\n','')
