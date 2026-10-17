@@ -297,3 +297,20 @@ def test_publish_skips_a_manifest_already_in_the_ledger_and_rejects_partial(tmp_
     ledger.write_text(json.dumps({'data_providers': {'a': {}}}))
     with pytest.raises(FormatError, match='partially published'):
         promote.published(entry, manifest)
+
+
+def test_several_data_manifests_share_one_publisher_run_and_one_refresh(tmp_path):
+    import promote
+    manifests = [tmp_path / ('m%d.json' % i) for i in range(3)]
+    for m in manifests: m.write_text('[]')
+    calls = []
+    def run(argv, *a, **k):
+        calls.append(argv)
+        return SimpleNamespace(returncode=0)
+    with patch.object(promote.subprocess, 'run', side_effect=run):
+        assert promote.main(['data'] + [str(m) for m in manifests]) == 0
+    publisher, refreshes = calls[0], calls[1:]
+    assert Path(publisher[1]).name == 'promote_data.py'
+    assert [a for a in publisher if a.endswith('.json')] == [str(m) for m in manifests]
+    assert publisher.count('--manifest') == 3
+    assert [Path(c[1]).name for c in refreshes] == ['type_evidence.py', 'census.py', 'hybrid_image.py']

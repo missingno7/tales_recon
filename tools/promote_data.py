@@ -83,9 +83,10 @@ def stage_entries(root,blob,model,analysis,ledger,promotions,path):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--manifest',default='evidence/data-providers/batch.json')
+    ap.add_argument('--manifest',action='append',help='batch manifest; repeat to publish several under one gate')
     ap.add_argument('--verify-only',action='store_true')
-    args=ap.parse_args();canonical_path(ROOT,args.manifest)
+    args=ap.parse_args();manifests=args.manifest or ['evidence/data-providers/batch.json']
+    for path in manifests:canonical_path(ROOT,path)
     ledger_path=ROOT/'recovery/ledger.json'
     with (isolated_verification(ROOT) if args.verify_only else snapshot()), (nullcontext() if args.verify_only else ledger_lock(ledger_path)):
         before=sha256(ledger_path.read_bytes());ledger=document(ROOT,'recovery/ledger.json')
@@ -94,15 +95,24 @@ def main():
         with validated_stage(ROOT,True),validated_stage(ROOT,False):
             blob,model,_=game();analysis=document(ROOT,'evidence/functions/ledger.json')
             promotions=load_promotions(ROOT,blob,model,analysis)
-            rows=stage_entries(ROOT,blob,model,analysis,ledger,promotions,args.manifest)
+            rows=[row for path in manifests for row in stage_entries(ROOT,blob,model,analysis,ledger,promotions,path)]
+            # Each manifest is checked against the ledger; across manifests the new rows
+            # must not overlap each other either.
+            seen=set()
+            for row in rows:
+                points={(c['hunk'],p) for c in contributions([row['proof']['comparison']]) for p in range(c['start'],c['end'])}
+                require(not(points&seen),'overlapping providers across manifests: '+row['fact']['id']);seen|=points
         if args.verify_only:
             print('EQUAL_CANDIDATE DATA providers='+str(len(rows))+' initialized_bytes='+str(sum(r['fact']['original']['size'] for r in rows)));return
         # The same host regression gate as every other promotion route, run here
         # under the ledger lock; never an operator-supplied log.
-        inputs=validation_inputs(ROOT,args.manifest)
+        def all_inputs():
+            each=[validation_inputs(ROOT,path) for path in manifests]
+            return each[0] if len(each)==1 else each
+        inputs=all_inputs()
         regression=regression_receipt()
         require(regression.get('passed') is True,'promotion requires a passing regression receipt')
-        require(validation_inputs(ROOT,args.manifest)==inputs,'validation inputs changed during regression; reverify the batch')
+        require(all_inputs()==inputs,'validation inputs changed during regression; reverify the batch')
         regression=dict(regression,batch_members=[r['fact']['id'] for r in rows],batch_inputs_sha256=sha256(json_bytes(inputs)))
         artifacts={};updated=canonical_state(ledger)
         for row in rows:

@@ -29,7 +29,9 @@ def dispatch(name, manifest, verify_only=False):
     elif entry.name in ('asm', 'code_data'):
         args = ['--manifest', str(manifest), mode]
     elif entry.name == 'data':
-        args = ['--manifest', str(manifest)] + (['--verify-only'] if verify_only else [])
+        # Several DATA manifests share one publisher run: one gate, one publish.
+        args = [a for m in (manifest if isinstance(manifest, list) else [manifest]) for a in ('--manifest', str(m))]
+        args += ['--verify-only'] if verify_only else []
     elif entry.name == 'behavioral':
         if verify_only:
             import behavioral
@@ -71,6 +73,16 @@ def main(argv=None):
     parser.add_argument('--verify-only', action='store_true')
     args = parser.parse_args(argv)
     entry = proof_class(args.proof_class)
+    if entry.name == 'data':
+        # One publisher run for all pending DATA manifests: the regression gate and
+        # the evidence refresh run once per call, not once per manifest.
+        pending = [m for m in args.manifests if args.verify_only or not published(entry, m)]
+        for skipped in sorted(set(args.manifests) - set(pending)):
+            print('SKIP (already published): ' + skipped)
+        if not pending:
+            return 0
+        code = dispatch(args.proof_class, pending, args.verify_only)
+        return refresh() if code == 0 and not args.verify_only else code
     for manifest in args.manifests:
         # Resumable: a manifest already in the ledger is skipped, so the same
         # command continues after an interruption instead of failing.
