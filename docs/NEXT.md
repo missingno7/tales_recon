@@ -59,6 +59,25 @@ are now recovered.
 | Root JMP-slot table 0000..0320 in DATA | 800 | C | linker-generated; stays raw |
 | BSS layout | 34,092 | A | types come from the data model; no initializers to recover |
 
+**Milestone (2026-10-17): the from-source build reaches the title screen.**
+`python tools/game_build.py --build` compiles every accepted source with the
+pinned Aztec 3.6a tools (vamos, parallel; float TUs batched into one headless
+WinUAE job), links with `ln` and matches the original topology (16 hunks, 13
+overlays, CHIP flags, root JMP slots). `python tools/game_boot.py run` boots it
+deterministically (emulated frames from power-on) and records CPU faults from
+WinUAE's console; `--original` gives the baseline. The build shows the title
+screen at the same point as the original and runs the same functions per frame
+range (loading: 46CE/404A/50E8/559E/411E; title loop: 4376/4F62, Paula IRQs).
+It is not stub-free yet (`game_build.py --report`): BSS is zero-filled
+reservations per storage-plan object, raw DATA gaps are zero placeholders that
+keep the original layout, 463E uses its best candidate, and 2B4A/2BFE are zero
+cells. Faults found and fixed on the way, all layout dependencies: MemHeader
+fields allocated apart (pool empty), callback tables still raw (NULL jumps), a
+byte alias of an int provider stubbed, one numeric A4 displacement in 617C,
+and the sample-pointer array split around raw cells (a write into audio code).
+Next: play-through traces (input scripts past the title) against the original,
+then replace the remaining stand-ins.
+
 **Completeness test (user decision 2026-10-16): link and run.** The oracle is
 complete when everything under `src/` compiles with the pinned Aztec `cc`/`as`,
 links with its `ln` (Manx overlay tree, original c.lib/m.lib) into a program,

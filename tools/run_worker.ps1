@@ -31,7 +31,7 @@ $workerProcess = $null
 try {
     # Headless, non-GPU display (2026-10-17): applied as command-line overrides so the
     # job's worker.uae, and every recipe and receipt that pins it, stay byte-identical.
-    $workerProcess = Start-Process -FilePath $request.emulator -ArgumentList @('-f', "`"$(Join-Path $jobPath 'worker.uae')`"", '-s', 'headless=true', '-s', 'gfx_api=directdraw') -WorkingDirectory $jobPath -WindowStyle Hidden -PassThru
+    $workerProcess = Start-Process -FilePath $request.emulator -ArgumentList @('-f', "`"$(Join-Path $jobPath 'worker.uae')`"", '-s', 'headless=true', '-s', 'gfx_api=directdraw', '-datapath', "`"$jobPath`"", '-log') -WorkingDirectory $jobPath -WindowStyle Hidden -PassThru
     $workerProcess.Id | Set-Content -LiteralPath (Join-Path $jobPath 'worker.pid')
     $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
     while (-not (Test-Path -LiteralPath $donePath)) {

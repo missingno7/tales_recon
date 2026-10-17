@@ -316,6 +316,106 @@ def topology_report(image_path):
         linked=current,original=prior,topology_match=match,
         note='Root JMP slot differences can come from normally extracted runtime library entries; no post-link patching was applied.')
 
+def data_symbol_offsets(map_path):
+    """Hunk-1 (DATA) symbol offsets from an ln map."""
+    offsets, current = {}, None
+    for line in Path(map_path).read_text(encoding='utf-8', errors='replace').splitlines():
+        heading = re.match(r'Segment\s+\d+:\s+Hunk\s+(\d+)', line)
+        if heading:
+            current = int(heading.group(1)); continue
+        m = re.match(r'\s*([0-9a-fA-F]{8})\s+(\S+)', line)
+        if current == 1 and m:
+            offsets[m.group(2)] = int(m.group(1), 16)
+    return offsets
+
+
+def link_with_original_data_layout(guest, stage, link, data_manifest, passes=3):
+    """Link, then lay initialized DATA out at the ORIGINAL relative offsets.
+
+    Accepted DATA providers are separate objects, so raw (unadmitted) spans
+    between them collapsed and arrays spanning a gap shifted (G_h01_27E4[48]
+    read another object's pointer and the build wrote into audio code). Each
+    pass measures every provider's drift in the map and inserts zero-filled,
+    labelled LINK_ONLY gap modules before providers whose drift changed. ln
+    rounds module data to even sizes, so a 1-byte residue can remain where the
+    original packed odd objects back to back; it is reported, not hidden.
+    Returns the residual drift steps (empty when every provider is placed exactly)."""
+    import vamos_backend as vb
+    ledger = read_json(LEDGER_PATH).get('data_providers', {})
+    anchors = []  # (original DATA offset, linked symbol, provider object)
+    for row in data_manifest:
+        fact = read_json(ROOT / ledger[row['id']]['fact'])
+        definition = min((d for d in fact.get('definitions', []) if d.get('symbol')),
+                         key=lambda d: d.get('offset', 0), default=None)
+        if definition is None:
+            continue
+        anchors.append((fact['original']['start'] + definition.get('offset', 0),
+                        '_' + definition['symbol'].lstrip('_'), row['object']))
+    anchors.sort()
+    guest_cmd, link_args = vb.link_guest_command(link)
+    gaps = {}
+    lnk = guest / 'link.lnk'
+    base_lines = lnk.read_text(encoding='ascii').splitlines()
+    residual = None
+    for _ in range(passes):
+        lines = []
+        for line in base_lines:
+            if line in gaps:
+                lines.append('LINK_ONLY_STUBS/gap_%s.o' % line[:-2])
+            lines.append(line)
+        lnk.write_text('\n'.join(lines) + '\n', encoding='ascii', newline='\n')
+        sysroot = stage / 'vamos-sys' / 'link'; sysroot.mkdir(parents=True, exist_ok=True)
+        vb._run_guest(vb._runtime()[0], sysroot, vb.toolchain_root(), guest, guest_cmd, link_args,
+                      guest / 'link-ln.log', timeout=1800)
+        placed = data_symbol_offsets(guest / 'DuckTales.sym')
+        rows = [(o, placed[s] - o, obj) for o, s, obj in anchors if s in placed]
+        if not rows:
+            return 'no provider symbols in map'
+        steps = [(rows[i][2], rows[i-1][1] - rows[i][1]) for i in range(1, len(rows)) if rows[i][1] != rows[i-1][1]]
+        residual = [(obj, need) for obj, need in steps if need <= 0 or need % 2]
+        fixable = [(obj, need - (need % 2)) for obj, need in steps if need > 0 and need - (need % 2) > 0]
+        if not fixable:
+            break
+        for obj, size in fixable:
+            gaps[obj] = gaps.get(obj, 0) + size
+            name = 'gap_' + obj[:-2]
+            source = guest / 'LINK_ONLY_STUBS' / (name + '.asm')
+            source.write_text('; LINK_ONLY_STUBS: zero placeholder for raw DATA before %s (%d bytes);\n'
+                              '; keeps the original relative DATA layout. NOT recovered data.\n'
+                              '\tdseg\n\tds.b %d\n\tend\n' % (obj, gaps[obj], gaps[obj]), encoding='ascii', newline='\n')
+            vb._run_guest(vb._runtime()[0], sysroot, vb.toolchain_root(), guest, 'Old1:bin/as',
+                          ['-o', 'LINK_ONLY_STUBS/%s.o' % name, 'LINK_ONLY_STUBS/%s.asm' % name],
+                          guest / 'LINK_ONLY_STUBS' / (name + '-as.log'), timeout=120)
+    return [(obj, need) for obj, need in (residual or [])][:20]
+
+
+A4_BIAS = 0x7FFE  # Manx small data: A4 = DATA hunk origin + 32766
+
+
+def symbolize_a4_displacements(text, address_symbols, objname):
+    """Staged assembly only: a numeric `-$2c5c(a4)` names a DATA address of the
+    ORIGINAL layout (A4 - $2C5C = DATA+$53A2 = G_h01_53A2). Rewrite it to that
+    symbol so the linker resolves it for this build's layout. The module must be
+    `far data` (absolute data references); accepted sources stay unchanged."""
+    pattern = re.compile(r'(-?)\$([0-9A-Fa-f]+)\(a4\)')
+    found = pattern.findall(text)
+    if not found:
+        return text
+    if not re.search(r'^\s*far\s+data\b', text, re.M):
+        raise SystemExit('numeric A4 displacement outside a far-data module: ' + objname)
+    def replace(m):
+        displacement = int(m.group(2), 16) * (-1 if m.group(1) else 1)
+        address = A4_BIAS + displacement
+        symbol = address_symbols.get(address)
+        if not symbol:
+            raise SystemExit('no symbol for A4 displacement %s in %s (DATA+%04X)' % (m.group(0), objname, address))
+        return '_' + symbol
+    text = pattern.sub(replace, text)
+    names = sorted({'_' + address_symbols[A4_BIAS + int(h, 16) * (-1 if s else 1)] for s, h in found})
+    header = ''.join('\tpublic %s\n' % n for n in names)
+    return re.sub(r'^(\s*far\s+data\s*\n)', lambda m: m.group(1) + header, text, count=1, flags=re.M)
+
+
 def command_groups(commands):
     """Split the staged command list into independent cc+as pairs / lone as steps,
     plus the final link."""
@@ -324,7 +424,7 @@ def command_groups(commands):
     body, link = tool[:-1], tool[-1]
     groups, i = [], 0
     while i < len(body):
-        if '/bin/cc ' in body[i]:
+        if 'bin/cc ' in body[i]:
             groups.append(body[i:i+2]); i += 2
         else:
             groups.append([body[i]]); i += 1
@@ -348,7 +448,7 @@ def run_vamos_build(commands, guest, stage, workers=None):
     groups, link = command_groups(commands)
     def source_of(group):
         tokens = group[0].split()
-        return guest / tokens[-1] if '/bin/cc ' in group[0] else None
+        return guest / tokens[-1] if 'bin/cc ' in group[0] else None
     winuae = [g for g in groups if source_of(g) is not None and source_of(g).is_file()
               and vb.has_float_type(source_of(g).read_text(encoding='latin-1'))]
     # Setup steps (e.g. lb extracting crt0 from c.lib) share the work directory
@@ -409,6 +509,8 @@ def main():
     from data_model import derive_storage_plan
     storage_plan = derive_storage_plan(read_json(ROOT/'recovery/storage_curation.json'), ROOT)
     storage_aliases = storage_plan.get('derived',{}).get('aliases',{})
+    # DATA-hunk address -> mechanical name (resident h01 names encode their offset).
+    address_symbols = {int(n[6:], 16): n for n in storage_aliases if re.fullmatch(r'G_h01_[0-9A-F]{4}', n)}
     storage_plan_sha256 = sha(json.dumps(storage_plan, sort_keys=True, default=str).encode('utf-8'))
     git = subprocess.run(['git','-c','safe.directory='+ROOT.as_posix(),'rev-parse','HEAD'], cwd=ROOT, capture_output=True, text=True, check=True)
     head = git.stdout.strip()
@@ -869,6 +971,8 @@ def main():
             for sym, (target, addend, kind, status) in sorted(ref_map.items(), key=lambda kv: -len(kv[0])):
                 if addend: continue
                 if sym != target: text = token_replace(text, sym, target)
+        if is_asm:
+            text = symbolize_a4_displacements(text, address_symbols, objname)
         relsrc = Path('tu')/(Path(objname).stem + ('.asm' if is_asm else '.c'))
         dst = GUEST/relsrc; dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(text, encoding='ascii', newline='\n')
@@ -1275,15 +1379,12 @@ def main():
                     dest=GUEST/artifact['path']; dest.parent.mkdir(parents=True,exist_ok=True)
                     shutil.copy2(job/'sys/work'/artifact['path'],dest)
         import vamos_backend as vb
-        guest_cmd,link_args=vb.link_guest_command(link)
         started=time.perf_counter()
-        (STAGE/'vamos-sys'/'link').mkdir(parents=True,exist_ok=True)
         try:
-            vb._run_guest(vb._runtime()[0],STAGE/'vamos-sys'/'link',vb.toolchain_root(),GUEST,guest_cmd,link_args,
-                          GUEST/'link-ln.log',timeout=1800)
+            residual=link_with_original_data_layout(GUEST,STAGE,link,data_manifest)
         except Exception as exc:
             print('LINK FAILED:',exc); print((GUEST/'link-ln.log').read_text(errors='replace')[-3000:]); return 2
-        print('vamos link: %.1fs'%(time.perf_counter()-started))
+        print('vamos link (with DATA layout alignment): %.1fs; residual DATA drift: %s'%(time.perf_counter()-started,residual))
         # The per-group private work trees are scratch; outputs were copied back.
         shutil.rmtree(STAGE/'vamos-sys',ignore_errors=True)
         exe=GUEST/'DuckTales'

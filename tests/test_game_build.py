@@ -96,3 +96,25 @@ class GameBuildPureTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+def test_command_groups_pair_each_compile_with_its_assembly_step():
+    import game_build
+    commands = ['C:FailAt 1000000',
+                'Old2:bin/lb Old1:lib/c.lib -x crt0 >crt0-extract.log',
+                'Old1:bin/cc <compiler-input.txt >a-cc.log -a tu/a.c',
+                'Old1:bin/as <compiler-input.txt >a-as.log -o a.o tu/a.asm',
+                'Old1:bin/as <compiler-input.txt >b-as.log -o b.o b.asm',
+                'Old1:bin/ln <compiler-input.txt >link-ln.log -m -t -o DuckTales -f link.lnk']
+    groups, link = game_build.command_groups(commands)
+    assert link.startswith('Old1:bin/ln')
+    assert [len(g) for g in groups] == [1, 2, 1]
+    assert groups[1][0].endswith('tu/a.c') and groups[1][1].endswith('tu/a.asm')
+
+
+def test_numeric_a4_displacement_is_rewritten_to_the_original_layout_symbol():
+    import game_build
+    source = '\tfar data\n\tdseg\n\tcseg\n_x\n\tlea.l -$2c5c(a4),a1\n\trts\n\tend\n'
+    out = game_build.symbolize_a4_displacements(source, {0x53A2: 'G_h01_53A2'}, 'obj')
+    assert 'lea.l _G_h01_53A2,a1' in out and '\tpublic _G_h01_53A2\n' in out
+    assert '(a4)' not in out

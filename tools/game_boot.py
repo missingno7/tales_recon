@@ -164,12 +164,49 @@ def prepare():
     print(json.dumps(prepared, indent=2), flush=True)
 
 
+# Kickstart 1.3 (the pinned ROM) exception entry points for bus error, address
+# error and illegal instruction; read from the vector table of a booted image.
+EXCEPTION_HANDLERS = {0xFC0818: 'bus error', 0xFC081A: 'address error', 0xFC081C: 'illegal instruction'}
+CPU_EVENT = re.compile(r'(Illegal instruction: [0-9A-Fa-f]+ at [0-9A-Fa-f]+ -> [0-9A-Fa-f]+|Exception \d+[^\r\n]*|Address error[^\r\n]*|Bus error[^\r\n]*)')
+ARM_EXCEPTIONS_AT = 760  # emulated frames: after Kickstart/DOS boot, before the game loads (~frame 800)
+
+
+def exception_report(emu, state, model):
+    """At an exception handler: the exception frame (SR, faulting PC) on the
+    supervisor stack, registers and the user stack, symbolized where possible."""
+    regs = emu.cmd('r')
+    isp = re.search(r'ISP\s+([0-9A-Fa-f]{8})', regs)
+    usp = re.search(r'USP\s+([0-9A-Fa-f]{8})', regs)
+    report = dict(kind=EXCEPTION_HANDLERS[state['pc']], registers=regs[-1200:])
+    words = []
+    if isp:
+        dump = emu.cmd('m %s 2' % isp.group(1))
+        for line in dump.splitlines():
+            m = re.match(r'([0-9A-Fa-f]{8})((?:\s+[0-9A-Fa-f]{4}){8})', line.strip())
+            if m:
+                words += m.group(2).split()
+    if len(words) >= 3:
+        # 68000 group 2 frame: SR, PC; bus/address errors push 4 more words first.
+        start = 4 if report['kind'] != 'illegal instruction' else 0
+        report['sr'] = words[start]
+        report['pc'] = int(words[start+1] + words[start+2], 16)
+        report['supervisor_words'] = words[:16]
+        report['code_at_pc'] = emu.cmd('d %X 6' % max(0, report['pc'] - 8))[-900:]
+    if usp:
+        report['user_stack'] = emu.cmd('m %s 4' % usp.group(1))[-900:]
+    return report
+
+
 def boot_frame(emu):
     """Advance one emulated frame by raster (line 1, then line 0) and record
     where the CPU stopped. Unlike checkpoint traces, a cold boot has no game
     VBlank server to sync on, and interrupt work may delay the stop past line 0."""
     a = emu.cmd('fs 1'); b = emu.cmd('fs 0 0')
-    return trace.cpu(b)
+    state = trace.cpu(b)
+    # WinUAE reports CPU faults in its console as they happen; keep those lines.
+    # (Debugger breakpoints combined with frame stepping stall its console.)
+    state['cpu_events'] = CPU_EVENT.findall(a + b)
+    return state
 
 
 def final_state(emu, model, root_base, words=32):
@@ -252,6 +289,8 @@ def boot():
         emu.start()
         time.sleep(2)
         initial = emu.enter()
+        # Exception breakpoints are armed after Kickstart has booted (its CPU-type
+        # probe executes an illegal MOVEC at reset), so the first hit is the program's.
         root_base = None  # nothing is loaded at power-on; mapped at the end
         outcome['initial_pc'] = trace.cpu(initial)['pc'] if re.search(r'VPOS:', initial) else None
         for frame_number in range(FRAMES):
@@ -263,6 +302,11 @@ def boot():
                 emu.cmd('I evt SPC_SCREENSHOT 0')
             try:
                 state = boot_frame(emu)
+                if state.get('cpu_events') and frame_number >= ARM_EXCEPTIONS_AT:
+                    outcome['exception'] = dict(frame=frame_number, events=state['cpu_events'],
+                                                final=final_state(emu, model, None))
+                    outcome['frames_completed'] = frame_number
+                    break
             except Exception as exc:
                 snapshot = emu.snap(2000)[1]
                 pc = None
