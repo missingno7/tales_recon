@@ -93,13 +93,29 @@ user's original executable (like the disk assets), from an explicit list, never
 embedded in source. Amiga-only reproduction details (JMP slots, link padding,
 c.lib data) get no further effort unless a trace shows they change behavior.
 
-Play-through traces: `game_boot.py run --input evidence/trace/title-to-money-bin.json
---input-offset 2100 --dump-from 2000 --dump-every 25` (add `--original` for the
-baseline), then `game_compare.py ORIG BUILD --shift N`, where N aligns the game
-tick G_h01_B1EC (the build currently runs 3 frames behind). First finding: the
-build follows the original to the office scene, then hangs in ov13_F_02BE
-waiting for sound 0x21 to finish, because the H1 audio score records are still
-raw (zero placeholders).
+Method (user direction 2026-10-17): find behavior differences at their source,
+not by replaying. `python tools/game_diff.py` (about 1 s, no emulator) compares the
+linked build with the original byte for byte: every original hunk offset maps to
+the build through offset-encoding link-map names, runtime aliases and CODE-data
+provider parts; relocations, small-data (A4) references, jump-slot calls and
+PC-relative branches count as consistent when they reach corresponding targets,
+and each remaining DIFFERENT byte is attributed to its accounting category. At
+119654f: 3,930 bytes differ - 2,156 raw unrecovered bytes (sound record pointers,
+pointer and callback tables, audio values, small code fragments: the behavior
+source), 1,054 c.lib version differences, 380 in the superseded compact selector,
+308 in runtime-alias boundaries. `build/workers/sol-raw-data/targets.json` lists
+the 97 raw ranges whose original bytes are nonzero.
+
+Play-through traces confirm a fix: `game_boot.py run --turbo-floppy --input
+evidence/trace/title-to-money-bin.json --input-offset 2100 --dump-from 500
+--dump-every 25` (add `--original` for the baseline), then `game_compare.py ORIG
+BUILD --shift N`, N aligning the game tick G_h01_B1EC. WinUAE replays are
+deterministic (two original runs are byte-identical); turbo floppy removes load
+times that depend on where files sit on the disk, which otherwise shift the build
+by hundreds of frames when a short scripted press is missed. The build now plays
+the whole script (office, Money Bin, contest screen); earlier hangs and crashes
+came from the compacted CODE-data selector and from one-byte DATA cells padded
+apart by ln, both fixed in the build materialization.
 
 **Completeness test (user decision 2026-10-16): link and run.** The oracle is
 complete when everything under `src/` compiles with the pinned Aztec `cc`/`as`,
