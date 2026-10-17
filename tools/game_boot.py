@@ -212,8 +212,12 @@ def state_dump(emu, executable, model, frame_number):
     """Append the program's DATA hunk (initialized data and its BSS tail) to
     state.bin and index it; the hunk base is located once in memory."""
     if not _DUMP.get('base'):
-        # Retried until the program is loaded: a dump before that finds no hunk.
-        mapping = harness.locate(emu.memory(), executable, model, harness.signatures(executable, model))
+        # Retried until the program is loaded: before that no hunk is found, and while
+        # it loads a DOS buffer can hold a second copy (ambiguous or partial match).
+        try:
+            mapping = harness.locate(emu.memory(), executable, model, harness.signatures(executable, model))
+        except (AssertionError, ValueError, KeyError):
+            return
         resident = mapping.get('resident') or {}
         _DUMP['base'] = resident.get(1, resident.get('1'))
         _DUMP['size'] = model['hunks'][1]['allocated_size']
@@ -226,6 +230,60 @@ def state_dump(emu, executable, model, frame_number):
         offset = out.tell(); out.write(raw)
     with open(RUN / 'state-index.jsonl', 'a', encoding='utf-8') as index:
         index.write(json.dumps(dict(frame=frame_number, offset=offset, size=len(raw))) + '\n')
+
+
+RNG_STATE_OFFSET = 0x3AB8  # G_h01_3AB8: the game's 16-bit LFSR state (resident_F_463E)
+
+
+def lfsr_step(x):
+    """resident_F_463E: t = x + 0x9248; x = (t >> 3) ^ (t << 13), 16 bits."""
+    t = (x + 0x9248) & 0xFFFF
+    return ((t >> 3) ^ (t << 13)) & 0xFFFF
+
+
+def is_reseed(previous, value, limit=256):
+    """A change of the LFSR state that no run of LFSR steps explains is a reseed
+    (resident_F_4676 stores VPOSR + tick: randomness drawn from beam timing)."""
+    if previous is None or value == previous:
+        return False
+    x = previous
+    for _ in range(limit):
+        x = lfsr_step(x)
+        if x == value:
+            return False
+    return True
+
+
+class RngPin:
+    """--rng-record logs every reseed of the game's RNG; --rng-pin RUN writes the
+    k-th seed recorded in RUN at the k-th reseed. The original seeds from the
+    video beam position, so a build that is not cycle-identical draws different
+    random outcomes; pinning the seed separates that from logic differences."""
+
+    def __init__(self, offset, pinned=None):
+        self.offset, self.pinned, self.previous, self.events = offset, pinned, None, []
+
+    def after_frame(self, emu, frame_number):
+        base = _DUMP.get('base')
+        if not base:
+            return
+        lines = [l for l in emu.cmd('m %X 1' % (base + self.offset)).splitlines()
+                 if re.match(r'\s*[0-9A-Fa-f]{8} [0-9A-Fa-f]{4}', l)]
+        if not lines:
+            return
+        value = int(lines[-1].split()[1], 16)
+        if is_reseed(self.previous, value):
+            event = dict(index=len(self.events), frame=frame_number, value=value, previous=self.previous)
+            if self.pinned is not None and event['index'] < len(self.pinned):
+                pinned = self.pinned[event['index']]['value']
+                emu.cmd('W %X %02X %02X' % (base + self.offset, pinned >> 8, pinned & 0xFF))
+                event['pinned'] = value = pinned
+            self.events.append(event)
+            (RUN / 'rng-reseeds.json').write_text(json.dumps(dict(events=self.events), indent=1) + '\n', encoding='utf-8')
+        self.previous = value
+
+
+RNG = None
 
 
 def boot_frame(emu):
@@ -333,6 +391,8 @@ def boot():
                 emu.cmd('I evt SPC_SCREENSHOT 0')
             try:
                 state = boot_frame(emu)
+                if RNG is not None:
+                    RNG.after_frame(emu, frame_number)
                 if state.get('cpu_events') and frame_number >= ARM_EXCEPTIONS_AT:
                     outcome['exception'] = dict(frame=frame_number, events=state['cpu_events'],
                                                 final=final_state(emu, model, None))
@@ -409,9 +469,21 @@ if __name__ == '__main__':
     parser.add_argument('--dump-every', type=int, default=0, help='dump interval in frames (0: no dumps)')
     parser.add_argument('--turbo-floppy', action='store_true',
                         help='WinUAE turbo floppy: load times stop depending on where files sit on disk')
+    parser.add_argument('--rng-record', action='store_true',
+                        help='log every reseed of the game RNG (rng-reseeds.json); needs state dumps')
+    parser.add_argument('--rng-pin', metavar='RUN',
+                        help='write the seeds recorded by RUN at the same reseeds (needs state dumps)')
     args = parser.parse_args()
     INPUT = args.input; INPUT_OFFSET = args.input_offset; DUMP_FROM = args.dump_from; DUMP_EVERY = args.dump_every
     GAME_DIR = args.game_dir.resolve(); RUN = ROOT / 'build' / 'trace' / args.run_name; FRAMES = args.frames
     ORIGINAL = args.original; FLOPPY_SPEED = 0 if args.turbo_floppy else 100
+    if args.rng_record or args.rng_pin:
+        if not DUMP_EVERY or DUMP_FROM is None:
+            parser.error('--rng-record/--rng-pin need --dump-from and --dump-every (the DATA hunk is located there)')
+        from game_compare import map_offsets
+        offset = RNG_STATE_OFFSET if ORIGINAL else map_offsets(GAME_DIR / 'DuckTales.sym', 0)['_G_h01_%04X' % RNG_STATE_OFFSET]
+        pinned = (json.loads((ROOT / 'build' / 'trace' / args.rng_pin / 'rng-reseeds.json').read_text())['events']
+                  if args.rng_pin else None)
+        RNG = RngPin(offset, pinned)
     if args.action in ('prepare','run'): prepare()
     if args.action in ('boot','run'): boot()

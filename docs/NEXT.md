@@ -106,6 +106,20 @@ source), 1,054 c.lib version differences, 380 in the superseded compact selector
 308 in runtime-alias boundaries. `build/workers/sol-raw-data/targets.json` lists
 the 97 raw ranges whose original bytes are nonzero.
 
+Behavior finding (2026-10-18, title-to-money-bin script, turbo floppy): the build's
+state sequence equals the original's (same resource loads in the same order, same
+RNG states) until the game reseeds its LFSR (G_h01_3AB8) from VPOSR + tick
+(resident_F_4676, around the difficulty choice). The build is not cycle-identical, so
+the beam position - and every random outcome after it - differs (seed 0x8AA0 vs
+0x8AA7). With the reseed pinned to the original's value (`--rng-record` on the
+original, `--rng-pin RUN` on the build) all companies, locations, treasures and map
+links (pointers by target) equal the original at frames 4000/6000/8000; the remaining
+listed differences are fast-changing state sampled at another phase (animation
+frames, audio interrupt countdowns) and absolute pointers. Seeding the remaining
+raw DATA from the original (a harness-only experiment) changed nothing on this
+script, so it is not read there. Use `game_compare.py ORIG BUILD --sequences` for
+the timing-free comparison.
+
 Play-through traces confirm a fix: `game_boot.py run --turbo-floppy --input
 evidence/trace/title-to-money-bin.json --input-offset 2100 --dump-from 500
 --dump-every 25` (add `--original` for the baseline), then `game_compare.py ORIG
