@@ -54,10 +54,10 @@ class Context:
         return self.rows['functions']
 
 
-def _load(root, ctx, module, function, ledger):
+def _load(root, ctx, module, function, ledger, only=None):
     method = getattr(importlib.import_module(module), function)
     if module == 'data_providers':
-        return method(root, ctx.blob, ctx.model, ctx.analysis, ledger, ctx.promoted)
+        return method(root, ctx.blob, ctx.model, ctx.analysis, ledger, ctx.promoted, only=only)
     if module in ('resident_mixed',):
         return method(root, ctx.blob, ctx.model, ctx.analysis, ctx.promoted, ledger)
     return method(root, ctx.blob, ctx.model, ctx.analysis, ledger)
@@ -103,6 +103,9 @@ class ProofClass:
             def replay():
                 # Mixed/complete C validators deliberately validate their
                 # complete admission set, including staged diagnostic rows.
+                if self.name == 'data':
+                    # Full ledger: provider evidence may read a neighbour's fact.
+                    return _load(root, ctx, module, function, ctx.ledger, only=ident)
                 ledger = ctx.ledger if self.name in ('mixed', 'dead_code') else dict(
                     ctx.ledger, **{self.ledger_map: {ident: ctx.ledger[self.ledger_map][ident]}})
                 rows = _load(root, ctx, module, function, ledger)

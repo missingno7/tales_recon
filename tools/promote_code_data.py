@@ -42,7 +42,8 @@ def main():
     mode.add_argument('--verify-only',action='store_true');mode.add_argument('--promote',action='store_true')
     args=ap.parse_args();require(args.manifest in (measured.MANIFEST,region.MANIFEST,stateful.MANIFEST),'unsupported CODE-data batch')
     backend=stateful if args.manifest==stateful.MANIFEST else region if args.manifest==region.MANIFEST else measured
-    from analysis_support import ROOT,game
+    from analysis_support import ROOT
+    from game_image import game
     from evidence_snapshot import snapshot,Snapshot
     from check_function import regression_receipt
     root=ROOT;path=root/'recovery/ledger.json'

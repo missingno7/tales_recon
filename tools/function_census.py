@@ -434,6 +434,14 @@ def build():
     return report
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser(description=__doc__);ap.parse_args()
-    report=build();write_json(ROOT/'evidence/functions/ledger.json',report)
+    ap=argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--check',action='store_true',help='re-derive and compare; analysis_identity is provenance only')
+    args=ap.parse_args();report=build()
+    if args.check:
+        import json
+        current=json.loads((ROOT/'evidence/functions/ledger.json').read_text())
+        strip=lambda d:{k:v for k,v in d.items() if k!='analysis_identity'}
+        require(strip(json.loads(json.dumps(report)))==strip(current),'function census is stale: run tools/function_census.py')
+        print('function census current');raise SystemExit(0)
+    write_json(ROOT/'evidence/functions/ledger.json',report)
     print(json.dumps(report['summary']))

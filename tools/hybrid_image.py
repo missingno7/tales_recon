@@ -12,7 +12,8 @@ import sys
 from pathlib import Path
 from collections import Counter
 
-from analysis_support import ROOT, game
+from analysis_support import ROOT
+from game_image import game
 from common import FormatError, require, sha256, write_json
 from hunk import parse, manx_overlay
 from recovery_evidence import load_promotions,load_terminal_padding

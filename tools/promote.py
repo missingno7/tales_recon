@@ -66,19 +66,46 @@ def dispatch(name, manifest, verify_only=False):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('proof_class', metavar='CLASS', help=', '.join(c.name for c in REGISTRY))
-    parser.add_argument('manifest', metavar='MANIFEST')
+    parser.add_argument('manifests', metavar='MANIFEST', nargs='+',
+                        help='one or more batch manifests, published in order')
     parser.add_argument('--verify-only', action='store_true')
     args = parser.parse_args(argv)
-    code = dispatch(args.proof_class, args.manifest, args.verify_only)
-    if code == 0 and not args.verify_only:
-        code = refresh()
-    return code
+    entry = proof_class(args.proof_class)
+    for manifest in args.manifests:
+        # Resumable: a manifest already in the ledger is skipped, so the same
+        # command continues after an interruption instead of failing.
+        if not args.verify_only and published(entry, manifest):
+            print('SKIP (already published): ' + manifest)
+            continue
+        code = dispatch(args.proof_class, manifest, args.verify_only)
+        if code == 0 and not args.verify_only:
+            code = refresh()
+        if code:
+            return code
+    return 0
+
+
+def published(entry, manifest):
+    """True when every member of a fact-list manifest is in the ledger.
+
+    Only fact-list manifests (DATA, ASM, CODE data) are recognized; a partially
+    published manifest is an error, never a silent skip."""
+    document = json.loads(Path(manifest).read_bytes())
+    facts = document.get('facts') if isinstance(document, dict) else None
+    if not isinstance(facts, list) or not facts:
+        return False
+    ids = [json.loads((ROOT / name).read_bytes())['id'] for name in facts]
+    ledger = json.loads((ROOT / 'recovery/ledger.json').read_bytes()).get(entry.ledger_map, {})
+    present = [i in ledger for i in ids]
+    require(all(present) or not any(present),
+            'manifest is partially published: ' + str(manifest) + '; inspect the ledger before retrying')
+    return all(present)
 
 
 # A publish changes canonical inputs; the next gate's canonical tier checks the
 # generated evidence, so regenerate it here instead of leaving it stale between
 # batches.
-REFRESH = (('census.py', '--write'), ('hybrid_image.py', '--write'))
+REFRESH = (('type_evidence.py', '--write'), ('census.py', '--write'), ('hybrid_image.py', '--write'))
 
 
 def refresh():

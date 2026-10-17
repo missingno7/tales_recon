@@ -121,7 +121,8 @@ def commit(root,fid,source,proof,expected_state,input_guard=None):
  return item
 
 def run(fid,*,promote=False,output_dir=None):
- from analysis_support import ROOT,game
+ from analysis_support import ROOT
+ from game_image import game
  from recovery_state import recovery,evidence,canonical_state
  from recovery_evidence import load_promotions
  from evidence_snapshot import snapshot,Snapshot

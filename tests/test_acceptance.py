@@ -232,7 +232,7 @@ def test_function_override_without_tool_source_cannot_publish_memo(tmp_path,chea
     ctx=SimpleNamespace(blob=b'',model={},analysis={},ledger={'data_providers':{'provider':{}}},
                         promoted=[],identity='context')
     calls=[]
-    def replaced(*args):calls.append(True);return []
+    def replaced(*args,**kwargs):calls.append(True);return []
     with patch.object(data_providers,'load_data_providers',replaced):
         with memo.scope(tmp_path):acceptance.proof_class('data').validate(tmp_path,ctx)
         with memo.scope(tmp_path):acceptance.proof_class('data').validate(tmp_path,ctx)
@@ -272,7 +272,28 @@ def test_publish_refreshes_generated_evidence_and_verify_only_does_not(tmp_path)
         return SimpleNamespace(returncode=0)
     with patch.object(promote.subprocess, 'run', side_effect=run):
         assert promote.main(['data', str(manifest)]) == 0
-        assert calls[1:] == [['census.py', '--write'], ['hybrid_image.py', '--write']]
+        assert calls[1:] == [['type_evidence.py', '--write'], ['census.py', '--write'], ['hybrid_image.py', '--write']]
         calls.clear()
         assert promote.main(['data', str(manifest), '--verify-only']) == 0
         assert len(calls) == 1
+
+
+def test_publish_skips_a_manifest_already_in_the_ledger_and_rejects_partial(tmp_path, monkeypatch):
+    import promote
+    (tmp_path / 'recovery').mkdir()
+    for ident in ('a', 'b'):
+        (tmp_path / (ident + '.json')).write_text(json.dumps({'id': ident}))
+    manifest = tmp_path / 'm.json'; manifest.write_text(json.dumps({'facts': ['a.json', 'b.json']}))
+    ledger = tmp_path / 'recovery/ledger.json'
+    monkeypatch.setattr(promote, 'ROOT', tmp_path)
+    entry = acceptance.proof_class('data')
+    ledger.write_text(json.dumps({'data_providers': {}}))
+    assert promote.published(entry, manifest) is False
+    ledger.write_text(json.dumps({'data_providers': {'a': {}, 'b': {}}}))
+    assert promote.published(entry, manifest) is True
+    with patch.object(promote, 'dispatch') as dispatch:
+        assert promote.main(['data', str(manifest)]) == 0
+        dispatch.assert_not_called()
+    ledger.write_text(json.dumps({'data_providers': {'a': {}}}))
+    with pytest.raises(FormatError, match='partially published'):
+        promote.published(entry, manifest)

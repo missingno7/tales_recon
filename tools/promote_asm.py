@@ -45,8 +45,9 @@ def stage(root,blob,model,analysis,ledger,*,predicate=asm,manifest=None):
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--manifest',default=asm.MANIFEST)
     mode=ap.add_mutually_exclusive_group(required=True);mode.add_argument('--verify-only',action='store_true');mode.add_argument('--promote',action='store_true');a=ap.parse_args()
-    from analysis_support import ROOT,game
-    from evidence_snapshot import snapshot,Snapshot
+    from analysis_support import ROOT
+    from game_image import game
+    from evidence_snapshot import snapshot,validated_stage,Snapshot
     from check_function import regression_receipt
     import audio_driver_asm as driver
     import audio_callback_asm as callback
@@ -60,9 +61,12 @@ def main():
     with snapshot(),ledger_lock(ledger_path):
         ledger=predicate.document(root,'recovery/ledger.json');before=sha256(ledger_path.read_bytes())
         print('Replaying current canonical inputs...',file=sys.stderr,flush=True)
-        blob,model,_=game();analysis=predicate.document(root,'evidence/functions/ledger.json')
-        print('Verifying complete ASM batch and existing accounting...',file=sys.stderr,flush=True)
-        rows=stage(root,blob,model,analysis,ledger,predicate=predicate,manifest=a.manifest)
+        # Validated stages hash the input closure on entry and exit instead of
+        # around every nested read.
+        with validated_stage(root,True),validated_stage(root,False):
+            blob,model,_=game();analysis=predicate.document(root,'evidence/functions/ledger.json')
+            print('Verifying complete ASM batch and existing accounting...',file=sys.stderr,flush=True)
+            rows=stage(root,blob,model,analysis,ledger,predicate=predicate,manifest=a.manifest)
         if a.verify_only:
             print(json.dumps(dict(verdict='EQUAL_CANDIDATE',members=[f['id'] for n,f,r in rows],size=sum(f['original']['size'] for n,f,r in rows),source_acceptance=False)));return
         inputs=Snapshot().inputs(root,True)
@@ -71,7 +75,9 @@ def main():
         require(regression.get('passed') is True,'ASM promotion requires passing shared regression')
         require(Snapshot().inputs(root,True)==inputs,'ASM validation inputs changed during regression')
         print('Gate passed; rechecking unchanged inputs and exact batch...',file=sys.stderr,flush=True)
-        fresh=stage(root,blob,model,analysis,ledger,predicate=predicate,manifest=a.manifest);require(fresh==rows,'ASM replay changed after gate')
+        with validated_stage(root,True),validated_stage(root,False):
+            fresh=stage(root,blob,model,analysis,ledger,predicate=predicate,manifest=a.manifest)
+        require(fresh==rows,'ASM replay changed after gate')
         artifacts={};updated=canonical_state(ledger)
         for name,fact,report in rows:
             proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=canonical_path(root,fact['candidate']).read_bytes()
@@ -81,7 +87,8 @@ def main():
             updated.setdefault(predicate.MAP,{})[fact['id']]=dict(state='FUNCTION_CODE_MATCH',fact=name,source=fact['source'],source_sha256=sha256(source),proof=proof_path,proof_sha256=sha256(proof))
             artifacts[root/fact['source']]=source;artifacts[root/proof_path]=proof
         publish(root,ledger_path,artifacts,updated,before)
-        asm.rows(root,blob,model,analysis,updated)
+        with validated_stage(root,True),validated_stage(root,False):
+            asm.rows(root,blob,model,analysis,updated)
         print(json.dumps(dict(verdict='PROMOTED',members=[f['id'] for n,f,r in rows],category='RECONSTRUCTED_ASM',bytes=sum(f['original']['size'] for n,f,r in rows))))
 
 

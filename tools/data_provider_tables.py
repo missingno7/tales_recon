@@ -16,6 +16,18 @@ ROUTES={'PALETTE_FADE32','CREDIT_TEXT_ROWS','TILE_CHARACTER_ROWS','ADPCM_TABLES'
 
 
 def shape(f):
+    from data_provider_audio_fields import ROUTES as AUDIO_ROUTES
+    if f.get('route') in AUDIO_ROUTES:
+        from data_provider_audio_fields import shape as audio_route
+        return audio_route(f)
+    from data_provider_sequences import ROUTES as SEQUENCE_ROUTES
+    if f.get('route') in SEQUENCE_ROUTES:
+        from data_provider_sequences import shape as sequence_route
+        return sequence_route(f)
+    from data_provider_more import ROUTES as MORE_ROUTES
+    if f.get('route') in MORE_ROUTES:
+        from data_provider_more import shape as more
+        return more(f)
     require(set(f)=={'schema_version','kind','id','source','original','definitions','route','anchors','object_sections','historical_owner','historical_tu','original_filename','producer'},'bounded table fact fields')
     o=f['original'];route=f['route']
     require(f['schema_version']==1 and f['kind']==KIND and route in ROUTES,'bounded table schema/route')
@@ -74,6 +86,18 @@ def shape(f):
 
 
 def source(f):
+    from data_provider_audio_fields import ROUTES as AUDIO_ROUTES
+    if f.get('route') in AUDIO_ROUTES:
+        from data_provider_audio_fields import source as audio_route
+        return audio_route(f)
+    from data_provider_sequences import ROUTES as SEQUENCE_ROUTES
+    if f.get('route') in SEQUENCE_ROUTES:
+        from data_provider_sequences import source as sequence_route
+        return sequence_route(f)
+    from data_provider_more import ROUTES as MORE_ROUTES
+    if f.get('route') in MORE_ROUTES:
+        from data_provider_more import source as more
+        return more(f)
     shape(f);lines=[]
     if f['route']=='LEVEL_ENTRY_ROWS':lines.append('struct DP_LevelEntry { unsigned char kind, active; int pos, t; };\n')
     for d in f['definitions']:
@@ -88,6 +112,18 @@ def source(f):
 
 
 def semantic(f):
+    from data_provider_audio_fields import ROUTES as AUDIO_ROUTES
+    if f.get('route') in AUDIO_ROUTES:
+        from data_provider_audio_fields import semantic as audio_route
+        return audio_route(f)
+    from data_provider_sequences import ROUTES as SEQUENCE_ROUTES
+    if f.get('route') in SEQUENCE_ROUTES:
+        from data_provider_sequences import semantic as sequence_route
+        return sequence_route(f)
+    from data_provider_more import ROUTES as MORE_ROUTES
+    if f.get('route') in MORE_ROUTES:
+        from data_provider_more import semantic as more
+        return more(f)
     shape(f);raw=bytearray()
     for d in f['definitions']:
         if f['route']=='RENDERED_C_STRING':raw+=d['initializer'].encode('ascii')+b'\0'
@@ -103,6 +139,18 @@ def semantic(f):
 
 
 def evidence_paths(root,f):
+    from data_provider_audio_fields import ROUTES as AUDIO_ROUTES
+    if f.get('route') in AUDIO_ROUTES:
+        from data_provider_audio_fields import evidence_paths as audio_route
+        return audio_route(root,f)
+    from data_provider_sequences import ROUTES as SEQUENCE_ROUTES
+    if f.get('route') in SEQUENCE_ROUTES:
+        from data_provider_sequences import evidence_paths as sequence_route
+        return sequence_route(root,f)
+    from data_provider_more import ROUTES as MORE_ROUTES
+    if f.get('route') in MORE_ROUTES:
+        from data_provider_more import evidence_paths as more
+        return more(root,f)
     from data_providers import document
     ledger=document(root,'recovery/ledger.json')
     return sorted({ledger['functions'][fid][k] for fid in f['anchors'] for k in ('source','proof')})
@@ -151,6 +199,18 @@ def binding(anchor,symbol,address,mnemonics=('lea.l','pea.l')):
 
 
 def typed_evidence(root,f,analysis,ledger,promotions):
+    from data_provider_audio_fields import ROUTES as AUDIO_ROUTES
+    if f.get('route') in AUDIO_ROUTES:
+        from data_provider_audio_fields import typed_evidence as audio_route
+        return audio_route(root,f,analysis,ledger,promotions)
+    from data_provider_sequences import ROUTES as SEQUENCE_ROUTES
+    if f.get('route') in SEQUENCE_ROUTES:
+        from data_provider_sequences import typed_evidence as sequence_route
+        return sequence_route(root,f,analysis,ledger,promotions)
+    from data_provider_more import ROUTES as MORE_ROUTES
+    if f.get('route') in MORE_ROUTES:
+        from data_provider_more import typed_evidence as more
+        return more(root,f,analysis,ledger,promotions)
     shape(f);a=canonical_anchors(root,f,analysis,ledger,promotions);route=f['route'];o=f['original'];defs=f['definitions'];name=defs[0]['symbol'];details={}
     if route=='PALETTE_FADE32':
         require('resident_F_31AA' in a and len(a)>1,'reader and direct palette caller required')
@@ -236,13 +296,29 @@ def linked_data(obj,linked,map_text,definitions,typed,sections):
 
 
 def compare_data(original,model,f,obj,linked,map_text):
-    size=shape(f);typed=semantic(f);defs=[dict(name='_'+d['symbol'],offset=d['offset']) for d in f['definitions']]
+    from data_provider_audio_fields import ROUTES as AUDIO_ROUTES
+    if f.get('route') in AUDIO_ROUTES:
+        from data_provider_audio_fields import compare_data as audio_route
+        return audio_route(original,model,f,obj,linked,map_text)
+    from data_provider_sequences import ROUTES as SEQUENCE_ROUTES
+    if f.get('route') in SEQUENCE_ROUTES:
+        from data_provider_sequences import compare_data as sequence_route
+        return sequence_route(original,model,f,obj,linked,map_text)
+    from data_provider_more import ROUTES as MORE_ROUTES
+    if f.get('route') in MORE_ROUTES:
+        from data_provider_more import compare_data as more
+        return more(original,model,f,obj,linked,map_text)
+    return numeric_compare(original,model,f,obj,linked,map_text,shape(f),semantic(f),source(f))
+
+
+def numeric_compare(original,model,f,obj,linked,map_text,size,typed,source_bytes):
+    defs=[dict(name='_'+d['symbol'],offset=d['offset']) for d in f['definitions']]
     parsed=linked_data(obj,linked,map_text,defs,typed,f['object_sections']);o=f['original']
     require(o['start']+size<=len(payload(original,model,1)),'provider outside initialized DATA')
     expected=payload(original,model,1)[o['start']:o['start']+size]
     require(typed==expected,'complete typed original DATA differs')
     require(not any(r['source_hunk']==1 and r['source_offset']<o['start']+size and o['start']<r['source_offset']+r['width'] for r in model['relocations']),'unproved original relocation intersects numeric/character DATA')
-    return dict(verdict='EQUAL_CANDIDATE',state='DATA_LAYOUT_MATCH',id=f['id'],original=dict(o,sha256=sha256(expected)),sections=parsed['sections'],symbols=defs,relocation_bindings=[],original_relocations=[],candidate_relocations=[],actual_sha256=sha256(typed),source_sha256=sha256(source(f)),object_sha256=sha256(obj),historical_owner='UNKNOWN',historical_tu='UNKNOWN',original_filename=None,ambiguity=None,data_hex=typed.hex(),uncredited_object_padding=parsed['sections']['DATA']-size,zero_fill_credit=0,root_layout_proof=False)
+    return dict(verdict='EQUAL_CANDIDATE',state='DATA_LAYOUT_MATCH',id=f['id'],original=dict(o,sha256=sha256(expected)),sections=parsed['sections'],symbols=defs,relocation_bindings=[],original_relocations=[],candidate_relocations=[],actual_sha256=sha256(typed),source_sha256=sha256(source_bytes),object_sha256=sha256(obj),historical_owner='UNKNOWN',historical_tu='UNKNOWN',original_filename=None,ambiguity=None,data_hex=typed.hex(),uncredited_object_padding=parsed['sections']['DATA']-size,zero_fill_credit=0,root_layout_proof=False)
 
 
 def control_report(files):

@@ -6,9 +6,11 @@ from pathlib import Path
 import subprocess
 import sys
 from common import require,sha256,write_json,FormatError,json_bytes
-from analysis_support import ROOT,game
+from analysis_support import ROOT
+from game_image import game
 from recovery_state import evidence,recovery,LEDGER,save_rank,write_recovery
-from compiler_oracle import compile_many,PROFILES,identity
+from compile_queue import compile_many
+from compiler_oracle import PROFILES,identity
 from recovery_transaction import ledger_lock
 from function_compare import compare_function
 from evidence_snapshot import scoped
@@ -20,8 +22,6 @@ def validated_function(fid):
     root=dead_code_extents.replay_root(ROOT)
     ledger=dead_code_extents.current_analysis() or evidence();blob,model,_=game()
     require(sha256(blob)==ledger['game_sha256'],'stale function ledger: game changed')
-    require(all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in ledger['analysis_identity'].items()),
-            'stale analysis implementation: run tools/function_census.py')
     import curated_unreferenced_entries
     require(ledger.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(root),
             'stale uncalled entry input: run tools/function_census.py')
@@ -60,6 +60,9 @@ def validated_function(fid):
 
 FULL_PASS=ROOT/'build/regression/full-pass.json'
 CANONICAL_TIER=('tools/census.py --check','tools/hybrid_image.py --check','tools/type_evidence.py --check')
+# Tools whose output is the function census (evidence/functions/ledger.json).
+ANALYSIS_TOOLS=('analysis_support.py','audio_sequence_data.py','curated_unreferenced_entries.py',
+                'dead_code_extents.py','function_census.py','function_pointer_evidence.py')
 # Modules whose behavior decides acceptance: verifiers, validators, accounting
 # and publishers. Their transitive tools/ imports form the acceptance path.
 ACCEPTANCE_ROOTS=('check_function','check_unit','census','hybrid_image','recovery_evidence','boundary_refresh',
@@ -144,6 +147,12 @@ def regression_receipt(full=None):
         ]
     else:
         commands=[[sys.executable,'-m','unittest','discover','-s','tests']]
+    # Analysis tool hashes are provenance only. When an analysis tool changed
+    # since the last full pass, re-derive the function census (about 4 min)
+    # instead of trusting it; otherwise its inputs are unchanged.
+    previous=stamp.get('inputs') if isinstance(stamp.get('inputs'),dict) else {}
+    if any(before.get('tools/'+n)!=previous.get('tools/'+n) for n in ANALYSIS_TOOLS):
+        commands.append([sys.executable,'tools/function_census.py','--check'])
     results=[subprocess.run(command,cwd=ROOT,capture_output=True,text=True) for command in commands]
     output=''.join(result.stdout+result.stderr for result in results)
     require(all(result.returncode==0 for result in results),

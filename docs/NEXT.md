@@ -195,6 +195,18 @@ tools import closure hash identically; any change re-validates. With a warm
 memo `census --check` takes about 14 s (148 s cold) and `hybrid_image.py
 --check` about 34 s (147 s cold). The memo is JSON only and is safe to delete.
 
+Validation cost fixes (2026-10-17, measured on 600 DATA providers): each
+producer job is audited once per validation scope, not once per provider
+(DATA class cold: about 2 h to 7.4 s); `game_image.game()` returns the
+fixture-locked image without a census derivation; publishers hash the input
+closure once per validated stage instead of around every read; the DATA
+snapshot identity handles each batch once (20.3 s to 3.8 s per call). A DATA
+verification pass went from 1 h 41 min to 84 s and `check_function --isolated`
+from about 60 s to 18 s. Compiles go through `tools/vamos_backend.py`
+(TALES_COMPILE_BACKEND=auto): byte-identical to WinUAE on 58 float-free corpus
+items and the whole-game link, about 4x faster per compile and parallel;
+float/double sources and any compile that opens a math library use WinUAE.
+
 Known tool-hash coupling that remains (2026-10-16). Compiler identities and
 cache keys embed the source hash of `compiler_oracle.py`
 (`same_overlay_export_extractor_sha256`, resident interface

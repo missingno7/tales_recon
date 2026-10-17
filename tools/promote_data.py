@@ -1,9 +1,10 @@
 """Separate, serialized DATA-provider promotion; no function-state substitution."""
 import argparse
 from contextlib import nullcontext
-from evidence_snapshot import snapshot,isolated_verification,Snapshot
+from evidence_snapshot import snapshot,isolated_verification,validated_stage,Snapshot
 from pathlib import Path
-from analysis_support import ROOT,game
+from analysis_support import ROOT
+from game_image import game
 from common import require,sha256,json_bytes
 from repo_paths import canonical_path,candidate_path,active_files
 from recovery_evidence import load_promotions
@@ -11,6 +12,7 @@ from recovery_state import canonical_state
 from recovery_transaction import ledger_lock,publish
 from data_providers import document,source,verify,load_data_providers,producer_paths,contributions
 from check_function import regression_receipt
+from validation_memo import scoped, scope as memo_scope
 
 
 def manifest_facts(root,path):
@@ -26,7 +28,10 @@ def validation_inputs(root,path):
         names.add(name)
         batch=fact['producer']['batch'];names.add(batch)
         names.update(producer_paths(root,document(root,batch)))
-        if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
+        if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+            from data_provider_cells import evidence_paths
+            names.update(evidence_paths(root,fact))
+        elif fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
             from data_provider_pointers import evidence_paths
             names.update(evidence_paths(root,fact))
         elif fact.get('kind')=='BOUNDED_DATA_TABLE':
@@ -43,6 +48,8 @@ def validation_inputs(root,path):
     return dict(explicit=[dict(path=n,sha256=sha256((candidate_path(root,Path(root)/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)).read_bytes())) for n in sorted(names)],closure=Snapshot().inputs(root,True))
 
 
+# One validation scope: each producer job is audited once, not once per provider.
+@scoped
 def stage_entries(root,blob,model,analysis,ledger,promotions,path):
     rows=[];seen=set();facts=manifest_facts(root,path)
     recipe=document(root,facts[0][1]['producer']['batch'])
@@ -59,9 +66,10 @@ def stage_entries(root,blob,model,analysis,ledger,promotions,path):
         require(not(points&occupied),'provider overlaps accepted DATA')
         rows.append(dict(fact_path=name,fact=fact,source_bytes=src,proof=dict(fact=fact,comparison=report)))
     # Existing accounting, including runtime and compiler-owned DATA, is another
-    # overlap boundary. Replaying it is deliberate at this promotion boundary.
-    from hybrid_image import build
-    _,accounting=build(root)
+    # overlap boundary. The committed accounting is used here; the promotion
+    # gate's `hybrid_image.py --check` proves it current before anything is
+    # published, so rebuilding it in-process would only repeat that check.
+    accounting=document(root,'evidence/hybrid/accounting.json')
     for row in rows:
         for c in contributions([row['proof']['comparison']]):
             start,end=c['start'],c['end']
@@ -78,9 +86,12 @@ def main():
     ledger_path=ROOT/'recovery/ledger.json'
     with (isolated_verification(ROOT) if args.verify_only else snapshot()), (nullcontext() if args.verify_only else ledger_lock(ledger_path)):
         before=sha256(ledger_path.read_bytes());ledger=document(ROOT,'recovery/ledger.json')
-        blob,model,_=game();analysis=document(ROOT,'evidence/functions/ledger.json')
-        promotions=load_promotions(ROOT,blob,model,analysis)
-        rows=stage_entries(ROOT,blob,model,analysis,ledger,promotions,args.manifest)
+        # One validated stage: the input closure is hashed on entry and exit
+        # instead of around every nested read (that cost hours per batch).
+        with validated_stage(ROOT,True),validated_stage(ROOT,False):
+            blob,model,_=game();analysis=document(ROOT,'evidence/functions/ledger.json')
+            promotions=load_promotions(ROOT,blob,model,analysis)
+            rows=stage_entries(ROOT,blob,model,analysis,ledger,promotions,args.manifest)
         if args.verify_only:
             print('EQUAL_CANDIDATE DATA providers='+str(len(rows))+' initialized_bytes='+str(sum(r['fact']['original']['size'] for r in rows)));return
         # The same host regression gate as every other promotion route, run here
@@ -98,7 +109,10 @@ def main():
                 source_sha256=sha256(row['source_bytes']),proof=proof_path,proof_sha256=sha256(proof))
         # Sources/proofs publish first; the ledger is the atomic final commit.
         publish(ROOT,ledger_path,artifacts,updated,before)
-        load_data_providers(ROOT,blob,model,analysis,updated,promotions)
+        # Re-prove the newly published entries from the canonical files; the
+        # census refresh that follows re-validates the complete ledger.
+        with validated_stage(ROOT,True),validated_stage(ROOT,False),memo_scope(ROOT):
+            for row in rows:load_data_providers(ROOT,blob,model,analysis,updated,promotions,only=row['fact']['id'])
         print('Promoted '+str(len(rows))+' strict DATA providers; historical ownership/TU remain UNKNOWN.')
 
 

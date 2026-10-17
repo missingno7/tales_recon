@@ -113,7 +113,9 @@ def _derive_uncached(root, promotion_evidence=None):
     function_path=root/'evidence/functions/ledger.json'
     analysis=json.loads(function_path.read_text()) if function_path.exists() else {}
     if analysis:require(analysis['game_sha256']==sha256(exe),'function census belongs to another game fixture')
-    analysis_current=bool(analysis) and all(sha256((root/'tools'/p).read_bytes())==digest for p,digest in analysis.get('analysis_identity',{}).items())
+    # Tool hashes in analysis_identity are provenance only; function_census.py
+    # --check (full gate tier) re-derives the analysis when tools change.
+    analysis_current=bool(analysis)
     analysis_current=analysis_current and analysis.get('data_fact_identity',{})==audio_sequence_data.identity(root)
     import curated_unreferenced_entries
     analysis_current=analysis_current and analysis.get('unreferenced_entry_identity',{})==curated_unreferenced_entries.identity(root)

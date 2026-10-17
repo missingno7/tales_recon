@@ -10,7 +10,8 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from analysis_support import ROOT, K, decoder, game
+from analysis_support import ROOT, K, decoder
+from game_image import game
 from common import FormatError, require, sha256
 
 OUT = ROOT / 'evidence/types.json'
@@ -61,9 +62,6 @@ def mine(root=ROOT):
     ledger = json.loads(ledger_path.read_text(encoding='utf-8'))
     instruction_index = json.loads(ins_path.read_text(encoding='utf-8'))
     require(instruction_index.get('analysis_current'), 'instruction analysis is stale')
-    for relative, digest in ledger.get('analysis_identity', {}).items():
-        require(sha256((root / 'tools' / relative).read_bytes()) == digest,
-                'function census is stale: ' + relative)
     require(ledger.get('game_sha256'), 'function ledger has no oracle identity')
     # game() verifies fixture-lock identity and returns the executable from disks.
     # Mining needs only the immutable image, never strict promotion evidence:
@@ -176,7 +174,6 @@ def mine(root=ROOT):
                 oracle_sha256=ledger['game_sha256'],
                 inputs={'function_ledger_sha256': identity(ledger_path),
                         'instruction_index_sha256': identity(ins_path),
-                        'miner_sha256': identity(root / 'tools/type_evidence.py'),
                         'declaration_source_hashes': declarations['source_hashes'],
                         'analysis_identity': ledger.get('analysis_identity', {}),
                         'a4_bias_evidence': bias_record.get('evidence')},
@@ -296,8 +293,6 @@ def evidence_staleness(document, root=ROOT):
     root = Path(root)
     inputs = document.get('inputs', {})
     reasons = []
-    if not (isinstance(inputs.get('miner_sha256'), str) and inputs['miner_sha256'] == identity(root / 'tools/type_evidence.py')):
-        reasons.append('stale type evidence: miner changed; run tools/type_evidence.py --write')
     if not (isinstance(inputs.get('function_ledger_sha256'), str) and inputs['function_ledger_sha256'] == identity(root / 'evidence/functions/ledger.json')):
         reasons.append('type evidence is stale; run tools/type_evidence.py --write')
     if not (isinstance(inputs.get('instruction_index_sha256'), str) and inputs['instruction_index_sha256'] == identity(root / 'evidence/executable/instructions.json')):

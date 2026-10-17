@@ -72,8 +72,34 @@ def is_cached(key):
     return (compiler_oracle.CACHE / key / "receipt.json").is_file()
 
 
+def write_backend_receipt(key, backend, attempts):
+    """Record executor provenance outside the content-addressed identity."""
+    path = compiler_oracle.CACHE / key / "receipt.json"
+    if not path.is_file():
+        return
+    receipt = json.loads(path.read_text(encoding="utf-8"))
+    receipt["backend"] = backend
+    receipt["backend_attempts"] = attempts
+    temporary = path.with_name("receipt.backend-" + uuid.uuid4().hex + ".tmp")
+    try:
+        write_json(temporary, receipt)
+        os.replace(temporary, path)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+
+
 def load(key):
-    return compiler_oracle.cached(key)
+    result = compiler_oracle.cached(key)
+    if result is None:
+        return None
+    if not result.get("backend"):
+        attempts = [dict(backend="winuae", outcome="LEGACY_CACHE")]
+        write_backend_receipt(key, "winuae", attempts)
+        result = dict(result, backend="winuae", backend_attempts=attempts)
+    return result
 
 
 def _portable(trial):
@@ -158,11 +184,33 @@ def _batch(own):
     return chosen
 
 
-def _compile_batch(trials):
-    if any(t.get('reconstructed_asm_dependencies') or t.get("object_profiles") for t in trials):
+def compile_backend():
+    backend = os.environ.get("TALES_COMPILE_BACKEND", "auto").strip().lower()
+    require(backend in ("auto", "vamos", "winuae"),
+            "TALES_COMPILE_BACKEND must be auto, vamos, or winuae")
+    return backend
+
+
+def _legacy_compile_batch(trials):
+    if any(t.get('reconstructed_asm_dependencies') or t.get('mixed_object_dependencies') or
+           t.get("object_profiles") for t in trials):
         from queued_oracle import compile_many as combined_compile
         return combined_compile(trials)
     return _original_compile_many(trials)
+
+
+def _compile_batch(trials):
+    if compile_backend() == "winuae":
+        results = _legacy_compile_batch(trials)
+        for trial in trials:
+            try:
+                write_backend_receipt(trial_key(trial), "winuae",
+                                       [dict(backend="winuae", outcome="COMPILED")])
+            except (KeyError, FormatError, ValueError):
+                pass
+        return results
+    from vamos_backend import compile_many as backend_compile_many
+    return backend_compile_many(trials, legacy_compile_many=_legacy_compile_batch)
 
 
 def _inner_lock_report():

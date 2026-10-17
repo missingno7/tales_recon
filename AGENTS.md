@@ -106,6 +106,20 @@ docs/VISION.md) the work served; never run a gated promotion while a worker
 can write under `tests/` or `tools/`. `docs/REUSE.md` records what transfers
 to the next project.
 
+Cost discipline (2026-10-17, after a DATA wave whose publication took 12 hours):
+time a new validator, proof route or publisher once, cold, on the real
+repository before scaling it; per-item cost that grows with the corpus is a
+bug. Bound long commands with a timeout, and profile anything that exceeds
+about 10 minutes instead of waiting on it. Read the code for repeated work
+before re-running. A worker wave delivers one manifest list, published with one
+`promote.py CLASS M1 M2 ...` call (resumable; already-published manifests are
+skipped). Land tool changes in their own commit with one full gate so that
+publications stay on the canonical tier. Prefer one typed provider per
+storage-plan aggregate over one provider per cell. Tool hashes are provenance:
+never make generated evidence fail because a tool's bytes changed; re-derive
+instead (`function_census.py --check` runs in the full gate when an analysis
+tool changed).
+
 Exact acceptance remains absolute. Diagnostics run per hypothesis; census,
 canonical proof checks, hybrid accounting and regression tests run at promotion
 or tooling boundaries. RAW_ORACLE_DEBT is accounting only and grants no proof.

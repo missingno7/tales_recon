@@ -22,12 +22,20 @@ SERIAL_CLASSES = {
 def pytest_configure(config):
     config.addinivalue_line(
         'markers', 'regression_serial: run after the xdist-safe regression tests')
+    config.addinivalue_line(
+        'markers', 'vamos_equivalence: slow opt-in pinned-vamos equivalence corpus')
 
 
-def pytest_collection_modifyitems(items):
-    marker = __import__('pytest').mark.regression_serial
+def pytest_collection_modifyitems(config, items):
+    pytest = __import__('pytest')
+    marker = pytest.mark.regression_serial
+    run_vamos = 'vamos_equivalence' in (config.option.markexpr or '')
+    skip_vamos = pytest.mark.skip(
+        reason='select with -m vamos_equivalence to run the slow pinned-vamos corpus')
     for item in items:
         name = Path(str(item.path)).name
         cls = getattr(item, 'cls', None)
         if name in SERIAL_MODULES or (name, getattr(cls, '__name__', None)) in SERIAL_CLASSES:
             item.add_marker(marker)
+        if item.get_closest_marker('vamos_equivalence') and not run_vamos:
+            item.add_marker(skip_vamos)

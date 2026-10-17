@@ -17,14 +17,15 @@ from dead_code_extents import replay_root
 def verification_root():return replay_root(ROOT)
 from recovery_state import recovery,evidence,save_rank
 from check_function import validated_function,promote
-from compiler_oracle import compile_many,PROFILES
+from compile_queue import compile_many
+from compiler_oracle import PROFILES
 from function_compare import compare_function
 from recovery_evidence import stand_in_source,struct_view_source,EXTERN_FUNCTION,proven_object_source,group_object_source
 from recovery_evidence import joined_source as joined_texts
 
 
 def unit_export_roots(members,names,fid):
-    from analysis_support import game
+    from game_image import game
     from recovery_evidence import same_overlay_exports
     # Export roots are immutable executable facts, not canonical ownership.
     from census import advisory_image
@@ -1115,11 +1116,10 @@ def apply_member_profiles(trial,plan,link_compatibility,single_object=None):
 
 
 def compile_trials(trials):
-    """A capable queue takes all trials together; direct callers retain the
-    legacy per-object-profile dispatcher and unchanged identities."""
+    """Units with special object structure keep their dedicated routes; the base
+    compiler is the shared backend-aware queue (vamos or WinUAE)."""
     if any(t.get('reconstructed_asm_dependencies') for t in trials):
-        import compile_queue
-        return compile_queue.compile_many(trials)
+        return compile_many(trials)
     if any(t.get('mixed_object_dependencies') for t in trials):
         import queued_oracle
         return queued_oracle.compile_many(trials)
@@ -1196,7 +1196,7 @@ def unit_trials(fid,members,names,parts,combined,profiles,separate_objects,join_
         helper_exports.register(trial['source'],helper_exports.original_helpers(members))
         if node==0:
             from resident_interfaces import derive
-            from analysis_support import game
+            from game_image import game
             blob,model,_=game()
             _,ledger=validated_function(fid)
             interfaces=derive(members,trial['source'],blob,model,ledger['a4']['bias'])

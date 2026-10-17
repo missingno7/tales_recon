@@ -15,6 +15,7 @@ from hunk import parse
 from overlay_experiment import symbols, relocation_profile
 from runtime_natural_members import object_sizes
 from type_evidence import DECL_RE, _type_shape
+from validation_memo import shared
 
 WIDTHS={'char':1,'unsigned char':1,'short':2,'unsigned short':2,'int':2,'unsigned int':2,'long':4,'unsigned long':4,'int *':4}
 ROOT_SOURCE='src/recovered/data/'
@@ -27,6 +28,9 @@ def document(root, path):
 
 
 def shape(fact):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+        from data_provider_cells import shape as cell_route
+        return cell_route(fact)
     if fact.get('kind')=='BOUNDED_DATA_TABLE':
         from data_provider_tables import shape as tables_route
         return tables_route(fact)
@@ -117,6 +121,9 @@ def definition_size(d):
 
 
 def source(fact):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+        from data_provider_cells import source as cell_route
+        return cell_route(fact)
     if fact.get('kind')=='BOUNDED_DATA_TABLE':
         from data_provider_tables import source as tables_route
         return tables_route(fact)
@@ -141,6 +148,13 @@ def source(fact):
 
 
 def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+        from data_provider_cells import typed_evidence as cell_route
+        if image is None:
+            from census import advisory_image
+            from game_image import game
+            with advisory_image():image=game()[:2]
+        return cell_route(root,fact,*image,analysis,ledger,promotions)
     if fact.get('kind')=='BOUNDED_DATA_TABLE':
         from data_provider_tables import typed_evidence as tables_route
         return tables_route(root,fact,analysis,ledger,promotions)
@@ -148,7 +162,7 @@ def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
         from data_provider_literals import typed_evidence as literal_evidence
         if image is None:
             from census import advisory_image
-            from analysis_support import game
+            from game_image import game
             with advisory_image():image=game()[:2]
         return literal_evidence(root,fact,*image,analysis,ledger,promotions)
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
@@ -158,7 +172,7 @@ def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
             # strict game() read here would re-enter derivation. Only the
             # immutable image is needed.
             from census import advisory_image
-            from analysis_support import game
+            from game_image import game
             with advisory_image():image=game()[:2]
         blob,model=image
         return external_evidence(root,fact,blob,model,analysis,ledger)
@@ -166,7 +180,6 @@ def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
     shape(fact); accepted={p['id'] for p in promotions}
     types=document(root,'evidence/types.json')
     require(types['inputs']['function_ledger_sha256']==sha256(canonical_path(root,'evidence/functions/ledger.json').read_bytes()),'stale type observations')
-    require(types['inputs']['miner_sha256']==sha256(canonical_path(root,'tools/type_evidence.py').read_bytes()),'changed type miner')
     by={f['id']:f for f in analysis['functions']};globals_={g['data_hunk_offset']:g for g in types['globals']};out=[]
     # The existing type miner is A4-only. Do not silently ignore accepted +D
     # accesses which could enlarge/alias this provider. V1 defers such spans
@@ -326,6 +339,9 @@ def data_object(raw,terminal_padding=0):
 
 
 def compare_data(original,original_model,fact,obj,linked,map_text):
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+        from data_provider_cells import compare_data as cell_route
+        return cell_route(original,original_model,fact,obj,linked,map_text)
     if fact.get('kind')=='BOUNDED_DATA_TABLE':
         from data_provider_tables import compare_data as tables_route
         return tables_route(original,original_model,fact,obj,linked,map_text)
@@ -398,9 +414,22 @@ def batch_key(recipe):
 
 def producer(root,fact,retained=None):
     """Hash-referenced ignored job. No request/result/artifact bytes in curated evidence."""
-    recipe=document(root,fact['producer']['batch']);require(recipe['schema_version']==1 and recipe['profile']=='aztec36','batch producer schema/profile')
-    require(recipe['cache_key']==batch_key(recipe),'producer cache key changed')
+    recipe=document(root,fact['producer']['batch'])
     require(any(m['fact'].endswith('/'+fact['id']+'.json') and m['prefix']==fact['producer']['prefix'] and m['fact_sha256']==sha256(json_bytes(fact)) for m in recipe['members']),'provider is not pinned in batch')
+    files,result=_audit_job(root,fact['producer']['batch'])
+    prefix=fact['producer']['prefix'];require(prefix in recipe['prefixes'] and fact['producer']['profile']=='aztec36','producer selection')
+    require(files[prefix+'.c']==source(fact),'source is not strict typed definitions (byte array, filler or different source)')
+    return files,result
+
+
+@shared
+def _audit_job(root,batch):
+    """Audit one complete producer job: everything that depends only on the
+    batch recipe. A job holds a whole batch (up to ~150 providers), so this
+    runs once per validation scope instead of once per provider; the scope
+    still re-checks every file it read before returning."""
+    recipe=document(root,batch);require(recipe['schema_version']==1 and recipe['profile']=='aztec36','batch producer schema/profile')
+    require(recipe['cache_key']==batch_key(recipe),'producer cache key changed')
     producer_paths(root,recipe);retained=candidate_path(root,Path(root)/recipe['job'])
     def read_job(path):
         target=candidate_path(root,Path(root)/recipe['job']/path)
@@ -416,7 +445,7 @@ def producer(root,fact,retained=None):
         name=item['path'];require(Path(name).name==name and '/' not in name and '\\' not in name,'artifact escapes worker work')
         raw=read_job('sys/work/'+name);require(len(raw)==item['size'] and sha256(raw)==item['sha256'],'producer artifact changed');files[name]=raw
     prefixes=recipe['prefixes'];require(len(prefixes)==len(set(prefixes)) and all(re.fullmatch(r'[a-z][a-z0-9]*',p) for p in prefixes),'invalid producer prefixes')
-    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe']),'unsupported batch control')
+    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe']),'unsupported batch control')
     require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe']+controls,'one job must contain the entire provider batch and control')
     require(recipe['sources']=={r['path']:r['sha256'] for r in request['source_files']} and recipe['commands']==[r['command'] for r in request['steps']],'curated source/command pins differ')
     require(set(recipe['toolchain_inventory_sha256'])=={'evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json'},'incomplete toolchain inventory pins')
@@ -429,15 +458,16 @@ def producer(root,fact,retained=None):
     if controls==['extprobe']:
         from data_provider_pointers import commands as external_commands
         commands=external_commands(prefixes)
+    if controls==['dataprobe']:
+        from data_provider_cells import commands as cell_commands
+        commands=cell_commands(prefixes)
     require([s['command'] for s in request['steps']]==commands and receipt['steps']==[dict(s,returncode=0) for s in request['steps']],'changed producing commands/status')
-    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm']+(['bindptr.asm'] if controls==['extprobe'] else []))],'source inventory')
+    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm']+(['bindptr.asm'] if controls==['extprobe'] else ['binddata.c'] if controls==['dataprobe'] else []))],'source inventory')
     for member in recipe['members']:
         member_fact=document(root,member['fact'])
         require(sha256(json_bytes(member_fact))==member['fact_sha256'],'batch provider fact changed')
         require(files[member['prefix']+'.c']==source(member_fact),'batch source differs from strict typed facts')
     require(files['relprobe.c']==b'int DP_test_target = 7;\nint *DP_test_pointer = &DP_test_target;\n','independently authored relocation control changed')
-    prefix=fact['producer']['prefix'];require(prefix in prefixes and fact['producer']['profile']=='aztec36','producer selection')
-    require(files[prefix+'.c']==source(fact),'source is not strict typed definitions (byte array, filler or different source)')
     require(files['h000.asm']==HARNESSSOURCE and object_sizes(files['h000.o'])==(2,0,0),'independent zero-DATA/BSS harness')
     # Full inventory is independently reconstructed, never a worker-selected subset.
     pins=[]
@@ -494,6 +524,11 @@ def producer(root,fact,retained=None):
     if controls==['tableprobe']:
         from data_provider_tables import control_report
         result['table_control']=control_report(files)
+    if controls==['dataprobe']:
+        from data_provider_cells import binder_names,control_report
+        facts=[document(root,m['fact']) for m in recipe['members']]
+        require(all(f.get('kind')=='EXTERNAL_DATA_POINTER_CELL' for f in facts),'DATA-cell batch kind')
+        result['data_pointer_control']=control_report(files,binder_names(facts))
     if controls==['litprobe']:
         from data_provider_literals import control_report
         require(all(document(root,m['fact']).get('kind')=='LITERAL_LINE_RECORDS' for m in recipe['members']),'literal batch member kind')
@@ -517,15 +552,28 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
     if fact.get('kind')=='BOUNDED_DATA_TABLE':
         import data_provider_tables
         report['verifier_identity']['data_provider_tables.py']=sha256(Path(data_provider_tables.__file__).read_bytes())
+    if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+        import data_provider_cells
+        report['verifier_identity']['data_provider_cells.py']=sha256(Path(data_provider_cells.__file__).read_bytes())
     if fact.get('kind')=='LITERAL_LINE_RECORDS':
         import data_provider_literals
         report['verifier_identity']['data_provider_literals.py']=sha256(Path(data_provider_literals.__file__).read_bytes())
+    if fact.get('kind')=='BOUNDED_DATA_TABLE':
+        import data_provider_more,data_provider_sequences,data_provider_audio_fields
+        for module in (data_provider_more,data_provider_sequences,data_provider_audio_fields):
+            if fact.get('route') in module.ROUTES:report['verifier_identity'][Path(module.__file__).name]=sha256(Path(module.__file__).read_bytes())
+    if fact.get('route')=='LOCATION_OPTION_ROWS':
+        import data_provider_locrows
+        report['verifier_identity']['data_provider_locrows.py']=sha256(Path(data_provider_locrows.__file__).read_bytes())
     return report
 
 
-def load_data_providers(root,blob,model,analysis,ledger,promotions):
+def load_data_providers(root,blob,model,analysis,ledger,promotions,only=None):
+    # ``only`` validates one provider against the complete ledger: typed
+    # evidence may legitimately read a neighbouring provider's fact.
     records=[];occupied=set()
     for ident,item in sorted(ledger.get('data_providers',{}).items()):
+        if only is not None and ident!=only:continue
         require(item['state']=='DATA_LAYOUT_MATCH','unsupported DATA provider proof level')
         fact=document(root,item['fact']);proof_path=canonical_path(root,item['proof']);proof=document(root,item['proof'])
         require(fact['id']==ident and item['source']==fact['source'],'provider identity/source')
@@ -568,6 +616,7 @@ def input_identity(root):
     ledger=document(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').is_file() else {}
     for item in ledger.get('data_providers',{}).values():
         names.update([item['source'],item['proof']]);facts.append(item['fact'])
+    batches=set()
     for name in facts:
         names.add(name);fact=document(root,name);batch=fact['producer']['batch'];names.add(batch)
         if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
@@ -576,9 +625,16 @@ def input_identity(root):
         if fact.get('kind')=='BOUNDED_DATA_TABLE':
             from data_provider_tables import evidence_paths
             names.update(evidence_paths(root,fact))
+        if fact.get('kind')=='EXTERNAL_DATA_POINTER_CELL':
+            from data_provider_cells import evidence_paths
+            names.update(evidence_paths(root,fact))
         if fact.get('kind')=='LITERAL_LINE_RECORDS':
             from data_provider_literals import evidence_paths
             names.update(evidence_paths(root,fact))
+        # Everything below depends only on the batch (one job per batch, up to
+        # ~150 providers); it ran once per provider, re-hashing the emulator.
+        if batch in batches:continue
+        batches.add(batch)
         recipe=document(root,batch);names.update(producer_paths(root,recipe))
         names.update(recipe['toolchain_inventory_sha256'])
         request_path=candidate_path(root,root/recipe['job']/'request.json')
@@ -587,4 +643,7 @@ def input_identity(root):
             lock=document(root,'toolchain/candidate-lock.json');names.add(lock['archive'])
             emulator=Path(request['emulator']);external[str(emulator)]=sha256(emulator.read_bytes()) if emulator.is_file() else None
     def target(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
-    return {**{str(target(n)):sha256(target(n).read_bytes()) if target(n).is_file() else None for n in sorted(names)},**external}
+    result={}
+    for n in sorted(names):
+        path=target(n);result[str(path)]=sha256(path.read_bytes()) if path.is_file() else None
+    return {**result,**external}

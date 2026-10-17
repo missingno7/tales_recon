@@ -93,3 +93,12 @@ code-data providers, the story tables, and the `.arc`/`.as` formats
     establish executable entry. Bind the actual caller or typed SDK callback,
     then prove every outgoing edge. Explicit tails can reuse an independently
     replayed destination without absorbing its bytes or inheriting its predicate.
+13. **Per-item cost must not grow with the corpus.** Every slowdown on
+    2026-10-17 was invisible at 64 DATA providers and took hours at 600: a
+    producer job re-audited per provider, an input closure re-hashed around
+    every cached read, an executable image obtained through a full census.
+    Time each validator once, cold, on the full corpus before scaling it, and
+    bound long runs with a timeout so a slow path is profiled, not waited on.
+14. **The compiler was not the bottleneck.** A function check spent about 1 s
+    compiling and about 59 s in our own evidence handling. Profile the
+    verifier before buying a faster compiler (vamos still helps throughput).
