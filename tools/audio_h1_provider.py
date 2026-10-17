@@ -228,7 +228,7 @@ def input_identity(root):
   batch=doc(root,MANIFEST);job=batch['job'];names.update(job+'/'+n for n in ('request.json','result.json','worker.uae','kick.rom','sys/s/startup-sequence'));names.update(job+'/sys/work/'+n for n in batch['artifacts']);names.update(batch['backend_inputs'])
   request=json.loads(candidate_path(root,Path(root)/job/'request.json').read_bytes());names.update(p['path'] for p in request['pinned_inputs'])
   for folder in ('c','l','libs','devs'):names.update(p.relative_to(root).as_posix() for p in active_files(Path(root)/job/'sys'/folder))
- item=doc(root,'recovery/ledger.json').get(MAP,{}).get(IDENT)
+ item=(doc(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').exists() else {}).get(MAP,{}).get(IDENT)
  if item:names.update([SOURCE,item['proof']])
  def resolve(n):return candidate_path(root,Path(root)/n) if n.startswith('build/') else canonical_path(root,n)
  return {str(resolve(n)):sha256(resolve(n).read_bytes()) if resolve(n).exists() else None for n in sorted(names)}
