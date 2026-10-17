@@ -120,6 +120,14 @@ never make generated evidence fail because a tool's bytes changed; re-derive
 instead (`function_census.py --check` runs in the full gate when an analysis
 tool changed).
 
+Emulator use (2026-10-17, after an NVIDIA driver crash while WinUAE ran with the
+screens off): WinUAE runs headless (`headless=true`, `gfx_api=directdraw`, no GPU
+rendering) for traces, boots and compile jobs, one instance at a time. Prefer
+vamos for compiles (`tools/vamos_backend.py`; WinUAE only for float/math code).
+Batch emulator work: one session answers a whole question (`game_boot.py` records
+registers, symbolized stack and messages at the end of the same run); never
+relaunch the emulator for a one-second probe.
+
 Exact acceptance remains absolute. Diagnostics run per hypothesis; census,
 canonical proof checks, hybrid accounting and regression tests run at promotion
 or tooling boundaries. RAW_ORACLE_DEBT is accounting only and grants no proof.

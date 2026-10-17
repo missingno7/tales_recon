@@ -183,8 +183,11 @@ def declarations(facts):
 
 
 def capture(extractor,facts,allow_zero=False):
-    require({'source','pattern'} <= set(extractor) <= {'source','pattern','radix'},'numeric extractor keys')
+    require({'source','pattern'} <= set(extractor) <= {'source','pattern','radix','offset'},'numeric extractor keys')
     radix=extractor.get('radix',10)
+    # offset: e.g. +1 for a DBRA loop counter, whose loop runs counter+1 times.
+    offset=extractor.get('offset',0)
+    require(type(offset) is int,'extractor offset must be an integer')
     require(type(radix) is int and radix in (10,16),'extractor radix must be 10 or 16')
     source = extractor['source']
     require(source in facts['sources'],'missing storage bound source: '+source)
@@ -192,8 +195,8 @@ def capture(extractor,facts,allow_zero=False):
     require(found and all(isinstance(v,str) and re.fullmatch(r'[0-9]+' if radix==10 else r'[0-9A-Fa-f]+',v) for v in found),
             source+': numeric storage evidence missing/ambiguous')
     values = {int(v,radix) for v in found}
-    require(len(values)==1 and min(values)>=(0 if allow_zero else 1),source+': conflicting numeric storage evidence')
-    return values.pop()
+    require(len(values)==1 and min(values)+offset>=(0 if allow_zero else 1),source+': conflicting numeric storage evidence')
+    return values.pop()+offset
 
 
 def check_dependencies(curation,facts):
@@ -231,6 +234,12 @@ def supported_bounds(curation,facts,views,definitions):
                     if value is not None:
                         sizes.add(value)
             require(len(sizes)==1,'ambiguous array element stride')
+            size=sizes.pop()
+        elif set(stride)=={'source','access'}:
+            # Element size from the accessing instruction's size suffix.
+            require(stride['source'] in facts['sources'],'missing access-stride source')
+            sizes={dict(b=1,w=2,l=4)[m.lower()] for m in re.findall(stride['access'],clean(facts['sources'][stride['source']]),re.S)}
+            require(len(sizes)==1,'ambiguous or missing access size')
             size=sizes.pop()
         else:
             size = capture(stride,facts)

@@ -37,3 +37,12 @@ python tools/game_trace.py decode title-to-money-bin-a 5000 --all
 ```
 
 Checkpoints contain original memory. Keep `.uss` files inside ignored `build/trace/<RUN>/` directories; never add them to a patch or commit. Each run has a private INI, config, TMP/TEMP, ROM copy and read-only disk copies. The checked-in input covers a title-to-Money-Bin scenario; its exact frame count is 6,000.
+
+## Emulator settings
+
+Runs are headless (`headless=true`, `gfx_api=directdraw`): no Direct3D, no GPU
+rendering, and about 30% faster (a 240-frame replay: 12.0 s to 8.5 s, byte
+identical). Screenshots need rendering, so headless runs record state rather
+than images. Run one WinUAE instance at a time and batch probes into one
+session; `tools/game_boot.py` boots a from-source build and collects registers,
+a symbolized stack and stack-referenced strings before it stops the emulator.

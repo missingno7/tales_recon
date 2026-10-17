@@ -153,6 +153,22 @@
         "element_of": "G_h01_A7EE"
       },
       "evidence": "Archive loader rejects count>104 and reads one long offset per record; offsets are file positions, no initializer claim."
+    },
+    {
+      "symbol": "G_h01_2A12",
+      "element_type": "long",
+      "count": {
+        "source": "src/recovered/asm-reconstructed/resident_frameless_5868.asm",
+        "pattern": "lea\\.l _G_h01_2A12,a0\\s+moveq #\\$([0-9a-fA-F]+),d7",
+        "radix": 16,
+        "offset": 1
+      },
+      "stride": {
+        "source": "src/recovered/asm-reconstructed/resident_frameless_5868.asm",
+        "access": "_recon_h00_587A\\s+clr\\.([bwlBWL]) \\(a0\\)\\+"
+      },
+      "name": "audio state block cleared at audio initialization",
+      "evidence": "resident 5868 (RECONSTRUCTED_ASM): lea _G_h01_2A12,a0; moveq #$4b,d7; loop clr.l (a0)+; dbra d7 -> 76 longs (304 bytes) cleared before use."
     }
   ],
   "dependencies": [
@@ -272,6 +288,35 @@
         }
       ],
       "coallocate": false
+    },
+    {
+      "symbols": [
+        "G_h01_542A",
+        "G_h01_543A",
+        "G_h01_543E",
+        "G_h01_5442",
+        "G_h01_5446"
+      ],
+      "constraint": "Exec struct MemHeader (32 bytes) of the game's private chip-memory pool: &G_h01_542A is the pool passed to Allocate(); mh_First/mh_Lower/mh_Upper/mh_Free at +16/+20/+24/+28 are the separately named 543A/543E/5442/5446 that the pool initializer writes. One object; separate allocations leave the pool header zero and every allocation fails.",
+      "evidence": [
+        {
+          "source": "src/recovered/resident/resident_F_37C8.c",
+          "text": "G_h01_543A = G_h01_A9B2;"
+        },
+        {
+          "source": "src/recovered/resident/resident_F_37C8.c",
+          "text": "G_h01_5446 = arg - 8;"
+        },
+        {
+          "source": "src/recovered/resident/resident_F_3870.c",
+          "text": "r = F_h00_875C(a, c);"
+        },
+        {
+          "source": "src/recovered/ov04/ov04_F_1E36.c",
+          "text": "G_h01_53EC = F_h00_3870(&G_h01_542A, 0xe8L);"
+        }
+      ],
+      "coallocate": true
     }
   ],
   "structs": {
