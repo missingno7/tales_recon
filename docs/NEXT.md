@@ -78,6 +78,20 @@ and the sample-pointer array split around raw cells (a write into audio code).
 Next: play-through traces (input scripts past the title) against the original,
 then replace the remaining stand-ins.
 
+**Plan (user decision 2026-10-17):** (1) close the oracle: the from-source
+build matches the original's per-frame game state in play-through traces and is
+free of LINK_ONLY stand-ins; (2) the readability pass (names, struct fields,
+the platform-layer contract); (3) the portable SDL3 port, accepted against the
+same traces.
+
+Play-through traces: `game_boot.py run --input evidence/trace/title-to-money-bin.json
+--input-offset 2100 --dump-from 2000 --dump-every 25` (add `--original` for the
+baseline), then `game_compare.py ORIG BUILD --shift N`, where N aligns the game
+tick G_h01_B1EC (the build currently runs 3 frames behind). First finding: the
+build follows the original to the office scene, then hangs in ov13_F_02BE
+waiting for sound 0x21 to finish, because the H1 audio score records are still
+raw (zero placeholders).
+
 **Completeness test (user decision 2026-10-16): link and run.** The oracle is
 complete when everything under `src/` compiles with the pinned Aztec `cc`/`as`,
 links with its `ln` (Manx overlay tree, original c.lib/m.lib) into a program,

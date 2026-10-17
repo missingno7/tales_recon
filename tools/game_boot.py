@@ -17,6 +17,10 @@ RUN = ROOT / 'build' / 'trace' / 'boot'
 GAME_DIR = ROOT / 'build' / 'game'
 FRAMES = 1500
 ORIGINAL = False
+INPUT = None
+INPUT_OFFSET = 0
+DUMP_FROM = None
+DUMP_EVERY = 0
 sys.path.insert(0, str(ROOT / 'tools'))
 import game_trace as trace
 import trace_harness as harness
@@ -149,7 +153,10 @@ def prepare():
     pins['disks'][0]['original_sha256'] = cfg['disks'][0]['sha256']
     pins['disks'][0]['replacement_sha256'] = report['verified_sha256']
     pins_path.write_text(json.dumps(pins, indent=2) + '\n', encoding='utf-8', newline='\n')
-    events = trace.default_input()
+    # An input script recorded relative to the title screen can be shifted to
+    # cold-boot frames with --input-offset.
+    events = json.loads(Path(INPUT).read_text(encoding='utf-8')) if INPUT else trace.default_input()
+    events = [dict(e, frame=e['frame'] + INPUT_OFFSET) for e in events if e['frame'] + INPUT_OFFSET < FRAMES]
     validated = trace.validate_input(events, FRAMES)
     (RUN / 'title-input.json').write_text(json.dumps(validated, indent=2) + '\n', encoding='utf-8', newline='\n')
     disk = OFSDisk(updated)
@@ -195,6 +202,28 @@ def exception_report(emu, state, model):
     if usp:
         report['user_stack'] = emu.cmd('m %s 4' % usp.group(1))[-900:]
     return report
+
+
+_DUMP = {}
+
+
+def state_dump(emu, executable, model, frame_number):
+    """Append the program's DATA hunk (initialized data and its BSS tail) to
+    state.bin and index it; the hunk base is located once in memory."""
+    if 'base' not in _DUMP:
+        mapping = harness.locate(emu.memory(), executable, model, harness.signatures(executable, model))
+        resident = mapping.get('resident') or {}
+        _DUMP['base'] = resident.get(1, resident.get('1'))
+        _DUMP['size'] = model['hunks'][1]['allocated_size']
+        (RUN / 'state-layout.json').write_text(json.dumps(dict(data_base=_DUMP['base'], data_size=_DUMP['size'],
+            resident=resident), indent=2) + '\n', encoding='utf-8')
+    if not _DUMP['base']:
+        return
+    raw = emu.dump('state-frame.bin', _DUMP['base'], _DUMP['size'])
+    with open(RUN / 'state.bin', 'ab') as out:
+        offset = out.tell(); out.write(raw)
+    with open(RUN / 'state-index.jsonl', 'a', encoding='utf-8') as index:
+        index.write(json.dumps(dict(frame=frame_number, offset=offset, size=len(raw))) + '\n')
 
 
 def boot_frame(emu):
@@ -324,6 +353,8 @@ def boot():
             if root_base and root_base <= state['pc'] < root_base+root_size:
                 record['pc_symbol'] = symbol_at(GAME_DIR/'DuckTales.sym', 0, state['pc']-root_base)
             records.append(record)
+            if DUMP_EVERY and DUMP_FROM is not None and frame_number >= DUMP_FROM and (frame_number - DUMP_FROM) % DUMP_EVERY == 0:
+                state_dump(emu, executable, model, frame_number)
             outcome['frames_completed'] = frame_number+1
             after = sorted(set(RUN.rglob('*.png')) - before)
             if frame_number in screenshot_frames:
@@ -370,7 +401,12 @@ if __name__ == '__main__':
     parser.add_argument('--run-name', default='boot')
     parser.add_argument('--frames', type=int, default=FRAMES)
     parser.add_argument('--original', action='store_true', help='boot the original executable (baseline)')
+    parser.add_argument('--input', help='input event script (JSON); default: the title script')
+    parser.add_argument('--input-offset', type=int, default=0, help='frames added to every input event')
+    parser.add_argument('--dump-from', type=int, help='first frame of DATA+BSS state dumps (state.bin)')
+    parser.add_argument('--dump-every', type=int, default=0, help='dump interval in frames (0: no dumps)')
     args = parser.parse_args()
+    INPUT = args.input; INPUT_OFFSET = args.input_offset; DUMP_FROM = args.dump_from; DUMP_EVERY = args.dump_every
     GAME_DIR = args.game_dir.resolve(); RUN = ROOT / 'build' / 'trace' / args.run_name; FRAMES = args.frames
     ORIGINAL = args.original
     if args.action in ('prepare','run'): prepare()
