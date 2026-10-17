@@ -67,9 +67,34 @@ def map_symbols(map_path):
     return out
 
 
-def anchors(symbols, inventory):
+def provider_part_anchors(ledger, symbols, root=ROOT):
+    """(hunk, original offset, build offset, label) for every part of every
+    accepted CODE-data provider object. The original interleaves parts of
+    several providers; each build object starts at its `_<name>_begin` label
+    and a part's candidate offset is relative to it."""
+    out = []
+    for record in (ledger.get('code_data_providers') or {}).values():
+        fact = json.loads((root / record['fact']).read_text())
+        sections = {}
+        for index, obj in enumerate(fact.get('objects', [])):
+            if obj.get('id'):
+                label = '_' + obj['id'].replace('resident_', '', 1) + '_begin'
+            else:  # one source, one object per section, labelled by section index
+                stem = Path(next(iter(record['sources']))).stem
+                label = '_%s_%d_begin' % (stem, sections.setdefault(obj.get('section'), len(sections)))
+            if label not in symbols:
+                continue
+            hunk, base = symbols[label]
+            for part in obj.get('parts', []):
+                out.append((hunk, part['original_start'], base + part['candidate_start'], label))
+    return out
+
+
+def anchors(symbols, inventory, extra=()):
     """{hunk: sorted [(original offset, build offset, name)]}."""
     rows = collections.defaultdict(dict)
+    for hunk, orig, build, name in extra:
+        rows[hunk][orig] = (build, name)
     for name, (hunk, offset) in symbols.items():
         orig = original_offset(name)
         if orig and orig[0] == hunk:
@@ -141,12 +166,51 @@ def relocs(model):
             for r in model['relocations'] if r['width'] == 4}
 
 
-def diff(original, build, build_map, inventory, accounting):
+def slot_table_end(cont):
+    """End of the ln jump-slot table (JMP abs.l entries) at the start of DATA."""
+    end = 0
+    while cont.get(1, b'')[end:end + 2] == b'\x4e\xf9':
+        end += 6
+    return end
+
+
+def diff(original, build, build_map, inventory, accounting, ledger=None):
     from hunk import parse
     om, bm = parse(original), parse(build)
     ocont, bcont = contents(original, om), contents(build, bm)
     orel, brel = relocs(om), relocs(bm)
-    mapping = Mapping(anchors(map_symbols(build_map), inventory))
+    symbols = map_symbols(build_map)
+    mapping = Mapping(anchors(symbols, inventory, provider_part_anchors(ledger or {}, symbols)))
+    oslots, bslots = slot_table_end(ocont), slot_table_end(bcont)
+
+    def slot_target(rel, data_offset, end):
+        if 0 <= data_offset < end and data_offset % 6 == 0:
+            return rel.get((1, data_offset + 2))
+        return None
+
+    def mapped(target):
+        return target and (target[0], mapping.point(*target))
+
+    def a4_equivalent(ow, bw):
+        """A small-data reference (d16(a4)) whose two targets are jump slots to
+        corresponding code, or the same unnamed bytes (a moved literal)."""
+        od, bd = ow + A4_BIAS, bw + A4_BIAS
+        t, u = slot_target(orel, od, oslots), slot_target(brel, bd, bslots)
+        if t and u:
+            return 'A4_SLOT_CONSISTENT' if mapped(t) == u else None
+        if (0 <= od < len(ocont.get(1, b'')) and 0 <= bd < len(bcont.get(1, b''))
+                and same_target_bytes(ocont, bcont, (1, od), (1, bd))):
+            return 'A4_CONTENT_CONSISTENT'
+        return None
+
+    def call_target(cont, rel, slots, hunk, at):
+        """Callee of a JSR d16(pc) (0x4EBA) or JSR d16(a4) through a slot (0x4EAC)."""
+        opcode = cont[hunk][at:at + 2]; disp = int.from_bytes(cont[hunk][at + 2:at + 4], 'big', signed=True)
+        if opcode == b'\x4e\xba':
+            return (hunk, at + 2 + disp)
+        if opcode == b'\x4e\xac':
+            return slot_target(rel, disp + A4_BIAS, slots)
+        return None
     cats = categories(accounting)
     totals = collections.Counter()
     by_category = collections.defaultdict(collections.Counter)
@@ -176,10 +240,16 @@ def diff(original, build, build_map, inventory, accounting):
                 width = 2
                 ow = int.from_bytes(data[offset:offset + 2], 'big', signed=True)
                 bw = int.from_bytes(mine[where:where + 2], 'big', signed=True)
+                ocall = call_target(ocont, orel, oslots, hunk, offset) if offset + 4 <= len(data) else None
+                bcall = call_target(bcont, brel, bslots, hunk, where) if ocall and where + 4 <= len(mine) else None
                 if ow == bw:
                     verdict = 'IDENTICAL'
+                elif ocall and bcall and mapped(ocall) == bcall:
+                    width, verdict = 4, 'CALL_CONSISTENT'  # direct JSR vs JSR through a slot, same callee
                 elif (mapping.point(1, ow + A4_BIAS) or 0) - A4_BIAS == bw:
                     verdict = 'A4_CONSISTENT'
+                elif a4_equivalent(ow, bw):
+                    verdict = a4_equivalent(ow, bw)
                 elif mapping.point(hunk, offset + ow) == where + bw:
                     verdict = 'PCREL_CONSISTENT'  # 16-bit displacement from its extension word
                 elif 0x60 <= data[offset] <= 0x6F and data[offset] == mine[where] and data[offset + 1] and mine[where + 1]:
@@ -227,8 +297,9 @@ def main(argv=None):
     args = ap.parse_args(argv)
     inventory = json.loads(INV_PATH.read_text()) if INV_PATH.is_file() else {}
     accounting = json.loads((ROOT / 'evidence/hybrid/accounting.json').read_text())
+    ledger = json.loads((ROOT / 'recovery/ledger.json').read_text())
     report = diff(original_executable(), (args.game_dir / 'DuckTales').read_bytes(),
-                  args.game_dir / 'DuckTales.sym', inventory, accounting)
+                  args.game_dir / 'DuckTales.sym', inventory, accounting, ledger)
     (args.game_dir / 'diff.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
     print('bytes:', report['totals'])
     for category, counts in sorted(report['by_category'].items(), key=lambda kv: -kv[1].get('DIFFERENT', 0)):
