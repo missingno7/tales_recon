@@ -1,0 +1,15 @@
+struct DP_Sample { int duration; unsigned int length_words; char *sample_data; };
+struct DP_Sequence { struct DP_Sample records[1]; int terminal_duration; };
+extern struct DP_Sequence G_h01_218C;
+extern struct DP_Sequence G_h01_21A4;
+extern struct DP_Sequence G_h01_21BC;
+extern struct DP_Sequence G_h01_21D4;
+extern struct DP_Sequence G_h01_21EC;
+extern struct DP_Sequence G_h01_2204;
+extern struct DP_Sequence G_h01_221C;
+extern struct DP_Sequence G_h01_2234;
+extern struct DP_Sequence G_h01_224C;
+extern struct DP_Sequence G_h01_2264;
+extern struct DP_Sequence G_h01_227C;
+extern struct DP_Sequence G_h01_2294;
+struct DP_Sample *G_h01_2814[12] = {(struct DP_Sample *)&G_h01_218C, (struct DP_Sample *)&G_h01_21A4, (struct DP_Sample *)&G_h01_21BC, (struct DP_Sample *)&G_h01_21D4, (struct DP_Sample *)&G_h01_21EC, (struct DP_Sample *)&G_h01_2204, (struct DP_Sample *)&G_h01_221C, (struct DP_Sample *)&G_h01_2234, (struct DP_Sample *)&G_h01_224C, (struct DP_Sample *)&G_h01_2264, (struct DP_Sample *)&G_h01_227C, (struct DP_Sample *)&G_h01_2294};
