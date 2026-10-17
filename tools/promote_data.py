@@ -45,7 +45,7 @@ def validation_inputs(root,path):
                 item=document(root,'recovery/ledger.json')['functions'][d['evidence']['function']]
                 names.update([item['source'],item['proof']])
     names.update(p.relative_to(root).as_posix() for p in active_files(root/'tools','.py'))
-    return dict(explicit=[dict(path=n,sha256=sha256((candidate_path(root,Path(root)/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)).read_bytes())) for n in sorted(names)],closure=Snapshot().inputs(root,True))
+    return dict(explicit=[dict(path=n,sha256=sha256((candidate_path(root,Path(root)/n) if n.startswith('build/') else canonical_path(root,n)).read_bytes())) for n in sorted(names)],closure=Snapshot().inputs(root,True))
 
 
 # One validation scope: each producer job is audited once, not once per provider.

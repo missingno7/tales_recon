@@ -405,7 +405,12 @@ def producer_paths(root,recipe):
     job=recipe['job']
     require(all(Path(n).name==n and '/' not in n and '\\' not in n for n in recipe['artifacts']),'producer artifact pin escapes work directory')
     require(re.fullmatch(r'build/worker-jobs/tu-layout-[a-zA-Z0-9_-]+',job),'producer job escapes approved ignored directory')
-    return [job+'/'+n for n in ['request.json','result.json','worker.uae','sys/s/startup-sequence','kick.rom']]+[job+'/sys/work/'+n for n in recipe['artifacts']]
+    names=[job+'/'+n for n in ['request.json','result.json','worker.uae','sys/s/startup-sequence','kick.rom']]+[job+'/sys/work/'+n for n in recipe['artifacts']]
+    require(('backend' in recipe)==('backend_inputs' in recipe),'complete explicit backend dependency list')
+    if 'backend' in recipe:
+        require(recipe['backend']=='vamos' and isinstance(recipe['backend_inputs'],list) and all(isinstance(n,str) for n in recipe['backend_inputs']),'supported explicit DATA backend')
+        names+=recipe['backend_inputs']
+    return names
 
 
 def batch_key(recipe):
@@ -438,6 +443,10 @@ def _audit_job(root,batch):
     request_raw=read_job('request.json');result_raw=read_job('result.json')
     require(sha256(request_raw)==recipe['request_sha256'] and sha256(result_raw)==recipe['result_sha256'],'producer request/result hash changed')
     request=json.loads(request_raw);receipt=json.loads(result_raw)
+    require(request.get('backend')==recipe.get('backend'),'producer backend identity differs')
+    if request.get('backend') is not None:
+        from data_provider_vamos import input_paths
+        require(recipe['backend_inputs']==input_paths(root,request),'complete current backend input inventory differs')
     require(receipt['request']==request and receipt['all_steps_succeeded'] is True,'producer receipt')
     require(len(receipt['artifacts'])==len({a['path'] for a in receipt['artifacts']}) and {a['path']:a['sha256'] for a in receipt['artifacts']}==recipe['artifacts'],'omitted/extra producer artifact pins')
     files={}
@@ -445,7 +454,7 @@ def _audit_job(root,batch):
         name=item['path'];require(Path(name).name==name and '/' not in name and '\\' not in name,'artifact escapes worker work')
         raw=read_job('sys/work/'+name);require(len(raw)==item['size'] and sha256(raw)==item['sha256'],'producer artifact changed');files[name]=raw
     prefixes=recipe['prefixes'];require(len(prefixes)==len(set(prefixes)) and all(re.fullmatch(r'[a-z][a-z0-9]*',p) for p in prefixes),'invalid producer prefixes')
-    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe']),'unsupported batch control')
+    controls=recipe.get('controls',[]);require(controls in ([],['structprobe'],['extprobe'],['litprobe'],['tableprobe'],['dataprobe'],['extprobe','entryprobe']),'unsupported batch control')
     require(prefixes==[m['prefix'] for m in recipe['members']]+['relprobe']+controls,'one job must contain the entire provider batch and control')
     require(recipe['sources']=={r['path']:r['sha256'] for r in request['source_files']} and recipe['commands']==[r['command'] for r in request['steps']],'curated source/command pins differ')
     require(set(recipe['toolchain_inventory_sha256'])=={'evidence/toolchain/aztec-5.0a.json','evidence/toolchain/aztec-3.6a.json','toolchain/candidate-lock.json'},'incomplete toolchain inventory pins')
@@ -455,14 +464,14 @@ def _audit_job(root,batch):
     for p in prefixes:commands += [f'Old1:bin/cc >{p}-cc.log -a +b {p}.c',f'Old1:bin/as >{p}-as.log -o {p}.o {p}.asm']
     commands += ['Old1:bin/as >h000-as.log -o h000.o h000.asm']
     for p in prefixes:commands += [f'Old1:bin/ln >{p}-ln.log -m -t -o {p}.exe h000.o {p}.o']
-    if controls==['extprobe']:
+    if controls in (['extprobe'],['extprobe','entryprobe']):
         from data_provider_pointers import commands as external_commands
         commands=external_commands(prefixes)
     if controls==['dataprobe']:
         from data_provider_cells import commands as cell_commands
         commands=cell_commands(prefixes)
     require([s['command'] for s in request['steps']]==commands and receipt['steps']==[dict(s,returncode=0) for s in request['steps']],'changed producing commands/status')
-    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm']+(['bindptr.asm'] if controls==['extprobe'] else ['binddata.c'] if controls==['dataprobe'] else []))],'source inventory')
+    require(request['source_files']==[dict(path=n,sha256=sha256(files[n])) for n in sorted([p+'.c' for p in prefixes]+['h000.asm']+(['bindptr.asm'] if controls in (['extprobe'],['extprobe','entryprobe']) else ['binddata.c'] if controls==['dataprobe'] else []))],'source inventory')
     for member in recipe['members']:
         member_fact=document(root,member['fact'])
         require(sha256(json_bytes(member_fact))==member['fact_sha256'],'batch provider fact changed')
@@ -498,7 +507,7 @@ def _audit_job(root,batch):
         'cpu_model=68020','cpu_speed=max','cpu_compatible=false','cpu_24bit_addressing=true','chipset=aga','chipmem_size=4',
         'fastmem_size=8','bogomem_size=0','sound_output=none','gfx_fullscreen_amiga=false','gfx_width_windowed=640',
         'gfx_height_windowed=256','gfx_framerate=10','win32.start_minimized=yes','win32.inactive_pause=false','win32.minimized_pause=false']
-    require(text.splitlines()==settings+expected_mounts,'changed full producer environment recipe')
+    require(text.splitlines()==settings+expected_mounts+(['headless=true','gfx_api=directdraw'] if request.get('backend')=='vamos' else []),'changed full producer environment recipe')
 
     beginning=['C:FailAt 100','C:Assign Aztec1: Tools1:','C:Assign Aztec2: Tools2:','C:Assign INCLUDE: Tools1:include','C:Assign LIB: Tools2:lib','C:Path Tools2:bin ADD','C:Stack 65536','C:CD SYS:work','C:Echo booted >booted.txt']
     for i,c in enumerate(commands):beginning += [c,f'C:Echo $RC >step-{i:02d}.rc']
@@ -513,7 +522,7 @@ def _audit_job(root,batch):
         padfact=struct_control_fact()
         checked=compare_data(files['structprobe.exe'],parse(files['structprobe.exe']),padfact,files['structprobe.o'],files['structprobe.exe'],files['structprobe.sym'].decode('ascii'))
         result['struct_control']=dict(DATA=checked['sections']['DATA'],padding_offsets=[1,7],game_credit=0)
-    if controls==['extprobe']:
+    if controls in (['extprobe'],['extprobe','entryprobe']):
         from data_provider_pointers import binder_names,binder_source,binder_object,CONTROL_SOURCE,control_report
         facts=[document(root,m['fact']) for m in recipe['members']]
         require(all(f.get('kind')=='EXTERNAL_CODE_POINTER_TABLE' for f in facts),'external batch member kind')
@@ -521,6 +530,16 @@ def _audit_job(root,batch):
         require(files['bindptr.asm']==binder_source(names) and files['extprobe.c']==CONTROL_SOURCE,'independent external binder/control recipe changed')
         binder_object(files['bindptr.o'],names)
         result['external_pointer_control']=control_report(files,names)
+    if request.get('backend') is not None:
+        from data_provider_vamos import validate
+        result['backend_execution']=validate(root,retained,request,receipt,commands)
+    if controls==['extprobe','entryprobe']:
+        from data_provider_startup import ENTRY_CONTROL
+        from data_provider_pointers import linked_view
+        require(files['entryprobe.c']==ENTRY_CONTROL,'independent symbolic-addend control source')
+        names=binder_names(facts)
+        checked=linked_view(files['entryprobe.o'],files['entryprobe.exe'],files['entryprobe.sym'].decode('ascii'),'_DP_entry_probe',['_DP_ext_a','_DP_ext_b','_DP_ext_a'],names,[2,4,2])
+        result['entry_offset_control']=dict(DATA=12,relocations=3,addends=[2,4,2],object_sha256=checked[0]['object_sha256'],game_credit=0)
     if controls==['tableprobe']:
         from data_provider_tables import control_report
         result['table_control']=control_report(files)
@@ -549,6 +568,9 @@ def verify(root,blob,model,analysis,ledger,promotions,fact,source_bytes,retained
     if fact.get('kind')=='EXTERNAL_CODE_POINTER_TABLE':
         import data_provider_pointers
         report['verifier_identity']['data_provider_pointers.py']=sha256(Path(data_provider_pointers.__file__).read_bytes())
+    if fact.get('id') in ('resident_data_2B6E','resident_data_2BC2'):
+        import data_provider_startup,data_provider_vamos,data_provider_selector
+        for module in (data_provider_startup,data_provider_vamos,data_provider_selector):report['verifier_identity'][Path(module.__file__).name]=sha256(Path(module.__file__).read_bytes())
     if fact.get('kind')=='BOUNDED_DATA_TABLE':
         import data_provider_tables
         report['verifier_identity']['data_provider_tables.py']=sha256(Path(data_provider_tables.__file__).read_bytes())
@@ -640,9 +662,12 @@ def input_identity(root):
         request_path=candidate_path(root,root/recipe['job']/'request.json')
         if request_path.is_file():
             request=json.loads(request_path.read_bytes());names.update(p['path'] for p in request['pinned_inputs'])
+            if request.get('backend') is not None:
+                from data_provider_vamos import input_paths
+                names.update(input_paths(root,request))
             lock=document(root,'toolchain/candidate-lock.json');names.add(lock['archive'])
             emulator=Path(request['emulator']);external[str(emulator)]=sha256(emulator.read_bytes()) if emulator.is_file() else None
-    def target(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
+    def target(n):return candidate_path(root,root/n) if n.startswith('build/') else canonical_path(root,n)
     result={}
     for n in sorted(names):
         path=target(n);result[str(path)]=sha256(path.read_bytes()) if path.is_file() else None

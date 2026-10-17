@@ -17,6 +17,9 @@ CONTROL_NAMES=['_DP_ext_a','_DP_ext_b']
 
 
 def shape(f):
+ if f.get('id') in ('resident_data_2B6E','resident_data_2BC2'):
+  from data_provider_startup import shape as startup
+  return startup(f)
  require(set(f)=={'schema_version','kind','id','source','original','definitions','bindings','object_sections','historical_owner','historical_tu','original_filename','producer'},'external pointer fact fields; opaque carriers/masks reject')
  require(f['schema_version']==1 and f['kind']==KIND and f['id']=='resident_data_292E' and f['source']=='src/recovered/data/resident_data_292E.c','closed external pointer provider identity')
  require(f['original']==dict(hunk=1,start=0x292e,size=176),'exact44 pointer extent; never fabricate45th period-data alias')
@@ -33,6 +36,9 @@ def shape(f):
 
 
 def source(f):
+ if f.get('id') in ('resident_data_2B6E','resident_data_2BC2'):
+  from data_provider_startup import source as startup
+  return startup(f)
  shape(f)
  lines=['typedef void (*DP_CodeEntry)();\n']+['extern void '+n[1:]+'();\n' for n in sorted(f['bindings'])]
  lines+=['DP_CodeEntry G_h01_292E[44] = {\n  '+',\n  '.join(n[1:] for n in f['definitions'][0]['targets'])+'\n};\n']
@@ -44,7 +50,7 @@ def binder_source(names):
  return ('\n'.join(x for n in names for x in ['\tpublic '+n,n,'\trts'])+'\tend\n').encode('ascii')
 
 
-def binder_names(facts):return sorted(set(CONTROL_NAMES)|{n for f in facts for n in f['bindings']})
+def binder_names(facts):return sorted(set(CONTROL_NAMES)|{b.get('entry',n) for f in facts for n,b in f['bindings'].items()})
 
 
 def commands(prefixes):
@@ -56,6 +62,9 @@ def commands(prefixes):
 
 
 def evidence_paths(root,fact):
+ if fact.get('id') in ('resident_data_2B6E','resident_data_2BC2'):
+  from data_provider_startup import evidence_paths as startup
+  return startup(root,fact)
  from data_providers import document
  ledger=document(root,'recovery/ledger.json');names=set()
  ids={b['provider'] for b in fact['bindings'].values()}|{'resident_driver_5A50','resident_driver_5CC6','resident_asm_59A4'}
@@ -83,6 +92,9 @@ def canonical_entries(root,blob,model,analysis,ledger):
 
 
 def typed_evidence(root,fact,blob,model,analysis,ledger):
+ if fact.get('id') in ('resident_data_2B6E','resident_data_2BC2'):
+  from data_provider_startup import typed_evidence as startup
+  return startup(root,fact,blob,model,analysis,ledger)
  shape(fact);cat=canonical_entries(root,blob,model,analysis,ledger)
  require(all(cat.get(n)==b for n,b in fact['bindings'].items()),'unproved/interior/private/incorrect canonical named target')
  from data_providers import document
@@ -103,7 +115,7 @@ def typed_evidence(root,fact,blob,model,analysis,ledger):
  return [dict(symbol=d['symbol'],type=d['type'],count=44,bytes=176,original_offset=0x292e,function='resident_driver_5A50',bounds='AUDIO_DISPATCH44_PERIOD_FENCE',code_entries=fact['bindings'],index_limit_inclusive=44,valid_pointer_indices=[0,43],index44=dict(offset=0x29de,classification='PERIOD_WORD_DATA_ALIAS',pointer=False,unproved_execution=True),historical_extent='Reconstructed complete provider only; historical TU unknown')]
 
 
-def object_data(raw,symbol,targets):
+def object_data(raw,symbol,targets,addends=None):
  """Measured external-CODE pointer AJ grammar; packed index is not an addend.
 
  The batch/control prove07/28 CODE-external records, reference counts and packed
@@ -111,6 +123,8 @@ def object_data(raw,symbol,targets):
  """
  require(len(raw)>=36 and raw[:10]==b'AJ'+bytes(8),'pointer AJ header')
  u16=lambda p:int.from_bytes(raw[p:p+2],'big');u32=lambda p:int.from_bytes(raw[p:p+4],'big')
+ addends=[0]*len(targets) if addends is None else addends
+ require(len(addends)==len(targets) and all(type(a) is int and a>=0 for a in addends),'complete nonnegative symbolic addends')
  size=4*len(targets);externs=list(dict.fromkeys(targets));count=1+len(externs)
  require((u32(10),u32(14),u32(18))==(0,size,0),'whole data-only pointer object')
  begin=u32(24)*4;syms=u16(28)*4;end=u16(30)*4
@@ -126,13 +140,19 @@ def object_data(raw,symbol,targets):
  require(end-p<=3 and raw[p:]==bytes(end-p),'pointer symbol trailer')
  p=begin;require(raw[p]==0xf5,'pointer DATA segment');p+=1;refs=[]
  for i,name in enumerate(targets):
-  require(p+3<=syms and raw[p]==0xfd and 0x70<=raw[p+1]<=0x7f and raw[p+2]<=2,'only measured packed external long pointer records')
-  index=raw[p+1]-0x70+16*raw[p+2];p+=3
+  require(p<syms and raw[p]==0xfd,'only external long pointer records');p+=1
+  if addends[i]:
+   from data_provider_startup import ADDEND_BYTES
+   require(addends[i] in ADDEND_BYTES and p<syms and raw[p]==0x21,'only measured symbolic-addition AJ expression');p+=1
+  require(p+2<=syms and 0x70<=raw[p]<=0x7f and raw[p+1]<=2,'measured packed external CODE symbol')
+  index=raw[p]-0x70+16*raw[p+1];p+=2
   require(1<=index<count and index<=36 and symbols_[index]['name']==name,'pointer fixup named index/identity')
-  refs.append(dict(offset=i*4,type='HUNK_RELOC32',width=4,symbol=name,addend=0))
+  if addends[i]:
+   encoded=ADDEND_BYTES[addends[i]];require(raw[p:p+len(encoded)]==encoded,'symbolic addend encoding differs');p+=len(encoded)
+  refs.append(dict(offset=i*4,type='HUNK_RELOC32',width=4,symbol=name,addend=addends[i]))
  require(raw[p:p+2]==b'\xf4\xf5','pointer empty CODE/DATA end transition');p+=2
  require(syms==((p+4)//4)*4 and raw[p:syms]==bytes(syms-p),'pointer whole DATA stream/trailer')
- return dict(bytes=bytes(size),definitions=[dict(name=symbol,offset=0)],fixups=refs,symbols=symbols_,sections=dict(CODE=0,DATA=size,BSS=0,COMMON=0),object_sha256=sha256(raw))
+ return dict(bytes=b''.join(a.to_bytes(4,'big') for a in addends),definitions=[dict(name=symbol,offset=0)],fixups=refs,symbols=symbols_,sections=dict(CODE=0,DATA=size,BSS=0,COMMON=0),object_sha256=sha256(raw))
 
 
 def binder_object(raw,names):
@@ -151,21 +171,25 @@ def binder_object(raw,names):
  return dict(CODE=size,DATA=0,BSS=0,COMMON=0)
 
 
-def linked_view(obj,linked,map_text,symbol,targets,names):
- parsed=object_data(obj,symbol,targets);m=parse(linked);sm=symbols(map_text);size=4*len(targets);round4=lambda n:(n+3)&~3;bc=2+2*len(names);rcode=round4(bc);rdata=round4(size)
+def linked_view(obj,linked,map_text,symbol,targets,names,addends=None):
+ addends=[0]*len(targets) if addends is None else addends
+ parsed=object_data(obj,symbol,targets,addends);m=parse(linked);sm=symbols(map_text);size=4*len(targets);round4=lambda n:(n+3)&~3;bc=2+2*len(names);rcode=round4(bc);rdata=round4(size)
  require([(h['number'],h['type'],h['allocated_size'],h['initialized_size']) for h in m['hunks']]==[(0,'CODE',rcode,rcode),(1,'DATA',rdata,rdata),(2,'BSS',4,0)],'complete external-pointer link topology/allocations')
  require(payload(linked,m,0)==b'\x4e\x75'*(1+len(names))+bytes(rcode-bc),'independent harness/binder CODE and padding')
  expected={(0,'__H0_org'):0,(0,'.begin'):0,(0,'__H0_end'):rcode,(1,'__H1_org'):0,(1,symbol):0,(1,'__H1_end'):rdata,(2,'__H2_org'):rdata,(2,'__H2_end'):rdata}
  expected.update({(0,n):2+2*i for i,n in enumerate(names)});require(sm==expected,'complete pointer link symbol order/positions')
  actual=payload(linked,m,1);require(actual[size:]==bytes(rdata-size),'pointer final hunk padding')
- wanted=[dict(source_hunk=1,source_offset=4*i,target_hunk=0,addend_raw=sm[(0,n)],width=4,type='HUNK_RELOC32') for i,n in enumerate(targets)]
+ wanted=[dict(source_hunk=1,source_offset=4*i,target_hunk=0,addend_raw=sm[(0,n)]+addends[i],width=4,type='HUNK_RELOC32') for i,n in enumerate(targets)]
  actual_rels=[{k:r[k] for k in ['source_hunk','source_offset','target_hunk','addend_raw','width','type']} for r in m['relocations']]
  require(actual_rels==wanted,'complete external named relocation inventory')
- for i,n in enumerate(targets):require(actual[i*4:i*4+4]==sm[(0,n)].to_bytes(4,'big'),'named linked pointer payload')
+ for i,n in enumerate(targets):require(actual[i*4:i*4+4]==(sm[(0,n)]+addends[i]).to_bytes(4,'big'),'named linked pointer payload')
  return parsed,m,actual[:size],sm
 
 
 def compare_data(original,model,fact,obj,linked,map_text):
+ if fact.get('id') in ('resident_data_2B6E','resident_data_2BC2'):
+  from data_provider_startup import compare_data as startup
+  return startup(original,model,fact,obj,linked,map_text)
  size=shape(fact);d=fact['definitions'][0];names=binder_names([fact]);targets=d['targets'];parsed,m,actual,sm=linked_view(obj,linked,map_text,'_'+d['symbol'],targets,names)
  origin=fact['original'];expected=payload(original,model,1)[origin['start']:origin['start']+size];rebased=bytearray(actual);original_wanted=[]
  for i,n in enumerate(targets):
