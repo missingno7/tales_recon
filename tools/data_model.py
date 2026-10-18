@@ -266,6 +266,22 @@ def derive_scalars(model, facts, regions=None):
     return {k: r for k, r in candidates.items() if k not in blocked}
 
 
+def refresh_scalar_evidence(model, facts, regions=None):
+    """Refresh diagnostics only; refuse lost support or any semantic change."""
+    derived = derive_scalars(model, facts, regions)
+    rows = dict(model['globals'])
+    for key, row in rows.items():
+        if row['basis'] != 'MECHANICAL_CONSISTENT_VIEWS':
+            continue
+        current = derived.get(key)
+        require(current is not None and
+                {k: v for k, v in current.items() if k != 'evidence'} ==
+                {k: v for k, v in row.items() if k != 'evidence'},
+                key + ': mechanical facts changed; evidence-only refresh refused')
+        rows[key] = current
+    return dict(model, globals=rows)
+
+
 def propose_scalars(model, facts, regions=None):
     """Only new rows; derivation also considers existing mechanical rows."""
     return {k: r for k, r in derive_scalars(model, facts, regions).items() if k not in model['globals']}
@@ -422,6 +438,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     mode = ap.add_mutually_exclusive_group()
     mode.add_argument('--check', action='store_true')
+    mode.add_argument('--refresh-scalar-evidence', action='store_true',
+                      help='re-derive existing mechanical evidence text; refuse type/extent changes or lost support')
     mode.add_argument('--propose-scalars', action='store_true', help='JSON global entries; read-only, reproducible consistency proposals')
     mode.add_argument('--check-storage-plan', action='store_true', help='re-derive resident storage partition and every view/alias')
     mode.add_argument('--propose-storage-plan', action='store_true', help='write the derived plan to build/storage-plan.json; no canonical writes')
@@ -436,6 +454,16 @@ def main(argv=None):
         if args.check_storage_plan:
             document = load_storage_plan()
             print(json.dumps(document['derived']['summary'], indent=2))
+            return 0
+        if args.refresh_scalar_evidence:
+            model = json.loads((ROOT / MODEL).read_text(), object_pairs_hook=_unique_object)
+            facts, regions = load_scalar_facts(), resident_regions()
+            updated = refresh_scalar_evidence(model, facts, regions)
+            names = json.loads((ROOT / 'recovery/names.json').read_text())
+            validate(updated, names, regions, mechanical_facts=facts)
+            changed = sum(row != model['globals'][key] for key, row in updated['globals'].items())
+            (ROOT / MODEL).write_text(json.dumps(updated, indent=2) + "\n", encoding="utf-8", newline="\n")
+            print('refreshed %d mechanical evidence entries; types/extents unchanged' % changed)
             return 0
         model = load_model()
         if args.propose_scalars:

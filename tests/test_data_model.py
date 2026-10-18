@@ -243,6 +243,25 @@ class MechanicalTests(unittest.TestCase):
         overlap['widths'][254]=deepcopy(facts['widths'][256])
         with self.assertRaises(FormatError):dm.validate(m,mechanical_facts=overlap)
 
+    def test_evidence_refresh_preserves_semantics_and_refuses_lost_support(self):
+        facts = scalar_facts([('G_h01_0100', {'int':['a']}, [2])])
+        m = model(dm.derive_scalars(model(), facts))
+        m['globals']['G_h01_0200'] = global_()
+        before = deepcopy(m)
+        regrouped = deepcopy(facts)
+        regrouped['parsed']['symbols']['G_h01_0100'] = {'int':['a','b']}
+        fresh = dm.refresh_scalar_evidence(m, regrouped)
+        self.assertEqual(m, before)
+        self.assertNotEqual(fresh['globals']['G_h01_0100']['evidence'], m['globals']['G_h01_0100']['evidence'])
+        self.assertEqual(fresh['globals']['G_h01_0200'], m['globals']['G_h01_0200'])
+        dm.validate(fresh, mechanical_facts=regrouped)
+        for view, widths in [({'unsigned int':['a']}, [2]), ({'int [2]':['a']}, [2]),
+                             ({'int':['a']}, [1]), ({}, [2])]:
+            changed = scalar_facts([('G_h01_0100', view, widths)])
+            with self.subTest(view=view, widths=widths), self.assertRaisesRegex(FormatError, 'refresh refused'):
+                dm.refresh_scalar_evidence(m, changed)
+        self.assertEqual(m, before)
+
     def test_unparsed_declarations_prevent_false_unanimity(self):
         facts=scalar_facts([('G_h01_0100', {'long':['a']}, [4])])
         m=model(dm.propose_scalars(model(),facts))

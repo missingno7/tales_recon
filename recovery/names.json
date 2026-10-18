@@ -753,24 +753,24 @@
       "evidence": "Divides each unclaimed treasure value by its travel days and selects the greatest integer value-to-days ratio (src/recovered/ov14/ov14_F_0540.c; calls src/recovered/ov03/ov03_F_154E.c)."
     },
     "ov15_F_0000": {
-      "evidence": "Draws the map, resolves clicked locations against the location table, and returns a selected destination or OFFICE (src/recovered/ov15/ov15_F_0000.c).",
+      "evidence": "Draws the map, resolves clicked locations against the location table, and returns a selected destination or OFFICE (src/map/map.c#map_select_destination).",
       "name": "map_select_destination"
     },
     "ov15_F_08B0": {
       "name": "draw_map_cursor_marker",
-      "evidence": "Paints a 3-by-3 marker at the supplied map point and draws a black outline around it (src/recovered/ov15/ov15_F_08B0.c)."
+      "evidence": "Paints a 3-by-3 marker at the supplied map point and draws a black outline around it (src/map/map.c#draw_map_cursor_marker)."
     },
     "ov15_F_0A80": {
       "name": "draw_map_option_outline",
-      "evidence": "Reads a rectangle's origin through the supplied pointer and draws its outline using the supplied width and height (src/recovered/ov15/ov15_F_0A80.c)."
+      "evidence": "Reads a rectangle's origin through the supplied pointer and draws its outline using the supplied width and height (src/map/map.c#draw_map_option_outline)."
     },
     "ov15_F_0C12": {
-      "evidence": "Reads the selected location and treasure from loc.arc/loot.arc and displays treasure name, description, value, and travel time (src/recovered/ov15/ov15_F_0C12.c).",
+      "evidence": "Reads the selected location and treasure from loc.arc/loot.arc and displays treasure name, description, value, and travel time (src/map/map.c#map_show_location_details).",
       "name": "map_show_location_details"
     },
     "ov15_F_1428": {
       "name": "map_move_cursor_from_input",
-      "evidence": "Reads resident_F_4376's direction/action value, moves and clamps the map cursor with held-input repeats, then redraws it (src/recovered/ov15/ov15_F_1428.c)."
+      "evidence": "Reads resident_F_4376's direction/action value, moves and clamps the map cursor with held-input repeats, then redraws it (src/map/map.c#map_move_cursor_from_input)."
     },
     "resident_F_01BA": {
       "name": "run_location_overlay",
@@ -1740,23 +1740,23 @@
     },
     "G_h01_451A": {
       "name": "map_input_action",
-      "evidence": "The map cursor routine assigns resident_F_4376's result here, tests its high fire bit, and switches on its low direction value (src/recovered/ov15/ov15_F_1428.c)."
+      "evidence": "The map cursor routine assigns resident_F_4376's result here, tests its high fire bit, and switches on its low direction value (src/map/map.c#map_move_cursor_from_input)."
     },
     "G_h01_451C": {
       "name": "map_direction_hold_count",
-      "evidence": "The map cursor routine increments this count while a direction is active, caps it at 0x100, and multiplies it by horizontal/vertical step values (src/recovered/ov15/ov15_F_1428.c)."
+      "evidence": "The map cursor routine increments this count while a direction is active, caps it at 0x100, and multiplies it by horizontal/vertical step values (src/map/map.c#map_move_cursor_from_input)."
     },
     "G_h01_451E": {
       "name": "map_direction_restart_pending",
-      "evidence": "The map cursor routine sets this flag when beginning a direction sequence and clears the repeat count when consuming it (src/recovered/ov15/ov15_F_1428.c)."
+      "evidence": "The map cursor routine sets this flag when beginning a direction sequence and clears the repeat count when consuming it (src/map/map.c#map_move_cursor_from_input)."
     },
     "G_h01_4520": {
       "name": "map_cursor_horizontal_step",
-      "evidence": "The map cursor routine sets this value to -1, 0, or 1 from direction and applies it on repeated movement frames (src/recovered/ov15/ov15_F_1428.c)."
+      "evidence": "The map cursor routine sets this value to -1, 0, or 1 from direction and applies it on repeated movement frames (src/map/map.c#map_move_cursor_from_input)."
     },
     "G_h01_4522": {
       "name": "map_cursor_vertical_step",
-      "evidence": "The map cursor routine sets this value to -1, 0, or 1 from direction and applies it on repeated movement frames (src/recovered/ov15/ov15_F_1428.c)."
+      "evidence": "The map cursor routine sets this value to -1, 0, or 1 from direction and applies it on repeated movement frames (src/map/map.c#map_move_cursor_from_input)."
     },
     "G_h01_4524": {
       "evidence": "The table supplies location names and coordinates to the map UI and its point values select the matching overlay family (ov15_F_0000, resident_F_01BA, ov03_F_154E).",

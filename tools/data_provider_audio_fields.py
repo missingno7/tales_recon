@@ -6,7 +6,7 @@ operands. Periods are WORD cells in a conditional note-index domain, not a
 claimed historical twelve-element allocation.
 """
 import json,re
-from common import require,sha256
+from common import require
 from repo_paths import canonical_path
 from audio_sequence_data import payload
 from data_provider_sequences import anchors,pointer_target
@@ -91,7 +91,9 @@ def typed_evidence(root,f,analysis,ledger,promotions):
     from census import advisory_image
     from game_image import game
     shape(f);a=anchors(root,f,analysis,ledger,promotions);route=f['route'];index=f['selector_index'];d=f['definitions'][0];field=f['field'];o=f['original']
-    raw=canonical_path(root,'recovery/data_model.json').read_bytes();require(sha256(raw)==f['data_model_sha256'],'stale curated audio interpretation');dm=json.loads(raw)
+    # The whole-file hash is publication provenance. Recheck each model fact
+    # used below, independent of unrelated entries and declaration grouping.
+    dm=json.loads(canonical_path(root,'recovery/data_model.json').read_bytes())
     with advisory_image():blob,model,_=game()
     if route=='AUDIO_CHANNEL_FIELD':
         fid,operand=CHANNEL[field];require(set(a)=={fid,'resident_driver_58BC'},'channel field/selector anchors')
@@ -116,6 +118,12 @@ def typed_evidence(root,f,analysis,ledger,promotions):
         details=dict(channel=index,field=field,record_stride=8,unknown_word_offset=2,capacity_claim=False)
     elif route=='AUDIO_GLOBAL_CELL':
         at,ty,fid,operand=GLOBALS[field];require(set(a)=={fid},'one direct audio scalar witness');fragments(a[fid][0],operand)
+        # These two scalars depend on curated global interpretations. The other
+        # six use independent ASM witnesses; any model entry must also agree.
+        rec=dm['globals'].get(d['symbol'])
+        require(rec is not None or field not in ('master_attenuation','output_enable'),'audio scalar interpretation absent')
+        if rec is not None:
+            require(rec['type']==ty and rec['extent']==o['size'],'audio scalar type/extent interpretation changed')
         if field=='rng_byte':fragments(a[fid][0],'move.b (a0),d0','move.b d0,(a0)')
         if field=='rng_word':fragments(a[fid][0],'roxr.w (a1)')
         details=dict(field=field,type=ty,operand=operand,scalar_width=o['size'])

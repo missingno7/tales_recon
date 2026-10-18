@@ -101,14 +101,14 @@ def index_job_receipts(root, wanted):
     return index
 
 
-def capture(root=ROOT):
+def capture(root=ROOT, previous=None):
     from evidence_snapshot import isolated_verification
     from validation_memo import scope
     with isolated_verification(root),scope(root):
-        return _capture(root)
+        return _capture(root, previous)
 
 
-def _capture(root):
+def _capture(root, previous=None):
     """Freeze only compiler-produced contribution bytes, not worker environments.
 
     Each specimen's raw hash is already in its accepted comparison. --refresh
@@ -124,6 +124,9 @@ def _capture(root):
     ledger=json.loads((root/'recovery/ledger.json').read_text());by={f['id']:f for f in analysis['functions']}
     entries={};replayed={}
     for fid,item in sorted(ledger['functions'].items()):
+        kept=(previous or {}).get(fid)
+        if kept and kept['proof_sha256']==item['proof_sha256'] and kept['source_sha256']==item['source_sha256']:
+            entries[fid]=kept;continue   # captured from this very proof; --check re-verifies it
         proof=json.loads(canonical_path(root,item['proof']).read_text())
         key=proof['cache_key'];compiled=cached(key)
         require(compiled is not None, 'missing compiler specimen; regenerate pinned receipt: '+fid)
@@ -346,10 +349,12 @@ def closure_inventory(report, analysis, ledger, model, node='ov04'):
 
 
 def main():
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--refresh',action='store_true');ap.add_argument('--write',action='store_true');ap.add_argument('--check',action='store_true');a=ap.parse_args()
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--refresh',action='store_true',help='re-capture the specimens whose proof changed');ap.add_argument('--refresh-all',action='store_true',help='re-capture every specimen');ap.add_argument('--write',action='store_true');ap.add_argument('--check',action='store_true');a=ap.parse_args()
     from evidence_snapshot import snapshot
     with snapshot():
-        if a.refresh:write_json(ROOT/SPECIMENS,capture())
+        if a.refresh or a.refresh_all:
+            kept=None if a.refresh_all else json.loads((ROOT/SPECIMENS).read_text())['functions']
+            write_json(ROOT/SPECIMENS,capture(previous=kept))
         output,report=build();text=human(report)
         _,model,_=game()
         closure=closure_inventory(report,json.loads((ROOT/'evidence/functions/ledger.json').read_text()),

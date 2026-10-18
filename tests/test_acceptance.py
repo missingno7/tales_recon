@@ -251,7 +251,7 @@ def test_specimen_capture_uses_checked_read_only_stage(tmp_path,fail):
         events.append('enter')
         try:yield
         finally:events.append('exit')
-    def replay(root):
+    def replay(root,previous=None):
         assert memo._SESSION.get().root==tmp_path.resolve()
         if fail:raise ValueError('replay failed')
         return {'compiler_produced':True}
