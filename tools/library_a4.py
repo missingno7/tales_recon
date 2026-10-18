@@ -17,7 +17,7 @@ from overlay_experiment import symbols
 INPUT='evidence/contributions/library-a4.json'
 
 def checked(root,item):
-    raw=(read_source(root, item['path']) if item['path'].startswith('src/') else canonical_path(root,item['path']).read_bytes())
+    raw=(read_source(root, item['path'], names_root=None) if item['path'].startswith('src/') else canonical_path(root,item['path']).read_bytes())
     require(sha256(raw)==item['sha256'],'library A4 retained input changed: '+item['path'])
     return raw
 

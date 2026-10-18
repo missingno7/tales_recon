@@ -226,3 +226,56 @@ def test_port_override_keeps_function_identity_for_module_refs(module_tree):
     assert port_gen.unit_override(text,overrides,root=module_tree)==expected
     expected.unlink()
     assert port_gen.unit_override(text,overrides,root=module_tree) is None
+
+
+def test_registry_scope_is_independent_of_source_location(module_tree):
+    copied=module_tree/'copy';copied.mkdir()
+    path=copied/'unit.c';raw=b'int recovered() { return scene_state; }\r\n';path.write_bytes(raw)
+    assert names.read_source(copied,path)==raw
+    assert names.read_source(copied,path,names_root=module_tree)==names.to_mechanical(raw,module_tree)
+    # None retains the exact default registry of the old to_mechanical call.
+    assert names.read_source(copied,path,names_root=None)==names.to_mechanical(raw)
+    assert names.read_source_text(copied,path,names_root=module_tree)==names.to_mechanical(path.read_text(),module_tree)
+
+
+def test_text_reader_preserves_default_encoding_and_universal_newlines(module_tree):
+    path=module_tree/'src/text.c'
+    path.write_bytes(b'/* caf\xc3\xa9 */\r\nint recovered(){ return scene_state; }\r\n')
+    assert names.read_source_text(module_tree,path)==names.to_mechanical(path.read_text(),module_tree)
+    assert names.read_source(module_tree,path)==names.to_mechanical(path.read_bytes(),module_tree)
+
+
+def test_text_decoding_precedes_normalization_for_multibyte_encoding(module_tree):
+    path=module_tree/'src/wide.c';path.write_bytes('int recovered(){return scene_state;}\r\n'.encode('utf-16'))
+    expected=names.to_mechanical(path.read_text(encoding='utf-16'),module_tree)
+    assert 'G_h01_0010' in expected
+    assert names.read_source_text(module_tree,path,encoding='utf-16')==expected
+    assert names.read_source(module_tree,path)==names.to_mechanical(path.read_bytes(),module_tree)
+
+
+def test_external_candidate_requires_explicit_scratch_opt_in(module_tree):
+    root=module_tree/'repo';root.mkdir()
+    path=module_tree/'candidate.c';path.write_bytes(b'int recovered(){return scene_state;}\r\n')
+    with pytest.raises(FormatError):names.read_source(root,path)
+    with pytest.raises(FormatError):names.read_source(root,path,scratch=True)
+    with pytest.raises(FormatError):names.read_source(root,path,external=True)
+    assert names.read_source(root,path,scratch=True,external=True,names_root=module_tree)==names.to_mechanical(path.read_bytes(),module_tree)
+    assert names.read_source_text(root,path,scratch=True,external=True,names_root=module_tree)==names.to_mechanical(path.read_text(),module_tree)
+    with pytest.raises(FormatError,match='absolute'):names.read_source(root,'../candidate.c',scratch=True,external=True)
+    quarantine=module_tree/'to_delete';quarantine.mkdir();retired=quarantine/'candidate.c';retired.write_bytes(path.read_bytes())
+    with pytest.raises(FormatError,match='quarantined'):names.read_source(root,retired,scratch=True,external=True)
+
+
+def test_difftest_diagnostic_accepts_explicit_external_candidate(module_tree,monkeypatch):
+    import difftest
+    root=module_tree/'repo';root.mkdir()
+    candidate=module_tree/'candidate.c';candidate.write_bytes(b'/* candidate */\r\nint recovered(){return 1;}\r\n')
+    fid='ov07_F_0300'
+    evidence=dict(id=fid,hunk=7,start=0,end=2,extent_status='CLOSED_CFG',confidence='HIGH',undecoded_gaps=[])
+    monkeypatch.setattr(difftest,'ROOT',root)
+    monkeypatch.setattr(difftest,'catalog',lambda:({}, {fid:evidence}))
+    monkeypatch.setattr(difftest,'data_model',lambda:{})
+    plan=difftest.prepare(fid,candidate=candidate)
+    assert plan['source']==names.to_mechanical(candidate.read_bytes()).decode('latin-1')
+    assert plan['source_path']==candidate.resolve()
+    assert plan['proof_category']=='UNRESOLVED_CANDIDATE'

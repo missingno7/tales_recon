@@ -18,7 +18,7 @@ ANCHORS = ('resident_F_77A4', 'resident_F_7B24', 'resident_F_8534', 'ov04_F_1E36
 
 
 def read(root, path):
-    return (read_source(root, path) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
+    return (read_source(root, path, names_root=None) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def inputs(root):

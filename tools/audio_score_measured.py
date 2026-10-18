@@ -238,7 +238,7 @@ def rows(root,blob,model,analysis,ledger):
     expected={o['source']:o['source_sha256'] for o in fact['objects']}
     require(item['sources']==expected,'measured complete source inventory')
     for o in fact['objects']:
-        raw=read_source(root, o['source'])
+        raw=read_source(root, o['source'], names_root=None)
         require(raw==canonical_path(root,o['candidate']).read_bytes() and sha256(raw)==o['source_sha256'],'canonical measured source changed')
     proofraw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(proofraw)
     require(sha256(proofraw)==item['proof_sha256'] and set(proof)=={'fact','comparison','regression'} and proof['fact']==fact and proof['regression'].get('passed') is True,'measured score proof/gate')
@@ -282,4 +282,4 @@ def input_identity(root):
     item=ledger.get(MAP,{}).get(IDENT)
     if item:names.update([item['fact'],item['proof'],*item['sources']])
     def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
-    return {**{str(path(n)):sha256((read_source(root, path(n)) if n.startswith('src/') else path(n).read_bytes())) if (source_file(root, path(n)) if n.startswith('src/') else path(n)).exists() else None for n in sorted(names)},**external}
+    return {**{str(path(n)):sha256((read_source(root, path(n), names_root=None) if n.startswith('src/') else path(n).read_bytes())) if (source_file(root, path(n)) if n.startswith('src/') else path(n)).exists() else None for n in sorted(names)},**external}

@@ -24,7 +24,7 @@ def input_snapshot(root, ledger, requests, compiled):
     for name, pattern in (('tools', '*.py'), ('tests', '*.py'), ('evidence', '*.json'), ('assets', '*'),
                           ('src', '*'), ('recovery/proofs', '*'), ('recovery/units', '*')):
         paths.update(p for p in active_files(root/name) if pattern=='*' or p.match(pattern))
-    paths.update(source_path(root,r['source'],scratch=True) for r in requests)
+    paths.update(source_path(root,Path(r['source']).resolve(),scratch=True,external=True) for r in requests)
     paths.update(root / name for name in ('docs/toolchain.json', 'docs/blockers.json') if (root / name).is_file())
     for item in compiled:
         directory = Path(item['directory'])
@@ -104,7 +104,7 @@ def validate_plan(root, ledger, entries):
 def publish_verified(requests, entries, verified_inputs=None):
     """Internal verified-entry handoff; never trusts a worker-authored receipt."""
     require([r['id'] for r in requests] == [e['id'] for e in entries], 'batch request/entry identities differ')
-    require(all(read_source_text(check_function.ROOT, Path(r['source']), scratch=True, encoding='utf-8') == e['source'] for r, e in zip(requests, entries)),
+    require(all(read_source_text(check_function.ROOT, Path(r['source']).resolve(), scratch=True, external=True, names_root=None, encoding=None, errors='strict') == e['source'] for r, e in zip(requests, entries)),
             'candidate changed before publication')
     root, ledger_path = check_function.ROOT.resolve(), check_function.LEDGER.resolve()
     with ledger_lock(ledger_path):
@@ -147,7 +147,7 @@ def run(requests, verify_only=False):
         require(not request.get('owned_static_data'), 'initialized DATA proof is not independently promotable')
     # Freeze candidate text before verification; reread afterward rather than
     # accepting a receipt for an edited source file.
-    texts = [read_source_text(check_function.ROOT, Path(r['source']), scratch=True, encoding='utf-8') for r in requests]
+    texts = [read_source_text(check_function.ROOT, Path(r['source']).resolve(), scratch=True, external=True, names_root=None, encoding=None, errors='strict') for r in requests]
     ledger_hash = digest(check_function.LEDGER)
     verified_inputs = verification_snapshot(check_function.ROOT, check_function.LEDGER, requests)
     compile_queue.install()
@@ -156,7 +156,7 @@ def run(requests, verify_only=False):
     for request, text, report in zip(requests, texts, reports):
         fid = request['id']
         require(report['verdict'] == 'EQUAL', 'batch verification failed; no canonical writes: ' + fid)
-        require(report['source_sha256'] == sha256(text.encode('ascii')) and read_source_text(check_function.ROOT, Path(request['source']), scratch=True, encoding='utf-8') == text,
+        require(report['source_sha256'] == sha256(text.encode('ascii')) and read_source_text(check_function.ROOT, Path(request['source']).resolve(), scratch=True, external=True, names_root=None, encoding=None, errors='strict') == text,
                 'candidate changed during batch verification: ' + fid)
         f, evidence = check_function.validated_function(fid)
         compiled = compiler_oracle.cached(report['cache_key'])

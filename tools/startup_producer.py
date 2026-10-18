@@ -23,7 +23,7 @@ PARTS = [['C_COMPILER', 0, 48], ['ASM', 48, 54],
 
 
 def read(root, path):
-    return (read_source(root, path) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
+    return (read_source(root, path, names_root=None) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def index(rows, label):

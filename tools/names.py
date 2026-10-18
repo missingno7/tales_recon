@@ -4,6 +4,7 @@ Exclusions are identities detected in the unrenamed source, not a second name
 registry. They must stay fixed after a rename (including in a fresh process).
 """
 from functools import lru_cache
+import io
 import json
 from pathlib import Path
 import re
@@ -110,10 +111,21 @@ def split_source_ref(ref):
     return path, name if separator else None
 
 
-def source_path(root, ref, *, scratch=False):
+def source_path(root, ref, *, scratch=False, external=False):
     """Validate and resolve the physical file, including module references."""
     from repo_paths import canonical_path, candidate_path
     path, _ = split_source_ref(ref)
+    if external:
+        # Only explicit candidate handoffs that previously read an arbitrary
+        # Path may opt in. Canonical inputs and ordinary scratch stay bounded.
+        from common import require
+        require(scratch, 'external source requires scratch mode')
+        selected = Path(path)
+        require(selected.is_absolute(), 'external source requires an absolute candidate path')
+        selected = selected.resolve()
+        require('to_delete' not in (part.lower() for part in selected.parts),
+                'quarantined candidate input is forbidden')
+        if not selected.is_relative_to(Path(root).resolve()):return selected
     return candidate_path(root, Path(root) / path) if scratch else canonical_path(root, path)
 
 
@@ -182,27 +194,47 @@ def module_parts(text):
     return text[:spans[0][1]], parts
 
 
-def read_source(root, ref, *, scratch=False):
-    """Read a normalized compile unit; plain paths preserve the existing bytes.
+_SOURCE_NAMES = object()
 
-    path#name selects shared declarations plus that commented definition only.
-    Its own identifier (declarations and recursive calls included) becomes
-    recovered; other functions keep their mechanical identities. No source copy
-    is retained, and the existing exact compiler/object proof remains the gate.
-    """
+
+def _source_unit(root, ref, *, scratch=False, external=False):
+    """One extraction path for binary and text readers, before normalization."""
     _, name = split_source_ref(ref)
-    raw = source_path(root, ref, scratch=scratch).read_bytes()
-    if name is None:
-        return to_mechanical(raw, root)
+    raw = source_path(root, ref, scratch=scratch, external=external).read_bytes()
+    if name is None:return raw, name
     shared, parts = module_parts(raw.decode('latin-1'))
     if name not in parts:
         raise ValueError('unknown module function: ' + name)
-    unit = to_mechanical((shared + parts[name]).encode('latin-1'), root)
-    return translate(unit, {identity(name, root): 'recovered'})
+    return (shared + parts[name]).encode('latin-1'), name
 
 
+def _normalize_unit(raw, name, names_root):
+    unit = to_mechanical(raw, names_root)
+    return translate(unit, {identity(name, names_root): 'recovered'}) if name is not None else unit
 
-def read_source_text(root, ref, *, scratch=False, encoding='utf-8', errors='strict'):
-    """Text-mode adapter for former read_text sites; plain files keep universal newlines."""
-    text = read_source(root, ref, scratch=scratch).decode(encoding, errors)
-    return text.replace('\r\n', '\n').replace('\r', '\n') if split_source_ref(ref)[1] is None else text
+
+def read_source(root, ref, *, scratch=False, external=False, names_root=_SOURCE_NAMES):
+    """Normalized compile unit: shared prefix + commented definition for path#name.
+
+    Plain paths retain byte-read semantics. The registry defaults to root;
+    names_root=None explicitly retains the running repository's registry, as
+    former to_mechanical(data) calls did even when reading a copied fixture.
+    External absolute candidates need an explicit scratch-only opt-in.
+    """
+    raw, name = _source_unit(root, ref, scratch=scratch, external=external)
+    return _normalize_unit(raw, name, root if names_root is _SOURCE_NAMES else names_root)
+
+
+def read_source_text(root, ref, *, scratch=False, external=False, names_root=_SOURCE_NAMES,
+                     encoding=None, errors='strict'):
+    """Preserve Path.read_text decoding/newlines before normalizing identifiers.
+
+    In particular, encoding=None uses Python's actual text-I/O default, and
+    decoding precedes name translation (also for multibyte source encodings).
+    Module compile units retain their extracted newlines, matching read_source.
+    """
+    raw, name = _source_unit(root, ref, scratch=scratch, external=external)
+    with io.TextIOWrapper(io.BytesIO(raw), encoding=encoding, errors=errors,
+                          newline=None if name is None else '') as stream:
+        text = stream.read()
+    return _normalize_unit(text, name, root if names_root is _SOURCE_NAMES else names_root)

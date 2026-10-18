@@ -25,7 +25,7 @@ PARTS = [('C_COMPILER', 0, 122), ('ASM', 122, 154),
 
 
 def read(root, path):
-    return (read_source(root, path) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
+    return (read_source(root, path, names_root=None) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 _PINS = {}

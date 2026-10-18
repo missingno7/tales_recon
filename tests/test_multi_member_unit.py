@@ -101,7 +101,7 @@ class MultiMemberPreparationTests(unittest.TestCase):
         canonical={B['id']:dict(source='b.c',source_sha256=check_unit.sha256(b'recovered() {}\n'))}
         with patch.object(check_unit,'validated_function',side_effect=validated), \
              patch.object(check_unit,'recovery',return_value=dict(functions=canonical)), \
-             patch.object(check_unit,'canonical_path',return_value=type('P',(),{'read_text':lambda self:'recovered() {}\n'})()), \
+             patch.object(check_unit,'read_source_text',return_value='recovered() {}\n'), \
              patch.object(check_unit,'proven_object_members',return_value=[]):
             # The slot-reached callee is unrecovered: the ordinary closure needs it.
             with self.assertRaisesRegex(FormatError,'unrecovered same-node dependency: ov09_F_0090'):

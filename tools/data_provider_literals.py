@@ -61,7 +61,7 @@ def typed_evidence(root,fact,blob,model,analysis,ledger,promotions):
  shape(fact);accepted={p['id'] for p in promotions};by={f['id']:f for f in analysis['functions']};texts={};proofs={};ev=[]
  for fid in CONSUMERS:
   require(fid in accepted and fid in ledger['functions'],'story consumer not currently canonical')
-  item=ledger['functions'][fid];src=read_source(root, item['source']);pr=canonical_path(root,item['proof']).read_bytes()
+  item=ledger['functions'][fid];src=read_source(root, item['source'], names_root=None);pr=canonical_path(root,item['proof']).read_bytes()
   require(sha256(src)==item['source_sha256'] and sha256(pr)==item['proof_sha256'],'canonical story consumer changed')
   require(fact['evidence'][fid]==dict(source_sha256=item['source_sha256'],proof_sha256=item['proof_sha256']),'stale story consumer pins')
   texts[fid]=' '.join(src.decode('ascii').split());proofs[fid]=json.loads(pr)

@@ -43,7 +43,7 @@ def canonical_source(entry):
     path=source_path(ROOT,entry.get("source",""))
     if not path.is_relative_to((ROOT/"src").resolve()): raise Unsupported("source is outside src")
     if not path.is_file(): raise Unsupported("canonical source is missing")
-    raw=read_source(ROOT, entry["source"])
+    raw=read_source(ROOT, entry['source'], names_root=None)
     if entry.get("source_sha256") and digest(raw)!=entry["source_sha256"]: raise Unsupported("canonical source hash is stale")
     return path,raw.decode("latin-1")
 
@@ -263,7 +263,7 @@ def prepare(fid,candidate=None):
     if ex and (ex.get("hunk"),ex.get("start"),ex.get("end"))!=(ev.get("hunk"),ev.get("start"),ev.get("end")):
         raise Unsupported("canonical extent differs from execution fixture")
     if candidate is not None:
-        path=Path(candidate).resolve();src=read_source(ROOT, path, scratch=True).decode("latin-1")
+        path=Path(candidate).resolve();src=read_source(ROOT, path, scratch=True, external=True, names_root=None).decode("latin-1")
     else:path,src=canonical_source(entry)
     sig=signature(src); calls,stubs=calls_of(ev)
     struct_layouts=data_model().get("structs",{})

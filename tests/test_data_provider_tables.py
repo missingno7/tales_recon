@@ -125,7 +125,8 @@ class BoundWitnessTests(unittest.TestCase):
 
     def test_current_source_and_proof_pins_are_mandatory(self):
         f,l,a,files=self.anchors()
-        with patch.object(t,'canonical_path',side_effect=lambda r,n:SimpleNamespace(read_bytes=lambda:files[n])):
+        with patch.object(t,'canonical_path',side_effect=lambda r,n:SimpleNamespace(read_bytes=lambda:files[n])), \
+             patch.object(t,'read_source',side_effect=lambda r,n,**kwargs:files[n]):
             self.assertIn('consumer',t.canonical_anchors(None,f,a,l,[dict(id='consumer')]))
             for name in files:
                 old=files[name];files[name]=old+b' '

@@ -254,7 +254,7 @@ def validate(root, f, item, analysis):
     from repo_paths import canonical_path
     require(set(item) == {'state', 'source', 'source_sha256', 'proof', 'proof_sha256', 'evidence_extent'} and
             item['state'] == STATE and item['proof'] == PROOFS + f['id'] + '.json', 'behavioral ledger entry')
-    source = read_source(root, item['source'])
+    source = read_source(root, item['source'], names_root=None)
     raw = canonical_path(root, item['proof']).read_bytes()
     require(sha256(source) == item['source_sha256'] and sha256(raw) == item['proof_sha256'],
             'behavioral source/proof binding')
@@ -310,7 +310,7 @@ def promote(requests):
     by = {f['id']: f for f in analysis['functions']}
     staged = []
     for r in requests:
-        source = read_source(root, root / r['source'], scratch=True)
+        source = read_source(root, root / r['source'], scratch=True, names_root=None)
         result = check(r['id'], r['source'], r.get('profile', 'aztec36'))
         require(result.get('state') == STATE, r['id'] + ' is not behaviorally equal: ' + str(result.get('reason')))
         staged.append((r['id'], source, result))

@@ -79,7 +79,7 @@ def main():
         publish_objects=[dict(candidate=fact['candidate'],source=fact['source'],source_sha256=fact['source_sha256'])] if backend is h1 else fact['objects']
         for obj in publish_objects:
             raw=canonical_path(root,obj['candidate']).read_bytes();dest=canonical_path(root,obj['source'])
-            require(sha256(raw)==obj['source_sha256'] and (not dest.exists() or read_source(root, dest)==raw),'CODE-data source destination differs')
+            require(sha256(raw)==obj['source_sha256'] and (not dest.exists() or read_source(root, dest, names_root=None)==raw),'CODE-data source destination differs')
             artifacts[dest]=raw;sources[obj['source']]=sha256(raw)
         dest=canonical_path(root,proof_path);require(not dest.exists() or dest.read_bytes()==proof,'CODE-data proof destination differs');artifacts[dest]=proof
         updated.setdefault(provider.MAP,{})[backend.IDENT]=dict(state=provider.STATE,fact=backend.FACT,sources=sources,proof=proof_path,proof_sha256=sha256(proof))

@@ -22,7 +22,7 @@ FIELDS = (4, 8, 16, 30, 38, 78, 96)
 
 
 def read(root, path):
-    return (read_source(root, path) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
+    return (read_source(root, path, names_root=None) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def commands(scope):

@@ -111,7 +111,7 @@ def corpus(root=ROOT):
     for relative in canonical_sources(root):
         path = root / relative
         try:
-            text = read_source_text(root, path, encoding='ascii')
+            text = read_source_text(root, path, names_root=None, encoding='ascii', errors='strict')
         except (OSError, UnicodeDecodeError):
             continue
         externs, defs, bad = parse_source(text)

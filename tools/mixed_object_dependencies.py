@@ -22,11 +22,11 @@ def recipe(root=ROOT,ledger=None):
  item=ledger.get('mixed_source_objects',{}).get(ID)
  require(item is not None,'mixed dependency is not canonical')
  require(item['source']==m.SOURCE and item['proof']==m.PROOF and item['state']=='FUNCTION_CODE_MATCH','unsupported mixed dependency')
- source=read_source(root, item['source']);proof_raw=canonical_path(root,item['proof']).read_bytes();p=json.loads(proof_raw)
+ source=read_source(root, item['source'], names_root=None);proof_raw=canonical_path(root,item['proof']).read_bytes();p=json.loads(proof_raw)
  require(source==m.expected_source(root).encode('ascii') and sha256(source)==item['source_sha256'] and sha256(proof_raw)==item['proof_sha256'],'mixed dependency canonical source/proof changed')
  require(p['kind']=='SDK_DERIVED_MIXED_OBJECT' and p['comparison']['verdict']=='EQUAL' and p['comparison']['complete_object'] and p['size']==238 and p['original']==dict(hunk=0,start=0x8552,end=0x8640) and p['comparison']['owned_data']==p['comparison']['owned_bss']==0,'mixed dependency complete contract differs')
  for r in p['input_graph']:
-  data=read_source(root,r['path']) if r['path'].startswith('src/') else canonical_path(root,r['path']).read_bytes()
+  data=read_source(root, r['path'], names_root=None) if r['path'].startswith('src/') else canonical_path(root,r['path']).read_bytes()
   require(sha256(data)==r['sha256'],'mixed dependency proof input changed')
  fact=json.loads(canonical_path(root,m.FACT).read_text());directory=fact['mechanical_directory']
  raw,_,_,_=m.control(root,directory,source.decode('ascii'))
@@ -43,7 +43,7 @@ def derive(members,root=ROOT,ledger=None):
 
 def header(root=ROOT):
  import resident_mixed as m
- source=read_source_text(root, m.SOURCE, encoding='utf-8');return source[:source.index('recovered(code)')]
+ source=read_source_text(root, m.SOURCE, names_root=None, encoding=None, errors='strict');return source[:source.index('recovered(code)')]
 
 def configure(trial,recipes,root=ROOT):
  if not recipes:return

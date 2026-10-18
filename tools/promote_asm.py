@@ -84,7 +84,7 @@ def main():
             proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=canonical_path(root,fact['candidate']).read_bytes()
             proof_path='recovery/proofs/asm-reconstructed/'+fact['id']+'.json'
             for dest,raw in [(fact['source'],source),(proof_path,proof)]:
-                p=canonical_path(root,dest);require(not p.exists() or (read_source(root, p) if dest.startswith('src/') else p.read_bytes())==raw,'ASM destination differs')
+                p=canonical_path(root,dest);require(not p.exists() or (read_source(root, p, names_root=None) if dest.startswith('src/') else p.read_bytes())==raw,'ASM destination differs')
             updated.setdefault(predicate.MAP,{})[fact['id']]=dict(state='FUNCTION_CODE_MATCH',fact=name,source=fact['source'],source_sha256=sha256(source),proof=proof_path,proof_sha256=sha256(proof))
             artifacts[root/fact['source']]=source;artifacts[root/proof_path]=proof
         publish(root,ledger_path,artifacts,updated,before)

@@ -22,7 +22,7 @@ def verify(root, blob, model_original, analysis, promotions, ledger):
         require(item and any(p['id'] == fid and p['hunk'] == 0 and p['start'] == target for p in promotions),
                 'startup canonical callee missing')
         for key in ('source', 'proof'):
-            require(sha256((read_source(root, item[key]) if str(item[key]).startswith('src/') else canonical_path(root, item[key]).read_bytes())) == item[key + '_sha256'],
+            require(sha256((read_source(root, item[key], names_root=None) if str(item[key]).startswith('src/') else canonical_path(root, item[key]).read_bytes())) == item[key + '_sha256'],
                     'startup canonical callee stale')
     require(not any(r['source_hunk'] == 0 and r['source_offset'] < 30628 and
                     r['source_offset'] + r['width'] > 30316 for r in model_original['relocations']),

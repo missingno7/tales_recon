@@ -26,7 +26,7 @@ def derive(members,root,ledger):
         if module is stateful:job=proof['comparison']['producer']['job']
         by={o['prefix']:o for o in proof['comparison']['objects']}
         for obj in fact['objects']:
-            src=read_source(root, obj['source'])
+            src=read_source(root, obj['source'], names_root=None)
             require(sha256(src)==obj['source_sha256']==item['sources'][obj['source']],'selector provider source changed')
             path=job+'/sys/work/'+obj['prefix']+'.o';assembled=candidate_path(root,Path(root)/path).read_bytes()
             require(sha256(assembled)==by[obj['prefix']]['object_sha256'],'selector provider supporting object changed')

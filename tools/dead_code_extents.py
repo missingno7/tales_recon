@@ -256,14 +256,14 @@ def _verify_admission(root,blob,model,analysis,ledger,row):
  admission_boundary(make_view(base,analysis,blob,model,root))
  def pinned(spec):
   require(isinstance(spec,dict) and set(spec)=={'path','sha256'},'dead-code retained input schema differs')
-  path=canonical_path(root,spec['path']);require(sha256((read_source(root, path) if spec['path'].startswith('src/') else path.read_bytes()))==spec['sha256'],'dead-code retained input changed: '+spec['path']);return path
+  path=canonical_path(root,spec['path']);require(sha256((read_source(root, path, names_root=None) if spec['path'].startswith('src/') else path.read_bytes()))==spec['sha256'],'dead-code retained input changed: '+spec['path']);return path
  source_path=pinned(row['source']);entry_path=pinned(row['entry_source']);receipt_path=pinned(row['receipt']);compiler_path=pinned(row['compiler'])
  receipt=json.loads(receipt_path.read_bytes());producer=json.loads(compiler_path.read_bytes())
- source=(read_source_text(root, source_path, encoding='ascii') if row['source']['path'].startswith('src/') else source_path.read_text(encoding='ascii'));entry_source=(read_source_text(root, entry_path, encoding='ascii') if row['entry_source']['path'].startswith('src/') else entry_path.read_text(encoding='ascii'));member_paths={k:pinned(v) for k,v in row['member_sources'].items()}
+ source=(read_source_text(root, source_path, names_root=None, encoding='ascii', errors='strict') if row['source']['path'].startswith('src/') else source_path.read_text(encoding='ascii'));entry_source=(read_source_text(root, entry_path, names_root=None, encoding='ascii', errors='strict') if row['entry_source']['path'].startswith('src/') else entry_path.read_text(encoding='ascii'));member_paths={k:pinned(v) for k,v in row['member_sources'].items()}
  require(receipt.get('verdict')=='EQUAL' and receipt.get('id')==entry and receipt.get('unclaimed_bytes')==0,'dead-code admission lacks exact whole-unit verdict')
  require(receipt.get('source_sha256')==sha256(entry_source.encode('ascii')),'dead-code admission candidate source changed')
  require((fid==entry and source_path==entry_path) or (fid in member_paths and source_path==member_paths[fid]),'dead-code source is not a producing unit member')
- require(all(receipt.get('member_sources',{}).get(k)==sha256((read_source_text(root, v, encoding='ascii') if row['member_sources'][k]['path'].startswith('src/') else v.read_text(encoding='ascii')).encode('ascii')) for k,v in member_paths.items()),'dead-code member source changed')
+ require(all(receipt.get('member_sources',{}).get(k)==sha256((read_source_text(root, v, names_root=None, encoding='ascii', errors='strict') if row['member_sources'][k]['path'].startswith('src/') else v.read_text(encoding='ascii')).encode('ascii')) for k,v in member_paths.items()),'dead-code member source changed')
  state=ledger
  require(all(state['functions'].get(k,{}).get('source_sha256')==v for k,v in receipt['dependency_sources'].items()),'dead-code canonical dependencies changed')
  # The receipt's verifier identity is retained provenance. Acceptance comes

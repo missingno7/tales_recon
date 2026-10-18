@@ -19,7 +19,7 @@ def validation_inputs(root):
     for item in ledger['functions'].values():
         paths.update([item['source'], item['proof']])
     paths.update(p.relative_to(root).as_posix() for p in (root / 'tools').glob('*.py'))
-    return [dict(path=p, sha256=sha256((read_source(root, p) if p.startswith('src/') else canonical_path(root, p).read_bytes()))) for p in sorted(paths)]
+    return [dict(path=p, sha256=sha256((read_source(root, p, names_root=None) if p.startswith('src/') else canonical_path(root, p).read_bytes()))) for p in sorted(paths)]
 
 
 def main():
@@ -48,7 +48,7 @@ def main():
             re.search(r'^OK(?: \(skipped=\d+\))?\s*$', log, re.M), 'promotion regression incomplete or failed')
     source = expected_source(ROOT).encode('ascii')
     path = canonical_path(ROOT, SOURCE)
-    require(not path.exists() or read_source(ROOT, path) == source, 'canonical mixed source already differs')
+    require(not path.exists() or read_source(ROOT, path, names_root=None) == source, 'canonical mixed source already differs')
     path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(source)
     write_json(ROOT / PROOF, proof)
     ledger.setdefault('mixed_source_objects', {})[row['id']] = dict(state='FUNCTION_CODE_MATCH',

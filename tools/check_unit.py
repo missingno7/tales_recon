@@ -309,7 +309,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             import behavioral
             require(dep_id not in r['functions'],'behavioral entry is also exact C')
             behavioral.validate(verification_root(),df,dep,l)
-        text=read_source_text(verification_root(), dep['source'], encoding='utf-8')
+        text=read_source_text(verification_root(), dep['source'], names_root=None, encoding=None, errors='strict')
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
         name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
@@ -1268,9 +1268,9 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     if isolated and output_dir is not None:
         from check_function import isolated_output_root
         output_root=isolated_output_root(output_dir)
-    member_sources={k:read_source_text(verification_root(), v, scratch=True, encoding='utf-8') for k,v in (member_sources or {}).items()}
+    member_sources={k:read_source_text(verification_root(), v, scratch=True, names_root=None, encoding=None, errors='strict') for k,v in (member_sources or {}).items()}
     resident_groups=bool(object_groups) and validated_function(fid)[0]['node']=='resident'
-    source=read_source_text(verification_root(), path, scratch=True, encoding='utf-8');members,names,parts,combined,ledger=prepare_unit(
+    source=read_source_text(verification_root(), path, scratch=True, names_root=None, encoding=None, errors='strict');members,names,parts,combined,ledger=prepare_unit(
         fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources,
         natural_interval=natural_interval,local_calls_only=resident_groups)
     natural=None

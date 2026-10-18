@@ -164,7 +164,7 @@ def render(root=ROOT, out=None):
     header_path.write_bytes(data_model.render_header(model, names).encode('ascii'))
     for kind in OWNERSHIP_MAPS:
         for fid, item in sorted(ledger.get(kind, {}).items()):
-            source = read_source_text(root, item['source'], encoding='utf-8')
+            source = read_source_text(root, item['source'], names_root=None, encoding=None, errors='strict')
             source, decisions = apply_data_model(source, model)
             active = NON_CODE.sub('', source)
             externs, _, unparsed = parse_source(active)

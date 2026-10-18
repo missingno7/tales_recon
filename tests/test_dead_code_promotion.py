@@ -78,7 +78,8 @@ class CompleteCPromotionTests(unittest.TestCase):
    return real_path(root,name)
   # Exact replay above uses the real unchanged producing inputs; these local
   # files model only the future destination, without promoting this repository.
-  with patch.object(promote.dead,'verified_admissions',return_value=verified),patch.object(promote,'canonical_path',side_effect=resolve):
+  with patch.object(promote.dead,'verified_admissions',return_value=verified),patch.object(promote,'canonical_path',side_effect=resolve), \
+       patch.object(promote,'read_source',side_effect=lambda root,ref,**kwargs: to_mechanical(source.read_bytes())):
    accepted=promote.canonical_rows(ROOT,blob,model,analysis,hypothetical)
    self.assertTrue(next(r for r in accepted if r['id']==row['id'])['source_acceptance'])
    source.write_bytes(source.read_bytes()+b' ')

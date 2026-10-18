@@ -13,7 +13,7 @@ def compact(text):return ''.join(text.split())
 
 def anchor(root,ledger,accepted,e):
     fid=e['function'];require(fid in accepted and fid in ledger['functions'],'bounds consumer is not canonical')
-    item=ledger['functions'][fid];raw=read_source(root, item['source']);proofraw=canonical_path(root,item['proof']).read_bytes()
+    item=ledger['functions'][fid];raw=read_source(root, item['source'], names_root=None);proofraw=canonical_path(root,item['proof']).read_bytes()
     require(sha256(raw)==item['source_sha256']==e['source_sha256'] and sha256(proofraw)==item['proof_sha256']==e['proof_sha256'],'stale independent bounds anchor')
     import json
     return raw.decode('ascii'),json.loads(proofraw)
@@ -73,7 +73,7 @@ def state16(root,analysis,ledger,accepted,e,types):
     # call is from the initialized entry; helper/writer calls stay in this set.
     callee_names={'F_h05_1860','F_h05_30EE','F_h05_318E','F_h05_3A9E'}
     for fid,item in ledger['functions'].items():
-        c=read_source_text(root, item['source'], encoding='utf-8')
+        c=read_source_text(root, item['source'], names_root=None, encoding=None, errors='strict')
         calls=[n for n in callee_names if re.search(r'(?<!extern int )(?<!extern long )\b'+n+r'\(',c)]
         if calls:require(fid in expected,'new caller requires state initialization proof')
     return dict(kind='INDUCTIVE_STATE16',domain=[0,15],initialization='ov05_F_0000 before sole F1860 call',writer_functions=sorted(writers),write_sites=[dict(function=a['function'],site=a['offset'],width=a['width_bytes']) for a in writes],helper_outputs=[helper(a) for a in range(16)],alias_5E41='READ_ONLY')
@@ -121,7 +121,7 @@ def verify_definition(root,fact,d,analysis,ledger,promotions,types):
             indices=[compact(x) for x in re.findall(re.escape(d['symbol'])+r'\[([^\]]+)\]',c) if not x.isdigit()]
             require(indices==['c64*2','c64*2+1']*4+['2*(15-c64)+1','2*(15-c64)','2*c64+1','2*c64'],'unreviewed coordinate index expression')
             for fid,item in ledger['functions'].items():
-                text=read_source_text(root, item['source'], encoding='utf-8')
+                text=read_source_text(root, item['source'], names_root=None, encoding=None, errors='strict')
                 for m in mutations(text,'G_h01_6F2E'):
                     match=re.fullmatch(r'G_h01_6F2E=(0x[0-9a-fA-F]+|[0-9]+);',m)
                     require(match and (int(match[1],0)!=4 or fid==f['id']),'unreviewed transition into coordinate state 4')

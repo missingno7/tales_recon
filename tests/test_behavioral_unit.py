@@ -288,7 +288,7 @@ def test_root_slot_pc_jsr_closure_keeps_intervening_canonical_members():
     analysis=dict(functions=members,a4=dict(bias=32766))
     def validated(fid):return next(m for m in members if m['id']==fid),analysis
     with patch('check_unit.validated_function',side_effect=validated),patch('check_unit.recovery',return_value=ledger), \
-         patch('check_unit.canonical_path',return_value=type('Source',(),{'read_text':lambda self:text})()), \
+         patch('check_unit.read_source_text',return_value=text), \
          patch('check_unit.proven_object_members',return_value=[]):
         prepared=check_unit.prepare_unit(entry['id'],text,True,allow_gaps=True)
     assert [m['id'] for m in prepared[0]]==[m['id'] for m in members]

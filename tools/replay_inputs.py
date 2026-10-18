@@ -44,7 +44,7 @@ class ContentScan:
  def read(self,path,*,scratch=False):
   target=self.canonical(path,scratch=scratch);name=str(target)
   if name not in self.values:
-   try:raw=(read_source(self.root, target) if target.is_relative_to(self.root / 'src') else target.read_bytes())
+   try:raw=(read_source(self.root, target, names_root=None) if target.is_relative_to(self.root / 'src') else target.read_bytes())
    except FileNotFoundError:raw=None
    self.raw[name]=raw;self.values[name]=sha256(raw) if raw is not None else None
   return self.raw[name]

@@ -106,7 +106,7 @@ def derive(members,root=ROOT,ledger=None):
     by=inventory(root,ledger);objects=[];aliases={}
     for record in records:
         ident,item,fact=record['id'],record['item'],record['fact']
-        src=read_source(root, item['source']);proof_raw=canonical_path(root,item['proof']).read_bytes()
+        src=read_source(root, item['source'], names_root=None);proof_raw=canonical_path(root,item['proof']).read_bytes()
         require(sha256(src)==item['source_sha256'] and sha256(proof_raw)==item['proof_sha256'],'canonical ASM source/proof changed')
         proof=json.loads(proof_raw)
         require(proof['fact']==fact and proof['regression'].get('passed') is True,'ASM dependency is not canonical')

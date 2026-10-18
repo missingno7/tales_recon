@@ -332,7 +332,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
     output_root=isolated_output_root(output_dir) if isolated else None
     prepared=[];trials=[]
     for req in requests:
-        f,l=validated_function(req['id']);source=read_source_text(ROOT, req['source'], scratch=True, encoding='utf-8')
+        f,l=validated_function(req['id']);source=read_source_text(ROOT, req['source'], scratch=True, names_root=None, encoding=None, errors='strict')
         # Opt-in: canonical unit members compile with their own proof's
         # profile (separate objects only; see check_unit.member_profile_plan).
         per_member=bool(req.get('per_member_profiles'))

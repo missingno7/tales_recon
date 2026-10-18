@@ -161,7 +161,7 @@ def canonical_anchors(root,f,analysis,ledger,promotions):
     accepted={p['id'] for p in promotions};by={x['id']:x for x in analysis['functions']};out={}
     for fid,pin in f['anchors'].items():
         require(fid in accepted and fid in ledger['functions'] and fid in by,'table bounds consumer not currently canonical')
-        item=ledger['functions'][fid];src=read_source(root, item['source']);pr=canonical_path(root,item['proof']).read_bytes()
+        item=ledger['functions'][fid];src=read_source(root, item['source'], names_root=None);pr=canonical_path(root,item['proof']).read_bytes()
         require(pin==dict(source_sha256=item['source_sha256'],proof_sha256=item['proof_sha256']) and sha256(src)==pin['source_sha256'] and sha256(pr)==pin['proof_sha256'],'stale table bounds anchor')
         out[fid]=(src.decode('ascii'),json.loads(pr),by[fid])
     return out

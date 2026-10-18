@@ -17,7 +17,7 @@ OUTPUT='evidence/experiments/runtime-members-glue.json'
 RECIPE_DIGEST='d11de973cabe4312bb800d3757dfff78b40d967e830f495a6053332744373aa6'
 
 
-def read(root,path):return (read_source(root, Path(root) / path, scratch=True) if str(path).startswith('src/') else candidate_path(root,Path(root)/path).read_bytes())
+def read(root,path):return (read_source(root, Path(root) / path, scratch=True, names_root=None) if str(path).startswith('src/') else candidate_path(root,Path(root)/path).read_bytes())
 
 def checked(root,record):
     raw=read(root,record['path'])

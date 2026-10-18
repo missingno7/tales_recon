@@ -37,7 +37,7 @@ TAIL_MEMBERS=('sscanf','scan','abort','createpo','createst','createex')
 
 
 def read(root, path):
-    return (read_source(root, Path(root) / path, scratch=True) if str(path).startswith('src/') else candidate_path(root, Path(root)/path).read_bytes())
+    return (read_source(root, Path(root) / path, scratch=True, names_root=None) if str(path).startswith('src/') else candidate_path(root, Path(root)/path).read_bytes())
 
 
 def extent(blob, model, hn, start, size):

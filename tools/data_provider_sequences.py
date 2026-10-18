@@ -75,7 +75,7 @@ def anchors(root,f,analysis,ledger,promotions):
     a={fid:(clean(c),p,fun) for fid,(c,p,fun) in canonical_anchors(root,dict(f,anchors=cids),analysis,ledger,promotions).items()}
     for fid,pin in f['anchors'].items():
         if fid in cids:continue
-        item=ledger['reconstructed_asm'][fid];src=read_source(root, item['source']);proof=canonical_path(root,item['proof']).read_bytes()
+        item=ledger['reconstructed_asm'][fid];src=read_source(root, item['source'], names_root=None);proof=canonical_path(root,item['proof']).read_bytes()
         require(item['state']=='FUNCTION_CODE_MATCH' and pin=={k:item[k] for k in ('source_sha256','proof_sha256')} and sha256(src)==pin['source_sha256'] and sha256(proof)==pin['proof_sha256'],'stale accepted ASM consumer')
         p=json.loads(proof);require(p['regression'].get('passed') is True and p['comparison'].get('state')=='FUNCTION_CODE_MATCH','canonical ASM proof/gate absent')
         a[fid]=(clean(src.decode('ascii'),assembly=True),p,None)

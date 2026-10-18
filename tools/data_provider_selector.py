@@ -106,13 +106,13 @@ def derive(root,blob,model,analysis,ledger):
   for fid,x in ledger.get(section,{}).items():owners.setdefault(x['source'],[]).append((fid,x))
  src_writes=[];asm_writes=[];mentioned=[];initializer=None;source_references=[]
  for name in source_paths(root):
-  text=read_source_text(root, name, encoding='utf8');stripped=clean(text)
+  text=read_source_text(root, name, names_root=None, encoding='utf8', errors='strict');stripped=clean(text)
   if re.search(r'(?:\b_?(?:resident_F_5428|recon_h00_5428|F_5428)\b|\b0[xX]5428\b|\b21544\b|\$5428\b)',stripped,re.I):source_references.append(name)
   if not re.search(r'\b_?'+GLOBAL+r'\b',stripped):continue
   require(not re.search(r'&\s*'+GLOBAL+r'\b',stripped),'selector address escaped through source')
   require(name in owners and len(owners[name])==1,'selector source is not one exact accepted owner');fid,entry=owners[name][0]
   require(entry['state'] in ('FUNCTION_CODE_MATCH','FUNCTION_WITH_DATA_MATCH','DATA_LAYOUT_MATCH'),'selector source lacks exact acceptance')
-  require(sha256(read_source(root, entry['source']))==entry['source_sha256'] and sha256(canonical_path(root,entry['proof']).read_bytes())==entry['proof_sha256'],'stale selector source/proof')
+  require(sha256(read_source(root, entry['source'], names_root=None))==entry['source_sha256'] and sha256(canonical_path(root,entry['proof']).read_bytes())==entry['proof_sha256'],'stale selector source/proof')
   mentioned.append(dict(function=fid,source=name,source_sha256=entry['source_sha256'],proof_sha256=entry['proof_sha256']))
   if name.endswith('.asm'):
    for no,line in enumerate(stripped.splitlines(),1):

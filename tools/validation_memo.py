@@ -104,7 +104,7 @@ def _fingerprint(name):
     target = str(path.resolve())
     try:
         if path.is_file():
-            return dict(target=target, sha256=sha256((read_source(_SESSION.get().root, path) if _SESSION.get() is not None and path.is_relative_to(_SESSION.get().root / 'src') and path.suffix in ('.c', '.h', '.asm') else path.read_bytes())))
+            return dict(target=target, sha256=sha256((read_source(_SESSION.get().root, path, names_root=None) if _SESSION.get() is not None and path.is_relative_to(_SESSION.get().root / 'src') and path.suffix in ('.c', '.h', '.asm') else path.read_bytes())))
         if path.is_dir():
             return dict(target=target, entries=sorted(os.listdir(path))) if listing else dict(target=target, directory=True)
         return dict(target=target, absent=True)

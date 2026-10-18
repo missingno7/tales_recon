@@ -52,7 +52,7 @@ def extension_matches_load(load, extension, base_reg=K.M68K_REG_A4):
 
 
 def identity(path):
-    return sha256((read_source(ROOT, path) if path.is_relative_to(ROOT / 'src') and path.suffix in ('.c', '.h', '.asm') else path.read_bytes())) if path.is_file() else None
+    return sha256((read_source(ROOT, path, names_root=None) if path.is_relative_to(ROOT / 'src') and path.suffix in ('.c', '.h', '.asm') else path.read_bytes())) if path.is_file() else None
 
 
 def mine(root=ROOT):
@@ -219,7 +219,7 @@ def _declarations(root):
     found = defaultdict(list)
     for path in sorted(active_files(Path(root)/'src', '.c')):
         try:
-            text = read_source_text(root, path, encoding='ascii')
+            text = read_source_text(root, path, names_root=None, encoding='ascii', errors='strict')
         except (UnicodeDecodeError, OSError):
             continue
         for number, line in enumerate(text.splitlines(), 1):

@@ -54,7 +54,7 @@ class Snapshot:
             path = target(path)
             require(path.is_relative_to(root), 'snapshot input escapes workspace: ' + str(path))
             if str(path) in contents:return contents[str(path)]
-            try:raw = (read_source(root, path) if path.is_relative_to(root / 'src') else path.read_bytes())
+            try:raw = (read_source(root, path, names_root=None) if path.is_relative_to(root / 'src') else path.read_bytes())
             except FileNotFoundError:raw = None
             contents[str(path)] = raw
             values[str(path)] = sha256(raw) if raw is not None else None

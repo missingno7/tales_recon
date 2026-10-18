@@ -28,7 +28,7 @@ ARCHIVES = {'exec': '9d6a62b0ddafd602e1563e9141585c89c076f7a50e21e75e850c9bc8765
 
 
 def read(root, path):
-    return (read_source(root, path) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
+    return (read_source(root, path, names_root=None) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def dosbase(root, blob, model, sysbase, bias):

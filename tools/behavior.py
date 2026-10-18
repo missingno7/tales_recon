@@ -110,7 +110,7 @@ def report(root=ROOT):
 
     from repo_paths import active_files
     sources = sorted(active_files(root / 'src', '.c'))
-    texts = [read_source_text(root, p, encoding='ascii', errors='replace') for p in sources]
+    texts = [read_source_text(root, p, names_root=None, encoding='ascii', errors='replace') for p in sources]
     views = defaultdict(set)
     for text in texts:
         for decl in EXTERN.findall(text):
