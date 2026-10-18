@@ -179,6 +179,31 @@ def prepare():
 EXCEPTION_HANDLERS = {0xFC0818: 'bus error', 0xFC081A: 'address error', 0xFC081C: 'illegal instruction'}
 CPU_EVENT = re.compile(r'(Illegal instruction: [0-9A-Fa-f]+ at [0-9A-Fa-f]+ -> [0-9A-Fa-f]+|Exception \d+[^\r\n]*|Address error[^\r\n]*|Bus error[^\r\n]*)')
 ARM_EXCEPTIONS_AT = 760  # emulated frames: after Kickstart/DOS boot, before the game loads (~frame 800)
+# Frame 0 of every run is the first frame that begins after START_CCK colour clocks from
+# power-on (about 2.07 s, where the earlier wall-clock entry landed). Entering the debugger
+# after a wall-clock pause stops anywhere within a few frames (measured 2026-10-18: one of
+# three fresh sessions stopped 47,000 colour clocks earlier, and every later frame, input
+# and RNG seed moved with it), so the run enters earlier and steps to this emulated point.
+START_CCK = 7_330_000
+CYCLE_UNIT = 512  # WinUAE's CYC counter: colour clocks x 512
+
+
+def emulated_cck(emu):
+    """Colour clocks since power-on (WinUAE's CIA view prints the cycle counter)."""
+    found = re.search(r'CYC=([0-9A-Fa-f]+)', emu.cmd('c'))
+    if not found:
+        raise RuntimeError('no cycle counter in the CIA view')
+    return int(found[1], 16) // CYCLE_UNIT
+
+
+def step_to_start(emu):
+    """Step whole frames until the first frame boundary at or after START_CCK."""
+    entered = emulated_cck(emu)
+    if entered >= START_CCK:
+        raise RuntimeError('debugger entered after the start point (%d colour clocks)' % entered)
+    while emulated_cck(emu) < START_CCK:
+        boot_frame(emu)
+    return entered
 
 
 def exception_report(emu, state, model):
@@ -376,12 +401,13 @@ def boot():
                    diagnostic_only=True, behavior_evidence=False)
     records = []
     try:
-        # Deterministic: stop at power-on and count emulated frames from 0, so
-        # runs (and the original vs a build) line up frame for frame. A wall-clock
-        # sleep before stepping made the starting point depend on host load.
+        # Deterministic: frame 0 is a fixed emulated point since power-on
+        # (step_to_start), so runs (and the original vs a build) line up frame for frame.
         emu.start()
-        time.sleep(2)
+        time.sleep(1)
         initial = emu.enter()
+        outcome['entered_at_cck'] = step_to_start(emu)
+        outcome['start_cck'] = emulated_cck(emu)
         # Exception breakpoints are armed after Kickstart has booted (its CPU-type
         # probe executes an illegal MOVEC at reset), so the first hit is the program's.
         root_base = None  # nothing is loaded at power-on; mapped at the end

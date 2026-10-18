@@ -246,6 +246,7 @@ def generate_data_hunk(plan, guest, root=ROOT, moved=None):
         'extern struct amiga_data_hunk amiga_data_hunk;',
         '#define HUNK(o) ((void *)((char *)&amiga_data_hunk + (o)))',
         'struct amiga_data_hunk amiga_data_hunk = {', '\n'.join(initializers), '};',
+        'const uint32_t amiga_data_hunk_size = sizeof(struct amiga_data_hunk);  /* state dumps */',
         '\n'.join(asserts),
         '__asm__(\n' + alias_lines + ');',
         '#pragma pack(pop)', ''])

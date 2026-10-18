@@ -48,6 +48,24 @@ def test_object_metadata_alone_does_not_refuse():
     binding.require_identical(old,new)
 
 
+@pytest.mark.parametrize('change', [None, 'target', 'site', 'kind', 'identity'])
+def test_live_relocation_coordinates_match_json_only_when_values_match(change):
+    live=proof()
+    live['relocation_proof'][0].update(expected=(1,4),
+        identity=dict(hunk=1,offset=4,addend=0,symbol='_cell'))
+    retained=json.loads(json_bytes(live))
+    assert isinstance(retained['relocation_proof'][0]['expected'],list)
+    if change=='target':live['relocation_proof'][0]['expected']=(1,6)
+    if change=='site':live['relocation_proof'][0]['offset']=2
+    if change=='kind':live['relocation_proof'][0]['kind']='HUNK_RELOCATION'
+    if change=='identity':live['relocation_proof'][0]['identity']['addend']=2
+    if change is None:
+        binding.require_identical(retained,live)
+    else:
+        with pytest.raises(FormatError,match='compiled result differs'):
+            binding.require_identical(retained,live)
+
+
 def test_owned_literal_tail_is_part_of_identity():
     old=proof();old['state']='FUNCTION_WITH_DATA_MATCH'
     old['comparison']['code_comparison']=deepcopy(old['comparison'])

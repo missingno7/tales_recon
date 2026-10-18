@@ -41,8 +41,12 @@ def result_identity(proof):
     # different set of externs, which changes the Aztec object's symbol metadata while the
     # CODE bytes, relocation targets, extent and owned tail - what a pin's evidence rests
     # on - stay identical.
+    # Live comparisons use tuples for target coordinates; retained JSON proofs
+    # load those same coordinates as lists. Compare their JSON representation,
+    # preserving every relocation field and value rather than Python types.
+    relocations = json.loads(json_bytes(proof.get('relocation_proof')))
     return (normalized, proof.get('state'), proof.get('evidence_extent'),
-            code['actual_length'], comparison.get('actual_length'), owned, proof.get('relocation_proof'))
+            code['actual_length'], comparison.get('actual_length'), owned, relocations)
 
 
 def require_identical(old, new):
