@@ -57,7 +57,9 @@ add_executable(ducktales ${GAME_SOURCES} ${GAME_ASM} ${PLATFORM_SOURCES})
 target_include_directories(ducktales PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(ducktales PRIVATE SDL3::SDL3)
 if(MINGW)
-  target_link_options(ducktales PRIVATE -static-libgcc)
+  # A fixed image base: the game stores addresses (DATA hunk, heap arena) in its state, so
+  # without address randomization a run's state dumps are byte-identical (docs/sdl3-port.md).
+  target_link_options(ducktales PRIVATE -static-libgcc -Wl,--disable-dynamicbase)
 endif()
 set_target_properties(ducktales PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 add_custom_command(TARGET ducktales POST_BUILD

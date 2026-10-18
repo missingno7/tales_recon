@@ -1,27 +1,49 @@
 /* m68k.c - memory, entry and interrupt glue for the translated 68000 assembly (m68k.h). */
-#include <SDL3/SDL.h>
+#include <string.h>
 
 #include "m68k.h"
 #include "amiga.h"
 
 struct m68k_state m68k;
 
-/* ---- memory: host order, except the registered big-endian regions and the chips ---- */
-static struct { uintptr_t start, end; } regions[16];
+/* ---- memory: the regions the guest owns - the DATA hunk and the exec arena in host
+   order, the tables and the 68000 stack big-endian - and the custom chips. An access
+   anywhere else (a stream read through bytes that are not a pointer) reads 0 and is
+   logged: the Amiga reads bus noise there and carries on, the host would fault. ---- */
+static struct { uintptr_t start, end; int big; } regions[32];
 static int region_count;
 
-void m68k_big_endian(void *start, uint32_t size)
+void m68k_memory(void *start, uint32_t size, int big_endian)
 {
-    if (region_count < 16) {
+    if (region_count < 32) {
         regions[region_count].start = (uintptr_t)start;
-        regions[region_count++].end = (uintptr_t)start + size;
+        regions[region_count].end = (uintptr_t)start + size;
+        regions[region_count++].big = big_endian;
     }
 }
 
-static int big_endian(uint32_t address)
+void m68k_big_endian(void *start, uint32_t size) { m68k_memory(start, size, 1); }
+
+/* 1: big-endian, 0: host order, -1: not guest memory. Big-endian regions lie inside the
+   DATA hunk, so they are found first. */
+static int region(uint32_t address, uint32_t size)
 {
+    int found = -1;
     for (int i = 0; i < region_count; i++)
-        if (address >= regions[i].start && address < regions[i].end) return 1;
+        if (address >= regions[i].start && address + size <= regions[i].end) {
+            if (regions[i].big) return 1;
+            found = 0;
+        }
+    return found;
+}
+
+static uint32_t outside(uint32_t address, const char *access)
+{
+    static int reported;
+    if (reported < 16) {
+        reported++;
+        platform_log("m68k: %s outside guest memory at %08X: reads 0, writes are dropped", access, address);
+    }
     return 0;
 }
 
@@ -33,6 +55,7 @@ uint32_t m68k_rd8(uint32_t address)
         uint32_t word = custom_read16((address & ~1u) - 0xDFF000u);
         return address & 1 ? word & 0xFF : word >> 8;
     }
+    if (region(address, 1) < 0) return outside(address, "read");
     return *(const uint8_t *)(uintptr_t)address;
 }
 
@@ -40,8 +63,10 @@ uint32_t m68k_rd16(uint32_t address)
 {
     const uint8_t *p = (const uint8_t *)(uintptr_t)address;
     uint16_t value;
+    int kind;
     if (custom(address)) return custom_read16(address - 0xDFF000u);
-    if (big_endian(address)) return (uint32_t)p[0] << 8 | p[1];
+    if ((kind = region(address, 2)) < 0) return outside(address, "read");
+    if (kind) return (uint32_t)p[0] << 8 | p[1];
     memcpy(&value, p, 2);
     return value;
 }
@@ -50,8 +75,10 @@ uint32_t m68k_rd32(uint32_t address)
 {
     const uint8_t *p = (const uint8_t *)(uintptr_t)address;
     uint32_t value;
+    int kind;
     if (custom(address)) return custom_read16(address - 0xDFF000u) << 16 | custom_read16(address + 2 - 0xDFF000u);
-    if (big_endian(address)) return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | p[3];
+    if ((kind = region(address, 4)) < 0) return outside(address, "read");
+    if (kind) return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | p[3];
     memcpy(&value, p, 4);
     return value;
 }
@@ -59,6 +86,7 @@ uint32_t m68k_rd32(uint32_t address)
 void m68k_wr8(uint32_t address, uint32_t value)
 {
     if (custom(address)) { platform_log("byte write to custom %X", address); return; }
+    if (region(address, 1) < 0) { outside(address, "write"); return; }
     *(uint8_t *)(uintptr_t)address = (uint8_t)value;
 }
 
@@ -66,20 +94,24 @@ void m68k_wr16(uint32_t address, uint32_t value)
 {
     uint8_t *p = (uint8_t *)(uintptr_t)address;
     uint16_t v = (uint16_t)value;
+    int kind;
     if (custom(address)) { custom_write16(address - 0xDFF000u, v); return; }
-    if (big_endian(address)) { p[0] = (uint8_t)(v >> 8); p[1] = (uint8_t)v; return; }
+    if ((kind = region(address, 2)) < 0) { outside(address, "write"); return; }
+    if (kind) { p[0] = (uint8_t)(v >> 8); p[1] = (uint8_t)v; return; }
     memcpy(p, &v, 2);
 }
 
 void m68k_wr32(uint32_t address, uint32_t value)
 {
     uint8_t *p = (uint8_t *)(uintptr_t)address;
+    int kind;
     if (custom(address)) {
         custom_write16(address - 0xDFF000u, value >> 16);
         custom_write16(address + 2 - 0xDFF000u, value & 0xFFFF);
         return;
     }
-    if (big_endian(address)) { m68k_put_be32(p, value); return; }
+    if ((kind = region(address, 4)) < 0) { outside(address, "write"); return; }
+    if (kind) { m68k_put_be32(p, value); return; }
     memcpy(p, &value, 4);
 }
 
@@ -88,27 +120,16 @@ void m68k_bad_entry(uint32_t pc)
     platform_log("m68k: no translated code at %08X", pc);
 }
 
-/* ---- entries: one lock (the Amiga had one CPU), a 68000 stack of our own ---- */
-static SDL_Mutex *driver_lock;
+/* ---- entries: a 68000 stack of our own; everything runs on the game thread (main.c) ---- */
 static uint8_t stack[16384] __attribute__((aligned(4)));
 static int depth;
-
-void m68k_lock(void)
-{
-    if (!driver_lock) {
-        driver_lock = SDL_CreateMutex();                    /* SDL mutexes are recursive */
-        m68k_big_endian(stack, sizeof stack);
-    }
-    SDL_LockMutex(driver_lock);
-}
-
-void m68k_unlock(void) { SDL_UnlockMutex(driver_lock); }
 
 extern char amiga_data_hunk[];
 
 static void enter(struct m68k_state *saved)
 {
-    m68k_lock();
+    static int registered;
+    if (!registered) { registered = 1; m68k_big_endian(stack, sizeof stack); }
     *saved = m68k;
     if (depth++ == 0) A(7) = (uint32_t)(uintptr_t)(stack + sizeof stack - 16);
     A(4) = (uint32_t)(uintptr_t)amiga_data_hunk + 0x7FFE;     /* Aztec small data: A4 */
@@ -119,7 +140,6 @@ static uint32_t leave(const struct m68k_state *saved)
     uint32_t result = D(0);
     m68k = *saved;
     depth--;
-    m68k_unlock();
     return result;
 }
 

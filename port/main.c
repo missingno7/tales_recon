@@ -1,7 +1,9 @@
-/* main.c - the SDL3 side of the port: window, presentation, input, the 50 Hz VBlank,
-   the game thread and the OS state the emulation keeps (interrupt servers, Forbid).
+/* main.c - the SDL3 side of the port: window, presentation, input, the game's clock (one
+   tick per PAL frame), record/replay, the game thread and the OS state the emulation keeps
+   (interrupt servers, Forbid).
 
-   ducktales [--data DIR] [--log] [--wav FILE] [--shot FILE.bmp:MS ...]
+   ducktales [--data DIR] [--log] [--wav FILE] [--headless] [--ticks N]
+             [--record FILE] [--replay FILE] [--dump DIR:FROM:EVERY] [--shot FILE.bmp:TICK ...]
    DIR holds the two original disk images (any *.adf; mounted under their volume names,
    DT1 and DT2). docs/sdl3-port.md describes the design. */
 #include <SDL3/SDL.h>
@@ -14,25 +16,52 @@
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define WIDTH 320
 #define HEIGHT 200
+#define FRAME_NS 20031800u                          /* a PAL frame: 71051 / 3546895 Hz */
 
 static FILE *log_file;
-static SDL_Mutex *state_lock;
-static SDL_Condition *tick_signal;
-static volatile uint32_t vblank_count;
 static volatile int forbidden, quitting, game_done;
 static const struct View *current_view;
 static void *servers[8][4];                         /* AddIntServer chains, per number */
 static void *vectors[16];                           /* SetIntVector */
 static void *input_handler;
-static volatile uint16_t joy1dat;
-static volatile int fire_down;
+static uint16_t joy1dat;                            /* what the game reads, per tick */
+static int fire_down;
 static jmp_buf game_exit;
-static struct { char path[512]; Uint64 at_ms; int done; } shots[32];
-static int shot_count;
+static struct { char path[512]; uint32_t tick; } shots[32];
+static int shot_count, headless;
+static uint32_t tick, end_tick;                     /* frames since start; 0: no end */
+static uint32_t replay_end;                         /* game clock at which a replay ends */
+static Uint64 start_ns;
+
+/* Live input, written by the main thread and taken by the game thread once per tick. */
+static SDL_Mutex *input_lock;
+static uint16_t live_joy;
+static int live_fire;
+static uint8_t key_queue[64];
+static int key_head, key_tail;
+
+/* Record/replay: every external input the game receives, in order (docs/sdl3-port.md). */
+static FILE *record_file;
+static struct input { uint32_t tick; char kind; uint16_t value; } *replay;   /* kind j f k */
+static size_t replay_count, replay_next;
+static uint16_t *seeds;
+static size_t seed_count, seed_next;
+static int replaying;
+
+/* State dumps: the DATA/BSS hunk (host order, original offsets) every EVERY ticks from FROM. */
+static char dump_dir[512];
+static uint32_t dump_from, dump_every;
+extern char amiga_data_hunk[];
+extern const uint32_t amiga_data_hunk_size;
+/* The game's own clock, game_frame_tick (G_h01_B1EC): the VBlank count since the game
+   installed its server. Replay logs are timed in it, so the same log drives the port and
+   the original, whose disk loads take frames the port does not spend (docs/sdl3-port.md). */
+#define GAME_CLOCK ((uint32_t)*(int32_t *)(amiga_data_hunk + 0xB1EC))
 
 uint8_t platform_font8x8[256][8];
 
@@ -117,37 +146,44 @@ static uint8_t amiga_key(SDL_Scancode s)
     return 0xFF;
 }
 
-static void deliver_key(SDL_Scancode s, int down)
+/* Raw key code to the game's input handler: one InputEvent of class IECLASS_RAWKEY. */
+static void deliver_key(uint8_t code)
 {
-    uint8_t code = amiga_key(s);
-    uint8_t event[22] = { 0 };                         /* struct InputEvent */
-    if (!input_handler || code == 0xFF) return;
+    static uint8_t event[22];                          /* struct InputEvent, guest memory */
+    static int registered;
+    if (!input_handler) return;
+    if (!registered) { registered = 1; m68k_memory(event, sizeof event, 0); }
+    memset(event, 0, sizeof event);
     event[4] = 1;                                      /* ie_Class = IECLASS_RAWKEY */
-    event[7] = (uint8_t)(code | (down ? 0 : 0x80));   /* ie_Code, low byte */
+    event[7] = code;                                   /* ie_Code, low byte (bit 7: release) */
     call_interrupt((const struct Interrupt *)input_handler, (uint32_t)(uintptr_t)event);
-}
-
-/* Delay(ticks) and WaitBOVP: wait for ticks (at least one) VBlanks. */
-void platform_wait_ticks(int ticks)
-{
-    uint32_t target;
-    SDL_LockMutex(state_lock);
-    target = vblank_count + (uint32_t)(ticks > 0 ? ticks : 1);
-    while ((int32_t)(vblank_count - target) < 0 && !quitting)
-        SDL_WaitCondition(tick_signal, state_lock);
-    SDL_UnlockMutex(state_lock);
-    if (quitting) longjmp(game_exit, 1);
 }
 
 uint16_t platform_joystick(void) { return joy1dat; }
 int platform_fire(void) { return fire_down; }
 
-/* VPOSR as the game samples it for its RNG seed: the beam position at the moment of the
-   call. Here: where a 50 Hz frame would be, from the host clock (replay records it). */
+/* VPOSR as the game reads it for its RNG seed (resident_F_4676): bit 15 LOF (set: PAL
+   non-interlaced frames are long frames), bit 0 V8 (the beam is on line 256-312), the OCS
+   Agnus ID bits 0. The seed is therefore 0x8000 + game_frame_tick, plus one bit of beam
+   position; the original's recorded seeds fit this (0x8000 at tick 0, 0x8AA6 at tick
+   2726, docs/sdl3-port.md). Live: V8 from where a PAL frame would be on the host clock.
+   Replay: the seed itself is replayed (platform_seed). */
 uint16_t platform_beam(void)
 {
-    uint64_t ns = SDL_GetTicksNS() % 20000000u;           /* within the 20 ms frame */
-    return (uint16_t)(ns * 313u / 20000000u);
+    if (replaying) return 0x8000;
+    return (uint16_t)(0x8000 | (SDL_GetTicksNS() % FRAME_NS * 313u / FRAME_NS >= 256));
+}
+
+/* The RNG seed the game derives from the beam position and its tick (resident_F_4676):
+   the one input that depends on the machine's timing. Recorded; replayed in order. */
+uint16_t platform_seed(uint16_t value)
+{
+    if (replaying) {
+        if (seed_next < seed_count) value = seeds[seed_next++];
+        else platform_log("replay: no seed left at game tick %u", GAME_CLOCK);
+    }
+    if (record_file) fprintf(record_file, "%u seed %04x\n", GAME_CLOCK, value);
+    return value;
 }
 
 void platform_exit(int code)
@@ -156,20 +192,106 @@ void platform_exit(int code)
     longjmp(game_exit, 1);
 }
 
-/* ---- the 50 Hz VBlank: interrupt servers run on this thread, as on the Amiga ---- */
-static Uint64 SDLCALL vblank(void *user, SDL_TimerID id, Uint64 interval)
+static void apply_input(char kind, uint16_t value)
 {
-    (void)user; (void)id;
+    if (kind == 'j' && value == joy1dat) return;
+    if (kind == 'f' && (int)value == fire_down) return;
+    if (record_file)
+        fprintf(record_file, "%u %s %04x\n", GAME_CLOCK, kind == 'j' ? "joy" : kind == 'f' ? "fire" : "key", value);
+    if (kind == 'j') joy1dat = value;
+    else if (kind == 'f') fire_down = value;
+    else deliver_key((uint8_t)value);
+}
+
+/* The inputs of this tick: the replay log, or what the main thread collected. */
+static void sample_inputs(void)
+{
+    uint8_t keys[64];
+    int count = 0;
+    uint16_t joy;
+    int fire;
+    if (replaying) {
+        while (replay_next < replay_count && replay[replay_next].tick <= GAME_CLOCK) {
+            apply_input(replay[replay_next].kind, replay[replay_next].value);
+            replay_next++;
+        }
+        return;
+    }
+    SDL_LockMutex(input_lock);
+    joy = live_joy; fire = live_fire;
+    while (key_tail != key_head) { keys[count++] = key_queue[key_tail]; key_tail = (key_tail + 1) & 63; }
+    SDL_UnlockMutex(input_lock);
+    apply_input('j', joy);
+    apply_input('f', (uint16_t)fire);
+    for (int i = 0; i < count; i++) apply_input('k', keys[i]);
+}
+
+static void render(uint32_t *pixels);
+
+static void save_shot(const char *path)
+{
+    static uint32_t pixels[WIDTH * HEIGHT];
+    SDL_Surface *picture;
+    render(pixels);
+    picture = SDL_CreateSurfaceFrom(WIDTH, HEIGHT, SDL_PIXELFORMAT_ARGB8888, pixels, WIDTH * 4);
+    SDL_SaveBMP(picture, path);
+    SDL_DestroySurface(picture);
+}
+
+/* Dumps, screenshots and the end of the run, at tick boundaries. */
+static void checkpoint(void)
+{
+    if (dump_every && tick >= dump_from && (tick - dump_from) % dump_every == 0) {
+        char path[600];
+        FILE *data, *index;
+        snprintf(path, sizeof path, "%s/state.bin", dump_dir);
+        data = fopen(path, "ab");
+        snprintf(path, sizeof path, "%s/state-index.jsonl", dump_dir);
+        index = fopen(path, "ab");
+        if (data && index) {
+            long offset;
+            fseek(data, 0, SEEK_END);
+            offset = ftell(data);
+            fwrite(amiga_data_hunk, 1, amiga_data_hunk_size, data);
+            fprintf(index, "{\"frame\": %u, \"offset\": %ld, \"size\": %u}\n", tick, offset, amiga_data_hunk_size);
+        }
+        if (data) fclose(data);
+        if (index) fclose(index);
+    }
+    for (int i = 0; i < shot_count; i++)
+        if (shots[i].tick == tick) save_shot(shots[i].path);
+    if (end_tick && tick >= end_tick) quitting = 1;
+    if (replay_end && GAME_CLOCK >= replay_end) quitting = 1;
+}
+
+/* ---- the game's clock: one tick per PAL frame (313 lines of 227 colour clocks), run on
+   the game thread whenever the game waits for time (Delay, WaitBOVP). A tick runs, in
+   order, what the Amiga did around a frame: Paula plays one frame of sound (its block
+   interrupts run the audio driver), the VBlank servers run (game_frame_tick, colour
+   cycling, the driver's channel update), and the inputs of the new frame are taken. One
+   thread does all of it, so a run is a function of its recorded inputs. ---- */
+static void frame(void)
+{
+    if (quitting) longjmp(game_exit, 1);
+    paula_frame();
     if (!forbidden)
         for (int i = 0; i < 4; i++) {
             struct Interrupt *server = servers[5][i];
             if (server && server->is_Code) call_interrupt(server, 0);
         }
-    SDL_LockMutex(state_lock);
-    vblank_count++;
-    SDL_BroadcastCondition(tick_signal);
-    SDL_UnlockMutex(state_lock);
-    return interval;
+    tick++;
+    sample_inputs();
+    checkpoint();
+    if (!headless) {
+        Uint64 due = start_ns + (Uint64)tick * FRAME_NS, now = SDL_GetTicksNS();
+        if (due > now) SDL_DelayPrecise(due - now);
+    }
+}
+
+/* Delay(ticks) and WaitBOVP: wait for ticks (at least one) frames. */
+void platform_wait_ticks(int ticks)
+{
+    for (int n = ticks > 0 ? ticks : 1; n > 0; n--) frame();
 }
 
 /* ---- the game thread ---- */
@@ -178,9 +300,40 @@ extern int16_t _main(int32_t alen, char *aptr);
 static int SDLCALL game_thread(void *user)
 {
     (void)user;
+    start_ns = SDL_GetTicksNS();
+    sample_inputs();
+    checkpoint();
     if (!setjmp(game_exit))
         _main(0, "");
     game_done = 1;
+    return 0;
+}
+
+/* A replay log, timed in the game clock: "CLOCK joy|fire|key HEX" (JOY1DAT, fire 0/1, raw
+   key with bit 7 on release), "CLOCK seed HEX" (RNG seeds, taken in order), "CLOCK end";
+   '#' starts a comment line. --record writes the same format. */
+static int load_replay(const char *path)
+{
+    FILE *f = fopen(path, "r");
+    char line[128], word[16];
+    size_t capacity = 0, seed_capacity = 0;
+    if (!f) return -1;
+    while (fgets(line, sizeof line, f)) {
+        unsigned at, value;
+        if (line[0] == '#') continue;
+        if (sscanf(line, "%u %15s %x", &at, word, &value) == 3) {
+            if (!strcmp(word, "seed")) {
+                if (seed_count == seed_capacity) seeds = realloc(seeds, (seed_capacity = seed_capacity * 2 + 16) * sizeof *seeds);
+                seeds[seed_count++] = (uint16_t)value;
+                continue;
+            }
+            if (replay_count == capacity) replay = realloc(replay, (capacity = capacity * 2 + 64) * sizeof *replay);
+            replay[replay_count++] = (struct input){ at, word[0] == 'j' ? 'j' : word[0] == 'f' ? 'f' : 'k', (uint16_t)value };
+        } else if (sscanf(line, "%u %15s", &at, word) == 2 && !strcmp(word, "end"))
+            replay_end = at;
+    }
+    fclose(f);
+    replaying = 1;
     return 0;
 }
 
@@ -254,7 +407,7 @@ static void update_joystick(void)
     if (key_left) v |= 0x0200;
     if (key_down ^ key_right) v |= 0x0001;
     if (key_up ^ key_left) v |= 0x0100;
-    joy1dat = v;
+    live_joy = v;
 }
 
 static int mount_disks(const char *dir)
@@ -271,75 +424,104 @@ static int mount_disks(const char *dir)
     return mounted;
 }
 
+/* A key event from SDL: the joystick state and the raw key, taken by the game thread at
+   its next tick. */
+static void live_key(const SDL_KeyboardEvent *key, int down)
+{
+    uint8_t code = amiga_key(key->scancode);
+    SDL_LockMutex(input_lock);
+    switch (key->key) {
+    case SDLK_UP: key_up = down; break;
+    case SDLK_DOWN: key_down = down; break;
+    case SDLK_LEFT: key_left = down; break;
+    case SDLK_RIGHT: key_right = down; break;
+    case SDLK_SPACE: case SDLK_LCTRL: case SDLK_RETURN: live_fire = down; break;
+    default: break;
+    }
+    update_joystick();
+    if (!key->repeat && code != 0xFF && ((key_head + 1) & 63) != key_tail) {
+        key_queue[key_head] = (uint8_t)(code | (down ? 0 : 0x80));
+        key_head = (key_head + 1) & 63;
+    }
+    SDL_UnlockMutex(input_lock);
+}
+
 int main(int argc, char **argv)
 {
     const char *data = ".", *wav_path = NULL;
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    SDL_Texture *screen;
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
+    SDL_Texture *screen = NULL;
+    SDL_Thread *game;
     static uint32_t pixels[WIDTH * HEIGHT];
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--data") && i + 1 < argc) data = argv[++i];
         else if (!strcmp(argv[i], "--log")) log_file = stderr;
         else if (!strcmp(argv[i], "--wav") && i + 1 < argc) wav_path = argv[++i];
-        else if (!strcmp(argv[i], "--shot") && i + 1 < argc && shot_count < 32) {
-            /* --shot FILE.bmp:MS saves the exact 320x200 picture MS milliseconds after start */
+        else if (!strcmp(argv[i], "--headless")) headless = 1;
+        else if (!strcmp(argv[i], "--ticks") && i + 1 < argc) end_tick = (uint32_t)strtoul(argv[++i], NULL, 10);
+        else if (!strcmp(argv[i], "--record") && i + 1 < argc) {
+            record_file = fopen(argv[++i], "w");
+            if (record_file) fputs("# ducktales replay log (game clock): CLOCK joy|fire|key|seed HEX, CLOCK end\n", record_file);
+        } else if (!strcmp(argv[i], "--replay") && i + 1 < argc) {
+            if (load_replay(argv[++i])) { fprintf(stderr, "cannot read %s\n", argv[i]); return 1; }
+        } else if (!strcmp(argv[i], "--dump") && i + 1 < argc) {
+            /* --dump DIR:FROM:EVERY appends state.bin and state-index.jsonl in DIR */
+            char *spec = argv[++i], *every = strrchr(spec, ':'), *from;
+            if (every) { *every++ = 0; from = strrchr(spec, ':'); }
+            if (!every || !from) { fprintf(stderr, "--dump DIR:FROM:EVERY\n"); return 1; }
+            *from++ = 0;
+            snprintf(dump_dir, sizeof dump_dir, "%s", spec);
+            dump_from = (uint32_t)strtoul(from, NULL, 10);
+            dump_every = (uint32_t)strtoul(every, NULL, 10);
+        } else if (!strcmp(argv[i], "--shot") && i + 1 < argc && shot_count < 32) {
+            /* --shot FILE.bmp:TICK saves the exact 320x200 picture at that tick */
             const char *colon = strrchr(argv[++i], ':');
             if (colon) {
                 snprintf(shots[shot_count].path, sizeof shots[0].path, "%.*s", (int)(colon - argv[i]), argv[i]);
-                shots[shot_count++].at_ms = (Uint64)SDL_strtoull(colon + 1, NULL, 10);
+                shots[shot_count++].tick = (uint32_t)strtoul(colon + 1, NULL, 10);
             }
         }
     }
     if (!log_file) log_file = fopen("ducktales.log", "w");
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO)) { platform_log("SDL_Init: %s", SDL_GetError()); return 1; }
+    if (!SDL_Init(headless ? 0 : SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO)) { platform_log("SDL_Init: %s", SDL_GetError()); return 1; }
+    m68k_memory(amiga_data_hunk, amiga_data_hunk_size, 0);
     asm_tables_init();
     if (wav_path) paula_record(wav_path);
-    paula_start();
+    paula_start(!headless);
     if (mount_disks(data) < 2) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "DuckTales",
+        if (headless) fprintf(stderr, "no disk images in %s\n", data);
+        else SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "DuckTales",
             "Put the two DuckTales disk images (*.adf) next to the program, or use --data DIR.", NULL);
         return 1;
     }
     dos_init();
-    window = SDL_CreateWindow("DuckTales: The Quest for Gold", WIDTH * 3, HEIGHT * 3 * 6 / 5, SDL_WINDOW_RESIZABLE);
-    renderer = SDL_CreateRenderer(window, NULL);
-    SDL_SetRenderLogicalPresentation(renderer, WIDTH, HEIGHT * 6 / 5, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    build_font(renderer);
-    screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
-    SDL_SetTextureScaleMode(screen, SDL_SCALEMODE_NEAREST);
-    state_lock = SDL_CreateMutex();
-    tick_signal = SDL_CreateCondition();
-    SDL_AddTimerNS(20000000u, vblank, NULL);
-    SDL_DetachThread(SDL_CreateThread(game_thread, "game", NULL));
+    {
+        /* the glyphs come from a software renderer: identical with and without a window */
+        SDL_Surface *canvas = SDL_CreateSurface(8 * 96, 8, SDL_PIXELFORMAT_RGBA32);
+        SDL_Renderer *software = SDL_CreateSoftwareRenderer(canvas);
+        build_font(software);
+        SDL_DestroyRenderer(software);
+        SDL_DestroySurface(canvas);
+    }
+    input_lock = SDL_CreateMutex();
+    if (!headless) {
+        window = SDL_CreateWindow("DuckTales: The Quest for Gold", WIDTH * 3, HEIGHT * 3 * 6 / 5, SDL_WINDOW_RESIZABLE);
+        renderer = SDL_CreateRenderer(window, NULL);
+        SDL_SetRenderLogicalPresentation(renderer, WIDTH, HEIGHT * 6 / 5, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+        screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+        SDL_SetTextureScaleMode(screen, SDL_SCALEMODE_NEAREST);
+    }
+    game = SDL_CreateThread(game_thread, "game", NULL);
 
-    while (!game_done) {
+    while (!headless && !game_done) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) { quitting = 1; game_done = 1; }
-            if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
-                int down = event.type == SDL_EVENT_KEY_DOWN;
-                switch (event.key.key) {
-                case SDLK_UP: key_up = down; break;
-                case SDLK_DOWN: key_down = down; break;
-                case SDLK_LEFT: key_left = down; break;
-                case SDLK_RIGHT: key_right = down; break;
-                case SDLK_SPACE: case SDLK_LCTRL: case SDLK_RETURN: fire_down = down; break;
-                default: break;
-                }
-                update_joystick();
-                if (!event.key.repeat) deliver_key(event.key.scancode, down);
-            }
+            if (event.type == SDL_EVENT_QUIT) quitting = 1;
+            if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)
+                live_key(&event.key, event.type == SDL_EVENT_KEY_DOWN);
         }
         render(pixels);
-        for (int i = 0; i < shot_count; i++)
-            if (!shots[i].done && SDL_GetTicks() >= shots[i].at_ms) {
-                SDL_Surface *picture = SDL_CreateSurfaceFrom(WIDTH, HEIGHT, SDL_PIXELFORMAT_ARGB8888, pixels, WIDTH * 4);
-                SDL_SaveBMP(picture, shots[i].path);
-                SDL_DestroySurface(picture);
-                shots[i].done = 1;
-                if (i == shot_count - 1) game_done = 1;      /* the last shot ends the run */
-            }
         SDL_UpdateTexture(screen, NULL, pixels, WIDTH * 4);
         SDL_RenderClear(renderer);
         {
@@ -349,8 +531,8 @@ int main(int argc, char **argv)
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
-    quitting = 1;
-    SDL_BroadcastCondition(tick_signal);
+    SDL_WaitThread(game, NULL);
+    if (record_file) { fprintf(record_file, "%u end\n", GAME_CLOCK); fclose(record_file); }
     paula_stop();
     SDL_Quit();
     return 0;

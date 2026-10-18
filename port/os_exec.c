@@ -3,21 +3,12 @@
    pointers as 32-bit values); arguments arrive as 32-bit slots, as on the 68000 stack. */
 #include "amiga.h"
 #include "os.h"
+#include "m68k.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 #define MEMF_CLEAR 0x10000
-
-/* Every allocation remembers its size: FreeMem is called with the same size. */
-int32_t AllocMem(int32_t size, int32_t flags)
-{
-    void *block = calloc(1, (size_t)(size > 0 ? size : 1));
-    (void)flags;                                 /* chip/public/clear: one host heap, always cleared */
-    return (int32_t)(intptr_t)block;
-}
-
-int16_t FreeMem(int32_t block, int32_t size) { (void)size; free((void *)(intptr_t)block); return 0; }
 
 int32_t AvailMem(int32_t flags) { (void)flags; return 512 * 1024; }
 
@@ -79,6 +70,38 @@ int16_t Deallocate(struct MemHeader *mh, int32_t block, int32_t size)
     return 0;
 }
 
+/* AllocMem carves blocks from one fixed arena with exec's algorithm (Allocate), as exec
+   carves the machine's free memory. The game keeps block addresses in its state, so they
+   are the same in every run (the executable has a fixed base, CMakeLists.txt). Blocks are
+   always cleared. */
+static uint8_t arena[4u << 20] __attribute__((aligned(8)));
+static struct MemHeader arena_header;
+
+int32_t AllocMem(int32_t size, int32_t flags)
+{
+    int32_t block;
+    (void)flags;                                 /* chip/public/clear: one arena */
+    if (!arena_header.mh_Upper) {
+        struct MemChunk *all = (struct MemChunk *)arena;
+        all->mc_Next = NULL;
+        all->mc_Bytes = sizeof arena;
+        arena_header.mh_First = all;
+        arena_header.mh_Lower = arena;
+        arena_header.mh_Upper = arena + sizeof arena;
+        arena_header.mh_Free = sizeof arena;
+        m68k_memory(arena, sizeof arena, 0);
+    }
+    block = Allocate(&arena_header, size > 0 ? size : 1);
+    if (block) memset((void *)(intptr_t)block, 0, (size_t)(size > 0 ? size : 1));
+    else platform_log("AllocMem(%d): arena exhausted", size);
+    return block;
+}
+
+int16_t FreeMem(int32_t block, int32_t size) { return Deallocate(&arena_header, block, size > 0 ? size : 1); }
+
+void *amiga_alloc(uint32_t size) { return (void *)(intptr_t)AllocMem((int32_t)size, MEMF_CLEAR); }
+void amiga_free(void *block, uint32_t size) { if (block) FreeMem((int32_t)(intptr_t)block, (int32_t)size); }
+
 int16_t NewList(struct List *list)
 {
     list->lh_Head = (struct Node *)&list->lh_Tail;
@@ -114,10 +137,10 @@ static uint8_t own_task[256];
 int32_t FindTask(int32_t name) { (void)name; return (int32_t)(intptr_t)own_task; }
 
 /* Message ports and IO requests exist only as memory the game can fill in. */
-int32_t CreatePort(int32_t name, int32_t pri) { (void)name; (void)pri; return (int32_t)(intptr_t)calloc(1, 64); }
-int16_t DeletePort(int32_t port) { free((void *)(intptr_t)port); return 0; }
-int32_t CreateStdIO(int32_t port) { (void)port; return (int32_t)(intptr_t)calloc(1, 64); }
-int16_t DeleteStdIO(int32_t io) { free((void *)(intptr_t)io); return 0; }
+int32_t CreatePort(int32_t name, int32_t pri) { (void)name; (void)pri; return (int32_t)(intptr_t)amiga_alloc(64); }
+int16_t DeletePort(int32_t port) { amiga_free((void *)(intptr_t)port, 64); return 0; }
+int32_t CreateStdIO(int32_t port) { (void)port; return (int32_t)(intptr_t)amiga_alloc(64); }
+int16_t DeleteStdIO(int32_t io) { amiga_free((void *)(intptr_t)io, 64); return 0; }
 
 /* input.device: the game adds an input handler (IND_ADDHANDLER) with DoIO; the platform
    delivers its key events to that handler (platform_input_handler). */

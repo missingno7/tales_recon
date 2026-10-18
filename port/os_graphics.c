@@ -68,12 +68,12 @@ int16_t InitVPort(struct ViewPort *vp) { memset(vp, 0, sizeof *vp); return 0; }
 
 int32_t GetColorMap(int32_t entries)
 {
-    struct ColorMap *cm = calloc(1, sizeof *cm);
+    struct ColorMap *cm = amiga_alloc(sizeof *cm);
     cm->Count = (uint16_t)entries;
-    cm->ColorTable = calloc((size_t)entries, sizeof(uint16_t));
+    cm->ColorTable = amiga_alloc((uint32_t)entries * sizeof(uint16_t));
     return (int32_t)(intptr_t)cm;
 }
-int16_t FreeColorMap(struct ColorMap *cm) { if (cm) { free(cm->ColorTable); free(cm); } return 0; }
+int16_t FreeColorMap(struct ColorMap *cm) { if (cm) { amiga_free(cm->ColorTable, cm->Count * sizeof(uint16_t)); amiga_free(cm, sizeof *cm); } return 0; }
 
 /* struct cprlist: Next, start, MaxCount */
 #pragma pack(push, 2)
@@ -87,8 +87,8 @@ int16_t MrgCop(struct View *view)
     struct cprlist *list = view->LOFCprList;
     struct ColorMap *cm = view->ViewPort ? view->ViewPort->ColorMap : NULL;
     if (!list) {
-        list = calloc(1, sizeof *list);
-        list->start = calloc(2 * 34, sizeof(uint16_t));
+        list = amiga_alloc(sizeof *list);
+        list->start = amiga_alloc(2 * 34 * sizeof(uint16_t));
         list->MaxCount = 34;
         view->LOFCprList = list;
     }
@@ -256,18 +256,18 @@ int16_t Text(struct RastPort *rp, const char *text, int32_t count)
 }
 
 /* ---- layers.library: one full-screen layer over the game's bitmap ---- */
-int32_t NewLayerInfo(void) { return (int32_t)(intptr_t)calloc(1, 128); }
-int16_t DisposeLayerInfo(int32_t info) { free((void *)(intptr_t)info); return 0; }
+int32_t NewLayerInfo(void) { return (int32_t)(intptr_t)amiga_alloc(128); }
+int16_t DisposeLayerInfo(int32_t info) { amiga_free((void *)(intptr_t)info, 128); return 0; }
 
 int32_t CreateUpfrontLayer(int32_t info, struct BitMap *bm, int32_t x0, int32_t y0, int32_t x1, int32_t y1,
                            int32_t flags, struct BitMap *super)
 {
-    struct Layer *layer = calloc(1, sizeof *layer);
-    struct RastPort *rp = calloc(1, sizeof *rp);
+    struct Layer *layer = amiga_alloc(sizeof *layer);
+    struct RastPort *rp = amiga_alloc(sizeof *rp);
     (void)info; (void)flags;
     layer->bounds = (struct Rectangle){ (int16_t)x0, (int16_t)y0, (int16_t)x1, (int16_t)y1 };
     layer->rp = rp; layer->SuperBitMap = super;
     rp->Layer = layer; rp->BitMap = bm; rp->Mask = 0xff; rp->FgPen = 1; rp->DrawMode = JAM2;
     return (int32_t)(intptr_t)layer;
 }
-int16_t DeleteLayer(int32_t info, struct Layer *layer) { (void)info; if (layer) { free(layer->rp); free(layer); } return 0; }
+int16_t DeleteLayer(int32_t info, struct Layer *layer) { (void)info; if (layer) { amiga_free(layer->rp, sizeof *layer->rp); amiga_free(layer, sizeof *layer); } return 0; }

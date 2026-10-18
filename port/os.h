@@ -11,7 +11,8 @@ void platform_remove_server(int number, void *interrupt);
 void *platform_set_vector(int number, void *interrupt);     /* returns the previous one */
 void platform_input_handler(void *interrupt);               /* input.device handler, NULL = none */
 void *platform_vector(int number);                          /* SetIntVector's Interrupt, or NULL */
-void paula_start(void);                                     /* paula.c: audio output */
+void paula_start(int device);                               /* paula.c: audio output (0: none) */
+void paula_frame(void);                                     /* one frame of sound, its interrupts */
 void paula_record(const char *path);                        /* also write it to a WAV file */
 void paula_stop(void);
 

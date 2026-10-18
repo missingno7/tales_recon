@@ -23,15 +23,15 @@ ducktales.exe = game + emulated Amiga (port/*.c) + SDL3
 | File | Part |
 |---|---|
 | `amiga.h` | Amiga OS structure layouts as the game sees them (2-byte alignment, 4-byte pointers) and the platform interface |
-| `main.c` | SDL3: window and presentation of the loaded View, keys to the joystick, the 50 Hz VBlank, the game thread, `--shot` |
+| `main.c` | the game's clock (one tick per PAL frame, run on the game thread: Paula, VBlank servers, inputs), record/replay, state dumps, SDL3 window, presentation and keys |
 | `adf.c` | the two original disk images (OFS), mounted as DT1: and DT2: |
-| `os_exec.c` | memory (including exec's Allocate/Deallocate on the game's own pool), lists, ports, input.device, interrupts, libraries |
+| `os_exec.c` | memory (AllocMem and the OS structures from one fixed arena with exec's Allocate/Deallocate, so addresses are the same every run), lists, ports, input.device, interrupts, libraries |
 | `os_dos.c` | Open/Read/Seek/Close/Delay and the DOS volume list the game walks |
 | `os_graphics.c` | graphics and layers on planar bitmaps: blits (minterms, masks), lines, fills, text, View/copper |
 | `os_misc.c` | intuition and icon as far as the game uses them |
 | `runtime.c` | Aztec runtime pieces bound by name (segload/freeseg: everything is linked in) |
-| `m68k.h`, `m68k.c` | what the translated 68000 assembly (`tools/asm_port.py`: audio driver, Paula interrupt handlers, VBlank server, colour cycling) runs on: registers, condition codes, memory with big-endian tables, entries from C and from interrupts |
-| `paula.c` | the custom chip registers and Paula's four DMA sound channels, mixed into an SDL3 audio stream |
+| `m68k.h`, `m68k.c` | what the translated 68000 assembly (`tools/asm_port.py`: audio driver, Paula interrupt handlers, VBlank server, colour cycling) runs on: registers, condition codes, the registered guest memory (big-endian tables, an access outside it reads 0 and is logged), entries from C and from interrupts |
+| `paula.c` | the custom chip registers and Paula's four DMA sound channels, one frame at a time on the game's clock, pushed to an SDL3 audio stream |
 | `asm_ports.c` | kprintf (the one assembly routine with a hand-written port version) |
 | `override/*.c` | port versions of game functions that touch hardware registers or swap bytes for the 68000 |
 | `include/aztec.h` | the Aztec C data model for the generated game code |
@@ -52,16 +52,23 @@ cmake --build build/port
 Put `ducktales.exe` and `SDL3.dll` next to the two original disk images (`*.adf`), or:
 
 ```
-ducktales.exe [--data DIR] [--log] [--wav FILE] [--shot FILE.bmp:MS ...]
+ducktales.exe [--data DIR] [--log] [--wav FILE] [--headless] [--ticks N]
+              [--record FILE] [--replay FILE] [--dump DIR:FROM:EVERY] [--shot FILE.bmp:TICK ...]
 ```
 
 Arrow keys move the joystick; Space, Ctrl or Enter is fire; every key also reaches the
-game's own input handler as an Amiga raw key. `--wav` records the sound output. `--log` writes OS calls and
-the game's own kprintf messages to stderr (otherwise to `ducktales.log`); `--shot` saves
-the exact 320x200 picture at MS milliseconds (the last shot ends the run).
+game's own input handler as an Amiga raw key. `--wav` records the sound output. `--log` writes
+OS calls and the game's own kprintf messages to stderr (otherwise to `ducktales.log`).
+
+A run is a function of its inputs (docs/sdl3-port.md, "Determinism"): `--record FILE` writes
+every external input (joystick, fire, keys, RNG seeds) timed in the game's clock, `--replay
+FILE` plays such a log (also one written by `tools/game_boot.py` from a WinUAE run of the
+original), `--headless` runs without window, sound device or real-time pacing, `--ticks N`
+ends after N frames, `--dump DIR:FROM:EVERY` appends the DATA/BSS hunk to `DIR/state.bin`
+for `tools/game_compare.py --port`, and `--shot FILE.bmp:TICK` saves the picture at a tick.
 
 ## Status
 
 Plays the title (with its music) and the office scenes with the original graphics,
-sprites, palette, text and sound. Pending: record and replay, the levels and minigames in
-play.
+sprites, palette, text and sound; record and replay are exact (2026-10-18). Pending: the
+levels and minigames in play.

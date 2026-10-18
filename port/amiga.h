@@ -134,6 +134,12 @@ void platform_wait_ticks(int ticks);             /* DOS Delay: 50 Hz ticks */
 uint16_t platform_joystick(void);                /* JOY1DAT for port 2 */
 int platform_fire(void);                         /* port 2 fire button, 1 = pressed */
 uint16_t platform_beam(void);                    /* VPOSR/VHPOSR sample for the game */
+uint16_t platform_seed(uint16_t value);          /* the RNG seed (recorded, replayed) */
+
+/* ---- exec memory (port/os_exec.c): OS structures the game sees come from the same
+   fixed arena as AllocMem, so their addresses are the same in every run ---- */
+void *amiga_alloc(uint32_t size);                /* cleared */
+void amiga_free(void *block, uint32_t size);
 
 /* ---- disk images (port/adf.c) ---- */
 int adf_mount(const char *volume, const char *image_path);   /* 0 on success */

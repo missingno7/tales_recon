@@ -139,6 +139,7 @@ static void render(float *out, int frames)
 /* --wav FILE: the mixed output is also written to a 48 kHz stereo float WAV file. */
 static SDL_IOStream *wav;
 static Uint32 wav_bytes;
+static SDL_AudioStream *stream;
 
 static void wav_header(void)
 {
@@ -160,33 +161,31 @@ void paula_record(const char *path)
 void paula_stop(void)
 {
     if (!wav) return;
-    m68k_lock();
     wav_header();
     SDL_CloseIO(wav);
     wav = NULL;
-    m68k_unlock();
 }
 
-static void SDLCALL feed(void *user, SDL_AudioStream *stream, int additional, int total)
+/* One PAL frame of sound (71051 colour clocks), on the game thread's clock (main.c): the
+   channels play, their block interrupts run, and the samples go to the audio device. */
+void paula_frame(void)
 {
+    static double owed;
     float buffer[2 * 1024];
-    (void)user; (void)total;
-    while (additional > 0) {
-        int frames = additional / 8 < 1024 ? additional / 8 : 1024;
-        if (frames <= 0) break;
-        m68k_lock();
-        render(buffer, frames);
-        if (wav) { SDL_WriteIO(wav, buffer, (size_t)frames * 8); wav_bytes += (Uint32)frames * 8; }
-        m68k_unlock();
-        SDL_PutAudioStreamData(stream, buffer, frames * 8);
-        additional -= frames * 8;
-    }
+    int frames;
+    owed += RATE * 71051.0 / PAL_CLOCK;
+    frames = (int)owed;
+    owed -= frames;
+    render(buffer, frames);
+    if (wav) { SDL_WriteIO(wav, buffer, (size_t)frames * 8); wav_bytes += (Uint32)frames * 8; }
+    if (stream) SDL_PutAudioStreamData(stream, buffer, frames * 8);
 }
 
-void paula_start(void)
+void paula_start(int device)
 {
     SDL_AudioSpec spec = { SDL_AUDIO_F32, 2, RATE };
-    SDL_AudioStream *stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, feed, NULL);
+    if (!device) return;
+    stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
     if (!stream) { platform_log("audio: %s", SDL_GetError()); return; }
     SDL_ResumeAudioStreamDevice(stream);
 }

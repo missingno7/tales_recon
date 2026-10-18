@@ -289,6 +289,7 @@ class RngPin:
 
     def __init__(self, offset, pinned=None):
         self.offset, self.pinned, self.previous, self.events = offset, pinned, None, []
+        self.first_observed = None
 
     def after_frame(self, emu, frame_number):
         base = _DUMP.get('base')
@@ -299,6 +300,8 @@ class RngPin:
         if not lines:
             return
         value = int(lines[-1].split()[1], 16)
+        if self.previous is None:
+            self.first_observed = dict(frame=frame_number, value=value)
         if is_reseed(self.previous, value):
             event = dict(index=len(self.events), frame=frame_number, value=value, previous=self.previous)
             if self.pinned is not None and event['index'] < len(self.pinned):
@@ -306,11 +309,85 @@ class RngPin:
                 emu.cmd('W %X %02X %02X' % (base + self.offset, pinned >> 8, pinned & 0xFF))
                 event['pinned'] = value = pinned
             self.events.append(event)
-            (RUN / 'rng-reseeds.json').write_text(json.dumps(dict(events=self.events), indent=1) + '\n', encoding='utf-8')
+        if self.previous is None or is_reseed(self.previous, value):
+            (RUN / 'rng-reseeds.json').write_text(json.dumps(dict(first_observed=self.first_observed, events=self.events),
+                                                             indent=1) + '\n', encoding='utf-8')
         self.previous = value
 
 
 RNG = None
+
+GAME_CLOCK_OFFSET = 0xB1EC  # G_h01_B1EC game_frame_tick: the VBlank count since the game started it
+JOYSTICK_EVENTS = {'JOY2_RIGHT': 'right', 'JOY2_LEFT': 'left', 'JOY2_UP': 'up', 'JOY2_DOWN': 'down'}
+
+
+def joy1dat(held):
+    """JOY1DAT for the held directions: right bit 1, left bit 9, down bit 0 ^ bit 1,
+    up bit 8 ^ bit 9 (as port/main.c builds it from keys)."""
+    value = (2 if 'right' in held else 0) | (0x200 if 'left' in held else 0)
+    value |= 1 if ('down' in held) != ('right' in held) else 0
+    value |= 0x100 if ('up' in held) != ('left' in held) else 0
+    return value
+
+
+def port_replay_log(events, clock_at, seeds):
+    """The run's inputs as a port replay log (port/main.c), timed in the game clock:
+    an input injected before emulated frame F is seen from the clock the game had at the
+    start of F (clock_at(F - 1)); seeds are the run's recorded RNG reseeds, in order."""
+    lines, held, fire = ['# from tools/game_boot.py: frame-stamped WinUAE inputs in the game clock'], set(), 0
+    for event in sorted(events, key=lambda e: e['frame']):
+        clock = clock_at(event['frame'] - 1)
+        if event['event'] == 'JOY2_FIRE_BUTTON':
+            fire = 1 if event['value'] else 0
+            lines.append('%d fire %04x' % (clock, fire))
+        elif event['event'] in JOYSTICK_EVENTS:
+            (held.add if event['value'] else held.discard)(JOYSTICK_EVENTS[event['event']])
+            lines.append('%d joy %04x' % (clock, joy1dat(held)))
+        else:
+            raise ValueError('no port input for WinUAE event ' + event['event'])
+    lines += ['0 seed %04x' % value for value in seeds]
+    return '\n'.join(lines) + '\n'
+
+
+def clock_from_dumps(run, clock_offset):
+    """clock_at(frame) from the run's state dumps: the game clock advances one per
+    emulated frame once started, so between dumps it is interpolated; a dump interval
+    whose clock does not advance by its frame count is reported."""
+    index = [json.loads(l) for l in (run / 'state-index.jsonl').read_text().splitlines() if l.strip()]
+    data = (run / 'state.bin').read_bytes()
+    points = [(row['frame'], int.from_bytes(data[row['offset'] + clock_offset:row['offset'] + clock_offset + 4], 'big'))
+              for row in index]
+    irregular = [(a, b) for a, b in zip(points, points[1:]) if a[1] and b[1] - a[1] != b[0] - a[0]]
+
+    def clock_at(frame):
+        before = [p for p in points if p[0] <= frame]
+        if not before:
+            return 0
+        at, clock = before[-1]
+        return clock + (frame - at) if clock else 0
+    return clock_at, irregular
+
+
+def write_port_replay(executable_is_original):
+    """port-replay.log for a run with state dumps (docs/sdl3-port.md). The seed set before
+    RNG tracking began (the hunk is found only once the program has loaded) is the first
+    observed state when it has VPOSR's form: LOF set, 0x8000 + the game clock (+1 for V8)."""
+    if not (RUN / 'state-index.jsonl').exists():
+        return None
+    offset = GAME_CLOCK_OFFSET
+    if not executable_is_original:
+        from game_compare import map_offsets
+        offset = map_offsets(GAME_DIR / 'DuckTales.sym', 0)['_G_h01_%04X' % GAME_CLOCK_OFFSET]
+    clock_at, irregular = clock_from_dumps(RUN, offset)
+    events = json.loads((RUN / 'title-input.json').read_text(encoding='utf-8'))
+    record = json.loads((RUN / 'rng-reseeds.json').read_text()) if (RUN / 'rng-reseeds.json').exists() else {}
+    seeds, first = [], record.get('first_observed')
+    if first and 0x8000 <= first['value'] <= 0x8001 + clock_at(first['frame']):
+        seeds.append(first['value'])
+    seeds += [e.get('pinned', e['value']) for e in record.get('events', [])]
+    text = port_replay_log(events, clock_at, seeds) + '%d end\n' % clock_at(FRAMES - 1)
+    (RUN / 'port-replay.log').write_text(text, encoding='utf-8', newline='\n')
+    return dict(path='port-replay.log', seeds=len(seeds), irregular_clock_intervals=irregular[:5])
 
 
 def boot_frame(emu):
@@ -482,6 +559,10 @@ def boot():
         emu.close()
         outcome['process_cleanup'] = json.loads((RUN/'cleanup.json').read_text(encoding='utf-8')) if (RUN/'cleanup.json').exists() else None
         (RUN/'frame-log.jsonl').write_text(''.join(json.dumps(x,separators=(',',':'))+'\n' for x in records), encoding='utf-8', newline='\n')
+        try:
+            outcome['port_replay'] = write_port_replay(ORIGINAL)
+        except (OSError, KeyError, ValueError) as exc:
+            outcome['port_replay'] = dict(error=repr(exc))
         (RUN/'boot-report.json').write_text(json.dumps(outcome, indent=2) + '\n', encoding='utf-8', newline='\n')
     print(json.dumps(outcome, indent=2), flush=True)
 

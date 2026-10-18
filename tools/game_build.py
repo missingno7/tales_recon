@@ -65,7 +65,8 @@ def module_inventory(inv, ledger, root):
     moved = {}
     for row in inv['sources']:
         accepted = ledger.get(row.get('ledger_map', ''), {}).get(row.get('id'))
-        if not accepted or accepted['source'] == row['source']:
+        # Code-data providers list several 'sources' and are never module references.
+        if not accepted or accepted.get('source', row['source']) == row['source']:
             continue
         if split_source_ref(accepted['source'])[1] is None:
             continue  # Plain stale inventory still fails ordinary selection.
@@ -781,6 +782,13 @@ def main():
                 ref_map[source] = (target, addend, item.get('binding_kind'), item.get('status'))
             if source and target and addend and source.startswith('_G_') and target.startswith('_G_'):
                 data_aliases[source] = (target, addend)
+    # An inventory alias that would rename a symbol an accepted source defines itself binds
+    # it to an older definition: _G_h00_5E6C (r600.asm's complete 80-pointer envelope table)
+    # was renamed to _audio3_00_begin, an older 58-pointer table, and sound 6 read envelope
+    # bytes as a pointer (build/workers/audio-sound6/report.md). Such aliases are dropped.
+    accepted_definitions = {d for row in src_rows for d in row.get('definitions', [])}
+    for symbol in [s for s in ref_map if s in accepted_definitions and s.startswith('_G_')]:
+        del ref_map[symbol]
     for symbol, (target, addend, _, _) in ref_map.items():
         if symbol.startswith('_F_') and symbol in symbol_to_phys:
             continue

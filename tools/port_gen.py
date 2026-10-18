@@ -411,6 +411,37 @@ def needs_override(text):
     return reasons
 
 
+# Busy-waits on state only interrupts change (reviewed list): the audio driver's channel-0
+# state word, which the title, the map and the travel scenes spin on until a sound ends, and
+# the VBlank tick (wait_for_next_frame_tick). The port's clock advances only when the game
+# waits (port/main.c), and every external change lands on a frame boundary there, so each
+# pass of such a loop waits for one frame. Only loops that start a line: the tail of a
+# do-while (`} while (...);`) is not a busy-wait.
+INTERRUPT_STATE = ('G_h01_2A16', 'G_h01_B1EC')
+_SPIN_ATOM = r'(?:[^;{}()]|\([^;{}()]*\))*'
+SPIN = re.compile(r'(?m)^([ \t]*)while\s*\((%s\b(?:%s)\b%s)\)\s*(;|\{)'
+                  % (_SPIN_ATOM, '|'.join(INTERRUPT_STATE), _SPIN_ATOM))
+
+
+def spin_waits(text):
+    """Make each busy-wait on INTERRUPT_STATE wait one frame per pass; returns (text, count)."""
+    return SPIN.subn(lambda m: '%swhile (%s) %s' % (
+        m[1], m[2], 'platform_wait_ticks(1);' if m[3] == ';' else '{ platform_wait_ticks(1);'), text)
+
+
+# A link-only stub cell of the Amiga build (a DATA or BSS name no typed provider covers yet)
+# is part of the DATA hunk: it becomes an alias at its original offset, as every other
+# G_h01_XXXX name, so the game and the translated assembly share it (interrupt_data_base).
+STUB_CELL = re.compile(r'^[ \t]*(?:[A-Za-z_]\w*[ \t*]+)+(G_h01_([0-9A-F]{4}))[ \t]*(?:\[[^\]]*\])*'
+                       r'[ \t]*(?:=[ \t]*\{[^;]*\})?[ \t]*;[ \t]*\n', re.M)
+
+
+def hunk_cells(text):
+    """Remove the stub definitions of G_h01_XXXX cells; returns (text, [(name, offset)])."""
+    cells = [(m[1], int(m[2], 16)) for m in STUB_CELL.finditer(text)]
+    return STUB_CELL.sub('', text), cells
+
+
 STAGED_SOURCE = re.compile(r'staged from accepted source: (\S+?);')
 
 
@@ -463,6 +494,7 @@ def generate(source, output, override_dir=None):
                                                 if len(w) > 1 and 0 not in w},
                                   views={}),
                   asm=asm_report)
+    stub_cells = []
     for entry in plan:
         name = Path(entry['object']).stem + '.c'
         if entry['kind'] != 'c':
@@ -481,8 +513,19 @@ def generate(source, output, override_dir=None):
             target_text = translate(text, notes)
             if notes:
                 report['byte_order']['views'][name] = notes
+        if name.startswith(('link_stub_data_', 'link_stub_bss_')):
+            target_text, cells = hunk_cells(target_text)
+            stub_cells += cells
+        target_text, spins = spin_waits(target_text)
+        if spins:
+            report.setdefault('spin_waits', {})[name] = spins
         (output / name).write_text(target_text, encoding='latin-1', newline='\n')
         report['units'] += 1
+    if stub_cells:
+        with open(output / 'data_hunk.c', 'a', encoding='latin-1', newline='\n') as hunk:
+            hunk.write('__asm__(\n%s);\n' % ''.join('    ".globl _%s\\n.set _%s, _amiga_data_hunk+0x%X\\n"\n' % (n, n, o)
+                                                    for n, o in stub_cells))
+        report['stub_cells'] = ['%s@0x%X' % c for c in stub_cells]
     (output / 'materialization.s').write_text(translate_materialization(guest), encoding='latin-1', newline='\n')
     report['readable_names'] = readable_names(output)
     (output / 'port-gen-report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')

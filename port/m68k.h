@@ -31,6 +31,7 @@ uint32_t m68k_rd32(uint32_t address);
 void m68k_wr8(uint32_t address, uint32_t value);
 void m68k_wr16(uint32_t address, uint32_t value);
 void m68k_wr32(uint32_t address, uint32_t value);
+void m68k_memory(void *start, uint32_t size, int big_endian);   /* register guest memory */
 void m68k_big_endian(void *start, uint32_t size);   /* register a big-endian region */
 static inline void m68k_put_be32(void *at, uint32_t value)
 {
@@ -46,12 +47,10 @@ static inline int m68k_is_code(uint32_t address) { return address >= M68K_CODE_B
 
 /* entry from the port: C calls (arguments pushed as Aztec C pushes them: 'w' 16-bit,
    'l' 32-bit, right to left) and interrupts (a1 = is_Data, a5 = is_Code). Both return d0
-   and leave the caller's registers as they were. One driver lock serializes all entries:
-   the Amiga ran them on one CPU. */
+   and leave the caller's registers as they were. All entries come from the game thread
+   (main.c), as the Amiga ran them on one CPU. */
 uint32_t m68k_entry(uint32_t pc, const char *widths, const uint32_t *args);
 uint32_t m68k_interrupt(uint32_t code, uint32_t data, uint32_t a0);
-void m68k_lock(void);
-void m68k_unlock(void);
 void asm_tables_init(void);                          /* generated (asm_tables.c) */
 
 /* condition codes */

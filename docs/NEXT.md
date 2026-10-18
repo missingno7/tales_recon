@@ -21,6 +21,55 @@ When everything matches, the per-function proof era is archived under a tag and
 the whole-build comparison remains the gate. Git history holds the earlier
 handoff narratives (waves 12-18, Sol campaigns 1-18).
 
+## Verification and the route to a native game (user direction 2026-10-18)
+
+The long-term goal is a clean, native DuckTales that behaves like the original:
+behavioral fidelity kept, implementation fidelity (Amiga OS, chips, overlays, memory
+layout, 68000 code) removed step by step. `src/` stays the matched reference; native
+rewrites happen in the port, one bounded subsystem at a time, each proven against the
+original by replay before the compatibility code it replaces is deleted.
+
+Verification canary (2026-10-18, details and numbers in docs/sdl3-port.md,
+"Verification"):
+
+- The original replays exactly in WinUAE across fresh sessions (fixed emulated start;
+  the wall-clock debugger entry was the source of the earlier session-to-session
+  differences). Emulator survey: BizHawk's UAE core is deterministic by construction
+  (sandboxed clock) but has no register access and needs a window; vAmiga has a headless
+  scripted build (VAHeadless) but no prebuilt Windows binary; FS-UAE's scripting is
+  unreleased. WinUAE with the fixed start is sufficient, so no emulator change.
+- The port is deterministic: one game-thread clock, record/replay of the four external
+  inputs (joystick, fire, keys, RNG seed), fixed addresses.
+- Original vs build and original vs port agree on the gameplay records of the
+  title-to-money-bin script; a deliberate mutation is located to the exact globals.
+- What prevents exact cross-machine replay: the original spends frames on work the port
+  does instantly (decompression, drawing, disk), so frame- or clock-timed inputs reach the
+  machines in different states, and a press caught by one can be missed by the other.
+
+Next, in order:
+
+1. **Input timed by consumption.** Key each scripted input to the game's input polls (the
+   port counts calls of `poll_controller_and_keyboard_input`; the WinUAE harness needs the
+   same count - a memory watch or the poll's own state writes), so one log replays exactly
+   on the original, the build and the port. Then widen the scripts (locations, the four
+   minigames) and record the user's playthrough with the same tools.
+2. **Fix what the replays expose, at the lowest layer:** data-model types that are really
+   pointers or handles (`G_h01_2A16`, `active_screen_bitmap`, file handles), the remaining
+   audio-driver state differences (block countdowns 0 vs 0xFFFF in the port: Paula's
+   interrupt timing), the build materialization's remaining stale table bindings.
+3. **First native replacements** (docs/sdl3-port.md, "From compatibility port to native
+   game"), each proven by replay before the old code goes.
+
+Readable modules (pilot, 2026-10-18, not committed): the five map functions published EQUAL
+from `src/map/map.c#name`, and the executable rebuilt from the module is byte-identical. The
+publication leaves derived evidence stale: the mechanical entries of
+`recovery/data_model.json` embed declaration counts that change when sources are regrouped
+(29 entries, types and extents unchanged), 156 DATA proofs pin that file's hash, and the
+hybrid specimens (`evidence/contributions/compiled.json`) need `hybrid_image.py --refresh`.
+Decide how mechanical evidence should be keyed (not by file layout) before scaling modules.
+The pilot state is saved in `build/workers/modules-pilot/pilot-state/` (a patch and the new
+files).
+
 ## Where we are
 
 Run `python tools/behavior.py` (read-only, under a second) for the current
@@ -100,10 +149,9 @@ does not gate it: the port records and replays every nondeterministic platform
 read, and a port bug is traced from the lowest layer (replay, first wrong global,
 then `tools/difftest.py` on the one function against the original 68000 code).
 The readability pass and the remaining raw bytes continue alongside, driven by
-what the port and its replays expose. Background: frame-stamped WinUAE scripts
-are not reproducible across emulator sessions (the CPU starts at a different beam
-phase each session), so emulator play-throughs serve as diagnostics, not as the
-acceptance suite.
+what the port and its replays expose. (The earlier note that WinUAE runs were not
+reproducible across sessions traced back to the harness entering the debugger after a
+wall-clock pause; with a fixed emulated start they are, see "Verification" above.)
 
 **Completeness rule (user decision 2026-10-17):** play-through traces define
 done. Everything the trace scripts exercise must be recovered and match the
@@ -145,7 +193,7 @@ Play-through traces confirm a fix: `game_boot.py run --turbo-floppy --input
 evidence/trace/title-to-money-bin.json --input-offset 2100 --dump-from 500
 --dump-every 25` (add `--original` for the baseline), then `game_compare.py ORIG
 BUILD --shift N`, N aligning the game tick G_h01_B1EC. WinUAE replays are
-deterministic (two original runs are byte-identical); turbo floppy removes load
+deterministic across fresh sessions (fixed emulated start, 2026-10-18); turbo floppy removes load
 times that depend on where files sit on the disk, which otherwise shift the build
 by hundreds of frames when a short scripted press is missed. The build now plays
 the whole script (office, Money Bin, contest screen); earlier hangs and crashes
