@@ -56,8 +56,24 @@ leave the game as data:
   type, in the platform/override layer;
 * CODE-data tables read by the audio driver - kept big-endian and read through `be16/be32`
   in the driver override;
-* any access that views a word through a byte pointer (or the reverse) - `port_gen.py`
-  reports every such cast so each is reviewed once.
+* any access that views a word through a byte pointer (or the reverse). The audit of
+  2026-10-18 went through every such view in the generated code once; `port_gen.py`
+  handles each kind and lists what it did under `byte_order` in
+  `build/port-gen/port-gen-report.json`:
+
+| Kind | Example | Port rule |
+|---|---|---|
+| `#define` alias inside a scalar | `G_h01_0971` = low byte of the int `G_h01_0970` | `byte_order_aliases`: the offset moves to the host byte |
+| separate name inside a scalar | the LZW decoder stores a 16-bit code in `G_h01_A9C2` and reads `G_h01_A9C3`; `A7D8` = low word of the long `A7D6` (7 names) | `access_widths` + `interior_aliases`: every unit's extern declarations give each name's access width; a name inside a wider scalar is placed at the host position of its bits in `data_hunk.c` |
+| cast of a scalar's address | `((char *)&i)[1]`, `((int16_t *)&b)[0]` | `scalar_views` -> `BE_VIEW(T, x, k)` (`aztec.h`): `_Generic` flips the index only when `x` is an integer scalar wider than `T` |
+| structure naming one byte of a word | ov10 cave cells `{char pad; char bits;}` over an int; ov11 animation descriptors read byte +5 of the int `word4` | `WORD_BYTE_PAIRS` (reviewed list): the two byte members are swapped |
+
+  Reviewed and left alone: byte arrays used only by address (`motion`, `prefix`, `pad18`
+  passed to functions), record tables viewed through different structures with the same
+  field widths, `sscanf("%d")` into `Slot.text` (an int written and read as an int),
+  `Rec.kind` (bytes everywhere), OS structures (Node, BitMap, Preferences). The game's
+  input handler reads byte 7 of an InputEvent (the low byte of `ie_Code`): the platform
+  must write the event in that view.
 
 A global-state dump of the port serializes the typed globals (`recovery/data_model.json`)
 big-endian under their `G_h01_XXXX` names, so it compares directly with WinUAE state dumps.
@@ -114,5 +130,6 @@ office scene with the original graphics, copper palette and text. Found the hard
 | VBlank colour cycling writes into the copper list | (would freeze the palette) | `MrgCop` builds the colour MOVEs at the layout it expects |
 | a byte alias names the low byte of a big-endian `int` (`G_h01_0971` = low byte of `G_h01_0970`, the bitplane depth) | every sprite BitMap got Depth 0: no sprites, no speech bubbles | `port_gen.byte_order_aliases`: narrower views inside scalars move to the host byte |
 | BltMaskBitMapRastPort indexes its minterm as source, mask, destination (0xE2 = cookie-cut) | (sprites would have been OR'd onto the background) | `F_h00_4692` in `os_graphics.c` |
+| byte views of words elsewhere: 7 interior names, 4 address casts, cave cells, animation descriptors (byte-order audit above) | (would have broken the LZW decoder, the ov10 cave and the ov11 animations) | `port_gen` byte-order rules |
 
 Next: the audio driver, keyboard through the input handler, record/replay, then play.

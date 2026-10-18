@@ -4,4 +4,12 @@
 #define AZTEC_H
 #include <stdint.h>
 #include <stddef.h>
+
+/* A narrower view of a scalar - `((char *)&i)[1]`, the low byte of a 16-bit i on the 68000 -
+   names the same value bits on a little-endian host when its index is counted from the
+   other end. Structures, arrays and views as wide as the object are left as they are.
+   port_gen.py rewrites every `((T *)&x)[k]` of the game code to BE_VIEW(T, x, k). */
+#define BE_SCALAR(x) _Generic((x), int16_t: 1, uint16_t: 1, int32_t: 1, uint32_t: 1, default: 0)
+#define BE_VIEW(T, x, k) (((T *)&(x))[BE_SCALAR(x) && sizeof(T) < sizeof(x) \
+                                      ? (int)(sizeof(x) / sizeof(T)) - 1 - (k) : (k)])
 #endif

@@ -82,6 +82,33 @@ def test_narrow_views_inside_big_endian_scalars_move_to_the_host_byte(monkeypatc
     assert port_gen.byte_order_aliases(field) == field              # a struct field: same bytes on any host
 
 
+def test_narrow_views_of_scalars_go_through_be_view_and_offset_views_stay():
+    text = 'c = ((char *)&i)[1]; v = ((unsigned char *)&e->value12)[1]; ' \
+           'w = ((int16_t *)&rows[n])[2]; p = ((char *)&G_h01_5014 + 4)[j];'
+    notes = []
+    out = port_gen.scalar_views(text, notes)
+    assert 'c = BE_VIEW(char, i, 1);' in out and 'BE_VIEW(unsigned char, e->value12, 1)' in out
+    assert 'BE_VIEW(int16_t, rows[n], 2)' in out
+    assert '((char *)&G_h01_5014 + 4)[j]' in out and len(notes) == 3
+
+
+def test_reviewed_byte_of_a_word_is_swapped_into_the_host_low_byte():
+    text = 'struct Cell {\n    char pad;\n    unsigned char bits;\n};\nstruct Other { char pad; char bits; };\n'
+    out = port_gen.swap_word_bytes(text)
+    assert out.index('unsigned char bits;') < out.index('char pad;')
+    assert 'struct Other { char pad; char bits; };' in out
+
+
+def test_names_inside_wider_scalars_move_to_the_host_position_of_their_bits():
+    units = ['extern int16_t G_h01_A9C2;\nf() { G_h01_A9C2 = g(); }\n',
+             'extern unsigned char G_h01_A9C3;\nextern int32_t G_h01_A7D6;\nextern int16_t G_h01_A7D8;\n'
+             'extern int16_t G_h01_1000;\nextern char G_h01_1001;\n'
+             'h() { x = G_h01_A9C3 + G_h01_A7D6 + G_h01_A7D8 + G_h01_1000; y = &G_h01_1001; }\n']
+    widths = port_gen.access_widths(units)
+    assert 'G_h01_1001' not in widths                 # only its address is taken
+    assert port_gen.interior_aliases(widths) == {'G_h01_A9C3': 0xA9C2, 'G_h01_A7D8': 0xA7D6}
+
+
 def test_le_readers_and_hardware_units_have_port_versions():
     overrides = Path(__file__).resolve().parents[1] / 'port' / 'override'
     for name in ('resident_F_2D66', 'resident_F_2DBA', 'resident_F_4376', 'resident_F_4676', 'resident_F_33E6'):
