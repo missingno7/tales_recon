@@ -9,6 +9,7 @@ A name is a reconstructed interpretation, never original-source provenance.
     python tools/readable.py            # write build/readable/
     python tools/readable.py --check    # validate names and curated data model
 """
+from names import to_mechanical
 import argparse
 import json
 from pathlib import Path
@@ -163,7 +164,7 @@ def render(root=ROOT, out=None):
     header_path.write_bytes(data_model.render_header(model, names).encode('ascii'))
     for kind in OWNERSHIP_MAPS:
         for fid, item in sorted(ledger.get(kind, {}).items()):
-            source = canonical_path(root, item['source']).read_text()
+            source = to_mechanical(canonical_path(root, item['source']).read_text())
             source, decisions = apply_data_model(source, model)
             active = NON_CODE.sub('', source)
             externs, _, unparsed = parse_source(active)

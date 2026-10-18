@@ -3,6 +3,7 @@
 These are reconstructed provider objects. Historical owner, TU and filenames
 remain unknown. Complete object alignment is checked but earns no DATA credit.
 """
+from names import to_mechanical
 import json,re
 from common import require,sha256
 from repo_paths import canonical_path
@@ -160,7 +161,7 @@ def canonical_anchors(root,f,analysis,ledger,promotions):
     accepted={p['id'] for p in promotions};by={x['id']:x for x in analysis['functions']};out={}
     for fid,pin in f['anchors'].items():
         require(fid in accepted and fid in ledger['functions'] and fid in by,'table bounds consumer not currently canonical')
-        item=ledger['functions'][fid];src=canonical_path(root,item['source']).read_bytes();pr=canonical_path(root,item['proof']).read_bytes()
+        item=ledger['functions'][fid];src=to_mechanical(canonical_path(root,item['source']).read_bytes());pr=canonical_path(root,item['proof']).read_bytes()
         require(pin==dict(source_sha256=item['source_sha256'],proof_sha256=item['proof_sha256']) and sha256(src)==pin['source_sha256'] and sha256(pr)==pin['proof_sha256'],'stale table bounds anchor')
         out[fid]=(src.decode('ascii'),json.loads(pr),by[fid])
     return out

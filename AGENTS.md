@@ -5,6 +5,18 @@ behavior we can trust, as the base for a later native SDL3 port. Exact matching
 decompilation is the preferred recovery and verification technique, not the
 deliverable. Do not modernize matched source.
 
+Readable names (user decision 2026-10-18): semantic names go directly into
+`src/`, applied with `tools/rename.py` from `recovery/names.json`, the one map
+between a mechanical identity (`F_hNN_XXXX`, `G_hNN_XXXX`, function ids) and its
+readable name. Tools read sources through `tools/names.py` (`to_mechanical`), so a
+pure rename changes no hash and no proof. The naming rule is binary: a thing gets
+a name only when the code shows what it is (what it reads, writes or calls, what
+the port or `tools/difftest.py` shows it doing), with one line of evidence in
+names.json; otherwise it keeps its mechanical name (unknown fields stay
+`field_XX`). A hunch goes into a comment, never into a name. A name is our
+interpretation, not the original programmer's label. No extra layers: no
+confidence scales, no parallel readable copy of the sources.
+
 SDL3 port (user decision 2026-10-18): the port lives in `port/`, as in the
 user's other recon projects (duke1_recon): a thin layer that runs the
 reconstructed game unchanged on an emulated Amiga over SDL3. `src/` stays the

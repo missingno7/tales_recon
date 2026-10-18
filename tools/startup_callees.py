@@ -3,6 +3,7 @@
 This is a binding prerequisite, not runtime accounting or startup acceptance.
 The accepted-public-entry requirement in library_a4 remains unchanged.
 """
+from names import to_mechanical
 import json
 from pathlib import Path
 
@@ -27,7 +28,7 @@ ARCHIVES = {'exec': '9d6a62b0ddafd602e1563e9141585c89c076f7a50e21e75e850c9bc8765
 
 
 def read(root, path):
-    return canonical_path(root, path).read_bytes()
+    return (to_mechanical(canonical_path(root, path).read_bytes()) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def dosbase(root, blob, model, sysbase, bias):

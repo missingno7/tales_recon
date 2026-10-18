@@ -3,6 +3,7 @@
 H1 records earn RECOVERED_DATA; only newly proved H0 fields earn TYPED_CODE_DATA.
 Complete original support and producer objects are checked but never credited twice.
 """
+from names import to_mechanical
 from collections import Counter
 from pathlib import Path
 import json,re
@@ -119,7 +120,7 @@ def support(root):
  for module in (score,previous):
   fact=doc(root,module.FACT);batch=doc(root,module.MANIFEST)
   for o in fact['objects']:
-   require(sha256(canonical_path(root,o['source']).read_bytes())==o['source_sha256'],'support source changed')
+   require(sha256(to_mechanical(canonical_path(root,o['source']).read_bytes()))==o['source_sha256'],'support source changed')
    result.append(dict(prefix=o['prefix'],source=o['source'],source_sha256=o['source_sha256'],object_sha256=batch['artifacts'][o['prefix']+'.o'],provider=module.IDENT,object=o))
  return result
 
@@ -162,7 +163,7 @@ def mixed_control(work):
 def verify(root,blob,model,fact,batch=None):
  g,layout,objects,sem=validate(root,blob,model,fact);batch=doc(root,MANIFEST) if batch is None else batch;supports=support(root)
  require(set(batch)=={'schema_version','profile','facts','fact_sha256','job','request_sha256','receipt_sha256','artifacts','backend','backend_inputs'} and batch['schema_version']==5 and batch['profile']=='aztec36' and batch['facts']==[FACT] and batch['fact_sha256']=={FACT:sha256(json_bytes(fact))} and batch['backend']=='vamos','complete H1 batch pins')
- expected={'audio5.asm':types.source(objects,g),'mixed.asm':MIXED_SOURCE,'packed.asm':previous.packed_control(),'odd.asm':score.ODD_SOURCE};expected.update({s['prefix']+'.asm':canonical_path(root,s['source']).read_bytes() for s in supports})
+ expected={'audio5.asm':types.source(objects,g),'mixed.asm':MIXED_SOURCE,'packed.asm':previous.packed_control(),'odd.asm':score.ODD_SOURCE};expected.update({s['prefix']+'.asm':to_mechanical(canonical_path(root,s['source']).read_bytes()) for s in supports})
  producer=score.audit_producer(root,batch,expected,commands_for(supports));work=candidate_path(root,Path(root)/batch['job']/'sys/work');mixed=mixed_control(work);odd=score.padding_control(work)
  cd=[dict(name='_packed_begin',offset=0,external=False),dict(name='_packed_end',offset=1000,external=False)]+[dict(name='_packed_%03d'%i,offset=800+i,external=False) for i in range(200)]
  cf=[dict(offset=4*i,symbol='_packed_%03d'%i,type='HUNK_RELOC32',width=4,addend=0) for i in range(200)]
@@ -202,7 +203,7 @@ def rows(root,blob,model,analysis,ledger):
  item=ledger.get(MAP,{}).get(IDENT)
  if item is None:return []
  require(set(item)=={'state','fact','sources','proof','proof_sha256'} and item['state']=='DATA_LAYOUT_MATCH' and item['fact']==FACT and item['proof']=='recovery/proofs/code-data/'+IDENT+'.json','H1 provider canonical identity')
- fact=doc(root,FACT);report=verify(root,blob,model,fact);require(item['sources']=={SOURCE:fact['source_sha256']} and canonical_path(root,SOURCE).read_bytes()==canonical_path(root,CANDIDATE).read_bytes(),'H1 canonical source differs')
+ fact=doc(root,FACT);report=verify(root,blob,model,fact);require(item['sources']=={SOURCE:fact['source_sha256']} and to_mechanical(canonical_path(root,SOURCE).read_bytes())==canonical_path(root,CANDIDATE).read_bytes(),'H1 canonical source differs')
  raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw);require(sha256(raw)==item['proof_sha256'] and set(proof)=={'fact','comparison','regression'} and proof['fact']==fact and proof['regression'].get('passed') is True,'H1 canonical proof/gate')
  comparable=lambda r:{k:v for k,v in r.items() if k!='verifier_identity'};require(comparable(proof['comparison'])==comparable(report),'H1 canonical receipt no longer rederives')
  return [dict(o,acceptance=True,source_acceptance=True,proof_level='DATA_LAYOUT_MATCH',proof=item['proof'],producer=report['producer'],provider=IDENT) for o in report['objects']]
@@ -231,4 +232,4 @@ def input_identity(root):
  item=(doc(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').exists() else {}).get(MAP,{}).get(IDENT)
  if item:names.update([SOURCE,item['proof']])
  def resolve(n):return candidate_path(root,Path(root)/n) if n.startswith('build/') else canonical_path(root,n)
- return {str(resolve(n)):sha256(resolve(n).read_bytes()) if resolve(n).exists() else None for n in sorted(names)}
+ return {str(resolve(n)):sha256((to_mechanical(resolve(n).read_bytes()) if n.startswith('src/') else resolve(n).read_bytes())) if resolve(n).exists() else None for n in sorted(names)}

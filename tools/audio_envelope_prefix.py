@@ -4,6 +4,7 @@ A rooted ENVELOPE operand bounds the paired attack/release pointer prefix.
 Every newly reached envelope byte gets its role from the decoded driver grammar.
 Only new fields earn TYPED_CODE_DATA; prior source stays accepted and unchanged.
 """
+from names import to_mechanical
 from collections import defaultdict
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -178,7 +179,7 @@ def rows(root,blob,model,analysis,ledger):
  require(set(item)=={'state','fact','sources','proof','proof_sha256'} and item['state']=='DATA_LAYOUT_MATCH' and item['fact']==FACT and item['proof']=='recovery/proofs/code-data/'+IDENT+'.json','canonical envelope identity')
  fact=doc(root,FACT);report=verify(root,blob,model,fact)
  require(item['sources']=={o['source']:o['source_sha256'] for o in fact['objects']},'canonical envelope source inventory')
- for o in fact['objects']:require(canonical_path(root,o['source']).read_bytes()==canonical_path(root,o['candidate']).read_bytes(),'canonical envelope source differs')
+ for o in fact['objects']:require(to_mechanical(canonical_path(root,o['source']).read_bytes())==canonical_path(root,o['candidate']).read_bytes(),'canonical envelope source differs')
  raw=canonical_path(root,item['proof']).read_bytes();proof=__import__('json').loads(raw)
  require(sha256(raw)==item['proof_sha256'] and set(proof)=={'fact','comparison','regression'} and proof['fact']==fact and proof['regression'].get('passed') is True,'canonical envelope proof/gate')
  comparable=lambda r:{k:v for k,v in r.items() if k!='verifier_identity'}
@@ -208,4 +209,4 @@ def input_identity(root):
  item=(doc(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').exists() else {}).get(MAP,{}).get(IDENT)
  if item:names.update([item['fact'],item['proof'],*item['sources']])
  def path(n):return candidate_path(root,root/n) if n.startswith('build/') else canonical_path(root,n)
- return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external}
+ return {**{str(path(n)):sha256((to_mechanical(path(n).read_bytes()) if n.startswith('src/') else path(n).read_bytes())) if path(n).exists() else None for n in sorted(names)},**external}

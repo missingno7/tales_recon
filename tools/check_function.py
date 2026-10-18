@@ -1,4 +1,5 @@
 """One-command exact candidate check. Compiler and emulator details stay behind this API."""
+from names import to_mechanical
 import argparse
 import importlib.util
 import json
@@ -310,7 +311,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
     output_root=isolated_output_root(output_dir) if isolated else None
     prepared=[];trials=[]
     for req in requests:
-        f,l=validated_function(req['id']);source=candidate_path(ROOT,req['source']).read_text()
+        f,l=validated_function(req['id']);source=to_mechanical(candidate_path(ROOT,req['source']).read_text())
         # Opt-in: canonical unit members compile with their own proof's
         # profile (separate objects only; see check_unit.member_profile_plan).
         per_member=bool(req.get('per_member_profiles'))

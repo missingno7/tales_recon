@@ -4,6 +4,7 @@ Only the bounded exit recipe is supported. Normal candidate-C rules stay intact.
 The returned report establishes source-object evidence, not historical TU ownership
 or natural root layout. Curated source facts are separate from generated ledgers.
 """
+from names import to_mechanical
 import json
 import re
 from pathlib import Path
@@ -24,7 +25,7 @@ PARTS = [('C_COMPILER', 0, 122), ('ASM', 122, 154),
 
 
 def read(root, path):
-    return canonical_path(root, path).read_bytes()
+    return (to_mechanical(canonical_path(root, path).read_bytes()) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 _PINS = {}

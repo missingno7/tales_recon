@@ -4,6 +4,7 @@ Register-ABI entry addresses only. Interior entries bind to an exactly proved
 named provider plus an independently decoded instruction offset; no CODE bytes
 or additional ASM acceptance are produced here.
 """
+from names import to_mechanical
 import json,re
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -75,7 +76,7 @@ def typed_evidence(root,f,blob,model,analysis,ledger):
  shape(f);anchors={}
  for fid in anchor_ids(f):
   x=item(ledger,fid);require(x['state'] in ('FUNCTION_CODE_MATCH','FUNCTION_WITH_DATA_MATCH','DATA_LAYOUT_MATCH'),'exact accepted anchor required')
-  require(sha256(canonical_path(root,x['source']).read_bytes())==x['source_sha256'] and sha256(canonical_path(root,x['proof']).read_bytes())==x['proof_sha256'],'changed accepted anchor')
+  require(sha256(to_mechanical(canonical_path(root,x['source']).read_bytes()))==x['source_sha256'] and sha256(canonical_path(root,x['proof']).read_bytes())==x['proof_sha256'],'changed accepted anchor')
   anchors[fid]=dict(source_sha256=x['source_sha256'],proof_sha256=x['proof_sha256'])
  require(f['definitions'][0]['evidence']==anchors,'stale startup consumer/extent evidence')
  cat=canonical_entries(root,blob,model,analysis,ledger)
@@ -105,7 +106,7 @@ def typed_evidence(root,f,blob,model,analysis,ledger):
   code=payload(blob,model,0);by={i['offset']:i for i in decode(code[0x617c:0x61a0],0x617c)}
   for p,m,o in [(0x618a,'lea.l','$2bc2.l, a0'),(0x6190,'move.l','$2c26.l, d0'),(0x6196,'lsl.l','#$2, d0'),(0x6198,'movea.l','(a0, d0.w), a0'),(0x619c,'jsr','(a0)')]:at(by,p,m,o)
   for fid in ('ov03_F_001C','ov05_F_0000'):
-   text=canonical_path(root,ledger['functions'][fid]['source']).read_text(encoding='ascii');text=re.sub(r'/\*.*?\*/|//[^\n]*','',text,flags=re.S)
+   text=to_mechanical(canonical_path(root,ledger['functions'][fid]['source']).read_text(encoding='ascii'));text=re.sub(r'/\*.*?\*/|//[^\n]*','',text,flags=re.S)
    require('G_h01_2C26 = 0;' in text,'explicit selector-zero witness missing')
    if fid=='ov03_F_001C':require('G_h01_2C26 = 1;' in text,'explicit selector-one witness missing')
   init=document(root,ledger['data_providers']['resident_data_2C26']['fact']);require(init['original']==dict(hunk=1,start=0x2c26,size=4) and init['definitions'][0]['initializer']==0,'independently accepted initial callback index zero')

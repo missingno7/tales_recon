@@ -1,4 +1,5 @@
 """Resident storage interpretation. No initializers, allocation emission or proof credit."""
+from names import to_mechanical
 from collections import defaultdict
 import ast
 import hashlib
@@ -76,7 +77,7 @@ def private_layout(view, structs):
 def collect(root, curation=None):
     """Read active sources and existing evidence. Never read oracle payload files."""
     root = Path(root)
-    files = {p.relative_to(root).as_posix(): p.read_text(encoding='ascii')
+    files = {p.relative_to(root).as_posix(): to_mechanical(p.read_text(encoding='ascii'))
              for p in active_files(root / 'src') if p.suffix.lower() in ('.c','.s','.asm','.a68')}
     hunks = json.loads((root / 'evidence/executable/hunks.json').read_text())['hunks']
     regions = []
@@ -121,7 +122,7 @@ def collect(root, curation=None):
         if p['id'] in source_by_id:
             candidates.append(source_by_id[p['id']])
         candidates = [s for s in sorted(set(candidates)) if is_active_repo_path(root/s,root)
-                      and hashlib.sha256((root/s).read_bytes()).hexdigest() == p['source_sha256']]
+                      and hashlib.sha256(to_mechanical((root/s).read_bytes())).hexdigest() == p['source_sha256']]
         require(len(candidates)==1,p['id']+': unique hash-bound source required')
         require(p['state']=='DATA_LAYOUT_MATCH' and p['typed_evidence'],p['id']+': typed provider required')
         providers.append(dict(id=p['id'],source=candidates[0],hunk=original['hunk'],
@@ -135,7 +136,7 @@ def collect(root, curation=None):
         require(not path.is_absolute() and '..' not in path.parts and
                 path.parts[0] in ('src','recovery','evidence','docs') and
                 is_active_repo_path(root/path,root),'inactive/external binding evidence path')
-        external_evidence[relative]=(root/path).read_text(encoding='utf-8')
+        external_evidence[relative]=to_mechanical((root/path).read_text(encoding='utf-8'))
     return dict(external_evidence=external_evidence,a4_bias=document['inputs']['a4_bias_evidence']['relocation']['addend_raw'],
                 regions=regions,sources=files,widths=widths,providers=providers,model=model,names=json.loads((root / 'recovery/names.json').read_text()).get('globals',{}))
 

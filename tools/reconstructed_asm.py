@@ -3,6 +3,7 @@
 V1 admits the independently bounded RNG CCR-X and saved-A4 record consumers.
 Other driver spans require separately measured predicates/object grammars.
 """
+from names import to_mechanical
 from validation_memo import shared
 import argparse
 import json
@@ -267,7 +268,7 @@ def rows(root,blob,model,analysis,ledger,*,staged=False):
         if ident not in entries:results.append(report);continue
         item=entries[ident];proof_path='recovery/proofs/asm-reconstructed/'+ident+'.json'
         require(set(item)=={'state','fact','source','source_sha256','proof','proof_sha256'} and item['state']=='FUNCTION_CODE_MATCH' and item['fact']==name and item['source']==fact['source'] and item['proof']==proof_path,'ASM ownership identity')
-        src=canonical_path(root,item['source']).read_bytes();proofraw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(proofraw)
+        src=to_mechanical(canonical_path(root,item['source']).read_bytes());proofraw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(proofraw)
         require(src==source_for(ident) and sha256(src)==item['source_sha256']==fact['source_sha256'],'canonical ASM source')
         require(sha256(proofraw)==item['proof_sha256'] and set(proof)=={'fact','comparison','regression'} and proof['regression'].get('passed') is True,'ASM proof/gate')
         comparable=lambda r:{k:v for k,v in r.items() if k!='verifier_identity'}
@@ -324,7 +325,7 @@ def input_identity(root):
     for item in state.get(MAP,{}).values():names.update([item['source'],item['proof'],item['fact']])
     def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
     from audio_driver_asm import input_identity as driver_identity
-    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external,**driver_identity(root),**__import__('glue_library_asm').input_identity(root)}
+    return {**{str(path(n)):sha256((to_mechanical(path(n).read_bytes()) if n.startswith('src/') else path(n).read_bytes())) if path(n).exists() else None for n in sorted(names)},**external,**driver_identity(root),**__import__('glue_library_asm').input_identity(root)}
 
 SPECS={'resident_asm_559E':dict(start=0x559e,end=0x55d6,prefix='rng'),
        'resident_asm_59A4':dict(start=0x59a4,end=0x5a50,prefix='note')}

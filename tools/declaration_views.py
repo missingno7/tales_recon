@@ -12,6 +12,7 @@ compiled exactly elsewhere says nothing about the original declaration, and
 access widths do not determine a C type uniquely.  Nothing here edits a
 source; the conflict-cluster report is for supervisor review only.
 """
+from names import to_mechanical
 import argparse
 import json
 import re
@@ -110,7 +111,7 @@ def corpus(root=ROOT):
     for relative in canonical_sources(root):
         path = root / relative
         try:
-            text = path.read_text(encoding='ascii')
+            text = to_mechanical(path.read_text(encoding='ascii'))
         except (OSError, UnicodeDecodeError):
             continue
         externs, defs, bad = parse_source(text)

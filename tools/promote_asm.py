@@ -1,4 +1,5 @@
 """Serialized reconstructed-ASM batch promotion behind the shared regression gate."""
+from names import to_mechanical
 import argparse,json,sys
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -83,7 +84,7 @@ def main():
             proof=json_bytes(dict(fact=fact,comparison=report,regression=regression));source=canonical_path(root,fact['candidate']).read_bytes()
             proof_path='recovery/proofs/asm-reconstructed/'+fact['id']+'.json'
             for dest,raw in [(fact['source'],source),(proof_path,proof)]:
-                p=canonical_path(root,dest);require(not p.exists() or p.read_bytes()==raw,'ASM destination differs')
+                p=canonical_path(root,dest);require(not p.exists() or (to_mechanical(p.read_bytes()) if dest.startswith('src/') else p.read_bytes())==raw,'ASM destination differs')
             updated.setdefault(predicate.MAP,{})[fact['id']]=dict(state='FUNCTION_CODE_MATCH',fact=name,source=fact['source'],source_sha256=sha256(source),proof=proof_path,proof_sha256=sha256(proof))
             artifacts[root/fact['source']]=source;artifacts[root/proof_path]=proof
         publish(root,ledger_path,artifacts,updated,before)

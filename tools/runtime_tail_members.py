@@ -3,6 +3,7 @@
 The larger scanf/port/IO objects remain outside this route. Private storage,
 A4 call routing, release attribution and root layout are not inferred here.
 """
+from names import to_mechanical
 import json
 from pathlib import Path
 from common import require, sha256, json_bytes
@@ -21,7 +22,7 @@ EXPECTED=[('_output','__Output',0x86ee,8,2,'_DOSBase'),('_write','__Write',0x871
 
 
 def checked(root, record):
-    raw=candidate_path(root,Path(root)/record['path']).read_bytes()
+    raw=(to_mechanical(candidate_path(root,Path(root)/record['path']).read_bytes()) if record['path'].startswith('src/') else candidate_path(root,Path(root)/record['path']).read_bytes())
     require(sha256(raw)==record['sha256'],'tail retained input changed: '+record['path'])
     return raw
 

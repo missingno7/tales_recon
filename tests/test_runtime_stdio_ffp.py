@@ -3,6 +3,7 @@ import copy,json,sys,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
+from names import to_mechanical
 from analysis_support import ROOT,game
 from census import advisory_image
 from common import FormatError,sha256
@@ -87,7 +88,7 @@ class MixedDependencyTests(unittest.TestCase):
    with self.assertRaises(FormatError):d.derive([dict(direct_callees=[call])])
  def test_inline_asm_stays_outside_ordinary_source_contract(self):
   from compiler_oracle import validate_source
-  with self.assertRaises(FormatError):validate_source(canonical_path(ROOT,self.recipe['source']['path']).read_text())
+  with self.assertRaises(FormatError):validate_source(to_mechanical(canonical_path(ROOT,self.recipe['source']['path']).read_text()))
  def test_trial_uses_header_and_ordinary_entry_rename(self):
   trial=dict(source='extern int F_h00_8552();\nrecovered(){return F_h00_8552();}\n',objects=[dict(source='extern int F_h00_8552();\nrecovered(){return F_h00_8552();}\n')],profile='aztec36',target_node=0)
   d.configure(trial,[self.recipe]);self.assertEqual(trial['entry_function'],'unit_entry');self.assertNotIn('#asm',trial['source']);self.assertIn('#define F_h00_8552 recovered',trial['objects'][0]['source'])

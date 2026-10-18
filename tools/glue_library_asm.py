@@ -1,4 +1,5 @@
 """Independently bounded graphics register bridge, never library provenance."""
+from names import to_mechanical
 from validation_memo import shared
 import json
 from pathlib import Path
@@ -66,7 +67,7 @@ def sdk(root):
  require(vector.split()==['_LVOBltMaskBitMapRastPort','equ','-636'] and pragma in texts[1].splitlines() and prototype in texts[2].splitlines(),'pinned vector/register/prototype contract')
  return dict(pins=SDK,vector=-636,registers=REGISTERS,pragma=pragma,prototype=prototype)
 def base(root):
- item=document(root,'recovery/ledger.json')['functions']['ov04_F_1E36'];raw=canonical_path(root,item['proof']).read_bytes();source=canonical_path(root,item['source']).read_bytes();p=json.loads(raw)
+ item=document(root,'recovery/ledger.json')['functions']['ov04_F_1E36'];raw=canonical_path(root,item['proof']).read_bytes();source=to_mechanical(canonical_path(root,item['source']).read_bytes());p=json.loads(raw)
  require(sha256(raw)==item['proof_sha256'] and sha256(source)==item['source_sha256'],'graphics base canonical source/proof pins')
  require(p['id']=='ov04_F_1E36' and p['source_sha256']==item['source_sha256'],'graphics base proof/source identity')
  cmp=p['comparison'];cmp=cmp.get('code_comparison',cmp)
@@ -151,7 +152,7 @@ def rows(root,blob,model,analysis,ledger):
  if item is None:return []
  fact=document(root,FACT);report=verify(root,blob,model,analysis,fact);dest='recovery/proofs/asm-reconstructed/'+ID+'.json'
  require(set(item)=={'state','fact','source','source_sha256','proof','proof_sha256'} and item['state']=='FUNCTION_CODE_MATCH' and item['fact']==FACT and item['source']==SOURCE and item['proof']==dest,'glue ownership identity')
- src=canonical_path(root,SOURCE).read_bytes();raw=canonical_path(root,dest).read_bytes();p=json.loads(raw)
+ src=to_mechanical(canonical_path(root,SOURCE).read_bytes());raw=canonical_path(root,dest).read_bytes();p=json.loads(raw)
  require(src==ASM and sha256(src)==item['source_sha256'] and sha256(raw)==item['proof_sha256'],'canonical glue source/proof pins')
  require(set(p)=={'fact','comparison','regression'} and p['fact']==fact and p['regression'].get('passed') is True,'canonical glue fact/gate')
  comparable=lambda r:{k:v for k,v in r.items() if k not in ['verifier_identity','frame_calibration']}
@@ -181,5 +182,5 @@ def input_identity(root):
  for item in [ledger.get(MAP,{}).get(ID)]:
   if item:names.update([item['source'],item['proof'],item['fact']])
  for n in names:
-  p=candidate_path(root,root/n) if n.startswith('build/') else canonical_path(root,n);out[str(p)]=sha256(p.read_bytes()) if p.exists() else None
+  p=candidate_path(root,root/n) if n.startswith('build/') else canonical_path(root,n);out[str(p)]=sha256((to_mechanical(p.read_bytes()) if n.startswith('src/') else p.read_bytes())) if p.exists() else None
  return out

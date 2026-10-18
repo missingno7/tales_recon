@@ -6,6 +6,7 @@ Admits initialized scalars, independently bounded lookup arrays and one internal
 an independently evidenced first int scalar. BSS/COMMON must both be zero.
 This proves a reconstructed provider contribution, never historical TU identity.
 """
+from names import to_mechanical
 import json
 import re
 from pathlib import Path
@@ -212,7 +213,7 @@ def typed_evidence(root,fact,analysis,ledger,promotions,image=None):
                     require(f['id']==d['evidence']['function'] and r['addend_raw']==off and r['source_offset']==d['evidence']['field_site'], 'additional absolute aggregate consumer/interior identity requires typed bounds evidence')
     for d in fact['definitions']:
         e=d['evidence']; fid=e['function']; require(fid in accepted and fid in ledger['functions'],'consumer is not currently canonical')
-        item=ledger['functions'][fid]; c=canonical_path(root,item['source']).read_bytes();praw=canonical_path(root,item['proof']).read_bytes()
+        item=ledger['functions'][fid]; c=to_mechanical(canonical_path(root,item['source']).read_bytes());praw=canonical_path(root,item['proof']).read_bytes()
         require(sha256(c)==item['source_sha256']==e['source_sha256'] and sha256(praw)==item['proof_sha256']==e['proof_sha256'],'stale typed consumer')
         declaration=e['declaration']; require(declaration in c.decode('ascii').splitlines(),'typed declaration absent from canonical source')
         if d['bounds']['kind'] in ('STRUCT_ABI','GUARDED_BYTE','COORDINATES','STATE16'):
@@ -631,7 +632,7 @@ def load_data_providers(root,blob,model,analysis,ledger,promotions,only=None):
         fact=document(root,item['fact']);proof_path=canonical_path(root,item['proof']);proof=document(root,item['proof'])
         require(fact['id']==ident and item['source']==fact['source'],'provider identity/source')
         require(sha256(proof_path.read_bytes())==item['proof_sha256'],'provider proof changed')
-        src=canonical_path(root,item['source']).read_bytes();require(sha256(src)==item['source_sha256'],'provider source changed')
+        src=to_mechanical(canonical_path(root,item['source']).read_bytes());require(sha256(src)==item['source_sha256'],'provider source changed')
         replay=verify(root,blob,model,analysis,ledger,promotions,fact,src,None)
         require(set(proof)=={'fact','comparison','regression'} and proof['regression'].get('passed') is True,
                 'provider proof lacks a passing promotion regression receipt')
@@ -704,5 +705,5 @@ def input_identity(root):
     def target(n):return candidate_path(root,root/n) if n.startswith('build/') else canonical_path(root,n)
     result={}
     for n in sorted(names):
-        path=target(n);result[str(path)]=sha256(path.read_bytes()) if path.is_file() else None
+        path=target(n);result[str(path)]=sha256((to_mechanical(path.read_bytes()) if n.startswith('src/') else path.read_bytes())) if path.is_file() else None
     return {**result,**external}

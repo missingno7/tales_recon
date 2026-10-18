@@ -1,4 +1,5 @@
 """Separate callback ABI batch; no inherited eligibility for 615E wrapper."""
+from names import to_mechanical
 from validation_memo import shared
 import json,re
 from pathlib import Path
@@ -144,7 +145,7 @@ def rows(root,blob,model,analysis,ledger):
   if ident not in entries:continue
   report=verify(root,blob,model,fact,batch,contract,audit,cctrl);item=entries[ident];dest='recovery/proofs/asm-reconstructed/'+ident+'.json'
   require(set(item)=={'state','fact','source','source_sha256','proof','proof_sha256'} and item['state']=='FUNCTION_CODE_MATCH' and item['fact']==name and item['source']==fact['source'] and item['proof']==dest,'driver ownership identity')
-  src=canonical_path(root,item['source']).read_bytes();raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
+  src=to_mechanical(canonical_path(root,item['source']).read_bytes());raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
   require(src==canonical_path(root,fact['candidate']).read_bytes() and sha256(src)==item['source_sha256']==fact['source_sha256'] and sha256(raw)==item['proof_sha256'],'canonical driver source/proof')
   require(set(proof)=={'fact','comparison','regression'} and proof['regression'].get('passed') is True,'driver shared regression receipt')
   comparable=lambda r:{k:v for k,v in r.items() if k not in ['verifier_identity','register_calibration']}
@@ -200,4 +201,4 @@ def input_identity(root):
  for k,item in ledger.get(MAP,{}).items():
   if k in SPECS:names.update([item['source'],item['proof'],item['fact']])
  def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
- return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes())}
+ return {**{str(path(n)):sha256((to_mechanical(path(n).read_bytes()) if n.startswith('src/') else path(n).read_bytes())) if path(n).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes())}

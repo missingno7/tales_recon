@@ -5,6 +5,7 @@ import sys
 import tempfile
 import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
+from names import to_mechanical
 from common import FormatError
 from function_census import Census
 from compiler_oracle import identity,validate_source,harness,overlay_proxies,cached
@@ -280,7 +281,7 @@ class CachedVerifierRegressionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);write_json(root/'recovery/ledger.json',dict(functions={self.f['id']:item}))
             for name in (item['source'],item['proof']):
-                dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((ROOT/name).read_bytes())
+                dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((to_mechanical((ROOT/name).read_bytes()) if name.startswith('src/') else (ROOT/name).read_bytes()))
             self.assertEqual(len(load_promotions(root,b,m,l)),1)
             src=root/item['source'];before=src.read_bytes();src.write_bytes(before+b'\n')
             with self.assertRaises(FormatError):load_promotions(root,b,m,l)
@@ -296,7 +297,7 @@ class CachedVerifierRegressionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);proof=root/item['proof'];source=root/item['source']
             proof.parent.mkdir(parents=True,exist_ok=True);source.parent.mkdir(parents=True,exist_ok=True)
-            proof.write_bytes((ROOT/item['proof']).read_bytes());source.write_bytes((ROOT/item['source']).read_bytes())
+            proof.write_bytes((ROOT/item['proof']).read_bytes());source.write_bytes(to_mechanical((ROOT/item['source']).read_bytes()))
             changed=json.loads(proof.read_text())
             changed['data_ownership']['expected_tail_sha256']='0'*64
             changed['comparison']['owned_code_data']['expected_tail_sha256']='0'*64

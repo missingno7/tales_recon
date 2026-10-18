@@ -4,6 +4,7 @@ Accepted source and assembler objects stay intact. Every acceptance replays the
 existing reconstructed-ASM comparison and proves the new physical link. Neither
 the objects nor diagnostic storage receive C or DATA credit.
 """
+from names import to_mechanical
 import copy,json,re
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -105,7 +106,7 @@ def derive(members,root=ROOT,ledger=None):
     by=inventory(root,ledger);objects=[];aliases={}
     for record in records:
         ident,item,fact=record['id'],record['item'],record['fact']
-        src=canonical_path(root,item['source']).read_bytes();proof_raw=canonical_path(root,item['proof']).read_bytes()
+        src=to_mechanical(canonical_path(root,item['source']).read_bytes());proof_raw=canonical_path(root,item['proof']).read_bytes()
         require(sha256(src)==item['source_sha256'] and sha256(proof_raw)==item['proof_sha256'],'canonical ASM source/proof changed')
         proof=json.loads(proof_raw)
         require(proof['fact']==fact and proof['regression'].get('passed') is True,'ASM dependency is not canonical')

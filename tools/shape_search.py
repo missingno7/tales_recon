@@ -3,6 +3,7 @@
 This utility is a bounded diagnostic front end to ``check_function``. It never
 generates source text, updates recovery state, or promotes an exact comparison.
 """
+from names import to_mechanical
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
@@ -154,7 +155,7 @@ def _parent(value, where, earlier_ids):
                                           "ledger:N, a 64-hex cache key, or none")
     path = _source_path(value)
     return dict(kind="source", value=value, source_path=path,
-                source=path.read_text(encoding="ascii"))
+                source=(to_mechanical(path.read_text(encoding="ascii")) if path.is_relative_to(ROOT / 'src') else path.read_text(encoding="ascii")))
 
 
 def load_manifest(path):
@@ -193,7 +194,7 @@ def load_manifest(path):
         source = _source_path(variant["source"])
         item = dict(id=variant_id, causal_family=causal_family,
                     diagnostic_scope=diagnostic_scope, profile=profile,
-                    source_path=source, source=source.read_text(encoding="ascii"),
+                    source_path=source, source=(to_mechanical(source.read_text(encoding="ascii")) if source.is_relative_to(ROOT / 'src') else source.read_text(encoding="ascii")),
                     manifest_source=variant["source"])
         if version == 2:
             # A variant may only name an earlier variant as parent, so the
@@ -626,7 +627,7 @@ def _retained_attempt_key(function_id, parent, profile):
     except Exception:  # advisory lookup only
         return None
     path = parent.get("source_path")
-    digest = (sha256(Path(path).read_bytes()) if path and Path(path).is_file()
+    digest = (sha256((to_mechanical(Path(path).read_bytes()) if Path(path).is_relative_to(ROOT / 'src') else Path(path).read_bytes())) if path and Path(path).is_file()
               else sha256(parent["source"].encode("ascii", "replace")))
     for row in reversed(rows):
         if row.get("source_sha256") == digest and row.get("profile") == profile and _cached(row.get("cache_key")):
@@ -859,7 +860,7 @@ def _record_parent_key(function_id, number, record, prior):
         try:
             path = _source_path(parent)
             variant = dict(parent=dict(kind="source", value=parent, source_path=path,
-                                       source=path.read_text(encoding="ascii")),
+                                       source=(to_mechanical(path.read_text(encoding="ascii")) if path.is_relative_to(ROOT / 'src') else path.read_text(encoding="ascii"))),
                            profile=record.get("profile"))
             function = next(f for f in evidence()["functions"] if f["id"] == function_id)
         except (FormatError, OSError, UnicodeError, StopIteration):

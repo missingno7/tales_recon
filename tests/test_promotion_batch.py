@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
+from names import to_mechanical
 import check_function
 import promote_batch
 import recovery_transaction as transaction
@@ -71,7 +72,7 @@ class PromotionBatchTests(unittest.TestCase):
         self.assertEqual(len(proofs[0]['regression']['batch_inputs_sha256']), 64)
         for item in ledger['functions'].values():
             self.assertEqual(sha256((self.root / item['proof']).read_bytes()), item['proof_sha256'])
-            self.assertEqual(sha256((self.root / item['source']).read_bytes()), item['source_sha256'])
+            self.assertEqual(sha256(to_mechanical((self.root / item['source']).read_bytes())), item['source_sha256'])
         journal = json.loads((transaction.journals(self.ledger) / result['transaction'] / 'journal.json').read_text())
         self.assertEqual(journal['status'], 'COMMITTED')
         self.assertEqual(journal['files'][-1]['path'], 'recovery/ledger.json')
@@ -201,7 +202,7 @@ class PromotionBatchTests(unittest.TestCase):
             functions = [check_function.validated_function(fid) for fid in ids]
         entries = []
         for request, report, (f, ev) in zip(requests, reports, functions):
-            text = Path(request['source']).read_text()
+            text = to_mechanical(Path(request['source']).read_text())
             entries.append(dict(id=request['id'], source=text, report=report, function=f, evidence=ev,
                                 compiled=compiler_oracle.cached(report['cache_key'])))
         result, calls = self.publish(entries, requests=requests)

@@ -1,4 +1,5 @@
 """Independent fixed-archive selector domain for resident option WORD rows."""
+from names import to_mechanical
 import importlib.util,json,re,sys
 from pathlib import Path
 from common import require,sha256
@@ -42,7 +43,7 @@ def prove(root,f,a):
     # Keep the actual filename string; semantic source views strip strings so
     # they cannot manufacture other bounds/call witnesses.
     from data_providers import document
-    ledger=document(root,'recovery/ledger.json');raw=canonical_path(root,ledger['functions']['ov04_F_0104']['source']).read_text(encoding='ascii');raw=re.sub(r'/\*.*?\*/|//[^\n]*','',raw,flags=re.S)
+    ledger=document(root,'recovery/ledger.json');raw=to_mechanical(canonical_path(root,ledger['functions']['ov04_F_0104']['source']).read_text(encoding='ascii'));raw=re.sub(r'/\*.*?\*/|//[^\n]*','',raw,flags=re.S)
     require('G_h01_46DA = F_h00_86DC("DT1:loc.arc", 1005L);' in raw,'location archive is not independently named at its loader')
     c=a['resident_F_01BA'][0];fragments(c,'struct Point { char reserved[36]; unsigned int value; };','switch (G_h01_4524[arg].point->value & 0x000f) {','case 4:','result = F_h09_0000(G_h01_4524[arg].point->value >> 4);')
     c=a['ov09_F_0000'][0];fragments(c,'recovered(arg)','int arg;','F_h09_18D0(arg);')

@@ -1,4 +1,5 @@
 """Separate mixed startup extent, canonical proof and language-aware accounting."""
+from names import to_mechanical
 import json
 from pathlib import Path
 
@@ -17,7 +18,7 @@ ANCHORS = ('resident_F_77A4', 'resident_F_7B24', 'resident_F_8534', 'ov04_F_1E36
 
 
 def read(root, path):
-    return canonical_path(root, path).read_bytes()
+    return (to_mechanical(canonical_path(root, path).read_bytes()) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def inputs(root):

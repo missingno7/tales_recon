@@ -3,6 +3,7 @@
 Only the curated 3.6a recipe is supported. No masks, opcode conversions,
 linked-output edits, guessed slot votes, or historical release selection.
 """
+from names import to_mechanical
 import json
 from pathlib import Path
 from common import require, sha256, json_bytes
@@ -36,7 +37,7 @@ TAIL_MEMBERS=('sscanf','scan','abort','createpo','createst','createex')
 
 
 def read(root, path):
-    return candidate_path(root, Path(root)/path).read_bytes()
+    return (to_mechanical(candidate_path(root, Path(root)/path).read_bytes()) if str(path).startswith('src/') else candidate_path(root, Path(root)/path).read_bytes())
 
 
 def extent(blob, model, hn, start, size):

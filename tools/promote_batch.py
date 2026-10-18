@@ -3,6 +3,7 @@
 Every request is reverified normally. New mutually dependent functions still
 use check_unit --member; independent batch entries cannot stand in for callees.
 """
+from names import to_mechanical
 import argparse
 import copy
 import json
@@ -103,7 +104,7 @@ def validate_plan(root, ledger, entries):
 def publish_verified(requests, entries, verified_inputs=None):
     """Internal verified-entry handoff; never trusts a worker-authored receipt."""
     require([r['id'] for r in requests] == [e['id'] for e in entries], 'batch request/entry identities differ')
-    require(all(Path(r['source']).read_text() == e['source'] for r, e in zip(requests, entries)),
+    require(all(to_mechanical(Path(r['source']).read_text()) == e['source'] for r, e in zip(requests, entries)),
             'candidate changed before publication')
     root, ledger_path = check_function.ROOT.resolve(), check_function.LEDGER.resolve()
     with ledger_lock(ledger_path):
@@ -146,7 +147,7 @@ def run(requests, verify_only=False):
         require(not request.get('owned_static_data'), 'initialized DATA proof is not independently promotable')
     # Freeze candidate text before verification; reread afterward rather than
     # accepting a receipt for an edited source file.
-    texts = [Path(r['source']).read_text() for r in requests]
+    texts = [to_mechanical(Path(r['source']).read_text()) for r in requests]
     ledger_hash = digest(check_function.LEDGER)
     verified_inputs = verification_snapshot(check_function.ROOT, check_function.LEDGER, requests)
     compile_queue.install()
@@ -155,7 +156,7 @@ def run(requests, verify_only=False):
     for request, text, report in zip(requests, texts, reports):
         fid = request['id']
         require(report['verdict'] == 'EQUAL', 'batch verification failed; no canonical writes: ' + fid)
-        require(report['source_sha256'] == sha256(text.encode('ascii')) and Path(request['source']).read_text() == text,
+        require(report['source_sha256'] == sha256(text.encode('ascii')) and to_mechanical(Path(request['source']).read_text()) == text,
                 'candidate changed during batch verification: ' + fid)
         f, evidence = check_function.validated_function(fid)
         compiled = compiler_oracle.cached(report['cache_key'])

@@ -3,6 +3,7 @@
 This bounded dependency retains the accepted stateful recipe and its measured
 score support objects. It supplies no new ownership, C or assembly credit.
 """
+from names import to_mechanical
 import json,re
 from pathlib import Path
 from common import require,sha256
@@ -25,7 +26,7 @@ def derive(members,root,ledger):
         if module is stateful:job=proof['comparison']['producer']['job']
         by={o['prefix']:o for o in proof['comparison']['objects']}
         for obj in fact['objects']:
-            src=canonical_path(root,obj['source']).read_bytes()
+            src=to_mechanical(canonical_path(root,obj['source']).read_bytes())
             require(sha256(src)==obj['source_sha256']==item['sources'][obj['source']],'selector provider source changed')
             path=job+'/sys/work/'+obj['prefix']+'.o';assembled=candidate_path(root,Path(root)/path).read_bytes()
             require(sha256(assembled)==by[obj['prefix']]['object_sha256'],'selector provider supporting object changed')

@@ -1,17 +1,24 @@
-# Current state and next work - 2026-10-16
+# Current state and next work - 2026-10-18
 
-The end goal is complete, readable source for DuckTales whose behavior we can
-trust, as the base for a later native SDL3 port. Exact matching decompilation
-is the preferred recovery and verification technique, not the deliverable.
-The stages are:
+The end goal (user decision 2026-10-18) is fully human-readable, extendable
+source for DuckTales and a deep, documented understanding of the game, like a
+modern decompilation project (model: duke1_recon). Exact matching is the
+recovery and verification technique, not the deliverable. The work runs in
+parallel streams, with no freeze of matching:
 
-1. Exact matching recovery.
-2. Behavioral completeness for whatever cannot be matched.
-3. A dedicated cleanup and modernization pass.
-4. The SDL3 port.
+1. Exact matching of what remains (code, audio tables, raw DATA).
+2. Readability in src/ itself: semantic names under the naming rule
+   (AGENTS.md), applied with `tools/rename.py`. `recovery/names.json` is the one
+   map between a mechanical identity and its readable name; tools read sources
+   through `tools/names.py`, so a pure rename changes no proof. Then per-function
+   summaries, shared structure headers instead of per-file views, files per
+   original object, the data model (BSS and raw DATA typed), and a game book under
+   docs/game/. Subsystem by subsystem, in the order the port reaches them.
+3. The SDL3 port in port/ (docs/sdl3-port.md): a thin layer that runs src/
+   unchanged; record/replay as its behaviour regression.
 
-We are in stages 1-2. Do not modernize matched sources, and do not add SDL3
-code or dependencies to this repository yet. Git history holds the earlier
+When everything matches, the per-function proof era is archived under a tag and
+the whole-build comparison remains the gate. Git history holds the earlier
 handoff narratives (waves 12-18, Sol campaigns 1-18).
 
 ## Where we are

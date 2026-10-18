@@ -4,6 +4,7 @@ This miner reports observed access widths, A4 data identities, address-taking,
 and conservative A5 frame access clues. It never emits reconstructed hard
 types, prototypes, ownership, or source names.
 """
+from names import to_mechanical
 import argparse
 import json
 import re
@@ -51,7 +52,7 @@ def extension_matches_load(load, extension, base_reg=K.M68K_REG_A4):
 
 
 def identity(path):
-    return sha256(path.read_bytes()) if path.is_file() else None
+    return sha256((to_mechanical(path.read_bytes()) if path.is_relative_to(ROOT / 'src') and path.suffix in ('.c', '.h', '.asm') else path.read_bytes())) if path.is_file() else None
 
 
 def mine(root=ROOT):
@@ -218,7 +219,7 @@ def _declarations(root):
     found = defaultdict(list)
     for path in sorted(active_files(Path(root)/'src', '.c')):
         try:
-            text = path.read_text(encoding='ascii')
+            text = to_mechanical(path.read_text(encoding='ascii'))
         except (UnicodeDecodeError, OSError):
             continue
         for number, line in enumerate(text.splitlines(), 1):

@@ -2,6 +2,7 @@ import copy,json,sys,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
+from names import to_mechanical
 from common import FormatError,sha256,json_bytes
 import dead_code_promotion as promote
 from recovery_state import canonical_state
@@ -19,7 +20,7 @@ class CompleteCPromotionTests(unittest.TestCase):
   current=json.loads(self.ledger.read_bytes());self.assertEqual(current['functions'],self.original['functions']);self.assertEqual(current['mixed_source_objects'],self.original['mixed_source_objects'])
   self.assertEqual(current['data_providers'],self.original['data_providers'])
   self.assertEqual(current[promote.MAP][self.proof['id']],item)
-  self.assertEqual((self.root/item['source']).read_bytes(),self.source);self.assertEqual(sha256((self.root/item['proof']).read_bytes()),item['proof_sha256'])
+  self.assertEqual(to_mechanical((self.root/item['source']).read_bytes()),self.source);self.assertEqual(sha256((self.root/item['proof']).read_bytes()),item['proof_sha256'])
   self.assertIn(promote.MAP,canonical_state(current))
  def test_raced_canonical_state_rejected_before_source_write(self):
   state=copy.deepcopy(self.original);state['functions']['ordinary']['source_sha256']='changed';self.ledger.write_bytes(json_bytes(state))

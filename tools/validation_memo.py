@@ -5,6 +5,7 @@ we observe file reads, path probes and directory enumerations. These inputs and
 the tools import closure are hashed again before a validation scope returns.
 No timestamps or on-disk Python objects grant acceptance.
 """
+from names import to_mechanical
 import ast
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -103,7 +104,7 @@ def _fingerprint(name):
     target = str(path.resolve())
     try:
         if path.is_file():
-            return dict(target=target, sha256=sha256(path.read_bytes()))
+            return dict(target=target, sha256=sha256((to_mechanical(path.read_bytes()) if _SESSION.get() is not None and path.is_relative_to(_SESSION.get().root / 'src') and path.suffix in ('.c', '.h', '.asm') else path.read_bytes())))
         if path.is_dir():
             return dict(target=target, entries=sorted(os.listdir(path))) if listing else dict(target=target, directory=True)
         return dict(target=target, absent=True)

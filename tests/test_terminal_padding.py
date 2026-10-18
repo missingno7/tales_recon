@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 from contextlib import ExitStack
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
+from names import to_mechanical
 from analysis_support import game,ROOT
 from common import FormatError,sha256,write_json
 from recovery_state import evidence
@@ -134,7 +135,7 @@ class TerminalPaddingTests(unittest.TestCase):
 
     def test_consistently_rehashed_canonical_change_invalidates_old_recipe(self):
         ledger=copy.deepcopy(self.ledger);fid='ov04_F_1E36';item=ledger['functions'][fid]
-        p=self.root/item['source'];raw=p.read_bytes()+b'\n';p.write_bytes(raw);item['source_sha256']=sha256(raw)
+        p=self.root/item['source'];raw=to_mechanical(p.read_bytes())+b'\n';p.write_bytes(raw);item['source_sha256']=sha256(raw)
         proof_path=self.root/item['proof'];proof=json.loads(proof_path.read_bytes());proof['source_sha256']=item['source_sha256']
         write_json(proof_path,proof);item['proof_sha256']=sha256(proof_path.read_bytes())
         with self.assertRaisesRegex(FormatError,'recipe does not re-derive'):self.validate(ledger=ledger)

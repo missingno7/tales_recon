@@ -1,4 +1,5 @@
 """Separate, serialized DATA-provider promotion; no function-state substitution."""
+from names import to_mechanical
 import argparse
 from contextlib import nullcontext
 from evidence_snapshot import snapshot,isolated_verification,validated_stage,Snapshot
@@ -48,7 +49,7 @@ def validation_inputs(root,path):
                 item=document(root,'recovery/ledger.json')['functions'][d['evidence']['function']]
                 names.update([item['source'],item['proof']])
     names.update(p.relative_to(root).as_posix() for p in active_files(root/'tools','.py'))
-    return dict(explicit=[dict(path=n,sha256=sha256((candidate_path(root,Path(root)/n) if n.startswith('build/') else canonical_path(root,n)).read_bytes())) for n in sorted(names)],closure=Snapshot().inputs(root,True))
+    return dict(explicit=[dict(path=n,sha256=sha256((to_mechanical((candidate_path(root,Path(root)/n) if n.startswith('build/') else canonical_path(root,n)).read_bytes()) if n.startswith('src/') else (candidate_path(root,Path(root)/n) if n.startswith('build/') else canonical_path(root,n)).read_bytes()))) for n in sorted(names)],closure=Snapshot().inputs(root,True))
 
 
 # One validation scope: each producer job is audited once, not once per provider.
@@ -61,7 +62,7 @@ def stage_entries(root,blob,model,analysis,ledger,promotions,path):
     occupied={(c['hunk'],p) for c in contributions(existing) for p in range(c['start'],c['end'])}
     for name,fact in facts:
         src=source(fact);original=canonical_path(root,fact['source'])
-        require(not original.exists() or original.read_bytes()==src,'existing provider source differs')
+        require(not original.exists() or to_mechanical(original.read_bytes())==src,'existing provider source differs')
         report=verify(root,blob,model,analysis,ledger,promotions,fact,src,None)
         points={(c['hunk'],p) for c in contributions([report]) for p in range(c['start'],c['end'])}
         require(not(points&seen),'overlapping batch providers');seen|=points

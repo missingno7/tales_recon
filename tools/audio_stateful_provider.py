@@ -1,4 +1,5 @@
 """Exact rooted envelope/selector/score DATA provider for H0 5E6C..704E."""
+from names import to_mechanical
 from validation_memo import shared
 import json
 from pathlib import Path
@@ -198,7 +199,7 @@ def rows(root,blob,model,analysis,ledger):
  if item is None:return []
  require(set(item)=={'state','fact','sources','proof','proof_sha256'} and item['state']=='DATA_LAYOUT_MATCH' and item['fact']==FACT and item['proof']=='recovery/proofs/code-data/'+IDENT+'.json','region ownership identity')
  fact=doc(root,FACT);report=verify(root,blob,model,fact);require(item['sources']=={o['source']:o['source_sha256'] for o in fact['objects']},'region source inventory')
- for o in fact['objects']:require(canonical_path(root,o['source']).read_bytes()==canonical_path(root,o['candidate']).read_bytes(),'canonical region source differs')
+ for o in fact['objects']:require(to_mechanical(canonical_path(root,o['source']).read_bytes())==canonical_path(root,o['candidate']).read_bytes(),'canonical region source differs')
  raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw);require(sha256(raw)==item['proof_sha256'] and set(proof)=={'fact','comparison','regression'} and proof['fact']==fact and proof['regression'].get('passed') is True,'region proof/gate')
  comparable=lambda x:{k:v for k,v in x.items() if k!='verifier_identity'}
  require(proof['comparison'].get('verifier_identity') and comparable(proof['comparison'])==comparable(report),'region canonical proof no longer rederives')
@@ -223,4 +224,4 @@ def input_identity(root):
  item=(doc(root,'recovery/ledger.json') if canonical_path(root,'recovery/ledger.json').exists() else {}).get(MAP,{}).get(IDENT)
  if item:names.update([item['fact'],item['proof'],*item['sources']])
  def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
- return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external}
+ return {**{str(path(n)):sha256((to_mechanical(path(n).read_bytes()) if n.startswith('src/') else path(n).read_bytes())) if path(n).exists() else None for n in sorted(names)},**external}

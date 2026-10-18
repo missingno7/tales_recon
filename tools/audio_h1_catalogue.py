@@ -3,6 +3,7 @@
 H0 score/callback proofs remain immutable. Header roots are supplied by decoded
 selector fields; every reached command must terminate under the existing grammar.
 """
+from names import to_mechanical
 from collections import defaultdict
 from common import require,sha256,json_bytes
 from audio_sequence_data import payload,field
@@ -89,7 +90,7 @@ def discover(root,blob,model,g):
  from storage_plan import clean
  ledger=doc(root,'recovery/ledger.json');witnesses={}
  for fid,index in [('ov13_F_02BE',STOP_INDEX),('ov13_F_02BE',ROOT_INDEX)]:
-  item=ledger['functions'][fid];src=(root/item['source']).read_bytes();proof=(root/item['proof']).read_bytes()
+  item=ledger['functions'][fid];src=to_mechanical((root/item['source']).read_bytes());proof=(root/item['proof']).read_bytes()
   require(sha256(src)==item['source_sha256'] and sha256(proof)==item['proof_sha256'],'changed canonical sound caller')
   text=clean(src.decode('ascii'));import re
   require(any(int(x,0)==index for x in re.findall(r'F_h00_57D2\(\s*(0x[0-9a-fA-F]+|[0-9]+)\s*\)',text)),'literal sound-command witness absent')

@@ -2,6 +2,7 @@
 Every canonical read replays the registered natural unit. Existing reachable
 prefix proofs stay valid; accounting counts their remainder only once.
 """
+from names import to_mechanical
 import argparse,copy,json,sys
 from pathlib import Path
 from common import require,sha256,json_bytes,write_json,FormatError
@@ -41,7 +42,7 @@ def canonical_rows(root,blob,model,analysis,ledger):
   if fid in entries:
    item=entries[fid];source=canonical_path(root,item['source']);proof=canonical_path(root,item['proof'])
    require(item['source']==expected['source'] and item['proof']=='recovery/proofs/complete-c/'+fid+'.json' and item['state']==expected['state'],'canonical complete-C identity differs')
-   require(source.read_bytes()==canonical_path(root,registry[fid]['source']['path']).read_bytes() and sha256(source.read_bytes())==item['source_sha256']==expected['source_sha256'],'canonical complete-C source changed')
+   require(to_mechanical(source.read_bytes())==canonical_path(root,registry[fid]['source']['path']).read_bytes() and sha256(to_mechanical(source.read_bytes()))==item['source_sha256']==expected['source_sha256'],'canonical complete-C source changed')
    observed=json.loads(proof.read_bytes());gate=observed.pop('regression_provenance',None)
    require(isinstance(gate,dict) and gate.get('passed') is True,'canonical complete-C regression provenance missing')
    require(sha256(proof.read_bytes())==item['proof_sha256'] and observed==expected,'canonical complete-C proof does not rederive')
@@ -106,7 +107,7 @@ def commit(root,fid,source,proof,expected_state,input_guard=None):
   current=state.get(MAP,{}).get(fid)
   item=dict(state=proof['state'],source=proof['source'],source_sha256=sha256(source),proof=proof_path.relative_to(root).as_posix(),proof_sha256=sha256(json_bytes(proof)))
   require(not current or current==item,'already accepted complete-C object differs')
-  require(not source_path.exists() or source_path.read_bytes()==source,'complete-C source path contains another source')
+  require(not source_path.exists() or to_mechanical(source_path.read_bytes())==source,'complete-C source path contains another source')
   require(not proof_path.exists() or proof_path.read_bytes()==json_bytes(proof),'complete-C proof path contains another proof')
   paths=[source_path,proof_path,ledger_path];saved={p:p.read_bytes() if p.exists() else None for p in paths}
   try:

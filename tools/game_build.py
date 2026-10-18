@@ -1,4 +1,5 @@
 from __future__ import annotations
+from names import to_mechanical
 import argparse, collections, hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
@@ -12,7 +13,7 @@ STAGE = ROOT / 'build' / 'game'
 GUEST = STAGE / 'guest_source'
 
 def sha(data): return hashlib.sha256(data).hexdigest()
-def digest(path): return sha(path.read_bytes())
+def digest(path): return sha((to_mechanical(path.read_bytes()) if path.is_relative_to(ROOT / 'src') else path.read_bytes()))
 def read_json(path): return json.loads(path.read_text(encoding='utf-8'))
 def write_json(path, obj):
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -654,7 +655,7 @@ def main():
                     continue
                 if not source.endswith('.asm') or digest(ROOT / source) != source_sha:
                     raise SystemExit('accepted source is not a hash-matching assembly file: ' + source)
-                text = (ROOT / source).read_text(encoding='utf-8')
+                text = to_mechanical((ROOT / source).read_text(encoding='utf-8'))
                 exported = set(re.findall(r'(?m)^\s*public\s+(\S+)', text)) & set(re.findall(r'(?m)^(_\w+):', text))
                 row = dict(source=source, source_sha256=source_sha, proof=rec['proof'], proof_category=category,
                            definitions=sorted(exported), materialize_entry=None,
@@ -907,7 +908,7 @@ def main():
     asm_block_re = re.compile(r'#asm\b[\s\S]*?#endasm\b', re.IGNORECASE)
     for obj in obj_rows:
         for source_path in obj.get('sources', []):
-            source_text = (ROOT / source_path).read_text(encoding='utf-8')
+            source_text = to_mechanical((ROOT / source_path).read_text(encoding='utf-8'))
             if source_path.endswith('.asm'):
                 asm_text = source_text
             else:
@@ -954,7 +955,7 @@ def main():
         if not rows: raise SystemExit('empty selected object ' + obj['object'])
         contents = []
         for row in rows:
-            original = (ROOT/row['source']).read_text(encoding='utf-8')
+            original = to_mechanical((ROOT/row['source']).read_text(encoding='utf-8'))
             if row['source'] in {
                 'src/recovered/ov11/ov11_F_2C96.c',
                 'src/recovered/ov11/ov11_F_3926.c',
@@ -968,7 +969,7 @@ def main():
                 # in this generated staging copy to keep the direct `_index` call.
                 original = token_replace(original, 'index', 'link_local_index')
                 staging_identifier_renames.append(dict(source=row['source'],from_identifier='index',to_identifier='link_local_index',reason='avoid shadowing pinned `_index` C identifier'))
-            if sha((ROOT/row['source']).read_bytes()) != row['source_sha256']:
+            if sha(to_mechanical((ROOT/row['source']).read_bytes())) != row['source_sha256']:
                 raise SystemExit('accepted source hash differs from inventory: ' + row['source'])
             contract = row.get('materialize_entry')
             if contract:
@@ -1021,7 +1022,7 @@ def main():
             # accepted source files remain untouched. This fixes omitted unit headers.
             type_declarations = []
             for source_row in rows:
-                original_source = (ROOT/source_row['source']).read_text(encoding='utf-8')
+                original_source = to_mechanical((ROOT/source_row['source']).read_text(encoding='utf-8'))
                 names = sorted(set(re.findall(r'\bG_h01_[0-9A-Fa-f]{4}\b', original_source)))
                 for name in names:
                     if re.search(r'\b(?:extern|static)\b[^;]*\b'+re.escape(name)+r'\b', original_source): continue
@@ -1040,7 +1041,7 @@ def main():
             # UiState's complete tag is independently declared in an accepted source.
             if 'struct UiState' in text and 'struct UiState {' not in text:
                 ui_source = ROOT/'src/recovered/ov13/ov13_F_0000.c'
-                ui_body = extract_struct_bodies(ui_source.read_text(encoding='utf-8')).get('UiState') if ui_source.is_file() else None
+                ui_body = extract_struct_bodies(to_mechanical(ui_source.read_text(encoding='utf-8'))).get('UiState') if ui_source.is_file() else None
                 if ui_body:
                     preamble += 'struct UiState { %s };\n' % ui_body.strip().strip('{}').strip()
             preamble += ''.join(sorted(set(type_declarations)))
@@ -1146,7 +1147,7 @@ def main():
                 src += ('/* LINK_ONLY_STUBS: zero placeholder for %d raw DATA byte(s) before %s; NOT recovered data */\n'
                         'char LINK_ONLY_GAP_%04X[%d] = {0};\n' % (e['gap_before'], e['id'],
                                                                   e['original']['start'] - e['gap_before'], e['gap_before']))
-            src += (ROOT/e['rec']['source']).read_text(encoding='utf-8')
+            src += to_mechanical((ROOT/e['rec']['source']).read_text(encoding='utf-8'))
         relsrc = Path('tu')/('data_' + first + '.c'); (GUEST/relsrc).write_text(src,encoding='ascii',newline='\n')
         compile_entries.append(dict(source=relsrc.as_posix(),object=objname,kind='c',profile=profile,flags=flags,
                                     log=objname[:-2]+'-cc.log',as_log=objname[:-2]+'-as.log'))
@@ -1223,10 +1224,10 @@ def main():
     # Also read simple struct definitions directly from the accepted C inputs; inventory variants are advisory views, not an ownership claim.
     for source_row in src_rows:
         if not source_row['source'].endswith('.c'): continue
-        for tag,body in extract_struct_bodies((ROOT/source_row['source']).read_text(encoding='utf-8')).items():
+        for tag,body in extract_struct_bodies(to_mechanical((ROOT/source_row['source']).read_text(encoding='utf-8'))).items():
             if body not in all_structs[tag]: all_structs[tag].append(body)
     for provider_id,rec in data_provider_rows:
-        for tag,body in extract_struct_bodies((ROOT/rec['source']).read_text(encoding='utf-8')).items():
+        for tag,body in extract_struct_bodies(to_mechanical((ROOT/rec['source']).read_text(encoding='utf-8'))).items():
             if body not in all_structs[tag]: all_structs[tag].append(body)
     undef = inv['undefined_symbols']; stub_items=[]; deferred=[]; runtime_stubs=[]
     manual_link_views={

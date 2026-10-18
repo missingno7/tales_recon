@@ -3,6 +3,7 @@
 The retained pilot controls cover 16E4; measured source covers every proved root.
 No clipped objects, raw directives, guessed gaps or unnamed fixups are accepted.
 """
+from names import to_mechanical
 import json,re
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -132,7 +133,7 @@ def rows(root,blob,model,analysis,ledger):
         fact=document(root,FACT);replay=verify(root,blob,model,fact)
         raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
         require(sha256(raw)==item['proof_sha256'],'CODE-data proof hash')
-        src=canonical_path(root,SOURCE).read_bytes()
+        src=to_mechanical(canonical_path(root,SOURCE).read_bytes())
         require(src==source(document(root,RECIPE)).encode('ascii') and sha256(src)==item['source_sha256'],'CODE-data canonical source')
         require(set(proof)=={'fact','comparison','regression'} and proof['fact']==fact and
                 proof['regression'].get('passed') is True,'CODE-data shared regression proof')
@@ -203,4 +204,4 @@ def input_identity(root):
         if 'source' in item:names.update([item['source'],item['proof'],item['fact']])
     def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
     import audio_score_measured as measured
-    return {**{str(path(n)):sha256(path(n).read_bytes()) if path(n).exists() else None for n in sorted(names)},**external,**measured.input_identity(root),**__import__('audio_region_provider').input_identity(root),**__import__('audio_stateful_provider').input_identity(root),**__import__('audio_h1_provider').input_identity(root),**__import__('audio_envelope_prefix').input_identity(root)}
+    return {**{str(path(n)):sha256((to_mechanical(path(n).read_bytes()) if n.startswith('src/') else path(n).read_bytes())) if path(n).exists() else None for n in sorted(names)},**external,**measured.input_identity(root),**__import__('audio_region_provider').input_identity(root),**__import__('audio_stateful_provider').input_identity(root),**__import__('audio_h1_provider').input_identity(root),**__import__('audio_envelope_prefix').input_identity(root)}
