@@ -16,11 +16,11 @@ struct Record {
 };
 extern struct Record G_h01_A554[16];
 extern char *G_h01_5370;
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern int G_h01_8A3E;
-extern int F_h00_8B88();
-extern int F_h00_8B4C();
-extern int F_h00_8AA8();
+extern int SetAPen();
+extern int Move();
+extern int Draw();
 
 recovered(index)
 int index;
@@ -29,9 +29,9 @@ int index;
 
     record = &G_h01_A554[index];
     *G_h01_5370 = record->state;
-    F_h00_8B88(G_h01_46CA, (long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA, (long)(record->x - G_h01_8A3E), (long)record->y);
-    F_h00_8AA8(G_h01_46CA, (long)(record->x2 - G_h01_8A3E), (long)record->y2);
+    SetAPen(screen_rast_port, (long)*G_h01_5370);
+    Move(screen_rast_port, (long)(record->x - G_h01_8A3E), (long)record->y);
+    Draw(screen_rast_port, (long)(record->x2 - G_h01_8A3E), (long)record->y2);
     record->first_old = record->first;
     record->first = record->x2;
     record->second_old = record->second;

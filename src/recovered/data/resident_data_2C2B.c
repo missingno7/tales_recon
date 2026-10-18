@@ -1,1 +1,1 @@
-unsigned char G_h01_2C2B = 0;
+unsigned char palette_cycle_word_index = 0;

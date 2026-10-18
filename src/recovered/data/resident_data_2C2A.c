@@ -1,1 +1,1 @@
-unsigned char G_h01_2C2A = 0;
+unsigned char palette_cycle_frame_countdown = 0;

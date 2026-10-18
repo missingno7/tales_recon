@@ -15,7 +15,7 @@ extern long F_h00_86E0();
 extern long F_h00_8C3C();
 extern long F_h00_8C22();
 extern int F_h00_8C30();
-extern int F_h00_8784();
+extern int CloseLibrary();
 recovered(pp, wbm)
 register struct ProcessView *pp;
 struct WBStartupView *wbm;
@@ -38,6 +38,6 @@ struct WBStartupView *wbm;
  }
  F_h00_8C30(dop);
 closeit:
- F_h00_8784(G_h01_B3C0);
+ CloseLibrary(G_h01_B3C0);
  G_h01_B3C0 = 0;
 }

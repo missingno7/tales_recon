@@ -29,15 +29,15 @@ extern int G_h01_1422;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
 extern struct UiState G_h01_50E6;
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_291E();
-extern int F_h00_8A46();
+extern int BltBitMap();
 extern int F_h00_34E0();
 
 recovered(a,b,c)
 int a,b,c;
 {
-    F_h00_0FDE(1);
+    request_disk(1);
     if (!a && c) {
         F_h00_291E(3,G_h01_46CE);
         F_h00_291E(4,&G_h01_50E6.x1);
@@ -61,7 +61,7 @@ int a,b,c;
         G_h01_50E6.x0=216;
         G_h01_50E6.y0=32;
         G_h01_50E6.text0=b;
-    F_h00_8A46(G_h01_46CE,0L,0L,G_h01_46D2,
+    BltBitMap(G_h01_46CE,0L,0L,G_h01_46D2,
         0L,0L,320L,200L,192L,255L,0L);
     F_h00_34E0(&G_h01_50E6.x0);
     F_h00_34E0(&G_h01_50E6.x1);

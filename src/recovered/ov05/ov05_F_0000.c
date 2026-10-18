@@ -10,16 +10,16 @@ extern char G_h01_0A87;
 extern char G_h01_0A88;
 extern char G_h01_0A89;
 extern char G_h01_15A6[1];
-extern char G_h01_1F36;
+extern char keyboard_direction_input_enabled;
 extern long G_h01_2A16;
-extern long G_h01_2C26;
-extern char G_h01_2C2C;
-extern long G_h01_46CA;
+extern long palette_cycle_callback_index;
+extern char palette_cycle_countdown_step;
+extern long screen_rast_port;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
 extern char *G_h01_46D6;
-extern long G_h01_46DA;
-extern char G_h01_46E1;
+extern long arc_file;
+extern char game_day;
 extern long G_h01_5370;
 extern struct Blob G_h01_544E;
 extern int G_h01_5450;
@@ -189,8 +189,8 @@ extern char G_h01_5E60;
 extern char G_h01_5E61;
 extern char G_h01_5E62;
 extern int F_h00_09C0();
-extern int F_h00_0FDE();
-extern int F_h00_2816();
+extern int request_disk();
+extern int arc_read_index();
 extern int F_h00_291E();
 extern int F_h00_307C();
 extern int F_h00_31AA();
@@ -199,20 +199,20 @@ extern int F_h00_34E0();
 extern int F_h00_35DC();
 extern int F_h00_3AE4();
 extern int F_h00_3B84();
-extern int F_h00_435E();
-extern int F_h00_4376();
+extern int clear_input_direction_and_fire_state();
+extern int poll_controller_and_keyboard_input();
 extern unsigned int F_h00_463E();
 extern int F_h00_4D04();
 extern int F_h00_4EC6();
-extern int F_h00_57D2();
-extern int F_h00_868C();
-extern int F_h00_86A8();
-extern long F_h00_86DC();
-extern int F_h00_8A46();
-extern int F_h00_8AA8();
-extern int F_h00_8B4C();
-extern int F_h00_8B88();
-extern int F_h00_8BC8();
+extern int play_sound();
+extern int Close();
+extern int Delay();
+extern long Open();
+extern int BltBitMap();
+extern int Draw();
+extern int Move();
+extern int SetAPen();
+extern int SetRast();
 extern int F_h05_131C();
 extern long F_h05_1860();
 extern int F_h05_2CD4();
@@ -225,12 +225,12 @@ struct R54 { char b[54]; };
 #define RECW(base, i) (*(int *)((struct R54 *)&(base) + (i)))
 #define RECA(base, i) ((char *)((struct R54 *)&(base) + (i)))
 #define DRAW_PAIR() \
-    F_h00_8B88(G_h01_46CA, (long)*(char *)G_h01_5370); \
-    F_h00_8B4C(G_h01_46CA, (long)G_h01_5E44, (long)G_h01_5E46); \
-    F_h00_8AA8(G_h01_46CA, (long)((int)G_h01_5E34 + k), (long)((int)G_h01_5E38 + 20)); \
-    F_h00_8B88(G_h01_46CA, (long)*(char *)G_h01_5370); \
-    F_h00_8B4C(G_h01_46CA, (long)G_h01_5E48, (long)G_h01_5E4A); \
-    F_h00_8AA8(G_h01_46CA, (long)((int)G_h01_5E34 + k), (long)((int)G_h01_5E38 + 20));
+    SetAPen(screen_rast_port, (long)*(char *)G_h01_5370); \
+    Move(screen_rast_port, (long)G_h01_5E44, (long)G_h01_5E46); \
+    Draw(screen_rast_port, (long)((int)G_h01_5E34 + k), (long)((int)G_h01_5E38 + 20)); \
+    SetAPen(screen_rast_port, (long)*(char *)G_h01_5370); \
+    Move(screen_rast_port, (long)G_h01_5E48, (long)G_h01_5E4A); \
+    Draw(screen_rast_port, (long)((int)G_h01_5E34 + k), (long)((int)G_h01_5E38 + 20));
 
 recovered(a, b)
 int a;
@@ -250,7 +250,7 @@ char b;
     char c1b;
     char c1c;
 
-    G_h01_1F36 = 0;
+    keyboard_direction_input_enabled = 0;
     G_h01_5E5E = 0;
     ctr = 0;
     G_h01_5E5A = 0;
@@ -270,17 +270,17 @@ char b;
     mode = 0;
     c15 = 0;
     G_h01_5E56 = 0;
-    c1b = G_h01_46E1;
+    c1b = game_day;
     G_h01_5E54 = 0;
     G_h01_5E4C = 0;
     G_h01_5E52 = 0;
     G_h01_5E58 = b;
     G_h01_5E42 = a * 42;
-    sv = G_h01_46DA;
+    sv = arc_file;
 
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:plane.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    request_disk(1);
+    arc_file = Open("DT1:plane.arc", 1005L);
+    arc_read_index(arc_file);
     F_h05_3B6C();
     F_h00_291E(61, &G_h01_544E);
     F_h00_291E(62, &G_h01_593E);
@@ -293,22 +293,22 @@ char b;
     G_h01_5940 = 0xb2;
     G_h01_5974 = 0x48;
     G_h01_5976 = 0xb9;
-    F_h00_57D2(0);
+    play_sound(0);
     F_h00_4EC6();
-    F_h00_0FDE(1);
+    request_disk(1);
     F_h00_4D04(5);
-    F_h00_0FDE(1);
-    F_h00_2816(G_h01_46DA);
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = sv;
-    F_h00_2816(G_h01_46DA);
+    request_disk(1);
+    arc_read_index(arc_file);
+    Close(arc_file);
+    arc_file = sv;
+    arc_read_index(arc_file);
     F_h00_330E();
-    F_h00_8BC8(G_h01_46CA, 7L);
+    SetRast(screen_rast_port, 7L);
     F_h00_307C();
     G_h01_46D6 = &G_h01_15A6;
     F_h00_31AA(&G_h01_15A6);
-    G_h01_2C26 = 0;
-    G_h01_2C2C = 0;
+    palette_cycle_callback_index = 0;
+    palette_cycle_countdown_step = 0;
     G_h01_5C6A = 0x18;
     G_h01_5C68 = 0;
 
@@ -318,13 +318,13 @@ char b;
     }
     G_h01_5E34 = 0.0;
     G_h01_5E38 = 139.0;
-    F_h00_57D2(9);
-    F_h00_435E();
+    play_sound(9);
+    clear_input_direction_and_fire_state();
 
     for (;;) {
         p = (char *)F_h05_1860();
         t = (int)G_h01_0A7E;
-        F_h00_57D2((t << 11) | 8);
+        play_sound((t << 11) | 8);
         if (p == (char *)&G_h01_5B5A)
             goto CC2;
         ctr = ctr + 1;
@@ -340,7 +340,7 @@ char b;
         }
         F_h00_307C();
         mode = F_h05_318E();
-        key = F_h00_4376();
+        key = poll_controller_and_keyboard_input();
         if (key & 0x80) {
             if (G_h01_0A7E < 14)
                 G_h01_0A7E = G_h01_0A7E + 0.5;
@@ -363,10 +363,10 @@ char b;
         if (mode == 1) {
             G_h01_5E4C = 0;
             F_h05_131C(&G_h01_544E);
-            F_h00_8A46(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
+            BltBitMap(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
             F_h00_307C();
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
-            F_h00_57D2(0x3c);
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
+            play_sound(0x3c);
             F_h05_3AF6();
             F_h05_131C(&G_h01_544E);
             F_h00_307C();
@@ -396,7 +396,7 @@ char b;
         }
         if (G_h01_0A86 != 0) {
             G_h01_5E40 = 0;
-            F_h00_57D2(0x2f);
+            play_sound(0x2f);
             for (j = 0; j < 6; j++) {
                 G_h01_58D2 = G_h01_5908 + 18;
                 G_h01_58D4 = G_h01_590A + 22;
@@ -428,8 +428,8 @@ char b;
             F_h00_34E0(&G_h01_5908);
             F_h00_34E0(&G_h01_58D2);
             F_h05_2CD4(G_h01_0A82);
-            G_h01_2C2C = 0;
-            G_h01_2C26 = 0;
+            palette_cycle_countdown_step = 0;
+            palette_cycle_callback_index = 0;
             F_h00_330E();
             F_h00_307C();
             G_h01_46D6 = &G_h01_15A6;
@@ -475,7 +475,7 @@ char b;
             G_h01_0A87 = 0;
             G_h01_5E3C = 0;
             G_h01_5E3E = 0;
-            F_h00_435E();
+            clear_input_direction_and_fire_state();
             continue;
         }
         if (G_h01_0A87 == 0)
@@ -489,7 +489,7 @@ char b;
         }
         G_h01_5482 = G_h01_5E41;
         *(char *)G_h01_5370 = 7;
-        F_h00_57D2(0x2c);
+        play_sound(0x2c);
         while (G_h01_0A7E > 0) {
             F_h05_131C(&G_h01_544E);
             DRAW_PAIR()
@@ -533,7 +533,7 @@ char b;
             k = 5;
         }
         G_h01_5482 = G_h01_5E41;
-        F_h00_57D2(0x3d);
+        play_sound(0x3d);
         while (j > i) {
             F_h05_131C(&G_h01_544E);
             DRAW_PAIR()
@@ -559,11 +559,11 @@ char b;
             G_h01_5450 = (int)G_h01_5E38;
             G_h01_0A7E = G_h01_0A7E + 1;
         }
-        F_h00_57D2(0x30);
+        play_sound(0x30);
         G_h01_0A87 = 0;
         G_h01_5E3C = 0;
         G_h01_5E3E = 0;
-        F_h00_435E();
+        clear_input_direction_and_fire_state();
         continue;
     }
 
@@ -571,11 +571,11 @@ CC2:
     if (mode == 2) {
         st = 2;
     } else if (p == (char *)&G_h01_5B5A) {
-        F_h00_57D2(0);
+        play_sound(0);
         G_h01_5B90 = (int)(G_h01_5E34 + -3);
         G_h01_5B92 = (int)(G_h01_5E38 + -21);
-        F_h00_86A8(5L);
-        F_h00_57D2(0x2b);
+        Delay(5L);
+        play_sound(0x2b);
         for (i = 0; i <= 24; i++) {
             F_h05_131C(&G_h01_5B5A);
             G_h01_5BC4 = i % 3;
@@ -647,22 +647,22 @@ D8E:
         else if ((unsigned int)ctr > (unsigned int)(G_h01_5E42 * 11))
             c1c = 1;
     }
-    G_h01_46E1 = c1b;
-    G_h01_46E1 = G_h01_46E1 + c1c + a;
+    game_day = c1b;
+    game_day = game_day + c1c + a;
     for (i = 0; i <= 1; i++) {
         F_h00_34E0(&G_h01_593E);
-        if (G_h01_46E1 < 10)
-            F_h00_09C0(0x12, 0xb8, (long)(G_h01_46E1 > 30 ? 30 : G_h01_46E1), 7, 1, 0);
+        if (game_day < 10)
+            F_h00_09C0(0x12, 0xb8, (long)(game_day > 30 ? 30 : game_day), 7, 1, 0);
         else
-            F_h00_09C0(0x0e, 0xb8, (long)(G_h01_46E1 > 30 ? 30 : G_h01_46E1), 7, 1, 0);
+            F_h00_09C0(0x0e, 0xb8, (long)(game_day > 30 ? 30 : game_day), 7, 1, 0);
         F_h00_307C();
     }
     F_h00_3AE4(&G_h01_594E, G_h01_5946, G_h01_5948);
     F_h00_3AE4(&G_h01_5D50, G_h01_5D48, G_h01_5D4A);
     F_h00_3AE4(&G_h01_5D86, G_h01_5D7E, G_h01_5D80);
-    F_h00_57D2(0);
+    play_sound(0);
     F_h00_4EC6();
-    F_h00_0FDE(1);
+    request_disk(1);
     if (st == 0) {
         i = (unsigned int)F_h00_463E() % 3;
         switch (i) {
@@ -676,22 +676,22 @@ D8E:
             F_h00_4D04(20);
             break;
         }
-        G_h01_2C2C = 0;
-        G_h01_2C26 = 0;
+        palette_cycle_countdown_step = 0;
+        palette_cycle_callback_index = 0;
         F_h00_330E();
-        F_h00_57D2(0x77);
-        F_h00_86A8(0x32L);
+        play_sound(0x77);
+        Delay(0x32L);
         while (G_h01_2A16 != 0)
             ;
         F_h00_4EC6();
     }
-    G_h01_2C2C = 0;
-    G_h01_2C26 = 0;
-    F_h00_0FDE(1);
-    G_h01_46DA = sv;
-    F_h00_2816(G_h01_46DA);
+    palette_cycle_countdown_step = 0;
+    palette_cycle_callback_index = 0;
+    request_disk(1);
+    arc_file = sv;
+    arc_read_index(arc_file);
     if (st == 2)
         st = 0;
-    G_h01_1F36 = 1;
+    keyboard_direction_input_enabled = 1;
     return st;
 }

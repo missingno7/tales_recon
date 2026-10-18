@@ -15,7 +15,7 @@ struct State {
 
 extern char G_h01_9F0C;
 extern char G_h01_9C2C;
-extern int F_h00_57D2();
+extern int play_sound();
 
 recovered(action,state)
 int action;
@@ -49,9 +49,9 @@ struct State *state;
                     state->index = 0;
                     state->limit = 6;
                     state->counter = &G_h01_9C2C;
-                    F_h00_57D2(94);
+                    play_sound(94);
                 } else if (state->index == 3)
-                    F_h00_57D2(87);
+                    play_sound(87);
                 break;
             }
             break;

@@ -5,7 +5,7 @@ extern int G_h01_34D4[16];
 extern int G_h01_34D8[16];
 extern long G_h01_46CE;
 extern long G_h01_46D2;
-extern int F_h00_8A46();
+extern int BltBitMap();
 
 recovered()
 {
@@ -35,7 +35,7 @@ recovered()
         x = 0;
     else if (x + width > 320)
         width = 320 - x;
-    F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2,
+    BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2,
         (long)x, (long)y, (long)width, (long)height,
         (long)192, (long)255, 0L);
 }

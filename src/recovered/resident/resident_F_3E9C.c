@@ -1,4 +1,4 @@
-extern long F_h00_86F6();
+extern long Read();
 extern unsigned short G_h01_1E26[1];
 extern unsigned short G_h01_1E2E;
 extern unsigned short G_h01_A9C2;
@@ -26,7 +26,7 @@ recovered()
         G_h01_A9CB = G_h01_A9CA[G_h01_A9C2 + 1];
         G_h01_A9CC[0] = G_h01_A9CA[G_h01_A9C2 + 2];
         G_h01_A9CD = G_h01_A9CA[G_h01_A9C2 + 3];
-        F_h00_86F6(G_h01_ADCA, G_h01_A9CA + G_h01_A9C6, (unsigned long)G_h01_A9C2);
+        Read(G_h01_ADCA, G_h01_A9CA + G_h01_A9C6, (unsigned long)G_h01_A9C2);
         G_h01_A9C2 = 0;
     }
     G_h01_A9C4 = G_h01_A9CA[G_h01_A9C2 + 1];

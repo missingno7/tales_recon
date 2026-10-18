@@ -5,7 +5,7 @@ struct Table {
 };
 
 extern long F_h00_463E();
-extern int F_h00_57D2();
+extern int play_sound();
 extern char G_h01_7192;
 extern int G_h01_4262;
 extern int G_h01_4264[6];
@@ -14,7 +14,7 @@ extern char G_h01_0468[16];
 extern char G_h01_4332;
 extern char G_h01_433E;
 extern char G_h01_434A;
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern char G_h01_4188;
 extern struct Table G_h01_4274[64];
 
@@ -41,13 +41,13 @@ char mode;
             *(int *)(event+2)=row;
             event[4]=0;
             event[5]=1;
-            if (!G_h01_46E0 && G_h01_4188)
+            if (!difficulty_level && G_h01_4188)
                 event[6]=2;
             else
                 event[6]=1;
             *(int *)(event+8)=G_h01_4274[row-14].first;
             *(int *)(event+10)=G_h01_4274[row-14].second;
-            F_h00_57D2(103);
+            play_sound(103);
             break;
         }
         break;
@@ -60,13 +60,13 @@ char mode;
             *(int *)(event+2)=row;
             event[4]=0;
             event[5]=1;
-            if (!G_h01_46E0 && G_h01_4188!=1)
+            if (!difficulty_level && G_h01_4188!=1)
                 event[6]=2;
             else
                 event[6]=1;
             *(int *)(event+8)=G_h01_4274[row-14].first;
             *(int *)(event+10)=G_h01_4274[row-14].second;
-            F_h00_57D2(105);
+            play_sound(105);
             break;
         }
         break;
@@ -79,13 +79,13 @@ char mode;
             *(int *)(event+2)=row;
             event[4]=0;
             event[5]=1;
-            if (!G_h01_46E0 && G_h01_4188!=2)
+            if (!difficulty_level && G_h01_4188!=2)
                 event[6]=2;
             else
                 event[6]=1;
             *(int *)(event+8)=G_h01_4274[row-14].first;
             *(int *)(event+10)=G_h01_4274[row-14].second;
-            F_h00_57D2(104);
+            play_sound(104);
             break;
         }
         break;

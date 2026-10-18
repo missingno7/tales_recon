@@ -24,7 +24,7 @@ extern int G_h01_2F1C;
 extern int G_h01_0A7A;
 extern int G_h01_0A7C;
 extern int F_h00_34E0();
-extern int F_h00_57D2();
+extern int play_sound();
 extern unsigned int F_h00_463E();
 
 recovered(arg)
@@ -83,7 +83,7 @@ int arg;
             r = F_h00_463E() % 100;
             dxv = (int)(G_h01_5E34 - (float)p->x);
             if (p->d == 0 && p[1].d == 0 && r < 10 && dxv > -96 && dxv < 96) {
-                F_h00_57D2(54);
+                play_sound(54);
                 p->d = p->d + 1;
             } else if (p->d <= 1 && p->d != 0) {
                 p->d = p->d + 1;

@@ -5,7 +5,7 @@ extern int F_h09_26C6();
 extern int F_h09_28A0();
 extern char G_h01_4332;
 extern char G_h01_7192;
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern unsigned char G_h01_41F4;
 extern char G_h01_3D88;
 extern char G_h01_3DBE;
@@ -61,7 +61,7 @@ recovered()
     }
 
     if (G_h01_41F4 > 8) {
-        if (G_h01_46E0 < 2) {
+        if (difficulty_level < 2) {
             G_h01_7192 = 25;
             thr = 90;
         } else {
@@ -69,7 +69,7 @@ recovered()
             thr = 80;
         }
     } else if (G_h01_41F4 > 2) {
-        if (G_h01_46E0 < 2) {
+        if (difficulty_level < 2) {
             G_h01_7192 = 40;
             thr = 35;
         } else {
@@ -77,7 +77,7 @@ recovered()
             thr = 20;
         }
     } else {
-        if (G_h01_46E0 < 2) {
+        if (difficulty_level < 2) {
             G_h01_7192 = 50;
             thr = 15;
         } else {

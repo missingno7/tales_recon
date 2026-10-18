@@ -1,21 +1,21 @@
-extern int F_h00_5594();
-extern int F_h00_5868();
-extern int F_h00_4F40();
-extern int F_h00_5392();
-extern int F_h00_89EC();
-extern int F_h00_868C();
+extern int disable_audio_channel_interrupts();
+extern int clear_audio_driver_state();
+extern int wait_for_next_frame_tick();
+extern int remove_input_device_handler();
+extern int RemIntServer();
+extern int Close();
 extern int F_h00_4EC6();
 extern long G_h01_A7CE;
 extern long G_h01_A7D2;
-extern long G_h01_B312;
+extern long vertical_blank_interrupt_record;
 recovered()
 {
- F_h00_5594();
- F_h00_5868();
- F_h00_4F40();
- F_h00_89EC(5L,&G_h01_B312);
- F_h00_5392();
+ disable_audio_channel_interrupts();
+ clear_audio_driver_state();
+ wait_for_next_frame_tick();
+ RemIntServer(5L,&vertical_blank_interrupt_record);
+ remove_input_device_handler();
  F_h00_4EC6();
- F_h00_868C(G_h01_A7CE);
- F_h00_868C(G_h01_A7D2);
+ Close(G_h01_A7CE);
+ Close(G_h01_A7D2);
 }

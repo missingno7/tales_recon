@@ -20,7 +20,7 @@ _L59CE
 	lsr.b #4,d0
 	move.w d7,d3
 	lsl.w #3,d3
-	lea _G_h01_2B4E,a2
+	lea _audio_channel_0_block_countdown,a2
 	adda.w d3,a2
 	move.w d7,d3
 	lsl.w #4,d3
@@ -46,12 +46,12 @@ _L59FA
 	move.l a4,4(a2)
 	move.b #1,$39(a0)
 	lsl.w #1,d1
-	lea _G_h01_29DE,a2
+	lea _audio_note_period_table,a2
 	move.w 0(a2,d1.w),d1
 	add.w $c(a0),d1
 	lsl.l d3,d1
 	move.w d1,6(a3)
-	btst d7,_G_h01_2A0A
+	btst d7,_audio_pitch_effect_channel_mask
 	beq _L5A46
 	move.l d1,d2
 	clr.l d3
@@ -65,5 +65,5 @@ _L5A46
 	rts
 _resident_asm_5A50
 	dseg
-	public _G_h01_2B4E,_G_h01_29DE,_G_h01_2A0A
+	public _audio_channel_0_block_countdown,_audio_note_period_table,_audio_pitch_effect_channel_mask
 	end

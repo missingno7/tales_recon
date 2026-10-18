@@ -1,4 +1,4 @@
-extern long F_h00_86F6();
+extern long Read();
 extern short G_h01_A7E8;
 
 recovered(fh, buf)
@@ -8,7 +8,7 @@ char *buf;
     char *p;
     char c;
 
-    F_h00_86F6(fh, buf, 2L);
+    Read(fh, buf, 2L);
     G_h01_A7E8 = *(short *)buf;
     p = buf;
     c = *p;

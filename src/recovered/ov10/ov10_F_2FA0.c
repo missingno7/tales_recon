@@ -27,23 +27,23 @@ extern unsigned short G_h01_74C8;
 extern unsigned short G_h01_74CE;
 extern unsigned short G_h01_799C;
 extern unsigned short G_h01_799E;
-extern int F_h00_8A46();
+extern int BltBitMap();
 extern int F_h10_320C();
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_291E();
 extern int F_h00_34E0();
 extern int F_h00_3AE4();
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h10_1F90();
 
 void recovered(p, flag)
 char *p;
 char flag;
 {
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L,
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L,
                0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
     F_h10_320C(p);
-    F_h00_0FDE(2);
+    request_disk(2);
 
     if ((*((unsigned short *)p) & 0x40) == 0x40) {
         F_h00_291E(2, &G_h01_74BE);
@@ -86,12 +86,12 @@ char flag;
         G_h01_748A = 0xe;
         F_h00_34E0(&G_h01_7488);
         if (flag != 0)
-            F_h00_57D2(0x4d);
+            play_sound(0x4d);
         F_h00_3AE4(&G_h01_7498, G_h01_7490, G_h01_7492);
     } else if (flag != 0) {
         F_h10_1F90(G_h01_799C);
     }
-    F_h00_8A46(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L,
+    BltBitMap(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L,
                0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
 }
 

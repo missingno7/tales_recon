@@ -32,8 +32,8 @@ extern int G_h01_94D6;
 extern int G_h01_94D8;
 extern int G_h01_7A90;
 extern int G_h01_34D8[16];
-extern int F_h00_435E();
-extern int F_h00_4376();
+extern int clear_input_direction_and_fire_state();
+extern int poll_controller_and_keyboard_input();
 extern int F_h11_4B0C();
 extern int F_h11_5A12();
 extern int F_h11_5A62();
@@ -55,7 +55,7 @@ void recovered()
     old_state = G_h01_94AE;
     old_direction = G_h01_94B0;
     record = &G_h01_8BEC[G_h01_94D6];
-    key = F_h00_4376();
+    key = poll_controller_and_keyboard_input();
     G_h01_7A90 = key;
 
     if (key & 0x80)
@@ -222,5 +222,5 @@ void recovered()
         F_h11_4B0C(G_h01_94AE);
     G_h01_94BA = ((8 >> G_h01_94B0) + G_h01_94BE) / 53;
     G_h01_94BC = (G_h01_94C0 - 16) >> 5;
-    F_h00_435E();
+    clear_input_direction_and_fire_state();
 }

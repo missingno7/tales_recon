@@ -1,14 +1,14 @@
-extern int F_h00_57D2();
+extern int play_sound();
 
 recovered(a)
 int a;
 {
     if (a < 2)
-        F_h00_57D2(0x51);
+        play_sound(0x51);
     else if (a < 4)
-        F_h00_57D2(0x50);
+        play_sound(0x50);
     else if (a < 6)
-        F_h00_57D2(0x4f);
+        play_sound(0x4f);
     else
-        F_h00_57D2(0x4e);
+        play_sound(0x4e);
 }

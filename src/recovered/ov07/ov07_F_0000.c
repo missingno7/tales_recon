@@ -13,28 +13,28 @@ extern char G_h01_1766[1];
 extern char *G_h01_46D6;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
-extern long G_h01_46DA;
-extern int F_h00_435E();
-extern int F_h00_57D2();
-extern int F_h00_0FDE();
+extern long arc_file;
+extern int clear_input_direction_and_fire_state();
+extern int play_sound();
+extern int request_disk();
 extern int F_h00_291E();
-extern int F_h00_8A46();
-extern long F_h00_86DC();
-extern int F_h00_2816();
-extern int F_h00_868C();
+extern int BltBitMap();
+extern long Open();
+extern int arc_read_index();
+extern int Close();
 extern int F_h00_307C();
 extern int F_h00_31AA();
-extern int F_h00_4376();
+extern int poll_controller_and_keyboard_input();
 extern int F_h00_330E();
 extern int F_h00_0640();
 extern int F_h00_35DC();
-extern int F_h00_134C();
+extern int wait_for_fire_input();
 extern int F_h00_3AE4();
-extern int F_h00_86A8();
-extern int F_h07_1424();
-extern int F_h07_03CC();
-extern int F_h07_04AC();
-extern int F_h07_0612();
+extern int Delay();
+extern int invest_show_stock_change();
+extern int invest_draw_portfolio_header();
+extern int invest_draw_portfolio_rows();
+extern int invest_trade_company_shares();
 
 recovered()
 {
@@ -50,49 +50,49 @@ recovered()
 
     u14 = 0;
     G_h01_33E2 = 0;
-    F_h00_435E();
-    F_h00_57D2(0);
-    F_h00_0FDE(1);
+    clear_input_direction_and_fire_state();
+    play_sound(0);
+    request_disk(1);
     F_h00_291E(0x14, G_h01_46CE);
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
     for (i = 0; i < 3; i++)
         F_h00_291E(G_h01_0A92[i], (char *)((struct Rec54 *)&G_h01_3232 + i));
-    saved = G_h01_46DA;
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:invart.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    saved = arc_file;
+    request_disk(1);
+    arc_file = Open("DT1:invart.arc", 1005L);
+    arc_read_index(arc_file);
     for (i = 3; i < 8; i++)
         F_h00_291E(G_h01_0A92[i], (char *)((struct Rec54 *)&G_h01_3232 + i));
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = saved;
-    F_h00_2816(G_h01_46DA);
-    F_h00_57D2(30);
-    F_h07_1424(&G_h01_3232, &G_h01_329E);
+    Close(arc_file);
+    arc_file = saved;
+    arc_read_index(arc_file);
+    play_sound(30);
+    invest_show_stock_change(&G_h01_3232, &G_h01_329E);
     cnt = 0;
     x = 10;
     y = 10;
-    F_h07_03CC();
-    F_h07_04AC(y, x);
+    invest_draw_portfolio_header();
+    invest_draw_portfolio_rows(y, x);
     F_h00_307C();
     G_h01_46D6 = (char *)&G_h01_1466;
     F_h00_31AA((char *)&G_h01_1466);
     flag = 0;
     while (flag == 0) {
-        key = F_h00_4376();
+        key = poll_controller_and_keyboard_input();
         if (key & 0x80) {
-            F_h00_57D2(36);
+            play_sound(36);
             if (x == 15)
                 flag = 1;
             else
-                flag = F_h07_0612(x, &G_h01_3232);
-            F_h07_03CC();
-            F_h07_04AC(y, x);
+                flag = invest_trade_company_shares(x, &G_h01_3232);
+            invest_draw_portfolio_header();
+            invest_draw_portfolio_rows(y, x);
             F_h00_307C();
         } else {
             key &= 0x3f;
             switch (key) {
             case 1:
-                F_h00_57D2(36);
+                play_sound(36);
                 x--;
                 x &= 15;
                 cnt--;
@@ -101,13 +101,13 @@ recovered()
                     y &= 15;
                     cnt = 0;
                 }
-                F_h07_03CC();
-                F_h07_04AC(y, x);
+                invest_draw_portfolio_header();
+                invest_draw_portfolio_rows(y, x);
                 F_h00_307C();
-                F_h00_86A8(10L);
+                Delay(10L);
                 break;
             case 5:
-                F_h00_57D2(36);
+                play_sound(36);
                 x++;
                 x &= 15;
                 cnt++;
@@ -116,10 +116,10 @@ recovered()
                     y &= 15;
                     cnt = 5;
                 }
-                F_h07_03CC();
-                F_h07_04AC(y, x);
+                invest_draw_portfolio_header();
+                invest_draw_portfolio_rows(y, x);
                 F_h00_307C();
-                F_h00_86A8(10L);
+                Delay(10L);
                 break;
             default:
                 u14 = 0;
@@ -138,8 +138,8 @@ recovered()
         F_h00_307C();
         G_h01_46D6 = G_h01_1766;
         F_h00_31AA(G_h01_1766);
-        if (F_h00_134C(50))
-            F_h00_57D2(36);
+        if (wait_for_fire_input(50))
+            play_sound(36);
     }
     for (i = 0; i < 8; i++)
         F_h00_3AE4((char *)((struct Rec54 *)&G_h01_3242 + i),

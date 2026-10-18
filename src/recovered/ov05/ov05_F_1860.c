@@ -34,7 +34,7 @@ extern int G_h01_5E42;
 extern int G_h01_5E4C;
 extern int G_h01_5E64[1][2];
 extern int F_h00_307C();
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h05_131C();
 extern int F_h05_3A9E();
 
@@ -148,7 +148,7 @@ struct Blob *recovered()
             p->w0 = (int)(G_h01_5E34 + 8);
             p->w2 = (int)(G_h01_5E38 + -14);
             if (G_h01_5E64[G_h01_0A84][0] == 12) {
-                F_h00_57D2(0x3a);
+                play_sound(0x3a);
                 G_h01_5C32 = (int)(G_h01_5E34 + -24);
                 G_h01_5C34 = 0xb0 - G_h01_5C38 - 8;
                 for (i = 1; i < 4; i++) {
@@ -157,7 +157,7 @@ struct Blob *recovered()
                 }
                 return p;
             } else {
-                F_h00_57D2(0x2b);
+                play_sound(0x2b);
                 return p;
             }
         } else {
@@ -175,7 +175,7 @@ struct Blob *recovered()
                 G_h01_5E40 = 5;
                 G_h01_0A7E = 5.0;
             }
-            F_h00_57D2(0x42);
+            play_sound(0x42);
         }
     }
 

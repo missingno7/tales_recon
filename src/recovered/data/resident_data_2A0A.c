@@ -1,1 +1,1 @@
-unsigned char G_h01_2A0A = 0;
+unsigned char audio_pitch_effect_channel_mask = 0;

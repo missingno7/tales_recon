@@ -2,13 +2,13 @@
 struct Record { int ignored; int value1; int value2; int value3; int value4; int value5; int value6; };
 
 extern int G_h01_12FE;
-extern long G_h01_2C26;
-extern char G_h01_2C2C;
-extern long G_h01_46CA;
+extern long palette_cycle_callback_index;
+extern char palette_cycle_countdown_step;
+extern long screen_rast_port;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
 extern char *G_h01_46D6;
-extern long G_h01_46DA;
+extern long arc_file;
 extern int G_h01_7A94;
 extern int G_h01_8A3C;
 extern int G_h01_8A3E;
@@ -25,19 +25,19 @@ extern int G_h01_94E6;
 extern long G_h01_9FA6;
 extern char G_h01_16E6[1];
 
-extern int F_h00_0FDE();
-extern int F_h00_2816();
+extern int request_disk();
+extern int arc_read_index();
 extern int F_h00_307C();
 extern int F_h00_31AA();
 extern int F_h00_330E();
-extern int F_h00_435E();
+extern int clear_input_direction_and_fire_state();
 extern int F_h00_4D04();
 extern int F_h00_4EC6();
-extern int F_h00_57D2();
-extern int F_h00_868C();
-extern int F_h00_86A8();
-extern int F_h00_8A46();
-extern int F_h00_8BC8();
+extern int play_sound();
+extern int Close();
+extern int Delay();
+extern int BltBitMap();
+extern int SetRast();
 
 recovered(arg)
 int arg;
@@ -52,7 +52,7 @@ int arg;
 
     flag = 1;
     G_h01_7A94 = arg;
-    F_h00_8BC8(G_h01_46CA, 0L);
+    SetRast(screen_rast_port, 0L);
     F_h11_15C8(1);
     F_h11_2A3A();
     F_h11_4EC6();
@@ -62,20 +62,20 @@ int arg;
     F_h11_68B0();
     F_h11_6FFE();
     F_h11_14BA(1);
-    G_h01_2C26 = 0;
-    G_h01_2C2C = 0;
+    palette_cycle_callback_index = 0;
+    palette_cycle_countdown_step = 0;
     F_h00_330E();
     G_h01_12FE = 0;
-    F_h00_8BC8(G_h01_46CA, 0L);
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xC8L, 0xC0L, 0xFFL, 0L);
+    SetRast(screen_rast_port, 0L);
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xC8L, 0xC0L, 0xFFL, 0L);
     F_h11_62B4(1);
     F_h00_4EC6();
-    F_h00_0FDE(2);
+    request_disk(2);
     F_h00_4D04(8);
-    F_h00_57D2(0x5C);
+    play_sound(0x5C);
     G_h01_940C[G_h01_8B1C[G_h01_94BA][G_h01_94BC]] = 0;
     G_h01_94B8 = 0;
-    F_h00_435E();
+    clear_input_direction_and_fire_state();
 
     while (G_h01_12FE == 0) {
         if (G_h01_8A3C == 0) {
@@ -86,8 +86,8 @@ int arg;
         F_h11_0BB6();
         if (G_h01_12FE != 0) continue;
         if (G_h01_94AE == 7) {
-            F_h00_57D2(0);
-            F_h00_86A8(0x32L);
+            play_sound(0);
+            Delay(0x32L);
             F_h00_330E();
             if (G_h01_94AC < 3) {
                 G_h01_8A3C = 3;
@@ -99,9 +99,9 @@ int arg;
                 F_h11_62B4(0);
                 F_h11_3A24();
                 F_h11_21F8();
-                F_h00_86A8(0x64L);
+                Delay(0x64L);
                 G_h01_94B8 = 0;
-                F_h00_57D2(0x5C);
+                play_sound(0x5C);
             } else {
                 break;
             }
@@ -200,7 +200,7 @@ int arg;
             G_h01_46D6 = G_h01_16E6;
             F_h00_31AA(G_h01_16E6);
             flag = 0;
-            F_h00_435E();
+            clear_input_direction_and_fire_state();
         } else {
             F_h00_307C();
         }
@@ -209,10 +209,10 @@ int arg;
     F_h11_049C();
     F_h11_4A92();
     F_h00_330E();
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = G_h01_9FA6;
-    F_h00_2816(G_h01_46DA);
-    F_h00_57D2(0);
+    Close(arc_file);
+    arc_file = G_h01_9FA6;
+    arc_read_index(arc_file);
+    play_sound(0);
     F_h00_4EC6();
     return G_h01_12FE;
 }

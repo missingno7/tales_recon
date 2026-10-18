@@ -11,14 +11,14 @@ extern int G_h01_5302;
 extern int G_h01_51F4;
 extern int G_h01_51F6;
 extern char G_h01_511A;
-extern char G_h01_536E;
-extern int F_h00_8A46();
+extern char input_fire_action_pending;
+extern int BltBitMap();
 extern int F_h00_34E0();
 extern int F_h00_35DC();
 extern int F_h00_307C();
-extern int F_h00_4376();
-extern int F_h00_57D2();
-extern int F_h00_86A8();
+extern int poll_controller_and_keyboard_input();
+extern int play_sound();
+extern int Delay();
 extern unsigned int F_h00_463E();
 
 recovered(first,last,rounds)
@@ -30,7 +30,7 @@ int first,last,rounds;
     G_h01_51F4 = 128;
     G_h01_51F6 = 0;
     for (round = 0; round < rounds; ++round) {
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
             0L, 0L, 320L, 200L, 192L, 255L, 0L);
         G_h01_511A = 3;
         F_h00_34E0(&G_h01_50E6);
@@ -43,18 +43,18 @@ int first,last,rounds;
                 *((int *)((char *)&G_h01_0322 + ((long)i << 3))),
                 *((long *)((char *)&G_h01_0324 + ((long)i << 3))), 0, 1);
         F_h00_307C();
-        F_h00_4376();
-        if (G_h01_536E) {
-            F_h00_57D2(0);
+        poll_controller_and_keyboard_input();
+        if (input_fire_action_pending) {
+            play_sound(0);
             return;
         }
-        F_h00_86A8(5L);
-        F_h00_4376();
-        if (G_h01_536E) {
-            F_h00_57D2(0);
+        Delay(5L);
+        poll_controller_and_keyboard_input();
+        if (input_fire_action_pending) {
+            play_sound(0);
             return;
         }
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
             0L, 0L, 320L, 200L, 192L, 255L, 0L);
         G_h01_511A = 2;
         F_h00_34E0(&G_h01_50E6);
@@ -67,17 +67,17 @@ int first,last,rounds;
                 *((int *)((char *)&G_h01_0322 + ((long)i << 3))),
                 *((long *)((char *)&G_h01_0324 + ((long)i << 3))), 0, 1);
         F_h00_307C();
-        F_h00_4376();
-        if (G_h01_536E) {
-            F_h00_57D2(0);
+        poll_controller_and_keyboard_input();
+        if (input_fire_action_pending) {
+            play_sound(0);
             return;
         }
-        F_h00_86A8((long)(unsigned)(((F_h00_463E() & 2) + 1) * 5));
-        F_h00_4376();
-        if (G_h01_536E) {
-            F_h00_57D2(0);
+        Delay((long)(unsigned)(((F_h00_463E() & 2) + 1) * 5));
+        poll_controller_and_keyboard_input();
+        if (input_fire_action_pending) {
+            play_sound(0);
             return;
         }
     }
-    F_h00_86A8(15L);
+    Delay(15L);
 }

@@ -5,7 +5,7 @@ extern int G_h01_544E;
 extern int F_h05_131C();
 extern int F_h00_307C();
 extern unsigned int F_h00_463E();
-extern int F_h00_57D2();
+extern int play_sound();
 
 recovered()
 {
@@ -17,7 +17,7 @@ recovered()
     saved = G_h01_5E40;
     cur = G_h01_5E40;
     flag = 1;
-    F_h00_57D2(46);
+    play_sound(46);
     for (i = 0; i < 6 || flag; i++) {
         if (flag) {
             cur = F_h00_463E() & 15;

@@ -1,11 +1,11 @@
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
 extern int F_h00_30F0();
 extern int F_h00_34E0();
 extern unsigned int F_h00_463E();
-extern int F_h00_8A46();
-extern int F_h00_8A68();
+extern int BltBitMap();
+extern int BltBitMapRastPort();
 extern int F_h10_22E6();
 extern short G_h01_060A[1];
 extern short G_h01_0626[1];
@@ -93,11 +93,11 @@ int kind, frame;
     else if (y > 0xc8)
         y = 0xc8;
 
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L,
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L,
                0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
 
     frame_index = frame;
-    F_h00_8A68(G_h01_7998, 0L, 0L, G_h01_46CA,
+    BltBitMapRastPort(G_h01_7998, 0L, 0L, screen_rast_port,
                (long)(shape[frame_index * 2] + obj[0] - 0x48),
                (long)(shape[frame_index * 2 + 1] + obj[1] - 0x40),
                0x90L, 0x87L, 0xeeL);

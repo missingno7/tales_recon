@@ -9,10 +9,10 @@ struct CliView {
     long cli_CommandName;
 };
 extern long F_h00_892A();
-extern int F_h00_7956();
-extern int F_h00_7AF0();
+extern int strncpy();
+extern int strcpy();
 extern int F_h00_7A9C();
-extern int F_h00_8044();
+extern int strlen();
 /* Copyright (C) 1986,1987 by Manx Software Systems, Inc. */
 
 /*
@@ -51,8 +51,8 @@ register char *aptr;
 	if ((G_h01_B3BC = (char *)F_h00_892A((long)G_h01_B3BA, 0L)) == 0)
 		return;
 	c = cp[0];
-	F_h00_7956(G_h01_B3BC, cp+1, c);
-	F_h00_7AF0(G_h01_B3BC+c, " ");
+	strncpy(G_h01_B3BC, cp+1, c);
+	strcpy(G_h01_B3BC+c, " ");
 	F_h00_7A9C(G_h01_B3BC, aptr, (int)alen);
 	G_h01_B3BC[c] = 0;
 	for (G_h01_B3B8=1,aptr=cp=G_h01_B3BC+c+1;;G_h01_B3B8++) {
@@ -91,7 +91,7 @@ register char *aptr;
 	}
 	for (c=0,cp=G_h01_B3BC;c<G_h01_B3B8;c++) {
 		G_h01_B3B4[c] = cp;
-		cp += F_h00_8044(cp) + 1;
+		cp += strlen(cp) + 1;
 	}
 	G_h01_B3B4[c] = 0;
 }

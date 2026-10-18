@@ -1,2 +1,2 @@
 struct GameAudioSample;
-struct GameAudioSample * G_h01_2B52 = 0;
+struct GameAudioSample * audio_channel_0_sample_block_cursor = 0;

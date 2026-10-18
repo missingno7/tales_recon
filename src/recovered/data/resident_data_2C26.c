@@ -1,1 +1,1 @@
-long G_h01_2C26 = 0L;
+long palette_cycle_callback_index = 0L;

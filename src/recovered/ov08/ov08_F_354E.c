@@ -7,7 +7,7 @@ extern struct Entry G_h01_12BA;
 extern int G_h01_34E2;
 extern int G_h01_34E4;
 extern int G_h01_704E;
-extern int F_h00_8A46();
+extern int BltBitMap();
 
 recovered(P)
 int P;
@@ -30,7 +30,7 @@ int P;
                 y2 = 160 - (i - P) * 40 - 16;
                 if (y2 < 0)
                     y2 = 0;
-                F_h00_8A46(G_h01_46CE, (long)x2, (long)y2, G_h01_46D2, (long)x2, (long)y2, 32L, 16L, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, (long)x2, (long)y2, G_h01_46D2, (long)x2, (long)y2, 32L, 16L, 192L, 255L, 0L);
                 w = 64;
                 h = 24;
                 flag = 1;
@@ -46,14 +46,14 @@ int P;
                 y2 = 160 - (i - P) * 40 - 16;
                 if (y2 < 0)
                     y2 = 0;
-                F_h00_8A46(G_h01_46CE, (long)x2, (long)y2, G_h01_46D2, (long)x2, (long)y2, 32L, 16L, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, (long)x2, (long)y2, G_h01_46D2, (long)x2, (long)y2, 32L, 16L, 192L, 255L, 0L);
                 w = 64;
                 h = 24;
                 flag = 1;
                 break;
             }
             if (flag)
-                F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
             break;
         case 2:
             y = 160 - (i - P) * 40 - 30;
@@ -62,7 +62,7 @@ int P;
             x = p->active < 10 ? p->pos + 14 : p->pos - 20;
             w = 48;
             h = 33;
-            F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
             break;
         case 3:
             y = 160 - (i - P) * 40 - 36;
@@ -71,7 +71,7 @@ int P;
             x = p->pos;
             w = 40;
             h = 40;
-            F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
             break;
         case 6:
             x = p->pos;
@@ -80,13 +80,13 @@ int P;
                 y = 0;
             w = 64;
             h = 40;
-            F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
             break;
         case 9:
             if (p->active == 1 || p->active == 2) {
                 y = 160 - (i - P) * 40 - 12;
                 x = p->pos;
-                F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, 16L, 16L, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, 16L, 16L, 192L, 255L, 0L);
                 p->active++;
             }
             break;
@@ -109,9 +109,9 @@ int P;
     switch (p->active) {
     case 0:
         if (x + 56 > 319)
-            F_h00_8A46(G_h01_46CE, (long)(x + 8), 136L, G_h01_46D2, (long)(x + 8), 136L, (long)(320 - (x + 8)), 32L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, (long)(x + 8), 136L, G_h01_46D2, (long)(x + 8), 136L, (long)(320 - (x + 8)), 32L, 192L, 255L, 0L);
         else
-            F_h00_8A46(G_h01_46CE, (long)(x + 8), 136L, G_h01_46D2, (long)(x + 8), 136L, 48L, 32L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, (long)(x + 8), 136L, G_h01_46D2, (long)(x + 8), 136L, 48L, 32L, 192L, 255L, 0L);
         w = 72;
         h = 32;
         flag = 1;
@@ -128,17 +128,17 @@ int P;
         flag = 1;
         x2 = p->pos + 18;
         y2 = 40;
-        F_h00_8A46(G_h01_46CE, (long)x2, (long)y2, G_h01_46D2, (long)x2, (long)y2, 16L, 16L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, (long)x2, (long)y2, G_h01_46D2, (long)x2, (long)y2, 16L, 16L, 192L, 255L, 0L);
         break;
     case 5:
         w = 72;
         h = 32;
         flag = 1;
         x2 = p->pos + 18;
-        F_h00_8A46(G_h01_46CE, (long)x2, 0L, G_h01_46D2, (long)x2, 0L, 24L, 168L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, (long)x2, 0L, G_h01_46D2, (long)x2, 0L, 24L, 168L, 192L, 255L, 0L);
         break;
     }
-    F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
+    BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
 
     p = &G_h01_12BA;
     switch (p->active) {
@@ -159,8 +159,8 @@ int P;
     }
 
     if (P == 0) {
-        F_h00_8A46(G_h01_46CE, 0L, 148L, G_h01_46D2, 0L, 148L, 32L, 20L, 192L, 255L, 0L);
-        F_h00_8A46(G_h01_46CE, 288L, 148L, G_h01_46D2, 288L, 148L, 32L, 20L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, 0L, 148L, G_h01_46D2, 0L, 148L, 32L, 20L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, 288L, 148L, G_h01_46D2, 288L, 148L, 32L, 20L, 192L, 255L, 0L);
     }
 
     x -= 8;
@@ -180,7 +180,7 @@ int P;
             } else if (x + w > 319) {
                 x = 287;
             }
-            F_h00_8A46(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2, (long)x, (long)y, (long)w, (long)h, 192L, 255L, 0L);
         }
     }
 }

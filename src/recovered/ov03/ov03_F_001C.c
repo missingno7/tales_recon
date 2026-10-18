@@ -9,70 +9,70 @@ extern char G_h01_17E6[1];
 extern char G_h01_1866[1];
 extern char G_h01_18A6[1];
 extern long G_h01_2A16;
-extern long G_h01_2C26;
-extern char G_h01_2C2C;
-extern struct PointRef G_h01_4524[36];
+extern long palette_cycle_callback_index;
+extern char palette_cycle_countdown_step;
+extern struct PointRef map_location_table[36];
 extern struct LinkEntry G_h01_4528[35];
-extern struct FlagEntry G_h01_452E[35];
-extern struct FlagEntry G_h01_452F[35];
+extern struct FlagEntry player_treasure_collected[35];
+extern struct FlagEntry rival_treasure_collected[35];
 extern char *G_h01_46D6;
-extern long G_h01_46DA;
-extern char G_h01_46E0;
-extern char G_h01_46E1;
+extern long arc_file;
+extern char difficulty_level;
+extern char game_day;
 extern char G_h01_46E2;
-extern char G_h01_46E3;
-extern char G_h01_46E4;
+extern char current_location;
+extern char matter_transmitter_unlocked;
 extern char G_h01_46E5;
-extern long G_h01_46E6;
+extern long total_money;
 extern long G_h01_46EA;
 extern long G_h01_46EE;
 extern long G_h01_46F2;
 extern int G_h01_46F6;
 extern int G_h01_46FE;
 extern char G_h01_46DF;
-extern long G_h01_4700;
+extern long main_arc_file_handle;
 extern long G_h01_4706;
-extern char G_h01_4704;
+extern char input_fire_action_capture_enabled;
 extern char G_h01_4705;
-extern int F_h00_8AD2();
+extern int FreeSprite();
 extern int F_h00_01BA();
 extern int F_h00_09C0();
 extern int F_h04_0000();
-extern int F_h04_0536();
+extern int invest_load_market_data();
 extern int F_h04_1302();
-extern int F_h04_149C();
-extern int F_h12_0000();
-extern int F_h13_02BE();
-extern int F_h15_0000();
+extern int ui_choose_difficulty();
+extern int money_bin_scene();
+extern int office_select_destination();
+extern int map_select_destination();
 extern int F_h00_0640();
-extern int F_h00_0FDE();
-extern int F_h00_134C();
-extern int F_h00_2816();
+extern int request_disk();
+extern int wait_for_fire_input();
+extern int arc_read_index();
 extern int F_h00_307C();
 extern int F_h00_31AA();
 extern int F_h00_330E();
 extern int F_h00_35DC();
-extern int F_h00_435E();
-extern int F_h00_4376();
+extern int clear_input_direction_and_fire_state();
+extern int poll_controller_and_keyboard_input();
 extern unsigned int F_h00_463E();
 extern int F_h00_4D04();
 extern int F_h00_4EC6();
-extern int F_h00_57D2();
-extern int F_h00_7522();
-extern int F_h00_7B00();
-extern int F_h00_8044();
-extern int F_h00_86A8();
-extern long F_h00_86DC();
+extern int play_sound();
+extern int FreeSeg();
+extern int mul36();
+extern int strlen();
+extern int Delay();
+extern long Open();
 long F_h03_154E();
 extern int F_h03_1500();
-extern int F_h05_0000();
-extern int F_h07_0000();
-extern int F_h07_1A02();
+extern int plane_scene();
+extern int invest_run_office_menu();
+extern int invest_update_daily_market();
 extern int F_h14_0000();
 extern int F_h14_03AE();
 extern int F_h04_1A3A();
 extern int F_h04_1AA2();
-extern int F_h04_1B94();
+extern int ui_prompt_play_again();
 extern int F_h04_1D32();
 
 recovered()
@@ -90,44 +90,44 @@ recovered()
     char f1f;
 
     rv = 0;
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:main.arc", 1005L);
+    request_disk(1);
+    arc_file = Open("DT1:main.arc", 1005L);
     G_h01_46F6++;
-    F_h00_2816(G_h01_46DA);
-    G_h01_4700 = G_h01_46DA;
+    arc_read_index(arc_file);
+    main_arc_file_handle = arc_file;
     idx = 0;
     do {
-        F_h00_8AD2((long)idx);
+        FreeSprite((long)idx);
         idx++;
     } while (idx < 8);
     F_h04_1302();
-    G_h01_4704 = 0;
+    input_fire_action_capture_enabled = 0;
     F_h00_4EC6();
-    F_h00_7522(F_h04_1302);
-    F_h04_149C();
+    FreeSeg(F_h04_1302);
+    ui_choose_difficulty();
     done = 0;
     while (!done) {
 
     G_h01_4705 = 0;
-    G_h01_46E4 = 0;
+    matter_transmitter_unlocked = 0;
     G_h01_46E5 = 0;
-    ((char *)G_h01_452F)[409] = 0;
-    G_h01_46E1 = 1;
+    ((char *)rival_treasure_collected)[409] = 0;
+    game_day = 1;
     G_h01_46DF = 0;
-    G_h01_46E6 = 0;
+    total_money = 0;
     G_h01_46EE = 0;
     G_h01_46EA = 0;
     G_h01_46F2 = 0;
     G_h01_46E2 = 1;
-    F_h04_0536();
+    invest_load_market_data();
     F_h04_0000();
-    F_h00_7522(F_h04_1302);
-    G_h01_46E3 = 0x23;
+    FreeSeg(F_h04_1302);
+    current_location = 0x23;
     st = 0x23;
     tb[0] = 1;
     idx = 0;
     do {
-        F_h00_8AD2((long)idx);
+        FreeSprite((long)idx);
         idx++;
     } while (idx < 8);
     G_h01_46FE = 0;
@@ -135,11 +135,11 @@ recovered()
     while (flag2 == 0) {
     switch (st) {
     case 0x23:
-    G_h01_46E1 += F_h03_154E(G_h01_46E3, st);
-        G_h01_46E3 = 0x23;
-        if (G_h01_46E1 <= 0x1e) {
-            st = F_h13_02BE();
-            F_h00_7522(F_h13_02BE);
+    game_day += F_h03_154E(current_location, st);
+        current_location = 0x23;
+        if (game_day <= 0x1e) {
+            st = office_select_destination();
+            FreeSeg(office_select_destination);
         } else {
             st = 0;
         }
@@ -147,43 +147,43 @@ recovered()
 
     case 0:
     G_h01_46FE = 0;
-        G_h01_46E1 += F_h03_154E(G_h01_46E3, st);
-        G_h01_46E3 = 0;
+        game_day += F_h03_154E(current_location, st);
+        current_location = 0;
         F_h03_1500();
-        if (G_h01_46E1 >= 0x1e)
+        if (game_day >= 0x1e)
             flag2 = 1;
         else
             st = 0x24;
         break;
 
     case 0x25:
-    G_h01_46E3 = 0x25;
-        G_h01_46E1 = 0x1e;
+    current_location = 0x25;
+        game_day = 0x1e;
         st = 0;
         break;
 
     case 0x24:
-    st = F_h15_0000(0, tb);
+    st = map_select_destination(0, tb);
         tc = 0x24;
-        F_h00_7522(F_h15_0000);
+        FreeSeg(map_select_destination);
         rv = -5;
         break;
 
     case 0x28:
-    st = F_h15_0000(1, tb);
+    st = map_select_destination(1, tb);
         tc = 0x28;
-        F_h00_7522(F_h15_0000);
+        FreeSeg(map_select_destination);
         break;
 
     case 0x26:
-    rv = F_h12_0000();
+    rv = money_bin_scene();
         F_h00_0640(9);
         if (rv != 0) {
             F_h00_35DC(176, 60, "It must be", 1, 0);
             F_h00_35DC(176, 76, "your lucky day!", 1, 0);
             F_h00_35DC(176, 92, "That rare coin", 1, 0);
             F_h00_35DC(176, 108, "is worth $1000!", 1, 0);
-            G_h01_46E6 += 1000;
+            total_money += 1000;
         } else {
             F_h00_35DC(184, 60, "Mr. McDuck,", 1, 0);
             F_h00_35DC(184, 76, "don't forget", 1, 0);
@@ -193,22 +193,22 @@ recovered()
         F_h00_307C();
         G_h01_46D6 = G_h01_1766;
         F_h00_31AA(G_h01_1766);
-        if (F_h00_134C(0x32))
-            F_h00_57D2(0x24);
+        if (wait_for_fire_input(0x32))
+            play_sound(0x24);
         F_h00_330E();
-        F_h00_7522(F_h12_0000);
+        FreeSeg(money_bin_scene);
         st = 0x23;
         break;
 
     case 0x27:
-    F_h07_0000();
-        F_h00_7522(F_h07_0000);
+    invest_run_office_menu();
+        FreeSeg(invest_run_office_menu);
         st = 0x23;
         break;
 
     default:
         G_h01_46FE = 0;
-        if (G_h01_452E[st].value != 0) {
+        if (player_treasure_collected[st].value != 0) {
         F_h00_0640(3);
         F_h00_35DC(168, 60, "Uh...", 1, 0);
         F_h00_35DC(168, 76, "Gee, Mr. McD,", 1, 0);
@@ -220,61 +220,61 @@ recovered()
         F_h00_307C();
         G_h01_46D6 = G_h01_1866;
         F_h00_31AA(G_h01_1866);
-        if (F_h00_134C(0x50))
-            F_h00_57D2(0x24);
+        if (wait_for_fire_input(0x50))
+            play_sound(0x24);
         F_h00_330E();
         st = tc;
         break;
         }
-        if (G_h01_452F[st].value != 0) {
+        if (rival_treasure_collected[st].value != 0) {
         F_h00_0640(10);
         F_h00_35DC(168, 60, "Hah! You're too", 1, 0);
         F_h00_35DC(168, 76, " late Scrooge!", 1, 0);
         F_h00_35DC(168, 100, " This treasure", 1, 0);
         F_h00_35DC(168, 116, "   is mine!", 1, 0);
-        F_h00_57D2(0x6e);
+        play_sound(0x6e);
         F_h00_307C();
         G_h01_46D6 = G_h01_17A6;
         F_h00_31AA(G_h01_17A6);
-        F_h00_435E();
+        clear_input_direction_and_fire_state();
         idx = 0;
         while (G_h01_2A16 != 0) {
-            idx = F_h00_4376();
+            idx = poll_controller_and_keyboard_input();
             if (idx & 0x80)
                 break;
-            F_h00_86A8(5L);
+            Delay(5L);
             idx = 1;
         }
         if (idx == 0) {
-            if (F_h00_134C(0x28))
-                F_h00_57D2(0x24);
+            if (wait_for_fire_input(0x28))
+                play_sound(0x24);
         }
         F_h00_330E();
-        F_h00_57D2(0x21);
+        play_sound(0x21);
         while (G_h01_2A16 != 0)
             ;
-        F_h00_57D2(0);
+        play_sound(0);
         st = tc;
         break;
         }
-        idx = (char)F_h03_154E(G_h01_46E3, st);
+        idx = (char)F_h03_154E(current_location, st);
         if (idx != 0) {
             if (G_h01_46E5 != 0) {
         mod = F_h00_463E() % 100;
-        if ((unsigned int)mod > (unsigned int)((G_h01_46E0 + 1) << 3)) {
-            G_h01_46E1 += F_h03_154E(G_h01_46E3, st);
-            F_h00_57D2(0);
-            F_h00_86A8(5L);
-            F_h00_57D2(0x54);
+        if ((unsigned int)mod > (unsigned int)((difficulty_level + 1) << 3)) {
+            game_day += F_h03_154E(current_location, st);
+            play_sound(0);
+            Delay(5L);
+            play_sound(0x54);
         } else {
-            F_h00_57D2(0);
-            F_h00_86A8(5L);
-            F_h00_57D2(0x45);
+            play_sound(0);
+            Delay(5L);
+            play_sound(0x45);
             while (G_h01_2A16 != 0)
                 ;
             idx = 1;
             do {
-                if (G_h01_452E[idx].value == 0 && G_h01_452F[idx].value == 0) {
+                if (player_treasure_collected[idx].value == 0 && rival_treasure_collected[idx].value == 0) {
                     st = idx;
                     break;
                 }
@@ -285,27 +285,27 @@ recovered()
             F_h00_35DC(168, 76, "Transmitter ", 1, 0);
             F_h00_35DC(168, 92, "malfunctioned", 1, 0);
             F_h00_35DC(168, 108, "and sent you to", 1, 0);
-            idx = F_h00_8044(G_h01_4524[st].point);
+            idx = strlen(map_location_table[st].point);
             idx = idx << 2;
-            F_h00_35DC(232 - idx, 124, G_h01_4524[st].point, 1, 0);
+            F_h00_35DC(232 - idx, 124, map_location_table[st].point, 1, 0);
             F_h00_35DC(idx + 232, 124, ".", 1, 0);
             F_h00_307C();
             G_h01_46D6 = G_h01_17E6;
             F_h00_31AA(G_h01_17E6);
-            if (F_h00_134C(0x3c))
-                F_h00_57D2(0x24);
+            if (wait_for_fire_input(0x3c))
+                play_sound(0x24);
             F_h00_330E();
-            G_h01_46E1 += F_h03_154E(G_h01_46E3, st);
+            game_day += F_h03_154E(current_location, st);
         }
             } else {
-                r8 = (char)F_h03_154E(G_h01_46E3, st);
+                r8 = (char)F_h03_154E(current_location, st);
                 F_h00_0640(3);
-                F_h00_57D2(0x21);
+                play_sound(0x21);
                 while (G_h01_2A16 != 0)
                     ;
-                F_h00_57D2(0);
+                play_sound(0);
                 F_h00_4EC6();
-                F_h00_0FDE(1);
+                request_disk(1);
                 idx = F_h00_463E() % 3;
                 switch (idx) {
                 case 0:
@@ -328,16 +328,16 @@ recovered()
                     break;
                 }
 
-                F_h00_0FDE(1);
-                F_h00_2816(G_h01_46DA);
+                request_disk(1);
+                arc_read_index(arc_file);
                 F_h00_307C();
                 G_h01_46D6 = G_h01_1866;
                 F_h00_31AA(G_h01_1866);
-                F_h00_57D2(0x77);
+                play_sound(0x77);
                 while (G_h01_2A16 != 0)
                     ;
                 F_h00_4EC6();
-                switch (G_h01_46E0) {
+                switch (difficulty_level) {
                 case 0:
                     idx = 25;
                     break;
@@ -351,16 +351,16 @@ recovered()
                 mod = F_h00_463E() % 100;
                 f1f = 0;
                 if ((unsigned int)mod < (unsigned int)idx) {
-                    if (G_h01_452F[st].value == 0) {
+                    if (rival_treasure_collected[st].value == 0) {
                         f1f = 1;
-                        F_h14_03AE(G_h01_46E3, st);
+                        F_h14_03AE(current_location, st);
                     }
                 }
 
-                F_h00_7522(F_h04_1302);
-                F_h00_7522(F_h13_02BE);
-                rv = F_h05_0000(r8, f1f);
-                F_h00_7522(F_h05_0000);
+                FreeSeg(F_h04_1302);
+                FreeSeg(office_select_destination);
+                rv = plane_scene(r8, f1f);
+                FreeSeg(plane_scene);
                 F_h00_330E();
                 if (rv == 0 && f1f == 0) {
                     F_h00_0640(2);
@@ -368,14 +368,14 @@ recovered()
                     F_h00_35DC(168, 76, "but it will take", 1, 0);
                     F_h00_35DC(168, 92, "2 days to fix", 1, 0);
                     F_h00_35DC(168, 108, "the plane.", 1, 0);
-                    G_h01_46E1 += 2;
+                    game_day += 2;
                     F_h00_307C();
                     G_h01_46D6 = G_h01_17E6;
                     F_h00_31AA(G_h01_17E6);
-                    if (F_h00_134C(0x3c))
-                        F_h00_57D2(0x24);
+                    if (wait_for_fire_input(0x3c))
+                        play_sound(0x24);
                     F_h00_330E();
-                    if (G_h01_46E6 > 0) {
+                    if (total_money > 0) {
                         mod = F_h00_463E();
                         mod = mod % 10;
                         switch (mod) {
@@ -386,16 +386,16 @@ recovered()
                         case 2:
                         case 3:
                         case 4:
-                            mod = G_h01_46E6 >> 3;
+                            mod = total_money >> 3;
                             break;
                         case 5:
                         case 6:
                         case 7:
-                            mod = G_h01_46E6 >> 2;
+                            mod = total_money >> 2;
                             break;
                         case 8:
                         case 9:
-                            mod = G_h01_46E6 >> 1;
+                            mod = total_money >> 1;
                             break;
                         }
                         F_h00_0640(9);
@@ -409,41 +409,41 @@ recovered()
                             F_h00_35DC(168, 92, "sorry to report", 1, 0);
                             F_h00_35DC(168, 108, "that $", 1, 0);
                             F_h00_09C0(216, 108, (long)mod, 1, 0, 0);
-                            G_h01_46E6 -= mod;
+                            total_money -= mod;
                         }
                         F_h00_35DC(168, 124, "was lost in", 1, 0);
                         F_h00_35DC(168, 140, "the crash!", 1, 0);
                         F_h00_307C();
                         G_h01_46D6 = G_h01_1766;
                         F_h00_31AA(G_h01_1766);
-                        if (F_h00_134C(0x64))
-                            F_h00_57D2(0x24);
+                        if (wait_for_fire_input(0x64))
+                            play_sound(0x24);
                         F_h00_330E();
                     }
                 } else if (f1f != 0 && rv == 0) {
                     F_h14_0000(1);
-                    F_h00_7522(F_h14_0000);
-                    G_h01_46E3 = st;
+                    FreeSeg(F_h14_0000);
+                    current_location = st;
                     st = 0x24;
                     rv = -5;
                     break;
                 }
             }
         }
-        G_h01_46E3 = st;
-        if (G_h01_46E1 > 0x1e)
+        current_location = st;
+        if (game_day > 0x1e)
             break;
-        rv = F_h00_01BA(G_h01_46E3);
-        G_h01_46E1 += 1;
+        rv = F_h00_01BA(current_location);
+        game_day += 1;
         if (rv != 0) {
             if (G_h01_4706 != 0) {
                 G_h01_4706 = 0;
-                F_h00_0FDE(1);
-                F_h00_2816(G_h01_46DA);
+                request_disk(1);
+                arc_read_index(arc_file);
             } else {
                 F_h00_4EC6();
                 tmp = F_h00_463E() % 3;
-                F_h00_0FDE(2);
+                request_disk(2);
                 switch (tmp) {
                 case 0:
                     F_h00_4D04(11);
@@ -458,33 +458,33 @@ recovered()
                     tmp = 0x49;
                     break;
                 }
-                G_h01_46DA = G_h01_4700;
+                arc_file = main_arc_file_handle;
                 F_h00_0640(6);
                 F_h00_35DC(168, 60, "Congratulations!", 1, 0);
                 F_h00_35DC(168, 76, "You have acquired", 1, 0);
                 F_h00_35DC(168, 92, "another valuable", 1, 0);
                 F_h00_35DC(168, 108, "   treasure!", 1, 0);
-                idx = *(int *)(G_h01_4528[G_h01_46E3].target + 2);
-                G_h01_46E6 += idx;
+                idx = *(int *)(G_h01_4528[current_location].target + 2);
+                total_money += idx;
                 F_h00_35DC(208, 128, "$", 1, 0);
                 F_h00_09C0(216, 128, (long)idx, 1, 0, 0);
                 F_h00_330E();
                 F_h00_307C();
                 G_h01_46D6 = G_h01_18A6;
                 F_h00_31AA(G_h01_18A6);
-                F_h00_57D2(tmp);
-                G_h01_2C26 = 1;
-                G_h01_2C2C = 8;
-                if (F_h00_134C(0x28))
-                    F_h00_57D2(0x24);
-                G_h01_2C2C = 0;
-                G_h01_2C26 = 0;
+                play_sound(tmp);
+                palette_cycle_callback_index = 1;
+                palette_cycle_countdown_step = 8;
+                if (wait_for_fire_input(0x28))
+                    play_sound(0x24);
+                palette_cycle_countdown_step = 0;
+                palette_cycle_callback_index = 0;
                 F_h00_4EC6();
             }
             F_h00_330E();
-            G_h01_452E[G_h01_46E3].value = 1;
-            if (G_h01_46E3 == G_h01_4705) {
-                G_h01_46E4 = 1;
+            player_treasure_collected[current_location].value = 1;
+            if (current_location == G_h01_4705) {
+                matter_transmitter_unlocked = 1;
                 F_h00_0640(2);
                 F_h00_35DC(160, 16, "Now that you", 1, 0);
                 F_h00_35DC(160, 32, "have found", 1, 0);
@@ -501,27 +501,27 @@ recovered()
                 F_h00_307C();
                 G_h01_46D6 = G_h01_17E6;
                 F_h00_31AA(G_h01_17E6);
-                F_h00_57D2(0x54);
-                if (F_h00_134C(0x64))
-                    F_h00_57D2(0x24);
+                play_sound(0x54);
+                if (wait_for_fire_input(0x64))
+                    play_sound(0x24);
                 F_h00_330E();
             }
         } else {
-            F_h00_0FDE(1);
-            G_h01_46DA = G_h01_4700;
-            F_h00_2816(G_h01_46DA);
+            request_disk(1);
+            arc_file = main_arc_file_handle;
+            arc_read_index(arc_file);
         }
         st = 0x24;
         break;
     }
-    if (G_h01_46E1 > 0x1e) {
+    if (game_day > 0x1e) {
         st = 0;
-        G_h01_46E3 = 0;
+        current_location = 0;
     } else if (rv != -5) {
         F_h14_0000(0);
-        F_h00_7522(F_h14_0000);
-        F_h07_1A02();
-        F_h00_7522(F_h07_1A02);
+        FreeSeg(F_h14_0000);
+        invest_update_daily_market();
+        FreeSeg(invest_update_daily_market);
     }
     }
 
@@ -533,15 +533,15 @@ recovered()
         F_h04_1AA2(1);
     }
     F_h00_4EC6();
-    F_h00_0FDE(1);
+    request_disk(1);
     F_h00_4D04(0);
-    F_h00_0FDE(1);
-    F_h00_2816(G_h01_46DA);
-    done = F_h04_1B94();
+    request_disk(1);
+    arc_read_index(arc_file);
+    done = ui_prompt_play_again();
     if (done == 0) {
-        F_h04_149C();
+        ui_choose_difficulty();
     }
-    F_h00_57D2(0);
+    play_sound(0);
     }
     F_h04_1D32();
     G_h01_46F6--;

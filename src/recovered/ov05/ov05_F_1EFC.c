@@ -28,7 +28,7 @@ extern struct Lookup G_h01_5E66[16];
 extern struct Record G_h01_606C[16];
 extern int G_h01_5E64[1][2];
 extern int F_h00_34E0();
-extern int F_h00_57D2();
+extern int play_sound();
 extern unsigned int F_h00_463E();
 extern float G_h01_5E34;
 extern float G_h01_5E38;
@@ -143,7 +143,7 @@ int idx;
                 F_h00_34E0(r);
                 F_h00_34E0(&G_h01_5610);
                 if (--p->b27 == 0) {
-                    F_h00_57D2(0x33);
+                    play_sound(0x33);
                     p->b13 = 2;
                 }
                 break;
@@ -169,13 +169,13 @@ int idx;
                             p->w32 += 5;
                         p->b27 = 8;
                         if (p->b41 == 20)
-                            F_h00_57D2(0x28);
+                            play_sound(0x28);
                         else if (p->b41 == 22)
-                            F_h00_57D2(0x29);
+                            play_sound(0x29);
                         else if (p->b41 == 24)
-                            F_h00_57D2(0x38);
+                            play_sound(0x38);
                         else
-                            F_h00_57D2(0x34);
+                            play_sound(0x34);
                         p->b13 = 3;
                         break;
                     }
@@ -205,7 +205,7 @@ int idx;
                 }
                 break;
             case 4:
-                F_h00_57D2(0x3a);
+                play_sound(0x3a);
                 G_h01_5C32 = G_h01_55A4 - 12;
                 G_h01_5C34 = 160 - G_h01_5C38;
                 F_h00_34E0(&G_h01_5C32);
@@ -245,7 +245,7 @@ int idx;
                 }
             }
             if (p->b13 == 0 && ((char *)p)[-8] == 2) {
-                F_h00_57D2(0x2a);
+                play_sound(0x2a);
                 ((char *)p)[-8] = 3;
                 p->b13 = 1;
                 p->w4 = 144;
@@ -268,7 +268,7 @@ int idx;
                 }
             }
             if (p->w4 < G_h01_5E38 && p->b13 < 3) {
-                F_h00_57D2(0x31);
+                play_sound(0x31);
                 ((char *)p)[-8] = 0;
                 p->b13 = 3;
                 p->b6 = 0;
@@ -361,7 +361,7 @@ int idx;
                 G_h01_5ABA = p->w4;
                 F_h00_34E0(&G_h01_5AB8);
                 if (--p->b27 == 0) {
-                    F_h00_57D2(0x37);
+                    play_sound(0x37);
                     p->b13 = 4;
                     p->b27 = 6;
                 }

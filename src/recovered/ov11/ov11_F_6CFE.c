@@ -2,7 +2,7 @@ struct Record { int unused0, unused2; int left, right, top, bottom; int initial_
 extern int G_h01_94AE;
 extern int G_h01_94D8;
 extern struct Record G_h01_A554[10];
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h11_4696();
 extern int F_h11_5962();
 extern int F_h11_727A();
@@ -20,12 +20,12 @@ int index;
     if (record->flags > record->unused26) {
         record->unused28 *= -1;
         if (G_h01_94AE == 8 && index == G_h01_94D8)
-            F_h00_57D2(0x5a);
+            play_sound(0x5a);
     } else {
         if (record->flags < record->unused24) {
             record->unused28 *= -1;
             if (G_h01_94AE == 8 && index == G_h01_94D8)
-                F_h00_57D2(0x5d);
+                play_sound(0x5d);
         }
     }
 

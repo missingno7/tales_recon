@@ -10,7 +10,7 @@ extern int G_h01_9F4C;
 extern int G_h01_9FC0;
 extern int G_h01_9FC2;
 extern int G_h01_9FCC;
-extern char G_h01_46E0;
+extern char difficulty_level;
 
 recovered()
 {
@@ -25,7 +25,7 @@ recovered()
     G_h01_9FCC = 0;
     G_h01_9FC0 = 0;
     G_h01_9FC2 = 0;
-    switch (G_h01_46E0) {
+    switch (difficulty_level) {
     case 0: G_h01_9F4C = 350; break;
     case 1: G_h01_9F4C = 200; break;
     case 2: G_h01_9F4C = 100; break;

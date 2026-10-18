@@ -1,1 +1,1 @@
-unsigned long G_h01_2AF6 = 0L;
+unsigned long audio_channel_3_state = 0L;

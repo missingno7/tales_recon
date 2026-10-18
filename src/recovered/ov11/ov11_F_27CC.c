@@ -5,9 +5,9 @@ struct DrawRecord {
     char pen;
 };
 
-extern long G_h01_46CA;
-extern char G_h01_46E1;
-extern long G_h01_46E6;
+extern long screen_rast_port;
+extern char game_day;
+extern long total_money;
 extern char *G_h01_5370;
 extern int G_h01_8A3C;
 extern int G_h01_94AE;
@@ -18,10 +18,10 @@ extern long G_h01_9F96;
 extern long G_h01_9F9A;
 extern int F_h00_09C0();
 extern int F_h00_34E0();
-extern int F_h00_8AA8();
-extern int F_h00_8B4C();
-extern void F_h00_8B76();
-extern int F_h00_8B88();
+extern int Draw();
+extern int Move();
+extern void RectFill();
+extern int SetAPen();
 extern int F_h11_25D6();
 
 void recovered()
@@ -40,18 +40,18 @@ void recovered()
 
     if (redraw || G_h01_8A3C) {
         *G_h01_5370 = 0;
-        F_h00_8B88(G_h01_46CA, (long)*G_h01_5370);
-        F_h00_8B76(G_h01_46CA, 0L, (long)bottom, 0x13fL, 0xc7L);
+        SetAPen(screen_rast_port, (long)*G_h01_5370);
+        RectFill(screen_rast_port, 0L, (long)bottom, 0x13fL, 0xc7L);
         *G_h01_5370 = 0x11;
-        F_h00_8B88(G_h01_46CA, (long)*G_h01_5370);
-        F_h00_8B4C(G_h01_46CA, 0x13fL, (long)bottom);
-        F_h00_8AA8(G_h01_46CA, 0x13fL, 0xc7L);
-        F_h00_8B88(G_h01_46CA, (long)*G_h01_5370);
-        F_h00_8B4C(G_h01_46CA, 0L, 0xc7L);
-        F_h00_8AA8(G_h01_46CA, 0x13fL, 0xc7L);
-        F_h00_8B88(G_h01_46CA, (long)*G_h01_5370);
-        F_h00_8B4C(G_h01_46CA, 0L, (long)bottom);
-        F_h00_8AA8(G_h01_46CA, 0L, 0xc7L);
+        SetAPen(screen_rast_port, (long)*G_h01_5370);
+        Move(screen_rast_port, 0x13fL, (long)bottom);
+        Draw(screen_rast_port, 0x13fL, 0xc7L);
+        SetAPen(screen_rast_port, (long)*G_h01_5370);
+        Move(screen_rast_port, 0L, 0xc7L);
+        Draw(screen_rast_port, 0x13fL, 0xc7L);
+        SetAPen(screen_rast_port, (long)*G_h01_5370);
+        Move(screen_rast_port, 0L, (long)bottom);
+        Draw(screen_rast_port, 0L, 0xc7L);
 
         F_h00_34E0(G_h01_9F96);
         F_h00_34E0(G_h01_9F9A);
@@ -64,16 +64,16 @@ void recovered()
             ((struct DrawRecord *)G_h01_9F92)->pen--;
             ((struct DrawRecord *)G_h01_9F92)->x += 0x20;
         }
-        F_h00_09C0(0xae, 0xb5, G_h01_46E6, 1, 0, 1);
-        if (G_h01_46E1 < 10)
-            F_h00_09C0(0x12, 0xb9, (long)G_h01_46E1, 0, 0, 0);
+        F_h00_09C0(0xae, 0xb5, total_money, 1, 0, 1);
+        if (game_day < 10)
+            F_h00_09C0(0x12, 0xb9, (long)game_day, 0, 0, 0);
         else
-            F_h00_09C0(0xe, 0xb9, (long)G_h01_46E1, 0, 0, 0);
+            F_h00_09C0(0xe, 0xb9, (long)game_day, 0, 0, 0);
     }
 
     *G_h01_5370 = 0x11;
-    F_h00_8B88(G_h01_46CA, (long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA, 0L, (long)bottom);
-    F_h00_8AA8(G_h01_46CA, 0x13fL, (long)bottom);
+    SetAPen(screen_rast_port, (long)*G_h01_5370);
+    Move(screen_rast_port, 0L, (long)bottom);
+    Draw(screen_rast_port, 0x13fL, (long)bottom);
     *G_h01_5370 = saved;
 }

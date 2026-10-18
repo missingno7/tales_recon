@@ -52,7 +52,7 @@ extern char G_h01_5C68;
 extern char G_h01_5C9E;
 extern char G_h01_5D40;
 extern unsigned int F_h00_463E();
-extern int F_h00_0FDE();
+extern int request_disk();
 extern long F_h00_291E();
 extern int F_h05_42E6();
 extern int F_h05_467E();
@@ -144,7 +144,7 @@ recovered()
 
     for (j = 0; j < 17; j++)
         G_h01_5484[j] = 0;
-    F_h00_0FDE(1);
+    request_disk(1);
     G_h01_5484[0] = F_h00_291E(0, G_h01_5484[0]);
     G_h01_5484[1] = F_h00_291E(1, G_h01_5484[1]);
     G_h01_5484[2] = F_h00_291E(2, G_h01_5484[2]);

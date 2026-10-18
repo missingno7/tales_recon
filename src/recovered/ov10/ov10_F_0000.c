@@ -1,13 +1,13 @@
 /* ov10_F_0000: cave-map load, 8x8 grid state machine, action dispatch. Three unused locals (c1, c2, i1) are kept: the original 134-byte frame and its slot offsets require them. */
 struct Rec54 { char b[54]; };
 extern char G_h01_5E5E;
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
 extern char *G_h01_46D6;
-extern long G_h01_46DA;
-extern char G_h01_46E0;
-extern long G_h01_46E6;
+extern long arc_file;
+extern char difficulty_level;
+extern long total_money;
 extern short G_h01_4356[64];
 extern long G_h01_7998;
 extern unsigned int G_h01_799E;
@@ -180,12 +180,12 @@ extern char G_h01_0572[1];
 extern char G_h01_059A[1];
 extern char G_h01_05D6[1];
 extern long G_h01_2A16;
-extern long G_h01_2C26;
-extern char G_h01_2C2C;
+extern long palette_cycle_callback_index;
+extern char palette_cycle_countdown_step;
 extern long F_h00_0976();
-extern int F_h00_0FDE();
-extern int F_h00_134C();
-extern int F_h00_2816();
+extern int request_disk();
+extern int wait_for_fire_input();
+extern int arc_read_index();
 extern long F_h00_291E();
 extern int F_h00_307C();
 extern int F_h00_31AA();
@@ -195,18 +195,18 @@ extern int F_h00_35DC();
 extern int F_h00_3AE4();
 extern int F_h00_3B84();
 extern int F_h00_3C0E();
-extern int F_h00_435E();
-extern int F_h00_4376();
+extern int clear_input_direction_and_fire_state();
+extern int poll_controller_and_keyboard_input();
 extern unsigned int F_h00_463E();
 extern int F_h00_4D04();
 extern int F_h00_4EC6();
-extern int F_h00_57D2();
-extern int F_h00_704E();
-extern int F_h00_868C();
-extern int F_h00_86A8();
-extern long F_h00_86DC();
-extern int F_h00_8A46();
-extern long F_h00_8BC8();
+extern int play_sound();
+extern int sscanf();
+extern int Close();
+extern int Delay();
+extern long Open();
+extern int BltBitMap();
+extern long SetRast();
 extern int F_h10_2160();
 extern int F_h10_25A2();
 extern int F_h10_2634();
@@ -259,30 +259,30 @@ int arg;
     G_h01_79A6 = 0;
     flag7f = 0;
     flag80 = 0;
-    saved_handle = G_h01_46DA;
+    saved_handle = arc_file;
     for (i = 0; i < 64; i++)
         G_h01_4356[i] = 0;
 
     /* B: open cave map, parse 8 rows of 8 cell words. */
-    F_h00_0FDE(2);
-    G_h01_46DA = F_h00_86DC("DT2:cavemaps.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    request_disk(2);
+    arc_file = Open("DT2:cavemaps.arc", 1005L);
+    arc_read_index(arc_file);
     bitmap = F_h00_291E(arg, 0L);
     text = *(char **)(bitmap + 2);
     for (i = 0; i < 64; i += 8) {
         text = (char *)F_h00_0976(text, line);
-        F_h00_704E(line, "%d %d %d %d %d %d %d %d",
+        sscanf(line, "%d %d %d %d %d %d %d %d",
                    &G_h01_4356[i], &G_h01_4356[i + 1], &G_h01_4356[i + 2], &G_h01_4356[i + 3],
                    &G_h01_4356[i + 4], &G_h01_4356[i + 5], &G_h01_4356[i + 6], &G_h01_4356[i + 7]);
     }
     F_h00_3C0E(bitmap);
-    F_h00_868C(G_h01_46DA);
+    Close(arc_file);
 
     /* C: open exp.arc, draw static panels, set panel geometry. */
-    F_h00_0FDE(2);
-    G_h01_46DA = F_h00_86DC("DT2:exp.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
-    exp_handle = G_h01_46DA;
+    request_disk(2);
+    arc_file = Open("DT2:exp.arc", 1005L);
+    arc_read_index(arc_file);
+    exp_handle = arc_file;
     F_h00_291E(17, &G_h01_730E);
     G_h01_730E = 82;
     G_h01_7310 = 38;
@@ -339,12 +339,12 @@ int arg;
     F_h00_291E(14, G_h01_726C);
     G_h01_79AC = 14;
     F_h00_4EC6();
-    F_h00_0FDE(2);
+    request_disk(2);
     F_h00_4D04(21);
-    G_h01_46DA = exp_handle;
-    F_h00_0FDE(2);
-    F_h00_2816(G_h01_46DA);
-    F_h00_8BC8(G_h01_46CA, 0L);
+    arc_file = exp_handle;
+    request_disk(2);
+    arc_read_index(arc_file);
+    SetRast(screen_rast_port, 0L);
     F_h00_34E0(&G_h01_7746);
 
     /* D: locate the marked start cell (bit 5) and the goal cell (bit 4). */
@@ -367,7 +367,7 @@ int arg;
     G_h01_79A2 = 0;
     G_h01_79A4 = 0;
     G_h01_79A5 = 0;
-    switch (G_h01_46E0) {
+    switch (difficulty_level) {
     case 0:
         flag81 = 20;
         G_h01_79AE = 64;
@@ -382,11 +382,11 @@ int arg;
         break;
     }
     G_h01_79B0 = G_h01_79AE >> 2;
-    F_h00_57D2(0);
-    G_h01_2C26 = 0;
-    G_h01_2C2C = 0;
+    play_sound(0);
+    palette_cycle_callback_index = 0;
+    palette_cycle_countdown_step = 0;
     F_h00_330E();
-    F_h00_435E();
+    clear_input_direction_and_fire_state();
 
     /* E: main input loop. Sentinel actions (-1, -2, -3) leave the loop for section F. */
     for (;;) {
@@ -398,19 +398,19 @@ int arg;
             if (G_h01_79A4 == (G_h01_79AE >> 1) && G_h01_79AC == 14) {
                 F_h00_3AE4(&G_h01_727C, G_h01_7274, G_h01_7276);
                 G_h01_79AC = 15;
-                F_h00_0FDE(2);
+                request_disk(2);
                 F_h00_291E(15, G_h01_72A2);
             } else if (G_h01_79A4 == (G_h01_79AE - G_h01_79B0) && G_h01_79AC == 15) {
                 F_h00_3AE4(G_h01_72B2, G_h01_72AA, G_h01_72AC);
                 G_h01_79AC = 16;
-                F_h00_0FDE(2);
+                request_disk(2);
                 F_h00_291E(16, G_h01_72D8);
             }
             if ((*cell & 0x40) != 0)
                 G_h01_79A6 = 1;
             phase++;
             F_h00_330E();
-            F_h00_0FDE(2);
+            request_disk(2);
             F_h00_291E(0, G_h01_46CE);
             F_h10_2FA0(cell, 1);
             if (kind == 0 || G_h01_79AA != 0)
@@ -431,15 +431,15 @@ int arg;
                 if (G_h01_79A4 > 1 && (*cell & 0x10) == 0 && (*cell & 0x40) == 0) {
                     F_h10_2FA0(cell, 0);
                     F_h10_2634(&G_h01_730E, 17, 0);
-                    F_h00_86A8(50L);
-                    G_h01_46E6 += 50;
-                    F_h00_57D2(32);
+                    Delay(50L);
+                    total_money += 50;
+                    play_sound(32);
                     F_h00_35DC(132, 128, "$50", 14, 0, 0);
                     F_h00_307C();
-                    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+                    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
                     F_h10_2634(&G_h01_730E, 17, 0);
                     F_h00_307C();
-                    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+                    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
                     F_h10_2634(&G_h01_730E, 17, 0);
                     F_h00_307C();
                 }
@@ -458,7 +458,7 @@ int arg;
                     F_h10_2CF4(3, 15, G_h01_059A, 13, cell);
                 }
                 for (i = 0; i < 2; i++) {
-                    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+                    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
                     F_h10_2634(&G_h01_730E, 17, 0);
                     F_h00_307C();
                 }
@@ -473,7 +473,7 @@ int arg;
                 break;
             }
             if (G_h01_79AA == 0) {
-                F_h00_0FDE(2);
+                request_disk(2);
                 if (*cell & 1) {
                     F_h00_291E(18, G_h01_7344);
                     F_h10_2634(&G_h01_730E, 17, 0);
@@ -498,12 +498,12 @@ int arg;
                     F_h00_307C();
                     G_h01_79B4 |= 1;
                 }
-                F_h00_57D2(36);
+                play_sound(36);
             }
-            F_h00_435E();
+            clear_input_direction_and_fire_state();
         }
         action = 0;
-        action = F_h00_4376();
+        action = poll_controller_and_keyboard_input();
 
         /* Action class from the low five bits decides the feedback draw. */
         if ((action & 31) == 1 || (action & 31) == 2) {
@@ -513,7 +513,7 @@ int arg;
             } else {
                 F_h10_2634(&G_h01_730E, 17, 0);
                 if (flag82 == 0) {
-                    F_h00_57D2(70);
+                    play_sound(70);
                     flag82 = 1;
                 }
             }
@@ -524,7 +524,7 @@ int arg;
             } else {
                 F_h10_2634(&G_h01_730E, 17, 0);
                 if (flag82 == 0) {
-                    F_h00_57D2(70);
+                    play_sound(70);
                     flag82 = 1;
                 }
             }
@@ -535,7 +535,7 @@ int arg;
             } else {
                 F_h10_2634(&G_h01_730E, 17, 0);
                 if (flag82 == 0) {
-                    F_h00_57D2(70);
+                    play_sound(70);
                     flag82 = 1;
                 }
             }
@@ -546,7 +546,7 @@ int arg;
             } else {
                 F_h10_2634(&G_h01_730E, 17, 0);
                 if (flag82 == 0) {
-                    F_h00_57D2(70);
+                    play_sound(70);
                     flag82 = 1;
                 }
             }
@@ -575,12 +575,12 @@ int arg;
                 if (G_h01_79A4 == (G_h01_79AE >> 1) && G_h01_79AC == 14) {
                     F_h00_3AE4(&G_h01_727C, G_h01_7274, G_h01_7276);
                     G_h01_79AC = 15;
-                    F_h00_0FDE(2);
+                    request_disk(2);
                     F_h00_291E(15, G_h01_72A2);
                 } else if (G_h01_79A4 == (G_h01_79AE - G_h01_79B0) && G_h01_79AC == 15) {
                     F_h00_3AE4(G_h01_72B2, G_h01_72AA, G_h01_72AC);
                     G_h01_79AC = 16;
-                    F_h00_0FDE(2);
+                    request_disk(2);
                     F_h00_291E(16, G_h01_72D8);
                 }
                 if (G_h01_79A4 >= G_h01_79AE) {
@@ -670,7 +670,7 @@ int arg;
             }
             phase = 0;
             if (flag7f != 0) {
-                F_h00_57D2(82);
+                play_sound(82);
                 flag7f = 0;
             }
         }
@@ -679,8 +679,8 @@ int arg;
         F_h00_307C();
         if ((action & 128) && ((action & 31) == 1 || (action & 31) == 2)) {
             if (*cell & 8) {
-                F_h00_0FDE(2);
-                F_h00_57D2(36);
+                request_disk(2);
+                play_sound(36);
                 F_h10_25A2(cell);
                 cell -= 8;
                 G_h01_799E -= 8;
@@ -688,7 +688,7 @@ int arg;
                 G_h01_79B2 = 1;
                 phase++;
                 if (G_h01_79AA == 0) {
-                    F_h00_0FDE(2);
+                    request_disk(2);
                     F_h00_291E(12, G_h01_7236);
                     kind2 = kind;
                     F_h10_2CF4(0, 10, G_h01_0572, 12, cell);
@@ -696,7 +696,7 @@ int arg;
             }
         } else if ((action & 128) && ((action & 31) == 5 || (action & 31) == 6)) {
             if (*cell & 4) {
-                F_h00_57D2(36);
+                play_sound(36);
                 F_h10_25A2(cell);
                 cell += 8;
                 G_h01_799E += 8;
@@ -704,7 +704,7 @@ int arg;
                 kind = 2;
                 phase++;
                 if (G_h01_79AA == 0) {
-                    F_h00_0FDE(2);
+                    request_disk(2);
                     F_h00_291E(11, G_h01_7236);
                     kind2 = kind;
                     F_h10_2CF4(0, 13, G_h01_050A, 11, cell);
@@ -712,7 +712,7 @@ int arg;
             }
         } else if ((action & 128) && ((action & 31) == 3 || (action & 31) == 4)) {
             if (*cell & 2) {
-                F_h00_57D2(36);
+                play_sound(36);
                 F_h10_25A2(cell);
                 cell += 1;
                 G_h01_799E += 1;
@@ -720,7 +720,7 @@ int arg;
                 kind = 1;
                 phase++;
                 if (G_h01_79AA == 0) {
-                    F_h00_0FDE(2);
+                    request_disk(2);
                     F_h00_291E(10, G_h01_7236);
                     kind2 = kind;
                     F_h10_2CF4(1, 12, G_h01_04AA, 10, cell);
@@ -728,7 +728,7 @@ int arg;
             }
         } else if ((action & 128) && ((action & 31) == 7 || (action & 31) == 8)) {
             if (*cell & 1) {
-                F_h00_57D2(36);
+                play_sound(36);
                 F_h10_25A2(cell);
                 cell -= 1;
                 G_h01_799E -= 1;
@@ -736,7 +736,7 @@ int arg;
                 kind = 4;
                 phase++;
                 if (G_h01_79AA == 0) {
-                    F_h00_0FDE(2);
+                    request_disk(2);
                     F_h00_291E(13, G_h01_7236);
                     kind2 = kind;
                     F_h10_2CF4(2, 13, G_h01_05D6, 13, cell);
@@ -762,7 +762,7 @@ int arg;
         F_h00_3AE4(&G_h01_7A68, G_h01_7A60, G_h01_7A62);
         F_h00_3AE4(&G_h01_7A32, G_h01_7A2A, G_h01_7A2C);
         res = 0;
-        F_h00_0FDE(2);
+        request_disk(2);
         F_h00_291E(46, &G_h01_792C);
         F_h10_2634(&G_h01_730E, 17, 0);
         G_h01_792C = 102;
@@ -772,7 +772,7 @@ int arg;
         G_h01_7596 = 76;
         G_h01_7598 = 43;
         F_h00_34E0(&G_h01_792C);
-        F_h00_57D2(83);
+        play_sound(83);
         F_h00_307C();
         F_h00_291E(30, &G_h01_75CC);
         F_h10_2634(&G_h01_730E, 17, 0);
@@ -780,11 +780,11 @@ int arg;
         G_h01_75CE = 43;
         F_h00_34E0(&G_h01_792C);
         F_h00_307C();
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         F_h00_34E0(&G_h01_792C);
-        F_h00_8A46(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         for (i = 0; i < 16; i++) {
-            F_h00_8A46(G_h01_46CE, 64L, 5L, G_h01_46D2, 64L, 5L, 176L, 195L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 64L, 5L, G_h01_46D2, 64L, 5L, 176L, 195L, 192L, 255L, 0L);
             F_h00_34E0((char *)((struct Rec54 *)&G_h01_7596 + (i & 1)));
             F_h00_34E0(&G_h01_792C);
             F_h00_307C();
@@ -803,10 +803,10 @@ int arg;
         F_h00_3AE4(&G_h01_7A68, G_h01_7A60, G_h01_7A62);
         F_h00_3AE4(&G_h01_7A32, G_h01_7A2A, G_h01_7A2C);
         res = 0;
-        F_h00_0FDE(2);
+        request_disk(2);
         F_h00_291E(28, &G_h01_7560);
         for (i = 0; i < 2; i++) {
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             F_h10_2634(&G_h01_7560, 17, 6);
             F_h00_307C();
         }
@@ -848,52 +848,52 @@ int arg;
         F_h00_291E(36, &G_h01_7710);
         G_h01_7710 = 70;
         G_h01_7712 = 42;
-        F_h00_57D2(0);
+        play_sound(0);
         for (i = 0; i < 2; i++) {
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             F_h10_2634(&G_h01_730E, 17, 0);
             F_h00_307C();
         }
         F_h00_4EC6();
-        F_h00_0FDE(2);
+        request_disk(2);
         F_h00_4D04(22);
-        F_h00_0FDE(2);
-        F_h00_2816(G_h01_46DA);
-        F_h00_57D2(72);
+        request_disk(2);
+        arc_read_index(arc_file);
+        play_sound(72);
         for (j = 0; j < 4; j++) {
             for (i = 0; i < 3; i++) {
                 if (j == 0)
-                    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+                    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
                 else
-                    F_h00_8A46(G_h01_46CE, 64L, 40L, G_h01_46D2, 64L, 40L, 176L, 160L, 192L, 255L, 0L);
+                    BltBitMap(G_h01_46CE, 64L, 40L, G_h01_46D2, 64L, 40L, 176L, 160L, 192L, 255L, 0L);
                 F_h00_34E0((char *)((struct Rec54 *)&G_h01_7596 + i));
                 F_h00_307C();
             }
             if (j == 0)
-                F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             else
-                F_h00_8A46(G_h01_46CE, 64L, 40L, G_h01_46D2, 64L, 40L, 176L, 160L, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, 64L, 40L, G_h01_46D2, 64L, 40L, 176L, 160L, 192L, 255L, 0L);
             F_h00_34E0(&G_h01_75CC);
             F_h00_307C();
         }
         for (i = 0; i < 3; i++) {
-            F_h00_8A46(G_h01_46CE, 64L, 40L, G_h01_46D2, 64L, 40L, 176L, 160L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 64L, 40L, G_h01_46D2, 64L, 40L, 176L, 160L, 192L, 255L, 0L);
             F_h00_34E0((char *)((struct Rec54 *)&G_h01_7596 + i));
             F_h00_307C();
         }
         F_h00_4EC6();
-        F_h00_0FDE(2);
+        request_disk(2);
         F_h00_4D04(40);
-        F_h00_0FDE(2);
-        F_h00_2816(G_h01_46DA);
-        F_h00_57D2(71);
+        request_disk(2);
+        arc_read_index(arc_file);
+        play_sound(71);
         for (i = 3; i < 8; i++) {
-            F_h00_8A46(G_h01_46CE, 64L, 10L, G_h01_46D2, 64L, 10L, 176L, 190L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 64L, 10L, G_h01_46D2, 64L, 10L, 176L, 190L, 192L, 255L, 0L);
             F_h00_34E0((char *)((struct Rec54 *)&G_h01_7596 + i));
             F_h00_307C();
-            F_h00_86A8(1L);
+            Delay(1L);
         }
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         F_h00_307C();
         for (i = 0; i < 8; i++)
             F_h00_3AE4((char *)((struct Rec54 *)&G_h01_75A6 + i), *(short *)((struct Rec54 *)&G_h01_759E + i),
@@ -903,7 +903,7 @@ int arg;
     } else {
         G_h01_79A6 = 1;
         F_h10_25A2(cell);
-        F_h00_0FDE(2);
+        request_disk(2);
         F_h00_291E(44, &G_h01_78C0);
         F_h00_291E(45, &G_h01_78F6);
         G_h01_78F6 = 96;
@@ -923,7 +923,7 @@ int arg;
         F_h00_34E0(&G_h01_7452);
         F_h00_307C();
         for (i = 0; i < 3; i++) {
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             F_h10_2634(&G_h01_730E, 17, 0);
             F_h00_34E0(&G_h01_78F6);
             F_h00_34E0(&G_h01_7452);
@@ -931,13 +931,13 @@ int arg;
         }
         G_h01_79A6 = 2;
         F_h00_4EC6();
-        F_h00_0FDE(2);
+        request_disk(2);
         F_h00_4D04(24);
-        F_h00_0FDE(2);
-        F_h00_2816(G_h01_46DA);
-        F_h00_57D2(73);
+        request_disk(2);
+        arc_read_index(arc_file);
+        play_sound(73);
         for (i = 0; i < 10; i++) {
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             F_h10_2634(&G_h01_78C0, 17, 0);
             F_h00_34E0(&G_h01_78F6);
             F_h00_34E0(&G_h01_7452);
@@ -957,7 +957,7 @@ int arg;
     }
 
     /* G: teardown, restore the saved map handle, return the result word. */
-    F_h00_57D2(0);
+    play_sound(0);
     switch (G_h01_79AC) {
     case 14:
         F_h00_3AE4(&G_h01_727C, G_h01_7274, G_h01_7276);
@@ -986,24 +986,24 @@ int arg;
     F_h00_3AE4(&G_h01_7864, G_h01_785C, G_h01_785E);
     F_h00_3AE4(&G_h01_7756, G_h01_774E, G_h01_7750);
     F_h00_3AE4(&G_h01_789A, G_h01_7892, G_h01_7894);
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = saved_handle;
-    F_h00_2816(G_h01_46DA);
+    Close(arc_file);
+    arc_file = saved_handle;
+    arc_read_index(arc_file);
     F_h00_330E();
     F_h00_4EC6();
     if (res == 0) {
-        F_h00_0FDE(1);
-        F_h00_2816(G_h01_46DA);
+        request_disk(1);
+        arc_read_index(arc_file);
         F_h00_330E();
         F_h00_291E(34, G_h01_46CE);
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         F_h00_35DC(176, 60, "Launchpad McQuack", 1, 0);
         F_h00_35DC(188, 76, "saves the day!", 1, 0);
         F_h00_307C();
         G_h01_46D6 = G_h01_1726;
         F_h00_31AA(G_h01_1726);
-        if (F_h00_134C(20) != 0)
-            F_h00_57D2(36);
+        if (wait_for_fire_input(20) != 0)
+            play_sound(36);
         F_h00_4EC6();
     }
     return res;

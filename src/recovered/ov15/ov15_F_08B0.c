@@ -1,9 +1,9 @@
 extern char *G_h01_5370;
-extern long G_h01_46CA;
-extern int F_h00_8B88();
-extern int F_h00_8B4C();
-extern int F_h00_8AA8();
-extern int F_h00_8C10();
+extern long screen_rast_port;
+extern int SetAPen();
+extern int Move();
+extern int Draw();
+extern int WritePixel();
 
 recovered(x,y)
 int x,y;
@@ -13,22 +13,22 @@ int x,y;
 
     for (i=0;i<=2;++i)
         for (j=0;j<=2;++j) {
-            F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-            F_h00_8C10(G_h01_46CA,(long)(x+j),(long)(y+i));
+            SetAPen(screen_rast_port,(long)*G_h01_5370);
+            WritePixel(screen_rast_port,(long)(x+j),(long)(y+i));
         }
     x0=x-1;
     y0=y-1;
     *G_h01_5370=0;
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)x0,(long)y0);
-    F_h00_8AA8(G_h01_46CA,(long)(x0+4),(long)y0);
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)x0,(long)(y0+1));
-    F_h00_8AA8(G_h01_46CA,(long)x0,(long)(y0+4));
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)(x0+4),(long)(y0+1));
-    F_h00_8AA8(G_h01_46CA,(long)(x0+4),(long)(y0+4));
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)x0,(long)(y0+4));
-    F_h00_8AA8(G_h01_46CA,(long)(x0+4),(long)(y0+4));
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)x0,(long)y0);
+    Draw(screen_rast_port,(long)(x0+4),(long)y0);
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)x0,(long)(y0+1));
+    Draw(screen_rast_port,(long)x0,(long)(y0+4));
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)(x0+4),(long)(y0+1));
+    Draw(screen_rast_port,(long)(x0+4),(long)(y0+4));
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)x0,(long)(y0+4));
+    Draw(screen_rast_port,(long)(x0+4),(long)(y0+4));
 }

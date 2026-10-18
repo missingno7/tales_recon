@@ -12,8 +12,8 @@ struct Record {
 };
 
 extern long F_h00_75D8();
-extern int F_h00_704E();
-extern int F_h00_3674();
+extern int sscanf();
+extern int report_loader_error();
 extern struct Record G_h01_9FCE[1];
 
 recovered(text)
@@ -26,15 +26,15 @@ char *text;
     struct Record *record;
 
     line = F_h00_75D8(text, 'M');
-    F_h00_704E(line, "M %d", &rows);
+    sscanf(line, "M %d", &rows);
     line = F_h00_75D8(line, '\n') + 1;
     for (i = 0; i < rows; i++) {
-        if (F_h00_704E(line, "%d ", &index) < 1) {
-            F_h00_3674(901);
+        if (sscanf(line, "%d ", &index) < 1) {
+            report_loader_error(901);
             goto next_record;
         }
         record = &G_h01_9FCE[index];
-        if (F_h00_704E(line, "%*d %d %d %d %d %d %d\n",
+        if (sscanf(line, "%*d %d %d %d %d %d %d\n",
                          &record->field24, &record->field26,
                          &record->field28, &record->field30,
                          &record->field32, &record->field0) != 6)
@@ -43,7 +43,7 @@ char *text;
         line = F_h00_75D8(line, '\n') + 1;
         goto next_record;
 bad_record:
-        F_h00_3674(902);
+        report_loader_error(902);
 next_record:
         ;
     }

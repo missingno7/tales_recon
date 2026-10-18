@@ -9,17 +9,17 @@ extern int G_h01_5152; extern int G_h01_5154; extern char G_h01_5186;
 extern int G_h01_515A; extern int G_h01_515C; extern char G_h01_5162;
 extern int G_h01_5188; extern int G_h01_518A; extern char G_h01_51BC;
 extern int G_h01_5190; extern int G_h01_5192; extern char G_h01_5198;
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_291E();
-extern int F_h00_8A46();
+extern int BltBitMap();
 extern int F_h00_34E0();
 extern int F_h00_3AE4();
 
 recovered()
 {
-    F_h00_0FDE(1);
+    request_disk(1);
     F_h00_291E(3, G_h01_46CE);
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
         0L, 0L, 320L, 200L, 192L, 255L, 0L);
 
     F_h00_291E(4, &G_h01_511C);
@@ -50,6 +50,6 @@ recovered()
     F_h00_34E0(&G_h01_5188);
     F_h00_3AE4(&G_h01_5198, G_h01_5190, G_h01_5192);
 
-    F_h00_8A46(G_h01_46D2, 0L, 0L, G_h01_46CE,
+    BltBitMap(G_h01_46D2, 0L, 0L, G_h01_46CE,
         0L, 0L, 320L, 200L, 192L, 255L, 0L);
 }

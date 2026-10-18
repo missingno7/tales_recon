@@ -3,24 +3,24 @@ struct ArcEntry {
     char *text;
 };
 
-extern long G_h01_46DA;
-extern char G_h01_4D60;
-extern char G_h01_4D62;
-extern char G_h01_4D82;
+extern long arc_file;
+extern char market_update_day;
+extern char investment_company_table;
+extern char investment_market_state;
 extern char G_h01_4D84;
 extern char G_h01_4D86;
 extern char G_h01_4D88;
-extern char G_h01_5014;
+extern char market_price_history;
 
-extern int F_h00_0FDE();
-extern long F_h00_86DC();
-extern int F_h00_2816();
+extern int request_disk();
+extern long Open();
+extern int arc_read_index();
 extern long F_h00_291E();
 extern long F_h00_0976();
-extern int F_h00_704E();
+extern int sscanf();
 extern int F_h00_463E();
 extern int F_h00_3C0E();
-extern int F_h00_868C();
+extern int Close();
 
 recovered()
 {
@@ -39,11 +39,11 @@ recovered()
     int lower[3];
     char buffer[77];
 
-    saved = G_h01_46DA;
-    G_h01_4D60 = 0;
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:invest.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    saved = arc_file;
+    market_update_day = 0;
+    request_disk(1);
+    arc_file = Open("DT1:invest.arc", 1005L);
+    arc_read_index(arc_file);
 
     for (i = 0; i < 15; ++i)
         state[i] = -1;
@@ -55,12 +55,12 @@ recovered()
         id = item->length;
         item->text[item->length - 1] = 0;
         name = (char *)F_h00_0976(name,
-            (char *)&G_h01_4D62 + (long)i * 46L);
+            (char *)&investment_company_table + (long)i * 46L);
         name = (char *)F_h00_0976(name, buffer);
-        F_h00_704E(buffer, "%d %d",
-            (int *)((char *)&G_h01_4D82 + (long)i * 46L),
+        sscanf(buffer, "%d %d",
+            (int *)((char *)&investment_market_state + (long)i * 46L),
             (int *)((char *)&G_h01_4D88 + (long)i * 46L));
-        *((unsigned int *)((char *)&G_h01_4D82 + (long)i * 46L)) =
+        *((unsigned int *)((char *)&investment_market_state + (long)i * 46L)) =
             (unsigned int)F_h00_463E() % 120;
         *((unsigned int *)((char *)&G_h01_4D88 + (long)i * 46L)) =
             (unsigned int)F_h00_463E() % 5;
@@ -69,10 +69,10 @@ recovered()
         F_h00_3C0E(item);
     }
 
-    F_h00_868C(G_h01_46DA);
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:chart.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    Close(arc_file);
+    request_disk(1);
+    arc_file = Open("DT1:chart.arc", 1005L);
+    arc_read_index(arc_file);
 
     for (i = 0; i < 5; ++i) {
         item = 0;
@@ -82,15 +82,15 @@ recovered()
         j = 0;
         do {
             name = (char *)F_h00_0976(name, buffer);
-            F_h00_704E(buffer, "%d", &value);
-            *((char *)&G_h01_5014 + (long)i * 31L + j) = ((char *)&value)[1];
+            sscanf(buffer, "%d", &value);
+            *((char *)&market_price_history + (long)i * 31L + j) = ((char *)&value)[1];
             ++j;
         } while (j < 30);
         F_h00_3C0E(item);
     }
 
-    F_h00_868C(G_h01_46DA);
-    F_h00_0FDE(1);
-    G_h01_46DA = saved;
-    F_h00_2816(G_h01_46DA);
+    Close(arc_file);
+    request_disk(1);
+    arc_file = saved;
+    arc_read_index(arc_file);
 }

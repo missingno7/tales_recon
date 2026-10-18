@@ -1,7 +1,7 @@
 extern int G_h01_B1E8;
 extern int G_h01_1E32[8];
 extern int G_h01_1E42[49];
-extern char F_h00_411E();
+extern char arc_next_byte();
 
 void recovered(length, out)
 long length;
@@ -15,7 +15,7 @@ char *out;
     index = 1;
     G_h01_B1E8 = 1024;
     for (i = 0; i < length; ++i) {
-        packed = F_h00_411E();
+        packed = arc_next_byte();
         nibble = (packed >> 4) & 15;
         magnitude = (bit4 = nibble & 4) + (bit2 = nibble & 2) + (bit1 = nibble & 1);
         step = G_h01_1E42[index - 1];

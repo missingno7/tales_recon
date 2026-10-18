@@ -1,15 +1,15 @@
 /* Structural candidate. The original BRA at 0D7C makes the alert block
  * unreachable; the producing source form remains unproved. */
-extern int F_h00_57D2();
+extern int play_sound();
 extern long F_h00_291E();
 extern int F_h00_35DC();
 extern unsigned int F_h00_463E();
-extern int F_h00_8A46();
+extern int BltBitMap();
 extern int F_h00_307C();
 extern int F_h00_31AA();
-extern int F_h00_435E();
-extern int F_h00_4376();
-extern int F_h00_86A8();
+extern int clear_input_direction_and_fire_state();
+extern int poll_controller_and_keyboard_input();
+extern int Delay();
 extern int F_h00_3B84();
 extern int F_h00_330E();
 extern int F_h13_0746();
@@ -22,7 +22,7 @@ recovered() {
  int key,otherkey,index,command,inner,x,y;
  char *image;
  int alerts;
- alerts=0; F_h00_57D2(33); chosen[4]=0; other[4]=0;
+ alerts=0; play_sound(33); chosen[4]=0; other[4]=0;
  image=0L; image=F_h00_291E(40,image);
  F_h00_35DC(64,24,"This is Gyro Gearloose's",16,0);
  F_h00_35DC(40,32,"SUPER ANTI-SPY SECURITY SYSTEM.",12,0);
@@ -35,7 +35,7 @@ recovered() {
   if(command<index) index--;
   else {
    chosen[index]=key+65;
-   F_h00_8A46(image,(long)(unsigned int)(key<<3),0L,G_h01_46D2,(long)(144+(index<<3)),72L,8L,8L,192L,255L,0L);
+   BltBitMap(image,(long)(unsigned int)(key<<3),0L,G_h01_46D2,(long)(144+(index<<3)),72L,8L,8L,192L,255L,0L);
   }
  }
  key=F_h00_463E()%10;
@@ -55,40 +55,40 @@ recovered() {
    F_h00_35DC(x,y,other,1,0);
   }
  }
- F_h00_57D2(0);
- F_h00_8A46(G_h01_46D2,0L,0L,G_h01_46CE,0L,0L,320L,200L,192L,255L,0L);
- F_h00_307C(); G_h01_46D6=G_h01_14E6; F_h00_31AA(G_h01_14E6); F_h00_57D2(111);
- F_h00_8A46(G_h01_46CE,0L,0L,G_h01_46D2,0L,0L,320L,200L,192L,255L,0L);
- F_h00_307C(); F_h00_435E(); index=0; F_h13_0746(index); command=0;
+ play_sound(0);
+ BltBitMap(G_h01_46D2,0L,0L,G_h01_46CE,0L,0L,320L,200L,192L,255L,0L);
+ F_h00_307C(); G_h01_46D6=G_h01_14E6; F_h00_31AA(G_h01_14E6); play_sound(111);
+ BltBitMap(G_h01_46CE,0L,0L,G_h01_46D2,0L,0L,320L,200L,192L,255L,0L);
+ F_h00_307C(); clear_input_direction_and_fire_state(); index=0; F_h13_0746(index); command=0;
  for(;;) {
-  command=0; command=F_h00_4376();
+  command=0; command=poll_controller_and_keyboard_input();
   if(command==3) { if(++index>9)index=0; }
   else if(command==7) { if(--index<0)index=9; }
   else if(command==5) { index+=2;if(index>9)index=0; }
   else if(command==1) { index-=2;if(index<0)index=9; }
-  if(command) { F_h13_0746(index); F_h00_86A8(5L); }
-  F_h00_435E();
+  if(command) { F_h13_0746(index); Delay(5L); }
+  clear_input_direction_and_fire_state();
   if(command&128) {
    if(index!=key) ;
    if(0) {
    if(!alerts) {
     F_h00_307C(); F_h00_35DC(48,144,"Possible Beagle Boy Break-In",0,14);
-    F_h00_57D2(70);F_h00_307C();F_h00_86A8(25L);alerts++;
+    play_sound(70);F_h00_307C();Delay(25L);alerts++;
    } else if(alerts==1) {
     F_h00_35DC(48,144,"                            ",0,0);
     for(inner=0;inner<3;inner++) {
      F_h00_307C();F_h00_35DC(96,144,"BEAGLE BOY ALERT",1,4);
-     F_h00_57D2(70);F_h00_307C();F_h00_86A8(25L);
+     play_sound(70);F_h00_307C();Delay(25L);
      F_h00_307C();F_h00_35DC(96,144,"                ",0,0);
-     F_h00_307C();F_h00_86A8(25L);
+     F_h00_307C();Delay(25L);
     }
     alerts++;break;
    } else break;
    } else break;
   }
-  F_h00_86A8(1L);
+  Delay(1L);
  }
- F_h00_3B84(image); F_h00_330E(); F_h00_57D2(33); F_h00_435E();
+ F_h00_3B84(image); F_h00_330E(); play_sound(33); clear_input_direction_and_fire_state();
  if(index!=key)return 1;
  return 1;
 }

@@ -1,8 +1,8 @@
 	far data
 	dseg
-	public _G_h01_2B6E
-	public _G_h01_2B8C
-	public _G_h01_2B8D
+	public _audio_envelope_state_handlers
+	public _audio_global_volume_attenuation
+	public _audio_volume_output_enabled
 	cseg
 	public _recon_h00_544C
 	public _recon_h00_5480
@@ -32,7 +32,7 @@ _recon_h00_544C
 	clr.w d0
 	move.b $1e(a0),d0
 	lsl.l #$2,d0
-	lea _G_h01_2B6E,a2
+	lea _audio_envelope_state_handlers,a2
 	movea.l 0(a2,d0.w),a2
 	jsr (a2)
 	clr.w d2
@@ -47,7 +47,7 @@ _recon_h00_5480
 	clr.b d2
 	bra _recon_h00_5498
 _recon_h00_548A
-	sub.b _G_h01_2B8C,d2
+	sub.b _audio_global_volume_attenuation,d2
 	bcc _recon_h00_5496
 	clr.b d2
 	bra _recon_h00_5498
@@ -58,7 +58,7 @@ _recon_h00_5498
 	lsl.w #$4,d3
 	movea.l #$dff0a8,a2
 	adda.l d3,a2
-	tst.b _G_h01_2B8D
+	tst.b _audio_volume_output_enabled
 	beq _recon_h00_54B0
 	move.w d2,(a2)
 _recon_h00_54AE

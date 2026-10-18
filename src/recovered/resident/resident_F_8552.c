@@ -16,8 +16,8 @@ extern long G_h01_B39E;
 extern int F_h00_8640();
 extern int F_h00_8980();
 extern int F_h00_8788();
-extern int F_h00_8974();
-extern int F_h00_8A12();
+extern int forbid();
+extern int ReplyMsg();
 recovered(code)
 {
 	long ret = code;
@@ -61,8 +61,8 @@ recovered(code)
 		}
 	}
 	else {
-		F_h00_8974();
-		F_h00_8A12(G_h01_B3B0);
+		forbid();
+		ReplyMsg(G_h01_B3B0);
 	}
 	{
 #asm

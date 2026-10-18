@@ -5,7 +5,7 @@ struct BoardCell {
 
 extern int F_h00_34E0();
 extern int G_h01_7746;
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern unsigned int G_h01_799E;
 extern unsigned int G_h01_79A8;
 extern unsigned int G_h01_79A0;
@@ -19,7 +19,7 @@ struct BoardCell *p;
 
     shift=3;
     F_h00_34E0(&G_h01_7746);
-    if (G_h01_46E0) {
+    if (difficulty_level) {
         x=((56-(G_h01_799E&248))>>3)+(G_h01_799E&7);
         y=(G_h01_799E>>3)+(G_h01_799E&7);
         if ((((unsigned short *)(p-1))[0]&64)==64 &&
@@ -34,7 +34,7 @@ struct BoardCell *p;
         else
             *G_h01_5370=3;
         F_h10_1FDE(x*4+115,y*4+139,p+G_h01_799E,1);
-        F_h00_8A46(G_h01_46D2,(long)G_h01_7746,(long)G_h01_7748,
+        BltBitMap(G_h01_46D2,(long)G_h01_7746,(long)G_h01_7748,
             &G_h01_774E,0L,0L,(long)(G_h01_774A<<shift),(long)G_h01_774C,
             192L,255L,0L);
     }
@@ -42,7 +42,7 @@ struct BoardCell *p;
     y=(G_h01_799E>>3)+(G_h01_799E&7);
     *G_h01_5370=22;
     F_h10_1FDE(x*4+115,y*4+139,p+G_h01_799E,1);
-    if (G_h01_46E0!=2) {
+    if (difficulty_level!=2) {
         x=((56-(G_h01_79A8&248))>>3)+(G_h01_79A8&7);
         y=(G_h01_79A8>>3)+(G_h01_79A8&7);
         *G_h01_5370=14;

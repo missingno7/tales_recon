@@ -109,6 +109,19 @@ def test_names_inside_wider_scalars_move_to_the_host_position_of_their_bits():
     assert port_gen.interior_aliases(widths) == {'G_h01_A9C3': 0xA9C2, 'G_h01_A7D8': 0xA7D6}
 
 
+def test_port_output_spells_readable_names_in_code_and_asm_strings(tmp_path, monkeypatch):
+    import sys
+    sys.path.insert(0, str(SOURCE.parent))
+    import names
+    forward = {'G_h01_0010': 'tick', '_G_h01_0010': '_tick'}
+    monkeypatch.setattr(names, '_maps', lambda root=None: (forward, {v: k for k, v in forward.items()}))
+    (tmp_path / 'a.c').write_text('extern long G_h01_0010;\n__asm__(".globl _G_h01_0010\\n.set _G_h01_0010, x\\n");\n'
+                                  'long G_h01_00100;\n')
+    assert port_gen.readable_names(tmp_path) == 1
+    out = (tmp_path / 'a.c').read_text()
+    assert 'extern long tick;' in out and '.globl _tick\\n.set _tick, x' in out and 'G_h01_00100' in out
+
+
 def test_le_readers_and_hardware_units_have_port_versions():
     overrides = Path(__file__).resolve().parents[1] / 'port' / 'override'
     for name in ('resident_F_2D66', 'resident_F_2DBA', 'resident_F_4376', 'resident_F_4676', 'resident_F_33E6'):

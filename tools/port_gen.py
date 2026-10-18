@@ -474,8 +474,29 @@ def generate(source, output, override_dir=None):
         (output / name).write_text(target_text, encoding='latin-1', newline='\n')
         report['units'] += 1
     (output / 'materialization.s').write_text(translate_materialization(guest), encoding='latin-1', newline='\n')
+    report['readable_names'] = readable_names(output)
     (output / 'port-gen-report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
     return report
+
+
+def readable_names(output):
+    """The port reads like src/: every generated file spells the game's functions and globals
+    with their recovery/names.json names (tools/names.py). Word level, string literals
+    included - the `.set` aliases of data_hunk.c and asm_tables.c live in asm strings, and no
+    game text contains a mechanical name. Runs last: the generation above needs mechanical
+    names. Returns the number of files changed."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import names
+    forward = names._maps()[0]
+    changed = 0
+    for path in sorted(output.glob('*.c')) + sorted(output.glob('*.s')):
+        text = path.read_text(encoding='latin-1')
+        new = names.WORDS.sub(lambda m: forward.get(m[0], m[0]), text)
+        if new != text:
+            path.write_text(new, encoding='latin-1', newline='\n')
+            changed += 1
+    return changed
 
 
 def main(argv=None):

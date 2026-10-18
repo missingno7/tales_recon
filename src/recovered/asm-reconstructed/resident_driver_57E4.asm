@@ -1,8 +1,8 @@
 	far data
 	dseg
-	public _G_h01_29FA
-	public _G_h01_2A0A
-	public _G_h01_B39A
+	public _audio_channel_0_state_pointer
+	public _audio_pitch_effect_channel_mask
+	public _audio_sequence_pointer_table
 	cseg
 	public _recon_h00_57E4
 	public _recon_h00_5862
@@ -11,14 +11,14 @@ _recon_h00_57E4
 	movem.l d0-d2/a0-a1,-(sp)
 	and.l #$ff,d0
 	lsl.l #$2,d0
-	movea.l _G_h01_B39A,a0
+	movea.l _audio_sequence_pointer_table,a0
 	movea.l 0(a0,d0.l),a0
 	clr.w d0
 	move.b (a0)+,d0
 	move.b (a0)+,d1
 	and.w #$ff,d1
 	lsl.l #$2,d0
-	lea _G_h01_29FA,a1
+	lea _audio_channel_0_state_pointer,a1
 	movea.l 0(a1,d0.w),a1
 	move.b $3b(a1),d2
 	and.w #$ff,d2
@@ -26,7 +26,7 @@ _recon_h00_57E4
 	bcs _recon_h00_5862
 	move.b d1,$3b(a1)
 	lsr.l #$2,d0
-	bclr d0,_G_h01_2A0A
+	bclr d0,_audio_pitch_effect_channel_mask
 	move.l a0,$4(a1)
 	clr.b $24(a1)
 	clr.w $12(a1)

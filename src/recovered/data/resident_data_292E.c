@@ -35,7 +35,7 @@ extern void recon_h00_5DDA();
 extern void recon_h00_5DF6();
 extern void recon_h00_5DFE();
 extern void recon_h00_5E64();
-DP_CodeEntry G_h01_292E[44] = {
+DP_CodeEntry audio_score_command_handlers[44] = {
   recon_h00_5CD6,
   recon_h00_5CDE,
   recon_h00_5D08,

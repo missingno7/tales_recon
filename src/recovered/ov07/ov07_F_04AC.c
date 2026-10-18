@@ -6,8 +6,8 @@ struct PortfolioRow {
 
 extern int F_h00_35DC();
 extern int F_h00_09C0();
-extern int F_h07_0EC0();
-extern struct PortfolioRow G_h01_4D62[16];
+extern int invest_calculate_share_price();
+extern struct PortfolioRow investment_company_table[16];
 
 recovered(start, selected)
 int start;
@@ -30,10 +30,10 @@ int selected;
         if (slot == 15)
             F_h00_35DC(32, y, "RETURN TO OFFICE", 15, color);
         else {
-            value = F_h07_0EC0(slot);
+            value = invest_calculate_share_price(slot);
             F_h00_09C0(248, y, (long)value, 1, color, 1);
-            F_h00_35DC(32, y, G_h01_4D62[slot].name, 1, color);
-            F_h00_09C0(280, y, (long)G_h01_4D62[slot].value, 1, color, 1);
+            F_h00_35DC(32, y, investment_company_table[slot].name, 1, color);
+            F_h00_09C0(280, y, (long)investment_company_table[slot].value, 1, color, 1);
         }
         y += 20;
     }

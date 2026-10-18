@@ -8,12 +8,12 @@ struct Node { long next; long kind; long flag; char pad12[28]; long name; };
 struct Rec { char pad0[8]; char field_8; char field_9; char *field_a; };
 
 extern struct Top *G_h01_A98E;
-extern int F_h00_8970();
-extern int F_h00_89E4();
-extern int F_h00_7A6C();
+extern int Forbid();
+extern int Permit();
+extern int movmem();
 extern int F_h00_2EAC();
 extern long F_h00_2E30();
-extern int F_h00_8736();
+extern int AddTail();
 
 recovered(x)
 long x;
@@ -27,18 +27,18 @@ long x;
 
     mid = G_h01_A98E->mid;
     head = (struct Head *)(mid->head << 2);
-    F_h00_8970();
+    Forbid();
     for (node = (struct Node *)(head->first << 2); ((long)node << 2) != 0L;
          node = (struct Node *)(node->next << 2)) {
         if (node->kind == 2 || node->kind == 1) {
             if (node->flag != 0 && (node->name << 2) != 0L) {
                 name = (char *)(node->name << 2);
-                F_h00_7A6C(name, buf, *name + 1);
+                movmem(name, buf, *name + 1);
                 F_h00_2EAC(buf);
                 if ((rec = (struct Rec *)F_h00_2E30(buf, 0, 0)) != 0)
-                    F_h00_8736(x, rec);
+                    AddTail(x, rec);
             }
         }
     }
-    F_h00_89E4();
+    Permit();
 }

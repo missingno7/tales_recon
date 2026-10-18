@@ -8,18 +8,18 @@ struct Location {
     int d;
 };
 
-extern long G_h01_46DA;
+extern long arc_file;
 extern char G_h01_470A;
-extern int F_h00_0FDE();
-extern long F_h00_86DC();
-extern int F_h00_2816();
+extern int request_disk();
+extern long Open();
+extern int arc_read_index();
 extern long F_h00_291E();
 extern long F_h00_0976();
-extern int F_h00_704E();
-extern int F_h00_7AF0();
+extern int sscanf();
+extern int strcpy();
 extern int F_h00_3C0E();
 extern unsigned int F_h00_463E();
-extern int F_h00_868C();
+extern int Close();
 extern int F_h04_0088();
 extern int F_h04_00C4();
 extern int F_h04_00E6();
@@ -41,21 +41,21 @@ recovered()
     picked = 0;
     for (count = 1; count < 35; ++count)
         choices[count] = 36;
-    saved = G_h01_46DA;
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:loc.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    saved = arc_file;
+    request_disk(1);
+    arc_file = Open("DT1:loc.arc", 1005L);
+    arc_read_index(arc_file);
     page = 0;
     page = F_h00_291E(0, page);
     choices[0] = 0;
     location = (struct Location *)&G_h01_470A;
     state = *(long *)((char *)page + 2);
     state = F_h00_0976(state, text);
-    F_h00_704E(text, "%d %d %d %d", &location->a, &location->b,
+    sscanf(text, "%d %d %d %d", &location->a, &location->b,
         &location->c, &location->d);
     location->selected = 0;
     state = F_h00_0976(state, text);
-    F_h00_7AF0(location, text);
+    strcpy(location, text);
     F_h00_3C0E(page);
     row = F_h00_463E();
     row = (unsigned)row % 30;
@@ -70,15 +70,15 @@ recovered()
         page = F_h00_291E(row, page);
         state = *(long *)((char *)page + 2);
         state = F_h00_0976(state, text);
-        F_h00_704E(text, "%d %d %d %d", &location->a, &location->b,
+        sscanf(text, "%d %d %d %d", &location->a, &location->b,
             &location->c, &location->d);
         state = F_h00_0976(state, text);
-        F_h00_7AF0(location, text);
+        strcpy(location, text);
         location->selected = row;
         F_h00_3C0E(page);
         row = F_h04_00C4(row, picked);
     }
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = saved;
-    F_h00_2816(G_h01_46DA);
+    Close(arc_file);
+    arc_file = saved;
+    arc_read_index(arc_file);
 }

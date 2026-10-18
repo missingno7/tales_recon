@@ -3,8 +3,8 @@
 _resident_asm_559E
 	movem.l d7/a0-a1,-(sp)
 	move.w #7,d7
-	lea _G_h01_2B89,a0
-	lea _G_h01_2B8A,a1
+	lea _audio_noise_random_state_byte,a0
+	lea _audio_noise_random_state_word,a1
 _rng_bit
 	move.b 1(a1),d0
 	roxl.b #4,d0
@@ -21,5 +21,5 @@ _rng_bit
 	rts
 _resident_asm_55D6
 	dseg
-	public _G_h01_2B89,_G_h01_2B8A
+	public _audio_noise_random_state_byte,_audio_noise_random_state_word
 	end

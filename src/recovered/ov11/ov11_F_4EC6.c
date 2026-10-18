@@ -32,7 +32,7 @@ extern int G_h01_371C;
 extern int G_h01_371E;
 extern int G_h01_3720;
 extern int G_h01_3722;
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern int F_h11_54F8();
 extern int F_h11_41F6();
 
@@ -67,7 +67,7 @@ recovered()
         F_h11_54F8(i,5);
         F_h11_41F6(11,record,14,record->x,record->y);
     }
-    switch (G_h01_46E0) {
+    switch (difficulty_level) {
     case 0:
         G_h01_371C=80;
         G_h01_371E=75;

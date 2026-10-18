@@ -1,6 +1,6 @@
 	far data
 	dseg
-	public _G_h01_2B4A
+	public _interrupt_data_base
 	cseg
 	public _recon_h00_5064
 	public _recon_h00_5796
@@ -8,7 +8,7 @@
 	public _recon_h00_57B6
 	public _end_world
 _recon_h00_5796
-	movea.l _G_h01_2B4A,a4
+	movea.l _interrupt_data_base,a4
 	rts
 _recon_h00_579E
 	movem.l d1-d7/a0-a6,-(sp)
@@ -20,7 +20,7 @@ _recon_h00_579E
 	clr.l d0
 	rts
 _recon_h00_57B6
-	lea _G_h01_2B4A,a0
+	lea _interrupt_data_base,a0
 	move.l a4,(a0)
 	rts
 _end_world

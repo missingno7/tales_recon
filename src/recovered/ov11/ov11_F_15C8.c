@@ -8,7 +8,7 @@ extern int G_h01_7A94;
 extern struct Header *G_h01_7A96;
 extern char G_h01_7A9A[1];
 extern int G_h01_8A3A; extern int G_h01_8A3C; extern int G_h01_8A3E; extern int G_h01_8A40; extern int G_h01_8A42;
-extern long G_h01_46CE; extern long G_h01_46DA; extern long G_h01_9FA6;
+extern long G_h01_46CE; extern long arc_file; extern long G_h01_9FA6;
 extern long G_h01_9F4E; extern long G_h01_9F52; extern long G_h01_9F56;
 extern long G_h01_9F5E; extern long G_h01_9F62; extern long G_h01_9F6A; extern long G_h01_9F82; extern long G_h01_9F7E;
 extern long G_h01_9F6E; extern long G_h01_9F66; extern long G_h01_9F76; extern long G_h01_9F8A; extern long G_h01_9F9E;
@@ -21,8 +21,8 @@ extern struct Descriptor G_h01_98BC[9]; extern struct Descriptor G_h01_99DC[2]; 
 extern struct Descriptor G_h01_9A1C[5]; extern struct Descriptor G_h01_9A6C[5]; extern struct Descriptor G_h01_9ABC[3];
 extern struct Descriptor G_h01_9AEC[1]; extern struct Descriptor G_h01_9AFC[5]; extern struct Descriptor G_h01_9B4C[7];
 extern struct Descriptor G_h01_9BBC[7]; extern struct Descriptor G_h01_9C2C[6];
-extern long F_h00_0FDE(); extern long F_h00_86DC(); extern int F_h00_2816(); extern long F_h00_291E();
-extern int F_h00_3674(); extern int F_h00_3C0E(); extern int F_h00_3BD2();
+extern long request_disk(); extern long Open(); extern int arc_read_index(); extern long F_h00_291E();
+extern int report_loader_error(); extern int F_h00_3C0E(); extern int F_h00_3BD2();
 extern int F_h11_20F2(); extern int F_h11_6080(); extern int F_h11_506A(); extern int F_h11_67B0();
 extern int F_h11_6A44(); extern int F_h11_2C96(); extern int F_h11_7194(); extern int F_h11_3926(); extern int F_h11_49EA();
 
@@ -37,10 +37,10 @@ int arg;
     G_h01_8A3C = 3;
     G_h01_12FE = 0;
     if (arg) {
-        G_h01_9FA6 = G_h01_46DA;
-        F_h00_0FDE(2);
-        G_h01_46DA = F_h00_86DC("DT2:jg.arc", 1005L);
-        F_h00_2816(G_h01_46DA);
+        G_h01_9FA6 = arc_file;
+        request_disk(2);
+        arc_file = Open("DT2:jg.arc", 1005L);
+        arc_read_index(arc_file);
         if (G_h01_7A94 == 0)
             G_h01_7A96 = (struct Header *)F_h00_291E(1, 0L);
         else if (G_h01_7A94 == 1)
@@ -49,7 +49,7 @@ int arg;
             G_h01_7A96 = (struct Header *)F_h00_291E(3, 0L);
         G_h01_8A3A = G_h01_7A96->count;
         if (G_h01_8A3A > 4000)
-            F_h00_3674(0x8A4);
+            report_loader_error(0x8A4);
         for (i = 0; i < G_h01_8A3A; i++)
             G_h01_7A9A[i] = G_h01_7A96->data[i];
         F_h00_3C0E(G_h01_7A96);

@@ -1,1 +1,1 @@
-unsigned short G_h01_2B8E[4] = {4095, 3803, 4095, 3803};
+unsigned short palette_cycle_values_1[4] = {4095, 3803, 4095, 3803};

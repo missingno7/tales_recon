@@ -1,7 +1,7 @@
-extern long F_h00_8708();
-extern long F_h00_2DBA();
-extern long F_h00_2D66();
-extern long G_h01_A7EE[104];
+extern long Seek();
+extern long read_le32();
+extern long read_le16();
+extern long arc_offsets[104];
 extern long G_h01_A7D6;
 extern int G_h01_A7DA;
 extern int G_h01_A7DC;
@@ -15,15 +15,15 @@ int index;
 long fh;
 {
     long offset;
-    offset = G_h01_A7EE[index];
-    F_h00_8708(fh, offset, -1L);
-    F_h00_2DBA(fh, &G_h01_A7D6);
-    F_h00_2D66(fh, &G_h01_A7DA);
-    F_h00_2D66(fh, &G_h01_A7DC);
-    F_h00_2D66(fh, &G_h01_A7DE);
-    F_h00_2D66(fh, &G_h01_A7E0);
-    F_h00_2D66(fh, &G_h01_A7E2);
-    F_h00_2D66(fh, &G_h01_A7E4);
+    offset = arc_offsets[index];
+    Seek(fh, offset, -1L);
+    read_le32(fh, &G_h01_A7D6);
+    read_le16(fh, &G_h01_A7DA);
+    read_le16(fh, &G_h01_A7DC);
+    read_le16(fh, &G_h01_A7DE);
+    read_le16(fh, &G_h01_A7E0);
+    read_le16(fh, &G_h01_A7E2);
+    read_le16(fh, &G_h01_A7E4);
     return 0;
 }
 

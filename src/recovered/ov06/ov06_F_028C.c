@@ -1,7 +1,7 @@
 /* Decimal counter animation; names describe observed behavior only. */
 extern int F_h00_35DC();
 extern int F_h00_307C();
-extern int F_h00_86A8();
+extern int Delay();
 
 recovered(x1, x2, value1, value2, style, color)
 int x1;
@@ -37,7 +37,7 @@ char color;
         F_h00_35DC(x1,191,&digits1[count1],style,color);
         F_h00_35DC(x2,179,&digits2[count2],style,color);
         F_h00_307C();
-        F_h00_86A8(10L);
+        Delay(10L);
         value1 = value1 / 10L;
         value2 = value2 / 10L;
     } while (value1 > 0L || value2 > 0L);

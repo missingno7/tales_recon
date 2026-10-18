@@ -1,8 +1,8 @@
-extern int G_h01_B28C;
-extern int G_h01_B28E;
-extern char G_h01_B1EB;
-extern char G_h01_B291[1];
-extern char G_h01_1EA4[1];
+extern int input_key_ring;
+extern int input_key_ring_read_index;
+extern char keyboard_fire_key_held;
+extern char input_key_ring_bytes[1];
+extern char raw_key_code_translation_table[1];
 
 long recovered()
 {
@@ -11,17 +11,17 @@ long recovered()
     long p;
 
     p = 0xbfe0fe;
-    if (G_h01_B28E == G_h01_B28C)
+    if (input_key_ring_read_index == input_key_ring)
         return 0;
-    while (G_h01_B28E != G_h01_B28C) {
-        c = G_h01_B291[G_h01_B28E++];
+    while (input_key_ring_read_index != input_key_ring) {
+        c = input_key_ring_bytes[input_key_ring_read_index++];
         if (c == 'D' || c == '@' || c == 'C')
-            G_h01_B1EB = 1;
+            keyboard_fire_key_held = 1;
         else if (c == (char)0xC4 || c == (char)0xC0 || c == (char)0xC3)
-            G_h01_B1EB = 0;
-        G_h01_B28E &= 0x7f;
+            keyboard_fire_key_held = 0;
+        input_key_ring_read_index &= 0x7f;
     }
     c &= 0xff;
-    c = (c < 0x70 && c > 0) ? G_h01_1EA4[c] : -1;
+    c = (c < 0x70 && c > 0) ? raw_key_code_translation_table[c] : -1;
     return c;
 }

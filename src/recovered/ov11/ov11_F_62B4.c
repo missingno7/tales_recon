@@ -20,7 +20,7 @@ extern int G_h01_37EC;
 extern int G_h01_37EE;
 extern int G_h01_37F0;
 extern int G_h01_37F2;
-extern char G_h01_46E0[3];
+extern char difficulty_level[3];
 extern struct ClusterRecord G_h01_8BEC[1];
 extern short G_h01_940C[1];
 extern int F_h11_5962();
@@ -36,7 +36,7 @@ int mode;
     int i, selected, result;
 
     G_h01_37F2 = 1;
-    switch (G_h01_46E0[0]) {
+    switch (difficulty_level[0]) {
     case 0:
         selected = 35;
         break;

@@ -17,19 +17,19 @@ struct Pair {
 
 extern long G_h01_2A16;
 extern char G_h01_14E6;
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
 extern char *G_h01_46D6;
-extern long G_h01_46DA;
-extern long G_h01_4700;
-extern char G_h01_46E1;
-extern char G_h01_46E3;
-extern char G_h01_46E4;
-extern long G_h01_46E6;
+extern long arc_file;
+extern long main_arc_file_handle;
+extern char game_day;
+extern char current_location;
+extern char matter_transmitter_unlocked;
+extern long total_money;
 extern char G_h01_4705;
 extern char *G_h01_5370;
-extern struct PointRef G_h01_4524[36];
+extern struct PointRef map_location_table[36];
 extern struct Pair G_h01_A768;
 extern int G_h01_0666;
 extern int G_h01_4442;
@@ -66,31 +66,31 @@ extern int G_h01_44EC;
 extern int G_h01_44EE;
 extern int G_h01_44F4;
 
-extern int F_h00_435E();
-extern int F_h00_57D2();
-extern int F_h00_8BC8();
+extern int clear_input_direction_and_fire_state();
+extern int play_sound();
+extern int SetRast();
 extern int F_h00_4EC6();
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_4D04();
-extern int F_h00_2816();
+extern int arc_read_index();
 extern long F_h00_291E();
-extern int F_h00_8A46();
+extern int BltBitMap();
 extern int F_h00_35DC();
 extern int F_h00_34E0();
 extern int F_h00_09C0();
-extern int F_h13_0942();
-extern int F_h00_7522();
+extern int security_decode_challenge();
+extern int FreeSeg();
 extern int F_h00_330E();
 extern int F_h04_1D32();
-extern int F_h04_27FE();
-extern int F_h00_86A8();
+extern int shutdown_av();
+extern int Delay();
 extern int F_h00_307C();
 extern int F_h00_31AA();
-extern int F_h15_1428();
-extern int F_h15_0C12();
+extern int map_move_cursor_from_input();
+extern int map_show_location_details();
 extern int F_h15_08B0();
 extern long F_h00_08FC();
-extern int F_h00_8044();
+extern int strlen();
 extern int F_h00_3AE4();
 extern int F_h00_3B84();
 
@@ -106,17 +106,17 @@ char *flag;
 
     h = 0;
     ent = 0;
-    F_h00_435E();
-    F_h00_57D2(0x21);
+    clear_input_direction_and_fire_state();
+    play_sound(0x21);
     while (G_h01_2A16 != 0)
         ;
-    F_h00_57D2(0);
-    F_h00_8BC8(G_h01_46CA, 0L);
+    play_sound(0);
+    SetRast(screen_rast_port, 0L);
     F_h00_4EC6();
-    F_h00_0FDE(1);
+    request_disk(1);
     F_h00_4D04(1);
-    F_h00_0FDE(1);
-    F_h00_2816(G_h01_46DA);
+    request_disk(1);
+    arc_read_index(arc_file);
     if (p1 == 1)
         F_h00_291E(0x14, G_h01_46CE);
     else
@@ -138,52 +138,52 @@ char *flag;
     G_h01_440C = 0xf8;
     G_h01_440E = 0xae;
     F_h00_291E(0x1c, &G_h01_A768);
-    if (G_h01_46E4 && p1) {
+    if (matter_transmitter_unlocked && p1) {
         F_h00_291E(0x1d, &G_h01_44E4);
         G_h01_44E4 = 0x119;
         G_h01_44E6 = 0xaa;
     }
-    if (G_h01_46E3 == 0x23) {
+    if (current_location == 0x23) {
         x = 0x2e;
         xs = 0x2e;
         y = 0x8b;
         ys = 0x8b;
     } else {
-        x = G_h01_4524[G_h01_46E3].point->x;
+        x = map_location_table[current_location].point->x;
         xs = x;
-        y = G_h01_4524[G_h01_46E3].point->y;
+        y = map_location_table[current_location].point->y;
         ys = y;
     }
     if (*flag) {
         *flag = 0;
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
         F_h00_35DC(0x64, 6, "Security System", 1, 0xf);
         F_h00_34E0(&G_h01_4478);
         F_h00_34E0(&G_h01_44AE);
-        F_h00_09C0(0xb0, 0xaf, G_h01_46E6, 1, 9, 1);
-        if (G_h01_46E1 < 10)
-            F_h00_09C0(0x12, 0xb6, (long)G_h01_46E1, 7, 1, 0);
+        F_h00_09C0(0xb0, 0xaf, total_money, 1, 9, 1);
+        if (game_day < 10)
+            F_h00_09C0(0x12, 0xb6, (long)game_day, 7, 1, 0);
         else
-            F_h00_09C0(0xe, 0xb6, (long)G_h01_46E1, 7, 1, 0);
-        if (F_h13_0942() == 0) {
-            F_h00_7522(F_h13_0942);
+            F_h00_09C0(0xe, 0xb6, (long)game_day, 7, 1, 0);
+        if (security_decode_challenge() == 0) {
+            FreeSeg(security_decode_challenge);
             F_h00_330E();
-            G_h01_46DA = G_h01_4700;
-            F_h00_2816(G_h01_46DA);
+            arc_file = main_arc_file_handle;
+            arc_read_index(arc_file);
             F_h04_1D32();
-            F_h04_27FE("Beagle-Boy");
+            shutdown_av("Beagle-Boy");
         }
         F_h00_291E(0x14, G_h01_46CE);
-        F_h00_57D2(0x21);
+        play_sound(0x21);
         while (G_h01_2A16 != 0)
             ;
         F_h00_330E();
     }
-    F_h00_57D2(0);
-    F_h00_86A8(5L);
-    F_h00_57D2(0x1f);
-    F_h00_8A46(h, 0L, 0L, G_h01_46D2, 0x18L, 0x14L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
-    ent = G_h01_4524;
+    play_sound(0);
+    Delay(5L);
+    play_sound(0x1f);
+    BltBitMap(h, 0L, 0L, G_h01_46D2, 0x18L, 0x14L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
+    ent = map_location_table;
     for (i = 0; i < 35 && ent->point != 0; i++, ent++) {
         if (ent->reserved[6] != 0)
             *G_h01_5370 = 0xe;
@@ -193,25 +193,25 @@ char *flag;
             *G_h01_5370 = 0xc;
         F_h15_08B0(ent->point->x, ent->point->y);
     }
-    F_h00_8A46(G_h01_46D2, 0x18L, 0x14L, h, 0L, 0L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
-    F_h00_8A46(h, 0L, 0L, G_h01_46D2, 0x18L, 0x14L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
+    BltBitMap(G_h01_46D2, 0x18L, 0x14L, h, 0L, 0L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
+    BltBitMap(h, 0L, 0L, G_h01_46D2, 0x18L, 0x14L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
     F_h00_34E0(&G_h01_4478);
     F_h00_34E0(&G_h01_44AE);
     F_h00_34E0(&G_h01_4442);
-    F_h00_86A8(0x19L);
-    F_h00_435E();
+    Delay(0x19L);
+    clear_input_direction_and_fire_state();
     F_h00_330E();
     F_h00_307C();
     G_h01_46D6 = &G_h01_14E6;
     F_h00_31AA(&G_h01_14E6);
     for (;;) {
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
-        F_h00_8A46(h, 0L, 0L, G_h01_46D2, 0x18L, 0x14L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
+        BltBitMap(h, 0L, 0L, G_h01_46D2, 0x18L, 0x14L, 0x110L, 0x8cL, 0xc0L, 0xffL, 0L);
         F_h00_34E0(&G_h01_4478);
         F_h00_34E0(&G_h01_44AE);
         F_h00_34E0(&G_h01_4442);
-        if ((r = F_h15_1428(&x, &y)) != 0) {
+        if ((r = map_move_cursor_from_input(&x, &y)) != 0) {
             if (r == 0x25)
                 break;
             if (x >= G_h01_4442 && x <= G_h01_4442 + 0x30 && y >= G_h01_4444 && y <= G_h01_4444 + 0x30) {
@@ -220,7 +220,7 @@ char *flag;
             }
             if (x >= 0x18 && x <= 0x125 && y >= 0x14 && y <= 0x9f) {
                 if (p1 == 1)
-                    r = F_h15_0C12(G_h01_0666);
+                    r = map_show_location_details(G_h01_0666);
                 else
                     r = 1;
                 if (r == 1) {
@@ -230,8 +230,8 @@ char *flag;
                 if (r == 0x24) {
                     x = xs;
                     y = ys;
-                    F_h00_86A8(10L);
-                    F_h00_435E();
+                    Delay(10L);
+                    clear_input_direction_and_fire_state();
                 }
             }
         }
@@ -239,7 +239,7 @@ char *flag;
             F_h00_35DC(0x88, 6, "OFFICE", 1, 0xf);
         } else if (x >= 0x18 && x <= 0x125 && y >= 0x14 && y <= 0x9f) {
             G_h01_0666 = 0;
-            ent = G_h01_4524;
+            ent = map_location_table;
             t1 = F_h00_08FC(x, ent->point->x, y, ent->point->y);
             for (i = 0; i < 35 && ent->point != 0; i++, ent++) {
                 t2 = F_h00_08FC(x, ent->point->x, y, ent->point->y);
@@ -248,8 +248,8 @@ char *flag;
                     t1 = t2;
                 }
             }
-            ent = &G_h01_4524[G_h01_0666];
-            k = F_h00_8044(ent->point);
+            ent = &map_location_table[G_h01_0666];
+            k = strlen(ent->point);
             k = k << 2;
             if (G_h01_4705 == G_h01_0666)
                 F_h00_35DC(0xa0 - k, 6, ent->point, 7, 0xf);
@@ -258,13 +258,13 @@ char *flag;
             *G_h01_5370 = 8;
             F_h15_08B0(ent->point->x, ent->point->y);
         }
-        F_h00_09C0(0xb0, 0xaf, G_h01_46E6, 1, 9, 1);
-        if (G_h01_46E1 < 10)
-            F_h00_09C0(0x12, 0xb6, (long)G_h01_46E1, 7, 1, 0);
+        F_h00_09C0(0xb0, 0xaf, total_money, 1, 9, 1);
+        if (game_day < 10)
+            F_h00_09C0(0x12, 0xb6, (long)game_day, 7, 1, 0);
         else
-            F_h00_09C0(0xe, 0xb6, (long)G_h01_46E1, 7, 1, 0);
+            F_h00_09C0(0xe, 0xb6, (long)game_day, 7, 1, 0);
         F_h00_307C();
-        F_h00_86A8(2L);
+        Delay(2L);
     }
     F_h00_3AE4(&G_h01_4488, G_h01_4480, G_h01_4482);
     F_h00_3AE4(&G_h01_44BE, G_h01_44B6, G_h01_44B8);
@@ -272,7 +272,7 @@ char *flag;
     F_h00_3AE4(&G_h01_43E6, G_h01_43DE, G_h01_43E0);
     F_h00_3AE4(&G_h01_441C, G_h01_4414, G_h01_4416);
     F_h00_3AE4(&G_h01_A778, G_h01_A770, G_h01_A772);
-    if (G_h01_46E4 && p1)
+    if (matter_transmitter_unlocked && p1)
         F_h00_3AE4(&G_h01_44F4, G_h01_44EC, G_h01_44EE);
     F_h00_3B84(h);
     F_h00_330E();

@@ -17,14 +17,14 @@ extern int G_h01_5414;
 extern long G_h01_5416;
 extern char *G_h01_541A;
 extern long G_h01_541E;
-extern long G_h01_5374;
-extern long G_h01_5378;
+extern long graphics_library_base;
+extern long intuition_library_base;
 
 extern int F_h00_897C();
 extern int F_h00_3850();
-extern int F_h00_8C7E();
-extern int F_h00_8C48();
-extern int F_h00_8784();
+extern int OpenWorkBench();
+extern int AutoRequest();
+extern int CloseLibrary();
 extern int F_h00_8534();
 
 recovered(arg)
@@ -36,7 +36,7 @@ long arg;
         F_h00_897C(G_h01_5426, 0x3e80L);
     F_h00_3850(0x40f10L);
     if (G_h01_53F8)
-        F_h00_8C7E();
+        OpenWorkBench();
     G_h01_53FA = 0;
     G_h01_53FB = 1;
     G_h01_53FC = 1;
@@ -53,8 +53,8 @@ long arg;
     G_h01_5416 = 0;
     G_h01_541A = "OK";
     G_h01_541E = 0;
-    F_h00_8C48(0L, &G_h01_53FA, 0L, &G_h01_540E, 0L, 0L, 0x280L, 0x28L);
-    F_h00_8784(G_h01_5374);
-    F_h00_8784(G_h01_5378);
+    AutoRequest(0L, &G_h01_53FA, 0L, &G_h01_540E, 0L, 0L, 0x280L, 0x28L);
+    CloseLibrary(graphics_library_base);
+    CloseLibrary(intuition_library_base);
     F_h00_8534(0);
 }

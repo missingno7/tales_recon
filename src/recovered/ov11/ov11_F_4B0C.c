@@ -17,7 +17,7 @@ extern struct Descriptor G_h01_9A1C[1]; extern struct Descriptor G_h01_9A6C[1];
 extern struct Descriptor G_h01_9ABC[1]; extern struct Descriptor G_h01_9AEC[1];
 extern struct Descriptor G_h01_9AFC[1]; extern struct Descriptor G_h01_9B4C[1];
 extern struct Descriptor G_h01_9BBC[1]; extern struct Object *G_h01_9F52; extern struct Object *G_h01_9F4E;
-extern int F_h00_57D2(); extern int F_h11_6ED6();
+extern int play_sound(); extern int F_h11_6ED6();
 
 recovered(mode)
 int mode;
@@ -31,9 +31,9 @@ int mode;
     switch (mode) {
     case 20: G_h01_94E0 = 7; G_h01_94E8 = G_h01_9B4C; break;
     case 21: G_h01_94E0 = 7; G_h01_94E8 = G_h01_9BBC; break;
-    case 6: F_h00_57D2(0x58); G_h01_94C0 = 0x8e; G_h01_94E0 = 5; G_h01_94E8 = G_h01_9AFC; break;
+    case 6: play_sound(0x58); G_h01_94C0 = 0x8e; G_h01_94E0 = 5; G_h01_94E8 = G_h01_9AFC; break;
     case 19: G_h01_94E0 = 3; G_h01_94E8 = G_h01_9ABC; break;
-    case 18: G_h01_94E0 = 5; G_h01_94E8 = (G_h01_94B0 == 0) ? G_h01_9A1C : G_h01_9A6C; F_h00_57D2(0x64); break;
+    case 18: G_h01_94E0 = 5; G_h01_94E8 = (G_h01_94B0 == 0) ? G_h01_9A1C : G_h01_9A6C; play_sound(0x64); break;
     case 17: G_h01_94E0 = 2; G_h01_94E8 = G_h01_99DC; break;
     case 16: G_h01_94E0 = 2; G_h01_94E8 = G_h01_99FC; break;
     case 14: G_h01_94E0 = 1; G_h01_94E8 = G_h01_9AEC; break;
@@ -52,7 +52,7 @@ int mode;
     case 2:
         G_h01_94B6 = 0; G_h01_94B4 = 0; G_h01_94E0 = 0; G_h01_94DA = G_h01_9F52;
         if (G_h01_94B0 == 1) G_h01_94DA->state = 1; else G_h01_94DA->state = 3;
-        F_h00_57D2(0xf); break;
+        play_sound(0xf); break;
     case 8:
         G_h01_94E0 = 1; G_h01_94DA = G_h01_9F4E;
         F_h11_6ED6(G_h01_94D8, &x, &y, &G_h01_94BE, &G_h01_94C0);

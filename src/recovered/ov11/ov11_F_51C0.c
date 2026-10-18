@@ -41,7 +41,7 @@ extern int F_h11_4474();
 extern long F_h11_2562();
 extern int F_h11_41F6();
 extern int F_h00_463E();
-extern int F_h00_57D2();
+extern int play_sound();
 
 recovered(index)
 int index;
@@ -83,7 +83,7 @@ int index;
                         record->mode=19;
                         changed=1;
                         step=1;
-                        F_h00_57D2(99);
+                        play_sound(99);
                     }
                 }
         }

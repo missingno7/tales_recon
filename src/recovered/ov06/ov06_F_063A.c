@@ -6,20 +6,20 @@ struct Rec {
     char rest[46];
 };
 
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_307C();
 extern int F_h00_31AA();
 extern int F_h00_34E0();
 extern int F_h00_35DC();
 extern int F_h00_3AE4();
-extern int F_h00_435E();
-extern int F_h00_4376();
+extern int clear_input_direction_and_fire_state();
+extern int poll_controller_and_keyboard_input();
 extern unsigned int F_h00_463E();
 extern int F_h00_4D04();
 extern int F_h00_4EC6();
-extern int F_h00_57D2();
-extern int F_h00_86A8();
-extern int F_h00_8A46();
+extern int play_sound();
+extern int Delay();
+extern int BltBitMap();
 extern int F_h06_028C();
 extern int F_h06_042A();
 
@@ -140,7 +140,7 @@ recovered()
         l28 = 0;
     i = 0;
     for (; i <= l28; i++) {
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         switch (m16) {
         case 0:
             F_h06_042A(G_h01_321A, G_h01_321E, G_h01_321C, G_h01_3220, &G_h01_2F1E, 1, x14, y12);
@@ -182,11 +182,11 @@ recovered()
             if (m16 > l24) {
                 m16 = l24 - 1;
                 st = -1;
-                F_h00_57D2(67);
+                play_sound(67);
             } else if (m16 < l26) {
                 m16 = l26 + 1;
                 st = 1;
-                F_h00_57D2(68);
+                play_sound(68);
             }
         } else if (i == l28 && o20) {
             i = l28 - 1;
@@ -225,9 +225,9 @@ recovered()
             i++;
         } while (i < 7);
     }
-    F_h00_8A46(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+    BltBitMap(G_h01_46D2, 0L, 0L, G_h01_46CE, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
     F_h00_307C();
-    F_h00_435E();
+    clear_input_direction_and_fire_state();
     F_h00_3AE4(&G_h01_2F2E, G_h01_2F26, G_h01_2F28);
     F_h00_3AE4(&G_h01_2F64, G_h01_2F5C, G_h01_2F5E);
     F_h00_3AE4(&G_h01_2F9A, G_h01_2F92, G_h01_2F94);
@@ -237,7 +237,7 @@ recovered()
     F_h00_3AE4(&G_h01_3072, G_h01_306A, G_h01_306C);
     F_h00_3AE4(&G_h01_30A8, G_h01_30A0, G_h01_30A2);
     F_h00_4EC6();
-    F_h00_0FDE(2);
+    request_disk(2);
     i = F_h00_463E() % 5;
     if (G_h01_46EE > G_h01_46F2) {
         switch (i) {
@@ -276,14 +276,14 @@ recovered()
             break;
         }
     }
-    F_h00_57D2(119);
-    F_h00_86A8(300L);
+    play_sound(119);
+    Delay(300L);
     F_h00_4EC6();
     p4 = &G_h01_30CE[x14];
     p8 = &G_h01_30CE[y12];
     for (;;) {
-        if (F_h00_4376() & 0x80) {
-            F_h00_57D2(36);
+        if (poll_controller_and_keyboard_input() & 0x80) {
+            play_sound(36);
             break;
         }
         if (ce > 4) {
@@ -292,9 +292,9 @@ recovered()
         }
         if (F_h00_463E() % 100 > 50 || ce != 0) {
             if (ce == 0) {
-                F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
                 F_h00_307C();
-                F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+                BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
                 F_h00_307C();
                 if ((F_h00_463E() & 1) && x14 >= 0) {
                     kd = 1;
@@ -334,7 +334,7 @@ recovered()
                 G_h01_3210 = ce++;
                 if (G_h01_31DC < 0)
                     G_h01_31DC = 0;
-                F_h00_8A46(G_h01_46CE, (long)(unsigned int)(G_h01_31DC & 0xfff8), (long)G_h01_31DE, G_h01_46D2,
+                BltBitMap(G_h01_46CE, (long)(unsigned int)(G_h01_31DC & 0xfff8), (long)G_h01_31DE, G_h01_46D2,
                            (long)(unsigned int)(G_h01_31DC & 0xfff8), (long)G_h01_31DE, 0x20L, 0x12L, 0xc0L, 0xffL, 0L);
                 F_h00_34E0(&G_h01_31DC);
             } else if (kd == 2 && y12 >= 0) {
@@ -343,17 +343,17 @@ recovered()
                 G_h01_3210 = ce++;
                 if (G_h01_31DC < 0)
                     G_h01_31DC = 0;
-                F_h00_8A46(G_h01_46CE, (long)(unsigned int)(G_h01_31DC & 0xfff8), (long)G_h01_31DE, G_h01_46D2,
+                BltBitMap(G_h01_46CE, (long)(unsigned int)(G_h01_31DC & 0xfff8), (long)G_h01_31DE, G_h01_46D2,
                            (long)(unsigned int)(G_h01_31DC & 0xfff8), (long)G_h01_31DE, 0x20L, 0x12L, 0xc0L, 0xffL, 0L);
                 F_h00_34E0(&G_h01_31DC);
             }
             F_h00_307C();
-            F_h00_86A8(5L);
+            Delay(5L);
         } else {
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             F_h00_307C();
-            F_h00_86A8(50L);
+            Delay(50L);
         }
     }
-    F_h00_435E();
+    clear_input_direction_and_fire_state();
 }

@@ -11,7 +11,7 @@ struct BlitSrc {
 	long field_8[1];
 };
 
-extern int F_h00_8A8A();
+extern int BltClear();
 
 recovered(p, n)
 struct BlitSrc *p;
@@ -26,7 +26,7 @@ long n;
 	*(unsigned short *)0xdff096 = 0x8600;
 	while (*(unsigned char *)0xdff002 & 0x40)
 		;
-	F_h00_8A8A(n, (long)(b * a), 1L);
+	BltClear(n, (long)(b * a), 1L);
 	size = (b << 6) | (a >> 1);
 	*(unsigned short *)0xdff040 = 0xdfc;
 	*(unsigned short *)0xdff042 = 0;

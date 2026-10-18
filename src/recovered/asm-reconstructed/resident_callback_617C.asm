@@ -1,7 +1,7 @@
 	far data
 	dseg
-	public _G_h01_2BC2
-	public _G_h01_2C26
+	public _palette_cycle_callbacks
+	public _palette_cycle_callback_index
 	cseg
 	public _recon_h00_617C
 	public _recon_h00_619E
@@ -11,8 +11,8 @@ _recon_h00_617C
 	movea.l $4(a1),a1
 	movea.l $4(a1),a1
 	addq.l #$6,a1
-	lea.l _G_h01_2BC2,a0
-	move.l _G_h01_2C26,d0
+	lea.l _palette_cycle_callbacks,a0
+	move.l _palette_cycle_callback_index,d0
 	lsl.l #$2,d0
 	movea.l 0(a0,d0.w),a0
 	jsr (a0)

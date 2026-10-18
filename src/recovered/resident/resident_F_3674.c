@@ -1,6 +1,6 @@
 extern int F_h00_701A();
-extern long F_h00_876C();
-extern int F_h04_27FE();
+extern long AvailMem();
+extern int shutdown_av();
 extern int F_h00_8534();
 
 recovered(code)
@@ -20,10 +20,10 @@ int code;
         F_h00_701A("LoadIT() - Unknown block type\n");
         break;
     }
-    r = F_h00_876C(2L);
+    r = AvailMem(2L);
     F_h00_701A("Chip Mem: %ld ($%lx)\n", r, r);
-    r = F_h00_876C(4L);
+    r = AvailMem(4L);
     F_h00_701A("Fast Mem: %ld ($%lx)\n", r, r);
-    F_h04_27FE("System Error");
+    shutdown_av("System Error");
     F_h00_8534();
 }

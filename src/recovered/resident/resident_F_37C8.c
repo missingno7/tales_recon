@@ -1,7 +1,7 @@
 /* Candidate for resident_F_37C8: the baseline with one extra long local declared
    before the int status local, so the status word sits at the lower frame slot.
    Callee and DATA names are mechanical. */
-extern long F_h00_8926();
+extern long AllocMem();
 extern long G_h01_A9B2;
 extern long G_h01_543A;
 extern long G_h01_543E;
@@ -15,7 +15,7 @@ long arg;
     long tmp;
     int result;
 
-    G_h01_A9B2 = F_h00_8926(arg, 0x10002L);
+    G_h01_A9B2 = AllocMem(arg, 0x10002L);
     if (G_h01_A9B2 == 0) {
         result = -1;
     } else {

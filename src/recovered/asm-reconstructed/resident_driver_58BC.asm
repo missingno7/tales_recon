@@ -1,7 +1,7 @@
 	far data
 	dseg
-	public _G_h01_29FA
-	public _G_h01_2A0A
+	public _audio_channel_0_state_pointer
+	public _audio_pitch_effect_channel_mask
 	cseg
 	public _recon_h00_544C
 	public _recon_h00_5A72
@@ -29,7 +29,7 @@ _recon_h00_58C8
 _recon_h00_58CA
 	move.l d7,d0
 	lsl.l #$2,d0
-	lea _G_h01_29FA,a0
+	lea _audio_channel_0_state_pointer,a0
 	movea.l 0(a0,d0.l),a0
 	tst.l $4(a0)
 	beq _recon_h00_58E0
@@ -64,7 +64,7 @@ _recon_h00_5926
 _recon_h00_5936
 	bsr _recon_h00_544C
 	move.l (a0),d2
-	btst d7,_G_h01_2A0A
+	btst d7,_audio_pitch_effect_channel_mask
 	beq _recon_h00_597A
 	tst.b $38(a0)
 	beq _recon_h00_5950

@@ -1,1 +1,1 @@
-unsigned short G_h01_2B86 = 0;
+unsigned short noise_period_offset = 0;

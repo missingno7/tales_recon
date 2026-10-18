@@ -1,7 +1,7 @@
-extern int G_h01_B28E;
-extern int G_h01_B28C;
+extern int input_key_ring_read_index;
+extern int input_key_ring;
 recovered()
 {
- if(G_h01_B28E==G_h01_B28C) return 0;
+ if(input_key_ring_read_index==input_key_ring) return 0;
  return 1;
 }

@@ -12,15 +12,15 @@ extern int G_h01_50E6;
 extern int G_h01_522A;
 extern int G_h01_5296;
 extern int G_h01_5302;
-extern char G_h01_536E;
+extern char input_fire_action_pending;
 
-extern int F_h00_86A8();
-extern int F_h00_8A46();
+extern int Delay();
+extern int BltBitMap();
 extern int F_h00_34E0();
 extern int F_h00_463E();
 extern int F_h00_307C();
-extern int F_h00_4376();
-extern int F_h00_57D2();
+extern int poll_controller_and_keyboard_input();
+extern int play_sound();
 extern int F_h00_35DC();
 
 recovered(first, last, limit)
@@ -40,7 +40,7 @@ int limit;
 	G_h01_511A = 2;
 
 	for (pass = 0; pass < limit; ++pass) {
-		F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
+		BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
 			0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
 		F_h00_34E0(&G_h01_50E6);
 		F_h00_34E0(&G_h01_51BE);
@@ -56,20 +56,20 @@ int limit;
 				*((int *)((char *)G_h01_039A + ((long)row << 3))),
 				*((long *)((char *)G_h01_039C + ((long)row << 3))), 0, 1);
     F_h00_307C();
-		F_h00_4376();
-		if (G_h01_536E) {
-			F_h00_57D2(0);
+		poll_controller_and_keyboard_input();
+		if (input_fire_action_pending) {
+			play_sound(0);
 			return;
 		}
 
-		F_h00_86A8(5L);
-		F_h00_4376();
-		if (G_h01_536E) {
-			F_h00_57D2(0);
+		Delay(5L);
+		poll_controller_and_keyboard_input();
+		if (input_fire_action_pending) {
+			play_sound(0);
 			return;
 		}
 
-		F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
+		BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
 			0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
 		F_h00_34E0(&G_h01_50E6);
 		F_h00_34E0(&G_h01_51BE);
@@ -85,18 +85,18 @@ int limit;
 				*((int *)((char *)G_h01_039A + ((long)row << 3))),
 				*((long *)((char *)G_h01_039C + ((long)row << 3))), 0, 1);
     F_h00_307C();
-		F_h00_4376();
-		if (G_h01_536E) {
-			F_h00_57D2(0);
+		poll_controller_and_keyboard_input();
+		if (input_fire_action_pending) {
+			play_sound(0);
 			return;
 		}
 
-		F_h00_86A8((unsigned long)((((unsigned)F_h00_463E() & 2) + 1) * 5));
-		F_h00_4376();
-		if (G_h01_536E) {
-			F_h00_57D2(0);
+		Delay((unsigned long)((((unsigned)F_h00_463E() & 2) + 1) * 5));
+		poll_controller_and_keyboard_input();
+		if (input_fire_action_pending) {
+			play_sound(0);
 			return;
 		}
 	}
-	F_h00_86A8(15L);
+	Delay(15L);
 }

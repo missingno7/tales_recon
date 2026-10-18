@@ -1,1 +1,1 @@
-int G_h01_1F34 = 0;
+int keyboard_direction_value = 0;

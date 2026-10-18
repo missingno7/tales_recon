@@ -4,7 +4,7 @@ struct Lookup { int index; int pad; };
 struct Record { char pad[4]; int value; char pad2[8]; };
 struct Pos { int x; int y; };
 struct Ent { int x; int y; char rest[50]; };
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern int G_h01_5E42;
 extern int G_h01_5E64[1][2];
 extern struct Lookup G_h01_5E66[16];
@@ -89,22 +89,22 @@ int n;
     k &= 3;
 
     for (i = 2; (unsigned int)i <= (unsigned int)(n - 2) && total < 257; i++) {
-        if (G_h01_46E0 == 0 && i == 2) {
+        if (difficulty_level == 0 && i == 2) {
             F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        5, 0, 6, 2, 2, 4, 0, 0, 5, 5);
-        } else if (G_h01_46E0 == 0 && i == (n >> 1)) {
+        } else if (difficulty_level == 0 && i == (n >> 1)) {
             F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        10, 0, 12, 2, 6, 5, 4, 10, 9, 8);
-        } else if (G_h01_46E0 == 1 && i == 2) {
+        } else if (difficulty_level == 1 && i == 2) {
             F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        20, 0, 12, 2, 6, 10, 8, 40, 25, 15);
-        } else if (G_h01_46E0 == 1 && i == (n >> 1)) {
+        } else if (difficulty_level == 1 && i == (n >> 1)) {
             F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        40, 5, 22, 4, 10, 20, 13, 60, 40, 25);
-        } else if (G_h01_46E0 == 2 && i == 2) {
+        } else if (difficulty_level == 2 && i == 2) {
             F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        60, 10, 28, 6, 15, 35, 25, 80, 55, 35);
-        } else if (G_h01_46E0 == 2 && i == (n >> 1)) {
+        } else if (difficulty_level == 2 && i == (n >> 1)) {
             F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        80, 20, 35, 10, 25, 50, 35, 100, 70, 45);
         }

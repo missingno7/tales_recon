@@ -16,7 +16,7 @@ extern int G_h01_796A;
 extern int G_h01_796C;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
-extern long G_h01_46E6;
+extern long total_money;
 extern short G_h01_0476;
 extern short G_h01_04AA;
 extern short G_h01_04DA;
@@ -25,14 +25,14 @@ extern short G_h01_053E;
 extern short G_h01_0572;
 extern short G_h01_059A;
 extern short G_h01_05D6;
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_291E();
 extern int F_h00_307C();
 extern int F_h00_34E0();
 extern int F_h00_35DC();
 extern int F_h00_3AE4();
-extern int F_h00_57D2();
-extern int F_h00_8A46();
+extern int play_sound();
+extern int BltBitMap();
 extern int F_h10_2634();
 
 recovered(start, count, pairs, kind, flags)
@@ -48,7 +48,7 @@ struct Flags *flags;
         return;
     draw = 0;
     frame = start;
-    F_h00_0FDE(2);
+    request_disk(2);
     if (pairs == &G_h01_0476 || pairs == &G_h01_05D6) {
         draw = 1;
         F_h00_291E(24, &G_h01_7962);
@@ -81,11 +81,11 @@ struct Flags *flags;
     if (pairs != &G_h01_04AA && pairs != &G_h01_050A &&
         pairs != &G_h01_0572 && pairs != &G_h01_05D6) {
         if (!(flags->bits & 0x10) && !(flags->bits & 0x40)) {
-            G_h01_46E6 += 50;
-            F_h00_57D2(32);
+            total_money += 50;
+            play_sound(32);
         }
         for (i = 0; i < 4; i++) {
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
                 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             F_h10_2634(&G_h01_730E, 17, 0);
             if (!(flags->bits & 0x10) && !(flags->bits & 0x40))
@@ -93,7 +93,7 @@ struct Flags *flags;
             F_h00_307C();
         }
     } else {
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2,
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
             0L, 0L, 320L, 200L, 192L, 255L, 0L);
         F_h00_307C();
     }

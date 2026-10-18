@@ -22,7 +22,7 @@ extern int G_h01_8A3C;
 extern int F_h11_25F8();
 extern int F_h11_4B0C();
 extern int F_h11_41F6();
-extern int F_h00_57D2();
+extern int play_sound();
 
 recovered(index)
 int index;
@@ -58,7 +58,7 @@ int index;
             item->state = 45;
             F_h11_41F6(8, &item->value10, 45,
                        item->value34, item->value36);
-            F_h00_57D2(98);
+            play_sound(98);
             G_h01_8A3C = 3;
             result = 1;
         } else if (item->value0 == G_h01_94BA &&

@@ -96,6 +96,10 @@
       "evidence": "Reads the selected location and treasure from loc.arc/loot.arc and displays treasure name, description, value, and travel time (src/recovered/ov15/ov15_F_0C12.c).",
       "name": "map_show_location_details"
     },
+    "ov15_F_1428": {
+      "name": "map_move_cursor_from_input",
+      "evidence": "Reads resident_F_4376's direction/action value, moves and clamps the map cursor with held-input repeats, then redraws it (src/recovered/ov15/ov15_F_1428.c)."
+    },
     "resident_F_04FE": {
       "evidence": "Reads DT2:clues.arc, selects an indexed clue record, and draws its three text lines (src/recovered/resident/resident_F_04FE.c).",
       "name": "show_random_clue"
@@ -111,6 +115,10 @@
     "resident_F_0FDE": {
       "evidence": "Builds \"DT1\"/\"DT2\" volume names and draws \" INSERT DISK 1 \" / \" INSERT DISK 2 \" via 35DC.",
       "name": "request_disk"
+    },
+    "resident_F_134C": {
+      "name": "wait_for_fire_input",
+      "evidence": "Clears input state, polls resident_F_4376 up to the supplied count, and returns when its 0x80 fire bit is set (src/recovered/resident/resident_F_134C.c)."
     },
     "resident_F_2816": {
       "evidence": "Seeks to 0, reads a u16 count (2D66), rejects >104, reads that many u32 offsets (2DBA) into G_h01_A7EE (formats/arc.md).",
@@ -151,6 +159,110 @@
     "resident_F_411E": {
       "evidence": "Returns the next byte of a 0x400-byte buffer, refilling it with Read from G_h01_46DA and failing with error 8000 via 3674 (BEHAVIORAL_CHAR_RETURN).",
       "name": "arc_next_byte"
+    },
+    "resident_F_435E": {
+      "name": "clear_input_direction_and_fire_state",
+      "evidence": "Drains queued keys through F_h00_4F62, then clears the remembered keyboard direction and held-fire flag (src/recovered/resident/resident_F_435E.c)."
+    },
+    "resident_F_4376": {
+      "name": "poll_controller_and_keyboard_input",
+      "evidence": "Maps JOY1DAT and CIAA PRA into direction/fire actions, consumes a translated queued key, and handles quit, pause, and direction keys (src/recovered/resident/resident_F_4376.c)."
+    },
+    "resident_F_4676": {
+      "name": "seed_random",
+      "evidence": "Stores VPOSR plus the VBlank tick G_h01_B1EC into G_h01_3AB8, the state that the random generator resident_F_463E advances as a 16-bit LFSR (original 68000 code; tools/game_boot.py --rng-record/--rng-pin reproduce its sequence)."
+    },
+    "resident_F_4F40": {
+      "name": "wait_for_next_frame_tick",
+      "evidence": "Spins until G_h01_B1EC changes, then copies the new tick to G_h01_B396 (src/recovered/resident/resident_F_4F40.c)."
+    },
+    "resident_F_4F62": {
+      "name": "drain_input_key_queue",
+      "evidence": "Consumes queued key bytes up to the current head, updates held-fire state for press/release codes, and translates the last byte through G_h01_1EA4 (src/recovered/resident/resident_F_4F62.c)."
+    },
+    "resident_F_5030": {
+      "name": "input_key_queue_has_data",
+      "evidence": "Returns zero when input ring read and write indices match and one when they differ (src/recovered/resident/resident_F_5030.c)."
+    },
+    "resident_F_504C": {
+      "name": "wait_for_input_key",
+      "evidence": "Repeatedly calls F_h00_4F62 until a nonzero translated key value is returned (src/recovered/resident/resident_F_504C.c)."
+    },
+    "resident_F_5064": {
+      "name": "input_device_event_handler",
+      "evidence": "For event kind 1, appends its value to the bounded 128-byte ring under Forbid/Permit; for kind 16, sets the ring quit byte (src/recovered/resident/resident_F_5064.c; exact C)."
+    },
+    "resident_F_50E8": {
+      "name": "initialize_audio_and_input",
+      "evidence": "Opens input.device, submits command 9 (IND_ADDHANDLER), installs four audio channel vectors, initializes audio state, and registers the VBlank server (src/recovered/resident/resident_F_50E8.c)."
+    },
+    "resident_F_5392": {
+      "name": "remove_input_device_handler",
+      "evidence": "Submits command 10 (IND_REMHANDLER), closes input.device, and releases the IORequest and message port (src/recovered/resident/resident_F_5392.c)."
+    },
+    "resident_F_53E6": {
+      "name": "shutdown_audio_and_input",
+      "evidence": "Disables audio channel interrupts, clears audio state, waits for a frame tick, removes the VBlank server, and tears down input.device (src/recovered/resident/resident_F_53E6.c)."
+    },
+    "resident_F_5428": {
+      "name": "configure_palette_cycle",
+      "evidence": "Stores the selected callback index and countdown step, and resets the palette-cycle countdown and sequence index (src/recovered/resident/resident_F_5428.c)."
+    },
+    "resident_F_5594": {
+      "name": "disable_audio_channel_interrupts",
+      "evidence": "Writes 0x0780 to INTENA to clear the four Paula channel interrupt enables (src/recovered/asm-reconstructed/resident_frameless_5594.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_559E": {
+      "name": "generate_audio_noise_byte",
+      "evidence": "Advances the state at G_h01_2B89/G_h01_2B8A and returns a generated byte; resident_F_4AF0 averages pairs into its noise buffer (src/recovered/asm-reconstructed/resident_asm_559E.asm; RECONSTRUCTED_ASM; src/recovered/resident/resident_F_4AF0.c)."
+    },
+    "resident_F_55D6": {
+      "name": "audio_channel_0_block_interrupt",
+      "evidence": "Checks channel 0 DMA, counts down to the next sample block, loads its length/address, and acknowledges interrupt source 7 (src/recovered/asm-reconstructed/resident_frameless_55D6.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_5646": {
+      "name": "audio_channel_1_block_interrupt",
+      "evidence": "Checks channel 1 DMA, counts down to the next sample block, loads its length/address, and acknowledges interrupt source 8 (src/recovered/asm-reconstructed/resident_frameless_5646.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_56B6": {
+      "name": "audio_channel_2_block_interrupt",
+      "evidence": "Checks channel 2 DMA, counts down to the next sample block, loads its length/address, and acknowledges interrupt source 9 (src/recovered/asm-reconstructed/resident_frameless_56B6.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_5726": {
+      "name": "audio_channel_3_block_interrupt",
+      "evidence": "Checks channel 3 DMA, counts down to the next sample block, loads its length/address, and acknowledges interrupt source 10 (src/recovered/asm-reconstructed/resident_frameless_5726.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_579E": {
+      "name": "input_device_handler_trampoline",
+      "evidence": "Loads the saved A4 data base, calls recon_h00_5064 with the event list and ring pointer, restores registers, and returns zero (src/recovered/asm-reconstructed/resident_driver_5796.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_57B6": {
+      "name": "save_interrupt_data_base",
+      "evidence": "Stores current A4 in G_h01_2B4A for later interrupt and input-handler callbacks (src/recovered/asm-reconstructed/resident_driver_5796.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_57D2": {
+      "name": "play_sound",
+      "evidence": "Starts sound number N: for any N whose low byte is not 8 the frameless entry falls through into resident_driver_57E4, which selects score N from the table at G_h01_B39A and starts it on its channel; N with low byte 8 instead stores the word in G_h01_2B86 (resident_frameless_57D2.asm, resident_driver_57E4.asm; about 290 C call sites)."
+    },
+    "resident_F_5868": {
+      "name": "clear_audio_driver_state",
+      "evidence": "Clears channel records, disables all four DMA channels, clears interrupt requests, resets countdowns, and restores the volume-output gate (src/recovered/asm-reconstructed/resident_frameless_5868.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_615E": {
+      "name": "vblank_server",
+      "evidence": "Installed with AddIntServer(5) through G_h01_B312: increments the frame tick G_h01_B1EC, restores the saved A4, runs the palette-cycle callback and updates the four audio channels (resident_frameless_615E.asm)."
+    },
+    "resident_F_617C": {
+      "name": "dispatch_palette_cycle_callback",
+      "evidence": "Indexes G_h01_2BC2 with G_h01_2C26 and calls the selected callback (src/recovered/asm-reconstructed/resident_callback_617C.asm; RECONSTRUCTED_ASM)."
+    },
+    "resident_F_619E": {
+      "name": "empty_palette_cycle_callback",
+      "evidence": "Returns immediately without changing state; G_h01_2BC2 uses it for callback index zero (src/recovered/asm-reconstructed/resident_callback_617C.asm; RECONSTRUCTED_ASM; src/recovered/data/resident_data_2BC2.c)."
+    },
+    "resident_F_61A0": {
+      "name": "advance_palette_cycle",
+      "evidence": "Counts down the cycle timer and copies sequence words into spaced destination words in the callback copper-list area (src/recovered/asm-reconstructed/resident_callback_61A0.asm; RECONSTRUCTED_ASM)."
     },
     "resident_F_704E": {
       "evidence": "Accounting id runtime_member_sscanf is the PINNED_RUNTIME range for this AmigaOS/c.lib entry, and behavior.py lists game callers.",
@@ -506,6 +618,198 @@
     }
   },
   "globals": {
+    "G_h01_096E": {
+      "name": "sound_toggle_state",
+      "evidence": "The S key case of the input poll (resident_F_4376) toggles this word between 0 and 1 and sends sound command 0x7F or 0x7E through play_sound."
+    },
+    "G_h01_1EA4": {
+      "name": "raw_key_code_translation_table",
+      "evidence": "The key consumer indexes this table by raw key byte to return a translated key or action value (src/recovered/resident/resident_F_4F62.c; src/recovered/data/resident_data_1EA4.c)."
+    },
+    "G_h01_1F14": {
+      "name": "joystick_action_translation_table",
+      "evidence": "The poller indexes this 32-byte table with the combined JOY1DAT/CIAA bit pattern to get a direction/fire action value (src/recovered/resident/resident_F_4376.c; src/recovered/data/resident_data_1F14.c)."
+    },
+    "G_h01_1F34": {
+      "name": "keyboard_direction_value",
+      "evidence": "The poller stores direction values for key codes 1 through 9, reuses the value for Return/Space, and clears it when direction input is disabled (src/recovered/resident/resident_F_4376.c)."
+    },
+    "G_h01_1F36": {
+      "name": "keyboard_direction_input_enabled",
+      "evidence": "The poller clears the remembered direction when this byte is zero; the plane scene disables and re-enables it around its input mode (src/recovered/resident/resident_F_4376.c; src/recovered/ov05/ov05_F_0000.c)."
+    },
+    "G_h01_27E4": {
+      "name": "audio_sample_descriptor_table",
+      "evidence": "Audio period setup indexes this pointer table and reads a sample descriptor's length/data pointer; C loaders also use it for sample-buffer descriptors (src/recovered/asm-reconstructed/resident_asm_59A4.asm; src/recovered/resident/resident_F_46CE.c; src/recovered/data/resident_data_27E4.c)."
+    },
+    "G_h01_292E": {
+      "name": "audio_score_command_handlers",
+      "evidence": "The score interpreter masks a command byte, indexes this 44-entry pointer table, and jumps to its handler (src/recovered/asm-reconstructed/resident_driver_5A50.asm; src/recovered/data/resident_data_292E.c)."
+    },
+    "G_h01_29DE": {
+      "name": "audio_note_period_table",
+      "evidence": "Note setup indexes consecutive words here by note value and adds the channel adjustment before writing AUDxPER (src/recovered/asm-reconstructed/resident_asm_59A4.asm; src/recovered/data/resident_data_29DE.c, resident_data_29E0.c, resident_data_29F4.c)."
+    },
+    "G_h01_29FA": {
+      "name": "audio_channel_0_state_pointer",
+      "evidence": "The audio start and frame-update routines index four consecutive channel pointers from this base; this entry targets channel 0 state (src/recovered/asm-reconstructed/resident_driver_57E4.asm; src/recovered/data/resident_data_29FA.c)."
+    },
+    "G_h01_29FE": {
+      "name": "audio_channel_1_state_pointer",
+      "evidence": "The second channel pointer slot targets the channel 1 record at G_h01_2A5E (src/recovered/asm-reconstructed/resident_driver_57E4.asm; src/recovered/data/resident_data_29FE.c)."
+    },
+    "G_h01_2A02": {
+      "name": "audio_channel_2_state_pointer",
+      "evidence": "The third channel pointer slot targets the channel 2 record at G_h01_2AAA (src/recovered/asm-reconstructed/resident_driver_57E4.asm; src/recovered/data/resident_data_2A02.c)."
+    },
+    "G_h01_2A06": {
+      "name": "audio_channel_3_state_pointer",
+      "evidence": "The fourth channel pointer slot targets the channel 3 record at G_h01_2AF6 (src/recovered/asm-reconstructed/resident_driver_57E4.asm; src/recovered/data/resident_data_2A06.c)."
+    },
+    "G_h01_2A0A": {
+      "name": "audio_pitch_effect_channel_mask",
+      "evidence": "Score commands set and clear one bit per channel; the frame update tests that bit before applying vibrato or period modulation (src/recovered/asm-reconstructed/resident_driver_5A50.asm; src/recovered/asm-reconstructed/resident_driver_58BC.asm)."
+    },
+    "G_h01_2A12": {
+      "name": "audio_channel_0_state",
+      "evidence": "The channel pointer table targets this record, and audio reset clears channel states as 0x4c-byte records (src/recovered/asm-reconstructed/resident_driver_57E4.asm; src/recovered/asm-reconstructed/resident_frameless_5868.asm; src/recovered/data/resident_data_2A12.c)."
+    },
+    "G_h01_2A5E": {
+      "name": "audio_channel_1_state",
+      "evidence": "The pointer table targets this record, 0x4c bytes after channel 0 (src/recovered/data/resident_data_29FE.c; src/recovered/data/resident_data_2A5E.c; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2AAA": {
+      "name": "audio_channel_2_state",
+      "evidence": "The pointer table targets this record, 0x4c bytes after channel 1 (src/recovered/data/resident_data_2A02.c; src/recovered/data/resident_data_2AAA.c; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2AF6": {
+      "name": "audio_channel_3_state",
+      "evidence": "The pointer table targets this record, 0x4c bytes after channel 2 (src/recovered/data/resident_data_2A06.c; src/recovered/data/resident_data_2AF6.c; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2B4A": {
+      "name": "interrupt_data_base",
+      "evidence": "The input callback wrapper and VBlank handler reload this saved A4 value before accessing game globals (src/recovered/asm-reconstructed/resident_driver_5796.asm; src/recovered/asm-reconstructed/resident_frameless_615E.asm)."
+    },
+    "G_h01_2B4E": {
+      "name": "audio_channel_0_block_countdown",
+      "evidence": "Channel 0 interrupt decrements this word to decide when to fetch the next sample block, and initialization clears it (src/recovered/asm-reconstructed/resident_frameless_55D6.asm; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2B52": {
+      "name": "audio_channel_0_sample_block_cursor",
+      "evidence": "Channel 0 interrupt reads the next length/address pair through this pointer and advances it after loading a block (src/recovered/asm-reconstructed/resident_frameless_55D6.asm)."
+    },
+    "G_h01_2B56": {
+      "name": "audio_channel_1_block_countdown",
+      "evidence": "Channel 1 interrupt decrements this word to time its next sample block, and initialization clears it (src/recovered/asm-reconstructed/resident_frameless_5646.asm; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2B5A": {
+      "name": "audio_channel_1_sample_block_cursor",
+      "evidence": "Channel 1 interrupt reads and advances this pointer while loading sample blocks (src/recovered/asm-reconstructed/resident_frameless_5646.asm)."
+    },
+    "G_h01_2B5E": {
+      "name": "audio_channel_2_block_countdown",
+      "evidence": "Channel 2 interrupt decrements this word to time its next sample block, and initialization clears it (src/recovered/asm-reconstructed/resident_frameless_56B6.asm; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2B62": {
+      "name": "audio_channel_2_sample_block_cursor",
+      "evidence": "Channel 2 interrupt reads and advances this pointer while loading sample blocks (src/recovered/asm-reconstructed/resident_frameless_56B6.asm)."
+    },
+    "G_h01_2B66": {
+      "name": "audio_channel_3_block_countdown",
+      "evidence": "Channel 3 interrupt decrements this word to time its next sample block, and initialization clears it (src/recovered/asm-reconstructed/resident_frameless_5726.asm; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2B6A": {
+      "name": "audio_channel_3_sample_block_cursor",
+      "evidence": "Channel 3 interrupt reads and advances this pointer while loading sample blocks (src/recovered/asm-reconstructed/resident_frameless_5726.asm)."
+    },
+    "G_h01_2B6E": {
+      "name": "audio_envelope_state_handlers",
+      "evidence": "The envelope update indexes this six-entry function-pointer table with the channel envelope state and calls the selected routine (src/recovered/asm-reconstructed/resident_driver_544C.asm; src/recovered/data/resident_data_2B6E.c)."
+    },
+    "G_h01_2B86": {
+      "name": "noise_period_offset",
+      "evidence": "play_sound stores the command word here for low byte 8; the random-period note command (resident_driver_5D92.asm at 5DFE) subtracts the value >> 3 from its base period 0xE08 + 0xFA5 before adding random bits."
+    },
+    "G_h01_2B89": {
+      "name": "audio_noise_random_state_byte",
+      "evidence": "The audio noise generator updates this byte as part of its shift/rotate state, and resident_F_4AF0 uses generated bytes to fill a noise sample buffer (src/recovered/asm-reconstructed/resident_asm_559E.asm; src/recovered/resident/resident_F_4AF0.c)."
+    },
+    "G_h01_2B8A": {
+      "name": "audio_noise_random_state_word",
+      "evidence": "The audio noise generator updates this word and sample start also reads its low ten bits (src/recovered/asm-reconstructed/resident_asm_559E.asm; src/recovered/asm-reconstructed/resident_driver_5D92.asm)."
+    },
+    "G_h01_2B8C": {
+      "name": "audio_global_volume_attenuation",
+      "evidence": "Envelope output subtracts this global value from channel level before writing AUDxVOL, and score commands can set or add to it (src/recovered/asm-reconstructed/resident_driver_544C.asm; src/recovered/asm-reconstructed/resident_driver_5D92.asm)."
+    },
+    "G_h01_2B8D": {
+      "name": "audio_volume_output_enabled",
+      "evidence": "Envelope update writes computed AUDxVOL only when this byte is nonzero; initialization sets it to one (src/recovered/asm-reconstructed/resident_driver_544C.asm; src/recovered/asm-reconstructed/resident_frameless_5868.asm)."
+    },
+    "G_h01_2B8E": {
+      "name": "palette_cycle_values_1",
+      "evidence": "The first cycle descriptor points to these words, which the callback copies into spaced copper-list value slots (src/recovered/data/resident_data_2BFE.c; src/recovered/data/resident_data_2B8E.c; src/recovered/asm-reconstructed/resident_callback_61A0.asm)."
+    },
+    "G_h01_2B96": {
+      "name": "palette_cycle_values_2",
+      "evidence": "The second cycle descriptor points to these words, which the callback copies into spaced copper-list value slots (src/recovered/data/resident_data_2BFE.c; src/recovered/data/resident_data_2B96.c; src/recovered/asm-reconstructed/resident_callback_61A0.asm)."
+    },
+    "G_h01_2BA6": {
+      "name": "palette_cycle_values_3",
+      "evidence": "The third cycle descriptor points to these words, which the callback copies into spaced copper-list value slots (src/recovered/data/resident_data_2BFE.c; src/recovered/data/resident_data_2BA6.c; src/recovered/asm-reconstructed/resident_callback_61A0.asm)."
+    },
+    "G_h01_2BB2": {
+      "name": "palette_cycle_values_4",
+      "evidence": "The fourth cycle descriptor points to these words, which the callback copies into spaced copper-list value slots (src/recovered/data/resident_data_2BFE.c; src/recovered/data/resident_data_2BB2.c; src/recovered/asm-reconstructed/resident_callback_61A0.asm)."
+    },
+    "G_h01_2BC2": {
+      "name": "palette_cycle_callbacks",
+      "evidence": "The dispatcher indexes this five-entry table by G_h01_2C26; entry zero returns and other entries target the palette update routine (src/recovered/data/resident_data_2BC2.c; src/recovered/asm-reconstructed/resident_callback_617C.asm)."
+    },
+    "G_h01_2BFE": {
+      "name": "palette_cycle_descriptors",
+      "evidence": "Each descriptor supplies a word-list pointer, final sequence index, and destination offset used by the palette callback (src/recovered/data/resident_data_2BFE.c; src/recovered/asm-reconstructed/resident_callback_61A0.asm)."
+    },
+    "G_h01_2C26": {
+      "name": "palette_cycle_callback_index",
+      "evidence": "C setup stores the selected callback index here, and the dispatcher uses it to index G_h01_2BC2 (src/recovered/resident/resident_F_5428.c; src/recovered/asm-reconstructed/resident_callback_617C.asm)."
+    },
+    "G_h01_2C2A": {
+      "name": "palette_cycle_frame_countdown",
+      "evidence": "The callback subtracts the configured step, returns while nonnegative, and resets this byte to 0x7f when it advances (src/recovered/asm-reconstructed/resident_callback_61A0.asm)."
+    },
+    "G_h01_2C2B": {
+      "name": "palette_cycle_word_index",
+      "evidence": "The callback decrements this index and reloads it from the descriptor's final index when it wraps (src/recovered/asm-reconstructed/resident_callback_61A0.asm)."
+    },
+    "G_h01_2C2C": {
+      "name": "palette_cycle_countdown_step",
+      "evidence": "The callback subtracts this byte from the countdown on each invocation, and the C setup assigns it from its argument (src/recovered/asm-reconstructed/resident_callback_61A0.asm; src/recovered/resident/resident_F_5428.c)."
+    },
+    "G_h01_3AB8": {
+      "name": "random_state",
+      "evidence": "16-bit LFSR state advanced by the random generator resident_F_463E (original 68000 code, unresolved C) and reseeded by seed_random (resident_F_4676); pinning it made the game's company, location and treasure choices equal the original's (tools/game_boot.py RNG_STATE_OFFSET)."
+    },
+    "G_h01_451A": {
+      "name": "map_input_action",
+      "evidence": "The map cursor routine assigns resident_F_4376's result here, tests its high fire bit, and switches on its low direction value (src/recovered/ov15/ov15_F_1428.c)."
+    },
+    "G_h01_451C": {
+      "name": "map_direction_hold_count",
+      "evidence": "The map cursor routine increments this count while a direction is active, caps it at 0x100, and multiplies it by horizontal/vertical step values (src/recovered/ov15/ov15_F_1428.c)."
+    },
+    "G_h01_451E": {
+      "name": "map_direction_restart_pending",
+      "evidence": "The map cursor routine sets this flag when beginning a direction sequence and clears the repeat count when consuming it (src/recovered/ov15/ov15_F_1428.c)."
+    },
+    "G_h01_4520": {
+      "name": "map_cursor_horizontal_step",
+      "evidence": "The map cursor routine sets this value to -1, 0, or 1 from direction and applies it on repeated movement frames (src/recovered/ov15/ov15_F_1428.c)."
+    },
+    "G_h01_4522": {
+      "name": "map_cursor_vertical_step",
+      "evidence": "The map cursor routine sets this value to -1, 0, or 1 from direction and applies it on repeated movement frames (src/recovered/ov15/ov15_F_1428.c)."
+    },
     "G_h01_4524": {
       "evidence": "The table supplies location names and coordinates to the map UI and its point values select the matching overlay family (ov15_F_0000, resident_F_01BA, ov03_F_154E).",
       "name": "map_location_table"
@@ -550,6 +854,10 @@
       "evidence": "The main-adventure routine saves the active main.arc file handle here and restores it after loading other archives; the quit path also restores it (ov03_F_001C, resident_F_0A44).",
       "name": "main_arc_file_handle"
     },
+    "G_h01_4704": {
+      "name": "input_fire_action_capture_enabled",
+      "evidence": "When set, the poller records a returned fire bit in G_h01_536E; the adventure loop and an input mode set and clear this gate (src/recovered/resident/resident_F_4376.c; src/recovered/ov04/ov04_F_1302.c; src/recovered/ov03/ov03_F_001C.c)."
+    },
     "G_h01_4D60": {
       "evidence": "The market loader resets this marker and the daily updater advances it until it reaches the current game day (ov04_F_0536, ov07_F_1A02).",
       "name": "market_update_day"
@@ -566,6 +874,10 @@
       "evidence": "The loader fills this category-by-day table from chart.arc and the price calculation and daily market updater index it by category and game day (ov04_F_0536, ov07_F_0EC0, ov07_F_1A02).",
       "name": "market_price_history"
     },
+    "G_h01_536E": {
+      "name": "input_fire_action_pending",
+      "evidence": "The poller sets this byte when fire is observed while G_h01_4704 is set, and interaction routines test and clear it (src/recovered/resident/resident_F_4376.c; src/recovered/ov04/ov04_F_1302.c)."
+    },
     "G_h01_5374": {
       "evidence": "InitAV stores the result of OpenLibrary(\"graphics.library\") here and later passes it to CloseLibrary (ov04_F_1E36, ov04_F_26F0, ov04_F_27FE).",
       "name": "graphics_library_base"
@@ -581,6 +893,66 @@
     "G_h01_A7EE": {
       "evidence": "Filled by arc_read_index with up to 104 u32 record offsets (formats/arc.md).",
       "name": "arc_offsets"
+    },
+    "G_h01_B1EA": {
+      "name": "input_quit_key_seen",
+      "evidence": "The poller sets this byte for Escape or q/Q, then follows the quit-confirmation path when allowed (src/recovered/resident/resident_F_4376.c)."
+    },
+    "G_h01_B1EB": {
+      "name": "keyboard_fire_key_held",
+      "evidence": "The key consumer sets and clears this byte for press/release code pairs, and the poller folds it into the returned 0x80 action bit (src/recovered/resident/resident_F_4F62.c; src/recovered/resident/resident_F_4376.c)."
+    },
+    "G_h01_B1EC": {
+      "name": "game_frame_tick",
+      "evidence": "The VBlank server increments this longword once per invocation, and resident_F_4F40 waits for it to change (src/recovered/asm-reconstructed/resident_frameless_615E.asm; src/recovered/resident/resident_F_4F40.c)."
+    },
+    "G_h01_B284": {
+      "name": "input_device_message_port",
+      "evidence": "The initializer creates this port and uses it to create the input.device IORequest; teardown passes it to DeletePort (src/recovered/resident/resident_F_50E8.c; src/recovered/resident/resident_F_5392.c)."
+    },
+    "G_h01_B288": {
+      "name": "input_device_io_request",
+      "evidence": "The initializer creates this IORequest, opens input.device with it, and submits IND_ADDHANDLER; teardown reuses it for IND_REMHANDLER and closes it (src/recovered/resident/resident_F_50E8.c; src/recovered/resident/resident_F_5392.c)."
+    },
+    "G_h01_B28C": {
+      "name": "input_key_ring",
+      "evidence": "The installer passes this address as handler ring context; the handler writes its head and the key consumer compares it with the read index (src/recovered/resident/resident_F_50E8.c; src/recovered/resident/resident_F_5064.c; src/recovered/resident/resident_F_4F62.c)."
+    },
+    "G_h01_B28E": {
+      "name": "input_key_ring_read_index",
+      "evidence": "The key consumer advances and wraps this index while reading G_h01_B291, and initialization clears it (src/recovered/resident/resident_F_4F62.c; src/recovered/resident/resident_F_50E8.c)."
+    },
+    "G_h01_B291": {
+      "name": "input_key_ring_bytes",
+      "evidence": "The handler writes event values into this 128-byte ring and the key consumer reads them through the wrapped read index (src/recovered/resident/resident_F_5064.c; src/recovered/resident/resident_F_4F62.c)."
+    },
+    "G_h01_B312": {
+      "name": "vertical_blank_interrupt_record",
+      "evidence": "The initializer fills this record with the VBlank name, data pointer, and resident_F_615E code pointer, then registers it through AddIntServer source 5 (src/recovered/resident/resident_F_50E8.c)."
+    },
+    "G_h01_B328": {
+      "name": "input_device_handler_interrupt_record",
+      "evidence": "The initializer sets this record's data pointer to the ring and code pointer to resident_F_579E, then submits it with input.device command 9 (src/recovered/resident/resident_F_50E8.c)."
+    },
+    "G_h01_B33E": {
+      "name": "audio_channel_0_interrupt_record",
+      "evidence": "The initializer points this record at channel 0's countdown and resident_F_55D6, then installs it on SetIntVector source 7 (src/recovered/resident/resident_F_50E8.c)."
+    },
+    "G_h01_B354": {
+      "name": "audio_channel_1_interrupt_record",
+      "evidence": "The initializer points this record at channel 1's countdown and resident_F_5646, then installs it on SetIntVector source 8 (src/recovered/resident/resident_F_50E8.c)."
+    },
+    "G_h01_B36A": {
+      "name": "audio_channel_2_interrupt_record",
+      "evidence": "The initializer points this record at channel 2's countdown and resident_F_56B6, then installs it on SetIntVector source 9 (src/recovered/resident/resident_F_50E8.c)."
+    },
+    "G_h01_B380": {
+      "name": "audio_channel_3_interrupt_record",
+      "evidence": "The initializer points this record at channel 3's countdown and resident_F_5726, then installs it on SetIntVector source 10 (src/recovered/resident/resident_F_50E8.c)."
+    },
+    "G_h01_B39A": {
+      "name": "audio_sequence_pointer_table",
+      "evidence": "Initialization points this global at G_h00_6200, and sequence start indexes it by sound number before selecting a channel and priority (src/recovered/resident/resident_F_50E8.c; src/recovered/asm-reconstructed/resident_driver_57E4.asm)."
     }
   },
   "schema_version": 1

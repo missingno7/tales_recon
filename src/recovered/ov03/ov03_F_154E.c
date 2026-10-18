@@ -9,7 +9,7 @@ struct PointRef {
     char reserved[8];
 };
 
-extern struct PointRef G_h01_4524[36];
+extern struct PointRef map_location_table[36];
 extern long F_h00_08FC();
 
 long recovered(a,b)
@@ -24,15 +24,15 @@ int a,b;
         x1 = 56;
         y1 = 64;
     } else {
-        x1 = G_h01_4524[a].point->x;
-        y1 = G_h01_4524[a].point->y;
+        x1 = map_location_table[a].point->x;
+        y1 = map_location_table[a].point->y;
     }
     if (b == 35) {
         x2 = 56;
         y2 = 64;
     } else {
-        x2 = G_h01_4524[b].point->x;
-        y2 = G_h01_4524[b].point->y;
+        x2 = map_location_table[b].point->x;
+        y2 = map_location_table[b].point->y;
     }
 
     distance = F_h00_08FC(x1,x2,y1,y2);

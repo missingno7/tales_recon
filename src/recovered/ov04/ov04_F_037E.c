@@ -13,21 +13,21 @@ struct Object {
     long name;
 };
 
-extern long G_h01_46DA;
+extern long arc_file;
 extern char G_h01_4705;
 extern char G_h01_470A;
 extern struct Loot G_h01_4732[35];
 extern char G_h01_4C82;
 
-extern int F_h00_0FDE();
-extern long F_h00_86DC();
-extern int F_h00_2816();
+extern int request_disk();
+extern long Open();
+extern int arc_read_index();
 extern unsigned int F_h00_463E();
 extern long F_h00_291E();
 extern long F_h00_0976();
-extern int F_h00_704E();
+extern int sscanf();
 extern int F_h00_3C0E();
-extern int F_h00_868C();
+extern int Close();
 
 recovered()
 {
@@ -44,10 +44,10 @@ recovered()
 
     result = 0;
     value = 0;
-    saved = G_h01_46DA;
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:loot.arc", 0x3edL);
-    F_h00_2816(G_h01_46DA);
+    saved = arc_file;
+    request_disk(1);
+    arc_file = Open("DT1:loot.arc", 0x3edL);
+    arc_read_index(arc_file);
     slot = (struct Slot *)&G_h01_4C82;
     slot->value = 0;
     for (i = 1; i < 35; ++i) {
@@ -85,11 +85,11 @@ again:
         result = F_h00_291E(value, result);
         name = ((struct Object *)result)->name;
         name = F_h00_0976(name, buffer);
-        F_h00_704E(buffer, "%d", slot->text);
+        sscanf(buffer, "%d", slot->text);
         slot->value = value;
         F_h00_3C0E(result);
     }
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = saved;
-    F_h00_2816(G_h01_46DA);
+    Close(arc_file);
+    arc_file = saved;
+    arc_read_index(arc_file);
 }

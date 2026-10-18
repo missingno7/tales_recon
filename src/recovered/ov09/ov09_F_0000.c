@@ -1,27 +1,27 @@
 /* ov09_F_0000 v1: plain structured C; canonical declaration views where present. */
 extern unsigned int F_h00_463E();
-extern long F_h00_86DC();
+extern long Open();
 extern int F_h00_4EC6();
-extern int F_h00_8BC8();
-extern int F_h00_0FDE();
+extern int SetRast();
+extern int request_disk();
 extern int F_h00_4D04();
-extern int F_h00_2816();
+extern int arc_read_index();
 extern int F_h00_330E();
 extern int F_h00_307C();
-extern int F_h00_435E();
-extern int F_h00_4376();
-extern int F_h00_8A46();
+extern int clear_input_direction_and_fire_state();
+extern int poll_controller_and_keyboard_input();
+extern int BltBitMap();
 extern int F_h00_34E0();
 extern int F_h00_3AE4();
 extern int F_h00_291E();
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h00_31AA();
 extern int F_h00_3178();
 extern int F_h00_30F0();
 extern int F_h00_35DC();
 extern int F_h00_09C0();
-extern int F_h00_134C();
-extern int F_h00_868C();
+extern int wait_for_fire_input();
+extern int Close();
 extern int F_h09_18D0();
 extern int F_h09_19D4();
 extern int F_h09_1B1C();
@@ -32,7 +32,7 @@ struct Table { int first; int second; char pad[2]; };
 struct State { unsigned char kind; char pad1; unsigned int type; unsigned char mode; unsigned char step; char ticks; char pad7; int first; int second; };
 extern struct Table G_h01_4274[64];
 extern struct State G_h01_4332[3];
-extern struct FlagEntry G_h01_452E[35];
+extern struct FlagEntry player_treasure_collected[35];
 extern unsigned char G_h01_4272[96];
 extern unsigned int G_h01_4264[6];
 extern char *G_h01_46D6;
@@ -41,8 +41,8 @@ extern unsigned char G_h01_4336[12];
 extern char G_h01_4334[12];
 extern int G_h01_1626;
 extern int G_h01_1666;
-extern long G_h01_2C26;
-extern char G_h01_2C2C;
+extern long palette_cycle_callback_index;
+extern char palette_cycle_countdown_step;
 extern int G_h01_3ACA;
 extern int G_h01_3ACC;
 extern int G_h01_3AD2;
@@ -276,14 +276,14 @@ extern int G_h01_42C8;
 extern int G_h01_42CA;
 extern int G_h01_42CE;
 extern int G_h01_42D0;
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
-extern long G_h01_46DA;
-extern char G_h01_46E0;
-extern char G_h01_46E1;
-extern char G_h01_46E3;
-extern long G_h01_46E6;
+extern long arc_file;
+extern char difficulty_level;
+extern char game_day;
+extern char current_location;
+extern long total_money;
 extern long G_h01_4706;
 extern char G_h01_5E5E;
 
@@ -321,13 +321,13 @@ int arg;
 
     G_h01_4706 = 0;
     F_h00_4EC6();
-    F_h00_8BC8(G_h01_46CA, 0L);
-    F_h00_0FDE(2);
+    SetRast(screen_rast_port, 0L);
+    request_disk(2);
     F_h00_4D04(10);
-    saved = G_h01_46DA;
-    F_h00_0FDE(2);
-    G_h01_46DA = F_h00_86DC("DT2:ps.arc", 0x3edL);
-    F_h00_2816(G_h01_46DA);
+    saved = arc_file;
+    request_disk(2);
+    arc_file = Open("DT2:ps.arc", 0x3edL);
+    arc_read_index(arc_file);
     c = F_h00_463E() & 0xf;
 
     switch (arg) {
@@ -398,7 +398,7 @@ int arg;
     for (c = 0; c < 6; c++)
         G_h01_4264[c] = 0;
 
-    F_h00_0FDE(2);
+    request_disk(2);
     F_h00_291E(0, G_h01_46CE);
     F_h00_291E(1, &G_h01_3ACA);
     G_h01_3ACA = 3;
@@ -441,7 +441,7 @@ int arg;
     G_h01_3D54 = 0x1c;
 
     F_h09_18D0(arg);
-    F_h00_0FDE(2);
+    request_disk(2);
 
     for (c = 0; c < 6; c++) {
         if (c > 0 && G_h01_4264[c] == G_h01_4264[0])
@@ -485,7 +485,7 @@ int arg;
     F_h00_291E(0x32, &G_h01_422C);
     G_h01_422C = 0x110;
     G_h01_422E = 0xb2;
-    F_h00_57D2(0);
+    play_sound(0);
     G_h01_4270 = 0xc;
 
     for (c = 0; c < 3; c++) {
@@ -546,18 +546,18 @@ int arg;
         }
     }
 
-    if (G_h01_46E0 == 0)
+    if (difficulty_level == 0)
         lim = 0x32;
-    else if (G_h01_46E0 == 1)
+    else if (difficulty_level == 1)
         lim = 0x28;
     else
         lim = 0x1e;
 
-    G_h01_2C26 = 0;
-    G_h01_2C2C = 0;
+    palette_cycle_callback_index = 0;
+    palette_cycle_countdown_step = 0;
     F_h00_330E();
-    F_h00_8BC8(G_h01_46CA, 0L);
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
+    SetRast(screen_rast_port, 0L);
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
                0xc0L, 0xffL, 0L);
     F_h09_19D4((int)first);
     F_h09_1B1C();
@@ -569,21 +569,21 @@ int arg;
     F_h00_307C();
     G_h01_46D6 = (char *)&G_h01_1626;
     F_h00_31AA(&G_h01_1626);
-    F_h00_8BC8(G_h01_46CA, 0L);
-    F_h00_435E();
+    SetRast(screen_rast_port, 0L);
+    clear_input_direction_and_fire_state();
 
     while (!changed) {
         w2 = 0;
-        w2 = F_h00_4376();
-        F_h00_435E();
-        F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
+        w2 = poll_controller_and_keyboard_input();
+        clear_input_direction_and_fire_state();
+        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
                    0xc0L, 0xffL, 0L);
         F_h09_19D4((int)first);
         if (G_h01_4332[G_h01_4188].kind == 0)
             newflag = 0;
         if (!newflag && (w2 & 0x80)) {
             w2 = 0;
-            F_h00_57D2(0x6a);
+            play_sound(0x6a);
             G_h01_4270--;
             if (G_h01_4270 < 0)
                 break;
@@ -592,17 +592,17 @@ int arg;
                     F_h09_1956(&G_h01_4332[G_h01_4188]);
                     flags[idx] = (char)G_h01_4332[G_h01_4188].type;
                     if (flags[idx] == G_h01_4262)
-                        F_h00_57D2(0x6c);
+                        play_sound(0x6c);
                     else if (flags[c] != 0)
-                        F_h00_57D2(0x6b);
+                        play_sound(0x6b);
                     newflag = 1;
                 }
             }
             idx++;
             t5a = G_h01_4332[G_h01_4188].kind;
             for (c = 0; c < 4; c++) {
-                F_h00_8BC8(G_h01_46CA, 0L);
-                F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
+                SetRast(screen_rast_port, 0L);
+                BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
                            0xc0L, 0xffL, 0L);
                 F_h09_19D4((int)first);
                 F_h09_1B1C();
@@ -625,17 +625,17 @@ int arg;
             if ((w2 & 0x3f) == 8 || (w2 & 0x3f) == 7) {
                 w2 = 0;
                 if (G_h01_4188 != 0)
-                    F_h00_57D2(0x6d);
+                    play_sound(0x6d);
                 G_h01_4188 = 0;
             } else if ((w2 & 0x3f) == 2 || (w2 & 0x3f) == 3) {
                 w2 = 0;
                 if (G_h01_4188 != 2)
-                    F_h00_57D2(0x6d);
+                    play_sound(0x6d);
                 G_h01_4188 = 2;
             } else if ((w2 & 0x3f) == 1) {
                 w2 = 0;
                 if (G_h01_4188 != 1)
-                    F_h00_57D2(0x6d);
+                    play_sound(0x6d);
                 G_h01_4188 = 1;
             }
         }
@@ -673,7 +673,7 @@ int arg;
     F_h00_3AE4(&G_h01_3D2C, G_h01_3D24, G_h01_3D26);
     F_h00_3AE4(&G_h01_3D62, G_h01_3D5A, G_h01_3D5C);
     F_h00_4EC6();
-    F_h00_8BC8(G_h01_46CA, 0L);
+    SetRast(screen_rast_port, 0L);
 
     for (c = 0; c < 32; c++) {
         switch (c + 14) {
@@ -837,7 +837,7 @@ int arg;
     F_h00_3AE4(&G_h01_4206, G_h01_41FE, G_h01_4200);
     F_h00_3AE4(&G_h01_423C, G_h01_4234, G_h01_4236);
     F_h00_330E();
-    F_h00_0FDE(2);
+    request_disk(2);
     F_h00_291E(0x33, &G_h01_411E);
     G_h01_411E = 0;
     G_h01_4120 = 0;
@@ -860,17 +860,17 @@ int arg;
 
     F_h00_35DC(0x90, 0xb8, "$", 0, 0);
     F_h00_09C0(0x98, 0xb8, G_h01_4706, 0, 0, 0);
-    G_h01_46E6 += G_h01_4706;
+    total_money += G_h01_4706;
     F_h00_307C();
     G_h01_46D6 = (char *)&G_h01_1626;
     F_h00_31AA(&G_h01_1626);
-    F_h00_435E();
-    F_h00_134C(0x28);
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = saved;
-    F_h00_2816(G_h01_46DA);
+    clear_input_direction_and_fire_state();
+    wait_for_fire_input(0x28);
+    Close(arc_file);
+    arc_file = saved;
+    arc_read_index(arc_file);
     if (result)
-        G_h01_452E[G_h01_46E3].value = 1;
-    G_h01_46E1++;
+        player_treasure_collected[current_location].value = 1;
+    game_day++;
     return result;
 }

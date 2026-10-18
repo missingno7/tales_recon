@@ -24,7 +24,7 @@ char *aptr;
 	register struct Process *pp;
 	long F_h00_8964();
 	void *_OpenLibrary();
-	long F_h00_899C(), F_h00_892A();
+	long GetMsg(), F_h00_892A();
 	long F_h00_86C0(), F_h00_86EE(), F_h00_86E0();
 
 #ifdef DETACH
@@ -35,7 +35,7 @@ char *aptr;
 
 	if ((G_h01_B3A6 = (struct _dev *)F_h00_892A(G_h01_2EB0*(long)sizeof(struct _dev),
 													MEMF_CLEAR)) == 0) {
-		F_h00_8744(AG_NoMemory, 0L);
+		Alert(AG_NoMemory, 0L);
 #asm
 		move.l	_G_h01_B39E,sp		;get back original stack pointer
 		rts						;and F_h00_8534
@@ -62,11 +62,11 @@ char *aptr;
 #endif
 	}
 	else {
-		F_h00_8A3A(&pp->pr_MsgPort);
-		G_h01_B3B0 = (struct WBStartup *)F_h00_899C(&pp->pr_MsgPort);
+		WaitPort(&pp->pr_MsgPort);
+		G_h01_B3B0 = (struct WBStartup *)GetMsg(&pp->pr_MsgPort);
 		if (G_h01_B3B0->sm_ArgList)
-			F_h00_869C(G_h01_B3B0->sm_ArgList->wa_Lock);
-		F_h00_7B24(pp, G_h01_B3B0);
+			CurrentDir(G_h01_B3B0->sm_ArgList->wa_Lock);
+		wbparse(pp, G_h01_B3B0);
 		G_h01_B3B4 = (char **)G_h01_B3B0;
 	}
 	G_h01_B3A6[0].fd = F_h00_86C0();

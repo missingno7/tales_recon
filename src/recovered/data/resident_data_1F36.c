@@ -1,1 +1,1 @@
-char G_h01_1F36 = 1;
+char keyboard_direction_input_enabled = 1;

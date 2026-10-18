@@ -4,7 +4,7 @@ struct resident_entry {
     unsigned char byte3;
 };
 
-extern long F_h00_86F6();
+extern long Read();
 extern int F_h00_3E9C();
 extern int F_h00_4032();
 extern unsigned short G_h01_1E2E;
@@ -46,7 +46,7 @@ unsigned short p4;
     G_h01_B1DA = 9;
     G_h01_B1DC = 0x200;
     G_h01_1E2E = 0;
-    F_h00_86F6(G_h01_ADCA, G_h01_A9CA, (unsigned long)0x400);
+    Read(G_h01_ADCA, G_h01_A9CA, (unsigned long)0x400);
 
     while ((G_h01_A9C2 = F_h00_3E9C()) != 0x101) {
         if (G_h01_A9C2 == 0x100) {

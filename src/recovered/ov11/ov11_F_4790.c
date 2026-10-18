@@ -12,7 +12,7 @@ struct Rect {
 extern struct Rect G_h01_34EC[40];
 extern long G_h01_46CE;
 extern long G_h01_46D2;
-extern int F_h00_8A46();
+extern int BltBitMap();
 
 recovered()
 {
@@ -23,7 +23,7 @@ recovered()
             rect->kind--;
             if (rect->width > 0)
                 if (rect->height > 0)
-                    F_h00_8A46(G_h01_46CE, (long)rect->x,
+                    BltBitMap(G_h01_46CE, (long)rect->x,
                         (long)rect->y, G_h01_46D2, (long)rect->x,
                         (long)rect->y, (long)rect->width,
                         (long)rect->height, (long)192, (long)255, 0L);

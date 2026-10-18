@@ -22,9 +22,9 @@ extern char G_h01_6F37;
 extern int G_h01_6F38;
 extern char G_h01_6F3A;
 extern unsigned char G_h01_10ED;
-extern char G_h01_46E0;
-extern long G_h01_46E6;
-extern int F_h00_57D2();
+extern char difficulty_level;
+extern long total_money;
+extern int play_sound();
 extern int F_h00_34E0();
 extern unsigned int F_h00_463E();
 extern int F_h08_1D42();
@@ -59,7 +59,7 @@ int Q;
                     sl->x = x;
                     sl->st = 0;
                     e->active = 1;
-                    e->t = 8 + ((2 - G_h01_46E0) << 3);
+                    e->t = 8 + ((2 - difficulty_level) << 3);
                     break;
                 case 1:
                     if (--e->t <= 0) {
@@ -73,7 +73,7 @@ int Q;
                         e->active = 3;
                         sl->st = 2;
                         G_h01_6F76[4].x = e->pos + 16;
-                        F_h00_57D2(21);
+                        play_sound(21);
                     } else {
                         sl->st = 1;
                     }
@@ -88,8 +88,8 @@ int Q;
                         e->active = 0;
                         G_h01_6F36 = 0;
                         G_h01_6F2E = 8;
-                        F_h00_57D2(24);
-                        F_h00_57D2(15);
+                        play_sound(24);
+                        play_sound(15);
                     } else {
                         F_h00_34E0(&G_h01_6F76[4]);
                     }
@@ -117,7 +117,7 @@ int Q;
                             if (++e->t >= 20) {
                                 e->active = 1;
                                 e->t = 0;
-                                F_h00_57D2(14);
+                                play_sound(14);
                             }
                         }
                     }
@@ -189,7 +189,7 @@ int Q;
                             if (++e->t >= 10) {
                                 e->active = 11;
                                 e->t = 0;
-                                F_h00_57D2(14);
+                                play_sound(14);
                             }
                         }
                     }
@@ -271,7 +271,7 @@ int Q;
                             if (++e->t >= 10) {
                                 e->active = 1;
                                 e->t = 0;
-                                F_h00_57D2(91);
+                                play_sound(91);
                             }
                         }
                     }
@@ -321,7 +321,7 @@ int Q;
                         if (++e->t >= 40) {
                             e->active = 1;
                             e->t = 20;
-                            F_h00_57D2(18);
+                            play_sound(18);
                         }
                     }
                     break;
@@ -412,8 +412,8 @@ int Q;
                         x = x >> 4;
                         if (G_h01_6F2C >= x && G_h01_6F2C <= x + 1) {
                             e->active = 1;
-                            F_h00_57D2(32);
-                            G_h01_46E6 += 50;
+                            play_sound(32);
+                            total_money += 50;
                             F_h08_1D42();
                         }
                     }
@@ -429,7 +429,7 @@ int Q;
     sl = &G_h01_6F76[6];
     switch (e->active) {
     case 0:
-        if ((unsigned char)G_h01_10ED > 100 - (20 << G_h01_46E0)) {
+        if ((unsigned char)G_h01_10ED > 100 - (20 << difficulty_level)) {
             x = G_h01_6F30 == 0 ? G_h01_6F24 : G_h01_6F24 - 16;
             if (x < 0) {
                 x = 0;
@@ -457,7 +457,7 @@ int Q;
             sl->y = 0;
             e->active = 2;
             e->t = 40;
-            F_h00_57D2(13);
+            play_sound(13);
         }
         break;
     case 2:
@@ -510,7 +510,7 @@ int Q;
         F_h00_34E0(sl);
         e->t = 5;
         e->active = 5;
-        F_h00_57D2(11);
+        play_sound(11);
         break;
     case 5:
         sl->x = e->pos;
@@ -528,7 +528,7 @@ int Q;
         if (sl->y + 16 > 168) {
             sl->y = 152;
             e->active = 0;
-            F_h00_57D2(0);
+            play_sound(0);
         }
         F_h00_34E0(sl);
         if ((160 - sl->y) / 40 + P == G_h01_6F2A) {
@@ -538,8 +538,8 @@ int Q;
                 G_h01_6F28 = G_h01_6F30 == 0 ? 5 : 11;
                 G_h01_6F2E = 8;
                 G_h01_6F32 = 2;
-                F_h00_57D2(56);
-                F_h00_57D2(15);
+                play_sound(56);
+                play_sound(15);
                 e->active = 0;
             }
         }
@@ -559,7 +559,7 @@ int Q;
             e->pos = F_h00_463E() % 320 & 0xfff0;
             e->active = 1;
             if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 4) {
-                F_h00_57D2(11);
+                play_sound(11);
             }
         }
         break;
@@ -573,7 +573,7 @@ int Q;
                 else
                     e->active = 2;
                 if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 6) {
-                    F_h00_57D2(28);
+                    play_sound(28);
                 }
                 if (G_h01_34E2 - P == 0) {
                     G_h01_34E4 = 0;
@@ -608,7 +608,7 @@ int Q;
             G_h01_34E4 = 40;
             e->active = 1;
             if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 4) {
-                F_h00_57D2(11);
+                play_sound(11);
             }
         } else if (G_h01_6F2A == G_h01_34E2) {
             if (((G_h01_6F2C << 4) - x < 0 ? -((G_h01_6F2C << 4) - x) : (G_h01_6F2C << 4) - x) < 8 && G_h01_6F2E != 2 && G_h01_6F2E != 3) {
@@ -616,8 +616,8 @@ int Q;
                 G_h01_6F28 = G_h01_6F30 == 0 ? 5 : 11;
                 G_h01_6F2E = 8;
                 G_h01_6F32 = 2;
-                F_h00_57D2(56);
-                F_h00_57D2(15);
+                play_sound(56);
+                play_sound(15);
             }
         }
         break;
@@ -645,7 +645,7 @@ int Q;
             G_h01_34E4 = 40;
             e->active = 1;
             if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 4) {
-                F_h00_57D2(11);
+                play_sound(11);
             }
         } else if (G_h01_6F2A == G_h01_34E2) {
             if (((G_h01_6F2C << 4) - x < 0 ? -((G_h01_6F2C << 4) - x) : (G_h01_6F2C << 4) - x) < 8 && G_h01_6F2E != 2 && G_h01_6F2E != 3) {
@@ -653,8 +653,8 @@ int Q;
                 G_h01_6F28 = G_h01_6F30 == 0 ? 5 : 11;
                 G_h01_6F2E = 8;
                 G_h01_6F32 = 2;
-                F_h00_57D2(56);
-                F_h00_57D2(15);
+                play_sound(56);
+                play_sound(15);
             }
         }
         break;

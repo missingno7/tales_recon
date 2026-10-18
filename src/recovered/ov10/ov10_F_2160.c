@@ -2,7 +2,7 @@ struct Cell {
     char pad;
     unsigned char bits;
 };
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern char *G_h01_5370;
 extern long G_h01_46D2;
 extern int G_h01_7746;
@@ -11,7 +11,7 @@ extern int G_h01_774A;
 extern int G_h01_774C;
 extern char G_h01_774E;
 extern int F_h10_1FDE();
-extern int F_h00_8A46();
+extern int BltBitMap();
 
 recovered(p)
 struct Cell *p;
@@ -24,7 +24,7 @@ struct Cell *p;
     do {
         x=((56-(i&248))>>3)+(i&7);
         y=(i>>3)+(i&7);
-        if (!G_h01_46E0 || (p->bits&16)) {
+        if (!difficulty_level || (p->bits&16)) {
             if ((((unsigned short *)(p-1))[0]&64)==64 &&
                 (i&7) && (p->bits&1) ||
                 (((unsigned short *)(p+1))[0]&64)==64 &&
@@ -41,7 +41,7 @@ struct Cell *p;
         ++i;
         ++p;
     } while (i<64);
-    F_h00_8A46(G_h01_46D2,(long)G_h01_7746,(long)G_h01_7748,
+    BltBitMap(G_h01_46D2,(long)G_h01_7746,(long)G_h01_7748,
         &G_h01_774E,0L,0L,(long)(G_h01_774A<<shift),(long)G_h01_774C,
         192L,255L,0L);
 }

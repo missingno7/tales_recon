@@ -1,1 +1,1 @@
-unsigned char G_h01_2B8D = 0;
+unsigned char audio_volume_output_enabled = 0;

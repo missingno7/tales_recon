@@ -1,10 +1,10 @@
-extern int F_h04_1E36();
-extern int F_h03_001C();
-extern int F_h04_27FE();
+extern int initialize_av();
+extern int game_run_adventure();
+extern int shutdown_av();
 
 recovered()
 {
-    F_h04_1E36();
-    F_h03_001C();
-    F_h04_27FE("");
+    initialize_av();
+    game_run_adventure();
+    shutdown_av("");
 }

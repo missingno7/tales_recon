@@ -15,14 +15,14 @@ struct Event {
 };
 
 extern long F_h00_463E();
-extern void F_h00_3674();
+extern void report_loader_error();
 extern int F_h11_40E0();
 extern struct Event G_h01_A15E[1];
 extern int G_h01_A152;
 extern int G_h01_A150;
 extern int G_h01_A158;
 extern int G_h01_A15A;
-extern char G_h01_46E0;
+extern char difficulty_level;
 
 recovered()
 {
@@ -43,7 +43,7 @@ recovered()
             event->value8 = 80;
             break;
         default:
-            F_h00_3674(4555);
+            report_loader_error(4555);
             break;
         }
         event->value2 = 154 - event->value10 / 4 - 1;
@@ -60,7 +60,7 @@ recovered()
     }
     G_h01_A15A = 2;
     G_h01_A158 = (unsigned)F_h00_463E() % G_h01_A152;
-    switch (G_h01_46E0) {
+    switch (difficulty_level) {
     case 0:
         G_h01_A150 = 1;
         break;

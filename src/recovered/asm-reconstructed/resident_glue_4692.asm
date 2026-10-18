@@ -1,6 +1,6 @@
 	far data
 	dseg
-	public _G_h01_5374
+	public _graphics_library_base
 	cseg
 	public _F_h00_4692
 _F_h00_4692
@@ -15,7 +15,7 @@ _F_h00_4692
 	move.l 64(sp),d5
 	move.l 68(sp),d6
 	movea.l 72(sp),a2
-	movea.l _G_h01_5374,a6
+	movea.l _graphics_library_base,a6
 	jsr -636(a6)
 	movem.l (sp)+,d4-d6/a2-a6
 	rts

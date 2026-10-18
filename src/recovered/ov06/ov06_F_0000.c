@@ -6,24 +6,24 @@ struct Rec {
     char rest[46];
 };
 
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h00_4EC6();
 extern int F_h00_330E();
-extern int F_h00_8BC8();
-extern int F_h00_0FDE();
-extern long F_h00_86DC();
-extern int F_h00_2816();
+extern int SetRast();
+extern int request_disk();
+extern long Open();
+extern int arc_read_index();
 extern int F_h00_291E();
-extern int F_h00_435E();
-extern int F_h00_134C();
+extern int clear_input_direction_and_fire_state();
+extern int wait_for_fire_input();
 extern int F_h00_3AE4();
-extern int F_h00_868C();
+extern int Close();
 extern int F_h06_063A();
 
 extern long G_h01_2A16;
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern long G_h01_46CE;
-extern long G_h01_46DA;
+extern long arc_file;
 extern int G_h01_2F1E;
 extern int G_h01_2F20;
 extern int G_h01_2F54;
@@ -84,16 +84,16 @@ recovered()
     long saved;
     int t1;
 
-    F_h00_57D2(33);
+    play_sound(33);
     while (G_h01_2A16)
         ;
     F_h00_4EC6();
     F_h00_330E();
-    F_h00_8BC8(G_h01_46CA, 0L);
-    saved = G_h01_46DA;
-    F_h00_0FDE(2);
-    G_h01_46DA = F_h00_86DC("DT2:mac.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    SetRast(screen_rast_port, 0L);
+    saved = arc_file;
+    request_disk(2);
+    arc_file = Open("DT2:mac.arc", 1005L);
+    arc_read_index(arc_file);
     F_h00_291E(0, &G_h01_2F1E);
     F_h00_291E(1, &G_h01_2F54);
     F_h00_291E(2, &G_h01_2F8A);
@@ -109,8 +109,8 @@ recovered()
     F_h00_291E(12, &G_h01_3170);
     F_h00_291E(13, &G_h01_31A6);
     F_h00_291E(14, &G_h01_31DC);
-    F_h00_57D2(0);
-    F_h00_435E();
+    play_sound(0);
+    clear_input_direction_and_fire_state();
     G_h01_2F1E = 40;
     G_h01_2F20 = 79;
     G_h01_2F54 = 40;
@@ -138,16 +138,16 @@ recovered()
     G_h01_3098 = 238;
     G_h01_309A = 200 - G_h01_309E + 3;
     F_h06_063A();
-    F_h00_435E();
-    F_h00_134C(40);
+    clear_input_direction_and_fire_state();
+    wait_for_fire_input(40);
     F_h00_3AE4(&G_h01_30DE, G_h01_30D6, G_h01_30D8);
     F_h00_3AE4(&G_h01_3114, G_h01_310C, G_h01_310E);
     F_h00_3AE4(&G_h01_314A, G_h01_3142, G_h01_3144);
     F_h00_3AE4(&G_h01_3180, G_h01_3178, G_h01_317A);
     F_h00_3AE4(&G_h01_31B6, G_h01_31AE, G_h01_31B0);
     F_h00_3AE4(&G_h01_31EC, G_h01_31E4, G_h01_31E6);
-    F_h00_868C(G_h01_46DA);
-    F_h00_0FDE(1);
-    G_h01_46DA = saved;
-    F_h00_2816(G_h01_46DA);
+    Close(arc_file);
+    request_disk(1);
+    arc_file = saved;
+    arc_read_index(arc_file);
 }

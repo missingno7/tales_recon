@@ -14,7 +14,7 @@ struct Obj14 {
 extern int G_h01_0A82;
 extern int G_h01_0A84;
 extern float G_h01_0A7E;
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern long G_h01_46D2;
 extern long G_h01_5484[17];
 extern struct Entry G_h01_5E64[16];
@@ -43,8 +43,8 @@ extern int G_h01_5E52;
 extern int G_h01_5E54;
 extern float G_h01_5E34;
 extern float G_h01_5E38;
-extern int F_h00_8BC8();
-extern int F_h00_8A46();
+extern int SetRast();
+extern int BltBitMap();
 extern int F_h00_34E0();
 extern int F_h05_3836();
 extern int F_h05_1EFC();
@@ -67,7 +67,7 @@ char *p;
     struct Entry *ent;
 
     flag = 0;
-    F_h00_8BC8(G_h01_46CA, 9L);
+    SetRast(screen_rast_port, 9L);
     F_h05_3836();
     x = -G_h01_5E4C;
     if (G_h01_5E4C >= 0) {
@@ -93,9 +93,9 @@ char *p;
         }
         if (e > 0) {
             if (ent->f0 >= 1 && ent->f0 <= 10)
-                F_h00_8A46(obj, (long)a, 0L, G_h01_46D2, (long)c, 144L, (long)e, 32L, 192L, 255L, 0L);
+                BltBitMap(obj, (long)a, 0L, G_h01_46D2, (long)c, 144L, (long)e, 32L, 192L, 255L, 0L);
             else
-                F_h00_8A46(obj, (long)a, 0L, G_h01_46D2, (long)c, 160L, (long)e, 16L, 192L, 255L, 0L);
+                BltBitMap(obj, (long)a, 0L, G_h01_46D2, (long)c, 160L, (long)e, 16L, 192L, 255L, 0L);
         }
         if (ent->index != -1) {
             q = &G_h01_606C[ent->index];
@@ -105,11 +105,11 @@ char *p;
                 case 35:
                 case 36:
                     if (e > 0)
-                        F_h00_8A46(G_h01_55A0, (long)a, 0L, G_h01_46D2, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
+                        BltBitMap(G_h01_55A0, (long)a, 0L, G_h01_46D2, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
                     break;
                 case 28:
                     if (e > 0)
-                        F_h00_8A46(G_h01_5898, (long)a, 0L, G_h01_46D2, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
+                        BltBitMap(G_h01_5898, (long)a, 0L, G_h01_46D2, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
                     break;
                 case 32:
                     q->x = q->x + 32;

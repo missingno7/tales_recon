@@ -11,7 +11,7 @@ extern int G_h01_94BE;
 extern int G_h01_94C0;
 extern int G_h01_A14E;
 extern unsigned int F_h00_463E();
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h11_25D6();
 extern int F_h11_2E26();
 extern int F_h11_41F6();
@@ -67,7 +67,7 @@ state17_body:
         if (near) {
             object[22] = 14; changed = 1; redraw = 1;
         } else {
-            if (object[4] == 2) F_h00_57D2(96);
+            if (object[4] == 2) play_sound(96);
             F_h11_4474(2, object + 1);
         }
 state17_done:
@@ -151,7 +151,7 @@ state11_done:
             object[22] = 13; changed = 1; redraw = 1;
         } else {
             if (object[4] == 1 && G_h01_12C0[16].field0 != 0) {
-                F_h00_57D2(96); G_h01_12C0[16].field0 = 0;
+                play_sound(96); G_h01_12C0[16].field0 = 0;
                 F_h11_4474(2, object + 1);
             } else {
                 F_h11_4474(2, object + 1);

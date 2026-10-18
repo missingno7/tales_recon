@@ -8,9 +8,9 @@ extern short G_h01_94C0;
 extern short G_h01_8A3C;
 extern short G_h01_8B1C[40][4];
 extern short G_h01_940C[1];
-extern long G_h01_46E6;
+extern long total_money;
 extern int F_h11_25D6();
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h11_5A12();
 extern int F_h11_5A62();
 extern int F_h11_4B0C();
@@ -27,9 +27,9 @@ recovered()
             ypos = (((G_h01_94C0 + 14) >> 5) << 5) + 0x30;
             if (F_h11_25D6(xpos + 0x0f, offset, xpos + 0x21) &&
                 F_h11_25D6(ypos - 0x0f, G_h01_94C0 + 0x12, ypos)) {
-                F_h00_57D2(0x20);
+                play_sound(0x20);
                 G_h01_940C[tile] = 0;
-                G_h01_46E6 += 0x32;
+                total_money += 0x32;
                 G_h01_8A3C = 3;
             }
         }

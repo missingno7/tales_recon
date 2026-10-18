@@ -1,1 +1,1 @@
-char G_h01_2C2C = 15;
+char palette_cycle_countdown_step = 15;

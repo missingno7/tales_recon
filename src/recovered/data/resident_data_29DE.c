@@ -1,1 +1,1 @@
-unsigned short G_h01_29DE = 428;
+unsigned short audio_note_period_table = 428;

@@ -1,9 +1,9 @@
-extern int F_h00_4F62();
+extern int drain_input_key_queue();
 recovered()
 {
  int value;
  for(;;) {
-  if(value=F_h00_4F62()) break;
+  if(value=drain_input_key_queue()) break;
  }
  return value;
 }

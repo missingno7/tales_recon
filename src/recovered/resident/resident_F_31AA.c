@@ -1,6 +1,6 @@
 extern long G_h01_5392;
 extern int F_h00_30F0();
-extern int F_h00_86A8();
+extern int Delay();
 
 recovered(target)
 unsigned int *target;
@@ -25,6 +25,6 @@ unsigned int *target;
             ((short *)G_h01_5392)[j] = (r << 8) | (g << 4) | b;
         }
         F_h00_30F0();
-        F_h00_86A8(2L);
+        Delay(2L);
     }
 }

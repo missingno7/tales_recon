@@ -17,8 +17,8 @@ struct Event {
 
 extern short G_h01_A156;
 extern struct Event G_h01_A15E[1];
-extern int F_h00_57D2();
-extern int F_h00_86A8();
+extern int play_sound();
+extern int Delay();
 
 recovered(index)
 int index;
@@ -27,6 +27,6 @@ int index;
 
     record = &G_h01_A15E[index];
     G_h01_A156 = 0;
-    F_h00_86A8(5L);
-    F_h00_57D2(91);
+    Delay(5L);
+    play_sound(91);
 }

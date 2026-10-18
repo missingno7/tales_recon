@@ -1,4 +1,4 @@
-extern int F_h00_3930();
+extern int free_memory_checked();
 extern short G_h01_0970;
 extern long G_h01_542A;
 
@@ -7,5 +7,5 @@ char **p;
 short x;
 short y;
 {
-    return F_h00_3930(&G_h01_542A, *p, (long)x * y * G_h01_0970);
+    return free_memory_checked(&G_h01_542A, *p, (long)x * y * G_h01_0970);
 }

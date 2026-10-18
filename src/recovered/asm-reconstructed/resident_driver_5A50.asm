@@ -1,9 +1,9 @@
 	far data
 	dseg
 	public _G_h00_5E6C
-	public _G_h01_292E
-	public _G_h01_2A0A
-	public _G_h01_2B4E
+	public _audio_score_command_handlers
+	public _audio_pitch_effect_channel_mask
+	public _audio_channel_0_block_countdown
 	cseg
 	public _resident_asm_559E
 	public _resident_asm_59A4
@@ -35,7 +35,7 @@
 	public _end_dispatch
 _G_h01_27E4_A4 equ -22554
 _recon_h00_5A50
-	btst d7,_G_h01_2A0A
+	btst d7,_audio_pitch_effect_channel_mask
 	beq _recon_h00_5A68
 	move.b $19(a0),d0
 	lsr.b #$1,d0
@@ -57,7 +57,7 @@ _recon_h00_5A76
 	bra _recon_h00_5B62
 _recon_h00_5A8A
 	lsl.w #$2,d0
-	lea _G_h01_292E,a2
+	lea _audio_score_command_handlers,a2
 	movea.l 0(a2,d0.w),a2
 	clr.w d0
 	move.b (a1)+,d0
@@ -123,7 +123,7 @@ _recon_h00_5B3A
 	move.l a1,$4(a0)
 	move.w d7,d1
 	lsl.w #$3,d1
-	lea _G_h01_2B4E,a2
+	lea _audio_channel_0_block_countdown,a2
 	clr.w 0(a2,d1.w)
 	rts
 _recon_h00_5B62
@@ -134,7 +134,7 @@ _recon_h00_5B62
 	clr.b $1e(a0)
 	move.w d7,d1
 	lsl.w #$3,d1
-	lea _G_h01_2B4E,a2
+	lea _audio_channel_0_block_countdown,a2
 	clr.w 0(a2,d1.w)
 	move.b #$0,$3b(a0)
 	rts
@@ -161,7 +161,7 @@ _recon_h00_5BBC
 _recon_h00_5BC6
 	move.w d7,d1
 	lsl.w #$3,d1
-	lea _G_h01_2B4E,a2
+	lea _audio_channel_0_block_countdown,a2
 	tst.w 0(a2,d1.w)
 	beq _recon_h00_5BF0
 	clr.l $4(a0)
@@ -171,7 +171,7 @@ _recon_h00_5BC6
 _recon_h00_5BE6
 	move.w d7,d1
 	lsl.w #$3,d1
-	lea _G_h01_2B4E,a2
+	lea _audio_channel_0_block_countdown,a2
 _recon_h00_5BF0
 	movem.l a3-a4,-(sp)
 	move.w #$1,d2
@@ -213,7 +213,7 @@ _recon_h00_5C4A
 _recon_h00_5C6A
 	move.w d7,d3
 	lsl.w #$3,d3
-	lea _G_h01_2B4E,a2
+	lea _audio_channel_0_block_countdown,a2
 	adda.w d3,a2
 	tst.w (a2)
 	beq _recon_h00_5C8A
@@ -235,10 +235,10 @@ _recon_h00_5C90
 	move.b $19(a0),$18(a0)
 	lsr.b #$4,d1
 	move.b d1,$25(a0)
-	bset d7,_G_h01_2A0A
+	bset d7,_audio_pitch_effect_channel_mask
 	bra _recon_h00_5A76
 _recon_h00_5CB6
-	bclr d7,_G_h01_2A0A
+	bclr d7,_audio_pitch_effect_channel_mask
 	subq.l #$1,a1
 	bra _recon_h00_5A76
 _end_dispatch

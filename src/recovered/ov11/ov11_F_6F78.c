@@ -6,7 +6,7 @@ struct DistanceRecord {
     char tail[12];
 };
 
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern struct DistanceRecord G_h01_A554[1];
 extern long F_h11_2562();
 
@@ -19,7 +19,7 @@ int scale;
     struct DistanceRecord *record;
 
     record=&G_h01_A554[index];
-    switch (G_h01_46E0) {
+    switch (difficulty_level) {
     case 0:
         scale*=3;
         break;

@@ -1,3 +1,3 @@
 struct DP_Channel;
-extern unsigned long G_h01_2A12;
-struct DP_Channel * G_h01_29FA = (struct DP_Channel *)&G_h01_2A12;
+extern unsigned long audio_channel_0_state;
+struct DP_Channel * audio_channel_0_state_pointer = (struct DP_Channel *)&audio_channel_0_state;

@@ -4,7 +4,7 @@ extern long G_h01_5422;
 extern char *G_h01_B1F2;
 extern struct Slot *G_h01_28C4;
 extern int F_h00_48D4();
-extern int F_h00_559E();
+extern int generate_audio_noise_byte();
 extern int F_h00_49A0();
 recovered()
 {
@@ -42,8 +42,8 @@ recovered()
     F_h00_48D4(k);
     i=0;
     do {
-        noise=F_h00_559E();
-        noise+=F_h00_559E();
+        noise=generate_audio_noise_byte();
+        noise+=generate_audio_noise_byte();
         noise>>=1;
         ((char *)((long)i+(long)G_h01_B1F2))[0xc00]=noise;
         i++;

@@ -1,5 +1,5 @@
 extern int G_h01_B1E8;
-char F_h00_411E();
+char arc_next_byte();
 
 struct View404A {
     unsigned int width, rows;
@@ -28,19 +28,19 @@ register struct View404A *bitmap;
             out = bitmap->planes[plane] + column;
             for (row = 0; row < count; ++row) {
                 if (remaining == 0) {
-                    token = F_h00_411E();
+                    token = arc_next_byte();
                     remaining = token;
                     remaining &= 127;
                     if (token & 128)
                         literal = 1;
                     else {
                         literal = 0;
-                        value = F_h00_411E();
+                        value = arc_next_byte();
                     }
                 }
                 --remaining;
                 if (literal) {
-                    token = F_h00_411E();
+                    token = arc_next_byte();
                     *out = token;
                 } else
                     *out = value;

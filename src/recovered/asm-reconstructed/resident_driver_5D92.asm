@@ -1,9 +1,9 @@
 	far data
 	dseg
-	public _G_h01_2B86
-	public _G_h01_2B8A
-	public _G_h01_2B8C
-	public _G_h01_2B8D
+	public _noise_period_offset
+	public _audio_noise_random_state_word
+	public _audio_global_volume_attenuation
+	public _audio_volume_output_enabled
 	cseg
 	public _resident_asm_559E
 	public _recon_h00_5A76
@@ -39,13 +39,13 @@ _recon_h00_5DB4
 	move.b d0,$46(a0)
 	bra _recon_h00_5A76
 _recon_h00_5DBC
-	move.b d0,_G_h01_2B8D
+	move.b d0,_audio_volume_output_enabled
 	bra _recon_h00_5A76
 _recon_h00_5DC6
-	move.b d0,_G_h01_2B8C
+	move.b d0,_audio_global_volume_attenuation
 	bra _recon_h00_5A76
 _recon_h00_5DD0
-	add.b d0,_G_h01_2B8C
+	add.b d0,_audio_global_volume_attenuation
 	bra _recon_h00_5A76
 _recon_h00_5DDA
 	move.b d0,$8(a0)
@@ -70,10 +70,10 @@ _recon_h00_5DFE
 	lsl.w d7,d2
 	move.w d2,$dff096
 	jsr _resident_asm_559E(pc)
-	move.w _G_h01_2B8A,d2
+	move.w _audio_noise_random_state_word,d2
 	and.w #$3ff,d2
 	clr.l d0
-	move.w _G_h01_2B86,d0
+	move.w _noise_period_offset,d0
 	lsr.w #$3,d0
 	move.w #$e08,d1
 	sub.w d0,d1

@@ -9,30 +9,30 @@ extern struct Input *G_h01_6EA8;
 extern long G_h01_6EAC;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
-extern long G_h01_46DA;
-extern long G_h01_46E6;
+extern long arc_file;
+extern long total_money;
 extern char G_h01_33E2;
-extern struct PortfolioRow G_h01_4D62[16];
+extern struct PortfolioRow investment_company_table[16];
 extern struct Holding G_h01_4D84[16];
 extern struct Symbol G_h01_4D88[16];
-extern int F_h00_0FDE();
-extern int F_h00_2816();
-extern long F_h00_86DC();
+extern int request_disk();
+extern int arc_read_index();
+extern long Open();
 extern long F_h00_291E();
 extern int F_h00_307C();
 extern int F_h00_34E0();
 extern int F_h00_35DC();
 extern int F_h00_3C0E();
-extern int F_h00_4376();
-extern int F_h00_57D2();
-extern int F_h00_868C();
-extern int F_h00_8044();
-extern int F_h00_8A46();
+extern int poll_controller_and_keyboard_input();
+extern int play_sound();
+extern int Close();
+extern int strlen();
+extern int BltBitMap();
 extern int F_h00_09C0();
 extern int F_h07_0F30();
 extern int F_h07_0E06();
 extern int F_h07_0E7C();
-extern int F_h07_0EC0();
+extern int invest_calculate_share_price();
 extern int F_h07_18F8();
 
 recovered(arg, p)
@@ -56,7 +56,7 @@ struct Slot *p;
     char buf[2];
 
     buf[1] = 0;
-    while ((F_h00_4376() & 0x80) == 0x80)
+    while ((poll_controller_and_keyboard_input() & 0x80) == 0x80)
         ;
     s4a = 4;
     s4c = 7;
@@ -70,21 +70,21 @@ struct Slot *p;
     u1 = -1;
     u2 = 1;
     s64 = 1;
-    F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
-    G_h01_6EAC = G_h01_46DA;
-    F_h00_0FDE(1);
-    G_h01_46DA = F_h00_86DC("DT1:invest.arc", 1005L);
-    F_h00_2816(G_h01_46DA);
+    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+    G_h01_6EAC = arc_file;
+    request_disk(1);
+    arc_file = Open("DT1:invest.arc", 1005L);
+    arc_read_index(arc_file);
     G_h01_6EA8 = 0;
     G_h01_6EA8 = F_h00_291E(arg, G_h01_6EA8);
 
     while (s58 == 0) {
-        key = (unsigned char)F_h00_4376();
+        key = (unsigned char)poll_controller_and_keyboard_input();
         if (key & 0x40) {
             s58 = 1;
         } else if (key & 0x80) {
             if (s66 == 0) {
-                F_h00_57D2(36);
+                play_sound(36);
                 s66 = 1;
                 switch (s56) {
                 case 3:
@@ -99,8 +99,8 @@ struct Slot *p;
                         s62 = 5;
                     } else if (G_h01_4D84[arg].shares >= 99) {
                         s62 = 6;
-                    } else if (G_h01_46E6 - s60 >= 0) {
-                        G_h01_46E6 -= s60;
+                    } else if (total_money - s60 >= 0) {
+                        total_money -= s60;
                         G_h01_4D84[arg].shares++;
                         s62 = 3;
                         G_h01_33E2 = 1;
@@ -112,7 +112,7 @@ struct Slot *p;
                 case 2:
                     s4c = 6;
                     if (G_h01_4D84[arg].shares > 0) {
-                        G_h01_46E6 += s60;
+                        total_money += s60;
                         G_h01_4D84[arg].shares--;
                         s62 = 2;
                         G_h01_33E2 = 1;
@@ -132,7 +132,7 @@ struct Slot *p;
             case 7:
                 if (s66 != 0)
                     break;
-                F_h00_57D2(36);
+                play_sound(36);
                 s66 = 1;
                 s56 -= 1;
                 if (s56 < 0)
@@ -143,7 +143,7 @@ struct Slot *p;
                 if (s66 != 0)
                     break;
                 s66 = 1;
-                F_h00_57D2(36);
+                play_sound(36);
                 s56 += 1;
                 if (s56 > 2)
                     s56 = 0;
@@ -170,8 +170,8 @@ struct Slot *p;
             p[s4c].f2 = 0xaf;
             F_h00_34E0(&p[s4c]);
             F_h07_0F30(xs[s56]);
-            s68 = F_h00_8044(&G_h01_4D62[arg]);
-            F_h00_35DC(160 - s68 * 4, 8, &G_h01_4D62[arg], 7, 9);
+            s68 = strlen(&investment_company_table[arg]);
+            F_h00_35DC(160 - s68 * 4, 8, &investment_company_table[arg], 7, 9);
             F_h07_0E06(p);
             F_h07_0E7C(&p[2]);
             F_h00_35DC(35, 23, "       COMPANY DESCRIPTION      ", 1, 7);
@@ -180,11 +180,11 @@ struct Slot *p;
             buf[0] = G_h01_4D88[arg].code + 'A';
             F_h00_35DC(224, 113, buf, 1, 0);
             F_h00_35DC(96, 113, ".00", 14, 0);
-            F_h00_09C0(96, 113, G_h01_46E6, 14, 0, 1);
+            F_h00_09C0(96, 113, total_money, 14, 0, 1);
             F_h00_35DC(32, 127, " PRICE PER SHARE  SHARES OWNED  ", 1, 7);
             F_h00_09C0(232, 140, (long)G_h01_4D84[arg].shares, 14, 0, 1);
             F_h00_35DC(96, 140, ".00", 1, 0);
-            s60 = F_h07_0EC0(arg);
+            s60 = invest_calculate_share_price(arg);
             F_h00_09C0(96, 140, (long)s60, 1, 0, 1);
             switch (s62) {
             case 1:
@@ -195,11 +195,11 @@ struct Slot *p;
                 break;
             case 3:
                 F_h00_35DC(35, 150, "      ONE SHARE PURCHASED       ", 1, 15);
-                F_h00_57D2(62);
+                play_sound(62);
                 break;
             case 2:
                 F_h00_35DC(35, 150, "         ONE SHARE SOLD         ", 1, 15);
-                F_h00_57D2(63);
+                play_sound(63);
                 break;
             case 4:
                 F_h00_35DC(35, 150, "        NO SHARES TO SELL       ", 1, 9);
@@ -214,14 +214,14 @@ struct Slot *p;
                 break;
             }
             F_h00_307C();
-            F_h00_8A46(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             s64 = 0;
         }
     }
     F_h00_3C0E(G_h01_6EA8);
-    F_h00_868C(G_h01_46DA);
-    G_h01_46DA = G_h01_6EAC;
-    F_h00_0FDE(1);
-    F_h00_2816(G_h01_46DA);
+    Close(arc_file);
+    arc_file = G_h01_6EAC;
+    request_disk(1);
+    arc_read_index(arc_file);
     return s58 - 1;
 }

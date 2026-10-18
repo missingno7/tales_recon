@@ -1,12 +1,12 @@
 extern long F_h00_463E();
 extern int F_h00_4EC6();
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_4D04();
 extern int F_h00_0640();
-extern int F_h00_57D2();
-extern int F_h00_2816();
-extern int F_h00_134C();
-extern long G_h01_46DA;
+extern int play_sound();
+extern int arc_read_index();
+extern int wait_for_fire_input();
+extern long arc_file;
 
 recovered(a)
 int a;
@@ -16,7 +16,7 @@ int a;
     if (a) {
         value=(unsigned)F_h00_463E()%3;
         F_h00_4EC6();
-        F_h00_0FDE(2);
+        request_disk(2);
         switch (value) {
         case 0:
             F_h00_4D04(9);
@@ -29,18 +29,18 @@ int a;
             break;
         }
         F_h00_0640(12);
-        F_h00_57D2(119);
-        F_h00_0FDE(1);
-        F_h00_2816(G_h01_46DA);
+        play_sound(119);
+        request_disk(1);
+        arc_read_index(arc_file);
     } else {
         value=(F_h00_463E()&1) ? 15 : 16;
         F_h00_4EC6();
-        F_h00_0FDE(2);
+        request_disk(2);
         F_h00_4D04(value);
         F_h00_0640(11);
-        F_h00_57D2(119);
-        F_h00_0FDE(1);
-        F_h00_2816(G_h01_46DA);
+        play_sound(119);
+        request_disk(1);
+        arc_read_index(arc_file);
     }
-    F_h00_134C(100);
+    wait_for_fire_input(100);
 }

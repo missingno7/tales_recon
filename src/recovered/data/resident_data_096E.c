@@ -1,1 +1,1 @@
-int G_h01_096E = 0;
+int sound_toggle_state = 0;

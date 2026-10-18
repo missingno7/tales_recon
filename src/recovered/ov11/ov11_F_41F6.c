@@ -29,8 +29,8 @@ extern char G_h01_9D6C[1];
 extern char G_h01_9D3C[1];
 extern char G_h01_9D4C[1];
 extern char G_h01_9D2C[1];
-extern int F_h00_57D2();
-extern int F_h00_86A8();
+extern int play_sound();
+extern int Delay();
 
 recovered(mode, state, kind, value0, value2)
 int mode;
@@ -48,7 +48,7 @@ int value2;
     case 33:
         state->address = G_h01_9F0C;
         state->code = 4;
-        F_h00_57D2(89);
+        play_sound(89);
         break;
     case 24:
         switch (kind) {
@@ -111,9 +111,9 @@ int value2;
         case 18:
             state->code = 12;
             state->address = G_h01_9D9C;
-            F_h00_57D2(0);
-            F_h00_86A8((long)5);
-            F_h00_57D2(97);
+            play_sound(0);
+            Delay((long)5);
+            play_sound(97);
             break;
         case 17:
             state->code = 5;

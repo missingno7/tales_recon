@@ -1,12 +1,12 @@
 extern char G_h01_6F40[1];
-extern int F_h00_0FDE();
+extern int request_disk();
 extern int F_h00_291E();
 
 recovered()
 {
     int i;
 
-    F_h00_0FDE(2);
+    request_disk(2);
     for (i = 1; i < 11; ++i) {
         switch (i) {
         case 1: F_h00_291E(5, G_h01_6F40 + (long)i * 54); break;

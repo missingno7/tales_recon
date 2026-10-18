@@ -1,1 +1,1 @@
-unsigned char G_h01_2B8C = 0;
+unsigned char audio_global_volume_attenuation = 0;

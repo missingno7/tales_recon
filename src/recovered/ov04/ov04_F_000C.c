@@ -16,25 +16,25 @@ struct FlagEntry {
     char pad[11];
 };
 
-extern struct LinkEntry G_h01_4524[35];
+extern struct LinkEntry map_location_table[35];
 extern struct LinkEntry G_h01_4528[35];
 extern char G_h01_470A;
 extern char G_h01_4C82;
-extern struct FlagEntry G_h01_452E[35];
-extern struct FlagEntry G_h01_452F[35];
-extern int F_h04_0104();
-extern int F_h04_037E();
+extern struct FlagEntry player_treasure_collected[35];
+extern struct FlagEntry rival_treasure_collected[35];
+extern int arc_load_locations();
+extern int arc_load_treasures();
 
 recovered()
 {
     int i;
 
     for (i = 0; i < 35; i++) {
-        G_h01_4524[i].target = (char *)&G_h01_470A + (long)i * 40;
+        map_location_table[i].target = (char *)&G_h01_470A + (long)i * 40;
         G_h01_4528[i].target = (char *)&G_h01_4C82 + (long)i * 6;
-        G_h01_452E[i].value = 0;
-        G_h01_452F[i].value = 0;
+        player_treasure_collected[i].value = 0;
+        rival_treasure_collected[i].value = 0;
     }
-    F_h04_0104();
-    F_h04_037E();
+    arc_load_locations();
+    arc_load_treasures();
 }

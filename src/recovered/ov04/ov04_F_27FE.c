@@ -1,6 +1,6 @@
-extern long G_h01_5374;
-extern long G_h01_5378;
-extern long G_h01_537C;
+extern long graphics_library_base;
+extern long intuition_library_base;
+extern long layers_library_base;
 extern long G_h01_5380;
 extern long G_h01_5384;
 extern long G_h01_53B4;
@@ -13,7 +13,7 @@ extern char G_h01_53F8;
 extern long G_h01_5422;
 extern long G_h01_5426;
 extern long G_h01_542A;
-extern long G_h01_46DA;
+extern long arc_file;
 extern long G_h01_46F8;
 
 struct InitBlock { char pad[12]; long field_c; long field_10; };
@@ -25,27 +25,27 @@ extern struct InitBlock *G_h01_53EC;
 extern struct S0 *G_h01_53DC;
 
 extern int F_h00_4EC6();
-extern int F_h00_53E6();
+extern int shutdown_audio_and_input();
 extern int F_h00_330E();
 extern long F_h00_89D0();
-extern long F_h00_3870();
-extern int F_h00_8C6E();
-extern int F_h00_8C86();
-extern int F_h00_3930();
+extern long allocate_memory_or_report();
+extern int GetPrefs();
+extern int SetPrefs();
+extern int free_memory_checked();
 extern int F_h00_3850();
 extern int F_h00_897C();
-extern int F_h00_8A8A();
-extern int F_h00_868C();
-extern int F_h00_8A9C();
-extern int F_h00_8CB6();
-extern int F_h00_8CC4();
-extern int F_h00_8B32();
-extern int F_h00_8ABA();
-extern int F_h00_8ADE();
-extern int F_h00_8AC6();
-extern int F_h00_8C66();
-extern int F_h00_8C7E();
-extern int F_h00_8784();
+extern int BltClear();
+extern int Close();
+extern int CloseFont();
+extern int DeleteLayer();
+extern int DisposeLayer();
+extern int LoadView();
+extern int FreeColorMap();
+extern int FreeVPort();
+extern int FreeCprList();
+extern int CloseWorkBench();
+extern int OpenWorkBench();
+extern int CloseLibrary();
 extern int F_h00_8534();
 
 recovered()
@@ -53,17 +53,17 @@ recovered()
     int unused;
 
     F_h00_4EC6();
-    F_h00_53E6();
+    shutdown_audio_and_input();
     F_h00_330E();
-    G_h01_5378 = F_h00_89D0("intuition.library", 0L);
-    if (!G_h01_5378)
+    intuition_library_base = F_h00_89D0("intuition.library", 0L);
+    if (!intuition_library_base)
         recovered("InitAV:\tcannot open intuition library\n");
-    G_h01_53EC = F_h00_3870(&G_h01_542A, 0xe8L);
-    F_h00_8C6E(G_h01_53EC, 0xe8L);
+    G_h01_53EC = allocate_memory_or_report(&G_h01_542A, 0xe8L);
+    GetPrefs(G_h01_53EC, 0xe8L);
     G_h01_53EC->field_c = G_h01_53F0;
     G_h01_53EC->field_10 = G_h01_53F4;
-    F_h00_8C86(G_h01_53EC, 0xe8L, 1L);
-    F_h00_3930(&G_h01_542A, G_h01_53EC, 0xe8L);
+    SetPrefs(G_h01_53EC, 0xe8L, 1L);
+    free_memory_checked(&G_h01_542A, G_h01_53EC, 0xe8L);
     F_h00_3850(0x40f10L);
     if (G_h01_53F8) {
         if (G_h01_5422)
@@ -71,22 +71,22 @@ recovered()
         if (G_h01_5426)
             F_h00_897C(G_h01_5426, 0x3e80L);
     } else {
-        F_h00_8A8A(G_h01_53DC->field_0->field_24->field_4->field_8, 0x3e80L, 0L);
-        F_h00_8A8A(G_h01_53DC->field_0->field_24->field_4->field_c, 0x3e80L, 0L);
+        BltClear(G_h01_53DC->field_0->field_24->field_4->field_8, 0x3e80L, 0L);
+        BltClear(G_h01_53DC->field_0->field_24->field_4->field_c, 0x3e80L, 0L);
     }
-    F_h00_868C(G_h01_46DA);
-    F_h00_8A9C(G_h01_46F8);
-    F_h00_8CB6(G_h01_5380, G_h01_5384);
-    F_h00_8CC4(G_h01_5380);
-    F_h00_8B32(G_h01_53DC);
-    F_h00_8ABA(G_h01_53E8);
-    F_h00_8ADE(&G_h01_53B4);
-    F_h00_8AC6(G_h01_53E0);
-    F_h00_8AC6(G_h01_53E4);
-    F_h00_8C66();
-    F_h00_8C7E();
-    F_h00_8784(G_h01_537C);
-    F_h00_8784(G_h01_5378);
-    F_h00_8784(G_h01_5374);
+    Close(arc_file);
+    CloseFont(G_h01_46F8);
+    DeleteLayer(G_h01_5380, G_h01_5384);
+    DisposeLayer(G_h01_5380);
+    LoadView(G_h01_53DC);
+    FreeColorMap(G_h01_53E8);
+    FreeVPort(&G_h01_53B4);
+    FreeCprList(G_h01_53E0);
+    FreeCprList(G_h01_53E4);
+    CloseWorkBench();
+    OpenWorkBench();
+    CloseLibrary(layers_library_base);
+    CloseLibrary(intuition_library_base);
+    CloseLibrary(graphics_library_base);
     F_h00_8534(0);
 }

@@ -31,7 +31,7 @@ extern int G_h01_2F10;
 extern int G_h01_2F12;
 extern int G_h01_2F14;
 extern int G_h01_2F16;
-extern long G_h01_46E6;
+extern long total_money;
 extern float G_h01_5E34;
 extern float G_h01_5E38;
 extern int G_h01_5E3C;
@@ -42,9 +42,9 @@ extern int G_h01_5E46;
 extern int G_h01_5E48;
 extern int G_h01_5E4A;
 extern char G_h01_5E5A;
-extern int F_h00_57D2();
+extern int play_sound();
 extern unsigned int F_h00_463E();
-extern int F_h00_435E();
+extern int clear_input_direction_and_fire_state();
 extern int F_h05_30EE();
 
 recovered()
@@ -77,9 +77,9 @@ recovered()
                 G_h01_5E40 = 8;
             if (G_h01_0A7C == 0) {
                 G_h01_0A7A = 0;
-                F_h00_57D2(57);
+                play_sound(57);
                 G_h01_5E5A = 1;
-                G_h01_46E6 += 50;
+                total_money += 50;
                 G_h01_0A7C = 1;
             }
             return 0;
@@ -183,7 +183,7 @@ recovered()
             G_h01_0A90 = 1;
             G_h01_0A8C = k;
             G_h01_0A8E = p->b12;
-            F_h00_435E();
+            clear_input_direction_and_fire_state();
             G_h01_5E3E = 0;
             G_h01_5E3C = 0;
             return 0;
@@ -220,12 +220,12 @@ recovered()
             return 0;
         case 0x1c:
             G_h01_5E40 = (G_h01_5E40 + 8) & 15;
-            F_h00_57D2(53);
+            play_sound(53);
             return 0;
         case 0x23:
         case 0x24:
             G_h01_5E40 = (G_h01_5E40 + 8) & 15;
-            F_h00_57D2(50);
+            play_sound(50);
             return 0;
         case 0x31:
             if (G_h01_2F14 > x_a && G_h01_2F16 < x_b) {
@@ -246,10 +246,10 @@ recovered()
                 G_h01_5E40 = (G_h01_5E40 + 8) & 15;
             }
             G_h01_0A90 = 1;
-            F_h00_57D2(50);
+            play_sound(50);
             return 0;
         default:
-            F_h00_57D2(66);
+            play_sound(66);
             break;
         }
         G_h01_5E40 = F_h00_463E() & 15;

@@ -18,7 +18,7 @@ extern int G_h01_94E6;
 extern int G_h01_945C[1];
 extern int G_h01_8B1C[41][4];
 extern struct ClusterRecord G_h01_8BEC[1];
-extern int F_h00_57D2();
+extern int play_sound();
 extern int F_h11_3F90();
 extern int F_h11_40AE();
 extern int F_h11_415A();
@@ -137,7 +137,7 @@ recovered()
         } else if (tick) {
             G_h01_94C0 = ((((G_h01_94C0 + 14) >> 5)) << 5) + 16;
             G_h01_94AE = 5;
-            F_h00_57D2(0x77);
+            play_sound(0x77);
         }
         if ((t8 = G_h01_945C[G_h01_94BA]) != 0 && F_h11_6F78(t8, (8 >> G_h01_94B0) + G_h01_94BE, G_h01_94C0 + 16, 0x400)) {
             G_h01_94D8 = t8;
@@ -160,12 +160,12 @@ recovered()
                 }
             }
             G_h01_94AE = 5;
-            F_h00_57D2(0x77);
+            play_sound(0x77);
         }
         break;
     case 1:
         if (tick) {
-            F_h00_57D2(10);
+            play_sound(10);
             G_h01_94B3 ^= 1;
             G_h01_94AE = 5;
         }

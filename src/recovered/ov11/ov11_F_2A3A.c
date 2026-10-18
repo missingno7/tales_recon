@@ -12,7 +12,7 @@ struct Record {
 
 struct Slot { long value; char unused[12]; };
 
-extern char G_h01_46E0;
+extern char difficulty_level;
 extern char G_h01_9D2C[1];
 extern char G_h01_9D4C[1];
 extern char G_h01_9D6C[1];
@@ -130,7 +130,7 @@ recovered()
     G_h01_9EA0 = 6;
     G_h01_9EA2 = 3;
 
-    switch (G_h01_46E0) {
+    switch (difficulty_level) {
     case 0:
         G_h01_34D8[8] = 6;
         break;

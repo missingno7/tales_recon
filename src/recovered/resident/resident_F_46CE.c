@@ -5,7 +5,7 @@ struct Level {
     char *p4;
 };
 
-extern struct Level *G_h01_27E4[1];
+extern struct Level *audio_sample_descriptor_table[1];
 extern unsigned int G_h01_A7DE;
 extern unsigned int G_h01_A7E0;
 extern unsigned int G_h01_A7E2;
@@ -24,15 +24,15 @@ char *base;
     struct Level *hdr, *plane, *pT;
 
     L8 = n * 3;
-    hdr = G_h01_27E4[L8];
-    plane = G_h01_27E4[L8] + 1;
+    hdr = audio_sample_descriptor_table[L8];
+    plane = audio_sample_descriptor_table[L8] + 1;
     src = base + G_h01_A7DE;
     L16 = G_h01_A7E0 << G_h01_A7E2;
     dst = base + G_h01_A7E4 - (long)L16 * 3;
     hdr->w2 = G_h01_A7DE >> 1;
     hdr->p4 = base;
     for (p = 0; p < 3; p++) {
-        plane = G_h01_27E4[L8 + p] + 1;
+        plane = audio_sample_descriptor_table[L8 + p] + 1;
         plane->w2 = L16 >> 1;
         plane->p4 = dst + (long)L16 * p;
         for (q = 0; q < L16; q++)
@@ -41,7 +41,7 @@ char *base;
     lv[1] = base + G_h01_A7DE;
     lv[2] = base + ((G_h01_A7DE >> 1) + G_h01_A7DE);
     for (q = 1; q < 3; q++) {
-        pT = G_h01_27E4[L8 + q];
+        pT = audio_sample_descriptor_table[L8 + q];
         pT->w2 = G_h01_A7DE >> (q + 1);
         pT->p4 = lv[q];
         for (p = 0; p < (G_h01_A7DE >> q); p++)

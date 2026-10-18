@@ -1,11 +1,11 @@
 extern char *G_h01_5370;
-extern long G_h01_46CA;
+extern long screen_rast_port;
 extern long G_h01_46CE;
 extern long G_h01_46D2;
-extern int F_h00_8A46();
-extern int F_h00_8B88();
-extern int F_h00_8B4C();
-extern int F_h00_8AA8();
+extern int BltBitMap();
+extern int SetAPen();
+extern int Move();
+extern int Draw();
 extern int F_h00_307C();
 
 recovered(a)
@@ -25,20 +25,20 @@ int a;
         y=112;
     else
         y=120;
-    F_h00_8A46(G_h01_46CE,0L,0L,G_h01_46D2,
+    BltBitMap(G_h01_46CE,0L,0L,G_h01_46D2,
         0L,0L,320L,200L,192L,255L,0L);
     *G_h01_5370=12;
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)(x-1),(long)y);
-    F_h00_8AA8(G_h01_46CA,(long)(x-1),(long)(y+7));
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)(x+32),(long)y);
-    F_h00_8AA8(G_h01_46CA,(long)(x+32),(long)(y+7));
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)(x-1),(long)(y-1));
-    F_h00_8AA8(G_h01_46CA,(long)(x+32),(long)(y-1));
-    F_h00_8B88(G_h01_46CA,(long)*G_h01_5370);
-    F_h00_8B4C(G_h01_46CA,(long)(x-1),(long)(y+7));
-    F_h00_8AA8(G_h01_46CA,(long)(x+32),(long)(y+7));
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)(x-1),(long)y);
+    Draw(screen_rast_port,(long)(x-1),(long)(y+7));
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)(x+32),(long)y);
+    Draw(screen_rast_port,(long)(x+32),(long)(y+7));
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)(x-1),(long)(y-1));
+    Draw(screen_rast_port,(long)(x+32),(long)(y-1));
+    SetAPen(screen_rast_port,(long)*G_h01_5370);
+    Move(screen_rast_port,(long)(x-1),(long)(y+7));
+    Draw(screen_rast_port,(long)(x+32),(long)(y+7));
     F_h00_307C();
 }

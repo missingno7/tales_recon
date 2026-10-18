@@ -1,1 +1,1 @@
-unsigned char G_h01_2B89 = 170;
+unsigned char audio_noise_random_state_byte = 170;
