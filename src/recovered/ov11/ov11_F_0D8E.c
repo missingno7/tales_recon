@@ -16,17 +16,17 @@ extern int G_h01_94DE;
 extern int G_h01_94E0;
 extern int G_h01_94E6;
 extern int G_h01_945C[1];
-extern int G_h01_8B1C[41][4];
-extern struct ClusterRecord G_h01_8BEC[1];
+extern int jg_grid_tile_indices[41][4];
+extern struct ClusterRecord jg_platform_records[1];
 extern int play_sound();
-extern int F_h11_3F90();
+extern int jg_find_event_at_world_x();
 extern int F_h11_40AE();
-extern int F_h11_415A();
-extern int F_h11_4AA4();
-extern int F_h11_4B0C();
-extern int F_h11_5EC0();
-extern int F_h11_6ED6();
-extern int F_h11_6F78();
+extern int jg_advance_event_track();
+extern int jg_advance_player_animation();
+extern int jg_select_player_animation();
+extern int jg_release_player_from_platform();
+extern int jg_get_moving_object_positions();
+extern int jg_is_near_moving_object();
 
 recovered()
 {
@@ -42,7 +42,7 @@ recovered()
     done = 0;
     prev = G_h01_94AE;
     tick = (G_h01_94DE + 1 >= G_h01_94E0);
-    cursor = (char *)G_h01_8BEC + ((long)G_h01_94D6 * 52);
+    cursor = (char *)jg_platform_records + ((long)G_h01_94D6 * 52);
     if (G_h01_94E6 > 0)
         return;
     G_h01_94BA = ((8 >> G_h01_94B0) + G_h01_94BE) / 53;
@@ -63,7 +63,7 @@ recovered()
         break;
     case 17:
         if (tick) {
-            if ((t8 = G_h01_945C[G_h01_94BA]) != 0 && F_h11_6F78(t8, G_h01_94BE + 15, G_h01_94C0 + 24, 0x144)) {
+            if ((t8 = G_h01_945C[G_h01_94BA]) != 0 && jg_is_near_moving_object(t8, G_h01_94BE + 15, G_h01_94C0 + 24, 0x144)) {
                 G_h01_94D8 = t8;
                 G_h01_94AE = 8;
             } else {
@@ -73,7 +73,7 @@ recovered()
         break;
     case 16:
         if (tick) {
-            if ((t8 = G_h01_945C[G_h01_94BA]) != 0 && F_h11_6F78(t8, G_h01_94BE + 4, G_h01_94C0 + 8, 0x144)) {
+            if ((t8 = G_h01_945C[G_h01_94BA]) != 0 && jg_is_near_moving_object(t8, G_h01_94BE + 4, G_h01_94C0 + 8, 0x144)) {
                 G_h01_94D8 = t8;
                 G_h01_94AE = 8;
             } else {
@@ -102,20 +102,20 @@ recovered()
             G_h01_94C0 += 6;
             G_h01_94AE = 5;
         } else if (G_h01_94DE == 5) {
-            if (G_h01_8B1C[G_h01_94BA][G_h01_94BC + 1] == 0)
+            if (jg_grid_tile_indices[G_h01_94BA][G_h01_94BC + 1] == 0)
                 G_h01_94AE = 2;
         }
         break;
     case 13:
         if (tick) {
             G_h01_94C0 += 5;
-            if ((t6 = F_h11_3F90(G_h01_94BE)) >= 0) {
+            if ((t6 = jg_find_event_at_world_x(G_h01_94BE)) >= 0) {
                 G_h01_94D4 = t6;
                 F_h11_40AE(G_h01_94D4);
                 G_h01_94B6 = 1;
                 G_h01_94AE = 5;
-                F_h11_415A(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
-                F_h11_415A(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
+                jg_advance_event_track(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
+                jg_advance_event_track(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
             } else {
                 G_h01_94AE = 2;
             }
@@ -127,9 +127,9 @@ recovered()
         break;
     case 3:
         if (G_h01_94DE == 1) {
-            F_h11_5EC0(G_h01_94D6);
+            jg_release_player_from_platform(G_h01_94D6);
         } else if (G_h01_94DE == 6) {
-            t8 = G_h01_8B1C[G_h01_94BA][(G_h01_94C0 + 14) >> 5];
+            t8 = jg_grid_tile_indices[G_h01_94BA][(G_h01_94C0 + 14) >> 5];
             if (t8 == 0 || (G_h01_94B4 && t8 == G_h01_94D6)) {
                 G_h01_94AE = 2;
                 break;
@@ -139,7 +139,7 @@ recovered()
             G_h01_94AE = 5;
             play_sound(0x77);
         }
-        if ((t8 = G_h01_945C[G_h01_94BA]) != 0 && F_h11_6F78(t8, (8 >> G_h01_94B0) + G_h01_94BE, G_h01_94C0 + 16, 0x400)) {
+        if ((t8 = G_h01_945C[G_h01_94BA]) != 0 && jg_is_near_moving_object(t8, (8 >> G_h01_94B0) + G_h01_94BE, G_h01_94C0 + 16, 0x400)) {
             G_h01_94D8 = t8;
             G_h01_94AE = 8;
         }
@@ -149,11 +149,11 @@ recovered()
             G_h01_94C0 += 8;
         } else if (tick) {
             if (G_h01_94BC >= 3) {
-                if ((t6 = F_h11_3F90((8 >> G_h01_94B0) + G_h01_94BE)) >= 0) {
+                if ((t6 = jg_find_event_at_world_x((8 >> G_h01_94B0) + G_h01_94BE)) >= 0) {
                     G_h01_94D4 = t6;
                     F_h11_40AE(G_h01_94D4);
-                    F_h11_415A(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
-                    F_h11_415A(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
+                    jg_advance_event_track(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
+                    jg_advance_event_track(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
                     G_h01_94B6 = 1;
                 } else {
                     G_h01_94AE = 6;
@@ -172,13 +172,13 @@ recovered()
         break;
     case 2:
         if (G_h01_94C0 + 40 >= 154) {
-            if ((t6 = F_h11_3F90((8 >> G_h01_94B0) + G_h01_94BE)) >= 0) {
+            if ((t6 = jg_find_event_at_world_x((8 >> G_h01_94B0) + G_h01_94BE)) >= 0) {
                 G_h01_94D4 = t6;
                 F_h11_40AE(G_h01_94D4);
                 G_h01_94B6 = 1;
                 G_h01_94AE = 5;
-                F_h11_415A(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
-                F_h11_415A(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
+                jg_advance_event_track(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
+                jg_advance_event_track(G_h01_94D4, &G_h01_94BE, &G_h01_94C0);
             } else {
                 G_h01_94AE = 6;
             }
@@ -188,7 +188,7 @@ recovered()
         }
         break;
     case 8:
-        F_h11_6ED6(G_h01_94D8, &r2, &r4, &G_h01_94BE, &G_h01_94C0);
+        jg_get_moving_object_positions(G_h01_94D8, &r2, &r4, &G_h01_94BE, &G_h01_94C0);
         if (G_h01_94BE < r2) {
             G_h01_94DA[52] = G_h01_94B0 == 1 ? 0x1c : 0x1e;
             if (G_h01_94B0 == 0) {
@@ -230,9 +230,9 @@ recovered()
 
     if (!done) {
         if (prev != G_h01_94AE)
-            F_h11_4B0C(G_h01_94AE);
+            jg_select_player_animation(G_h01_94AE);
         else
-            F_h11_4AA4();
+            jg_advance_player_animation();
     }
     G_h01_94BA = ((8 >> G_h01_94B0) + G_h01_94BE) / 53;
     G_h01_94BC = (G_h01_94C0 - 16) >> 5;

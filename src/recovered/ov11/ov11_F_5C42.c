@@ -16,9 +16,9 @@ struct ClusterRecord {
     char tail[4];
 };
 
-extern struct ClusterRecord G_h01_8BEC[1];
-extern int F_h11_4696();
-extern int F_h11_5962();
+extern struct ClusterRecord jg_platform_records[1];
+extern int jg_queue_background_restore_rectangle();
+extern int jg_set_platform_record_state();
 
 recovered(index,mode)
 int index;
@@ -26,12 +26,12 @@ int mode;
 {
     struct ClusterRecord *record;
 
-    record=&G_h01_8BEC[index];
+    record=&jg_platform_records[index];
     record->state30=2;
     if (record->value32==0 || mode==3) record->value32=mode;
     if (mode==3) {
-        F_h11_4696(record->value2c,record->value2e-6,72,32,24);
-        if (record->value14) F_h11_5962(record->value14,2);
-        if (record->value16) F_h11_5962(record->value16,2);
+        jg_queue_background_restore_rectangle(record->value2c,record->value2e-6,72,32,24);
+        if (record->value14) jg_set_platform_record_state(record->value14,2);
+        if (record->value16) jg_set_platform_record_state(record->value16,2);
     }
 }

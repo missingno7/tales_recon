@@ -38,24 +38,24 @@ extern long G_h01_01F2;
 extern long G_h01_01F8;
 extern long G_h01_020A;
 
-extern short G_h01_0970;
+extern short bitmap_plane_count;
 extern struct RootRasInfoView G_h01_2EB4;
 extern struct RootBitMapView G_h01_2EC0;
 extern struct RootBitMapView G_h01_2EE8;
 extern struct BitmapScreenRecord *screen_rast_port;
-extern struct BitmapLayout *G_h01_46CE;
-extern long G_h01_46D2;
-extern long G_h01_46F8;
+extern struct BitmapLayout *archive_image_bitmap;
+extern long active_screen_bitmap;
+extern long topaz_font_handle;
 extern long G_h01_5370;
 extern long graphics_library_base;
 extern long intuition_library_base;
 extern long layers_library_base;
 extern long G_h01_5380;
 extern struct ScreenInfo *G_h01_5384;
-extern long G_h01_5388;
+extern long screen_bitmap_pair;
 extern long G_h01_538C;
-extern unsigned char G_h01_5390;
-extern long G_h01_5392;
+extern unsigned char screen_bitmap_index;
+extern long screen_palette_words;
 extern long G_h01_5396;
 extern short G_h01_539A;
 extern char G_h01_539C;
@@ -77,8 +77,8 @@ extern long G_h01_53F4;
 extern char G_h01_53F8;
 extern long G_h01_5422;
 extern long G_h01_5426;
-extern long G_h01_542A;
-extern long G_h01_544A;
+extern long game_memory_header;
+extern long lzw_dictionary_storage;
 
 struct GraphicsBaseView { char pad[34]; long view; };
 struct S3 { char pad[8]; long field_8; long field_c; };
@@ -92,7 +92,7 @@ extern long F_h00_89D0();
 extern int shutdown_av();
 extern long AvailMem();
 extern int show_system_request();
-extern int F_h00_37C8();
+extern int initialize_chip_memory_pool();
 extern int CloseWorkBench();
 extern long AllocMem();
 extern long NewLayer();
@@ -115,8 +115,8 @@ extern int SetFont();
 extern int SetDrMd();
 extern int SetAPen();
 extern int SetRast();
-extern int F_h00_307C();
-extern int F_h00_330E();
+extern int switch_display_buffer();
+extern int fade_palette_to_black();
 extern int FreeSprite();
 extern int seed_random();
 extern int initialize_audio_and_input();
@@ -143,7 +143,7 @@ recovered()
     size = AvailMem(2L);
     if (size < 0x45948L)
         show_system_request("Insufficient Chip Memory!");
-    i = F_h00_37C8(0x40f10L);
+    i = initialize_chip_memory_pool(0x40f10L);
     if (i < 0)
         show_system_request("Memory Fragmentation:  Can't allocate enough contiguous chip memory.");
 
@@ -187,7 +187,7 @@ recovered()
     G_h01_5384 = CreateUpfrontLayer(G_h01_5380, &G_h01_2EC0, 0L, 0L, 0x13fL, 0xc7L, 1L);
     layer = (struct Layer *)FindTask(0L);
     layer->field_b8 = 0xffffffffL;
-    G_h01_53EC = allocate_memory_or_report(&G_h01_542A, 0xe8L);
+    G_h01_53EC = allocate_memory_or_report(&game_memory_header, 0xe8L);
     GetPrefs(G_h01_53EC, 0xe8L);
     ((struct InitBlock *)G_h01_53EC)->first = 8;
     G_h01_53F0 = ((struct InitBlock *)G_h01_53EC)->field_c;
@@ -195,37 +195,37 @@ recovered()
     G_h01_53F4 = ((struct InitBlock *)G_h01_53EC)->field_10;
     ((struct InitBlock *)G_h01_53EC)->field_10 = 10L;
     SetPrefs(G_h01_53EC, 0xe8L, 1L);
-    free_memory_checked(&G_h01_542A, G_h01_53EC, 0xe8L);
+    free_memory_checked(&game_memory_header, G_h01_53EC, 0xe8L);
     CloseLibrary(intuition_library_base);
 
-    G_h01_544A = allocate_memory_or_report(&G_h01_542A, 0x4000L);
-    if (!G_h01_544A)
+    lzw_dictionary_storage = allocate_memory_or_report(&game_memory_header, 0x4000L);
+    if (!lzw_dictionary_storage)
         F_h00_8534(-1);
     InitView(&G_h01_53A2);
     InitVPort(&G_h01_53B4);
     G_h01_53A2 = &G_h01_53B4;
 
-    InitBitMap(&G_h01_2EC0, (long)G_h01_0970, 0x140L, 0xc8L);
-    memory = allocate_memory_or_report(&G_h01_542A, (long)G_h01_0970 * 0x1f40L);
+    InitBitMap(&G_h01_2EC0, (long)bitmap_plane_count, 0x140L, 0xc8L);
+    memory = allocate_memory_or_report(&game_memory_header, (long)bitmap_plane_count * 0x1f40L);
     if (!memory)
         F_h00_8534(-1);
-    for (i = 0; i < G_h01_0970; ++i)
+    for (i = 0; i < bitmap_plane_count; ++i)
         G_h01_2EC0.Planes[i] = (unsigned char *)memory + (long)i * 0x1f40L;
 
-    InitBitMap(&G_h01_2EE8, (long)G_h01_0970, 0x140L, 0xc8L);
-    memory = allocate_memory_or_report(&G_h01_542A, (long)G_h01_0970 * 0x1f40L);
+    InitBitMap(&G_h01_2EE8, (long)bitmap_plane_count, 0x140L, 0xc8L);
+    memory = allocate_memory_or_report(&game_memory_header, (long)bitmap_plane_count * 0x1f40L);
     if (!memory)
         F_h00_8534(-1);
-    for (i = 0; i < G_h01_0970; ++i)
+    for (i = 0; i < bitmap_plane_count; ++i)
         G_h01_2EE8.Planes[i] = (unsigned char *)memory + (long)i * 0x1f40L;
 
-    G_h01_46CE = allocate_memory_or_report(&G_h01_542A, 0x28L);
-    InitBitMap(G_h01_46CE, (long)G_h01_0970, 0x140L, 0xc8L);
-    memory = allocate_memory_or_report(&G_h01_542A, (long)G_h01_0970 * 0x1f40L);
+    archive_image_bitmap = allocate_memory_or_report(&game_memory_header, 0x28L);
+    InitBitMap(archive_image_bitmap, (long)bitmap_plane_count, 0x140L, 0xc8L);
+    memory = allocate_memory_or_report(&game_memory_header, (long)bitmap_plane_count * 0x1f40L);
     if (!memory)
         F_h00_8534(-1);
-    for (i = 0; i < G_h01_0970; ++i)
-        G_h01_46CE->planes[i] = memory + (long)i * 0x1f40L;
+    for (i = 0; i < bitmap_plane_count; ++i)
+        archive_image_bitmap->planes[i] = memory + (long)i * 0x1f40L;
 
     G_h01_2EB4.BitMap = &G_h01_2EC0;
     G_h01_2EB4.RxOffset = 0;
@@ -236,7 +236,7 @@ recovered()
     G_h01_53D8 = &G_h01_2EB4;
     G_h01_53E8 = GetColorMap(0x20L);
     G_h01_53B8 = G_h01_53E8;
-    G_h01_5392 = ((struct S53B8 *)G_h01_53B8)->field_4;
+    screen_palette_words = ((struct S53B8 *)G_h01_53B8)->field_4;
     MakeVPort(&G_h01_53A2, &G_h01_53B4);
     MrgCop(&G_h01_53A2);
     G_h01_53E0 = G_h01_53A6;
@@ -261,21 +261,21 @@ recovered()
     G_h01_539A = 8;
     G_h01_539C = 0;
     G_h01_539D = 0;
-    G_h01_46F8 = OpenFont(&G_h01_5396);
-    if (!G_h01_46F8)
+    topaz_font_handle = OpenFont(&G_h01_5396);
+    if (!topaz_font_handle)
         shutdown_av("InitAV:\tcannot open font");
-    SetFont(screen_rast_port, G_h01_46F8);
+    SetFont(screen_rast_port, topaz_font_handle);
     SetDrMd(screen_rast_port, 0L);
     SetAPen(screen_rast_port, 0x1fL);
     G_h01_5370 = (long)((char *)screen_rast_port + 0x19L);
-    G_h01_5388 = &G_h01_2EC0;
+    screen_bitmap_pair = &G_h01_2EC0;
     G_h01_538C = &G_h01_2EE8;
-    G_h01_5390 = 0;
-    G_h01_46D2 = ((long *)&G_h01_5388)[G_h01_5390];
+    screen_bitmap_index = 0;
+    active_screen_bitmap = ((long *)&screen_bitmap_pair)[screen_bitmap_index];
     SetRast(screen_rast_port, 0L);
-    F_h00_307C();
+    switch_display_buffer();
     SetRast(screen_rast_port, 0L);
-    F_h00_330E();
+    fade_palette_to_black();
     for (i = 0; i < 8; ++i)
         FreeSprite((long)i);
     seed_random();

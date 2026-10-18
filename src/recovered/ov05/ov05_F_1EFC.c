@@ -27,7 +27,7 @@ struct Obj {
 extern struct Lookup G_h01_5E66[16];
 extern struct Record G_h01_606C[16];
 extern int G_h01_5E64[1][2];
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 extern int play_sound();
 extern unsigned int F_h00_463E();
 extern float G_h01_5E34;
@@ -104,7 +104,7 @@ int idx;
             else if (G_h01_5E38 < (t0 - 6))
                 p->w4--;
             G_h01_55A6 = p->w4;
-            F_h00_34E0(&G_h01_55A4);
+            draw_masked_sprite(&G_h01_55A4);
             t0 = (int)(G_h01_5E34 - p->w2);
             t1 = p->w4 + p->w10;
             if (p->b13 == 0 && t0 > -100 && t0 < 100 && G_h01_5E38 > t1) {
@@ -132,7 +132,7 @@ int idx;
                 G_h01_55DA = G_h01_55A4 + 16;
                 p->w18 = G_h01_55A6 + G_h01_55AA;
                 G_h01_55DC = p->w18;
-                F_h00_34E0(&G_h01_55DA);
+                draw_masked_sprite(&G_h01_55DA);
                 break;
             case 1:
                 G_h01_5612 = G_h01_55A6 + G_h01_55AA;
@@ -140,8 +140,8 @@ int idx;
                 r[0] = G_h01_55A4 + 8;
                 p->w32 = G_h01_5612 + 4;
                 r[1] = p->w32;
-                F_h00_34E0(r);
-                F_h00_34E0(&G_h01_5610);
+                draw_masked_sprite(r);
+                draw_masked_sprite(&G_h01_5610);
                 if (--p->b27 == 0) {
                     play_sound(0x33);
                     p->b13 = 2;
@@ -161,8 +161,8 @@ int idx;
                             p->w32 -= 5;
                         r[0] = G_h01_55A4 + 8;
                         r[1] = p->w32;
-                        F_h00_34E0(r);
-                        F_h00_34E0(&G_h01_55DA);
+                        draw_masked_sprite(r);
+                        draw_masked_sprite(&G_h01_55DA);
                         if (p->b41 == 22)
                             p->w32 += 4;
                         else if (p->b41 == 20)
@@ -186,19 +186,19 @@ int idx;
                 }
                 r[0] = G_h01_55A4 + 8;
                 r[1] = p->w32;
-                F_h00_34E0(r);
-                F_h00_34E0(&G_h01_55DA);
+                draw_masked_sprite(r);
+                draw_masked_sprite(&G_h01_55DA);
                 break;
             case 3:
                 if (p->b27 > 5) {
                     q[0] = G_h01_55A4 + 8;
                     q[1] = p->w32 - 2;
-                    F_h00_34E0(q);
+                    draw_masked_sprite(q);
                 }
                 G_h01_55DA = G_h01_55A4 + 16;
                 p->w18 = G_h01_55A6 + G_h01_55AA;
                 G_h01_55DC = p->w18;
-                F_h00_34E0(&G_h01_55DA);
+                draw_masked_sprite(&G_h01_55DA);
                 if (--p->b27 == 0) {
                     p->b40 = 0;
                     p->b13 = 0;
@@ -208,11 +208,11 @@ int idx;
                 play_sound(0x3a);
                 G_h01_5C32 = G_h01_55A4 - 12;
                 G_h01_5C34 = 160 - G_h01_5C38;
-                F_h00_34E0(&G_h01_5C32);
+                draw_masked_sprite(&G_h01_5C32);
                 G_h01_55DA = G_h01_55A4 + 16;
                 p->w18 = G_h01_55A6 + G_h01_55AA;
                 G_h01_55DC = p->w18;
-                F_h00_34E0(&G_h01_55DA);
+                draw_masked_sprite(&G_h01_55DA);
                 if (--p->b27 == 0) {
                     p->b40 = 0;
                     p->b27 = 5;
@@ -235,7 +235,7 @@ int idx;
             if (((char *)p)[-1] <= 0)
                 ((char *)p)[-1] = 3;
             G_h01_5C30 = ((char *)p)[-8];
-            F_h00_34E0(&G_h01_5BFC);
+            draw_masked_sprite(&G_h01_5BFC);
             t0 = (int)(G_h01_5E34 - (float)*(int *)((char *)p - 12));
             if (t0 < -128 || t0 > 128 || G_h01_5E38 > 134) {
                 if (p->b13 == 0)
@@ -279,7 +279,7 @@ int idx;
                 G_h01_5646 = p->w2;
                 G_h01_5648 = p->w4;
                 p->w4 = p->w4 - 7;
-                F_h00_34E0(&G_h01_5646);
+                draw_masked_sprite(&G_h01_5646);
                 if (--p->b6 == 0) {
                     p->b6 = 2;
                     p->b13 = 2;
@@ -290,7 +290,7 @@ int idx;
                 G_h01_5646 = p->w2;
                 G_h01_5648 = p->w4;
                 p->w4 = p->w4 - 7;
-                F_h00_34E0(&G_h01_5646);
+                draw_masked_sprite(&G_h01_5646);
                 if (--p->b6 == 0) {
                     p->b6 = 3;
                     p->b13 = 1;
@@ -304,7 +304,7 @@ int idx;
                 G_h01_5BFA = p->b13 - 3;
                 G_h01_5BC6 = p->w2;
                 G_h01_5BC8 = p->w4;
-                F_h00_34E0(&G_h01_5BC6);
+                draw_masked_sprite(&G_h01_5BC6);
                 p->b13 = p->b13 + 1;
                 if (p->b13 > 5) {
                     p->b13 = 3;
@@ -341,7 +341,7 @@ int idx;
             case 1:
                 G_h01_5A4C = p->w2;
                 G_h01_5A4E = p->w4;
-                F_h00_34E0(&G_h01_5A4C);
+                draw_masked_sprite(&G_h01_5A4C);
                 if (--p->b27 == 0) {
                     p->b13 = 2;
                     p->b27 = 2;
@@ -350,7 +350,7 @@ int idx;
             case 2:
                 G_h01_5A82 = p->w2;
                 G_h01_5A84 = p->w4;
-                F_h00_34E0(&G_h01_5A82);
+                draw_masked_sprite(&G_h01_5A82);
                 if (--p->b27 == 0) {
                     p->b13 = 3;
                     p->b27 = 2;
@@ -359,7 +359,7 @@ int idx;
             case 3:
                 G_h01_5AB8 = p->w2;
                 G_h01_5ABA = p->w4;
-                F_h00_34E0(&G_h01_5AB8);
+                draw_masked_sprite(&G_h01_5AB8);
                 if (--p->b27 == 0) {
                     play_sound(0x37);
                     p->b13 = 4;
@@ -371,8 +371,8 @@ int idx;
                 G_h01_59E2 = p->w4 - G_h01_59E6;
                 G_h01_5AB8 = p->w2;
                 G_h01_5ABA = p->w4;
-                F_h00_34E0(&G_h01_59E0);
-                F_h00_34E0(&G_h01_5AB8);
+                draw_masked_sprite(&G_h01_59E0);
+                draw_masked_sprite(&G_h01_5AB8);
                 if (--p->b27 == 0) {
                     p->b13 = 5;
                     p->b27 = 8;
@@ -383,8 +383,8 @@ int idx;
                 G_h01_5A18 = p->w4 - G_h01_5A1C;
                 G_h01_5AB8 = p->w2;
                 G_h01_5ABA = p->w4;
-                F_h00_34E0(&G_h01_5A16);
-                F_h00_34E0(&G_h01_5AB8);
+                draw_masked_sprite(&G_h01_5A16);
+                draw_masked_sprite(&G_h01_5AB8);
                 if (--p->b27 == 0) {
                     p->b13 = 3;
                     p->b27 = 6;
@@ -393,7 +393,7 @@ int idx;
             case 6:
                 G_h01_5A82 = p->w2;
                 G_h01_5A84 = p->w4;
-                F_h00_34E0(&G_h01_5A82);
+                draw_masked_sprite(&G_h01_5A82);
                 if (--p->b27 == 0) {
                     p->b13 = 7;
                     p->b27 = 5;
@@ -402,7 +402,7 @@ int idx;
             case 7:
                 G_h01_5A4C = p->w2;
                 G_h01_5A4E = p->w4;
-                F_h00_34E0(&G_h01_5A4C);
+                draw_masked_sprite(&G_h01_5A4C);
                 if (--p->b27 == 0) {
                     p->b13 = 0;
                     p->b27 = 0;
@@ -425,7 +425,7 @@ int idx;
                 p->w4 = t0;
             G_h01_589C = p->w2;
             G_h01_589E = p->w4;
-            F_h00_34E0(&G_h01_589C);
+            draw_masked_sprite(&G_h01_589C);
             G_h01_5908 = G_h01_589C + 7;
             p->w16 = G_h01_5908;
             G_h01_590A = G_h01_589E + G_h01_58A2 - 11;
@@ -436,7 +436,7 @@ int idx;
                  && G_h01_5E34 > (G_h01_589C - 16)
                  && F_h00_463E() % 100 > 5)
                 || G_h01_0A8A > 0) {
-                F_h00_34E0(&G_h01_5908);
+                draw_masked_sprite(&G_h01_5908);
                 p->b27 = 1;
                 if (G_h01_0A8A == 0)
                     G_h01_0A8A = 10;
@@ -449,7 +449,7 @@ int idx;
         case 52:
             G_h01_5B24 = p->w2;
             G_h01_5B26 = p->w4;
-            F_h00_34E0(&G_h01_5B24);
+            draw_masked_sprite(&G_h01_5B24);
             break;
         default:
             break;

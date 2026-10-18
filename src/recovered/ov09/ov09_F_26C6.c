@@ -1,5 +1,5 @@
 /* Direct recovery candidate for ov09_F_26C6 (plain structured C, h1 baseline). */
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 
 struct ov09_a {
     unsigned char f0;
@@ -89,5 +89,5 @@ struct ov09_b *b;
     b->flag34 = a->f4;
     b->x = x;
     b->y = y;
-    F_h00_34E0(b);
+    draw_masked_sprite(b);
 }

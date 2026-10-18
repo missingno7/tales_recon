@@ -12,17 +12,17 @@ struct MotionRecord {
     char remainder[18];
 };
 
-extern struct MotionRecord G_h01_9FCE[1];
-extern int F_h11_4610();
+extern struct MotionRecord jg_actor_records[1];
+extern int jg_advance_scheduled_sprite_motion();
 
 recovered(n)
 int n;
 {
     struct MotionRecord *record;
 
-    record = &G_h01_9FCE[n];
+    record = &jg_actor_records[n];
     if (record->state != 14)
-        F_h11_4610(record->motion);
+        jg_advance_scheduled_sprite_motion(record->motion);
     record->v38 = record->v36;
     record->v42 = record->v40;
     record->v40 = record->v32;

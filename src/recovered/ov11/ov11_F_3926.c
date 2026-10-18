@@ -12,7 +12,7 @@ extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
 extern int G_h01_A152;
-extern struct Record G_h01_A15E[1];
+extern struct Record jg_event_records[1];
 
 recovered(text)
 char *text;
@@ -32,7 +32,7 @@ char *text;
             report_loader_error(1021);
             goto next_record;
         }
-        record = &G_h01_A15E[index];
+        record = &jg_event_records[index];
         if (sscanf(line, "%*d %d %d %d\n",
                 &record->value2, &record->value1, &record->value3) != 3)
             goto bad_record;

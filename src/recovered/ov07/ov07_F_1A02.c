@@ -15,9 +15,9 @@ extern unsigned char market_price_history[16][31];
 extern char difficulty_level;
 extern char game_day;
 extern long total_money;
-extern long G_h01_46EA;
-extern long G_h01_46EE;
-extern long G_h01_46F2;
+extern long rival_unbanked_treasure_value;
+extern long player_banked_cash;
+extern long rival_banked_cash;
 extern char market_update_day;
 extern int F_h00_463E();
 
@@ -85,7 +85,7 @@ recovered()
                         if (!investment_market_state[i].flag)
                             t4 = t4 >> 2;
                         if (t4 > (F_h00_463E() & 0xff)) {
-                            if (G_h01_46EE + total_money < G_h01_46F2 + G_h01_46EA)
+                            if (player_banked_cash + total_money < rival_banked_cash + rival_unbanked_treasure_value)
                                 v14 = (F_h00_463E() & 0xf) + 110;
                             else
                                 v14 = (F_h00_463E() & 7) + 105;
@@ -102,7 +102,7 @@ recovered()
                         if (!investment_market_state[i].flag)
                             q = q >> 2;
                         if (q > (F_h00_463E() & 0xff)) {
-                            if (G_h01_46EE + total_money < G_h01_46F2 + G_h01_46EA)
+                            if (player_banked_cash + total_money < rival_banked_cash + rival_unbanked_treasure_value)
                                 v14 = (F_h00_463E() & 7) + 5;
                             else
                                 v14 = (F_h00_463E() & 0xf) + 10;

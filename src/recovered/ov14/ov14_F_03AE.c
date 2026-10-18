@@ -1,8 +1,8 @@
-extern char G_h01_1424;
-extern char G_h01_3AB2;
+extern char rival_current_location;
+extern char rival_destination_location;
 recovered(a,b)
 char a,b;
 {
-    G_h01_1424 = a;
-    G_h01_3AB2 = b;
+    rival_current_location = a;
+    rival_destination_location = b;
 }

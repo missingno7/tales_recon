@@ -1,5 +1,5 @@
 /* Decimal value draw; names describe observed behavior only. */
-extern int F_h00_35DC();
+extern int draw_text();
 
 recovered(x, y, value, style, color, flag)
 int x;
@@ -20,5 +20,5 @@ int flag;
     if (flag) {
         x -= (10 - count) << 3;
     }
-    F_h00_35DC(x, y, &digits[count], style, color);
+    draw_text(x, y, &digits[count], style, color);
 }

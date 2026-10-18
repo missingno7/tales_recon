@@ -1,0 +1,37 @@
+# The plane, the endgame scene and the investment office
+
+What the recovered code shows this part of the game doing. Names are the ones in `recovery/names.json` (applied in src/); mechanical names (`ovNN_F_XXXX`, `G_h01_XXXX`) are things not yet understood well enough to name. First written from the 2026-10-18 naming review.
+
+## Plane travel scene
+
+plane_scene (plane_scene) is a travel sequence between adventure locations. Its first argument sets the course length in 42-segment units; the second enables a different set of course events. It loads indexed resources from DT1:plane.arc, sets up course scenery and objects (plane_load_course_scene_assets, plane_generate_course_segment_types, plane_populate_course_objects), then repeatedly updates flight state and draws the view (plane_update_flight_state, plane_draw_scrolling_frame). The course advances in 80-pixel segments across a 320-pixel screen. The lower display shows progress and the game day (plane_draw_flight_progress).
+
+The interaction routine returns 0, 1, or 2 on its observed branches. The main scene handles these values alongside the crash marker, updates game_day from course length and elapsed frames, restores the main archive, and returns a scene result (plane_check_segment_interactions, plane_scene). No text in these routines labels every result, so the numeric outcomes are retained here. The archive uses the indexed .arc access described in formats/arc.md: a little-endian count and offset index, then indexed records. The plane code assigns many records fixed numeric indices, but the names and meanings of all payloads are not established.
+
+## End of adventure wealth comparison
+
+endgame_show_wealth_comparison is called by bank_cash_and_settle_rival after the day's cash and treasure totals have been added to the running comparison. The caller adds total_money to the player's total (player_banked_cash) and, at day 30, adds the rival's accumulated treasure (rival_unbanked_treasure_value) to the rival total (rival_banked_cash). The overlay loads DT2:mac.arc, presents the comparison, and waits for fire input before restoring the previous archive.
+
+endgame_present_wealth_result scales each total into a screen position in units of 10,000, capped at four units, then draws a sequence of sprite groups from the archive. It also shows dollar signs and calls endgame_animate_wealth_totals to reveal the two decimal totals one digit at a time. The higher-total branch chooses a different set of final scene records and sound; a random choice selects within that branch. The presentation then waits for fire. endgame_draw_positioned_sprite_group positions and draws groups using each sprite record's width and height. The code establishes a final comparison by wealth but does not identify every pictured archive element by name.
+
+The scene uses the shared .arc index and record readers; record payload boundaries are governed by the container header and codec branches in formats/arc.md. The record numbers and sprite dimensions are observable, while authored labels for the images are not.
+
+## Investment office and market
+
+invest_run_office_menu (invest_run_office_menu) loads the office backdrop and records, shows the portfolio heading and six visible company rows, and keeps slot 15 for RETURN TO OFFICE. Left/right direction values move the selection and scroll the six-row window; fire opens a company transaction panel or leaves the list. The eight-entry invest_office_asset_record_indices table selects office-scene archive records. The row renderer shows each company name, calculated price, and owned-share count (invest_draw_portfolio_header, invest_draw_portfolio_rows).
+
+The transaction panel lets the player buy or sell one share at a time (invest_trade_company_shares). A purchase subtracts the current share price and is rejected without enough money or at the 99-share cap. A sale adds that price if a share is owned; otherwise it shows NO SHARES TO SELL. A zero price displays the bankruptcy message. Successful trades change total_money and the company's share count, and the office scene shows a short response. The price calculation multiplies a company's current market amount by that category's chart percentage for the current day, divided by 100; positive percentages get a one-unit minimum result (invest_calculate_share_price).
+
+The market loader reads company and chart records from DT1:invest.arc and DT1:chart.arc (invest_load_market_data). The daily updater advances one day at a time, applies scheduled rises or falls, and may schedule a larger change based on chart direction, difficulty, and random values (invest_update_daily_market). The news screen reads an investment text record and shows the up/down percentage or expected major-change day, then waits for fire before continuing (invest_show_stock_change, invest_draw_record_text_lines, invest_draw_news_bulletin). invest_format_unsigned_decimal formats nonnegative values for these messages. The source establishes the state transitions and displayed text; the original authoring and semantics of every packed record field remain unknown.
+
+Investment records use the same indexed .arc container described in formats/arc.md. Screen palette tables are passed to the resident fade routine, which moves each color toward the target table (fade_palette_to_target). The investment code does not provide a semantic label for every palette or archive record.
+
+## Deliberately unnamed and suggested source comments
+
+- ov05_F_3A9E adjusts the heading index by one in several disjoint ranges. It is called when altitude reaches a bound, but the intended heading rule is not clear enough to name it. Suggested comment: /* Small heading-index adjustment used at flight altitude bounds. */
+- G_h01_0A87 and G_h01_0A88 are set by contacts with numeric object kinds and trigger separate main-scene responses. The source does not identify those kinds as a real-world object. Suggested comment: /* Contact kinds 0x34, 0x2c and 0x2d select these flight responses. */
+- G_h01_0A89 counts repeated altitude-bound handling before the aircraft marker is returned; the intended recovery terminology is unclear. Suggested comment: /* Counts repeated altitude-bound handling in the current flight. */
+- G_h01_0A8A is a countdown updated while one object kind is animated; the source does not identify that animation. Suggested comment: /* Countdown used by an animated course object; object identity is unresolved. */
+- G_h01_0A90 is set by contact handling but has no read in the targeted plane source. Suggested comment: /* Set by contact handling; no consumer is present in the reviewed plane functions. */
+- G_h01_2A16 is initialized to null and scenes wait for it to become null after sound requests; no writer appears in recovered C or the reviewed reconstructed assembly. It may be sound-completion state, but the producer is not established. Suggested comment: /* Scenes wait for this pointer to clear after sound requests; its writer is unresolved. */
+- In the selected record views, omitted fields remain mechanical/unknown: Blob payload and selector; object-record bytes at 0x01, 0x06, 0x07; mac sprite payload; portfolio tail; market flag, reserved byte, update-day field, and tail; and the investment input's leading bytes. The 54-byte plane object view in plane_update_segment_actors also has extra state beyond the 14-byte prefix; it is not inferred here.

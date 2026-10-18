@@ -1,1 +1,1 @@
-int G_h01_0970 = 5;
+int bitmap_plane_count = 5;

@@ -20,7 +20,7 @@ struct ClusterRecord {
 
 extern int G_h01_37EE;
 extern int G_h01_37F0;
-extern struct ClusterRecord G_h01_8BEC[1];
+extern struct ClusterRecord jg_platform_records[1];
 extern int G_h01_94B0;
 extern int G_h01_94BE;
 extern int G_h01_94C0;
@@ -32,7 +32,7 @@ int index;
     int delta;
     int shift;
 
-    record = &G_h01_8BEC[index];
+    record = &jg_platform_records[index];
     delta = (int)(((float)G_h01_94BE - (float)record->value2c)
                   * (float)record->ref34[4] / 104.0);
     shift = 0;

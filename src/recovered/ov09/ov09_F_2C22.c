@@ -1,8 +1,8 @@
-extern int F_h00_35DC();
-extern int F_h00_307C();
+extern int draw_text();
+extern int switch_display_buffer();
 extern int Delay();
 extern int shutdown_av();
 recovered() {
- F_h00_35DC(8,8,"OUT OF MEMORY",15,0);
- F_h00_307C(); Delay(150L); shutdown_av("Out of Memory");
+ draw_text(8,8,"OUT OF MEMORY",15,0);
+ switch_display_buffer(); Delay(150L); shutdown_av("Out of Memory");
 }

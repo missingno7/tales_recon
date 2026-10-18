@@ -15,8 +15,8 @@ extern int G_h01_94BE;
 extern int G_h01_A152;
 extern int G_h01_A154;
 extern int G_h01_A158;
-extern struct Event G_h01_A15E[1];
-extern int F_h11_25D6();
+extern struct Event jg_event_records[1];
+extern int integer_within_inclusive_range();
 
 int recovered(a)
 int a;
@@ -33,9 +33,9 @@ int a;
         --page;
     screen_x=(page-1)*128+G_h01_A154;
     index=(G_h01_A158+page)%G_h01_A152;
-    event=&G_h01_A15E[index];
+    event=&jg_event_records[index];
     if (event->value4==1 && event->valueC<event->valueE)
-        if (F_h11_25D6(event->valueC+screen_x+10,
+        if (integer_within_inclusive_range(event->valueC+screen_x+10,
                         (8>>G_h01_94B0)+G_h01_94BE,
                         event->value8+screen_x))
             result=index;

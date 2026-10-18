@@ -1,17 +1,17 @@
-/* resident_F_0640: loads the screen asset selected by case a; cases 11-14 then also set G_h01_46D6 and call F_h00_31AA with it. i1 is unused: the original 4-byte frame places flag at -3(a5). */
+/* resident_F_0640: loads the screen asset selected by case a; cases 11-14 then also set palette_fade_target and call fade_palette_to_target with it. i1 is unused: the original 4-byte frame places flag at -3(a5). */
 extern int SetRast();
 extern int request_disk();
 extern int arc_read_index();
-extern int F_h00_330E();
-extern int F_h00_291E();
+extern int fade_palette_to_black();
+extern int load_arc_record();
 extern int BltBitMap();
-extern int F_h00_307C();
-extern int F_h00_31AA();
+extern int switch_display_buffer();
+extern int fade_palette_to_target();
 extern int clear_input_direction_and_fire_state();
 extern long screen_rast_port;
-extern long G_h01_46CE;
-extern long G_h01_46D2;
-extern char *G_h01_46D6;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
+extern char *palette_fade_target;
 extern long arc_file;
 extern char G_h01_1926;
 extern char G_h01_1966;
@@ -27,58 +27,58 @@ int a;
     SetRast(screen_rast_port, 0L);
     request_disk(1);
     arc_read_index(arc_file);
-    F_h00_330E();
+    fade_palette_to_black();
     switch (a) {
     case 3:
-        F_h00_291E(30, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        load_arc_record(30, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         break;
     case 1:
     case 9:
-        F_h00_291E(32, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        load_arc_record(32, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         break;
     case 2:
-        F_h00_291E(41, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        load_arc_record(41, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         break;
     case 6:
-        F_h00_291E(35, G_h01_46D2);
+        load_arc_record(35, active_screen_bitmap);
         break;
     case 10:
-        F_h00_291E(33, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        load_arc_record(33, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
         break;
     case 11:
-        F_h00_291E(38, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
-        F_h00_307C();
-        G_h01_46D6 = &G_h01_1926;
-        F_h00_31AA(&G_h01_1926);
+        load_arc_record(38, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        switch_display_buffer();
+        palette_fade_target = &G_h01_1926;
+        fade_palette_to_target(&G_h01_1926);
         break;
     case 12:
-        F_h00_291E(39, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
-        F_h00_307C();
-        G_h01_46D6 = &G_h01_1926;
-        F_h00_31AA(&G_h01_1926);
+        load_arc_record(39, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        switch_display_buffer();
+        palette_fade_target = &G_h01_1926;
+        fade_palette_to_target(&G_h01_1926);
         break;
     case 13:
-        F_h00_291E(36, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
-        F_h00_307C();
-        G_h01_46D6 = &G_h01_1966;
-        F_h00_31AA(&G_h01_1966);
+        load_arc_record(36, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        switch_display_buffer();
+        palette_fade_target = &G_h01_1966;
+        fade_palette_to_target(&G_h01_1966);
         break;
     case 14:
-        F_h00_291E(37, G_h01_46CE);
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
-        F_h00_307C();
-        G_h01_46D6 = &G_h01_19A6;
-        F_h00_31AA(&G_h01_19A6);
+        load_arc_record(37, archive_image_bitmap);
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+        switch_display_buffer();
+        palette_fade_target = &G_h01_19A6;
+        fade_palette_to_target(&G_h01_19A6);
         break;
     default:
-        F_h00_307C();
+        switch_display_buffer();
         break;
     }
     clear_input_direction_and_fire_state();

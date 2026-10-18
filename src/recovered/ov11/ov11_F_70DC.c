@@ -12,21 +12,21 @@ extern int G_h01_94B0;
 extern int G_h01_94BA;
 extern int G_h01_94BE;
 extern int G_h01_94C0;
-extern struct Record G_h01_A6A8[1];
-extern int F_h11_25D6();
-extern int F_h11_25F8();
-extern int F_h11_717A();
+extern struct Record jg_end_trigger_records[1];
+extern int integer_within_inclusive_range();
+extern int point_inside_rectangle();
+extern int jg_set_end_trigger_effect_state();
 
 recovered(a)
 int a;
 {
     struct Record *record;
 
-    record = &G_h01_A6A8[a];
-    if (F_h11_25D6(record->value - 2, G_h01_94BA,
+    record = &jg_end_trigger_records[a];
+    if (integer_within_inclusive_range(record->value - 2, G_h01_94BA,
                     record->value + 1)) {
-        F_h11_717A(a, 9);
-        if (F_h11_25F8(record->value4, record->value6,
+        jg_set_end_trigger_effect_state(a, 9);
+        if (point_inside_rectangle(record->value4, record->value6,
                         (8 >> G_h01_94B0) + G_h01_94BE,
                         G_h01_94C0 + 16, record->value4 + 48,
                         record->value6 + 30))

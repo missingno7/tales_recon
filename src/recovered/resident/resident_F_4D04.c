@@ -15,11 +15,11 @@ extern unsigned char G_h01_2042[1];
 extern char *G_h01_A7CE[1];
 extern char *arc_file;
 extern struct Cell *G_h01_B206[1];
-extern unsigned int G_h01_A7DA;
+extern unsigned int arc_record_kind;
 extern long G_h01_B202;
 extern char G_h01_B1F0;
 extern int arc_read_index();
-extern long F_h00_291E();
+extern long load_arc_record();
 extern int F_h00_46CE();
 
 recovered(n)
@@ -39,11 +39,11 @@ unsigned int n;
     for (i = 0; G_h01_1F9E[n][i] != 0xff; i++) {
         v = G_h01_1F9E[n][i];
         G_h01_B206[i] = 0;
-        if (!(G_h01_B206[i] = F_h00_291E(v, 0L))) {
+        if (!(G_h01_B206[i] = load_arc_record(v, 0L))) {
             arc_file = saved;
             return 0;
         }
-        if (G_h01_A7DA == 6) {
+        if (arc_record_kind == 6) {
             F_h00_46CE(k++ + 11, G_h01_B206[i]->p2);
         } else {
             pt = audio_sample_descriptor_table[i + 57];

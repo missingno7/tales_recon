@@ -15,12 +15,12 @@ extern int G_h01_9FC6;
 extern int G_h01_9FC8;
 extern int G_h01_9FCA;
 extern int G_h01_9FCC;
-extern int F_h11_262E();
-extern int F_h11_2430();
-extern int F_h11_407C();
-extern int F_h11_41F6();
-extern int F_h11_4474();
-extern int F_h11_4B0C();
+extern int rectangles_intersect();
+extern int jg_draw_approaching_object();
+extern int jg_finish_event_animation();
+extern int jg_start_animation_sequence();
+extern int jg_advance_animation_sequence();
+extern int jg_select_player_animation();
 
 recovered()
 {
@@ -37,8 +37,8 @@ recovered()
             G_h01_9FC6 = G_h01_9FC2;
             G_h01_9FC8 = G_h01_9FC4;
             G_h01_9FCA = G_h01_9FC6;
-            F_h11_2430(12);
-            F_h11_41F6(33, &G_h01_9FAA, G_h01_9FCC,
+            jg_draw_approaching_object(12);
+            jg_start_animation_sequence(33, &G_h01_9FAA, G_h01_9FCC,
                 G_h01_9FC0, G_h01_9FC2);
         }
         break;
@@ -56,16 +56,16 @@ recovered()
             break;
         }
 
-        if (F_h11_262E(x - 4, y - 6, x + 4, y + 6,
+        if (rectangles_intersect(x - 4, y - 6, x + 4, y + 6,
                 G_h01_9FC0 + 8, G_h01_9FC2 + 8,
                 G_h01_9FC0 + 18, G_h01_9FC2 + 20) &&
             G_h01_94AE != 2 && G_h01_94AE != 45) {
             if (G_h01_94B6) {
-                F_h11_407C(G_h01_94D4);
+                jg_finish_event_animation(G_h01_94D4);
                 G_h01_94B6 = 0;
             }
             G_h01_94AE = 2;
-            F_h11_4B0C(2);
+            jg_select_player_animation(2);
         }
 
         if (G_h01_9FC0 + 32 < G_h01_8A3E) {
@@ -73,9 +73,9 @@ recovered()
             G_h01_94B8 = 0;
         } else {
             G_h01_9FC0 -= 4;
-            F_h11_4474(33, &G_h01_9FAA);
+            jg_advance_animation_sequence(33, &G_h01_9FAA);
         }
-        F_h11_2430(12);
+        jg_draw_approaching_object(12);
         break;
     }
 }

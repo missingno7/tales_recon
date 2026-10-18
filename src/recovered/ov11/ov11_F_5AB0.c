@@ -1,7 +1,7 @@
 /* Direct reconstruction candidate for ov11_F_5AB0. */
 extern int G_h01_94BA;
 extern int G_h01_94BC;
-extern int G_h01_8B1C[41][4];
+extern int jg_grid_tile_indices[41][4];
 
 recovered(direction, kind, result)
 int direction;
@@ -29,20 +29,20 @@ select:
     if (direction == 0 || direction == 1) {
         if (kind == 2) {
             if ((column = G_h01_94BC - 1) >= 0)
-                if (G_h01_8B1C[row][column]) {
+                if (jg_grid_tile_indices[row][column]) {
                     *result = column;
                     found = 1;
                 }
         } else if (kind == 3) {
             if ((column = G_h01_94BC + 1) < 3)
-                if (G_h01_8B1C[row][column]) {
+                if (jg_grid_tile_indices[row][column]) {
                     *result = column;
                     found = 1;
                 }
             }
     } else if (direction == 2) {
         if (G_h01_94BC > 0) {
-            if (G_h01_8B1C[row][G_h01_94BC - 1]) {
+            if (jg_grid_tile_indices[row][G_h01_94BC - 1]) {
                 *result = G_h01_94BC - 1;
                 found = 1;
             }

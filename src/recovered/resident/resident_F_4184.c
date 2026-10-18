@@ -1,4 +1,4 @@
-extern int G_h01_B1E8;
+extern int arc_stream_buffer_position;
 extern int G_h01_1E32[8];
 extern int G_h01_1E42[49];
 extern char arc_next_byte();
@@ -13,7 +13,7 @@ char *out;
 
     sample = 0;
     index = 1;
-    G_h01_B1E8 = 1024;
+    arc_stream_buffer_position = 1024;
     for (i = 0; i < length; ++i) {
         packed = arc_next_byte();
         nibble = (packed >> 4) & 15;

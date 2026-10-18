@@ -14,7 +14,7 @@ struct Record {
 extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
-extern struct Record G_h01_3724[1];
+extern struct Record jg_scenery_object_records[1];
 
 recovered(text)
 char *text;
@@ -33,7 +33,7 @@ char *text;
             report_loader_error(435);
             goto next_record;
         }
-        record = &G_h01_3724[index];
+        record = &jg_scenery_object_records[index];
         if (sscanf(line, "%*d %d %d %d %d %d %d %d %d\n",
                 &record->value34, &record->value36, &record->value38,
                 &record->value26, &record->value28, &record->value30,

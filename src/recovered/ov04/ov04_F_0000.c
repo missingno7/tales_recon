@@ -1,6 +1,6 @@
-extern int F_h04_000C();
+extern int initialize_location_treasure_tables();
 
 recovered()
 {
-    F_h04_000C();
+    initialize_location_treasure_tables();
 }

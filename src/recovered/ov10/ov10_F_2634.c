@@ -1,19 +1,19 @@
 extern long screen_rast_port;
-extern long G_h01_46CE;
-extern long G_h01_46D2;
-extern int F_h00_30F0();
-extern int F_h00_34E0();
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
+extern int copy_palette_to_copper_lists();
+extern int draw_masked_sprite();
 extern unsigned int F_h00_463E();
 extern int BltBitMap();
 extern int BltBitMapRastPort();
-extern int F_h10_22E6();
+extern int draw_cave_actors();
 extern short G_h01_060A[1];
 extern short G_h01_0626[1];
 extern short G_h01_0636[1];
 extern short G_h01_0646[1];
 extern short G_h01_0656[1];
-extern char G_h01_4356[1];
-extern char *G_h01_5392;
+extern char cave_cell_words[1];
+extern char *screen_palette_words;
 extern short G_h01_726C;
 extern short G_h01_726E;
 extern short G_h01_72A2;
@@ -28,12 +28,12 @@ extern char G_h01_74F4[1];
 extern long G_h01_7998;
 extern char G_h01_79A2;
 extern char G_h01_79A3;
-extern char G_h01_79A4;
+extern char cave_elapsed_time_ticks;
 extern char G_h01_79A6;
 extern char G_h01_72A0;
-extern short G_h01_79AE;
+extern short cave_time_limit;
 extern short G_h01_79B0;
-extern short G_h01_79B2;
+extern short cave_movement_animation_pending;
 
 void recovered(obj, kind, frame)
 short *obj;
@@ -93,7 +93,7 @@ int kind, frame;
     else if (y > 0xc8)
         y = 0xc8;
 
-    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L,
+    BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L,
                0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
 
     frame_index = frame;
@@ -102,32 +102,32 @@ int kind, frame;
                (long)(shape[frame_index * 2 + 1] + obj[1] - 0x40),
                0x90L, 0x87L, 0xeeL);
 
-    if (G_h01_79B2 == 0) {
+    if (cave_movement_animation_pending == 0) {
         switch (G_h01_79A2) {
         case 0:
-            ((short *)(G_h01_5392 + 0x36))[0] = 0x832;
-            ((short *)(G_h01_5392 + 0x3c))[0] = 0xb20;
+            ((short *)(screen_palette_words + 0x36))[0] = 0x832;
+            ((short *)(screen_palette_words + 0x3c))[0] = 0xb20;
             break;
         case 1:
-            ((short *)(G_h01_5392 + 0x36))[0] = 0x842;
-            ((short *)(G_h01_5392 + 0x3c))[0] = 0xb30;
+            ((short *)(screen_palette_words + 0x36))[0] = 0x842;
+            ((short *)(screen_palette_words + 0x3c))[0] = 0xb30;
             break;
         case 2:
-            ((short *)(G_h01_5392 + 0x36))[0] = 0x943;
-            ((short *)(G_h01_5392 + 0x3c))[0] = 0xa30;
+            ((short *)(screen_palette_words + 0x36))[0] = 0x943;
+            ((short *)(screen_palette_words + 0x3c))[0] = 0xa30;
             break;
         case 3:
-            ((short *)(G_h01_5392 + 0x36))[0] = 0x843;
-            ((short *)(G_h01_5392 + 0x3c))[0] = 0xa20;
+            ((short *)(screen_palette_words + 0x36))[0] = 0x843;
+            ((short *)(screen_palette_words + 0x3c))[0] = 0xa20;
             break;
         }
-        F_h00_30F0();
+        copy_palette_to_copper_lists();
     }
 
     if ((kind == 17 && frame_index != 5 && frame_index != 6) || kind == 11)
-        F_h00_34E0(obj);
+        draw_masked_sprite(obj);
 
-    if (G_h01_79A4 < (G_h01_79AE >> 1)) {
+    if (cave_elapsed_time_ticks < (cave_time_limit >> 1)) {
         G_h01_72A0 = G_h01_79A2;
         G_h01_726C = shape[frame_index * 2] + obj[0] - 0x0f;
         G_h01_726E = shape[frame_index * 2 + 1] + obj[1] - 0x40;
@@ -135,8 +135,8 @@ int kind, frame;
             G_h01_726C = shape[frame_index * 2] + 0x43;
             G_h01_726E = shape[frame_index * 2 + 1] - 0x1a;
         }
-        F_h00_34E0(&G_h01_726C);
-    } else if (G_h01_79A4 < G_h01_79AE - G_h01_79B0) {
+        draw_masked_sprite(&G_h01_726C);
+    } else if (cave_elapsed_time_ticks < cave_time_limit - G_h01_79B0) {
         G_h01_72D6 = G_h01_79A2;
         G_h01_72A2 = shape[frame_index * 2] + obj[0] - 0x0b;
         G_h01_72A4 = shape[frame_index * 2 + 1] + obj[1] - 0x33;
@@ -144,7 +144,7 @@ int kind, frame;
             G_h01_72A2 = shape[frame_index * 2] + 0x47;
             G_h01_72A4 = shape[frame_index * 2 + 1] - 0x0d;
         }
-        F_h00_34E0(&G_h01_72A2);
+        draw_masked_sprite(&G_h01_72A2);
     } else {
         G_h01_730C = G_h01_79A2;
         G_h01_72D8 = shape[frame_index * 2] + obj[0] - 6;
@@ -153,17 +153,17 @@ int kind, frame;
             G_h01_72D8 = shape[frame_index * 2] + 0x4c;
             G_h01_72DA = shape[frame_index * 2 + 1] - 4;
         }
-        F_h00_34E0(&G_h01_72D8);
+        draw_masked_sprite(&G_h01_72D8);
     }
 
     if (kind != 11 && (kind != 17 || (kind == 17 && (frame_index == 5 || frame_index == 6))))
-        F_h00_34E0(obj);
-    F_h00_34E0(G_h01_74F4);
-    F_h00_34E0(G_h01_7452);
-    F_h00_34E0(G_h01_741C);
+        draw_masked_sprite(obj);
+    draw_masked_sprite(G_h01_74F4);
+    draw_masked_sprite(G_h01_7452);
+    draw_masked_sprite(G_h01_741C);
 
     if (kind == 17 && G_h01_79A6 == 0)
-        F_h10_22E6(G_h01_4356);
+        draw_cave_actors(cave_cell_words);
 
     G_h01_79A2 = F_h00_463E() & 3;
     if (G_h01_79A3 == G_h01_79A2) {

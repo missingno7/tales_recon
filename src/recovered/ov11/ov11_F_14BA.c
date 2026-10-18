@@ -19,9 +19,9 @@ extern int G_h01_94C8;
 extern int G_h01_94D4;
 extern int G_h01_94D6;
 extern int G_h01_94D8;
-extern int F_h00_30F0();
-extern int F_h11_5BC4();
-extern int F_h11_4B0C();
+extern int copy_palette_to_copper_lists();
+extern int jg_find_initial_occupied_cell();
+extern int jg_select_player_animation();
 
 recovered(flag)
 int flag;
@@ -54,7 +54,7 @@ int flag;
         break;
     }
 
-    F_h00_30F0(0);
+    copy_palette_to_copper_lists(0);
     G_h01_94AE = 5;
     G_h01_94B0 = 1;
     G_h01_94B2 = 0;
@@ -63,13 +63,13 @@ int flag;
     G_h01_94D4 = 0;
     G_h01_94D6 = 0;
     G_h01_94D8 = 0;
-    F_h11_5BC4(&G_h01_94BA, &G_h01_94BC);
+    jg_find_initial_occupied_cell(&G_h01_94BA, &G_h01_94BC);
     G_h01_94BE = G_h01_94BA * 53 + 8;
     G_h01_94C0 = (G_h01_94BC << 5) + 16;
     G_h01_94C2 = G_h01_94C6 = G_h01_94BE - (G_h01_94B0 ? 16 : 0);
     G_h01_94C8 = G_h01_94C0;
     G_h01_94C4 = G_h01_94C0;
-    F_h11_4B0C(G_h01_94AE);
+    jg_select_player_animation(G_h01_94AE);
 }
 
 

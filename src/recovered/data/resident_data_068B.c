@@ -1,1 +1,1 @@
-char G_h01_068B[] = "on Mountain Climbing says,";
+char mountain_climbing_guide_intro_text[] = "on Mountain Climbing says,";

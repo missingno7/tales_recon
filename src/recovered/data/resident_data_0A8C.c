@@ -1,1 +1,1 @@
-int G_h01_0A8C = 0;
+int plane_contact_suppression_segment = 0;

@@ -1,4 +1,4 @@
-unsigned int G_h01_1466[32] = {
+unsigned int invest_office_palette[32] = {
   0,
   4095,
   3276,

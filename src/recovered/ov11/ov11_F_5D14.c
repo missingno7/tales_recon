@@ -11,7 +11,7 @@ struct ClusterRecord {
 
 extern int G_h01_7A92;
 extern int G_h01_8A3C;
-extern struct ClusterRecord G_h01_8BEC[1];
+extern struct ClusterRecord jg_platform_records[1];
 extern int G_h01_94AE;
 extern int G_h01_94B4;
 extern int G_h01_94B6;
@@ -20,11 +20,11 @@ extern int G_h01_94C0;
 extern int G_h01_94D6;
 extern int G_h01_37EE;
 extern int G_h01_37F0;
-extern int F_h11_25F8();
-extern int F_h11_37A0();
-extern int F_h11_41F6();
-extern int F_h11_4474();
-extern int F_h11_5C42();
+extern int point_inside_rectangle();
+extern int jg_get_actor_world_position();
+extern int jg_start_animation_sequence();
+extern int jg_advance_animation_sequence();
+extern int jg_set_platform_render_state();
 
 recovered(index)
 int index;
@@ -32,7 +32,7 @@ int index;
     struct ClusterRecord *record;
     int x, y, update, state;
 
-    record = &G_h01_8BEC[index];
+    record = &jg_platform_records[index];
     update = 0;
     state = record->state30;
 
@@ -57,7 +57,7 @@ int index;
             update = 1;
         } else {
             update = 1;
-            F_h11_4474(24, &record->pad18[0]);
+            jg_advance_animation_sequence(24, &record->pad18[0]);
         }
         break;
     default:
@@ -66,19 +66,19 @@ int index;
 
     if (record->state30 != state) {
         record->state30 = state;
-        F_h11_41F6(24, &record->pad18[0], state,
+        jg_start_animation_sequence(24, &record->pad18[0], state,
                    record->value2c, record->value2e);
     }
 
     if (G_h01_8A3C) {
-        F_h11_5C42(index, 0);
+        jg_set_platform_render_state(index, 0);
     } else if (update) {
-        F_h11_5C42(index, 3);
+        jg_set_platform_render_state(index, 3);
     } else if (G_h01_7A92 &&
-               F_h11_37A0(G_h01_7A92, &x, &y) &&
-               F_h11_25F8(record->value2c, record->value2e - 6,
+               jg_get_actor_world_position(G_h01_7A92, &x, &y) &&
+               point_inside_rectangle(record->value2c, record->value2e - 6,
                           x, y, record->value2c + 64,
                           record->value2e + 32)) {
-        F_h11_5C42(index, 3);
+        jg_set_platform_render_state(index, 3);
     }
 }

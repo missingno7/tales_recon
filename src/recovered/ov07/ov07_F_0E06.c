@@ -3,8 +3,8 @@ struct Header {
     int second;
 };
 
-extern int F_h00_34E0();
-extern int F_h00_09C0();
+extern int draw_masked_sprite();
+extern int draw_decimal_value();
 extern char game_day;
 
 recovered(p)
@@ -15,9 +15,9 @@ struct Header *p;
 
     p->first = 8;
     p->second = 175;
-    F_h00_34E0(p);
+    draw_masked_sprite(p);
     if (game_day < 10)
-        F_h00_09C0(18, 182, (long)game_day, 7, 1, 0);
+        draw_decimal_value(18, 182, (long)game_day, 7, 1, 0);
     else
-        F_h00_09C0(14, 182, (long)game_day, 7, 1, 0);
+        draw_decimal_value(14, 182, (long)game_day, 7, 1, 0);
 }

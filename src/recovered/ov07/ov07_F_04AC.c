@@ -4,8 +4,8 @@ struct PortfolioRow {
     char rest[10];
 };
 
-extern int F_h00_35DC();
-extern int F_h00_09C0();
+extern int draw_text();
+extern int draw_decimal_value();
 extern int invest_calculate_share_price();
 extern struct PortfolioRow investment_company_table[16];
 
@@ -26,14 +26,14 @@ int selected;
         color = 0;
         if (slot == selected)
             color = 9;
-        F_h00_35DC(32, y, "                                ", 1, color);
+        draw_text(32, y, "                                ", 1, color);
         if (slot == 15)
-            F_h00_35DC(32, y, "RETURN TO OFFICE", 15, color);
+            draw_text(32, y, "RETURN TO OFFICE", 15, color);
         else {
             value = invest_calculate_share_price(slot);
-            F_h00_09C0(248, y, (long)value, 1, color, 1);
-            F_h00_35DC(32, y, investment_company_table[slot].name, 1, color);
-            F_h00_09C0(280, y, (long)investment_company_table[slot].value, 1, color, 1);
+            draw_decimal_value(248, y, (long)value, 1, color, 1);
+            draw_text(32, y, investment_company_table[slot].name, 1, color);
+            draw_decimal_value(280, y, (long)investment_company_table[slot].value, 1, color, 1);
         }
         y += 20;
     }

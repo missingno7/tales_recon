@@ -58,8 +58,8 @@ extern int G_h01_5C02;
 extern int G_h01_5D44;
 extern int G_h01_5D46;
 extern unsigned int F_h00_463E();
-extern int F_h05_5BBC();
-extern int F_h05_5C08();
+extern int plane_append_object_record();
+extern int plane_set_object_spawn_chances();
 
 recovered(n)
 int n;
@@ -83,29 +83,29 @@ int n;
     sh = 3;
     rp = (struct Item *)G_h01_606C;
     G_h01_5E66[0].index = 0;
-    F_h05_5BBC(0, 0xb0 - G_h01_54CE - 8, 0x1a, 0, G_h01_54CC << sh, G_h01_54CE, rp++, &count);
-    F_h05_5BBC(0, 0xb0 - G_h01_5D46 - 0x24, 0x3a, 0, G_h01_5D44 << sh, G_h01_5D46, rp++, &count);
+    plane_append_object_record(0, 0xb0 - G_h01_54CE - 8, 0x1a, 0, G_h01_54CC << sh, G_h01_54CE, rp++, &count);
+    plane_append_object_record(0, 0xb0 - G_h01_5D46 - 0x24, 0x3a, 0, G_h01_5D44 << sh, G_h01_5D46, rp++, &count);
     k = F_h00_463E();
     k &= 3;
 
     for (i = 2; (unsigned int)i <= (unsigned int)(n - 2) && total < 257; i++) {
         if (difficulty_level == 0 && i == 2) {
-            F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
+            plane_set_object_spawn_chances(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        5, 0, 6, 2, 2, 4, 0, 0, 5, 5);
         } else if (difficulty_level == 0 && i == (n >> 1)) {
-            F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
+            plane_set_object_spawn_chances(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        10, 0, 12, 2, 6, 5, 4, 10, 9, 8);
         } else if (difficulty_level == 1 && i == 2) {
-            F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
+            plane_set_object_spawn_chances(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        20, 0, 12, 2, 6, 10, 8, 40, 25, 15);
         } else if (difficulty_level == 1 && i == (n >> 1)) {
-            F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
+            plane_set_object_spawn_chances(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        40, 5, 22, 4, 10, 20, 13, 60, 40, 25);
         } else if (difficulty_level == 2 && i == 2) {
-            F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
+            plane_set_object_spawn_chances(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        60, 10, 28, 6, 15, 35, 25, 80, 55, 35);
         } else if (difficulty_level == 2 && i == (n >> 1)) {
-            F_h05_5C08(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
+            plane_set_object_spawn_chances(&pr0, &pr1, &pr2, &pr3, &pr4, &pr5, &pr6, &pr7, &pr8, &pr9,
                        80, 20, 35, 10, 25, 50, 35, 100, 70, 45);
         }
 
@@ -117,13 +117,13 @@ int n;
             if (G_h01_5E66[i].index == -1)
                 G_h01_5E66[i].index = total;
             f1c = 1;
-            F_h05_5BBC(i, 0xa0 - G_h01_55A0->y, 0x23, 0, G_h01_55A0->x << 3,
+            plane_append_object_record(i, 0xa0 - G_h01_55A0->y, 0x23, 0, G_h01_55A0->x << 3,
                        G_h01_55A0->y, rp++, &count);
             if (G_h01_5E64[i][0] < 10 && G_h01_5E64[i][0] != 5 && G_h01_5E64[i][0] != 6
                 && F_h00_463E() % 100 < 40
                 && (unsigned int)G_h01_55A0->y > 0x50 && f1b == 0) {
                 f1b = 1;
-                F_h05_5BBC(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
+                plane_append_object_record(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
                            rp++, &count);
             }
             total += count;
@@ -142,19 +142,19 @@ int n;
             f24 = 1;
             if (G_h01_5E66[i].index == -1)
                 G_h01_5E66[i].index = total;
-            F_h05_5BBC(i, -10, 0x1d, 0, G_h01_58A0 << sh, G_h01_58A2, rp++, &count);
-            F_h05_5BBC(i, 0, 0x1f, 0, G_h01_590C << sh, G_h01_590E, rp++, &count);
+            plane_append_object_record(i, -10, 0x1d, 0, G_h01_58A0 << sh, G_h01_58A2, rp++, &count);
+            plane_append_object_record(i, 0, 0x1f, 0, G_h01_590C << sh, G_h01_590E, rp++, &count);
             if (G_h01_5E64[i][0] < 11 && G_h01_5E64[i][0] != 5 && G_h01_5E64[i][0] != 6
                 && G_h01_5E64[i][0] != 7 && G_h01_5E64[i][0] != 8
                 && F_h00_463E() % 100 < 50 && f1b == 0) {
                 f1b = 1;
-                F_h05_5BBC(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
+                plane_append_object_record(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
                            rp++, &count);
                 goto e3e;
             }
             if (F_h00_463E() % 100 < 35 && f20 == 0 && G_h01_5E64[i][0] < 11) {
                 f20 = 1;
-                F_h05_5BBC(i, 0xb0 - G_h01_5B2A, 0x34, 0, G_h01_5B28 << sh, G_h01_5B2A,
+                plane_append_object_record(i, 0xb0 - G_h01_5B2A, 0x34, 0, G_h01_5B28 << sh, G_h01_5B2A,
                            rp++, &count);
             }
         e3e:
@@ -178,7 +178,7 @@ int n;
                     r -= 20;
             }
             f23 = (char)r;
-            F_h05_5BBC(i, r, 0x21, side, G_h01_5538[side].x << sh, G_h01_5538[side].y,
+            plane_append_object_record(i, r, 0x21, side, G_h01_5538[side].x << sh, G_h01_5538[side].y,
                        rp++, &count);
         } else if (r > (unsigned int)pr2 && r < (unsigned int)pr2 + (unsigned int)pr3 && G_h01_5E5F != 0) {
             if (G_h01_5E66[i].index == -1)
@@ -187,11 +187,11 @@ int n;
             if (r > 10 && r < 40)
                 r -= 20;
             side = (F_h00_463E() & 1) ? 0 : 1;
-            F_h05_5BBC(i, r, 0x28, side, G_h01_57C4[side].x << sh, G_h01_57C4[side].y,
+            plane_append_object_record(i, r, 0x28, side, G_h01_57C4[side].x << sh, G_h01_57C4[side].y,
                        rp++, &count);
-            F_h05_5BBC(i, G_h01_57C4[side].y + r - 16, 0x2a, 0, G_h01_5830 << sh,
+            plane_append_object_record(i, G_h01_57C4[side].y + r - 16, 0x2a, 0, G_h01_5830 << sh,
                        G_h01_5832, rp++, &count);
-            F_h05_5BBC(i, G_h01_57C4[side].y + r - 16, 0x2b, 0, G_h01_5866 << sh,
+            plane_append_object_record(i, G_h01_57C4[side].y + r - 16, 0x2b, 0, G_h01_5866 << sh,
                        G_h01_5868, rp++, &count);
             if (G_h01_5E64[i][0] < 11 && G_h01_5E64[i][0] != 5 && G_h01_5E64[i][0] != 6
                 && G_h01_5E64[i][0] != 7 && G_h01_5E64[i][0] != 8
@@ -200,7 +200,7 @@ int n;
                 if (G_h01_5E66[i].index == -1)
                     G_h01_5E66[i].index = total;
                 f1b = 1;
-                F_h05_5BBC(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
+                plane_append_object_record(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
                            rp++, &count);
                 goto t52b2;
             }
@@ -209,7 +209,7 @@ int n;
                 if (G_h01_5E66[i].index == -1)
                     G_h01_5E66[i].index = total;
                 f20 = 1;
-                F_h05_5BBC(i, 0xb0 - G_h01_5B2A, 0x34, 0, G_h01_5B28 << sh, G_h01_5B2A,
+                plane_append_object_record(i, 0xb0 - G_h01_5B2A, 0x34, 0, G_h01_5B28 << sh, G_h01_5B2A,
                            rp++, &count);
             }
         t52b2:
@@ -222,10 +222,10 @@ int n;
             f1f = 1;
             if (G_h01_5E66[i].index == -1)
                 G_h01_5E66[i].index = total;
-            F_h05_5BBC(i, 0x8b, 0x2e, 0, G_h01_5A50 << sh, G_h01_5A52, rp++, &count);
-            F_h05_5BBC(i, 0x8b - G_h01_59E6, 0x2c, 0, G_h01_59E4 << sh, G_h01_59E6,
+            plane_append_object_record(i, 0x8b, 0x2e, 0, G_h01_5A50 << sh, G_h01_5A52, rp++, &count);
+            plane_append_object_record(i, 0x8b - G_h01_59E6, 0x2c, 0, G_h01_59E4 << sh, G_h01_59E6,
                        rp++, &count);
-            F_h05_5BBC(i, 0x8b - G_h01_5A1C, 0x2d, 0, G_h01_5A1A << sh, G_h01_5A1C,
+            plane_append_object_record(i, 0x8b - G_h01_5A1C, 0x2d, 0, G_h01_5A1A << sh, G_h01_5A1C,
                        rp++, &count);
             total += count;
             continue;
@@ -238,7 +238,7 @@ int n;
                 if (G_h01_5E66[i].index == -1)
                     G_h01_5E66[i].index = total;
                 f20 = 1;
-                F_h05_5BBC(i, 0xb0 - G_h01_5B2A, 0x34, 0, G_h01_5B28 << sh, G_h01_5B2A,
+                plane_append_object_record(i, 0xb0 - G_h01_5B2A, 0x34, 0, G_h01_5B28 << sh, G_h01_5B2A,
                            rp++, &count);
                 total += count;
                 continue;
@@ -251,9 +251,9 @@ int n;
                 f22 = 1;
                 if (G_h01_5E66[i].index == -1)
                     G_h01_5E66[i].index = total;
-                F_h05_5BBC(i, 0xa0 - G_h01_5C02 + 4, 0x38, 2, G_h01_5C00 << sh, G_h01_5C02,
+                plane_append_object_record(i, 0xa0 - G_h01_5C02 + 4, 0x38, 2, G_h01_5C00 << sh, G_h01_5C02,
                            rp++, &count);
-                F_h05_5BBC(i, 0xa0 - G_h01_564C + 4, 0x20, 0, G_h01_564A << sh, G_h01_564C,
+                plane_append_object_record(i, 0xa0 - G_h01_564C + 4, 0x20, 0, G_h01_564A << sh, G_h01_564C,
                            rp++, &count);
                 total += count;
                 continue;
@@ -266,7 +266,7 @@ int n;
                 f1e = 1;
                 if (G_h01_5E66[i].index == -1)
                     G_h01_5E66[i].index = total;
-                F_h05_5BBC(i, 0xa0 - G_h01_5898->y + 1, 0x1c, 0, G_h01_5898->x << 3,
+                plane_append_object_record(i, 0xa0 - G_h01_5898->y + 1, 0x1c, 0, G_h01_5898->x << 3,
                            G_h01_5898->y, rp++, &count);
                 total += count;
                 continue;
@@ -279,25 +279,25 @@ int n;
                     G_h01_5E66[i].index = total;
                 if (F_h00_463E() & 1)
                     r = 0;
-                F_h05_5BBC(i, r, 0x11, 0, G_h01_55A8 << sh, G_h01_55AA, rp++, &count);
-                F_h05_5BBC(i, r + G_h01_55AA, 0x12, 2, G_h01_55DE << sh, G_h01_55E0,
+                plane_append_object_record(i, r, 0x11, 0, G_h01_55A8 << sh, G_h01_55AA, rp++, &count);
+                plane_append_object_record(i, r + G_h01_55AA, 0x12, 2, G_h01_55DE << sh, G_h01_55E0,
                            rp++, &count);
                 r = F_h00_463E() & 3;
                 if (r == 0) {
-                    F_h05_5BBC(i, 0x90, 0, 0x14, G_h01_5680 << sh, G_h01_5682, rp++, &count);
+                    plane_append_object_record(i, 0x90, 0, 0x14, G_h01_5680 << sh, G_h01_5682, rp++, &count);
                 } else if (r == 1) {
-                    F_h05_5BBC(i, 0x90, 0, 0x16, G_h01_56EC << sh, G_h01_56EE, rp++, &count);
+                    plane_append_object_record(i, 0x90, 0, 0x16, G_h01_56EC << sh, G_h01_56EE, rp++, &count);
                 } else if (r == 2) {
-                    F_h05_5BBC(i, 0x90, 0, 0x18, G_h01_5758 << sh, G_h01_575A, rp++, &count);
+                    plane_append_object_record(i, 0x90, 0, 0x18, G_h01_5758 << sh, G_h01_575A, rp++, &count);
                 } else {
-                    F_h05_5BBC(i, 0x90, 0, 0x19, G_h01_578E << sh, G_h01_5790, rp++, &count);
+                    plane_append_object_record(i, 0x90, 0, 0x19, G_h01_578E << sh, G_h01_5790, rp++, &count);
                 }
                 if (G_h01_5E64[i][0] < 11 && G_h01_5E64[i][0] != 5 && G_h01_5E64[i][0] != 6
                     && F_h00_463E() % 100 > 50 && G_h01_5E64[i][0] != 7
                     && G_h01_5E64[i][0] != 8 && f1b == 0 && f20 == 0 && f1e == 0
                     && f1c == 0 && f22 == 0) {
                     f1b = 1;
-                    F_h05_5BBC(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
+                    plane_append_object_record(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
                                rp++, &count);
                 }
                 total += count;
@@ -312,7 +312,7 @@ int n;
                 if (G_h01_5E66[i].index == -1)
                     G_h01_5E66[i].index = total;
                 f1b = 1;
-                F_h05_5BBC(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
+                plane_append_object_record(i, 0xb0 - G_h01_5AF4, 0x31, 0, G_h01_5AF2 << sh, G_h01_5AF4,
                            rp++, &count);
                 total += count;
                 continue;
@@ -335,8 +335,8 @@ int n;
 
     if (G_h01_5E66[G_h01_5E42].index == -1)
         G_h01_5E66[G_h01_5E42].index = total;
-    F_h05_5BBC(G_h01_5E42, 0xb0 - G_h01_5504 - 8, 0x1b, 0, G_h01_5502 << sh, G_h01_5504,
+    plane_append_object_record(G_h01_5E42, 0xb0 - G_h01_5504 - 8, 0x1b, 0, G_h01_5502 << sh, G_h01_5504,
                rp++, &count);
-    F_h05_5BBC(G_h01_5E42, 0xb0 - G_h01_5D46 - 0x24, 0x3a, 0xffff, G_h01_5D44 << sh,
+    plane_append_object_record(G_h01_5E42, 0xb0 - G_h01_5D46 - 0x24, 0x3a, 0xffff, G_h01_5D44 << sh,
                G_h01_5D46, rp++, &count);
 }

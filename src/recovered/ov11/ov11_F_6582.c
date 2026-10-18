@@ -10,7 +10,7 @@ struct Item {
     char pad38[2];
 };
 
-extern struct Item G_h01_A464[1];
+extern struct Item jg_contact_hazard_records[1];
 extern int G_h01_94AE;
 extern int G_h01_94B0;
 extern int G_h01_94B6;
@@ -19,9 +19,9 @@ extern int G_h01_94BE;
 extern int G_h01_94C0;
 extern int G_h01_94D4;
 extern int G_h01_8A3C;
-extern int F_h11_25F8();
-extern int F_h11_4B0C();
-extern int F_h11_41F6();
+extern int point_inside_rectangle();
+extern int jg_select_player_animation();
+extern int jg_start_animation_sequence();
 extern int play_sound();
 
 recovered(index)
@@ -32,7 +32,7 @@ int index;
     int y;
     int x;
 
-    item = G_h01_A464 + index;
+    item = jg_contact_hazard_records + index;
     result = 0;
     y = (8 >> G_h01_94B0) + G_h01_94BE;
     x = G_h01_94C0 + 16;
@@ -43,7 +43,7 @@ int index;
 
     if (item->state != 45 && G_h01_94AE != 2 &&
         G_h01_94AE != 6 && G_h01_94AE != 7) {
-        if (F_h11_25F8(item->value34 + 16,
+        if (point_inside_rectangle(item->value34 + 16,
                        item->value36,
                        y,
                        x,
@@ -54,9 +54,9 @@ int index;
                 G_h01_94D4 = 0;
             }
             G_h01_94AE = 45;
-            F_h11_4B0C(G_h01_94AE);
+            jg_select_player_animation(G_h01_94AE);
             item->state = 45;
-            F_h11_41F6(8, &item->value10, 45,
+            jg_start_animation_sequence(8, &item->value10, 45,
                        item->value34, item->value36);
             play_sound(98);
             G_h01_8A3C = 3;
@@ -65,7 +65,7 @@ int index;
                    ((G_h01_94C0 + 14) >> 5) == item->value2 &&
                    (G_h01_94AE == 12 || G_h01_94AE == 1 || G_h01_94AE == 5)) {
             G_h01_94AE = 14;
-            F_h11_4B0C(14);
+            jg_select_player_animation(14);
         }
     }
     return result;

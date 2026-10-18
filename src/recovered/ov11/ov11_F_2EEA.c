@@ -1,6 +1,6 @@
 struct Record { int field0; char unused0[22]; int field24; int field26; int field28; int field30; int field32; int field34; char unused1[28]; };
 struct Row { int field0; int field2; int field4; };
-extern struct Record G_h01_9FCE[1];
+extern struct Record jg_actor_records[1];
 extern int G_h01_1300[16];
 extern struct Row G_h01_12C0[32];
 extern int G_h01_34D8[16];
@@ -12,10 +12,10 @@ extern int G_h01_94C0;
 extern int G_h01_A14E;
 extern unsigned int F_h00_463E();
 extern int play_sound();
-extern int F_h11_25D6();
-extern int F_h11_2E26();
-extern int F_h11_41F6();
-extern int F_h11_4474();
+extern int integer_within_inclusive_range();
+extern int jg_set_actor_state();
+extern int jg_start_animation_sequence();
+extern int jg_advance_animation_sequence();
 extern int F_h11_45EC();
 
 recovered(index)
@@ -25,7 +25,7 @@ int index;
     int changed;
     int redraw;
     int near;
-    object = (int *)&G_h01_9FCE[index];
+    object = (int *)&jg_actor_records[index];
     changed = 0;
     redraw = 0;
     near = F_h11_45EC(object + 1);
@@ -68,7 +68,7 @@ state17_body:
             object[22] = 14; changed = 1; redraw = 1;
         } else {
             if (object[4] == 2) play_sound(96);
-            F_h11_4474(2, object + 1);
+            jg_advance_animation_sequence(2, object + 1);
         }
 state17_done:
         break;
@@ -92,7 +92,7 @@ state12_body:
                     redraw = 1;
                 }
             } else {
-                F_h11_4474(2, object + 1);
+                jg_advance_animation_sequence(2, object + 1);
             }
 state12_done:
         break;
@@ -117,7 +117,7 @@ state11_body:
                     redraw = 1;
                 }
             } else {
-                F_h11_4474(2, object + 1);
+                jg_advance_animation_sequence(2, object + 1);
             }
 state11_done:
         break;
@@ -134,7 +134,7 @@ state11_done:
                     object[26] = object[30] = object[29] = object[16] + 22;
                 }
             } else if ((int)F_h00_463E() % 100 < G_h01_1300[14]) {
-                if (F_h11_25D6(object[15] - 32,
+                if (integer_within_inclusive_range(object[15] - 32,
                                (8 >> G_h01_94B0) + G_h01_94BE,
                                object[15] + 32) != 0 || object[15] < G_h01_94BE) {
                     object[22] = 11; changed = 1; redraw = 1;
@@ -152,18 +152,18 @@ state11_done:
         } else {
             if (object[4] == 1 && G_h01_12C0[16].field0 != 0) {
                 play_sound(96); G_h01_12C0[16].field0 = 0;
-                F_h11_4474(2, object + 1);
+                jg_advance_animation_sequence(2, object + 1);
             } else {
-                F_h11_4474(2, object + 1);
+                jg_advance_animation_sequence(2, object + 1);
             }
         }
         break;
     case 18:
         if (near) { object[22] = 13; changed = 1; redraw = 1; }
-        else F_h11_4474(2, object + 1);
+        else jg_advance_animation_sequence(2, object + 1);
         break;
     }
-    if (G_h01_8A3C != 0 || changed) F_h11_2E26(index, 7);
-    if (redraw) F_h11_41F6(2, object + 1, object[22], object[15], object[16]);
+    if (G_h01_8A3C != 0 || changed) jg_set_actor_state(index, 7);
+    if (redraw) jg_start_animation_sequence(2, object + 1, object[22], object[15], object[16]);
     if (object[31] <= 0) object[31] = G_h01_34D8[8];
 }

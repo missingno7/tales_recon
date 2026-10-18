@@ -1,1 +1,1 @@
-int G_h01_0A7C = 0;
+int plane_reward_already_collected = 0;

@@ -21,9 +21,9 @@ extern int G_h01_2F16;
 extern int G_h01_2F18;
 extern int G_h01_2F1A;
 extern int G_h01_2F1C;
-extern int G_h01_0A7A;
-extern int G_h01_0A7C;
-extern int F_h00_34E0();
+extern int plane_reward_contact_pending;
+extern int plane_reward_already_collected;
+extern int draw_masked_sprite();
 extern int play_sound();
 extern unsigned int F_h00_463E();
 
@@ -45,23 +45,23 @@ int arg;
             idx = p->d;
             G_h01_5534[idx].x = p->x;
             G_h01_5534[idx].y = p->y;
-            F_h00_34E0(&G_h01_5534[idx]);
+            draw_masked_sprite(&G_h01_5534[idx]);
             break;
         case 40:
             idx = p->d;
             G_h01_57C0[idx].x = p->x;
             G_h01_57C0[idx].y = p->y;
-            F_h00_34E0(&G_h01_57C0[idx]);
+            draw_masked_sprite(&G_h01_57C0[idx]);
             break;
         case 26:
             G_h01_54C8.x = p->x;
             G_h01_54C8.y = p->y;
-            F_h00_34E0(&G_h01_54C8);
+            draw_masked_sprite(&G_h01_54C8);
             break;
         case 27:
             G_h01_54FE.x = p->x;
             G_h01_54FE.y = p->y;
-            F_h00_34E0(&G_h01_54FE);
+            draw_masked_sprite(&G_h01_54FE);
             break;
         case 58:
             if (arg == 0)
@@ -77,7 +77,7 @@ int arg;
             }
             if (p->d > 2)
                 p->d = F_h00_463E() % 3;
-            F_h00_34E0(&G_h01_5D40);
+            draw_masked_sprite(&G_h01_5D40);
             break;
         case 42:
             r = F_h00_463E() % 100;
@@ -89,7 +89,7 @@ int arg;
                 p->d = p->d + 1;
                 G_h01_582C.x = p->x;
                 G_h01_582C.y = p->y;
-                F_h00_34E0(&G_h01_582C);
+                draw_masked_sprite(&G_h01_582C);
             }
             break;
         case 43:
@@ -98,12 +98,12 @@ int arg;
                 p->d = p->d + 1;
                 G_h01_5862.x = p->x;
                 G_h01_5862.y = p->y;
-                F_h00_34E0(&G_h01_5862);
+                draw_masked_sprite(&G_h01_5862);
             } else if (p->d > 0 && p->d < 2) {
                 p->d = p->d + 1;
                 G_h01_5862.x = p->x;
                 G_h01_5862.y = p->y;
-                F_h00_34E0(&G_h01_5862);
+                draw_masked_sprite(&G_h01_5862);
                 if (p->d == 2)
                     p->d = 0;
             }
@@ -114,14 +114,14 @@ int arg;
             G_h01_2F18 = p->y + 16;
             if (G_h01_2F10 > G_h01_2F18 + 16 && G_h01_2F14 > G_h01_2F1A
                 && G_h01_2F16 < G_h01_2F1C) {
-                G_h01_0A7A = 1;
+                plane_reward_contact_pending = 1;
             } else {
-                G_h01_0A7A = 0;
-                G_h01_0A7C = 0;
+                plane_reward_contact_pending = 0;
+                plane_reward_already_collected = 0;
             }
             G_h01_5AEE.x = p->x;
             G_h01_5AEE.y = p->y;
-            F_h00_34E0(&G_h01_5AEE);
+            draw_masked_sprite(&G_h01_5AEE);
             break;
         default:
             break;

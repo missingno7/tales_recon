@@ -1,4 +1,4 @@
-extern long G_h01_5392;
+extern long screen_palette_words;
 extern long G_h01_53E0;
 extern long G_h01_53E4;
 
@@ -11,7 +11,7 @@ recovered()
     short *src;
     unsigned int i;
 
-    src = (short *)G_h01_5392;
+    src = (short *)screen_palette_words;
     p = ((struct CopperBase *)G_h01_53E0)->field_4 + 4;
     q = ((struct CopperBase *)G_h01_53E4)->field_4 + 4;
     while (*(short *)p != 0x180)

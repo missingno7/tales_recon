@@ -3,7 +3,7 @@
 extern char G_h01_B1F0;
 extern unsigned char *G_h01_1F9E[1];
 extern long G_h01_B206[1];
-extern int F_h00_3C0E();
+extern int free_text_block();
 
 recovered()
 {
@@ -12,7 +12,7 @@ recovered()
 	if (G_h01_B1F0 > -1) {
 		for (i = 0; G_h01_1F9E[G_h01_B1F0][i] != 0xff; i++) {
 			if (G_h01_B206[i])
-				F_h00_3C0E(G_h01_B206[i]);
+				free_text_block(G_h01_B206[i]);
 		}
 		G_h01_B1F0 = -1;
 	}

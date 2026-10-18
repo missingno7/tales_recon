@@ -26,25 +26,25 @@ struct UiState {
 };
 
 extern int G_h01_1422;
-extern long G_h01_46CE;
-extern long G_h01_46D2;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
 extern struct UiState G_h01_50E6;
 extern int request_disk();
-extern int F_h00_291E();
+extern int load_arc_record();
 extern int BltBitMap();
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 
 recovered(a,b,c)
 int a,b,c;
 {
     request_disk(1);
     if (!a && c) {
-        F_h00_291E(3,G_h01_46CE);
-        F_h00_291E(4,&G_h01_50E6.x1);
-        F_h00_291E(5,&G_h01_50E6.x4);
-        F_h00_291E(6,&G_h01_50E6.x2);
-        F_h00_291E(7,&G_h01_50E6.x3);
-        F_h00_291E(8,&G_h01_50E6.x0);
+        load_arc_record(3,archive_image_bitmap);
+        load_arc_record(4,&G_h01_50E6.x1);
+        load_arc_record(5,&G_h01_50E6.x4);
+        load_arc_record(6,&G_h01_50E6.x2);
+        load_arc_record(7,&G_h01_50E6.x3);
+        load_arc_record(8,&G_h01_50E6.x0);
     }
         G_h01_50E6.x4=33;
         G_h01_50E6.y4=48;
@@ -61,14 +61,14 @@ int a,b,c;
         G_h01_50E6.x0=216;
         G_h01_50E6.y0=32;
         G_h01_50E6.text0=b;
-    BltBitMap(G_h01_46CE,0L,0L,G_h01_46D2,
+    BltBitMap(archive_image_bitmap,0L,0L,active_screen_bitmap,
         0L,0L,320L,200L,192L,255L,0L);
-    F_h00_34E0(&G_h01_50E6.x0);
-    F_h00_34E0(&G_h01_50E6.x1);
+    draw_masked_sprite(&G_h01_50E6.x0);
+    draw_masked_sprite(&G_h01_50E6.x1);
     if (!G_h01_1422)
-        F_h00_34E0(&G_h01_50E6.x4);
+        draw_masked_sprite(&G_h01_50E6.x4);
     if (!a) {
-        F_h00_34E0(&G_h01_50E6.x2);
-        F_h00_34E0(&G_h01_50E6.x3);
+        draw_masked_sprite(&G_h01_50E6.x2);
+        draw_masked_sprite(&G_h01_50E6.x3);
     }
 }

@@ -12,9 +12,9 @@ extern long G_h01_53F4;
 extern char G_h01_53F8;
 extern long G_h01_5422;
 extern long G_h01_5426;
-extern long G_h01_542A;
+extern long game_memory_header;
 extern long arc_file;
-extern long G_h01_46F8;
+extern long topaz_font_handle;
 
 struct InitBlock { char pad[12]; long field_c; long field_10; };
 struct S3 { char pad[8]; long field_8; long field_c; };
@@ -26,13 +26,13 @@ extern struct S0 *G_h01_53DC;
 
 extern int F_h00_4EC6();
 extern int shutdown_audio_and_input();
-extern int F_h00_330E();
+extern int fade_palette_to_black();
 extern long F_h00_89D0();
 extern long allocate_memory_or_report();
 extern int GetPrefs();
 extern int SetPrefs();
 extern int free_memory_checked();
-extern int F_h00_3850();
+extern int free_chip_memory_pool();
 extern int F_h00_897C();
 extern int BltClear();
 extern int Close();
@@ -54,17 +54,17 @@ recovered()
 
     F_h00_4EC6();
     shutdown_audio_and_input();
-    F_h00_330E();
+    fade_palette_to_black();
     intuition_library_base = F_h00_89D0("intuition.library", 0L);
     if (!intuition_library_base)
         recovered("InitAV:\tcannot open intuition library\n");
-    G_h01_53EC = allocate_memory_or_report(&G_h01_542A, 0xe8L);
+    G_h01_53EC = allocate_memory_or_report(&game_memory_header, 0xe8L);
     GetPrefs(G_h01_53EC, 0xe8L);
     G_h01_53EC->field_c = G_h01_53F0;
     G_h01_53EC->field_10 = G_h01_53F4;
     SetPrefs(G_h01_53EC, 0xe8L, 1L);
-    free_memory_checked(&G_h01_542A, G_h01_53EC, 0xe8L);
-    F_h00_3850(0x40f10L);
+    free_memory_checked(&game_memory_header, G_h01_53EC, 0xe8L);
+    free_chip_memory_pool(0x40f10L);
     if (G_h01_53F8) {
         if (G_h01_5422)
             F_h00_897C(G_h01_5422, 0x3e80L);
@@ -75,7 +75,7 @@ recovered()
         BltClear(G_h01_53DC->field_0->field_24->field_4->field_c, 0x3e80L, 0L);
     }
     Close(arc_file);
-    CloseFont(G_h01_46F8);
+    CloseFont(topaz_font_handle);
     DeleteLayer(G_h01_5380, G_h01_5384);
     DisposeLayer(G_h01_5380);
     LoadView(G_h01_53DC);

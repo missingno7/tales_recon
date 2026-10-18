@@ -1,4 +1,4 @@
-extern int G_h01_B1E8;
+extern int arc_stream_buffer_position;
 char arc_next_byte();
 
 struct View404A {
@@ -19,7 +19,7 @@ register struct View404A *bitmap;
     unsigned int count, column;
     unsigned char stride;
 
-    G_h01_B1E8 = 1024;
+    arc_stream_buffer_position = 1024;
     stride = (char)bitmap->width;
     remaining = 0;
     count = bitmap->rows * bitmap->width / stride;

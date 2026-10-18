@@ -11,21 +11,21 @@ struct Record {
 	int third;
 };
 
-extern struct Record G_h01_3724[1];
-extern int F_h11_4696();
-extern int F_h11_5962();
+extern struct Record jg_scenery_object_records[1];
+extern int jg_queue_background_restore_rectangle();
+extern int jg_set_platform_record_state();
 
 recovered(index,mode)
 int index,mode;
 {
 	struct Record *record;
-	record=&G_h01_3724[index];
+	record=&jg_scenery_object_records[index];
 	record->state=2;
 	if (record->value==0 || mode==5) record->value=mode;
 	if (mode==5) {
-		F_h11_4696(record->x,record->y,64,48,11);
-		if (record->first) F_h11_5962(record->first,5);
-		if (record->second) F_h11_5962(record->second,5);
-		if (record->third) F_h11_5962(record->third,5);
+		jg_queue_background_restore_rectangle(record->x,record->y,64,48,11);
+		if (record->first) jg_set_platform_record_state(record->first,5);
+		if (record->second) jg_set_platform_record_state(record->second,5);
+		if (record->third) jg_set_platform_record_state(record->third,5);
 	}
 }

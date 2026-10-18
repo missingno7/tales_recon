@@ -11,11 +11,11 @@ struct Obj14 {
     char b12;
     char b13;
 };
-extern int G_h01_0A82;
-extern int G_h01_0A84;
-extern float G_h01_0A7E;
+extern int plane_first_visible_segment;
+extern int plane_current_segment;
+extern float plane_speed;
 extern long screen_rast_port;
-extern long G_h01_46D2;
+extern long active_screen_bitmap;
 extern long G_h01_5484[17];
 extern struct Entry G_h01_5E64[16];
 extern struct Obj14 G_h01_606C[16];
@@ -45,10 +45,10 @@ extern float G_h01_5E34;
 extern float G_h01_5E38;
 extern int SetRast();
 extern int BltBitMap();
-extern int F_h00_34E0();
-extern int F_h05_3836();
-extern int F_h05_1EFC();
-extern int F_h05_2CD4();
+extern int draw_masked_sprite();
+extern int plane_draw_flight_progress();
+extern int plane_update_segment_actors();
+extern int plane_draw_and_check_segment_objects();
 
 recovered(p)
 char *p;
@@ -68,13 +68,13 @@ char *p;
 
     flag = 0;
     SetRast(screen_rast_port, 9L);
-    F_h05_3836();
+    plane_draw_flight_progress();
     x = -G_h01_5E4C;
     if (G_h01_5E4C >= 0) {
-        i = G_h01_0A82;
+        i = plane_first_visible_segment;
     } else {
         x -= 80;
-        i = G_h01_0A82 - 1;
+        i = plane_first_visible_segment - 1;
     }
     j = i;
     ent = &G_h01_5E64[i];
@@ -93,9 +93,9 @@ char *p;
         }
         if (e > 0) {
             if (ent->f0 >= 1 && ent->f0 <= 10)
-                BltBitMap(obj, (long)a, 0L, G_h01_46D2, (long)c, 144L, (long)e, 32L, 192L, 255L, 0L);
+                BltBitMap(obj, (long)a, 0L, active_screen_bitmap, (long)c, 144L, (long)e, 32L, 192L, 255L, 0L);
             else
-                BltBitMap(obj, (long)a, 0L, G_h01_46D2, (long)c, 160L, (long)e, 16L, 192L, 255L, 0L);
+                BltBitMap(obj, (long)a, 0L, active_screen_bitmap, (long)c, 160L, (long)e, 16L, 192L, 255L, 0L);
         }
         if (ent->index != -1) {
             q = &G_h01_606C[ent->index];
@@ -105,11 +105,11 @@ char *p;
                 case 35:
                 case 36:
                     if (e > 0)
-                        BltBitMap(G_h01_55A0, (long)a, 0L, G_h01_46D2, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
+                        BltBitMap(G_h01_55A0, (long)a, 0L, active_screen_bitmap, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
                     break;
                 case 28:
                     if (e > 0)
-                        BltBitMap(G_h01_5898, (long)a, 0L, G_h01_46D2, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
+                        BltBitMap(G_h01_5898, (long)a, 0L, active_screen_bitmap, (long)c, (long)q->w4, (long)e, (long)q->w10, 192L, 255L, 0L);
                     break;
                 case 32:
                     q->x = q->x + 32;
@@ -128,7 +128,7 @@ char *p;
                 if (i >= G_h01_5E42 - 3 && G_h01_5C6A < 149)
                     G_h01_5C6A += 5;
                 G_h01_5C68 = G_h01_5E54 + x;
-                F_h00_34E0(&G_h01_5C68);
+                draw_masked_sprite(&G_h01_5C68);
             }
             G_h01_5E54 += 2;
             if (G_h01_5E54 > 79) {
@@ -142,40 +142,40 @@ char *p;
         if (G_h01_5E34 < (float)x) {
             if (flag == 0) {
                 flag = 1;
-                G_h01_0A84 = i;
+                plane_current_segment = i;
             }
         }
         i++;
         ent++;
     }
     while (j < i) {
-        F_h05_1EFC(j);
-        if (j == G_h01_0A84) {
+        plane_update_segment_actors(j);
+        if (j == plane_current_segment) {
             if (G_h01_5E40 == 0) {
                 if (p != &G_h01_5B5A && p != &G_h01_58D2 && p != (char *)&G_h01_5C32) {
                     G_h01_5CD4 = (int)G_h01_5E34;
                     G_h01_5CD6 = (int)(G_h01_5E38 + 9);
                     G_h01_5D08 = G_h01_5E59;
-                    F_h00_34E0(&G_h01_5CD4);
-                    if (G_h01_0A7E > 3 && G_h01_0A7E < 7) {
+                    draw_masked_sprite(&G_h01_5CD4);
+                    if (plane_speed > 3 && plane_speed < 7) {
                         G_h01_5D3E = G_h01_5E59;
                         G_h01_5D0A = (int)(G_h01_5E34 + -30);
                         G_h01_5D0C = (int)(G_h01_5E38 + 12);
-                        F_h00_34E0(&G_h01_5D0A);
+                        draw_masked_sprite(&G_h01_5D0A);
                     }
                     G_h01_5E59++;
                     if (G_h01_5E59 > 3)
                         G_h01_5E59 = 0;
                 } else {
-                    F_h00_34E0(p);
+                    draw_masked_sprite(p);
                 }
             } else {
-                F_h00_34E0(p);
+                draw_masked_sprite(p);
                 if (G_h01_5E40 == 1) {
                     G_h01_5D3E = G_h01_5E59;
                     G_h01_5D0A = (int)(G_h01_5E34 + -28);
                     G_h01_5D0C = (int)(G_h01_5E38 + 18);
-                    F_h00_34E0(&G_h01_5D0A);
+                    draw_masked_sprite(&G_h01_5D0A);
                     G_h01_5E59++;
                     if (G_h01_5E59 > 3)
                         G_h01_5E59 = 0;
@@ -183,18 +183,18 @@ char *p;
                     G_h01_5D3E = G_h01_5E59;
                     G_h01_5D0A = (int)(G_h01_5E34 + -28);
                     G_h01_5D0C = (int)(G_h01_5E38 + 22);
-                    F_h00_34E0(&G_h01_5D0A);
+                    draw_masked_sprite(&G_h01_5D0A);
                     G_h01_5E59++;
                     if (G_h01_5E59 > 3)
                         G_h01_5E59 = 0;
                 }
             }
         }
-        F_h05_2CD4(j);
+        plane_draw_and_check_segment_objects(j);
         if (G_h01_5E42 - 2 == j++) {
             G_h01_5D76 = k + 40;
             G_h01_5D78 = 149;
-            F_h00_34E0(&G_h01_5D76);
+            draw_masked_sprite(&G_h01_5D76);
         }
     }
 }

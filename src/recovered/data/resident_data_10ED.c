@@ -1,1 +1,1 @@
-unsigned char G_h01_10ED = 0;
+unsigned char grid_stationary_hazard_counter = 0;

@@ -14,7 +14,7 @@ struct Record {
     char state;
     char pad2[2];
 };
-extern struct Record G_h01_A554[16];
+extern struct Record jg_moving_object_records[16];
 extern char *G_h01_5370;
 extern long screen_rast_port;
 extern int G_h01_8A3E;
@@ -27,7 +27,7 @@ int index;
 {
     struct Record *record;
 
-    record = &G_h01_A554[index];
+    record = &jg_moving_object_records[index];
     *G_h01_5370 = record->state;
     SetAPen(screen_rast_port, (long)*G_h01_5370);
     Move(screen_rast_port, (long)(record->x - G_h01_8A3E), (long)record->y);

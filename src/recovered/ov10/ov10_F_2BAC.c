@@ -1,3 +1,3 @@
-extern unsigned int G_h01_799E;
-extern unsigned int G_h01_79A0;
-recovered() { int d; d=(G_h01_799E>>3)-(G_h01_79A0>>3); return d; }
+extern unsigned int cave_player_cell_index;
+extern unsigned int cave_wandering_actor_cell_index;
+recovered() { int d; d=(cave_player_cell_index>>3)-(cave_wandering_actor_cell_index>>3); return d; }

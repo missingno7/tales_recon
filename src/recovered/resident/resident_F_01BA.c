@@ -4,13 +4,13 @@ struct PointRef { struct Point *point; char reserved[8]; };
 extern struct PointRef map_location_table[36];
 extern unsigned char G_h01_46C8;
 extern int request_disk();
-extern int F_h00_033E();
+extern int show_clue_screen();
 extern int LoadSeg();
 extern int FreeSeg();
-extern int F_h08_0000();
-extern int F_h09_0000();
-extern int F_h10_0000();
-extern int F_h11_0000();
+extern int run_grid_movement_minigame();
+extern int run_timed_event_minigame();
+extern int run_cave_maze_minigame();
+extern int jg_run();
 
 recovered(arg)
 int arg;
@@ -21,32 +21,32 @@ int arg;
     request_disk(1);
     switch (map_location_table[arg].point->value & 0x000f) {
     case 1:
-        LoadSeg(F_h11_0000);
-        F_h00_033E(1);
+        LoadSeg(jg_run);
+        show_clue_screen(1);
         G_h01_46C8 |= 1;
-        result = F_h11_0000(map_location_table[arg].point->value >> 4);
-        FreeSeg(F_h11_0000);
+        result = jg_run(map_location_table[arg].point->value >> 4);
+        FreeSeg(jg_run);
         break;
     case 2:
-        LoadSeg(F_h08_0000);
-        F_h00_033E(2);
+        LoadSeg(run_grid_movement_minigame);
+        show_clue_screen(2);
         G_h01_46C8 |= 2;
-        result = F_h08_0000(map_location_table[arg].point->value >> 4);
-        FreeSeg(F_h08_0000);
+        result = run_grid_movement_minigame(map_location_table[arg].point->value >> 4);
+        FreeSeg(run_grid_movement_minigame);
         break;
     case 8:
-        LoadSeg(F_h10_0000);
-        F_h00_033E(4);
+        LoadSeg(run_cave_maze_minigame);
+        show_clue_screen(4);
         G_h01_46C8 |= 4;
-        result = F_h10_0000(map_location_table[arg].point->value >> 4);
-        FreeSeg(F_h10_0000);
+        result = run_cave_maze_minigame(map_location_table[arg].point->value >> 4);
+        FreeSeg(run_cave_maze_minigame);
         break;
     case 4:
-        LoadSeg(F_h09_0000);
-        F_h00_033E(8);
+        LoadSeg(run_timed_event_minigame);
+        show_clue_screen(8);
         G_h01_46C8 |= 8;
-        result = F_h09_0000(map_location_table[arg].point->value >> 4);
-        FreeSeg(F_h09_0000);
+        result = run_timed_event_minigame(map_location_table[arg].point->value >> 4);
+        FreeSeg(run_timed_event_minigame);
         break;
     default:
         break;

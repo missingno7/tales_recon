@@ -117,7 +117,7 @@ def test_verification_failure_restores_every_changed_file(tree, monkeypatch):
     original = names.translate
     def broken(text, mapping):
         # Corrupt the inverse only; both changed files have already been written.
-        if mapping.get('draw_scene') == 'F_h00_1234':
+        if mapping.get('draw_scene') == 'F_h00_1234' and b'draw_scene' in text:
             return b'corrupt'
         return original(text, mapping)
     monkeypatch.setattr(names, 'translate', broken)

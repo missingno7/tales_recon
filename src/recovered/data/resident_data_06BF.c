@@ -1,1 +1,1 @@
-char G_h01_06BF[] = "on Nature Photography says,";
+char nature_photography_guide_intro_text[] = "on Nature Photography says,";

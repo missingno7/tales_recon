@@ -17,7 +17,7 @@ struct Target {
 };
 
 extern char G_h01_9F0C[1];
-extern char G_h01_9C2C[1];
+extern char jg_platform_animation_descriptors[1];
 extern char G_h01_9CBC[1];
 extern char G_h01_9CFC[1];
 extern char G_h01_9CEC[1];
@@ -54,11 +54,11 @@ int value2;
         switch (kind) {
         case 1:
             state->code = 1;
-            state->address = G_h01_9C2C;
+            state->address = jg_platform_animation_descriptors;
             break;
         case 3:
             state->code = 6;
-            state->address = G_h01_9C2C;
+            state->address = jg_platform_animation_descriptors;
             break;
         }
         break;

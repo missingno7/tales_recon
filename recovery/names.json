@@ -1,8 +1,36 @@
 {
   "functions": {
+    "ov03_F_0000": {
+      "name": "run_game_session",
+      "evidence": "Calls initialize_av, game_run_adventure, and shutdown_av in that order (src/recovered/ov03/ov03_F_0000.c)."
+    },
     "ov03_F_001C": {
       "evidence": "Loads DT1:main.arc and runs the day, location, travel, treasure, and ending state machine using the location and overlay functions it calls (src/recovered/ov03/ov03_F_001C.c).",
       "name": "game_run_adventure"
+    },
+    "ov03_F_1500": {
+      "name": "bank_cash_and_settle_rival",
+      "evidence": "Deposits total_money into the player's banked total, clears the carried cash, and at day 30 transfers the rival's carried treasure value into its banked total before showing the result screen (src/recovered/ov03/ov03_F_1500.c)."
+    },
+    "ov03_F_154E": {
+      "name": "calculate_travel_days",
+      "evidence": "Reads two map points, chooses the shortest wrapped distance across the map edges, converts it to days, and caps travel at three days (src/recovered/ov03/ov03_F_154E.c)."
+    },
+    "ov04_F_000C": {
+      "name": "initialize_location_treasure_tables",
+      "evidence": "Connects 35 location and reward-table entries, clears player/rival collected flags, then loads loc.arc and loot.arc data (src/recovered/ov04/ov04_F_000C.c)."
+    },
+    "ov04_F_0088": {
+      "name": "location_index_is_available",
+      "evidence": "Returns true only when the supplied index is below 35 and absent from the supplied list (src/recovered/ov04/ov04_F_0088.c)."
+    },
+    "ov04_F_00C4": {
+      "name": "wrap_location_index",
+      "evidence": "Adds a step to a location index and subtracts 35 when the result reaches 35 or more (src/recovered/ov04/ov04_F_00C4.c)."
+    },
+    "ov04_F_00E6": {
+      "name": "next_non_office_location_index",
+      "evidence": "Increments a location index and wraps 35 back to 1, skipping the office entry at index 0 (src/recovered/ov04/ov04_F_00E6.c)."
     },
     "ov04_F_0104": {
       "evidence": "Opens DT1:loc.arc and parses each location record's four numeric fields and name into the resident location table (src/recovered/ov04/ov04_F_0104.c).",
@@ -16,9 +44,25 @@
       "evidence": "Reads DT1:invest.arc company records and DT1:chart.arc price series into the investment tables (src/recovered/ov04/ov04_F_0536.c).",
       "name": "invest_load_market_data"
     },
+    "ov04_F_07CA": {
+      "name": "load_opening_animation_assets",
+      "evidence": "Loads the opening bitmap and four animation records, assigns their initial coordinates, and initializes their animation state; it is called by the pre-difficulty startup sequence (src/recovered/ov04/ov04_F_07CA.c; src/recovered/ov04/ov04_F_1302.c)."
+    },
+    "ov04_F_0E44": {
+      "name": "run_opening_animation_sequence",
+      "evidence": "Advances and draws the loaded startup animation records in timed phases, returning early when the captured fire action is set (src/recovered/ov04/ov04_F_0E44.c; called by src/recovered/ov04/ov04_F_1302.c before difficulty selection)."
+    },
+    "ov04_F_1302": {
+      "name": "play_game_startup_sequence",
+      "evidence": "Loads the startup image and animation data, presents the sequence, and allows fire input to skip it; the adventure loop calls it before the difficulty menu (src/recovered/ov04/ov04_F_1302.c; src/recovered/ov03/ov03_F_001C.c)."
+    },
     "ov04_F_149C": {
       "evidence": "Displays Easy Money, Standard Wages, and Hard Earned Cash and cycles the three difficulty values from input (src/recovered/ov04/ov04_F_149C.c).",
       "name": "ui_choose_difficulty"
+    },
+    "ov04_F_1822": {
+      "name": "expand_center_bitmap_to_screen",
+      "evidence": "Copies successively larger centered rectangles from the scratch bitmap to the active bitmap until the full 320-by-200 screen is copied (src/recovered/ov04/ov04_F_1822.c)."
     },
     "ov04_F_1B94": {
       "evidence": "Displays PLAY AGAIN? with YES/NO choices and updates the game flow from the selection (src/recovered/ov04/ov04_F_1B94.c).",
@@ -40,6 +84,74 @@
       "evidence": "Loads DT1:plane.arc and draws the scene's $50 price marker while running its plane-related gameplay sequence (src/recovered/ov05/ov05_F_0000.c).",
       "name": "plane_scene"
     },
+    "ov05_F_131C": {
+      "name": "plane_draw_scrolling_frame",
+      "evidence": "Draws visible course segments and indexed objects around the aircraft's current position (src/recovered/ov05/ov05_F_131C.c)."
+    },
+    "ov05_F_1860": {
+      "name": "plane_update_flight_state",
+      "evidence": "Applies throttle and heading to aircraft position, advances visible/current segment, handles altitude bounds, and returns the aircraft or crash marker (src/recovered/ov05/ov05_F_1860.c)."
+    },
+    "ov05_F_1EFC": {
+      "name": "plane_update_segment_actors",
+      "evidence": "Advances state and animation for the current course segment's moving records and redraws them (src/recovered/ov05/ov05_F_1EFC.c)."
+    },
+    "ov05_F_2CD4": {
+      "name": "plane_draw_and_check_segment_objects",
+      "evidence": "Draws indexed objects in a course segment and sets the reward-contact flag when object bounds overlap the aircraft hitbox (src/recovered/ov05/ov05_F_2CD4.c)."
+    },
+    "ov05_F_30EE": {
+      "name": "plane_play_heading_spin_effect",
+      "evidence": "Rotates the aircraft heading while drawing frames, then selects a different heading after a contact calls it (src/recovered/ov05/ov05_F_30EE.c; src/recovered/ov05/ov05_F_318E.c)."
+    },
+    "ov05_F_318E": {
+      "name": "plane_check_segment_interactions",
+      "evidence": "Checks aircraft and object bounds, applies special contact effects, and returns observed route status values 0, 1, or 2 (src/recovered/ov05/ov05_F_318E.c)."
+    },
+    "ov05_F_3836": {
+      "name": "plane_draw_flight_progress",
+      "evidence": "Draws the lower progress display, advances displayed game day as course progress passes its threshold, and marks the aircraft's course position (src/recovered/ov05/ov05_F_3836.c)."
+    },
+    "ov05_F_3AF6": {
+      "name": "plane_shake_scene_object",
+      "evidence": "Moves a loaded scene object's vertical coordinate two pixels above and below its saved value for 26 redraws (src/recovered/ov05/ov05_F_3AF6.c)."
+    },
+    "ov05_F_3B6C": {
+      "name": "plane_load_course_scene_assets",
+      "evidence": "Initializes course/object indexes, chooses course events, loads plane.arc scenery/object records, then builds their placements (src/recovered/ov05/ov05_F_3B6C.c)."
+    },
+    "ov05_F_42E6": {
+      "name": "plane_generate_course_segment_types",
+      "evidence": "Fills successive segment-type entries from the previous type, repeated sections, and random choices (src/recovered/ov05/ov05_F_42E6.c)."
+    },
+    "ov05_F_467E": {
+      "name": "plane_populate_course_objects",
+      "evidence": "Adds object records along the generated course using difficulty-specific probabilities and selected scenery/event tables (src/recovered/ov05/ov05_F_467E.c)."
+    },
+    "ov05_F_5BBC": {
+      "name": "plane_append_object_record",
+      "evidence": "Copies supplied segment, position, kind, and state values into the next object record and increments its count (src/recovered/ov05/ov05_F_5BBC.c)."
+    },
+    "ov05_F_5C08": {
+      "name": "plane_set_object_spawn_chances",
+      "evidence": "Copies ten supplied difficulty-specific chance values into the ten chance bytes used by the course object generator (src/recovered/ov05/ov05_F_5C08.c; src/recovered/ov05/ov05_F_467E.c)."
+    },
+    "ov06_F_0000": {
+      "name": "endgame_show_wealth_comparison",
+      "evidence": "Loads DT2:mac.arc, runs the final wealth scene, waits for fire input, and restores the prior archive handle (src/recovered/ov06/ov06_F_0000.c; called by src/recovered/ov03/ov03_F_1500.c after final totals are added)."
+    },
+    "ov06_F_028C": {
+      "name": "endgame_animate_wealth_totals",
+      "evidence": "Builds and redraws two decimal money totals one digit at a time with a frame update and delay (src/recovered/ov06/ov06_F_028C.c)."
+    },
+    "ov06_F_042A": {
+      "name": "endgame_draw_positioned_sprite_group",
+      "evidence": "Positions each loaded sprite record relative to an origin using its width and height, then draws the group (src/recovered/ov06/ov06_F_042A.c)."
+    },
+    "ov06_F_063A": {
+      "name": "endgame_present_wealth_result",
+      "evidence": "Maps both wealth totals to sprite-group positions, animates their display, branches on which total is greater, then waits for fire input (src/recovered/ov06/ov06_F_063A.c)."
+    },
     "ov07_F_0000": {
       "evidence": "Loads DT1:invart.arc, presents the stock portfolio and return-to-office controls, and dispatches company share transactions (src/recovered/ov07/ov07_F_0000.c).",
       "name": "invest_run_office_menu"
@@ -56,13 +168,29 @@
       "evidence": "Loads DT1:invest.arc company data and handles share purchases and sales with explicit insufficient-funds, bankruptcy, and share-limit messages (src/recovered/ov07/ov07_F_0612.c).",
       "name": "invest_trade_company_shares"
     },
+    "ov07_F_0E06": {
+      "name": "invest_draw_game_day",
+      "evidence": "Sets the supplied sprite record's position and draws the current game day beside it (src/recovered/ov07/ov07_F_0E06.c)."
+    },
+    "ov07_F_0E7C": {
+      "name": "invest_draw_total_money",
+      "evidence": "Sets the supplied sprite record's position and draws the player's current money total beside it (src/recovered/ov07/ov07_F_0E7C.c)."
+    },
     "ov07_F_0EC0": {
       "evidence": "Combines a company record value with that company category current-day percentage from the chart table to calculate its share price (src/recovered/ov07/ov07_F_0EC0.c).",
       "name": "invest_calculate_share_price"
     },
+    "ov07_F_0F30": {
+      "name": "invest_draw_selection_box",
+      "evidence": "Draws a rectangular outline at one of four supplied portfolio-option x positions (src/recovered/ov07/ov07_F_0F30.c)."
+    },
     "ov07_F_1424": {
       "evidence": "Reads investment records and displays STOCK IS UP/DOWN BY percentages plus the expected major price-change day (src/recovered/ov07/ov07_F_1424.c).",
       "name": "invest_show_stock_change"
+    },
+    "ov07_F_18F8": {
+      "name": "invest_draw_record_text_lines",
+      "evidence": "Reads text lines from the loaded investment archive record, skips a mode-dependent number, and draws the requested lines (src/recovered/ov07/ov07_F_18F8.c)."
     },
     "ov07_F_1A02": {
       "evidence": "Advances market state through the current game day and applies scheduled price changes and random major rises or falls using difficulty and chart history (src/recovered/ov07/ov07_F_1A02.c; called by the adventure loop after day advances).",
@@ -72,25 +200,569 @@
       "evidence": "Draws NEWS INFORMATION and a NEWS BULLETIN FROM DAY heading before formatting the current news record (src/recovered/ov07/ov07_F_1F6E.c).",
       "name": "invest_draw_news_bulletin"
     },
+    "ov07_F_2050": {
+      "name": "invest_format_unsigned_decimal",
+      "evidence": "Writes the decimal digits of a nonnegative long into the shared scratch buffer and returns the first digit (src/recovered/ov07/ov07_F_2050.c)."
+    },
+    "ov08_F_0000": {
+      "name": "run_grid_movement_minigame",
+      "evidence": "Opens DT2:mt.arc, selects a 21-column map and entity table, then runs the row/column movement, collision, life, and reward loop (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "ov08_F_1AB8": {
+      "name": "refresh_grid_view",
+      "evidence": "Restores the full 320-by-168 bitmap during selected animation states, otherwise clears the player area and redraws visible entities (src/recovered/ov08/ov08_F_1AB8.c)."
+    },
+    "ov08_F_1B2A": {
+      "name": "restore_grid_background_region",
+      "evidence": "Computes and clips the bitmap rectangle around the current animation position, then copies that region from the background bitmap (src/recovered/ov08/ov08_F_1B2A.c)."
+    },
+    "ov08_F_1C30": {
+      "name": "draw_grid_map_rows",
+      "evidence": "Copies five 40-pixel rows from the background, draws map characters from the selected 21-column layout, and copies the rows into the display bitmap (src/recovered/ov08/ov08_F_1C30.c)."
+    },
+    "ov08_F_1D42": {
+      "name": "draw_grid_status_panel",
+      "evidence": "Draws the lower panel border and displays the current money, game day, and remaining lives (src/recovered/ov08/ov08_F_1D42.c)."
+    },
+    "ov08_F_1F4C": {
+      "name": "advance_grid_player_and_entities",
+      "evidence": "Reads input and advances player action states, tunnel hazards, entity positions, collision outcomes, and associated sound events (src/recovered/ov08/ov08_F_1F4C.c)."
+    },
+    "ov08_F_354E": {
+      "name": "draw_grid_visible_entities",
+      "evidence": "Walks the visible portion of the 25-entry entity table and blits each active entity type at its row and position (src/recovered/ov08/ov08_F_354E.c)."
+    },
+    "ov08_F_3DF4": {
+      "name": "load_grid_archive_records",
+      "evidence": "Reads DT2:mt.arc records 5 through 15 into successive 54-byte records in G_h01_6F40 (src/recovered/ov08/ov08_F_3DF4.c)."
+    },
+    "ov08_F_3FC0": {
+      "name": "reset_grid_entity_activity_for_life",
+      "evidence": "Clears the active byte for 25 table entries of kinds 4 and 6 and resets G_h01_12B5/G_h01_12BB between life attempts (src/recovered/ov08/ov08_F_3FC0.c)."
+    },
+    "ov08_F_4018": {
+      "name": "reset_grid_entity_activity_for_game",
+      "evidence": "Clears the active byte for 25 table entries of kinds 4, 6, and 9 and resets G_h01_12B5/G_h01_12BB at game setup (src/recovered/ov08/ov08_F_4018.c)."
+    },
+    "ov09_F_0000": {
+      "name": "run_timed_event_minigame",
+      "evidence": "Opens DT2:ps.arc, builds a twelve-position scene, lets the player select among three event slots and spend attempts, then pays the recorded results (src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "ov09_F_18D0": {
+      "name": "load_timed_scene_route_indices",
+      "evidence": "Sets the first route point from G_h01_4262 and copies five additional point values from the selected row of G_h01_12C0 (src/recovered/ov09/ov09_F_18D0.c)."
+    },
+    "ov09_F_1924": {
+      "name": "get_timed_event_frame_limit",
+      "evidence": "Returns zero for an unset item and otherwise returns four for item kinds 16/32 or three for other kinds, which the event-selection code compares with a frame value (src/recovered/ov09/ov09_F_1924.c; src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "ov09_F_1956": {
+      "name": "configure_timed_item_animation",
+      "evidence": "Sets enabled, mode, and clear fields from the item's type, including disabling and clearing types 19/35 (src/recovered/ov09/ov09_F_1956.c)."
+    },
+    "ov09_F_19D4": {
+      "name": "draw_timed_scene_status_panel",
+      "evidence": "Draws the bottom panel border and renders its status records and the current value at G_h01_4270 (src/recovered/ov09/ov09_F_19D4.c)."
+    },
+    "ov09_F_1B1C": {
+      "name": "update_timed_scene_event_slots",
+      "evidence": "Adjusts the event spawn probability, creates events in empty slots, advances each active event's type-specific mode and step state, and draws its records (src/recovered/ov09/ov09_F_1B1C.c)."
+    },
+    "ov09_F_26C6": {
+      "name": "place_timed_scene_event_sprite",
+      "evidence": "Maps the item's type and offsets to screen coordinates, copies its display flag, and passes the resulting sprite record to F_h00_34E0 (src/recovered/ov09/ov09_F_26C6.c)."
+    },
+    "ov09_F_28A0": {
+      "name": "draw_timed_scene_event_art",
+      "evidence": "Selects and draws one or more sprite records from G_h01_3ACA through G_h01_3D52 according to the supplied event kind (src/recovered/ov09/ov09_F_28A0.c)."
+    },
+    "ov09_F_298E": {
+      "name": "spawn_timed_scene_event",
+      "evidence": "Chooses an eligible row and event type from the row mask table, fills the selected event record with type, row, state, and position values, and starts its sound (src/recovered/ov09/ov09_F_298E.c)."
+    },
     "ov09_F_2C22": {
       "evidence": "Displays OUT OF MEMORY, waits, and routes to the Out of Memory request (src/recovered/ov09/ov09_F_2C22.c).",
       "name": "show_out_of_memory"
+    },
+    "ov10_F_0000": {
+      "name": "run_cave_maze_minigame",
+      "evidence": "Reads eight rows of eight cave-cell words from DT2:cavemaps.arc, draws the connected map, moves the player between cells, and handles the time limit and cell events (src/recovered/ov10/ov10_F_0000.c)."
+    },
+    "ov10_F_1F90": {
+      "name": "play_cave_distance_cue",
+      "evidence": "Selects one of four sound commands according to the supplied distance range (src/recovered/ov10/ov10_F_1F90.c)."
+    },
+    "ov10_F_1FDE": {
+      "name": "draw_cave_cell_connections",
+      "evidence": "Draws a three-by-three cell marker and adds corner pixels for the four passage flags present in the cell word (src/recovered/ov10/ov10_F_1FDE.c)."
+    },
+    "ov10_F_2160": {
+      "name": "draw_cave_map",
+      "evidence": "Iterates over all 64 cave cells, draws revealed cells and their connection markers, then blits the map rectangle to the display (src/recovered/ov10/ov10_F_2160.c)."
+    },
+    "ov10_F_22E6": {
+      "name": "draw_cave_actors",
+      "evidence": "Draws cell markers at the player, finish, and moving-actor indices, with visibility controlled by difficulty (src/recovered/ov10/ov10_F_22E6.c)."
+    },
+    "ov10_F_25A2": {
+      "name": "reset_cave_direction_animations",
+      "evidence": "When no animation is active, clears the pending state for each direction whose corresponding flag bit is set (src/recovered/ov10/ov10_F_25A2.c)."
+    },
+    "ov10_F_2634": {
+      "name": "draw_cave_actor_sprite",
+      "evidence": "Selects a shape table and clipping rectangle by actor kind, blits the chosen frame, and updates the associated actor and effect records (src/recovered/ov10/ov10_F_2634.c)."
+    },
+    "ov10_F_2B8A": {
+      "name": "cave_column_delta",
+      "evidence": "Subtracts the low three-bit column values of G_h01_799E and G_h01_79A0 (src/recovered/ov10/ov10_F_2B8A.c)."
+    },
+    "ov10_F_2BAC": {
+      "name": "cave_row_delta",
+      "evidence": "Subtracts the row portions of G_h01_799E and G_h01_79A0 after shifting each cell index right by three (src/recovered/ov10/ov10_F_2BAC.c)."
+    },
+    "ov10_F_2BCA": {
+      "name": "cave_cell_manhattan_distance",
+      "evidence": "Returns the sum of the absolute row and column differences between two 0-to-63 cell indices (src/recovered/ov10/ov10_F_2BCA.c)."
+    },
+    "ov10_F_2C52": {
+      "name": "play_cave_direction_cue",
+      "evidence": "Chooses a direction-specific sound record from the relative player and moving-actor cell indices and the current cell's passage bits (src/recovered/ov10/ov10_F_2C52.c)."
+    },
+    "ov10_F_2CF4": {
+      "name": "play_cave_traversal_event",
+      "evidence": "Animates the supplied cave traversal records, conditionally adds 50 to total_money when the cell flags allow it, and redraws the cave scene (src/recovered/ov10/ov10_F_2CF4.c)."
+    },
+    "ov10_F_2FA0": {
+      "name": "draw_cave_cell_scene",
+      "evidence": "Draws the cave background, cell-dependent sprites and nearby connection effects, then copies the completed bitmap to the display (src/recovered/ov10/ov10_F_2FA0.c)."
+    },
+    "ov10_F_3288": {
+      "name": "play_cave_timeout_sequence",
+      "evidence": "Loads the scene records and advances their drawing states with timed waits; the cave entry point calls it on the time-limit exit path (src/recovered/ov10/ov10_F_3288.c; src/recovered/ov10/ov10_F_0000.c)."
+    },
+    "ov11_F_0000": {
+      "name": "jg_run",
+      "evidence": "Runs setup, frame update/draw, retries, and cleanup (src/recovered/ov11/ov11_F_0000.c)."
+    },
+    "ov11_F_049C": {
+      "name": "jg_release_loaded_resources",
+      "evidence": "Releases each decoded resource pointer during cleanup (src/recovered/ov11/ov11_F_049C.c)."
+    },
+    "ov11_F_0558": {
+      "name": "jg_update_camera_scroll",
+      "evidence": "Moves and clamps the horizontal world offset toward its target (src/recovered/ov11/ov11_F_0558.c)."
+    },
+    "ov11_F_063A": {
+      "name": "jg_handle_player_input",
+      "evidence": "Polls input and updates player state, direction, and grid position (src/recovered/ov11/ov11_F_063A.c)."
+    },
+    "ov11_F_0B4C": {
+      "name": "jg_update_player_attachment",
+      "evidence": "Updates player position while attached to a platform or moving record (src/recovered/ov11/ov11_F_0B4C.c)."
+    },
+    "ov11_F_0BB6": {
+      "name": "jg_collect_tile_reward_and_check_fall",
+      "evidence": "Clears collected reward, adds 50 cash, and detects unsupported player position (src/recovered/ov11/ov11_F_0BB6.c)."
+    },
+    "ov11_F_0D8E": {
+      "name": "jg_update_player_state",
+      "evidence": "Advances movement/action states, position, timing, and interactions (src/recovered/ov11/ov11_F_0D8E.c)."
+    },
+    "ov11_F_1372": {
+      "name": "jg_update_player_world_position",
+      "evidence": "Stores prior coordinates and updates player world/screen position (src/recovered/ov11/ov11_F_1372.c)."
+    },
+    "ov11_F_13DC": {
+      "name": "jg_prepare_player_redraw",
+      "evidence": "Queues prior/current sprite rectangles and marks the affected grid region (src/recovered/ov11/ov11_F_13DC.c)."
+    },
+    "ov11_F_14BA": {
+      "name": "jg_begin_attempt",
+      "evidence": "Resets attempt/player state, picks a start cell, and starts initial animation (src/recovered/ov11/ov11_F_14BA.c)."
+    },
+    "ov11_F_15C8": {
+      "name": "jg_load_level_resources",
+      "evidence": "Opens jg.arc, parses sections, loads graphics, and initializes descriptors (src/recovered/ov11/ov11_F_15C8.c)."
+    },
+    "ov11_F_20AE": {
+      "name": "jg_parse_c_section_header",
+      "evidence": "Reads the C section value and reports a loader error if missing (src/recovered/ov11/ov11_F_20AE.c)."
+    },
+    "ov11_F_20F2": {
+      "name": "jg_parse_l_section_records",
+      "evidence": "Parses seven values per L-section row into entity dispatch records (src/recovered/ov11/ov11_F_20F2.c)."
+    },
+    "ov11_F_2272": {
+      "name": "jg_update_timed_approaching_object",
+      "evidence": "Spawns, moves left, and collision-checks a timed object (src/recovered/ov11/ov11_F_2272.c)."
+    },
+    "ov11_F_23F4": {
+      "name": "jg_update_approaching_object_history",
+      "evidence": "Copies prior/current object coordinates into history fields (src/recovered/ov11/ov11_F_23F4.c)."
+    },
+    "ov11_F_2430": {
+      "name": "jg_draw_approaching_object",
+      "evidence": "Queues a restore rectangle and draws the indexed object image (src/recovered/ov11/ov11_F_2430.c)."
+    },
+    "ov11_F_247C": {
+      "name": "jg_set_entity_region_state",
+      "evidence": "Applies a state to entities in rows intersecting a world span (src/recovered/ov11/ov11_F_247C.c)."
+    },
+    "ov11_F_2562": {
+      "name": "squared_distance_long",
+      "evidence": "Returns the sum of squared coordinate differences (src/recovered/ov11/ov11_F_2562.c)."
+    },
+    "ov11_F_25D6": {
+      "name": "integer_within_inclusive_range",
+      "evidence": "Tests whether a value lies within inclusive bounds (src/recovered/ov11/ov11_F_25D6.c)."
+    },
+    "ov11_F_25F8": {
+      "name": "point_inside_rectangle",
+      "evidence": "Tests point coordinates against inclusive rectangle bounds (src/recovered/ov11/ov11_F_25F8.c)."
+    },
+    "ov11_F_262E": {
+      "name": "rectangles_intersect",
+      "evidence": "Tests horizontal and vertical overlap of two rectangles (src/recovered/ov11/ov11_F_262E.c)."
+    },
+    "ov11_F_2664": {
+      "name": "draw_rectangle_outline",
+      "evidence": "Draws the four border lines through the screen RastPort (src/recovered/ov11/ov11_F_2664.c)."
+    },
+    "ov11_F_27CC": {
+      "name": "jg_draw_status_bar",
+      "evidence": "Draws attempt markers, total_money, and game_day in the lower band (src/recovered/ov11/ov11_F_27CC.c)."
+    },
+    "ov11_F_2A3A": {
+      "name": "jg_initialize_actor_states",
+      "evidence": "Initializes actor timers/states and applies difficulty values (src/recovered/ov11/ov11_F_2A3A.c)."
+    },
+    "ov11_F_2C96": {
+      "name": "jg_parse_m_section",
+      "evidence": "Parses indexed M-section rows into actor records (src/recovered/ov11/ov11_F_2C96.c)."
+    },
+    "ov11_F_2DBA": {
+      "name": "jg_update_actor_motion_history",
+      "evidence": "Runs actor sprite motion and shifts current into previous coordinates (src/recovered/ov11/ov11_F_2DBA.c)."
+    },
+    "ov11_F_2E26": {
+      "name": "jg_set_actor_state",
+      "evidence": "Sets actor state and may queue its rectangle and update linked records (src/recovered/ov11/ov11_F_2E26.c)."
+    },
+    "ov11_F_2EEA": {
+      "name": "jg_update_actor_behavior",
+      "evidence": "Advances actor states from position, randomness, timers, and player proximity (src/recovered/ov11/ov11_F_2EEA.c)."
+    },
+    "ov11_F_3532": {
+      "name": "jg_update_actor_position_and_animation",
+      "evidence": "Moves an active actor and updates animation/drawing (src/recovered/ov11/ov11_F_3532.c)."
+    },
+    "ov11_F_36F8": {
+      "name": "jg_draw_actor_sprite",
+      "evidence": "Copies actor position to its sprite, draws if visible, and records old position (src/recovered/ov11/ov11_F_36F8.c)."
+    },
+    "ov11_F_37A0": {
+      "name": "jg_get_actor_world_position",
+      "evidence": "Returns actor state and outputs stored world coordinates (src/recovered/ov11/ov11_F_37A0.c)."
+    },
+    "ov11_F_37E4": {
+      "name": "jg_check_actor_collision",
+      "evidence": "Tests player/actor rectangles and updates state on contact (src/recovered/ov11/ov11_F_37E4.c)."
+    },
+    "ov11_F_3926": {
+      "name": "jg_parse_f_section",
+      "evidence": "Parses indexed F-section event fields and stores event count (src/recovered/ov11/ov11_F_3926.c)."
+    },
+    "ov11_F_3A24": {
+      "name": "jg_initialize_events",
+      "evidence": "Initializes event dimensions, positions, phases, and difficulty timing (src/recovered/ov11/ov11_F_3A24.c)."
+    },
+    "ov11_F_3B92": {
+      "name": "jg_update_visible_events",
+      "evidence": "Updates visible events, tests player overlap, and draws sprites (src/recovered/ov11/ov11_F_3B92.c)."
+    },
+    "ov11_F_3D9A": {
+      "name": "jg_advance_event_records",
+      "evidence": "Advances event phases/page offsets and refreshes records (src/recovered/ov11/ov11_F_3D9A.c)."
+    },
+    "ov11_F_3F90": {
+      "name": "jg_find_event_at_world_x",
+      "evidence": "Returns an active event index containing a world x coordinate (src/recovered/ov11/ov11_F_3F90.c)."
+    },
+    "ov11_F_407C": {
+      "name": "jg_finish_event_animation",
+      "evidence": "Copies terminal frame into current frame and sets completed draw mode (src/recovered/ov11/ov11_F_407C.c)."
+    },
+    "ov11_F_40E0": {
+      "name": "jg_set_event_draw_state",
+      "evidence": "Sets event draw state/mode and queues a rectangle for mode 6 (src/recovered/ov11/ov11_F_40E0.c)."
+    },
+    "ov11_F_415A": {
+      "name": "jg_advance_event_track",
+      "evidence": "Advances cursor through an event and adjusts an output coordinate (src/recovered/ov11/ov11_F_415A.c)."
+    },
+    "ov11_F_41F6": {
+      "name": "jg_start_animation_sequence",
+      "evidence": "Selects animation descriptor and initializes state/counter/position (src/recovered/ov11/ov11_F_41F6.c)."
+    },
+    "ov11_F_4474": {
+      "name": "jg_advance_animation_sequence",
+      "evidence": "Counts down, advances descriptor, and loops/sounds at boundaries (src/recovered/ov11/ov11_F_4474.c)."
+    },
+    "ov11_F_4610": {
+      "name": "jg_advance_scheduled_sprite_motion",
+      "evidence": "Moves target sprite by offsets until its frame count expires (src/recovered/ov11/ov11_F_4610.c)."
+    },
+    "ov11_F_4696": {
+      "name": "jg_queue_background_restore_rectangle",
+      "evidence": "Clips a rectangle and queues it for background restoration (src/recovered/ov11/ov11_F_4696.c)."
+    },
+    "ov11_F_4790": {
+      "name": "jg_restore_background_rectangles",
+      "evidence": "Blits saved background over active queued rectangles (src/recovered/ov11/ov11_F_4790.c)."
+    },
+    "ov11_F_4848": {
+      "name": "jg_clear_background_restore_queue",
+      "evidence": "Clears active markers in the 40-entry restore queue (src/recovered/ov11/ov11_F_4848.c)."
+    },
+    "ov11_F_487E": {
+      "name": "jg_redraw_scrolled_scene_region",
+      "evidence": "Redraws background strip and grid objects in affected columns (src/recovered/ov11/ov11_F_487E.c)."
+    },
+    "ov11_F_49CE": {
+      "name": "jg_reset_camera_scroll",
+      "evidence": "Resets horizontal offset and saved background position (src/recovered/ov11/ov11_F_49CE.c)."
+    },
+    "ov11_F_49EA": {
+      "name": "jg_initialize_scrolling_scene",
+      "evidence": "Clears display, copies background, positions player, allocates offscreen bitmap (src/recovered/ov11/ov11_F_49EA.c)."
+    },
+    "ov11_F_4AA4": {
+      "name": "jg_advance_player_animation",
+      "evidence": "Counts down delay, advances frame, applies deltas, and sets sprite state (src/recovered/ov11/ov11_F_4AA4.c)."
+    },
+    "ov11_F_4B0C": {
+      "name": "jg_select_player_animation",
+      "evidence": "Selects descriptor by player state/direction and initializes first entry (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "ov11_F_4EC6": {
+      "name": "jg_initialize_p_section_objects",
+      "evidence": "Initializes P-object coordinates/animations and difficulty values (src/recovered/ov11/ov11_F_4EC6.c)."
+    },
+    "ov11_F_506A": {
+      "name": "jg_parse_p_section",
+      "evidence": "Parses indexed P-section object records (src/recovered/ov11/ov11_F_506A.c)."
+    },
+    "ov11_F_519C": {
+      "name": "jg_advance_p_section_motion",
+      "evidence": "Passes P-object motion block to shared sprite-motion updater (src/recovered/ov11/ov11_F_519C.c)."
+    },
+    "ov11_F_51C0": {
+      "name": "jg_update_p_section_object",
+      "evidence": "Advances P-object timer/state and reacts to player overlap (src/recovered/ov11/ov11_F_51C0.c)."
+    },
+    "ov11_F_54F8": {
+      "name": "jg_set_p_section_object_state",
+      "evidence": "Sets P-object draw state and may update linked objects (src/recovered/ov11/ov11_F_54F8.c)."
+    },
+    "ov11_F_55B8": {
+      "name": "jg_draw_visible_platforms",
+      "evidence": "Assigns missing platform coordinates and draws visible platform/reward sprites (src/recovered/ov11/ov11_F_55B8.c)."
+    },
+    "ov11_F_583A": {
+      "name": "jg_set_grid_states_in_rectangle",
+      "evidence": "Converts world rectangle to grid bounds and applies state to nonzero cells (src/recovered/ov11/ov11_F_583A.c)."
+    },
+    "ov11_F_5962": {
+      "name": "jg_set_platform_record_state",
+      "evidence": "Sets platform state/mode and forwards changes to linked records (src/recovered/ov11/ov11_F_5962.c)."
+    },
+    "ov11_F_59E6": {
+      "name": "jg_reset_platform_record_states",
+      "evidence": "Sets nonzero platform records to state 2 (src/recovered/ov11/ov11_F_59E6.c)."
+    },
+    "ov11_F_5A12": {
+      "name": "jg_get_grid_row_right_boundary",
+      "evidence": "Initializes or returns a grid row's right boundary (src/recovered/ov11/ov11_F_5A12.c)."
+    },
+    "ov11_F_5A62": {
+      "name": "jg_get_grid_row_left_boundary",
+      "evidence": "Initializes or returns a grid row's left boundary (src/recovered/ov11/ov11_F_5A62.c)."
+    },
+    "ov11_F_5AB0": {
+      "name": "jg_find_adjacent_occupied_cell",
+      "evidence": "Checks neighboring grid cell and returns its column if occupied (src/recovered/ov11/ov11_F_5AB0.c)."
+    },
+    "ov11_F_5BC4": {
+      "name": "jg_find_initial_occupied_cell",
+      "evidence": "Finds the first nonzero cell in the first six rows (src/recovered/ov11/ov11_F_5BC4.c)."
+    },
+    "ov11_F_5C1A": {
+      "name": "jg_update_platform_motion",
+      "evidence": "Passes platform motion block to shared sprite-motion updater (src/recovered/ov11/ov11_F_5C1A.c)."
+    },
+    "ov11_F_5C42": {
+      "name": "jg_set_platform_render_state",
+      "evidence": "Sets platform visual mode and may restore/update linked records (src/recovered/ov11/ov11_F_5C42.c)."
+    },
+    "ov11_F_5CEA": {
+      "name": "jg_platform_has_positive_state",
+      "evidence": "Tests whether platform record integer at byte 30 is positive (src/recovered/ov11/ov11_F_5CEA.c)."
+    },
+    "ov11_F_5D14": {
+      "name": "jg_update_player_platform_attachment",
+      "evidence": "Detects boarding/leaving and follows platform motion while attached (src/recovered/ov11/ov11_F_5D14.c)."
+    },
+    "ov11_F_5EC0": {
+      "name": "jg_release_player_from_platform",
+      "evidence": "Clears attachment/deltas and redraws the platform (src/recovered/ov11/ov11_F_5EC0.c)."
+    },
+    "ov11_F_5F90": {
+      "name": "jg_get_platform_grid_column",
+      "evidence": "Returns second B-section integer used as platform grid column (src/recovered/ov11/ov11_F_5F90.c)."
+    },
+    "ov11_F_5FB2": {
+      "name": "jg_follow_moving_platform",
+      "evidence": "Applies interpolated platform-motion deltas to player coordinates (src/recovered/ov11/ov11_F_5FB2.c)."
+    },
+    "ov11_F_6080": {
+      "name": "jg_parse_grid_and_platform_sections",
+      "evidence": "Parses A grid and B platform records (src/recovered/ov11/ov11_F_6080.c)."
+    },
+    "ov11_F_62B4": {
+      "name": "jg_initialize_platform_map",
+      "evidence": "Initializes platform positions and may mark collectible flags (src/recovered/ov11/ov11_F_62B4.c)."
+    },
+    "ov11_F_645E": {
+      "name": "jg_advance_hazard_motion",
+      "evidence": "Passes hazard motion block to shared sprite-motion updater (src/recovered/ov11/ov11_F_645E.c)."
+    },
+    "ov11_F_6486": {
+      "name": "jg_update_hazard_state",
+      "evidence": "Advances hazard timer and handles end of contact animation (src/recovered/ov11/ov11_F_6486.c)."
+    },
+    "ov11_F_6582": {
+      "name": "jg_check_player_hazard_collision",
+      "evidence": "On overlap sets player/hazard state 45 and plays sound 98 (src/recovered/ov11/ov11_F_6582.c)."
+    },
+    "ov11_F_66FE": {
+      "name": "jg_set_hazard_record_state",
+      "evidence": "Sets the selected A464 record state to 2 and conditionally stores the supplied mode value (src/recovered/ov11/ov11_F_66FE.c)."
+    },
+    "ov11_F_67B0": {
+      "name": "jg_parse_s_section",
+      "evidence": "Parses indexed S-section hazard records (src/recovered/ov11/ov11_F_67B0.c)."
+    },
+    "ov11_F_68B0": {
+      "name": "jg_initialize_hazards",
+      "evidence": "Initializes hazard displays and derives positions from grid cells (src/recovered/ov11/ov11_F_68B0.c)."
+    },
+    "ov11_F_69A4": {
+      "name": "jg_initialize_moving_objects",
+      "evidence": "Initializes moving-object start, phase, step, and active fields (src/recovered/ov11/ov11_F_69A4.c)."
+    },
+    "ov11_F_6A44": {
+      "name": "jg_parse_moving_object_sections",
+      "evidence": "Parses V motion parameters and J row-index values (src/recovered/ov11/ov11_F_6A44.c)."
+    },
+    "ov11_F_6C3A": {
+      "name": "jg_draw_moving_object_segment",
+      "evidence": "Draws line between moving-record coordinates and stores endpoints (src/recovered/ov11/ov11_F_6C3A.c)."
+    },
+    "ov11_F_6CFE": {
+      "name": "jg_update_moving_object",
+      "evidence": "Advances bounded phase, computes coordinates, redraws background, updates links (src/recovered/ov11/ov11_F_6CFE.c)."
+    },
+    "ov11_F_6ED6": {
+      "name": "jg_get_moving_object_positions",
+      "evidence": "Returns the selected moving-object record origin and current x/y coordinate fields through four output pointers (src/recovered/ov11/ov11_F_6ED6.c)."
+    },
+    "ov11_F_6F20": {
+      "name": "jg_object_matches_grid_cell",
+      "evidence": "Converts world coordinates to grid row/column and compares them (src/recovered/ov11/ov11_F_6F20.c)."
+    },
+    "ov11_F_6F78": {
+      "name": "jg_is_near_moving_object",
+      "evidence": "Compares difficulty-scaled radius with point-to-object distance (src/recovered/ov11/ov11_F_6F78.c)."
+    },
+    "ov11_F_6FFE": {
+      "name": "jg_initialize_end_triggers",
+      "evidence": "Initializes X-section trigger coordinates and clears display state (src/recovered/ov11/ov11_F_6FFE.c)."
+    },
+    "ov11_F_706C": {
+      "name": "jg_draw_end_trigger",
+      "evidence": "Draws active trigger and updates frame counter (src/recovered/ov11/ov11_F_706C.c)."
+    },
+    "ov11_F_70DC": {
+      "name": "jg_check_end_trigger_collision",
+      "evidence": "On overlap sets the minigame return flag (src/recovered/ov11/ov11_F_70DC.c)."
+    },
+    "ov11_F_717A": {
+      "name": "jg_set_end_trigger_effect_state",
+      "evidence": "Sets selected end-trigger effect record state (src/recovered/ov11/ov11_F_717A.c)."
+    },
+    "ov11_F_7194": {
+      "name": "jg_parse_x_section",
+      "evidence": "Parses X-section coordinates into end-trigger records (src/recovered/ov11/ov11_F_7194.c)."
+    },
+    "ov11_F_727A": {
+      "name": "jg_lookup_motion_vertical_component",
+      "evidence": "Returns quantized G_h01_1322 value used for vertical motion (src/recovered/ov11/ov11_F_727A.c)."
+    },
+    "ov11_F_729C": {
+      "name": "jg_lookup_motion_horizontal_component",
+      "evidence": "Returns quantized G_h01_13A2 value used for horizontal motion (src/recovered/ov11/ov11_F_729C.c)."
     },
     "ov12_F_0000": {
       "evidence": "Loads DT1:mbin.arc and uses its indexed records to initialize and run the Money Bin scene (src/recovered/ov12/ov12_F_0000.c; called for the corresponding main-game location state).",
       "name": "money_bin_scene"
     },
+    "ov13_F_0000": {
+      "name": "initialize_office_menu_scene",
+      "evidence": "Loads the office background and menu sprite records when requested, assigns their positions and state bytes, then draws the scene and active menu records (src/recovered/ov13/ov13_F_0000.c)."
+    },
     "ov13_F_02BE": {
       "evidence": "Presents MONEY BIN, CONTROL CENTER, and INVESTMENTS choices and dispatches the selected office destination (src/recovered/ov13/ov13_F_02BE.c).",
       "name": "office_select_destination"
+    },
+    "ov13_F_0746": {
+      "name": "draw_office_choice_outline",
+      "evidence": "Maps an option number to one of eight screen positions and draws a 34-by-8-pixel outline around that choice (src/recovered/ov13/ov13_F_0746.c)."
     },
     "ov13_F_0942": {
       "evidence": "Displays Gyro's SUPER ANTI-SPY SECURITY SYSTEM instructions and builds the four-letter decode choices (src/recovered/complete-c/ov13_F_0942.c; dead-code ledger entry).",
       "name": "security_decode_challenge"
     },
+    "ov14_F_0000": {
+      "name": "advance_rival_turn",
+      "evidence": "Chooses an unclaimed treasure destination using difficulty-specific first, nearest, highest-value, or value-to-travel-cost rules, advances rival travel time, records stolen treasure and carried value, and banks carried value when no target is available (src/recovered/ov14/ov14_F_0000.c)."
+    },
+    "ov14_F_03C2": {
+      "name": "find_first_unclaimed_treasure_location",
+      "evidence": "Scans location indices 1 through 34 for the first location other than the excluded index with neither player nor rival treasure flag set, returning 35 if none is found (src/recovered/ov14/ov14_F_03C2.c)."
+    },
+    "ov14_F_0412": {
+      "name": "choose_highest_value_unclaimed_treasure",
+      "evidence": "Selects the unclaimed location with the greatest stored treasure value, excluding the supplied location (src/recovered/ov14/ov14_F_0412.c)."
+    },
+    "ov14_F_04A8": {
+      "name": "choose_nearest_unclaimed_treasure",
+      "evidence": "Selects the unclaimed location with the lowest travel-day result from the supplied location (src/recovered/ov14/ov14_F_04A8.c; calls src/recovered/ov03/ov03_F_154E.c)."
+    },
+    "ov14_F_0540": {
+      "name": "choose_best_treasure_value_per_travel_day",
+      "evidence": "Divides each unclaimed treasure value by its travel days and selects the greatest integer value-to-days ratio (src/recovered/ov14/ov14_F_0540.c; calls src/recovered/ov03/ov03_F_154E.c)."
+    },
     "ov15_F_0000": {
       "evidence": "Draws the map, resolves clicked locations against the location table, and returns a selected destination or OFFICE (src/recovered/ov15/ov15_F_0000.c).",
       "name": "map_select_destination"
+    },
+    "ov15_F_08B0": {
+      "name": "draw_map_cursor_marker",
+      "evidence": "Paints a 3-by-3 marker at the supplied map point and draws a black outline around it (src/recovered/ov15/ov15_F_08B0.c)."
+    },
+    "ov15_F_0A80": {
+      "name": "draw_map_option_outline",
+      "evidence": "Reads a rectangle's origin through the supplied pointer and draws its outline using the supplied width and height (src/recovered/ov15/ov15_F_0A80.c)."
     },
     "ov15_F_0C12": {
       "evidence": "Reads the selected location and treasure from loc.arc/loot.arc and displays treasure name, description, value, and travel time (src/recovered/ov15/ov15_F_0C12.c).",
@@ -100,9 +772,29 @@
       "name": "map_move_cursor_from_input",
       "evidence": "Reads resident_F_4376's direction/action value, moves and clamps the map cursor with held-input repeats, then redraws it (src/recovered/ov15/ov15_F_1428.c)."
     },
+    "resident_F_01BA": {
+      "name": "run_location_overlay",
+      "evidence": "Uses the location-table code to select and load an overlay, calls it with the remaining location value, then frees the segment (src/recovered/resident/resident_F_01BA.c)."
+    },
+    "resident_F_033E": {
+      "name": "show_clue_screen",
+      "evidence": "Loads and draws the clue screen, selects a topic line from the argument, calls show_random_clue, and waits for fire input (src/recovered/resident/resident_F_033E.c)."
+    },
     "resident_F_04FE": {
       "evidence": "Reads DT2:clues.arc, selects an indexed clue record, and draws its three text lines (src/recovered/resident/resident_F_04FE.c).",
       "name": "show_random_clue"
+    },
+    "resident_F_0640": {
+      "name": "load_scene_graphic",
+      "evidence": "Decodes the selected archive image into a bitmap and blits it to the active display bitmap for the drawing cases (src/recovered/resident/resident_F_0640.c)."
+    },
+    "resident_F_08FC": {
+      "name": "squared_distance",
+      "evidence": "Returns the sum of the squared horizontal and vertical coordinate differences (src/recovered/resident/resident_F_08FC.c)."
+    },
+    "resident_F_09C0": {
+      "name": "draw_decimal_value",
+      "evidence": "Builds base-ten digits from a long value, optionally shifts x for right alignment, and passes the text to the text drawing routine (src/recovered/resident/resident_F_09C0.c)."
     },
     "resident_F_0A44": {
       "evidence": "Draws the quit confirmation prompt, accepts Y/N, and on Y restores the archive state before calling the exit path (src/recovered/resident/resident_F_0A44.c).",
@@ -124,6 +816,14 @@
       "evidence": "Seeks to 0, reads a u16 count (2D66), rejects >104, reads that many u32 offsets (2DBA) into G_h01_A7EE (formats/arc.md).",
       "name": "arc_read_index"
     },
+    "resident_F_287C": {
+      "name": "read_arc_record_header",
+      "evidence": "Seeks to an indexed .arc record and reads its 16-byte header into the record-header globals (src/recovered/resident/resident_F_287C.c; formats/arc.md)."
+    },
+    "resident_F_291E": {
+      "name": "load_arc_record",
+      "evidence": "Dispatches the header kind to bitmap, text, LZW, sample, or raw-record allocation and decoding paths (src/recovered/resident/resident_F_291E.c; formats/arc.md)."
+    },
     "resident_F_2D66": {
       "evidence": "Called by arc_read_index for the record count; reads 2 bytes via Read and reverses them (little-endian u16; formats/arc.md).",
       "name": "read_le16"
@@ -132,9 +832,49 @@
       "evidence": "Called by arc_read_index per offset; reads 4 bytes via Read and reverses them (little-endian u32; formats/arc.md).",
       "name": "read_le32"
     },
+    "resident_F_307C": {
+      "name": "switch_display_buffer",
+      "evidence": "Selects the next screen bitmap, updates the RastPort bitmap, waits for the viewport boundary, and loads the view (src/recovered/resident/resident_F_307C.c)."
+    },
+    "resident_F_30F0": {
+      "name": "copy_palette_to_copper_lists",
+      "evidence": "Copies 32 palette words into the color registers in both generated Copper lists (src/recovered/resident/resident_F_30F0.c)."
+    },
+    "resident_F_3178": {
+      "name": "copy_palette_to_color_map",
+      "evidence": "Copies 32 target words into the current ColorMap color array (src/recovered/resident/resident_F_3178.c)."
+    },
+    "resident_F_31AA": {
+      "name": "fade_palette_to_target",
+      "evidence": "Moves each of 32 RGB nibbles one step toward its target for 16 passes and updates the Copper lists after each pass (src/recovered/resident/resident_F_31AA.c)."
+    },
+    "resident_F_330E": {
+      "name": "fade_palette_to_black",
+      "evidence": "Decrements each nonzero RGB nibble for 16 passes and updates the Copper lists after each pass (src/recovered/resident/resident_F_330E.c)."
+    },
+    "resident_F_33E6": {
+      "name": "build_sprite_mask",
+      "evidence": "Clears a destination mask area and programs the Amiga blitter once for each source bitmap plane (src/recovered/resident/resident_F_33E6.c)."
+    },
+    "resident_F_34E0": {
+      "name": "draw_masked_sprite",
+      "evidence": "Allocates a mask, builds it from the sprite bitmap, calls the graphics blit with the bitmap and mask, then frees the mask (src/recovered/resident/resident_F_34E0.c)."
+    },
+    "resident_F_35DC": {
+      "name": "draw_text",
+      "evidence": "Sets RastPort pen and draw mode, moves to (x, y+6), and draws the supplied string with Text (src/recovered/resident/resident_F_35DC.c)."
+    },
     "resident_F_3674": {
       "evidence": "Prints loader and allocation error codes with Chip/Fast memory totals, then calls the AV cleanup/exit path with the System Error argument (src/recovered/resident/resident_F_3674.c).",
       "name": "report_loader_error"
+    },
+    "resident_F_37C8": {
+      "name": "initialize_chip_memory_pool",
+      "evidence": "Allocates the requested cleared chip-memory block and records its bounds, free-byte count, and first allocation-list node (src/recovered/resident/resident_F_37C8.c)."
+    },
+    "resident_F_3850": {
+      "name": "free_chip_memory_pool",
+      "evidence": "Frees the saved block allocated by resident_F_37C8 using the supplied size (src/recovered/resident/resident_F_3850.c; src/recovered/resident/resident_F_37C8.c)."
     },
     "resident_F_3870": {
       "evidence": "Wraps the tracked allocator and reports the failed byte range and remaining memory before showing Memory Alloc Failure (src/recovered/resident/resident_F_3870.c).",
@@ -148,13 +888,53 @@
       "evidence": "Prints a supplied label with the tracked memory total in decimal and hexadecimal (src/recovered/resident/resident_F_39C0.c).",
       "name": "report_memory_usage"
     },
+    "resident_F_39F8": {
+      "name": "get_tracked_free_memory",
+      "evidence": "Returns the global free-memory count initialized with the chip-memory pool and printed by the memory reports (src/recovered/resident/resident_F_39F8.c; src/recovered/resident/resident_F_37C8.c; src/recovered/resident/resident_F_39C0.c)."
+    },
     "resident_F_3A06": {
       "evidence": "Walks the allocator list and prints each node address and recorded byte count beneath MEM LIST (src/recovered/resident/resident_F_3A06.c).",
       "name": "dump_memory_list"
     },
+    "resident_F_3A6E": {
+      "name": "allocate_bitmap_planes",
+      "evidence": "Allocates one contiguous bitmap-plane area and fills the requested plane-pointer entries at equal size intervals (src/recovered/resident/resident_F_3A6E.c)."
+    },
+    "resident_F_3AE4": {
+      "name": "free_bitmap_planes",
+      "evidence": "Frees the contiguous plane area using width, height, and the resident plane count (src/recovered/resident/resident_F_3AE4.c)."
+    },
+    "resident_F_3B16": {
+      "name": "allocate_bitmap",
+      "evidence": "Allocates a bitmap header, derives bytes per row from pixel width, assigns row count and depth, and allocates its planes (src/recovered/resident/resident_F_3B16.c)."
+    },
+    "resident_F_3B84": {
+      "name": "free_bitmap",
+      "evidence": "Frees the bitmap plane storage and its 40-byte bitmap header (src/recovered/resident/resident_F_3B84.c)."
+    },
+    "resident_F_3BD2": {
+      "name": "free_archive_bitmap",
+      "evidence": "Frees the embedded bitmap's plane buffers and then its 54-byte archive bitmap record (src/recovered/resident/resident_F_3BD2.c; src/recovered/resident/resident_F_291E.c)."
+    },
+    "resident_F_3C0E": {
+      "name": "free_text_block",
+      "evidence": "Frees the text payload using its stored length and then frees the six-byte text-block header (src/recovered/resident/resident_F_3C0E.c; src/recovered/resident/resident_F_291E.c)."
+    },
     "resident_F_3C4C": {
       "evidence": "Initializes 9-bit codes, next code 0x102, width boundary 0x200, fills a 0x400 read buffer; decodes .arc kind-4 records (formats/arc.md).",
       "name": "lzw_decode"
+    },
+    "resident_F_3E9C": {
+      "name": "lzw_read_code",
+      "evidence": "Extracts a variable-width code from the low-bit-first LZW input stream and advances the bit position, refilling the 1024-byte buffer when needed (src/recovered/resident/resident_F_3E9C.c; formats/arc.md)."
+    },
+    "resident_F_4032": {
+      "name": "lzw_append_output_byte",
+      "evidence": "Stores one decoded byte through the output pointer and advances that pointer (src/recovered/resident/resident_F_4032.c; src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "resident_F_404A": {
+      "name": "decode_rle_bitmap",
+      "evidence": "Expands literal and repeated-byte tokens into the bitmap's rows and planes using its bytes-per-row stride (src/recovered/resident/resident_F_404A.c; formats/arc.md)."
     },
     "resident_F_411E": {
       "evidence": "Returns the next byte of a 0x400-byte buffer, refilling it with Read from G_h01_46DA and failing with error 8000 via 3674 (BEHAVIORAL_CHAR_RETURN).",
@@ -618,9 +1398,125 @@
     }
   },
   "globals": {
+    "G_h01_0668": {
+      "name": "guide_chapter_intro_text",
+      "evidence": "The clue-screen routine draws this exact opening line, followed by a topic line (src/recovered/data/resident_data_0668.c; src/recovered/resident/resident_F_033E.c)."
+    },
+    "G_h01_068B": {
+      "name": "mountain_climbing_guide_intro_text",
+      "evidence": "The clue-screen routine draws this string for argument 2 before calling show_random_clue (src/recovered/data/resident_data_068B.c; src/recovered/resident/resident_F_033E.c)."
+    },
+    "G_h01_06A6": {
+      "name": "jungle_survival_guide_intro_text",
+      "evidence": "The clue-screen routine draws this string for argument 1 before calling show_random_clue (src/recovered/data/resident_data_06A6.c; src/recovered/resident/resident_F_033E.c)."
+    },
+    "G_h01_06BF": {
+      "name": "nature_photography_guide_intro_text",
+      "evidence": "The clue-screen routine draws this string for argument 8 before calling show_random_clue (src/recovered/data/resident_data_06BF.c; src/recovered/resident/resident_F_033E.c)."
+    },
+    "G_h01_06DB": {
+      "name": "cave_exploring_guide_intro_text",
+      "evidence": "The clue-screen routine draws this string for argument 4 before calling show_random_clue (src/recovered/data/resident_data_06DB.c; src/recovered/resident/resident_F_033E.c)."
+    },
     "G_h01_096E": {
       "name": "sound_toggle_state",
       "evidence": "The S key case of the input poll (resident_F_4376) toggles this word between 0 and 1 and sends sound command 0x7F or 0x7E through play_sound."
+    },
+    "G_h01_0970": {
+      "name": "bitmap_plane_count",
+      "evidence": "Resident DATA initializes this word to 5; bitmap allocation loops over it and bitmap setup assigns it as depth (src/recovered/data/resident_data_0970.c; src/recovered/resident/resident_F_3A6E.c; src/recovered/resident/resident_F_3B16.c)."
+    },
+    "G_h01_09B2": {
+      "name": "plane_heading_vectors",
+      "evidence": "The flight update indexes this 16-pair float table by heading and multiplies its x/y values by speed to move the aircraft (src/recovered/ov05/ov05_F_1860.c; src/recovered/data/resident_data_09B2.c)."
+    },
+    "G_h01_0A3A": {
+      "name": "plane_heading_left_collision_offsets",
+      "evidence": "The flight update adds this heading-indexed table to aircraft x to form the left side of its collision box (src/recovered/ov05/ov05_F_1860.c)."
+    },
+    "G_h01_0A4A": {
+      "name": "plane_heading_top_collision_offsets",
+      "evidence": "The flight update adds this heading-indexed table to aircraft y to form the top side of its collision box (src/recovered/ov05/ov05_F_1860.c)."
+    },
+    "G_h01_0A5A": {
+      "name": "plane_heading_right_collision_offsets",
+      "evidence": "The flight update adds this heading-indexed table to aircraft x to form the right side of its collision box (src/recovered/ov05/ov05_F_1860.c)."
+    },
+    "G_h01_0A6A": {
+      "name": "plane_heading_bottom_collision_offsets",
+      "evidence": "The flight update adds this heading-indexed table to aircraft y to form the bottom side of its collision box (src/recovered/ov05/ov05_F_1860.c)."
+    },
+    "G_h01_0A7A": {
+      "name": "plane_reward_contact_pending",
+      "evidence": "The segment-object pass sets this on hitbox overlap and the interaction pass consumes it to award $50 once (src/recovered/ov05/ov05_F_2CD4.c; src/recovered/ov05/ov05_F_318E.c)."
+    },
+    "G_h01_0A7C": {
+      "name": "plane_reward_already_collected",
+      "evidence": "The interaction pass checks this guard before adding $50 and sets it after the reward is credited (src/recovered/ov05/ov05_F_318E.c)."
+    },
+    "G_h01_0A7E": {
+      "name": "plane_speed",
+      "evidence": "Fire input raises this value, release lowers it, and the flight update multiplies position changes by it (src/recovered/ov05/ov05_F_0000.c; src/recovered/ov05/ov05_F_1860.c)."
+    },
+    "G_h01_0A82": {
+      "name": "plane_first_visible_segment",
+      "evidence": "The renderer uses this as the first course-segment index and changes it as the aircraft advances or moves back (src/recovered/ov05/ov05_F_131C.c; src/recovered/ov05/ov05_F_1860.c)."
+    },
+    "G_h01_0A84": {
+      "name": "plane_current_segment",
+      "evidence": "The renderer updates this to the segment containing the aircraft and the interaction pass uses it to select that segment's objects (src/recovered/ov05/ov05_F_131C.c; src/recovered/ov05/ov05_F_318E.c)."
+    },
+    "G_h01_0A86": {
+      "name": "plane_collision_recovery_pending",
+      "evidence": "A segment contact sets this flag and the main scene handles it by resetting heading and moving course position back (src/recovered/ov05/ov05_F_318E.c; src/recovered/ov05/ov05_F_0000.c)."
+    },
+    "G_h01_0A8C": {
+      "name": "plane_contact_suppression_segment",
+      "evidence": "The interaction pass clears this when the aircraft changes segments and records the segment of a contact it suppresses on repeat checks (src/recovered/ov05/ov05_F_318E.c)."
+    },
+    "G_h01_0A8E": {
+      "name": "plane_contact_suppression_kind",
+      "evidence": "The interaction pass records a contact's kind and skips that same kind on the same segment at the next check (src/recovered/ov05/ov05_F_318E.c)."
+    },
+    "G_h01_0A92": {
+      "name": "invest_office_asset_record_indices",
+      "evidence": "The office menu indexes this eight-entry table to load scene records into the office record buffer (src/recovered/ov07/ov07_F_0000.c; src/recovered/data/resident_data_0A92.c)."
+    },
+    "G_h01_10ED": {
+      "name": "grid_stationary_hazard_counter",
+      "evidence": "The movement loop increments this counter while the player remains in the same map cell, resets it on movement, and tests a difficulty-scaled threshold to start a hazard (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_10EE": {
+      "name": "grid_background_bitmap",
+      "evidence": "The entry point loads archive record 0 here, and the map renderer copies its rows as the background source (src/recovered/ov08/ov08_F_0000.c; src/recovered/ov08/ov08_F_1C30.c)."
+    },
+    "G_h01_1424": {
+      "name": "rival_current_location",
+      "evidence": "Starts at office index 35, supplies the rival's origin to destination selection and travel-time calculation, then advances to the chosen destination after a turn (src/recovered/data/resident_data_1424.c; src/recovered/ov14/ov14_F_0000.c)."
+    },
+    "G_h01_1466": {
+      "name": "invest_office_palette",
+      "evidence": "The portfolio and market-change screens pass this 32-word table to the palette fade routine (src/recovered/ov07/ov07_F_0000.c; src/recovered/ov07/ov07_F_1424.c; src/recovered/resident/resident_F_31AA.c)."
+    },
+    "G_h01_1566": {
+      "name": "endgame_comparison_palette",
+      "evidence": "The endgame scene passes this 32-word table to the palette fade routine before drawing the wealth comparison (src/recovered/ov06/ov06_F_063A.c; src/recovered/resident/resident_F_31AA.c)."
+    },
+    "G_h01_15A6": {
+      "name": "plane_scene_palette",
+      "evidence": "The plane scene passes this 32-word table to the palette fade routine when the scene is prepared and after its recovery sequence (src/recovered/ov05/ov05_F_0000.c; src/recovered/resident/resident_F_31AA.c)."
+    },
+    "G_h01_1766": {
+      "name": "invest_trade_confirmation_palette",
+      "evidence": "The office menu passes this 32-word table to the palette fade routine when showing the post-trade response (src/recovered/ov07/ov07_F_0000.c; src/recovered/resident/resident_F_31AA.c)."
+    },
+    "G_h01_1E26": {
+      "name": "lzw_code_width_masks",
+      "evidence": "The LZW code reader indexes these masks by code width minus 9 before returning each code (src/recovered/data/resident_data_1E26.c; src/recovered/resident/resident_F_3E9C.c)."
+    },
+    "G_h01_1E2E": {
+      "name": "lzw_bit_position",
+      "evidence": "The decoder resets this bit position and the code reader advances it by the current 9-to-12-bit code width (src/recovered/resident/resident_F_3C4C.c; src/recovered/resident/resident_F_3E9C.c)."
     },
     "G_h01_1EA4": {
       "name": "raw_key_code_translation_table",
@@ -786,9 +1682,61 @@
       "name": "palette_cycle_countdown_step",
       "evidence": "The callback subtracts this byte from the countdown on each invocation, and the C setup assigns it from its argument (src/recovered/asm-reconstructed/resident_callback_61A0.asm; src/recovered/resident/resident_F_5428.c)."
     },
+    "G_h01_3724": {
+      "name": "jg_scenery_object_records",
+      "evidence": "P rows fill these; update reads grid coordinates and changes animation state (src/recovered/ov11/ov11_F_506A.c; src/recovered/ov11/ov11_F_4EC6.c; src/recovered/ov11/ov11_F_51C0.c)."
+    },
+    "G_h01_3AB2": {
+      "name": "rival_destination_location",
+      "evidence": "Receives the rival's selected location, whose treasure flag/value is updated before the rival's current location is advanced to it (src/recovered/ov14/ov14_F_0000.c)."
+    },
+    "G_h01_3AB4": {
+      "name": "arc_stream_buffer_cursor",
+      "evidence": "The byte reader points this cursor into the 1024-byte read buffer and advances it for each returned byte (src/recovered/resident/resident_F_411E.c)."
+    },
     "G_h01_3AB8": {
       "name": "random_state",
       "evidence": "16-bit LFSR state advanced by the random generator resident_F_463E (original 68000 code, unresolved C) and reseeded by seed_random (resident_F_4676); pinning it made the game's company, location and treasure choices equal the original's (tools/game_boot.py RNG_STATE_OFFSET)."
+    },
+    "G_h01_4188": {
+      "name": "timed_scene_selected_option_index",
+      "evidence": "Input changes this index among zero, one, and two, and the renderer uses it to position the selected option and process its event slot (src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "G_h01_41F4": {
+      "name": "timed_scene_elapsed_round_count",
+      "evidence": "The game increments this counter after each timed interval and ends the selection phase when it exceeds ten (src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "G_h01_4262": {
+      "name": "timed_scene_bonus_event_type",
+      "evidence": "The entry point selects this event type for the current argument, then pays 500 when a recorded event matches it and 50 for other recorded events (src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "G_h01_4264": {
+      "name": "timed_scene_route_point_indices",
+      "evidence": "The route loader fills six point values and the scene loader uses those values to load the corresponding route-point records (src/recovered/ov09/ov09_F_18D0.c; src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "G_h01_4270": {
+      "name": "timed_scene_actions_remaining",
+      "evidence": "The timed event game initializes this value to twelve, decrements it when the player fires, and ends when it is exhausted (src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "G_h01_4272": {
+      "name": "timed_scene_event_spawn_masks",
+      "evidence": "The event spawner indexes six-byte rows here and tests the selected type's bit before creating an event (src/recovered/ov09/ov09_F_298E.c)."
+    },
+    "G_h01_4274": {
+      "name": "timed_scene_event_position_offsets",
+      "evidence": "The scene initializes each row's two values and subtracts them from fixed event screen points when placing the row's sprites (src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "G_h01_4332": {
+      "name": "timed_scene_active_events",
+      "evidence": "The game clears three records here, checks each record's active kind, and advances their state in the event update loop (src/recovered/ov09/ov09_F_0000.c; src/recovered/ov09/ov09_F_1B1C.c)."
+    },
+    "G_h01_4336": {
+      "name": "timed_scene_event_capture_thresholds",
+      "evidence": "The fire action accepts the selected slot only when its indexed threshold is at least the frame limit returned for that event record (src/recovered/ov09/ov09_F_0000.c)."
+    },
+    "G_h01_4356": {
+      "name": "cave_cell_words",
+      "evidence": "The cave loader parses 64 decimal cell values into this storage, and cave routines index it as 16-bit words for passage and cell-state flags (src/recovered/ov10/ov10_F_0000.c; src/recovered/ov10/ov10_F_2160.c; src/recovered/ov10/ov10_F_2FA0.c)."
     },
     "G_h01_451A": {
       "name": "map_input_action",
@@ -826,6 +1774,18 @@
       "evidence": "The global is passed as the RastPort argument to SetAPen, Move, and Draw across screen-rendering routines (resident_F_0A44; accounting IDs runtime_glue_setapen, runtime_glue_move, runtime_glue_draw).",
       "name": "screen_rast_port"
     },
+    "G_h01_46CE": {
+      "name": "archive_image_bitmap",
+      "evidence": "AV initialization creates this 320-by-200 bitmap and the scene loader passes it as the destination for decoded archive images (src/recovered/ov04/ov04_F_1E36.c; src/recovered/resident/resident_F_0640.c)."
+    },
+    "G_h01_46D2": {
+      "name": "active_screen_bitmap",
+      "evidence": "The buffer switcher selects this bitmap from the screen pair, and scene loading blits into it (src/recovered/resident/resident_F_307C.c; src/recovered/resident/resident_F_0640.c)."
+    },
+    "G_h01_46D6": {
+      "name": "palette_fade_target",
+      "evidence": "Scene and clue-screen paths assign a palette address here, and the fade routine reads the 32 target words through it (src/recovered/resident/resident_F_033E.c; src/recovered/resident/resident_F_0640.c; src/recovered/resident/resident_F_31AA.c)."
+    },
     "G_h01_46DA": {
       "evidence": "Assigned from Open(\"DT1:<name>.arc\", 1005L) in every overlay loader and passed to arc_read_index and Close.",
       "name": "arc_file"
@@ -837,6 +1797,10 @@
     "G_h01_46E1": {
       "evidence": "The main loop advances this counter by travel time and daily ticks, caps it at 30, and multiple screens display it as the current day (ov03_F_001C and its callers).",
       "name": "game_day"
+    },
+    "G_h01_46E2": {
+      "name": "rival_day_counter",
+      "evidence": "The adventure initializes this to day 1; the rival turn compares it with game_day and advances it by rival travel days with a small random day adjustment (src/recovered/ov03/ov03_F_001C.c; src/recovered/ov14/ov14_F_0000.c)."
     },
     "G_h01_46E3": {
       "evidence": "The adventure loop stores the active location index here and passes it to travel-time and location-table operations (ov03_F_001C, ov15_F_0000).",
@@ -850,6 +1814,26 @@
       "evidence": "Gameplay and investment routines add treasure and sale proceeds, subtract purchases and losses, and draw this value as the player's money total (ov03_F_001C, ov07_F_0612, ov08_F_1F4C).",
       "name": "total_money"
     },
+    "G_h01_46EA": {
+      "name": "rival_unbanked_treasure_value",
+      "evidence": "Accumulates the values of treasures the rival has taken, is compared as carried wealth, and is cleared when transferred into the rival's banked total (src/recovered/ov14/ov14_F_0000.c; src/recovered/ov07/ov07_F_1A02.c)."
+    },
+    "G_h01_46EE": {
+      "name": "player_banked_cash",
+      "evidence": "Receives total_money when the player returns to the office, is shown in the score display, and is compared with the rival's banked total (src/recovered/ov03/ov03_F_1500.c; src/recovered/ov06/ov06_F_063A.c)."
+    },
+    "G_h01_46F2": {
+      "name": "rival_banked_cash",
+      "evidence": "Receives the rival's carried treasure value when it is banked and is displayed/compared against the player's banked cash (src/recovered/ov03/ov03_F_1500.c; src/recovered/ov06/ov06_F_063A.c)."
+    },
+    "G_h01_46F8": {
+      "name": "topaz_font_handle",
+      "evidence": "Stores the result of opening topaz.font, installs that font in the screen RastPort, and closes the same handle during AV shutdown (src/recovered/ov04/ov04_F_1E36.c; src/recovered/ov04/ov04_F_27FE.c)."
+    },
+    "G_h01_46FE": {
+      "name": "money_bin_bonus_triggered",
+      "evidence": "The adventure clears this flag before a new game, office return, or location encounter; the Money Bin sets it on the bonus animation path and returns success, which the adventure turns into the rare-coin $1000 reward (src/recovered/ov03/ov03_F_001C.c; src/recovered/ov12/ov12_F_0000.c)."
+    },
     "G_h01_4700": {
       "evidence": "The main-adventure routine saves the active main.arc file handle here and restores it after loading other archives; the quit path also restores it (ov03_F_001C, resident_F_0A44).",
       "name": "main_arc_file_handle"
@@ -857,6 +1841,22 @@
     "G_h01_4704": {
       "name": "input_fire_action_capture_enabled",
       "evidence": "When set, the poller records a returned fire bit in G_h01_536E; the adventure loop and an input mode set and clear this gate (src/recovered/resident/resident_F_4376.c; src/recovered/ov04/ov04_F_1302.c; src/recovered/ov03/ov03_F_001C.c)."
+    },
+    "G_h01_4705": {
+      "name": "bombastium_location_index",
+      "evidence": "The loot loader stores the location index when treasure record 9 is assigned; the adventure checks it when a treasure is collected and displays the Bombastium transmitter-unlock message (src/recovered/ov04/ov04_F_037E.c; src/recovered/ov03/ov03_F_001C.c)."
+    },
+    "G_h01_4706": {
+      "name": "minigame_cash_winnings",
+      "evidence": "Accumulates the minigame's displayed $500 and $50 awards, adds the total to total_money, and is reset when the adventure processes the result (src/recovered/ov09/ov09_F_0000.c; src/recovered/ov03/ov03_F_001C.c)."
+    },
+    "G_h01_470A": {
+      "name": "location_records",
+      "evidence": "The location initializer points each map entry at a 40-byte record here; the loc.arc loader fills 35 records with four parsed numbers and a text field (src/recovered/ov04/ov04_F_000C.c; src/recovered/ov04/ov04_F_0104.c)."
+    },
+    "G_h01_4C82": {
+      "name": "location_treasure_slots",
+      "evidence": "The initializer creates 35 six-byte slots here, and the loot.arc loader stores each location's treasure-record index and parsed value in its slot (src/recovered/ov04/ov04_F_000C.c; src/recovered/ov04/ov04_F_037E.c)."
     },
     "G_h01_4D60": {
       "evidence": "The market loader resets this marker and the daily updater advances it until it reaches the current game day (ov04_F_0536, ov07_F_1A02).",
@@ -890,9 +1890,317 @@
       "evidence": "InitAV stores OpenLibrary(\"layers.library\") here and the AV cleanup path closes that library base (ov04_F_1E36, ov04_F_27FE).",
       "name": "layers_library_base"
     },
+    "G_h01_5388": {
+      "name": "screen_bitmap_pair",
+      "evidence": "AV setup stores the two root bitmaps here, and the buffer switcher indexes the pair with the toggled display index (src/recovered/ov04/ov04_F_1E36.c; src/recovered/resident/resident_F_307C.c)."
+    },
+    "G_h01_5390": {
+      "name": "screen_bitmap_index",
+      "evidence": "The buffer switcher toggles this byte and uses it to select one bitmap from the pair (src/recovered/resident/resident_F_307C.c)."
+    },
+    "G_h01_5392": {
+      "name": "screen_palette_words",
+      "evidence": "AV setup takes this word-array pointer from the ColorMap, and palette routines copy to or modify its 32 entries (src/recovered/ov04/ov04_F_1E36.c; src/recovered/resident/resident_F_30F0.c; src/recovered/resident/resident_F_31AA.c)."
+    },
+    "G_h01_542A": {
+      "name": "game_memory_header",
+      "evidence": "Allocation and deallocation wrappers pass this header address to Allocate and Deallocate for game-owned blocks (src/recovered/resident/resident_F_3870.c; src/recovered/resident/resident_F_3930.c; src/recovered/ov04/ov04_F_1E36.c)."
+    },
+    "G_h01_543A": {
+      "name": "tracked_allocation_list_head",
+      "evidence": "Pool setup assigns the first allocation node here, and the memory report follows each node's next pointer from this address (src/recovered/resident/resident_F_37C8.c; src/recovered/resident/resident_F_3A06.c)."
+    },
+    "G_h01_543E": {
+      "name": "tracked_memory_lower_bound",
+      "evidence": "Pool setup stores the allocated block start here and checked deallocation rejects pointers below it (src/recovered/resident/resident_F_37C8.c; src/recovered/resident/resident_F_3930.c)."
+    },
+    "G_h01_5442": {
+      "name": "tracked_memory_upper_bound",
+      "evidence": "Pool setup stores the end address here and checked deallocation rejects pointers above it (src/recovered/resident/resident_F_37C8.c; src/recovered/resident/resident_F_3930.c)."
+    },
+    "G_h01_5446": {
+      "name": "tracked_free_memory_bytes",
+      "evidence": "Pool setup initializes this count from the requested block size, and allocation-failure and memory-report routines print it (src/recovered/resident/resident_F_37C8.c; src/recovered/resident/resident_F_3870.c; src/recovered/resident/resident_F_39C0.c)."
+    },
+    "G_h01_544A": {
+      "name": "lzw_dictionary_storage",
+      "evidence": "AV setup allocates 0x4000 bytes here, and the LZW decoder indexes dictionary entries through this base (src/recovered/ov04/ov04_F_1E36.c; src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_6EB0": {
+      "name": "grid_collision_map",
+      "evidence": "The entry point selects one of three character maps here, and its movement logic indexes the 21-column rows to test floor and obstacle characters (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F24": {
+      "name": "grid_player_screen_x",
+      "evidence": "The movement loop updates this horizontal coordinate and writes it into the active player sprite record (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F26": {
+      "name": "grid_player_screen_y",
+      "evidence": "The movement loop updates this vertical coordinate and writes it into the active player sprite record (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F2A": {
+      "name": "grid_player_map_row",
+      "evidence": "The entry loop derives this row index from the player's screen position, then uses it to index the map and detect reaching row 24 (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F2C": {
+      "name": "grid_player_map_column",
+      "evidence": "The movement logic derives this column index from the player's horizontal position and uses it with the row to index the 21-column map (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F2E": {
+      "name": "grid_player_action_state",
+      "evidence": "The movement loop switches on this value to execute distinct player movement, jump, and collision states (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F30": {
+      "name": "grid_player_facing_direction",
+      "evidence": "Values zero and one select opposite horizontal movement, player sprite positions, and facing-specific animation frames (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F32": {
+      "name": "grid_full_screen_restore_countdown",
+      "evidence": "The view refresh routine uses this positive countdown to choose a full bitmap restore and decrements it after each restore (src/recovered/ov08/ov08_F_1AB8.c)."
+    },
+    "G_h01_6F34": {
+      "name": "grid_player_action_countdown",
+      "evidence": "Player action states decrement or increment this value to time their animation and transition to the next state (src/recovered/ov08/ov08_F_0000.c)."
+    },
+    "G_h01_6F3B": {
+      "name": "grid_lives_remaining",
+      "evidence": "The game initializes this count to three, loops while it is positive, decrements it after a fall, and draws that many life icons (src/recovered/ov08/ov08_F_0000.c; src/recovered/ov08/ov08_F_1D42.c)."
+    },
+    "G_h01_6F3C": {
+      "name": "grid_entity_state_table",
+      "evidence": "The game points this global at a selected 25-entry table and its update, draw, and reset routines read each entry's kind and active state (src/recovered/ov08/ov08_F_0000.c; src/recovered/ov08/ov08_F_354E.c; src/recovered/ov08/ov08_F_3FC0.c)."
+    },
+    "G_h01_7192": {
+      "name": "timed_scene_event_spawn_chance_percent",
+      "evidence": "The update code sets this percentage from elapsed rounds and difficulty, and the spawner compares a random value modulo 100 against it (src/recovered/ov09/ov09_F_1B1C.c; src/recovered/ov09/ov09_F_298E.c)."
+    },
+    "G_h01_730E": {
+      "name": "cave_player_sprite_record",
+      "evidence": "The scene loads archive record 17 into this sprite record and repeatedly draws it as kind 17 for the controlled cave character (src/recovered/ov10/ov10_F_0000.c; src/recovered/ov10/ov10_F_2634.c)."
+    },
+    "G_h01_799C": {
+      "name": "cave_player_to_finish_distance",
+      "evidence": "The main loop assigns the Manhattan distance between the finish and player indices here, then uses the value to choose moving-actor behavior (src/recovered/ov10/ov10_F_0000.c; src/recovered/ov10/ov10_F_2BCA.c)."
+    },
+    "G_h01_799E": {
+      "name": "cave_player_cell_index",
+      "evidence": "The main loop reads this cell index for the controlled player, changes it by one or eight when a permitted passage is used, and ends on the finish index (src/recovered/ov10/ov10_F_0000.c)."
+    },
+    "G_h01_79A0": {
+      "name": "cave_wandering_actor_cell_index",
+      "evidence": "The game initializes this to a random non-player cell, moves it through valid cave passages, and draws its marker at the indexed cell (src/recovered/ov10/ov10_F_0000.c; src/recovered/ov10/ov10_F_22E6.c)."
+    },
+    "G_h01_79A4": {
+      "name": "cave_elapsed_time_ticks",
+      "evidence": "The cave loop increments this elapsed counter during movement and timed idle updates and compares it with the difficulty-selected time limit (src/recovered/ov10/ov10_F_0000.c)."
+    },
+    "G_h01_79A8": {
+      "name": "cave_finish_cell_index",
+      "evidence": "The loader records the cell marked with bit 0x20 here, and the main loop ends when the player's current cell equals this index (src/recovered/ov10/ov10_F_0000.c)."
+    },
+    "G_h01_79AE": {
+      "name": "cave_time_limit",
+      "evidence": "Difficulty selects this limit as 64, 48, or 32, the elapsed counter is compared against it, and reaching the limit exits the main loop (src/recovered/ov10/ov10_F_0000.c)."
+    },
+    "G_h01_79B2": {
+      "name": "cave_movement_animation_pending",
+      "evidence": "The main loop sets this flag after a successful movement, animates while it is nonzero, and clears it after the movement display finishes (src/recovered/ov10/ov10_F_0000.c)."
+    },
+    "G_h01_8A66": {
+      "name": "jg_entity_row_dispatch_records",
+      "evidence": "L rows fill seven values and main dispatches nonzero values to entity routines (src/recovered/ov11/ov11_F_20F2.c; src/recovered/ov11/ov11_F_0000.c)."
+    },
+    "G_h01_8B1C": {
+      "name": "jg_grid_tile_indices",
+      "evidence": "A fills a 41-by-4 grid whose nonzero values index platform records (src/recovered/ov11/ov11_F_6080.c; src/recovered/ov11/ov11_F_55B8.c; src/recovered/ov11/ov11_F_0BB6.c)."
+    },
+    "G_h01_8BEC": {
+      "name": "jg_platform_records",
+      "evidence": "B records are indexed from grid, positioned, drawn, and used for player attachment/motion (src/recovered/ov11/ov11_F_6080.c; src/recovered/ov11/ov11_F_62B4.c; src/recovered/ov11/ov11_F_5D14.c; src/recovered/ov11/ov11_F_5FB2.c)."
+    },
+    "G_h01_940C": {
+      "name": "jg_tile_reward_available_flags",
+      "evidence": "Renderer draws flagged rewards; overlap clears flag and adds 50 cash (src/recovered/ov11/ov11_F_55B8.c; src/recovered/ov11/ov11_F_0BB6.c)."
+    },
+    "G_h01_94EC": {
+      "name": "jg_player_move_right_descriptors",
+      "evidence": "Ten entries set here; state 1 selects it when direction is 1 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_958C": {
+      "name": "jg_player_move_left_descriptors",
+      "evidence": "Ten entries set here; state 1 selects it when direction is 0 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_962C": {
+      "name": "jg_player_state_4_right_descriptors",
+      "evidence": "Selector uses this sequence for state 4 when direction is 1 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_96AC": {
+      "name": "jg_player_state_4_left_descriptors",
+      "evidence": "Selector uses this sequence for state 4 when direction is 0 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_972C": {
+      "name": "jg_player_state_10_right_descriptors",
+      "evidence": "Selector uses this sequence for state 10 when direction is 1 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_975C": {
+      "name": "jg_player_state_10_left_descriptors",
+      "evidence": "Selector uses this sequence for state 10 when direction is 0 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_978C": {
+      "name": "jg_player_state_12_descriptors",
+      "evidence": "Selector uses this sequence for state 12 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_97FC": {
+      "name": "jg_player_state_13_descriptors",
+      "evidence": "Selector uses this sequence for state 13 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_986C": {
+      "name": "jg_player_state_5_descriptors",
+      "evidence": "Five entries set here; state 5 selects base when direction is 1 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_987C": {
+      "name": "jg_player_state_5_left_animation_start",
+      "evidence": "Second 16-byte entry in G_h01_986C, used when direction is 0 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_98BC": {
+      "name": "jg_player_state_3_right_descriptors",
+      "evidence": "Selector uses this sequence for state 3 when direction is 1 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_994C": {
+      "name": "jg_player_state_3_left_descriptors",
+      "evidence": "Selector uses this sequence for state 3 when direction is 0 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_99DC": {
+      "name": "jg_player_state_17_descriptors",
+      "evidence": "Selector uses this sequence for state 17 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_99FC": {
+      "name": "jg_player_state_16_descriptors",
+      "evidence": "Selector uses this sequence for state 16 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9A1C": {
+      "name": "jg_player_state_18_right_descriptors",
+      "evidence": "Selector uses this sequence for state 18 when direction is 1 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9A6C": {
+      "name": "jg_player_state_18_left_descriptors",
+      "evidence": "Selector uses this sequence for state 18 when direction is 0 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9ABC": {
+      "name": "jg_player_state_19_descriptors",
+      "evidence": "Selector uses this sequence for state 19 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9AEC": {
+      "name": "jg_player_state_14_descriptors",
+      "evidence": "Selector uses this descriptor for state 14 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9AFC": {
+      "name": "jg_player_state_6_descriptors",
+      "evidence": "Selector uses this sequence for state 6 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9B4C": {
+      "name": "jg_player_state_20_descriptors",
+      "evidence": "Selector uses this sequence for state 20 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9BBC": {
+      "name": "jg_player_state_21_descriptors",
+      "evidence": "Selector uses this sequence for state 21 (src/recovered/ov11/ov11_F_4B0C.c)."
+    },
+    "G_h01_9C2C": {
+      "name": "jg_platform_animation_descriptors",
+      "evidence": "Mode 24 selects this for kinds 1 and 3 (src/recovered/ov11/ov11_F_15C8.c; src/recovered/ov11/ov11_F_41F6.c)."
+    },
+    "G_h01_9FCE": {
+      "name": "jg_actor_records",
+      "evidence": "M records feed state machine for behavior, position, animation, and collision (src/recovered/ov11/ov11_F_2C96.c; src/recovered/ov11/ov11_F_2EEA.c; src/recovered/ov11/ov11_F_37E4.c)."
+    },
+    "G_h01_A15E": {
+      "name": "jg_event_records",
+      "evidence": "F records are initialized, scrolled, animated, collision-tested, and drawn (src/recovered/ov11/ov11_F_3926.c; src/recovered/ov11/ov11_F_3A24.c; src/recovered/ov11/ov11_F_3B92.c)."
+    },
+    "G_h01_A464": {
+      "name": "jg_contact_hazard_records",
+      "evidence": "S records set hazard position; contact changes player/hazard to state 45 (src/recovered/ov11/ov11_F_67B0.c; src/recovered/ov11/ov11_F_68B0.c; src/recovered/ov11/ov11_F_6582.c)."
+    },
+    "G_h01_A554": {
+      "name": "jg_moving_object_records",
+      "evidence": "V fields configure these; update computes coordinates from phase/motion tables (src/recovered/ov11/ov11_F_6A44.c; src/recovered/ov11/ov11_F_6CFE.c)."
+    },
+    "G_h01_A6A8": {
+      "name": "jg_end_trigger_records",
+      "evidence": "X coordinates become drawable triggers; overlap sets overlay return flag (src/recovered/ov11/ov11_F_7194.c; src/recovered/ov11/ov11_F_706C.c; src/recovered/ov11/ov11_F_70DC.c)."
+    },
+    "G_h01_A7D6": {
+      "name": "arc_record_stored_length",
+      "evidence": "The record reader loads header offset +0 here, and record loaders use it as the stored byte count for reads or decoding (src/recovered/resident/resident_F_287C.c; src/recovered/resident/resident_F_291E.c; formats/arc.md)."
+    },
+    "G_h01_A7DA": {
+      "name": "arc_record_kind",
+      "evidence": "The record reader loads header offset +4 here and the archive loader switches on this value (src/recovered/resident/resident_F_287C.c; src/recovered/resident/resident_F_291E.c; formats/arc.md)."
+    },
     "G_h01_A7EE": {
       "evidence": "Filled by arc_read_index with up to 104 u32 record offsets (formats/arc.md).",
       "name": "arc_offsets"
+    },
+    "G_h01_A9B2": {
+      "name": "chip_memory_pool_base",
+      "evidence": "Pool initialization stores the AllocMem result here, and the cleanup helper passes it to FreeMem with the original size (src/recovered/resident/resident_F_37C8.c; src/recovered/resident/resident_F_3850.c)."
+    },
+    "G_h01_A9BE": {
+      "name": "lzw_output_cursor",
+      "evidence": "LZW setup points this at the output buffer and the output-byte helper writes through and increments it (src/recovered/resident/resident_F_3C4C.c; src/recovered/resident/resident_F_4032.c)."
+    },
+    "G_h01_A9CA": {
+      "name": "archive_read_buffer",
+      "evidence": "The LZW reader and byte-stream refill routine both read 1024-byte blocks into this buffer (src/recovered/resident/resident_F_3C4C.c; src/recovered/resident/resident_F_411E.c)."
+    },
+    "G_h01_ADCA": {
+      "name": "lzw_input_file_handle",
+      "evidence": "The LZW decoder stores its input handle here and the bit-code reader refills its input buffer from that handle (src/recovered/resident/resident_F_3C4C.c; src/recovered/resident/resident_F_3E9C.c)."
+    },
+    "G_h01_ADCE": {
+      "name": "lzw_dictionary_walk_code",
+      "evidence": "The decoder follows dictionary prefix entries by replacing this code with each entry's prefix until it reaches a literal (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_ADD0": {
+      "name": "lzw_previous_code",
+      "evidence": "The LZW loop saves the prior code here and uses it to add the next dictionary entry (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_ADD2": {
+      "name": "lzw_current_code",
+      "evidence": "The LZW loop stores each newly read code here before expanding it and making it the prior code (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_ADD4": {
+      "name": "lzw_next_dictionary_code",
+      "evidence": "The decoder starts this index at 0x102, uses it for new entries, and increments it as codes are added (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_ADD6": {
+      "name": "lzw_expansion_stack_length",
+      "evidence": "The decoder increments this count as bytes are pushed during prefix traversal and decrements it while emitting them (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_ADD8": {
+      "name": "lzw_expansion_stack",
+      "evidence": "The decoder pushes suffix bytes here during prefix traversal, then pops them into the output in reverse order (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_B1DA": {
+      "name": "lzw_code_width",
+      "evidence": "The decoder starts at 9 bits, grows this width through 12 bits at dictionary thresholds, and the code reader uses it to extract each code (src/recovered/resident/resident_F_3C4C.c; src/recovered/resident/resident_F_3E9C.c)."
+    },
+    "G_h01_B1DC": {
+      "name": "lzw_next_code_width_threshold",
+      "evidence": "The decoder initializes this threshold to 0x200 and doubles it when the code width grows (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_B1DE": {
+      "name": "lzw_current_string_first_byte",
+      "evidence": "The decoder carries this first byte through dictionary expansion and appends it to the output buffer (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_B1E0": {
+      "name": "lzw_output_start",
+      "evidence": "The decoder stores the output buffer base here and subtracts it from the final output cursor to return bytes written (src/recovered/resident/resident_F_3C4C.c)."
+    },
+    "G_h01_B1E8": {
+      "name": "arc_stream_buffer_position",
+      "evidence": "The RLE decoder resets this position, while the byte reader advances it and refills at 1024 (src/recovered/resident/resident_F_404A.c; src/recovered/resident/resident_F_411E.c)."
     },
     "G_h01_B1EA": {
       "name": "input_quit_key_seen",

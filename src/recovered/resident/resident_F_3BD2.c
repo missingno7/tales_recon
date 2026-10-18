@@ -1,10 +1,10 @@
-extern int F_h00_3AE4();
+extern int free_bitmap_planes();
 extern int free_memory_checked();
-extern long G_h01_542A;
+extern long game_memory_header;
 
 recovered(p)
 char *p;
 {
-    F_h00_3AE4(p + 16, *(short *)(p + 8), *(short *)(p + 10));
-    return free_memory_checked(&G_h01_542A, p, 54L);
+    free_bitmap_planes(p + 16, *(short *)(p + 8), *(short *)(p + 10));
+    return free_memory_checked(&game_memory_header, p, 54L);
 }

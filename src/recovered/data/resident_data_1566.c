@@ -1,4 +1,4 @@
-unsigned int G_h01_1566[32] = {
+unsigned int endgame_comparison_palette[32] = {
   0,
   4095,
   3276,

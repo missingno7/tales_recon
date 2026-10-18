@@ -19,7 +19,7 @@ extern char G_h01_9D6C[1];
 extern char G_h01_9D9C[1];
 extern char G_h01_9E5C[1];
 extern long G_h01_9F6A;
-extern struct Record G_h01_9FCE[1];
+extern struct Record jg_actor_records[1];
 extern int G_h01_1300[16];
 extern int G_h01_34D8[16];
 
@@ -64,8 +64,8 @@ extern int G_h01_9E92;
 extern int G_h01_9EA0;
 extern int G_h01_9EA2;
 
-extern int F_h11_2E26();
-extern int F_h11_41F6();
+extern int jg_set_actor_state();
+extern int jg_start_animation_sequence();
 
 recovered()
 {
@@ -149,13 +149,13 @@ recovered()
     }
 
     for (i = 0; i < 6; i++) {
-        record = &G_h01_9FCE[i];
+        record = &jg_actor_records[i];
         record->field30 = record->field34;
         *(int *)((char *)record + 44) = 14;
         *(int *)((char *)record + 46) = 0;
         *(int *)((char *)record + 62) = G_h01_34D8[8];
-        F_h11_2E26(i, 7);
-        F_h11_41F6(2, (char *)record + 2, 14,
+        jg_set_actor_state(i, 7);
+        jg_start_animation_sequence(2, (char *)record + 2, 14,
                    *(int *)((char *)record + 30),
                    *(int *)((char *)record + 32));
     }

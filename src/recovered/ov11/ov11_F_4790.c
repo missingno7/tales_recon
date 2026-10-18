@@ -10,8 +10,8 @@ struct Rect {
 };
 
 extern struct Rect G_h01_34EC[40];
-extern long G_h01_46CE;
-extern long G_h01_46D2;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
 extern int BltBitMap();
 
 recovered()
@@ -23,8 +23,8 @@ recovered()
             rect->kind--;
             if (rect->width > 0)
                 if (rect->height > 0)
-                    BltBitMap(G_h01_46CE, (long)rect->x,
-                        (long)rect->y, G_h01_46D2, (long)rect->x,
+                    BltBitMap(archive_image_bitmap, (long)rect->x,
+                        (long)rect->y, active_screen_bitmap, (long)rect->x,
                         (long)rect->y, (long)rect->width,
                         (long)rect->height, (long)192, (long)255, 0L);
         }

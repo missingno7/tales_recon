@@ -1,5 +1,5 @@
-extern long G_h01_5392;
-extern int F_h00_30F0();
+extern long screen_palette_words;
+extern int copy_palette_to_copper_lists();
 extern int Delay();
 
 recovered()
@@ -16,13 +16,13 @@ recovered()
 
     for (i = 0; i < 16; i++) {
         for (j = 0; j < 32; j++) {
-            t = ((short *)G_h01_5392)[j];
+            t = ((short *)screen_palette_words)[j];
             A = (t >> 8) & 15;
             B = (t >> 4) & 15;
             C = t & 15;
-            ((short *)G_h01_5392)[j] = ((A ? --A : A) << 8) | ((B ? --B : B) << 4) | (C ? --C : C);
+            ((short *)screen_palette_words)[j] = ((A ? --A : A) << 8) | ((B ? --B : B) << 4) | (C ? --C : C);
         }
-        F_h00_30F0();
+        copy_palette_to_copper_lists();
         Delay(2L);
     }
 }

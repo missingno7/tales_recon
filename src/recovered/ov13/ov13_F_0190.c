@@ -1,7 +1,7 @@
-extern int F_h13_0000();
-extern int F_h00_307C();
+extern int initialize_office_menu_scene();
+extern int switch_display_buffer();
 extern int play_sound();
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 extern int Delay();
 extern int G_h01_511C;
 extern int G_h01_5152;
@@ -13,39 +13,39 @@ recovered()
 {
     int i;
 
-    F_h13_0000(0,0,0);
-    F_h00_307C();
-    F_h13_0000(0,0,0);
+    initialize_office_menu_scene(0,0,0);
+    switch_display_buffer();
+    initialize_office_menu_scene(0,0,0);
     play_sound(4);
     i=15;
     do {
-        F_h00_34E0(&G_h01_511C);
-        F_h00_34E0(&G_h01_5188);
+        draw_masked_sprite(&G_h01_511C);
+        draw_masked_sprite(&G_h01_5188);
         G_h01_5186=i%3;
-        F_h00_34E0(&G_h01_5152);
-        F_h00_307C();
+        draw_masked_sprite(&G_h01_5152);
+        switch_display_buffer();
         Delay(5L);
         --i;
     } while (i>=3);
-    F_h00_34E0(&G_h01_511C);
-    F_h00_34E0(&G_h01_5152);
+    draw_masked_sprite(&G_h01_511C);
+    draw_masked_sprite(&G_h01_5152);
     G_h01_51BC=1;
-    F_h00_34E0(&G_h01_5188);
+    draw_masked_sprite(&G_h01_5188);
     play_sound(35);
-    F_h00_307C();
+    switch_display_buffer();
     Delay(5L);
     play_sound(34);
-    F_h13_0000(0,0,0);
-    F_h00_34E0(&G_h01_511C);
-    F_h00_34E0(&G_h01_5152);
+    initialize_office_menu_scene(0,0,0);
+    draw_masked_sprite(&G_h01_511C);
+    draw_masked_sprite(&G_h01_5152);
     G_h01_51BC=1;
-    F_h00_34E0(&G_h01_5188);
-    F_h00_307C();
+    draw_masked_sprite(&G_h01_5188);
+    switch_display_buffer();
     Delay(50L);
     i=1;
     do {
-        F_h13_0000(i,0,0);
-        F_h00_307C();
+        initialize_office_menu_scene(i,0,0);
+        switch_display_buffer();
         Delay(20L);
         ++i;
     } while (i<=3);

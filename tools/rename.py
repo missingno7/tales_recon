@@ -14,18 +14,13 @@ def rename(root=ROOT, only=None, apply=False):
     entries = names.load_registry(root)
     selected = set(entries if only is None else only)
     unknown = selected - entries.keys()
+    files = {p: p.read_bytes() for p in active_files(root / 'src')
+             if p.suffix in names.SOURCE_SUFFIXES}
     if unknown:
         raise ValueError('unknown identities: ' + ', '.join(sorted(unknown)))
     for key in sorted(selected & names.EXCLUDED):
         print('EXCLUDED %s (%s): pre-existing src token' % (key, entries[key]))
     selected -= names.EXCLUDED
-    mapping = {}
-    for key in sorted(selected):
-        symbol, readable = names.mechanical(key), entries[key]
-        mapping.update({symbol: readable, '_' + symbol: '_' + readable})
-    files = {p: p.read_bytes() for p in active_files(root / 'src')
-             if p.suffix in names.SOURCE_SUFFIXES}
-    # The lexer includes comments but excludes actual string/character literals.
     tokens = set()
     for raw in files.values():
         for match in names.TOKENS.finditer(raw.decode('latin-1')):
@@ -34,6 +29,14 @@ def rename(root=ROOT, only=None, apply=False):
                 tokens.update(names.WORDS.findall(token))
             elif names.IDENTIFIER.fullmatch(token):
                 tokens.add(token)
+    if only is None:
+        # Entries applied by an earlier batch (mechanical spelling gone) are skipped.
+        selected = {key for key in selected if names.mechanical(key) in tokens or '_' + names.mechanical(key) in tokens}
+    mapping = {}
+    for key in sorted(selected):
+        symbol, readable = names.mechanical(key), entries[key]
+        mapping.update({symbol: readable, '_' + symbol: '_' + readable})
+    # The lexer includes comments but excludes actual string/character literals.
     collisions = tokens & set(mapping.values())
     if collisions:
         raise ValueError('readable names already occur in src: ' + ', '.join(sorted(collisions)))
@@ -42,12 +45,14 @@ def rename(root=ROOT, only=None, apply=False):
     for path in sorted(changes):
         print(('%s ' % ('RENAME' if apply else 'WOULD RENAME')) + path.relative_to(root).as_posix())
     if apply:
-        # Use the complete registry inverse, not merely the selected subset.
+        # Use the complete registry inverse, not merely the selected subset: the new
+        # text must normalize to exactly what the old text normalized to (earlier
+        # batches may already have renamed other names in the same file).
         try:
             for path, raw in changes.items():
                 path.write_bytes(raw)
             for path in changes:
-                if names.to_mechanical(path.read_bytes(), root) != files[path]:
+                if names.to_mechanical(path.read_bytes(), root) != names.to_mechanical(files[path], root):
                     raise ValueError('normalization changed source bytes: ' + str(path))
         except BaseException:
             for path in changes:

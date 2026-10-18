@@ -1,5 +1,5 @@
 /* ov09_F_28A0 (fleet v3; two locals without references occupy the original frame). */
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 extern int G_h01_3ACA; extern int G_h01_3B00; extern int G_h01_3B36;
 extern int G_h01_3B6C; extern int G_h01_3BA2; extern int G_h01_3BD8;
 extern int G_h01_3C0E; extern int G_h01_3C44; extern int G_h01_3C7A;
@@ -12,41 +12,41 @@ recovered(a) char a;
     long lb;
     switch (a) {
     case 1:
-        F_h00_34E0(&G_h01_3ACA);
+        draw_masked_sprite(&G_h01_3ACA);
         break;
     case 2:
-        F_h00_34E0(&G_h01_3B00);
+        draw_masked_sprite(&G_h01_3B00);
         break;
     case 4:
-        F_h00_34E0(&G_h01_3B6C);
+        draw_masked_sprite(&G_h01_3B6C);
     case 3:
-        F_h00_34E0(&G_h01_3B36);
+        draw_masked_sprite(&G_h01_3B36);
         break;
     case 5:
-        F_h00_34E0(&G_h01_3BA2);
+        draw_masked_sprite(&G_h01_3BA2);
     case 7:
-        F_h00_34E0(&G_h01_3C0E);
+        draw_masked_sprite(&G_h01_3C0E);
         break;
     case 6:
-        F_h00_34E0(&G_h01_3BD8);
+        draw_masked_sprite(&G_h01_3BD8);
         break;
     case 8:
-        F_h00_34E0(&G_h01_3C44);
-        F_h00_34E0(&G_h01_3C0E);
+        draw_masked_sprite(&G_h01_3C44);
+        draw_masked_sprite(&G_h01_3C0E);
         break;
     case 9:
-        F_h00_34E0(&G_h01_3C7A);
+        draw_masked_sprite(&G_h01_3C7A);
     case 11:
-        F_h00_34E0(&G_h01_3CE6);
+        draw_masked_sprite(&G_h01_3CE6);
         break;
     case 10:
-        F_h00_34E0(&G_h01_3CB0);
+        draw_masked_sprite(&G_h01_3CB0);
         break;
     case 12:
-        F_h00_34E0(&G_h01_3D1C);
+        draw_masked_sprite(&G_h01_3D1C);
         break;
     case 13:
-        F_h00_34E0(&G_h01_3D52);
+        draw_masked_sprite(&G_h01_3D52);
         break;
     default:
         break;

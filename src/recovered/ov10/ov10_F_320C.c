@@ -4,7 +4,7 @@ union Flags {
     struct { char reserved; char bits; } bytes;
 };
 extern int request_disk();
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 extern char G_h01_79B6;
 extern char G_h01_79EC;
 extern char G_h01_7A22;
@@ -16,8 +16,8 @@ union Flags *flags;
     if ((flags->value & 15) == 15)
         return;
     request_disk(2);
-    if (!(flags->bytes.bits & 8)) F_h00_34E0(&G_h01_79B6);
-    if (!(flags->bytes.bits & 4)) F_h00_34E0(&G_h01_79EC);
-    if (!(flags->bytes.bits & 2)) F_h00_34E0(&G_h01_7A22);
-    if (!(flags->bytes.bits & 1)) F_h00_34E0(&G_h01_7A58);
+    if (!(flags->bytes.bits & 8)) draw_masked_sprite(&G_h01_79B6);
+    if (!(flags->bytes.bits & 4)) draw_masked_sprite(&G_h01_79EC);
+    if (!(flags->bytes.bits & 2)) draw_masked_sprite(&G_h01_7A22);
+    if (!(flags->bytes.bits & 1)) draw_masked_sprite(&G_h01_7A58);
 }

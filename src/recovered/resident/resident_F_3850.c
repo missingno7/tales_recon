@@ -2,12 +2,12 @@
    mechanically named A4 jump-table callee; the long argument is forwarded as the
    second argument. Declarations follow the canonical ov04 view for the same
    global and callee. */
-extern long G_h01_A9B2;
+extern long chip_memory_pool_base;
 extern int F_h00_897C();
 
 recovered(arg)
 long arg;
 {
-    if (G_h01_A9B2)
-        F_h00_897C(G_h01_A9B2, arg);
+    if (chip_memory_pool_base)
+        F_h00_897C(chip_memory_pool_base, arg);
 }

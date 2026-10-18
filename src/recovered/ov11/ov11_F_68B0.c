@@ -28,8 +28,8 @@ extern int G_h01_9EF2;
 extern int G_h01_9F00;
 extern int G_h01_9F02;
 extern long G_h01_9F7E;
-extern struct Record G_h01_A464[6];
-extern int F_h11_41F6();
+extern struct Record jg_contact_hazard_records[6];
+extern int jg_start_animation_sequence();
 
 recovered()
 {
@@ -56,12 +56,12 @@ recovered()
 
     i = 1;
     do {
-        record = &G_h01_A464[i];
+        record = &jg_contact_hazard_records[i];
         record->value22 = record->input0 * 53;
         record->value24 = record->input2 * 32 + 33;
         record->value20 = 20;
         record->value26 = 20;
-        F_h11_41F6(8, (char *)record + 10, 20,
+        jg_start_animation_sequence(8, (char *)record + 10, 20,
                     record->value22, record->value24);
         ++i;
     } while (i < 6);

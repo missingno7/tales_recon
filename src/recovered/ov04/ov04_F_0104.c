@@ -9,20 +9,20 @@ struct Location {
 };
 
 extern long arc_file;
-extern char G_h01_470A;
+extern char location_records;
 extern int request_disk();
 extern long Open();
 extern int arc_read_index();
-extern long F_h00_291E();
+extern long load_arc_record();
 extern long F_h00_0976();
 extern int sscanf();
 extern int strcpy();
-extern int F_h00_3C0E();
+extern int free_text_block();
 extern unsigned int F_h00_463E();
 extern int Close();
-extern int F_h04_0088();
-extern int F_h04_00C4();
-extern int F_h04_00E6();
+extern int location_index_is_available();
+extern int wrap_location_index();
+extern int next_non_office_location_index();
 
 recovered()
 {
@@ -46,9 +46,9 @@ recovered()
     arc_file = Open("DT1:loc.arc", 1005L);
     arc_read_index(arc_file);
     page = 0;
-    page = F_h00_291E(0, page);
+    page = load_arc_record(0, page);
     choices[0] = 0;
-    location = (struct Location *)&G_h01_470A;
+    location = (struct Location *)&location_records;
     state = *(long *)((char *)page + 2);
     state = F_h00_0976(state, text);
     sscanf(text, "%d %d %d %d", &location->a, &location->b,
@@ -56,18 +56,18 @@ recovered()
     location->selected = 0;
     state = F_h00_0976(state, text);
     strcpy(location, text);
-    F_h00_3C0E(page);
+    free_text_block(page);
     row = F_h00_463E();
     row = (unsigned)row % 30;
     picked = F_h00_463E();
     picked = (unsigned)picked % 5;
     for (count = 1; count < 35; ++count) {
-        while (!F_h04_0088(row, choices))
-            row = F_h04_00E6(row);
+        while (!location_index_is_available(row, choices))
+            row = next_non_office_location_index(row);
         choices[(unsigned)row] = row;
-        location = (struct Location *)(&G_h01_470A + (long)count * 40);
+        location = (struct Location *)(&location_records + (long)count * 40);
         page = 0;
-        page = F_h00_291E(row, page);
+        page = load_arc_record(row, page);
         state = *(long *)((char *)page + 2);
         state = F_h00_0976(state, text);
         sscanf(text, "%d %d %d %d", &location->a, &location->b,
@@ -75,8 +75,8 @@ recovered()
         state = F_h00_0976(state, text);
         strcpy(location, text);
         location->selected = row;
-        F_h00_3C0E(page);
-        row = F_h04_00C4(row, picked);
+        free_text_block(page);
+        row = wrap_location_index(row, picked);
     }
     Close(arc_file);
     arc_file = saved;

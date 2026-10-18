@@ -11,12 +11,12 @@ struct Record {
     int value30;
 };
 
-extern struct Record G_h01_A15E[1];
-extern int F_h11_40E0();
+extern struct Record jg_event_records[1];
+extern int jg_set_event_draw_state();
 
 recovered(index)
 int index;
 {
-    G_h01_A15E[index].value12 = G_h01_A15E[index].value14;
-    F_h11_40E0(index, 6);
+    jg_event_records[index].value12 = jg_event_records[index].value14;
+    jg_set_event_draw_state(index, 6);
 }

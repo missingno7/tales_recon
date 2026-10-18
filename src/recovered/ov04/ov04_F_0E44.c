@@ -1,6 +1,6 @@
-extern long G_h01_46CE;
-extern long G_h01_46D2;
-extern char *G_h01_46D6;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
+extern char *palette_fade_target;
 extern int G_h01_50E6;
 extern int G_h01_50F0;
 extern int G_h01_51BE;
@@ -33,7 +33,7 @@ extern int G_h01_52D4;
 extern char G_h01_52DC;
 extern int G_h01_530A;
 extern char G_h01_5312;
-extern int G_h01_1466;
+extern int invest_office_palette;
 extern int G_h01_511C;
 extern int G_h01_50B2;
 extern int G_h01_50B4;
@@ -65,16 +65,16 @@ extern int G_h01_5314;
 
 extern int request_disk();
 extern int Delay();
-extern int F_h00_291E();
-extern int F_h00_307C();
-extern int F_h00_31AA();
-extern int F_h00_330E();
-extern int F_h00_34E0();
-extern int F_h00_3AE4();
+extern int load_arc_record();
+extern int switch_display_buffer();
+extern int fade_palette_to_target();
+extern int fade_palette_to_black();
+extern int draw_masked_sprite();
+extern int free_bitmap_planes();
 extern int poll_controller_and_keyboard_input();
 extern int play_sound();
 extern int BltBitMap();
-extern int F_h04_07CA();
+extern int load_opening_animation_assets();
 extern int F_h04_0B50();
 extern int F_h04_0926();
 extern int F_h04_0DBE();
@@ -95,33 +95,33 @@ recovered()
     coordinates[8] = 99;
     coordinates[9] = 29;
 
-    F_h04_07CA();
+    load_opening_animation_assets();
     request_disk(1);
-    F_h00_291E(8, &G_h01_50E6);
+    load_arc_record(8, &G_h01_50E6);
     poll_controller_and_keyboard_input();
     G_h01_50E6 = 0xd8;
     G_h01_50E8 = 0x20;
     G_h01_511A = 0;
-    F_h00_34E0(&G_h01_50E6);
-    F_h00_330E();
+    draw_masked_sprite(&G_h01_50E6);
+    fade_palette_to_black();
     poll_controller_and_keyboard_input();
-    F_h00_307C();
+    switch_display_buffer();
 
-    G_h01_46D6 = (char *)&G_h01_1466;
-    F_h00_31AA((char *)&G_h01_1466);
+    palette_fade_target = (char *)&invest_office_palette;
+    fade_palette_to_target((char *)&invest_office_palette);
     BltBitMap(
-        G_h01_46CE, 0L, 0L,
-        G_h01_46D2, 0L, 0L,
+        archive_image_bitmap, 0L, 0L,
+        active_screen_bitmap, 0L, 0L,
         0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
-    F_h00_34E0(&G_h01_50E6);
-    F_h00_307C();
+    draw_masked_sprite(&G_h01_50E6);
+    switch_display_buffer();
 
-    F_h00_291E(9, &G_h01_50B0);
-    F_h00_291E(11, &G_h01_522A);
-    F_h00_291E(12, &G_h01_5296);
-    F_h00_291E(13, &G_h01_5260);
-    F_h00_291E(14, &G_h01_52CC);
-    F_h00_291E(15, &G_h01_5302);
+    load_arc_record(9, &G_h01_50B0);
+    load_arc_record(11, &G_h01_522A);
+    load_arc_record(12, &G_h01_5296);
+    load_arc_record(13, &G_h01_5260);
+    load_arc_record(14, &G_h01_52CC);
+    load_arc_record(15, &G_h01_5302);
     poll_controller_and_keyboard_input();
     G_h01_522A = 0x7f;
     G_h01_522C = 0x22;
@@ -141,26 +141,26 @@ frame_body:
         G_h01_50B2 = coordinates[index * 2 + 1];
         G_h01_50E4 = state;
         BltBitMap(
-            G_h01_46CE, 0L, 0x14L,
-            G_h01_46D2, 0L, 0x14L,
+            archive_image_bitmap, 0L, 0x14L,
+            active_screen_bitmap, 0L, 0x14L,
             0x140L, 0x82L, 0xc0L, 0xffL, 0L);
         if (index == 0)
             G_h01_511A = 1;
-        F_h00_34E0(&G_h01_50E6);
-        F_h00_34E0(&G_h01_50B0);
+        draw_masked_sprite(&G_h01_50E6);
+        draw_masked_sprite(&G_h01_50B0);
         poll_controller_and_keyboard_input();
         if (input_fire_action_pending) {
-            F_h00_3AE4(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
-            F_h00_3AE4(&G_h01_50C0, G_h01_50B8, G_h01_50BA);
-            F_h00_3AE4(&G_h01_523A, G_h01_5232, G_h01_5234);
-            F_h00_3AE4(&G_h01_52A6, G_h01_529E, G_h01_52A0);
-            F_h00_3AE4(&G_h01_5270, G_h01_5268, G_h01_526A);
-            F_h00_3AE4(&G_h01_52DC, G_h01_52D4, G_h01_52D6);
-            F_h00_3AE4(&G_h01_5312, G_h01_530A, G_h01_530C);
+            free_bitmap_planes(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
+            free_bitmap_planes(&G_h01_50C0, G_h01_50B8, G_h01_50BA);
+            free_bitmap_planes(&G_h01_523A, G_h01_5232, G_h01_5234);
+            free_bitmap_planes(&G_h01_52A6, G_h01_529E, G_h01_52A0);
+            free_bitmap_planes(&G_h01_5270, G_h01_5268, G_h01_526A);
+            free_bitmap_planes(&G_h01_52DC, G_h01_52D4, G_h01_52D6);
+            free_bitmap_planes(&G_h01_5312, G_h01_530A, G_h01_530C);
             play_sound(0);
             return;
         }
-        F_h00_307C();
+        switch_display_buffer();
         Delay(10L);
         ++state;
         ++index;
@@ -169,34 +169,34 @@ frame_test:
         goto frame_body;
 
     BltBitMap(
-        G_h01_46CE, 0L, 0x14L,
-        G_h01_46D2, 0L, 0x14L,
+        archive_image_bitmap, 0L, 0x14L,
+        active_screen_bitmap, 0L, 0x14L,
         0x140L, 0x82L, 0xc0L, 0xffL, 0L);
-    F_h00_34E0(&G_h01_522A);
-    F_h00_34E0(&G_h01_5302);
-    F_h00_34E0(&G_h01_5296);
-    F_h00_34E0(&G_h01_50E6);
-    F_h00_307C();
-    F_h00_3AE4(&G_h01_50C0, G_h01_50B8, G_h01_50BA);
+    draw_masked_sprite(&G_h01_522A);
+    draw_masked_sprite(&G_h01_5302);
+    draw_masked_sprite(&G_h01_5296);
+    draw_masked_sprite(&G_h01_50E6);
+    switch_display_buffer();
+    free_bitmap_planes(&G_h01_50C0, G_h01_50B8, G_h01_50BA);
     poll_controller_and_keyboard_input();
     if (input_fire_action_pending) {
-        F_h00_3AE4(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
+        free_bitmap_planes(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
         play_sound(0);
         return;
     }
 
     request_disk(1);
-    F_h00_291E(10, &G_h01_51BE);
+    load_arc_record(10, &G_h01_51BE);
     poll_controller_and_keyboard_input();
     F_h04_0B50(1, 5, 8);
     F_h04_0B50(6, 10, 8);
-    F_h00_291E(16, &G_h01_51F4);
+    load_arc_record(16, &G_h01_51F4);
     F_h04_0926(1, 3, 5);
     F_h04_0926(4, 6, 4);
     poll_controller_and_keyboard_input();
     if (input_fire_action_pending) {
         F_h04_0DBE();
-        F_h00_3AE4(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
+        free_bitmap_planes(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
         play_sound(0);
         return;
     }
@@ -208,7 +208,7 @@ frame_test:
     poll_controller_and_keyboard_input();
     if (input_fire_action_pending) {
         F_h04_0DBE();
-        F_h00_3AE4(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
+        free_bitmap_planes(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
         play_sound(0);
         return;
     }
@@ -219,5 +219,5 @@ frame_test:
     F_h04_0926(13, 14, 1);
     F_h04_0926(13, 15, 1);
     F_h04_0DBE();
-    F_h00_3AE4(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
+    free_bitmap_planes(&G_h01_50F6, G_h01_50EE, G_h01_50F0);
 }

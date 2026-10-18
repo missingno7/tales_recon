@@ -12,7 +12,7 @@ struct Record {
 extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
-extern struct Record G_h01_8A66[1];
+extern struct Record jg_entity_row_dispatch_records[1];
 
 recovered(text)
 char *text;
@@ -25,7 +25,7 @@ char *text;
     if (sscanf(line, "L %d", &rows) < 1)
         report_loader_error(55);
     line = F_h00_75D8(line, '\n') + 1;
-    for (record = G_h01_8A66; record - G_h01_8A66 < rows; record++) {
+    for (record = jg_entity_row_dispatch_records; record - jg_entity_row_dispatch_records < rows; record++) {
         if (sscanf(line, "%*d %d %d %d %d %d %d %d\n",
                 &record->ignored, &record->value1, &record->value2,
                 &record->value3, &record->value4, &record->value5,

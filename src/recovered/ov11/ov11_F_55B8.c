@@ -13,13 +13,13 @@ struct GridRecord {
 extern int G_h01_37F2;
 extern int G_h01_8A3E;
 extern int G_h01_8A3C;
-extern int G_h01_8B1C[41][4];
-extern int G_h01_8BEC[1];
-extern int G_h01_940C[1];
+extern int jg_grid_tile_indices[41][4];
+extern int jg_platform_records[1];
+extern int jg_tile_reward_available_flags[1];
 extern int *G_h01_9F5E;
 extern int *G_h01_9FA2;
-extern int F_h11_5962();
-extern int F_h00_34E0();
+extern int jg_set_platform_record_state();
+extern int draw_masked_sprite();
 
 recovered()
 {
@@ -31,9 +31,9 @@ recovered()
         for (row=0;row<24;row++) {
             vertical=row*53+(!((row&1)^1)?-4:-24);
             for (column=2;column>=0;column--) {
-                tile=G_h01_8B1C[row][column];
+                tile=jg_grid_tile_indices[row][column];
                 if (tile) {
-                    object=(struct GridRecord *)((char *)G_h01_8BEC+((long)tile*52));
+                    object=(struct GridRecord *)((char *)jg_platform_records+((long)tile*52));
                     if (!object->code) {
                         horizontal=column*32+48;
                         object->vertical=vertical;
@@ -47,15 +47,15 @@ recovered()
     base=(base<0)?0:base;
     for (row=6;row>=0;row--) {
         for (column=2;column>=0;column--) {
-            tile=G_h01_8B1C[base+row][column];
+            tile=jg_grid_tile_indices[base+row][column];
             if (tile) {
-                object=(struct GridRecord *)((char *)G_h01_8BEC+((long)tile*52));
-                if (G_h01_8A3C) F_h11_5962(tile,2);
+                object=(struct GridRecord *)((char *)jg_platform_records+((long)tile*52));
+                if (G_h01_8A3C) jg_set_platform_record_state(tile,2);
                 if (object->duration>0 && !object->code) {
                     G_h01_9F5E[0]=object->vertical-G_h01_8A3E;
                     G_h01_9F5E[1]=object->horizontal;
                     *((char *)G_h01_9F5E+0x34)=object->prefix[7];
-                    F_h00_34E0(G_h01_9F5E);
+                    draw_masked_sprite(G_h01_9F5E);
                     object->duration--;
                     if (!object->duration) object->counter=0;
                 }
@@ -65,15 +65,15 @@ recovered()
     for (row=6;row>=0;row--) {
         vertical=(row+base)*53-G_h01_8A3E;
         for (column=2;column>=0;column--) {
-            tile=G_h01_8B1C[base+row][column];
+            tile=jg_grid_tile_indices[base+row][column];
             if (tile) {
-                object=(struct GridRecord *)((char *)G_h01_8BEC+((long)tile*52));
+                object=(struct GridRecord *)((char *)jg_platform_records+((long)tile*52));
                 if (object->duration>0) {
                     horizontal=column*32+48;
-                    if (G_h01_940C[tile]>0 && !object->state) {
+                    if (jg_tile_reward_available_flags[tile]>0 && !object->state) {
                         G_h01_9FA2[0]=vertical+16;
                         G_h01_9FA2[1]=horizontal-13;
-                        F_h00_34E0(G_h01_9FA2);
+                        draw_masked_sprite(G_h01_9FA2);
                     }
                 }
             }

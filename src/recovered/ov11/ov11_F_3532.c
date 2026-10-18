@@ -27,15 +27,15 @@ struct TableCell {
     char unused[12];
 };
 
-extern struct Record G_h01_9FCE[1];
+extern struct Record jg_actor_records[1];
 extern int G_h01_7A92;
 extern int G_h01_8A3E;
 extern struct TableCell G_h01_8A68[1];
 extern int G_h01_A14E;
-extern int F_h11_41F6();
-extern int F_h11_4696();
-extern int F_h11_583A();
-extern int F_h11_54F8();
+extern int jg_start_animation_sequence();
+extern int jg_queue_background_restore_rectangle();
+extern int jg_set_grid_states_in_rectangle();
+extern int jg_set_p_section_object_state();
 
 recovered(index)
 int index;
@@ -43,7 +43,7 @@ int index;
     struct Record *record;
     int row;
 
-    record = &G_h01_9FCE[index];
+    record = &jg_actor_records[index];
     if (record->field46 != 1)
         goto exit;
     if (record->field8 == 0)
@@ -56,7 +56,7 @@ int index;
     record->field44 = 13;
     record->field46 = 0;
     G_h01_7A92 = 0;
-    F_h11_41F6(2, (char *)record + 2, 13,
+    jg_start_animation_sequence(2, (char *)record + 2, 13,
                record->field30, record->field32);
     goto position_join;
 
@@ -88,16 +88,16 @@ state_update:
         goto draw;
     record->field44 = 16;
     record->field46 = 0;
-    F_h11_41F6(2, (char *)record + 2, 16,
+    jg_start_animation_sequence(2, (char *)record + 2, 16,
                record->field30, record->field32);
 
 draw:
-    F_h11_4696(record->field56, record->field60, 24, 16,
+    jg_queue_background_restore_rectangle(record->field56, record->field60, 24, 16,
                index + 12);
-    F_h11_583A(record->field56, record->field60, 24, 16, 11);
+    jg_set_grid_states_in_rectangle(record->field56, record->field60, 24, 16, 11);
     row = record->field56 / 104;
     if (G_h01_8A68[row].value)
-        F_h11_54F8(G_h01_8A68[row].value, 11);
+        jg_set_p_section_object_state(G_h01_8A68[row].value, 11);
 exit:
     ;
 }

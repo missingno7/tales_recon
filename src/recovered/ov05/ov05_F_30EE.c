@@ -2,8 +2,8 @@ extern int G_h01_5E40;
 extern char G_h01_5E41;
 extern char G_h01_5482;
 extern int G_h01_544E;
-extern int F_h05_131C();
-extern int F_h00_307C();
+extern int plane_draw_scrolling_frame();
+extern int switch_display_buffer();
 extern unsigned int F_h00_463E();
 extern int play_sound();
 
@@ -30,8 +30,8 @@ recovered()
         if (G_h01_5E40 > 15)
             G_h01_5E40 = 0;
         G_h01_5482 = G_h01_5E41;
-        F_h05_131C(&G_h01_544E);
-        F_h00_307C();
+        plane_draw_scrolling_frame(&G_h01_544E);
+        switch_display_buffer();
     }
     if (cur == 4)
         cur = 5;

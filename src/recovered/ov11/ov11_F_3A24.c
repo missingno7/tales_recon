@@ -16,8 +16,8 @@ struct Event {
 
 extern long F_h00_463E();
 extern void report_loader_error();
-extern int F_h11_40E0();
-extern struct Event G_h01_A15E[1];
+extern int jg_set_event_draw_state();
+extern struct Event jg_event_records[1];
 extern int G_h01_A152;
 extern int G_h01_A150;
 extern int G_h01_A158;
@@ -30,7 +30,7 @@ recovered()
     struct Event *event;
 
     for (i = 0; i < G_h01_A152; ++i) {
-        event = &G_h01_A15E[i];
+        event = &jg_event_records[i];
         switch (event->kind) {
         case 18:
             event->value14 = 4;
@@ -56,7 +56,7 @@ recovered()
             event->value12 = event->value14 - 1;
             event->value16 = 2;
         }
-        F_h11_40E0(i, 6);
+        jg_set_event_draw_state(i, 6);
     }
     G_h01_A15A = 2;
     G_h01_A158 = (unsigned)F_h00_463E() % G_h01_A152;

@@ -16,8 +16,8 @@ struct ClusterRecord {
     char tail[4];
 };
 
-extern int G_h01_8B1C[41][4];
-extern struct ClusterRecord G_h01_8BEC[1];
+extern int jg_grid_tile_indices[41][4];
+extern struct ClusterRecord jg_platform_records[1];
 extern int G_h01_945C[1];
 extern int G_h01_94AE;
 extern int G_h01_94B0;
@@ -34,13 +34,13 @@ extern int G_h01_7A90;
 extern int G_h01_34D8[16];
 extern int clear_input_direction_and_fire_state();
 extern int poll_controller_and_keyboard_input();
-extern int F_h11_4B0C();
-extern int F_h11_5A12();
-extern int F_h11_5A62();
-extern int F_h11_5AB0();
-extern int F_h11_5EC0();
-extern int F_h11_3F90();
-extern int F_h11_6F78();
+extern int jg_select_player_animation();
+extern int jg_get_grid_row_right_boundary();
+extern int jg_get_grid_row_left_boundary();
+extern int jg_find_adjacent_occupied_cell();
+extern int jg_release_player_from_platform();
+extern int jg_find_event_at_world_x();
+extern int jg_is_near_moving_object();
 
 void recovered()
 {
@@ -54,7 +54,7 @@ void recovered()
     animated = 0;
     old_state = G_h01_94AE;
     old_direction = G_h01_94B0;
-    record = &G_h01_8BEC[G_h01_94D6];
+    record = &jg_platform_records[G_h01_94D6];
     key = poll_controller_and_keyboard_input();
     G_h01_7A90 = key;
 
@@ -72,15 +72,15 @@ void recovered()
             if (G_h01_94B0 == 0)
                 G_h01_94B0 = 1;
             if ((8 >> G_h01_94B0) + G_h01_94BE + 20 >
-                F_h11_5A12(0, G_h01_94BA)) {
+                jg_get_grid_row_right_boundary(0, G_h01_94BA)) {
                 if (G_h01_94B4) {
                     G_h01_94C0 = ((int *)record)[1] * 32 + 16;
-                    F_h11_5EC0(G_h01_94D6);
+                    jg_release_player_from_platform(G_h01_94D6);
                 } else if (!G_h01_94B6 &&
-                           !G_h01_8B1C[G_h01_94BA + 1][G_h01_94BC]) {
-                    if (F_h11_5AB0(1, 3, &found) ||
+                           !jg_grid_tile_indices[G_h01_94BA + 1][G_h01_94BC]) {
+                    if (jg_find_adjacent_occupied_cell(1, 3, &found) ||
                         (G_h01_94BC == 2 &&
-                         F_h11_3F90((8 >> G_h01_94B0) +
+                         jg_find_event_at_world_x((8 >> G_h01_94B0) +
                                     G_h01_94BE + 16) > 0))
                         G_h01_94AE = 4;
                 }
@@ -96,16 +96,16 @@ void recovered()
                 if (G_h01_94B0 == 1)
                     G_h01_94B0 = 0;
                 if ((8 >> G_h01_94B0) + G_h01_94BE - 18 <
-                    F_h11_5A62(0, G_h01_94BA)) {
+                    jg_get_grid_row_left_boundary(0, G_h01_94BA)) {
                     if (G_h01_94B4 &&
-                        G_h01_8B1C[G_h01_94BA + 1][((int *)record)[1]]) {
+                        jg_grid_tile_indices[G_h01_94BA + 1][((int *)record)[1]]) {
                         G_h01_94C0 = ((int *)record)[1] * 32 + 16;
-                        F_h11_5EC0(G_h01_94D6);
+                        jg_release_player_from_platform(G_h01_94D6);
                     } else if (!G_h01_94B6 &&
-                               !G_h01_8B1C[G_h01_94BA - 1][G_h01_94BC]) {
-                        if (F_h11_5AB0(0, 3, &found) ||
+                               !jg_grid_tile_indices[G_h01_94BA - 1][G_h01_94BC]) {
+                        if (jg_find_adjacent_occupied_cell(0, 3, &found) ||
                             (G_h01_94BC == 2 &&
-                             F_h11_3F90((8 >> G_h01_94B0) +
+                             jg_find_event_at_world_x((8 >> G_h01_94B0) +
                                         G_h01_94BE - 16) > 0))
                             G_h01_94AE = 4;
                     }
@@ -120,7 +120,7 @@ void recovered()
         case 1:
             if (G_h01_94B4 && G_h01_94B0 == 1) {
                 G_h01_94AE = 3;
-            } else if (F_h11_5AB0(2, 2, &found)) {
+            } else if (jg_find_adjacent_occupied_cell(2, 2, &found)) {
                 if (G_h01_94B6) {
                     G_h01_94B6 = 0;
                     G_h01_94C0 = 0x82;
@@ -153,7 +153,7 @@ void recovered()
             else if (((G_h01_94C0 + 14) >> 5) >= 2) {
                 if (G_h01_94B4) {
                     G_h01_94C0 = ((int *)record)[1] * 32 + 16;
-                    F_h11_5EC0(G_h01_94D6);
+                    jg_release_player_from_platform(G_h01_94D6);
                 }
                 G_h01_94AE = 13;
             } else
@@ -178,7 +178,7 @@ void recovered()
             break;
 
         case 3:
-            if (F_h11_6F78(G_h01_94D8 + 1,
+            if (jg_is_near_moving_object(G_h01_94D8 + 1,
                            (8 >> G_h01_94B0) + G_h01_94BE,
                            G_h01_94C0 + 16, 0x100)) {
                 ++G_h01_94D8;
@@ -195,7 +195,7 @@ void recovered()
             break;
 
         case 7:
-            if (F_h11_6F78(G_h01_94D8 - 1,
+            if (jg_is_near_moving_object(G_h01_94D8 - 1,
                            (8 >> G_h01_94B0) + G_h01_94BE,
                            G_h01_94C0 + 16, 0x100)) {
                 --G_h01_94D8;
@@ -219,7 +219,7 @@ void recovered()
 
     if (!animated &&
         (G_h01_94AE != old_state || G_h01_94B0 != old_direction))
-        F_h11_4B0C(G_h01_94AE);
+        jg_select_player_animation(G_h01_94AE);
     G_h01_94BA = ((8 >> G_h01_94B0) + G_h01_94BE) / 53;
     G_h01_94BC = (G_h01_94C0 - 16) >> 5;
     clear_input_direction_and_fire_state();

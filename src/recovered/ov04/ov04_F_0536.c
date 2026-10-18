@@ -15,11 +15,11 @@ extern char market_price_history;
 extern int request_disk();
 extern long Open();
 extern int arc_read_index();
-extern long F_h00_291E();
+extern long load_arc_record();
 extern long F_h00_0976();
 extern int sscanf();
 extern int F_h00_463E();
-extern int F_h00_3C0E();
+extern int free_text_block();
 extern int Close();
 
 recovered()
@@ -50,7 +50,7 @@ recovered()
 
     for (i = 0; i < 15; ++i) {
         item = 0;
-        item = (struct ArcEntry *)F_h00_291E(i, (long)item);
+        item = (struct ArcEntry *)load_arc_record(i, (long)item);
         name = item->text;
         id = item->length;
         item->text[item->length - 1] = 0;
@@ -66,7 +66,7 @@ recovered()
             (unsigned int)F_h00_463E() % 5;
         *((unsigned char *)((char *)&G_h01_4D86 + (long)i * 46L)) = 0;
         *((unsigned int *)((char *)&G_h01_4D84 + (long)i * 46L)) = 0;
-        F_h00_3C0E(item);
+        free_text_block(item);
     }
 
     Close(arc_file);
@@ -76,7 +76,7 @@ recovered()
 
     for (i = 0; i < 5; ++i) {
         item = 0;
-        item = (struct ArcEntry *)F_h00_291E(i, (long)item);
+        item = (struct ArcEntry *)load_arc_record(i, (long)item);
         name = item->text;
         id = item->length;
         j = 0;
@@ -86,7 +86,7 @@ recovered()
             *((char *)&market_price_history + (long)i * 31L + j) = ((char *)&value)[1];
             ++j;
         } while (j < 30);
-        F_h00_3C0E(item);
+        free_text_block(item);
     }
 
     Close(arc_file);

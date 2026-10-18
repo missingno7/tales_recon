@@ -1,4 +1,4 @@
-extern long G_h01_5392;
+extern long screen_palette_words;
 
 recovered(src)
 short *src;
@@ -6,7 +6,7 @@ short *src;
     short *dst;
     unsigned int i;
 
-    dst = (short *)G_h01_5392;
+    dst = (short *)screen_palette_words;
     for (i = 0; i < 0x20; i++)
         *dst++ = *src++;
 }

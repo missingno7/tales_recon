@@ -1,4 +1,4 @@
-unsigned int G_h01_15A6[32] = {
+unsigned int plane_scene_palette[32] = {
   0,
   4095,
   3549,

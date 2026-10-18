@@ -13,7 +13,7 @@ extern short G_h01_94C0;
 extern short G_h01_94D4;
 extern short G_h01_A156;
 extern short G_h01_A15A;
-extern short G_h01_A15E[1];
+extern short jg_event_records[1];
 
 void recovered(index, cursor, output)
 short index;
@@ -23,12 +23,12 @@ short *output;
 	struct Row *row;
 	short next;
 
-	row = (struct Row *)((char *)G_h01_A15E + (long)index * 32L);
-	if (row->word12 >= row->word14 || F_h11_3F90(*cursor) < 0) {
+	row = (struct Row *)((char *)jg_event_records + (long)index * 32L);
+	if (row->word12 >= row->word14 || jg_find_event_at_world_x(*cursor) < 0) {
 		G_h01_94B6 = 0;
 		G_h01_94D4 = 0;
 		G_h01_94AE = 6;
-		F_h11_4B0C(6);
+		jg_select_player_animation(6);
     } else if (G_h01_A15A == 0) {
 
 	*cursor += 4;

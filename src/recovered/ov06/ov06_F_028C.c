@@ -1,6 +1,6 @@
 /* Decimal counter animation; names describe observed behavior only. */
-extern int F_h00_35DC();
-extern int F_h00_307C();
+extern int draw_text();
+extern int switch_display_buffer();
 extern int Delay();
 
 recovered(x1, x2, value1, value2, style, color)
@@ -34,15 +34,15 @@ char color;
             digits2[--count2] = (value2 % 10L) + 48;
             x2 = origin2 - ((10 - count2) << 3);
         }
-        F_h00_35DC(x1,191,&digits1[count1],style,color);
-        F_h00_35DC(x2,179,&digits2[count2],style,color);
-        F_h00_307C();
+        draw_text(x1,191,&digits1[count1],style,color);
+        draw_text(x2,179,&digits2[count2],style,color);
+        switch_display_buffer();
         Delay(10L);
         value1 = value1 / 10L;
         value2 = value2 / 10L;
     } while (value1 > 0L || value2 > 0L);
 
-    F_h00_35DC(x1,191,&digits1[count1],style,color);
-    F_h00_35DC(x2,179,&digits2[count2],style,color);
-    F_h00_307C();
+    draw_text(x1,191,&digits1[count1],style,color);
+    draw_text(x2,179,&digits2[count2],style,color);
+    switch_display_buffer();
 }

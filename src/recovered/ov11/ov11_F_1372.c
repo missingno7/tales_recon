@@ -12,7 +12,7 @@ extern int G_h01_94C0;
 extern struct Target *G_h01_94DA;
 extern int G_h01_94AE;
 extern int G_h01_8A3E;
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 
 recovered()
 {
@@ -27,5 +27,5 @@ recovered()
     G_h01_94DA->x = G_h01_94C6 - G_h01_8A3E;
     G_h01_94DA->y = G_h01_94C0 + 1;
     if (G_h01_94AE != 45)
-        F_h00_34E0(G_h01_94DA);
+        draw_masked_sprite(G_h01_94DA);
 }

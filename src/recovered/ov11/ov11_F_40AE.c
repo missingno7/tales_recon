@@ -16,7 +16,7 @@ struct Event {
 };
 
 extern short G_h01_A156;
-extern struct Event G_h01_A15E[1];
+extern struct Event jg_event_records[1];
 extern int play_sound();
 extern int Delay();
 
@@ -25,7 +25,7 @@ int index;
 {
     struct Event *record;
 
-    record = &G_h01_A15E[index];
+    record = &jg_event_records[index];
     G_h01_A156 = 0;
     Delay(5L);
     play_sound(91);

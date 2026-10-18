@@ -1,1 +1,1 @@
-char G_h01_0668[] = "The Junior Woodchuck Guide chapter";
+char guide_chapter_intro_text[] = "The Junior Woodchuck Guide chapter";

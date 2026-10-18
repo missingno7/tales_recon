@@ -6,18 +6,18 @@ extern int G_h01_94BE; extern int G_h01_94C0; extern int G_h01_94C0; extern int 
 extern struct Object *G_h01_94DA; extern int G_h01_94DE; extern int G_h01_94E0; extern int G_h01_94E0;
 extern int G_h01_94E4; extern int G_h01_94E6; extern struct Descriptor *G_h01_94E8;
 extern struct Object *G_h01_9F4E; extern struct Object *G_h01_9F52;
-extern struct Descriptor G_h01_94EC[1]; extern struct Descriptor G_h01_958C[1];
-extern struct Descriptor G_h01_962C[1]; extern struct Descriptor G_h01_96AC[1];
-extern struct Descriptor G_h01_972C[1]; extern struct Descriptor G_h01_978C[1];
-extern struct Descriptor G_h01_975C[1]; extern struct Descriptor G_h01_97FC[1];
-extern struct Descriptor G_h01_986C[1]; extern struct Descriptor G_h01_987C[1];
-extern struct Descriptor G_h01_98BC[1]; extern struct Descriptor G_h01_994C[1];
-extern struct Descriptor G_h01_99DC[1]; extern struct Descriptor G_h01_99FC[1];
-extern struct Descriptor G_h01_9A1C[1]; extern struct Descriptor G_h01_9A6C[1];
-extern struct Descriptor G_h01_9ABC[1]; extern struct Descriptor G_h01_9AEC[1];
-extern struct Descriptor G_h01_9AFC[1]; extern struct Descriptor G_h01_9B4C[1];
-extern struct Descriptor G_h01_9BBC[1]; extern struct Object *G_h01_9F52; extern struct Object *G_h01_9F4E;
-extern int play_sound(); extern int F_h11_6ED6();
+extern struct Descriptor jg_player_move_right_descriptors[1]; extern struct Descriptor jg_player_move_left_descriptors[1];
+extern struct Descriptor jg_player_state_4_right_descriptors[1]; extern struct Descriptor jg_player_state_4_left_descriptors[1];
+extern struct Descriptor jg_player_state_10_right_descriptors[1]; extern struct Descriptor jg_player_state_12_descriptors[1];
+extern struct Descriptor jg_player_state_10_left_descriptors[1]; extern struct Descriptor jg_player_state_13_descriptors[1];
+extern struct Descriptor jg_player_state_5_descriptors[1]; extern struct Descriptor jg_player_state_5_left_animation_start[1];
+extern struct Descriptor jg_player_state_3_right_descriptors[1]; extern struct Descriptor jg_player_state_3_left_descriptors[1];
+extern struct Descriptor jg_player_state_17_descriptors[1]; extern struct Descriptor jg_player_state_16_descriptors[1];
+extern struct Descriptor jg_player_state_18_right_descriptors[1]; extern struct Descriptor jg_player_state_18_left_descriptors[1];
+extern struct Descriptor jg_player_state_19_descriptors[1]; extern struct Descriptor jg_player_state_14_descriptors[1];
+extern struct Descriptor jg_player_state_6_descriptors[1]; extern struct Descriptor jg_player_state_20_descriptors[1];
+extern struct Descriptor jg_player_state_21_descriptors[1]; extern struct Object *G_h01_9F52; extern struct Object *G_h01_9F4E;
+extern int play_sound(); extern int jg_get_moving_object_positions();
 
 recovered(mode)
 int mode;
@@ -29,25 +29,25 @@ int mode;
     G_h01_94E6 = 1;
     G_h01_94E8 = 0;
     switch (mode) {
-    case 20: G_h01_94E0 = 7; G_h01_94E8 = G_h01_9B4C; break;
-    case 21: G_h01_94E0 = 7; G_h01_94E8 = G_h01_9BBC; break;
-    case 6: play_sound(0x58); G_h01_94C0 = 0x8e; G_h01_94E0 = 5; G_h01_94E8 = G_h01_9AFC; break;
-    case 19: G_h01_94E0 = 3; G_h01_94E8 = G_h01_9ABC; break;
-    case 18: G_h01_94E0 = 5; G_h01_94E8 = (G_h01_94B0 == 0) ? G_h01_9A1C : G_h01_9A6C; play_sound(0x64); break;
-    case 17: G_h01_94E0 = 2; G_h01_94E8 = G_h01_99DC; break;
-    case 16: G_h01_94E0 = 2; G_h01_94E8 = G_h01_99FC; break;
-    case 14: G_h01_94E0 = 1; G_h01_94E8 = G_h01_9AEC; break;
-    case 45: G_h01_94E0 = 0; break;    case 12: G_h01_94E0 = 7; G_h01_94E8 = G_h01_978C; break;
-    case 13: G_h01_94E0 = 7; G_h01_94E8 = G_h01_97FC; break;
-    case 3: G_h01_94E0 = 9; G_h01_94E8 = (G_h01_94B0 == 1) ? G_h01_98BC : G_h01_994C; break;
-    case 10: G_h01_94E0 = 3; G_h01_94E8 = (G_h01_94B0 == 1) ? G_h01_972C : G_h01_975C; break;
-    case 4: G_h01_94E0 = 8; G_h01_94E8 = (G_h01_94B0 == 1) ? G_h01_962C : G_h01_96AC; break;
-    case 5: G_h01_94E0 = 0; G_h01_94E8 = (G_h01_94B0 == 1) ? G_h01_986C : G_h01_987C; break;
+    case 20: G_h01_94E0 = 7; G_h01_94E8 = jg_player_state_20_descriptors; break;
+    case 21: G_h01_94E0 = 7; G_h01_94E8 = jg_player_state_21_descriptors; break;
+    case 6: play_sound(0x58); G_h01_94C0 = 0x8e; G_h01_94E0 = 5; G_h01_94E8 = jg_player_state_6_descriptors; break;
+    case 19: G_h01_94E0 = 3; G_h01_94E8 = jg_player_state_19_descriptors; break;
+    case 18: G_h01_94E0 = 5; G_h01_94E8 = (G_h01_94B0 == 0) ? jg_player_state_18_right_descriptors : jg_player_state_18_left_descriptors; play_sound(0x64); break;
+    case 17: G_h01_94E0 = 2; G_h01_94E8 = jg_player_state_17_descriptors; break;
+    case 16: G_h01_94E0 = 2; G_h01_94E8 = jg_player_state_16_descriptors; break;
+    case 14: G_h01_94E0 = 1; G_h01_94E8 = jg_player_state_14_descriptors; break;
+    case 45: G_h01_94E0 = 0; break;    case 12: G_h01_94E0 = 7; G_h01_94E8 = jg_player_state_12_descriptors; break;
+    case 13: G_h01_94E0 = 7; G_h01_94E8 = jg_player_state_13_descriptors; break;
+    case 3: G_h01_94E0 = 9; G_h01_94E8 = (G_h01_94B0 == 1) ? jg_player_state_3_right_descriptors : jg_player_state_3_left_descriptors; break;
+    case 10: G_h01_94E0 = 3; G_h01_94E8 = (G_h01_94B0 == 1) ? jg_player_state_10_right_descriptors : jg_player_state_10_left_descriptors; break;
+    case 4: G_h01_94E0 = 8; G_h01_94E8 = (G_h01_94B0 == 1) ? jg_player_state_4_right_descriptors : jg_player_state_4_left_descriptors; break;
+    case 5: G_h01_94E0 = 0; G_h01_94E8 = (G_h01_94B0 == 1) ? jg_player_state_5_descriptors : jg_player_state_5_left_animation_start; break;
     case 1:
         if (G_h01_94B2 != 0) { G_h01_94DE = 0; G_h01_94E0 = 5; }
         else { G_h01_94DE = 5; G_h01_94E0 = 10; }
-        if (G_h01_94B0 == 1) G_h01_94E8 = &G_h01_94EC[G_h01_94DE];
-        else G_h01_94E8 = &G_h01_958C[G_h01_94DE];
+        if (G_h01_94B0 == 1) G_h01_94E8 = &jg_player_move_right_descriptors[G_h01_94DE];
+        else G_h01_94E8 = &jg_player_move_left_descriptors[G_h01_94DE];
         break;
     case 2:
         G_h01_94B6 = 0; G_h01_94B4 = 0; G_h01_94E0 = 0; G_h01_94DA = G_h01_9F52;
@@ -55,7 +55,7 @@ int mode;
         play_sound(0xf); break;
     case 8:
         G_h01_94E0 = 1; G_h01_94DA = G_h01_9F4E;
-        F_h11_6ED6(G_h01_94D8, &x, &y, &G_h01_94BE, &G_h01_94C0);
+        jg_get_moving_object_positions(G_h01_94D8, &x, &y, &G_h01_94BE, &G_h01_94C0);
         if (G_h01_94BE < x) {
             G_h01_94DA->state = (G_h01_94B0 == 1) ? 0x1c : 0x1e;
             if (G_h01_94B0 == 0) { G_h01_94BE -= 12; G_h01_94C0 += 8; }

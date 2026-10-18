@@ -4,13 +4,13 @@ struct Cell {
 };
 extern char difficulty_level;
 extern char *G_h01_5370;
-extern long G_h01_46D2;
+extern long active_screen_bitmap;
 extern int G_h01_7746;
 extern int G_h01_7748;
 extern int G_h01_774A;
 extern int G_h01_774C;
 extern char G_h01_774E;
-extern int F_h10_1FDE();
+extern int draw_cave_cell_connections();
 extern int BltBitMap();
 
 recovered(p)
@@ -36,12 +36,12 @@ struct Cell *p;
                 *G_h01_5370=12;
             else
                 *G_h01_5370=3;
-            F_h10_1FDE(x*4+115,y*4+139,p,1);
+            draw_cave_cell_connections(x*4+115,y*4+139,p,1);
         }
         ++i;
         ++p;
     } while (i<64);
-    BltBitMap(G_h01_46D2,(long)G_h01_7746,(long)G_h01_7748,
+    BltBitMap(active_screen_bitmap,(long)G_h01_7746,(long)G_h01_7748,
         &G_h01_774E,0L,0L,(long)(G_h01_774A<<shift),(long)G_h01_774C,
         192L,255L,0L);
 }

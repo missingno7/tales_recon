@@ -8,8 +8,8 @@ struct BRecord {
 extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
-extern struct ARecord G_h01_8B1C[1];
-extern struct BRecord G_h01_8BEC[1];
+extern struct ARecord jg_grid_tile_indices[1];
+extern struct BRecord jg_platform_records[1];
 extern int G_h01_37EC;
 
 recovered(text)
@@ -26,8 +26,8 @@ char *text;
     line = F_h00_75D8(line, '\n') + 1;
     for (i = 0; i < rows; ++i) {
         if (sscanf(line, "%*d %d %d %d %d\n",
-                &G_h01_8B1C[i].value0, &G_h01_8B1C[i].value2,
-                &G_h01_8B1C[i].value4, &G_h01_8B1C[i].value6) == 4)
+                &jg_grid_tile_indices[i].value0, &jg_grid_tile_indices[i].value2,
+                &jg_grid_tile_indices[i].value4, &jg_grid_tile_indices[i].value6) == 4)
             line = F_h00_75D8(line, '\n') + 1;
         else
             report_loader_error(241);
@@ -39,7 +39,7 @@ char *text;
     if (G_h01_37EC > 40)
         report_loader_error(89);
     line = F_h00_75D8(line, '\n') + 1;
-    for (i = 0, record = G_h01_8BEC; i < rows; ++i, ++record) {
+    for (i = 0, record = jg_platform_records; i < rows; ++i, ++record) {
         if (sscanf(line, "%*d %d %d %d %d %d %d %d %d %d %d %d\n",
                 &record->value0, &record->value2, &record->value44,
                 &record->value46, &record->value4, &record->value6,

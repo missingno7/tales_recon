@@ -3,14 +3,14 @@ struct MotionRecord {
     char bytes[40];
 };
 
-extern struct MotionRecord G_h01_3724[1];
-extern int F_h11_4610();
+extern struct MotionRecord jg_scenery_object_records[1];
+extern int jg_advance_scheduled_sprite_motion();
 
 recovered(n)
 int n;
 {
     struct MotionRecord *record;
 
-    record = &G_h01_3724[n];
-    F_h11_4610(record);
+    record = &jg_scenery_object_records[n];
+    jg_advance_scheduled_sprite_motion(record);
 }

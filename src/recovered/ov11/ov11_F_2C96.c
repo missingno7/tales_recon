@@ -14,7 +14,7 @@ struct Record {
 extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
-extern struct Record G_h01_9FCE[1];
+extern struct Record jg_actor_records[1];
 
 recovered(text)
 char *text;
@@ -33,7 +33,7 @@ char *text;
             report_loader_error(901);
             goto next_record;
         }
-        record = &G_h01_9FCE[index];
+        record = &jg_actor_records[index];
         if (sscanf(line, "%*d %d %d %d %d %d %d\n",
                          &record->field24, &record->field26,
                          &record->field28, &record->field30,

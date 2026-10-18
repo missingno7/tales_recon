@@ -1,1 +1,1 @@
-unsigned short G_h01_1E2E = 0;
+unsigned short lzw_bit_position = 0;

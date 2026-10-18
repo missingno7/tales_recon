@@ -1,1 +1,1 @@
-int G_h01_0A82 = 0;
+int plane_first_visible_segment = 0;

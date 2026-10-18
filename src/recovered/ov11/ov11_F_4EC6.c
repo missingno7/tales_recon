@@ -11,7 +11,7 @@ struct AnimRecord {
     int tail;
 };
 
-extern struct AnimRecord G_h01_3724[1];
+extern struct AnimRecord jg_scenery_object_records[1];
 extern long G_h01_9F82;
 extern char G_h01_9C8C[1];
 extern char G_h01_9CBC[1];
@@ -33,8 +33,8 @@ extern int G_h01_371E;
 extern int G_h01_3720;
 extern int G_h01_3722;
 extern char difficulty_level;
-extern int F_h11_54F8();
-extern int F_h11_41F6();
+extern int jg_set_p_section_object_state();
+extern int jg_start_animation_sequence();
 
 recovered()
 {
@@ -60,12 +60,12 @@ recovered()
     G_h01_9D10=4;
     G_h01_9D20=5;
     for (i=0;i<5;i++) {
-        record=&G_h01_3724[i];
+        record=&jg_scenery_object_records[i];
         record->x=record->row*53;
         record->y=record->column*32+32;
         record->animation=14;
-        F_h11_54F8(i,5);
-        F_h11_41F6(11,record,14,record->x,record->y);
+        jg_set_p_section_object_state(i,5);
+        jg_start_animation_sequence(11,record,14,record->x,record->y);
     }
     switch (difficulty_level) {
     case 0:

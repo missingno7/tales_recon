@@ -6,14 +6,14 @@ struct Record {
     int unused24, unused26, unused28;
     int step, active;
 };
-extern struct Record G_h01_A554[10];
+extern struct Record jg_moving_object_records[10];
 recovered()
 {
     struct Record *p;
     int i;
     i = 0;
     do {
-        p = &G_h01_A554[i];
+        p = &jg_moving_object_records[i];
         p->x = p->initial_x;
         p->y = p->initial_y + p->offset_y;
         p->left = p->right = p->x;

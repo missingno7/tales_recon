@@ -3,7 +3,7 @@ struct LinkEntry { char *target; char pad[8]; };
 extern struct LinkEntry G_h01_4528[35];
 extern struct FlagEntry player_treasure_collected[35];
 extern struct FlagEntry rival_treasure_collected[35];
-extern char F_h03_154E();
+extern char calculate_travel_days();
 
 char
 recovered(excluded)
@@ -20,7 +20,7 @@ char excluded;
     best = 0;
     for (i = 1; i < 35; i++) {
         if (i != excluded && !player_treasure_collected[i].value && !rival_treasure_collected[i].value) {
-            cost = F_h03_154E(excluded, i);
+            cost = calculate_travel_days(excluded, i);
             value = ((int *)G_h01_4528[i].target)[1];
             ratio = value / cost;
             if (ratio > best) {

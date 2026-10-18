@@ -1,1 +1,1 @@
-char G_h01_06DB[] = "on Cave Exploring says,";
+char cave_exploring_guide_intro_text[] = "on Cave Exploring says,";

@@ -8,7 +8,7 @@ struct Record {
 extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
-extern struct Record G_h01_A6A8[1];
+extern struct Record jg_end_trigger_records[1];
 
 recovered(text)
 char *text;
@@ -27,7 +27,7 @@ char *text;
             report_loader_error(914);
             goto next_record;
         }
-        record = &G_h01_A6A8[index];
+        record = &jg_end_trigger_records[index];
         if (sscanf(line, "%*d %d %d\n",
                          &record->field0, &record->field2) != 2)
             goto bad_record;

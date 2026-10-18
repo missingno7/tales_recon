@@ -3,8 +3,8 @@ extern int G_h01_34E0;
 extern int G_h01_34D0[16];
 extern int G_h01_34D4[16];
 extern int G_h01_34D8[16];
-extern long G_h01_46CE;
-extern long G_h01_46D2;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
 extern int BltBitMap();
 
 recovered()
@@ -35,7 +35,7 @@ recovered()
         x = 0;
     else if (x + width > 320)
         width = 320 - x;
-    BltBitMap(G_h01_46CE, (long)x, (long)y, G_h01_46D2,
+    BltBitMap(archive_image_bitmap, (long)x, (long)y, active_screen_bitmap,
         (long)x, (long)y, (long)width, (long)height,
         (long)192, (long)255, 0L);
 }

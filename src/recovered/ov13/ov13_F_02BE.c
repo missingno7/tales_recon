@@ -2,9 +2,9 @@
    Reuse them unless a hypothesis needs a different view (then that is the controlled change). */
 extern int G_h01_1422; /* 1x; w2 */
 extern long screen_rast_port; /* 13x; w4 */
-extern long G_h01_46CE; /* 15x; w4 */
-extern long G_h01_46D2; /* 16x; w4 */
-extern char *G_h01_46D6; /* 3x; w4 */
+extern long archive_image_bitmap; /* 15x; w4 */
+extern long active_screen_bitmap; /* 16x; w4 */
+extern char *palette_fade_target; /* 3x; w4 */
 extern long arc_file; /* 5x; w4 */
 struct UiState;
 extern struct UiState G_h01_50E6;
@@ -16,13 +16,13 @@ extern int G_h01_533A; /* 1x; w2 */
 extern char G_h01_536C; /* 1x; w1 */
 extern int request_disk(); /* 10x */
 extern int arc_read_index(); /* 4x */
-extern int F_h00_291E(); /* 5x; alt long () x2 */
-extern int F_h00_307C(); /* 13x */
-extern int F_h00_31AA(); /* 3x */
-extern int F_h00_330E(); /* 4x */
-extern int F_h00_34E0(); /* 20x; alt void () x2 */
-extern int F_h00_35DC(); /* 9x */
-extern int F_h00_3AE4(); /* 6x */
+extern int load_arc_record(); /* 5x; alt long () x2 */
+extern int switch_display_buffer(); /* 13x */
+extern int fade_palette_to_target(); /* 3x */
+extern int fade_palette_to_black(); /* 4x */
+extern int draw_masked_sprite(); /* 20x; alt void () x2 */
+extern int draw_text(); /* 9x */
+extern int free_bitmap_planes(); /* 6x */
 extern int clear_input_direction_and_fire_state(); /* 4x */
 extern int poll_controller_and_keyboard_input(); /* 4x; alt char () x1 */
 extern int F_h00_4D04(); /* 3x */
@@ -31,8 +31,8 @@ extern int play_sound(); /* 19x */
 extern int Delay(); /* 8x */
 extern int BltBitMap(); /* 16x */
 extern int SetRast(); /* 5x */
-extern int F_h13_0000(); /* 1x */
-/* G_h01_1466: no canonical view */
+extern int initialize_office_menu_scene(); /* 1x */
+/* invest_office_palette: no canonical view */
 /* G_h01_2A16: no canonical view; w4 */
 /* G_h01_5E5E: no canonical view; w1 */
 /* G_h01_A6C6: inside G_h01_A6B0+22 (struct Record [36]); w2 */
@@ -55,7 +55,7 @@ extern int F_h13_0000(); /* 1x */
 
 
 extern long G_h01_2A16;
-extern char G_h01_1466;
+extern char invest_office_palette;
 extern char G_h01_5E5E;
 extern int G_h01_A6C6;
 extern int G_h01_A6C8;
@@ -86,17 +86,17 @@ recovered()
         ;
     SetRast(screen_rast_port, 0L);
     play_sound(0);
-    F_h13_0000(0, 0, 1);
+    initialize_office_menu_scene(0, 0, 1);
     F_h00_4EC6();
     request_disk(1);
     F_h00_4D04(1);
     request_disk(1);
     arc_read_index(arc_file);
-    F_h00_330E();
+    fade_palette_to_black();
     play_sound(6);
-    F_h00_307C();
-    G_h01_46D6 = &G_h01_1466;
-    F_h00_31AA(&G_h01_1466);
+    switch_display_buffer();
+    palette_fade_target = &invest_office_palette;
+    fade_palette_to_target(&invest_office_palette);
     G_h01_5E5E = 0;
     result = 0x23;
     for (;;) {
@@ -107,36 +107,36 @@ recovered()
         for (;;) {
             if (input & 0x80)
                 goto state_dispatch;
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap,
                     0L, 0L, 0x140L, 0xc8L, 0xc0L, 0xffL, 0L);
-        F_h00_34E0(&G_h01_50E6);
-        F_h00_34E0(&G_h01_511C);
-        F_h00_34E0(&G_h01_5152);
-        F_h00_34E0(&G_h01_5188);
-        F_h00_34E0(&G_h01_5338);
+        draw_masked_sprite(&G_h01_50E6);
+        draw_masked_sprite(&G_h01_511C);
+        draw_masked_sprite(&G_h01_5152);
+        draw_masked_sprite(&G_h01_5188);
+        draw_masked_sprite(&G_h01_5338);
         input = poll_controller_and_keyboard_input();
         switch (input & 0x3f) {
                     case 1:
-                        F_h00_35DC(0x76, 0x0b, "MONEY BIN", 0, 0);
-                        F_h00_35DC(0x78, 0x0a, "MONEY BIN", 1, 0);
+                        draw_text(0x76, 0x0b, "MONEY BIN", 0, 0);
+                        draw_text(0x78, 0x0a, "MONEY BIN", 1, 0);
                         choice = 2;
-                        F_h00_307C();
+                        switch_display_buffer();
                         break;
                     case 3:
-                        F_h00_35DC(0xc6, 0x21, "CONTROL CENTER", 0, 0);
-                        F_h00_35DC(0xc8, 0x20, "CONTROL CENTER", 1, 0);
+                        draw_text(0xc6, 0x21, "CONTROL CENTER", 0, 0);
+                        draw_text(0xc8, 0x20, "CONTROL CENTER", 1, 0);
                         choice = 1;
-                        F_h00_307C();
+                        switch_display_buffer();
                         break;
                     case 7:
-                        F_h00_35DC(0x0c, 0x21, "INVESTMENTS", 0, 0);
-                        F_h00_35DC(0x0e, 0x20, "INVESTMENTS", 1, 0);
+                        draw_text(0x0c, 0x21, "INVESTMENTS", 0, 0);
+                        draw_text(0x0e, 0x20, "INVESTMENTS", 1, 0);
                         choice = 3;
-                        F_h00_307C();
+                        switch_display_buffer();
                         break;
                     default:
                         choice = 0;
-                        F_h00_307C();
+                        switch_display_buffer();
                         break;
                     }            Delay(1L);
         }
@@ -144,20 +144,20 @@ recovered()
         switch (choice) {
                 case 1:
                     request_disk(1);
-                    F_h00_291E(0x11, &G_h01_A6C6);
-                    F_h00_291E(0x12, &G_h01_A6FC);
+                    load_arc_record(0x11, &G_h01_A6C6);
+                    load_arc_record(0x12, &G_h01_A6FC);
                     play_sound(0);
-                    F_h13_0000(0, 0, 0);
+                    initialize_office_menu_scene(0, 0, 0);
                     G_h01_A6C6 = 0x108;
                     G_h01_A6C8 = 0;
-                    F_h00_34E0(&G_h01_A6C6);
+                    draw_masked_sprite(&G_h01_A6C6);
                     G_h01_A6FC = 0xd0;
                     G_h01_A6FE = 0;
-                    F_h00_34E0(&G_h01_A6FC);
-                    F_h00_34E0(&G_h01_50E6);
-                    F_h00_307C();
-                    F_h00_3AE4(&G_h01_A70C, G_h01_A704, G_h01_A706);
-                    F_h00_3AE4(&G_h01_A6D6, G_h01_A6CE, G_h01_A6D0);
+                    draw_masked_sprite(&G_h01_A6FC);
+                    draw_masked_sprite(&G_h01_50E6);
+                    switch_display_buffer();
+                    free_bitmap_planes(&G_h01_A70C, G_h01_A704, G_h01_A706);
+                    free_bitmap_planes(&G_h01_A6D6, G_h01_A6CE, G_h01_A6D0);
                     F_h13_012E();
                     play_sound(5);
                     result = 0x28;
@@ -172,40 +172,40 @@ recovered()
                     break;
                 case 3:
                     request_disk(1);
-                    F_h00_291E(0x13, &G_h01_A732);
+                    load_arc_record(0x13, &G_h01_A732);
                     play_sound(0);
-                    F_h13_0000(0, 0, 0);
+                    initialize_office_menu_scene(0, 0, 0);
                     G_h01_5338 = 0x21;
                     G_h01_533A = 0x30;
                     G_h01_536C = 0;
                     G_h01_A732 = 9;
                     G_h01_A734 = 0x10;
-                    F_h00_34E0(&G_h01_A732);
-                    F_h00_34E0(&G_h01_5338);
-                    F_h00_307C();
-                    F_h00_34E0(&G_h01_5338);
-                    F_h00_34E0(&G_h01_A732);
+                    draw_masked_sprite(&G_h01_A732);
+                    draw_masked_sprite(&G_h01_5338);
+                    switch_display_buffer();
+                    draw_masked_sprite(&G_h01_5338);
+                    draw_masked_sprite(&G_h01_A732);
                     play_sound(3);
                     G_h01_1422 = 1;
                     i = 0;
                     do {
-                        F_h13_0000(0, 0, 0);
-                        F_h00_34E0(&G_h01_A732);
+                        initialize_office_menu_scene(0, 0, 0);
+                        draw_masked_sprite(&G_h01_A732);
                         G_h01_536C = i;
-                        F_h00_34E0(&G_h01_5338);
-                        F_h00_307C();
+                        draw_masked_sprite(&G_h01_5338);
+                        switch_display_buffer();
                         Delay(10L);
                         ++i;
                     } while (i <= 3);
-                    F_h13_0000(0, 0, 0);
-                    F_h00_34E0(&G_h01_A732);
+                    initialize_office_menu_scene(0, 0, 0);
+                    draw_masked_sprite(&G_h01_A732);
                     G_h01_536C = 3;
-                    F_h00_34E0(&G_h01_5338);
-                    F_h00_307C();
+                    draw_masked_sprite(&G_h01_5338);
+                    switch_display_buffer();
                     Delay(10L);
-                    F_h00_307C();
+                    switch_display_buffer();
                     G_h01_1422 = 0;
-                    F_h00_3AE4(&G_h01_A742, G_h01_A73A, G_h01_A73C);
+                    free_bitmap_planes(&G_h01_A742, G_h01_A73A, G_h01_A73C);
                     F_h13_012E();
                     result = 0x27;
                     done = 1;

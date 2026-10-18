@@ -1,3 +1,3 @@
 extern int G_h01_37EC;
-extern int F_h11_5962();
-recovered() { int i; for(i=1;i<G_h01_37EC;i++) F_h11_5962(i,2); }
+extern int jg_set_platform_record_state();
+recovered() { int i; for(i=1;i<G_h01_37EC;i++) jg_set_platform_record_state(i,2); }

@@ -1,6 +1,6 @@
 /* Direct recovery candidate for ov04_F_0926. */
-extern long G_h01_46CE;
-extern long G_h01_46D2;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
 extern int G_h01_0320;
 extern int G_h01_0322;
 extern long G_h01_0324;
@@ -13,9 +13,9 @@ extern int G_h01_51F6;
 extern char G_h01_511A;
 extern char input_fire_action_pending;
 extern int BltBitMap();
-extern int F_h00_34E0();
-extern int F_h00_35DC();
-extern int F_h00_307C();
+extern int draw_masked_sprite();
+extern int draw_text();
+extern int switch_display_buffer();
 extern int poll_controller_and_keyboard_input();
 extern int play_sound();
 extern int Delay();
@@ -30,19 +30,19 @@ int first,last,rounds;
     G_h01_51F4 = 128;
     G_h01_51F6 = 0;
     for (round = 0; round < rounds; ++round) {
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap,
             0L, 0L, 320L, 200L, 192L, 255L, 0L);
         G_h01_511A = 3;
-        F_h00_34E0(&G_h01_50E6);
-        F_h00_34E0(&G_h01_522A);
-        F_h00_34E0(&G_h01_5296);
-        F_h00_34E0(&G_h01_5302);
-        F_h00_34E0(&G_h01_51F4);
+        draw_masked_sprite(&G_h01_50E6);
+        draw_masked_sprite(&G_h01_522A);
+        draw_masked_sprite(&G_h01_5296);
+        draw_masked_sprite(&G_h01_5302);
+        draw_masked_sprite(&G_h01_51F4);
         for (i = first - 1; i < last; ++i)
-            F_h00_35DC(*((int *)((char *)&G_h01_0320 + ((long)i << 3))),
+            draw_text(*((int *)((char *)&G_h01_0320 + ((long)i << 3))),
                 *((int *)((char *)&G_h01_0322 + ((long)i << 3))),
                 *((long *)((char *)&G_h01_0324 + ((long)i << 3))), 0, 1);
-        F_h00_307C();
+        switch_display_buffer();
         poll_controller_and_keyboard_input();
         if (input_fire_action_pending) {
             play_sound(0);
@@ -54,19 +54,19 @@ int first,last,rounds;
             play_sound(0);
             return;
         }
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2,
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap,
             0L, 0L, 320L, 200L, 192L, 255L, 0L);
         G_h01_511A = 2;
-        F_h00_34E0(&G_h01_50E6);
-        F_h00_34E0(&G_h01_522A);
-        F_h00_34E0(&G_h01_5296);
-        F_h00_34E0(&G_h01_5302);
-        F_h00_34E0(&G_h01_51F4);
+        draw_masked_sprite(&G_h01_50E6);
+        draw_masked_sprite(&G_h01_522A);
+        draw_masked_sprite(&G_h01_5296);
+        draw_masked_sprite(&G_h01_5302);
+        draw_masked_sprite(&G_h01_51F4);
         for (i = first - 1; i < last; ++i)
-            F_h00_35DC(*((int *)((char *)&G_h01_0320 + ((long)i << 3))),
+            draw_text(*((int *)((char *)&G_h01_0320 + ((long)i << 3))),
                 *((int *)((char *)&G_h01_0322 + ((long)i << 3))),
                 *((long *)((char *)&G_h01_0324 + ((long)i << 3))), 0, 1);
-        F_h00_307C();
+        switch_display_buffer();
         poll_controller_and_keyboard_input();
         if (input_fire_action_pending) {
             play_sound(0);

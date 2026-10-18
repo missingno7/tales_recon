@@ -10,7 +10,7 @@ struct PointRef {
 };
 
 extern struct PointRef map_location_table[36];
-extern long F_h00_08FC();
+extern long squared_distance();
 
 long recovered(a,b)
 int a,b;
@@ -35,18 +35,18 @@ int a,b;
         y2 = map_location_table[b].point->y;
     }
 
-    distance = F_h00_08FC(x1,x2,y1,y2);
+    distance = squared_distance(x1,x2,y1,y2);
     if (x1 < x2)
-        candidate = F_h00_08FC(x1+272,x2,y1,y2);
+        candidate = squared_distance(x1+272,x2,y1,y2);
     else
-        candidate = F_h00_08FC(x1,x2+272,y1,y2);
+        candidate = squared_distance(x1,x2+272,y1,y2);
     if (candidate < distance)
         distance = candidate;
 
     if (y1 < y2)
-        candidate = F_h00_08FC(x1,x2,y1+140,y2);
+        candidate = squared_distance(x1,x2,y1+140,y2);
     else
-        candidate = F_h00_08FC(x1,x2,y1,y2+140);
+        candidate = squared_distance(x1,x2,y1,y2+140);
     if (candidate < distance)
         distance = candidate;
 
@@ -58,7 +58,7 @@ int a,b;
         y1 += 140;
     else
         y2 += 140;
-    candidate = F_h00_08FC(x1,x2,y1,y2);
+    candidate = squared_distance(x1,x2,y1,y2);
     if (candidate < distance)
         distance = candidate;
 

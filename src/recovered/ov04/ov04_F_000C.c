@@ -18,8 +18,8 @@ struct FlagEntry {
 
 extern struct LinkEntry map_location_table[35];
 extern struct LinkEntry G_h01_4528[35];
-extern char G_h01_470A;
-extern char G_h01_4C82;
+extern char location_records;
+extern char location_treasure_slots;
 extern struct FlagEntry player_treasure_collected[35];
 extern struct FlagEntry rival_treasure_collected[35];
 extern int arc_load_locations();
@@ -30,8 +30,8 @@ recovered()
     int i;
 
     for (i = 0; i < 35; i++) {
-        map_location_table[i].target = (char *)&G_h01_470A + (long)i * 40;
-        G_h01_4528[i].target = (char *)&G_h01_4C82 + (long)i * 6;
+        map_location_table[i].target = (char *)&location_records + (long)i * 40;
+        G_h01_4528[i].target = (char *)&location_treasure_slots + (long)i * 6;
         player_treasure_collected[i].value = 0;
         rival_treasure_collected[i].value = 0;
     }

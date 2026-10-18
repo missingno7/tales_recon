@@ -7,8 +7,8 @@ struct DistanceRecord {
 };
 
 extern char difficulty_level;
-extern struct DistanceRecord G_h01_A554[1];
-extern long F_h11_2562();
+extern struct DistanceRecord jg_moving_object_records[1];
+extern long squared_distance_long();
 
 int recovered(index,x,y,scale)
 int index;
@@ -18,7 +18,7 @@ int scale;
 {
     struct DistanceRecord *record;
 
-    record=&G_h01_A554[index];
+    record=&jg_moving_object_records[index];
     switch (difficulty_level) {
     case 0:
         scale*=3;
@@ -29,5 +29,5 @@ int scale;
     case 2:
         break;
     }
-    return index>0 && (long)scale>F_h11_2562(x,y,record->value18,record->value20);
+    return index>0 && (long)scale>squared_distance_long(x,y,record->value18,record->value20);
 }

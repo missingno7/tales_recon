@@ -53,9 +53,9 @@ extern char G_h01_5C9E;
 extern char G_h01_5D40;
 extern unsigned int F_h00_463E();
 extern int request_disk();
-extern long F_h00_291E();
-extern int F_h05_42E6();
-extern int F_h05_467E();
+extern long load_arc_record();
+extern int plane_generate_course_segment_types();
+extern int plane_populate_course_objects();
 
 recovered()
 {
@@ -90,17 +90,17 @@ recovered()
         kind = 1;
     else
         kind = 20;
-    F_h05_42E6(delta, kind, &cursor);
+    plane_generate_course_segment_types(delta, kind, &cursor);
 
     s2 = F_h00_463E() % 100;
     if (s2 < 33) {
         s2 = F_h00_463E() & 1;
         if (s2 == 1) {
-            F_h05_42E6(delta, 21, &cursor);
-            F_h05_42E6(delta, kind, &cursor);
+            plane_generate_course_segment_types(delta, 21, &cursor);
+            plane_generate_course_segment_types(delta, kind, &cursor);
         } else {
-            F_h05_42E6(delta, kind, &cursor);
-            F_h05_42E6(delta, 21, &cursor);
+            plane_generate_course_segment_types(delta, kind, &cursor);
+            plane_generate_course_segment_types(delta, 21, &cursor);
         }
         if (kind != 20) {
             kind = F_h00_463E() % 100;
@@ -113,11 +113,11 @@ recovered()
             else
                 kind = 20;
         }
-        F_h05_42E6(delta, kind, &cursor);
+        plane_generate_course_segment_types(delta, kind, &cursor);
     } else if (s2 < 66) {
         for (j = 0; j < 2; j++)
-            F_h05_42E6(delta, 21, &cursor);
-        F_h05_42E6(delta, kind, &cursor);
+            plane_generate_course_segment_types(delta, 21, &cursor);
+        plane_generate_course_segment_types(delta, kind, &cursor);
     } else {
         for (j = 0; j < 3; j++) {
             if (kind != 20 && j == 1) {
@@ -130,9 +130,9 @@ recovered()
                     r = 1;
                 else
                     r = 20;
-                F_h05_42E6(delta, r, &cursor);
+                plane_generate_course_segment_types(delta, r, &cursor);
             } else {
-                F_h05_42E6(delta, kind, &cursor);
+                plane_generate_course_segment_types(delta, kind, &cursor);
             }
         }
     }
@@ -145,92 +145,92 @@ recovered()
     for (j = 0; j < 17; j++)
         G_h01_5484[j] = 0;
     request_disk(1);
-    G_h01_5484[0] = F_h00_291E(0, G_h01_5484[0]);
-    G_h01_5484[1] = F_h00_291E(1, G_h01_5484[1]);
-    G_h01_5484[2] = F_h00_291E(2, G_h01_5484[2]);
-    G_h01_5484[3] = F_h00_291E(3, G_h01_5484[3]);
-    G_h01_5484[4] = F_h00_291E(4, G_h01_5484[4]);
-    G_h01_5484[5] = F_h00_291E(5, G_h01_5484[5]);
-    G_h01_5484[6] = F_h00_291E(6, G_h01_5484[6]);
-    G_h01_5484[7] = F_h00_291E(7, G_h01_5484[7]);
-    G_h01_5484[8] = F_h00_291E(8, G_h01_5484[8]);
-    G_h01_5484[9] = F_h00_291E(9, G_h01_5484[9]);
-    G_h01_5484[10] = F_h00_291E(10, G_h01_5484[10]);
-    G_h01_5484[11] = F_h00_291E(11, G_h01_5484[11]);
-    G_h01_5484[12] = F_h00_291E(12, G_h01_5484[12]);
-    G_h01_5484[13] = F_h00_291E(13, G_h01_5484[13]);
-    G_h01_5484[14] = F_h00_291E(14, G_h01_5484[14]);
-    G_h01_5484[15] = F_h00_291E(15, G_h01_5484[15]);
-    G_h01_5484[16] = F_h00_291E(16, G_h01_5484[16]);
+    G_h01_5484[0] = load_arc_record(0, G_h01_5484[0]);
+    G_h01_5484[1] = load_arc_record(1, G_h01_5484[1]);
+    G_h01_5484[2] = load_arc_record(2, G_h01_5484[2]);
+    G_h01_5484[3] = load_arc_record(3, G_h01_5484[3]);
+    G_h01_5484[4] = load_arc_record(4, G_h01_5484[4]);
+    G_h01_5484[5] = load_arc_record(5, G_h01_5484[5]);
+    G_h01_5484[6] = load_arc_record(6, G_h01_5484[6]);
+    G_h01_5484[7] = load_arc_record(7, G_h01_5484[7]);
+    G_h01_5484[8] = load_arc_record(8, G_h01_5484[8]);
+    G_h01_5484[9] = load_arc_record(9, G_h01_5484[9]);
+    G_h01_5484[10] = load_arc_record(10, G_h01_5484[10]);
+    G_h01_5484[11] = load_arc_record(11, G_h01_5484[11]);
+    G_h01_5484[12] = load_arc_record(12, G_h01_5484[12]);
+    G_h01_5484[13] = load_arc_record(13, G_h01_5484[13]);
+    G_h01_5484[14] = load_arc_record(14, G_h01_5484[14]);
+    G_h01_5484[15] = load_arc_record(15, G_h01_5484[15]);
+    G_h01_5484[16] = load_arc_record(16, G_h01_5484[16]);
 
-    F_h00_291E(0x11, &G_h01_55A4);
-    F_h00_291E(0x12, &G_h01_55DA);
-    F_h00_291E(0x13, &G_h01_5610);
-    F_h00_291E(0x14, &G_h01_567C);
-    F_h00_291E(0x15, &G_h01_56B2);
-    F_h00_291E(0x16, &G_h01_56E8);
-    F_h00_291E(0x17, &G_h01_571E);
-    F_h00_291E(0x18, &G_h01_5754);
-    F_h00_291E(0x19, &G_h01_578A);
-    F_h00_291E(0x1a, &G_h01_54C8);
-    F_h00_291E(0x1b, &G_h01_54FE);
-    F_h00_291E(0x20, &G_h01_5646);
-    F_h00_291E(0x21, &G_h01_5534);
-    F_h00_291E(0x22, &G_h01_556A);
+    load_arc_record(0x11, &G_h01_55A4);
+    load_arc_record(0x12, &G_h01_55DA);
+    load_arc_record(0x13, &G_h01_5610);
+    load_arc_record(0x14, &G_h01_567C);
+    load_arc_record(0x15, &G_h01_56B2);
+    load_arc_record(0x16, &G_h01_56E8);
+    load_arc_record(0x17, &G_h01_571E);
+    load_arc_record(0x18, &G_h01_5754);
+    load_arc_record(0x19, &G_h01_578A);
+    load_arc_record(0x1a, &G_h01_54C8);
+    load_arc_record(0x1b, &G_h01_54FE);
+    load_arc_record(0x20, &G_h01_5646);
+    load_arc_record(0x21, &G_h01_5534);
+    load_arc_record(0x22, &G_h01_556A);
 
     G_h01_55A0 = 0;
     if ((s2 = F_h00_463E() % 6) == 0) {
-        G_h01_55A0 = (struct Pos *)F_h00_291E(0x23, G_h01_55A0);
+        G_h01_55A0 = (struct Pos *)load_arc_record(0x23, G_h01_55A0);
         G_h01_5E61 = 1;
     } else if (s2 == 1) {
-        G_h01_55A0 = (struct Pos *)F_h00_291E(0x24, G_h01_55A0);
+        G_h01_55A0 = (struct Pos *)load_arc_record(0x24, G_h01_55A0);
         G_h01_5E61 = 2;
     } else if (s2 == 2) {
-        G_h01_55A0 = (struct Pos *)F_h00_291E(0x25, G_h01_55A0);
+        G_h01_55A0 = (struct Pos *)load_arc_record(0x25, G_h01_55A0);
         G_h01_5E61 = 3;
     } else if (s2 == 3) {
-        G_h01_55A0 = (struct Pos *)F_h00_291E(0x26, G_h01_55A0);
+        G_h01_55A0 = (struct Pos *)load_arc_record(0x26, G_h01_55A0);
         G_h01_5E61 = 4;
     } else if (s2 == 4) {
-        G_h01_55A0 = (struct Pos *)F_h00_291E(0x27, G_h01_55A0);
+        G_h01_55A0 = (struct Pos *)load_arc_record(0x27, G_h01_55A0);
         G_h01_5E61 = 5;
     } else {
         G_h01_5898 = 0;
-        G_h01_5898 = (struct Pos *)F_h00_291E(0x1c, G_h01_5898);
+        G_h01_5898 = (struct Pos *)load_arc_record(0x1c, G_h01_5898);
         G_h01_5E60 = 1;
     }
 
     if (G_h01_5E58 != 0) {
-        F_h00_291E(0x3b, &G_h01_5C68);
-        F_h00_291E(0x3c, &G_h01_5C9E);
+        load_arc_record(0x3b, &G_h01_5C68);
+        load_arc_record(0x3c, &G_h01_5C9E);
     } else if (F_h00_463E() % 100 < 90) {
         if (G_h01_5E61 != 3 && G_h01_5E61 != 5 && G_h01_5E60 == 0)
-            F_h00_291E(0x28, &G_h01_57C0);
+            load_arc_record(0x28, &G_h01_57C0);
         else
-            F_h00_291E(0x29, &G_h01_57C0);
-        F_h00_291E(0x29, &G_h01_57F6);
-        F_h00_291E(0x2a, &G_h01_582C);
-        F_h00_291E(0x2b, &G_h01_5862);
+            load_arc_record(0x29, &G_h01_57C0);
+        load_arc_record(0x29, &G_h01_57F6);
+        load_arc_record(0x2a, &G_h01_582C);
+        load_arc_record(0x2b, &G_h01_5862);
         G_h01_5E5F = 1;
     } else if (G_h01_5E61 != 3 && G_h01_5E61 != 5 && G_h01_5E60 == 0) {
-        F_h00_291E(0x1d, &G_h01_589C);
-        F_h00_291E(0x1e, &G_h01_58D2);
-        F_h00_291E(0x1f, &G_h01_5908);
+        load_arc_record(0x1d, &G_h01_589C);
+        load_arc_record(0x1e, &G_h01_58D2);
+        load_arc_record(0x1f, &G_h01_5908);
         G_h01_5E62 = 1;
     }
 
-    F_h00_291E(0x2c, &G_h01_59E0);
-    F_h00_291E(0x2d, &G_h01_5A16);
-    F_h00_291E(0x2e, &G_h01_5A4C);
-    F_h00_291E(0x2f, &G_h01_5A82);
-    F_h00_291E(0x30, &G_h01_5AB8);
-    F_h00_291E(0x31, &G_h01_5AEE);
-    F_h00_291E(0x34, &G_h01_5B24);
-    F_h00_291E(0x35, &G_h01_5B5A);
-    F_h00_291E(0x36, &G_h01_5B90);
-    F_h00_291E(0x37, &G_h01_5BC6);
-    F_h00_291E(0x38, &G_h01_5BFC);
-    F_h00_291E(0x39, &G_h01_5C32);
-    F_h00_291E(0x3a, &G_h01_5D40);
-    F_h05_467E(G_h01_5E42);
+    load_arc_record(0x2c, &G_h01_59E0);
+    load_arc_record(0x2d, &G_h01_5A16);
+    load_arc_record(0x2e, &G_h01_5A4C);
+    load_arc_record(0x2f, &G_h01_5A82);
+    load_arc_record(0x30, &G_h01_5AB8);
+    load_arc_record(0x31, &G_h01_5AEE);
+    load_arc_record(0x34, &G_h01_5B24);
+    load_arc_record(0x35, &G_h01_5B5A);
+    load_arc_record(0x36, &G_h01_5B90);
+    load_arc_record(0x37, &G_h01_5BC6);
+    load_arc_record(0x38, &G_h01_5BFC);
+    load_arc_record(0x39, &G_h01_5C32);
+    load_arc_record(0x3a, &G_h01_5D40);
+    plane_populate_course_objects(G_h01_5E42);
 }

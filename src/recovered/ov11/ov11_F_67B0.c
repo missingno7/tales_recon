@@ -10,7 +10,7 @@ struct Record {
 extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
-extern struct Record G_h01_A464[1];
+extern struct Record jg_contact_hazard_records[1];
 
 recovered(text)
 char *text;
@@ -29,7 +29,7 @@ char *text;
             report_loader_error(521);
             goto next_record;
         }
-        record = &G_h01_A464[index];
+        record = &jg_contact_hazard_records[index];
         if (sscanf(line, "%*d %d %d %d %d\n",
                          &record->field0, &record->field2,
                          &record->field34, &record->field36) != 4)

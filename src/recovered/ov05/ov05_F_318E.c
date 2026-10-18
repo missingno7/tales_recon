@@ -17,14 +17,14 @@ extern char G_h01_5E58;
 extern int G_h01_5E52;
 extern int G_h01_5E42;
 extern int G_h01_5C68;
-extern int G_h01_0A7A;
-extern int G_h01_0A7C;
-extern int G_h01_0A84;
-extern int G_h01_0A8C;
-extern int G_h01_0A8E;
+extern int plane_reward_contact_pending;
+extern int plane_reward_already_collected;
+extern int plane_current_segment;
+extern int plane_contact_suppression_segment;
+extern int plane_contact_suppression_kind;
 extern int G_h01_0A90;
-extern float G_h01_0A7E;
-extern char G_h01_0A86;
+extern float plane_speed;
+extern char plane_collision_recovery_pending;
 extern char G_h01_0A87;
 extern char G_h01_0A88;
 extern int G_h01_2F10;
@@ -45,7 +45,7 @@ extern char G_h01_5E5A;
 extern int play_sound();
 extern unsigned int F_h00_463E();
 extern int clear_input_direction_and_fire_state();
-extern int F_h05_30EE();
+extern int plane_play_heading_spin_effect();
 
 recovered()
 {
@@ -61,26 +61,26 @@ recovered()
 
     if (G_h01_5E58 && G_h01_5E52 >= G_h01_5E42 && G_h01_5C68 > 288)
         return 2;
-    if (G_h01_0A8C != G_h01_0A84)
-        G_h01_0A8C = 0;
+    if (plane_contact_suppression_segment != plane_current_segment)
+        plane_contact_suppression_segment = 0;
     x0 = (int)(G_h01_5E34 + 16);
     y0 = (int)(G_h01_5E38 + 16);
-    k = G_h01_0A84;
+    k = plane_current_segment;
     if (G_h01_5E66[k].index == -1)
         return 0;
     p = (struct Obj14 *)&G_h01_606C[G_h01_5E66[k].index];
     while (p->id == k) {
-        if (G_h01_0A7A != 0) {
+        if (plane_reward_contact_pending != 0) {
             if (G_h01_5E40 < 4 || G_h01_5E40 > 12)
                 G_h01_5E40 = 0;
             else
                 G_h01_5E40 = 8;
-            if (G_h01_0A7C == 0) {
-                G_h01_0A7A = 0;
+            if (plane_reward_already_collected == 0) {
+                plane_reward_contact_pending = 0;
                 play_sound(57);
                 G_h01_5E5A = 1;
                 total_money += 50;
-                G_h01_0A7C = 1;
+                plane_reward_already_collected = 1;
             }
             return 0;
         }
@@ -123,7 +123,7 @@ recovered()
             break;
         case 0x23:
         case 0x24:
-            if (G_h01_0A7E > 7) {
+            if (plane_speed > 7) {
                 x_a = x_a + p->b6 + 24;
                 x_b = x_b + p->b6 - 24;
             } else {
@@ -132,7 +132,7 @@ recovered()
             }
             break;
         case 0x1c:
-            if (G_h01_0A7E > 7) {
+            if (plane_speed > 7) {
                 x_a += 25;
                 x_b -= 25;
             } else {
@@ -173,7 +173,7 @@ recovered()
             y_b += 8;
         }
         if (G_h01_2F12 > y_a && G_h01_2F10 < y_b && G_h01_2F16 > x_a && G_h01_2F14 < x_b) {
-            if (G_h01_0A8C == G_h01_0A84 && p->b12 == G_h01_0A8E)
+            if (plane_contact_suppression_segment == plane_current_segment && p->b12 == plane_contact_suppression_kind)
                 return 0;
         switch (p->b12) {
         case 0x2a:
@@ -181,8 +181,8 @@ recovered()
             G_h01_5E38 = 136.0;
             G_h01_5E40 = (F_h00_463E() & 1) ? 8 : 0;
             G_h01_0A90 = 1;
-            G_h01_0A8C = k;
-            G_h01_0A8E = p->b12;
+            plane_contact_suppression_segment = k;
+            plane_contact_suppression_kind = p->b12;
             clear_input_direction_and_fire_state();
             G_h01_5E3E = 0;
             G_h01_5E3C = 0;
@@ -202,7 +202,7 @@ recovered()
             G_h01_0A88 = 2;
             break;
         case 0x1f:
-            G_h01_0A86 = 1;
+            plane_collision_recovery_pending = 1;
             break;
         case 0x1b:
             G_h01_5E34 = 288.0;
@@ -211,12 +211,12 @@ recovered()
         case 0x22:
         case 0x28:
         case 0x29:
-            F_h05_30EE();
+            plane_play_heading_spin_effect();
             if (G_h01_5E40 > 8 && G_h01_5E40 < 16)
-                G_h01_0A7E = 1.0;
+                plane_speed = 1.0;
             G_h01_0A90 = 1;
-            G_h01_0A8C = k;
-            G_h01_0A8E = p->b12;
+            plane_contact_suppression_segment = k;
+            plane_contact_suppression_kind = p->b12;
             return 0;
         case 0x1c:
             G_h01_5E40 = (G_h01_5E40 + 8) & 15;
@@ -253,11 +253,11 @@ recovered()
             break;
         }
         G_h01_5E40 = F_h00_463E() & 15;
-        G_h01_0A8C = k;
-        G_h01_0A8E = p->b12;
+        plane_contact_suppression_segment = k;
+        plane_contact_suppression_kind = p->b12;
         G_h01_0A90 = 1;
         if (G_h01_5E40 > 8 && G_h01_5E40 < 16)
-            G_h01_0A7E = 1.0;
+            plane_speed = 1.0;
         if (G_h01_5E38 >= 144)
             G_h01_5E40 = 0;
         }

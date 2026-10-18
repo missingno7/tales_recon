@@ -6,7 +6,7 @@ struct Rec {
     char rest[46];
 };
 
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 extern int G_h01_302C;
 extern int G_h01_302E;
 extern char G_h01_3096;
@@ -32,7 +32,7 @@ int n1, n2;
     shift = 3;
     p = G_h01_30CE;
     q = G_h01_30CE;
-    F_h00_34E0(pv);
+    draw_masked_sprite(pv);
     G_h01_302C = a1;
     G_h01_302E = a2;
     for (i = 0; i <= n1; i++) {
@@ -47,14 +47,14 @@ int n1, n2;
             p->f2 = p->f2 - 13;
         } else if (i == 4)
             p->f2 = p->f2 - 27;
-        F_h00_34E0(p);
+        draw_masked_sprite(p);
         G_h01_322A = p->f0;
         G_h01_322C = p->f2;
         p++;
     }
     if (n1 > -1)
         p--;
-    F_h00_34E0(&G_h01_302C);
+    draw_masked_sprite(&G_h01_302C);
     G_h01_302C = a3;
     G_h01_302E = a4;
     for (i = 0; i <= n2; i++) {
@@ -69,12 +69,12 @@ int n1, n2;
             q->f2 = q->f2 - 13;
         } else if (i == 4)
             q->f2 = q->f2 - 27;
-        F_h00_34E0(q);
+        draw_masked_sprite(q);
         G_h01_322E = q->f0;
         G_h01_3230 = q->f2;
         q++;
     }
-    F_h00_34E0(&G_h01_302C);
+    draw_masked_sprite(&G_h01_302C);
     G_h01_3096 = c;
     G_h01_30CC = c;
 }

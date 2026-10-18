@@ -1,7 +1,7 @@
-extern int G_h01_B1E8;
-extern char *G_h01_3AB4;
+extern int arc_stream_buffer_position;
+extern char *arc_stream_buffer_cursor;
 extern long arc_file;
-extern char G_h01_A9CA[1024];
+extern char archive_read_buffer[1024];
 extern long Read();
 extern int report_loader_error();
 
@@ -10,13 +10,13 @@ recovered()
 {
     long amount;
 
-    if (++G_h01_B1E8 >= 1024) {
-        amount = Read(arc_file, G_h01_A9CA, 1024L);
+    if (++arc_stream_buffer_position >= 1024) {
+        amount = Read(arc_file, archive_read_buffer, 1024L);
         if (amount <= 0)
             report_loader_error(8000);
-        G_h01_B1E8 = 0;
-        G_h01_3AB4 = G_h01_A9CA;
+        arc_stream_buffer_position = 0;
+        arc_stream_buffer_cursor = archive_read_buffer;
     } else
-        ++G_h01_3AB4;
-    return *G_h01_3AB4;
+        ++arc_stream_buffer_cursor;
+    return *arc_stream_buffer_cursor;
 }

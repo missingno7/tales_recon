@@ -21,7 +21,7 @@ extern long graphics_library_base;
 extern long intuition_library_base;
 
 extern int F_h00_897C();
-extern int F_h00_3850();
+extern int free_chip_memory_pool();
 extern int OpenWorkBench();
 extern int AutoRequest();
 extern int CloseLibrary();
@@ -34,7 +34,7 @@ long arg;
         F_h00_897C(G_h01_5422, 0x3e80L);
     if (G_h01_5426)
         F_h00_897C(G_h01_5426, 0x3e80L);
-    F_h00_3850(0x40f10L);
+    free_chip_memory_pool(0x40f10L);
     if (G_h01_53F8)
         OpenWorkBench();
     G_h01_53FA = 0;

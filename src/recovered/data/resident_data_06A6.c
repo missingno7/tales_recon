@@ -1,1 +1,1 @@
-char G_h01_06A6[] = "on Jungle Survival says,";
+char jungle_survival_guide_intro_text[] = "on Jungle Survival says,";

@@ -13,7 +13,7 @@ extern int map_cursor_vertical_step;
 extern struct Pair G_h01_A768;
 
 extern int poll_controller_and_keyboard_input();
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 extern int clear_input_direction_and_fire_state();
 
 int recovered(px, py)
@@ -112,7 +112,7 @@ int *px, *py;
         *py = 0x97;
     G_h01_A768.first = *px - 8;
     G_h01_A768.second = *py - 8;
-    F_h00_34E0(&G_h01_A768);
+    draw_masked_sprite(&G_h01_A768);
     clear_input_direction_and_fire_state();
     G_h01_5E5E = 1;
     return 0;

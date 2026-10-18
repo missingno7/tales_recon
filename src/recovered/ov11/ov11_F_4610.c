@@ -25,7 +25,7 @@ struct Motion {
 };
 
 extern int G_h01_8A3E;
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 
 recovered(motion)
 struct Motion *motion;
@@ -39,7 +39,7 @@ struct Motion *motion;
         target->x = motion->x + holder->x - G_h01_8A3E;
         target->y = motion->y + holder->y;
         target->state = holder->state;
-        F_h00_34E0(target);
+        draw_masked_sprite(target);
         motion->remaining--;
         if (motion->remaining == 0)
             motion->active = 0;

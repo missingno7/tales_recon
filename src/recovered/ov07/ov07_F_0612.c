@@ -7,8 +7,8 @@ struct PortfolioRow { char data[46]; };
 
 extern struct Input *G_h01_6EA8;
 extern long G_h01_6EAC;
-extern long G_h01_46CE;
-extern long G_h01_46D2;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
 extern long arc_file;
 extern long total_money;
 extern char G_h01_33E2;
@@ -18,22 +18,22 @@ extern struct Symbol G_h01_4D88[16];
 extern int request_disk();
 extern int arc_read_index();
 extern long Open();
-extern long F_h00_291E();
-extern int F_h00_307C();
-extern int F_h00_34E0();
-extern int F_h00_35DC();
-extern int F_h00_3C0E();
+extern long load_arc_record();
+extern int switch_display_buffer();
+extern int draw_masked_sprite();
+extern int draw_text();
+extern int free_text_block();
 extern int poll_controller_and_keyboard_input();
 extern int play_sound();
 extern int Close();
 extern int strlen();
 extern int BltBitMap();
-extern int F_h00_09C0();
-extern int F_h07_0F30();
-extern int F_h07_0E06();
-extern int F_h07_0E7C();
+extern int draw_decimal_value();
+extern int invest_draw_selection_box();
+extern int invest_draw_game_day();
+extern int invest_draw_total_money();
 extern int invest_calculate_share_price();
-extern int F_h07_18F8();
+extern int invest_draw_record_text_lines();
 
 recovered(arg, p)
 int arg;
@@ -70,13 +70,13 @@ struct Slot *p;
     u1 = -1;
     u2 = 1;
     s64 = 1;
-    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+    BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
     G_h01_6EAC = arc_file;
     request_disk(1);
     arc_file = Open("DT1:invest.arc", 1005L);
     arc_read_index(arc_file);
     G_h01_6EA8 = 0;
-    G_h01_6EA8 = F_h00_291E(arg, G_h01_6EA8);
+    G_h01_6EA8 = load_arc_record(arg, G_h01_6EA8);
 
     while (s58 == 0) {
         key = (unsigned char)poll_controller_and_keyboard_input();
@@ -162,63 +162,63 @@ struct Slot *p;
         if (s64 != 0) {
             p[3].f0 = 0xc0;
             p[3].f2 = 0xaf;
-            F_h00_34E0(&p[3]);
+            draw_masked_sprite(&p[3]);
             p[s4a].f0 = 0xe0;
             p[s4a].f2 = 0xaf;
-            F_h00_34E0(&p[s4a]);
+            draw_masked_sprite(&p[s4a]);
             p[s4c].f0 = 0x100;
             p[s4c].f2 = 0xaf;
-            F_h00_34E0(&p[s4c]);
-            F_h07_0F30(xs[s56]);
+            draw_masked_sprite(&p[s4c]);
+            invest_draw_selection_box(xs[s56]);
             s68 = strlen(&investment_company_table[arg]);
-            F_h00_35DC(160 - s68 * 4, 8, &investment_company_table[arg], 7, 9);
-            F_h07_0E06(p);
-            F_h07_0E7C(&p[2]);
-            F_h00_35DC(35, 23, "       COMPANY DESCRIPTION      ", 1, 7);
-            F_h07_18F8(arg, 1, 32, 35);
-            F_h00_35DC(32, 100, " TOTAL MONEY       CHART TYPE  ", 1, 7);
+            draw_text(160 - s68 * 4, 8, &investment_company_table[arg], 7, 9);
+            invest_draw_game_day(p);
+            invest_draw_total_money(&p[2]);
+            draw_text(35, 23, "       COMPANY DESCRIPTION      ", 1, 7);
+            invest_draw_record_text_lines(arg, 1, 32, 35);
+            draw_text(32, 100, " TOTAL MONEY       CHART TYPE  ", 1, 7);
             buf[0] = G_h01_4D88[arg].code + 'A';
-            F_h00_35DC(224, 113, buf, 1, 0);
-            F_h00_35DC(96, 113, ".00", 14, 0);
-            F_h00_09C0(96, 113, total_money, 14, 0, 1);
-            F_h00_35DC(32, 127, " PRICE PER SHARE  SHARES OWNED  ", 1, 7);
-            F_h00_09C0(232, 140, (long)G_h01_4D84[arg].shares, 14, 0, 1);
-            F_h00_35DC(96, 140, ".00", 1, 0);
+            draw_text(224, 113, buf, 1, 0);
+            draw_text(96, 113, ".00", 14, 0);
+            draw_decimal_value(96, 113, total_money, 14, 0, 1);
+            draw_text(32, 127, " PRICE PER SHARE  SHARES OWNED  ", 1, 7);
+            draw_decimal_value(232, 140, (long)G_h01_4D84[arg].shares, 14, 0, 1);
+            draw_text(96, 140, ".00", 1, 0);
             s60 = invest_calculate_share_price(arg);
-            F_h00_09C0(96, 140, (long)s60, 1, 0, 1);
+            draw_decimal_value(96, 140, (long)s60, 1, 0, 1);
             switch (s62) {
             case 1:
-                F_h00_35DC(32, 150, "    NOT ENOUGH MONEY TO BUY     ", 1, 9);
+                draw_text(32, 150, "    NOT ENOUGH MONEY TO BUY     ", 1, 9);
                 break;
             case 0:
-                F_h00_35DC(35, 150, "                                ", 0, 0);
+                draw_text(35, 150, "                                ", 0, 0);
                 break;
             case 3:
-                F_h00_35DC(35, 150, "      ONE SHARE PURCHASED       ", 1, 15);
+                draw_text(35, 150, "      ONE SHARE PURCHASED       ", 1, 15);
                 play_sound(62);
                 break;
             case 2:
-                F_h00_35DC(35, 150, "         ONE SHARE SOLD         ", 1, 15);
+                draw_text(35, 150, "         ONE SHARE SOLD         ", 1, 15);
                 play_sound(63);
                 break;
             case 4:
-                F_h00_35DC(35, 150, "        NO SHARES TO SELL       ", 1, 9);
+                draw_text(35, 150, "        NO SHARES TO SELL       ", 1, 9);
                 break;
             case 5:
-                F_h00_35DC(35, 150, "COMPANY BANKRUPT, NO MORE SHARES", 1, 9);
+                draw_text(35, 150, "COMPANY BANKRUPT, NO MORE SHARES", 1, 9);
                 break;
             case 6:
-                F_h00_35DC(35, 150, "       SHARE LIMIT REACHED      ", 1, 9);
+                draw_text(35, 150, "       SHARE LIMIT REACHED      ", 1, 9);
                 break;
             default:
                 break;
             }
-            F_h00_307C();
-            BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
+            switch_display_buffer();
+            BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 320L, 200L, 192L, 255L, 0L);
             s64 = 0;
         }
     }
-    F_h00_3C0E(G_h01_6EA8);
+    free_text_block(G_h01_6EA8);
     Close(arc_file);
     arc_file = G_h01_6EAC;
     request_disk(1);

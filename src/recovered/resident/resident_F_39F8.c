@@ -1,5 +1,5 @@
-extern long G_h01_5446;
+extern long tracked_free_memory_bytes;
 long recovered()
 {
- return G_h01_5446;
+ return tracked_free_memory_bytes;
 }

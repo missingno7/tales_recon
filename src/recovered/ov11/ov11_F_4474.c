@@ -14,7 +14,7 @@ struct State {
 };
 
 extern char G_h01_9F0C;
-extern char G_h01_9C2C;
+extern char jg_platform_animation_descriptors;
 extern int play_sound();
 
 recovered(action,state)
@@ -41,14 +41,14 @@ struct State *state;
                 if (state->index >= state->limit) {
                     state->index = 0;
                     state->limit = 1;
-                    state->counter = &G_h01_9C2C;
+                    state->counter = &jg_platform_animation_descriptors;
                 }
                 break;
             case 3:
                 if (state->index >= state->limit) {
                     state->index = 0;
                     state->limit = 6;
-                    state->counter = &G_h01_9C2C;
+                    state->counter = &jg_platform_animation_descriptors;
                     play_sound(94);
                 } else if (state->index == 3)
                     play_sound(87);

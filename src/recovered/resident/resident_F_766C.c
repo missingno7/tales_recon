@@ -16,7 +16,7 @@ extern struct WBStartup * G_h01_B3B0;
 extern struct _dev * G_h01_B3A6;
 extern short G_h01_2EB0;
 extern int F_h00_8534();
-extern int F_h03_0000();
+extern int run_game_session();
 recovered(alen, aptr)
 long alen;
 char *aptr;
@@ -72,6 +72,6 @@ char *aptr;
 	G_h01_B3A6[0].fd = F_h00_86C0();
 	if (G_h01_B3A6[1].fd = F_h00_86EE())
 		G_h01_B3A6[2].fd = F_h00_86E0("*", MODE_OLDFILE);
-	F_h03_0000(G_h01_B3B8, G_h01_B3B4);
+	run_game_session(G_h01_B3B8, G_h01_B3B4);
 	F_h00_8534(0);
 }

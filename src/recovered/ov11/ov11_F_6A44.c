@@ -16,7 +16,7 @@ struct VRecord {
 extern long F_h00_75D8();
 extern int sscanf();
 extern int report_loader_error();
-extern struct VRecord G_h01_A554[1];
+extern struct VRecord jg_moving_object_records[1];
 extern int G_h01_945C[1];
 
 recovered(text)
@@ -36,7 +36,7 @@ char *text;
             report_loader_error(888);
             goto next_v;
         }
-        record = &G_h01_A554[index];
+        record = &jg_moving_object_records[index];
         if (sscanf(line, "%*d %d %d %d %d %d %d %d %d\n",
                          &record->field12, &record->field14,
                          &record->field16, &record->field24,

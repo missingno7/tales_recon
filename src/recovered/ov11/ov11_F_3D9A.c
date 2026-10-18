@@ -14,8 +14,8 @@ struct Event {
 };
 
 extern int F_h00_463E();
-extern int F_h11_40E0();
-extern struct Event G_h01_A15E[1];
+extern int jg_set_event_draw_state();
+extern struct Event jg_event_records[1];
 extern int G_h01_8A3C;
 extern int G_h01_8A3E;
 extern int G_h01_8A42;
@@ -42,7 +42,7 @@ recovered()
     quotient = G_h01_8A3E / 128;
     base = (G_h01_A158 + quotient) % G_h01_A152;
     for (i = 0; i < 5; ++i) {
-        event = &G_h01_A15E[(base + i) % G_h01_A152];
+        event = &jg_event_records[(base + i) % G_h01_A152];
         index = (base + i) % G_h01_A152;
         if (G_h01_A15A == 0) {
             if (event->value4 && event->value1a + event->value8 > 1168) {
@@ -63,12 +63,12 @@ recovered()
                         ++event->value12;
                 }
             }
-            F_h11_40E0(index, 6);
+            jg_set_event_draw_state(index, 6);
         }
         if ((G_h01_94C0 + 16) >> 5 >= 3)
-            F_h11_40E0(index, 10);
+            jg_set_event_draw_state(index, 10);
         else if (G_h01_8A3C)
-            F_h11_40E0(index, 6);
+            jg_set_event_draw_state(index, 6);
     }
     if (G_h01_A15A == 0) {
         G_h01_A154 += 4;

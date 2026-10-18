@@ -8,8 +8,8 @@ struct Record {
     int value30;
 };
 
-extern struct Record G_h01_A15E[1];
-extern int F_h11_4696();
+extern struct Record jg_event_records[1];
+extern int jg_queue_background_restore_rectangle();
 
 recovered(index, mode)
 int index;
@@ -17,11 +17,11 @@ int mode;
 {
     struct Record *record;
 
-    record = &G_h01_A15E[index];
+    record = &jg_event_records[index];
     record->state = 2;
     if (record->value30 == 0 || mode == 6)
         record->value30 = mode;
     if (mode == 6)
-        F_h11_4696(record->value22, record->value26, 88, 30,
+        jg_queue_background_restore_rectangle(record->value22, record->value26, 88, 30,
                    index % 4 + 18);
 }

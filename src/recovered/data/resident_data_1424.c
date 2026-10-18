@@ -1,1 +1,1 @@
-char G_h01_1424 = 35;
+char rival_current_location = 35;

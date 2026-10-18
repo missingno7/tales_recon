@@ -1,33 +1,33 @@
 struct Entry { unsigned char kind; unsigned char active; int pos; int t; };
 struct Slot { int x; int y; int t; char pad[46]; char st; char tail; };
-extern struct Entry *G_h01_6F3C;
+extern struct Entry *grid_entity_state_table;
 extern struct Entry G_h01_12B4;
 extern struct Entry G_h01_12BA;
 extern struct Slot G_h01_6F76[10];
 extern char G_h01_6EEE[54];
-extern char *G_h01_6EB0;
+extern char *grid_collision_map;
 extern char *G_h01_6EB4;
 extern int G_h01_34E2;
 extern int G_h01_34E4;
-extern int G_h01_6F24;
+extern int grid_player_screen_x;
 extern int G_h01_6F28;
-extern int G_h01_6F2A;
-extern int G_h01_6F2C;
-extern int G_h01_6F2E;
-extern int G_h01_6F30;
-extern int G_h01_6F32;
-extern int G_h01_6F34;
+extern int grid_player_map_row;
+extern int grid_player_map_column;
+extern int grid_player_action_state;
+extern int grid_player_facing_direction;
+extern int grid_full_screen_restore_countdown;
+extern int grid_player_action_countdown;
 extern char G_h01_6F36;
 extern char G_h01_6F37;
 extern int G_h01_6F38;
 extern char G_h01_6F3A;
-extern unsigned char G_h01_10ED;
+extern unsigned char grid_stationary_hazard_counter;
 extern char difficulty_level;
 extern long total_money;
 extern int play_sound();
-extern int F_h00_34E0();
+extern int draw_masked_sprite();
 extern unsigned int F_h00_463E();
-extern int F_h08_1D42();
+extern int draw_grid_status_panel();
 
 recovered(P, Q)
 int P;
@@ -46,7 +46,7 @@ int Q;
     base = Q < 0 ? 1 : 0;
     for (i = P - base; i < P - base + 5 && i < 25; i++) {
         if (i > 0) {
-            e = G_h01_6F3C + i;
+            e = grid_entity_state_table + i;
             switch (e->kind) {
             case 4:
                 sl = &G_h01_6F76[3];
@@ -83,19 +83,19 @@ int Q;
                     G_h01_6F76[4].x -= 16;
                     if (G_h01_6F76[4].x < 0) {
                         e->active = 0;
-                    } else if (i == G_h01_6F2A && (G_h01_6F76[4].x >> 4) == G_h01_6F2C && G_h01_6F28 != 22 && G_h01_6F28 != 28 && G_h01_6F2E != 10) {
-                        G_h01_6F32 = 2;
+                    } else if (i == grid_player_map_row && (G_h01_6F76[4].x >> 4) == grid_player_map_column && G_h01_6F28 != 22 && G_h01_6F28 != 28 && grid_player_action_state != 10) {
+                        grid_full_screen_restore_countdown = 2;
                         e->active = 0;
                         G_h01_6F36 = 0;
-                        G_h01_6F2E = 8;
+                        grid_player_action_state = 8;
                         play_sound(24);
                         play_sound(15);
                     } else {
-                        F_h00_34E0(&G_h01_6F76[4]);
+                        draw_masked_sprite(&G_h01_6F76[4]);
                     }
                     break;
                 }
-                F_h00_34E0(sl);
+                draw_masked_sprite(sl);
                 break;
             case 2:
                 sl = &G_h01_6F76[0];
@@ -103,7 +103,7 @@ int Q;
                 x = e->pos;
                 sl->x = x;
                 sl->st = e->active < 10 ? 0 : 1;
-                F_h00_34E0(sl);
+                draw_masked_sprite(sl);
                 sl = &G_h01_6F76[1];
                 sl->y = 160 - (i - P) * 40 + Q - 30;
                 x = e->active < 10 ? e->pos + 14 : e->pos - 20;
@@ -111,9 +111,9 @@ int Q;
                 switch (e->active) {
                 case 0:
                     sl->st = 0;
-                    if (i == G_h01_6F2A && G_h01_6F2E != 10) {
+                    if (i == grid_player_map_row && grid_player_action_state != 10) {
                         x = x >> 4;
-                        if (G_h01_6F2C >= x && G_h01_6F2C <= x + 3) {
+                        if (grid_player_map_column >= x && grid_player_map_column <= x + 3) {
                             if (++e->t >= 20) {
                                 e->active = 1;
                                 e->t = 0;
@@ -137,13 +137,13 @@ int Q;
                         sl->st = 4;
                         e->active = 5;
                         e->t = 3;
-                        if (i == G_h01_6F2A) {
+                        if (i == grid_player_map_row) {
                             x = x >> 4;
-                            if (G_h01_6F2C >= x && G_h01_6F2C <= x + 3) {
+                            if (grid_player_map_column >= x && grid_player_map_column <= x + 3) {
                                 G_h01_6F28 = 10;
-                                G_h01_6F2E = 9;
-                                G_h01_6F32 = 2;
-                                G_h01_6F24 += 32;
+                                grid_player_action_state = 9;
+                                grid_full_screen_restore_countdown = 2;
+                                grid_player_screen_x += 32;
                             }
                         }
                     } else {
@@ -183,9 +183,9 @@ int Q;
                     break;
                 case 10:
                     sl->st = 5;
-                    if (i == G_h01_6F2A && G_h01_6F2E != 10) {
+                    if (i == grid_player_map_row && grid_player_action_state != 10) {
                         x = x >> 4;
-                        if (G_h01_6F2C >= x && G_h01_6F2C <= x + 2) {
+                        if (grid_player_map_column >= x && grid_player_map_column <= x + 2) {
                             if (++e->t >= 10) {
                                 e->active = 11;
                                 e->t = 0;
@@ -209,14 +209,14 @@ int Q;
                         sl->st = 9;
                         e->active = 15;
                         e->t = 3;
-                        if (i == G_h01_6F2A) {
+                        if (i == grid_player_map_row) {
                             x = x >> 4;
-                            if (G_h01_6F2C > x - 1 && G_h01_6F2C < x + 3) {
+                            if (grid_player_map_column > x - 1 && grid_player_map_column < x + 3) {
                                 G_h01_6F28 = 4;
-                                G_h01_6F2E = 9;
+                                grid_player_action_state = 9;
                                 G_h01_6EB4 = G_h01_6EEE;
-                                G_h01_6F24 -= 32;
-                                G_h01_6F32 = 2;
+                                grid_player_screen_x -= 32;
+                                grid_full_screen_restore_countdown = 2;
                             }
                         }
                     } else {
@@ -255,7 +255,7 @@ int Q;
                     sl->st = 6;
                     break;
                 }
-                F_h00_34E0(sl);
+                draw_masked_sprite(sl);
                 break;
             case 3:
                 sl = &G_h01_6F76[2];
@@ -265,9 +265,9 @@ int Q;
                 switch (e->active) {
                 case 0:
                     sl->st = 0;
-                    if (i == G_h01_6F2A) {
+                    if (i == grid_player_map_row) {
                         x = x >> 4;
-                        if (G_h01_6F2C >= x && G_h01_6F2C <= x + 2) {
+                        if (grid_player_map_column >= x && grid_player_map_column <= x + 2) {
                             if (++e->t >= 10) {
                                 e->active = 1;
                                 e->t = 0;
@@ -286,11 +286,11 @@ int Q;
                         sl->st = 2;
                         e->t = 5;
                         e->active = 3;
-                        G_h01_6F24 += 32;
-                        G_h01_6F2E = 9;
+                        grid_player_screen_x += 32;
+                        grid_player_action_state = 9;
                         G_h01_6F28 = 10;
                         G_h01_6EB4 = G_h01_6EEE;
-                        G_h01_6F32 = 2;
+                        grid_full_screen_restore_countdown = 2;
                     } else {
                         sl->st = 1;
                     }
@@ -304,7 +304,7 @@ int Q;
                     }
                     break;
                 }
-                F_h00_34E0(sl);
+                draw_masked_sprite(sl);
                 break;
             case 6:
                 sl = &G_h01_6F76[0];
@@ -312,12 +312,12 @@ int Q;
                 x = e->pos;
                 sl->x = x;
                 sl->st = 0;
-                F_h00_34E0(sl);
+                draw_masked_sprite(sl);
                 sl = &G_h01_6F76[5];
                 sl->y = 160 - (i - P) * 40 + Q - 36;
                 switch (e->active) {
                 case 0:
-                    if (i == G_h01_6F2A && G_h01_6F2E != 10) {
+                    if (i == grid_player_map_row && grid_player_action_state != 10) {
                         if (++e->t >= 40) {
                             e->active = 1;
                             e->t = 20;
@@ -328,10 +328,10 @@ int Q;
                 case 1:
                     e->active = 2;
                     sl->st = 0;
-                    F_h00_34E0(sl);
+                    draw_masked_sprite(sl);
                     G_h01_6F28 = 10;
-                    G_h01_6F2E = 9;
-                    G_h01_6F32 = 2;
+                    grid_player_action_state = 9;
+                    grid_full_screen_restore_countdown = 2;
                     G_h01_6EB4 = G_h01_6EEE;
                     if (--e->t <= 0) {
                         e->active = 3;
@@ -340,10 +340,10 @@ int Q;
                 case 2:
                     e->active = 1;
                     sl->st = 1;
-                    F_h00_34E0(sl);
+                    draw_masked_sprite(sl);
                     G_h01_6F28 = 11;
-                    G_h01_6F2E = 9;
-                    G_h01_6F32 = 2;
+                    grid_player_action_state = 9;
+                    grid_full_screen_restore_countdown = 2;
                     G_h01_6EB4 = G_h01_6EEE;
                     if (--e->t <= 0) {
                         e->active = 3;
@@ -354,10 +354,10 @@ int Q;
                     e->active = 0;
                     G_h01_6F28 = 10;
                     G_h01_6EB4 = G_h01_6EEE;
-                    G_h01_6F2E = 9;
-                    G_h01_6F32 = 2;
-                    G_h01_6F34 = 0;
-                    F_h00_34E0(sl);
+                    grid_player_action_state = 9;
+                    grid_full_screen_restore_countdown = 2;
+                    grid_player_action_countdown = 0;
+                    draw_masked_sprite(sl);
                     break;
                 }
                 break;
@@ -367,24 +367,24 @@ int Q;
                 x = e->pos;
                 sl->x = x;
                 sl->st = 0;
-                F_h00_34E0(sl);
-                if (i == G_h01_6F2A) {
+                draw_masked_sprite(sl);
+                if (i == grid_player_map_row) {
                     x = x >> 4;
-                    if (G_h01_6F2C >= x && G_h01_6F2C <= x + 1 && G_h01_6F2E != 10) {
+                    if (grid_player_map_column >= x && grid_player_map_column <= x + 1 && grid_player_action_state != 10) {
                         G_h01_6F37 = 1;
                         if (e->active == 1) {
                             for (k = i + 1; k < 25; k++) {
-                                if (G_h01_6F3C[k].kind == 1) {
+                                if (grid_entity_state_table[k].kind == 1) {
                                     G_h01_6F3A = k;
-                                    G_h01_6F38 = G_h01_6F3C[k].pos & 0xfff0;
+                                    G_h01_6F38 = grid_entity_state_table[k].pos & 0xfff0;
                                     break;
                                 }
                             }
                         } else {
                             for (k = i - 1; k > 0; k--) {
-                                if (G_h01_6F3C[k].kind == 1) {
+                                if (grid_entity_state_table[k].kind == 1) {
                                     G_h01_6F3A = k;
-                                    G_h01_6F38 = G_h01_6F3C[k].pos & 0xfff0;
+                                    G_h01_6F38 = grid_entity_state_table[k].pos & 0xfff0;
                                     break;
                                 }
                             }
@@ -398,7 +398,7 @@ int Q;
                 x = e->pos;
                 sl->x = x;
                 sl->st = 0;
-                F_h00_34E0(sl);
+                draw_masked_sprite(sl);
                 break;
             case 9:
                 sl = &G_h01_6F76[8];
@@ -407,14 +407,14 @@ int Q;
                 sl->x = x;
                 sl->st = 0;
                 if (e->active == 0) {
-                    F_h00_34E0(sl);
-                    if (i == G_h01_6F2A && G_h01_6F2E != 10) {
+                    draw_masked_sprite(sl);
+                    if (i == grid_player_map_row && grid_player_action_state != 10) {
                         x = x >> 4;
-                        if (G_h01_6F2C >= x && G_h01_6F2C <= x + 1) {
+                        if (grid_player_map_column >= x && grid_player_map_column <= x + 1) {
                             e->active = 1;
                             play_sound(32);
                             total_money += 50;
-                            F_h08_1D42();
+                            draw_grid_status_panel();
                         }
                     }
                 }
@@ -429,15 +429,15 @@ int Q;
     sl = &G_h01_6F76[6];
     switch (e->active) {
     case 0:
-        if ((unsigned char)G_h01_10ED > 100 - (20 << difficulty_level)) {
-            x = G_h01_6F30 == 0 ? G_h01_6F24 : G_h01_6F24 - 16;
+        if ((unsigned char)grid_stationary_hazard_counter > 100 - (20 << difficulty_level)) {
+            x = grid_player_facing_direction == 0 ? grid_player_screen_x : grid_player_screen_x - 16;
             if (x < 0) {
                 x = 0;
             } else if (x >= 320 - sl->t) {
                 x = 320 - (sl->t << 3);
             }
             e->active = 1;
-            G_h01_10ED = 0;
+            grid_stationary_hazard_counter = 0;
             sl->y = -30;
         }
         break;
@@ -447,12 +447,12 @@ int Q;
         sl->x = x;
         sl->st = 0;
         sl->y += 2;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         if (e->t & 1)
             sl->st = 2;
         else
             sl->st = 3;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         if (sl->y >= 0) {
             sl->y = 0;
             e->active = 2;
@@ -462,16 +462,16 @@ int Q;
         break;
     case 2:
         x = e->pos;
-        if (G_h01_6F30 == 0) {
-            if (x < G_h01_6F24) {
+        if (grid_player_facing_direction == 0) {
+            if (x < grid_player_screen_x) {
                 x += 8;
-            } else if (x > G_h01_6F24) {
+            } else if (x > grid_player_screen_x) {
                 x -= 8;
             }
         } else {
-            if (x < G_h01_6F24 - 16) {
+            if (x < grid_player_screen_x - 16) {
                 x += 8;
-            } else if (x > G_h01_6F24 - 16) {
+            } else if (x > grid_player_screen_x - 16) {
                 x -= 8;
             }
         }
@@ -483,13 +483,13 @@ int Q;
         e->pos = x;
         sl->x = x;
         sl->st = 0;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         if (e->t & 1)
             sl->st = 2;
         else
             sl->st = 3;
-        F_h00_34E0(sl);
-        if (--e->t <= 0 && G_h01_6F2E != 7) {
+        draw_masked_sprite(sl);
+        if (--e->t <= 0 && grid_player_action_state != 7) {
             e->active = 4;
             e->t = 0;
         }
@@ -497,17 +497,17 @@ int Q;
     case 4:
         sl->x = e->pos;
         sl->st = 1;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         if (e->t & 1)
             sl->st = 2;
         else
             sl->st = 3;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         sl = &G_h01_6F76[4];
         sl->st = 1;
         sl->x = e->pos + 18;
         sl->y = 40;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         e->t = 5;
         e->active = 5;
         play_sound(11);
@@ -515,12 +515,12 @@ int Q;
     case 5:
         sl->x = e->pos;
         sl->st = 1;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         if (e->t & 1)
             sl->st = 2;
         else
             sl->st = 3;
-        F_h00_34E0(sl);
+        draw_masked_sprite(sl);
         sl = &G_h01_6F76[4];
         sl->st = 1;
         sl->x = e->pos + 18;
@@ -530,20 +530,20 @@ int Q;
             e->active = 0;
             play_sound(0);
         }
-        F_h00_34E0(sl);
-        if ((160 - sl->y) / 40 + P == G_h01_6F2A) {
+        draw_masked_sprite(sl);
+        if ((160 - sl->y) / 40 + P == grid_player_map_row) {
             x = sl->x >> 4;
-            if ((G_h01_6F2C == x && G_h01_6F2E != 10) || (G_h01_6F28 == 22 && G_h01_6F2C + 1 == x) || (G_h01_6F28 == 28 && G_h01_6F2C - 1 == x)) {
+            if ((grid_player_map_column == x && grid_player_action_state != 10) || (G_h01_6F28 == 22 && grid_player_map_column + 1 == x) || (G_h01_6F28 == 28 && grid_player_map_column - 1 == x)) {
                 G_h01_6EB4 = G_h01_6EEE;
-                G_h01_6F28 = G_h01_6F30 == 0 ? 5 : 11;
-                G_h01_6F2E = 8;
-                G_h01_6F32 = 2;
+                G_h01_6F28 = grid_player_facing_direction == 0 ? 5 : 11;
+                grid_player_action_state = 8;
+                grid_full_screen_restore_countdown = 2;
                 play_sound(56);
                 play_sound(15);
                 e->active = 0;
             }
         }
-        G_h01_10ED = 0;
+        grid_stationary_hazard_counter = 0;
         break;
     }
 
@@ -558,7 +558,7 @@ int Q;
             sl->st = 0;
             e->pos = F_h00_463E() % 320 & 0xfff0;
             e->active = 1;
-            if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 4) {
+            if ((G_h01_34E2 - grid_player_map_row < 0 ? -(G_h01_34E2 - grid_player_map_row) : G_h01_34E2 - grid_player_map_row) < 4) {
                 play_sound(11);
             }
         }
@@ -567,12 +567,12 @@ int Q;
         G_h01_34E4 -= 8;
         if (G_h01_34E4 < 0) {
             x = e->pos;
-            if (G_h01_6EB0[(long)G_h01_34E2 * 21 + (x >> 4)] != 0x46) {
+            if (grid_collision_map[(long)G_h01_34E2 * 21 + (x >> 4)] != 0x46) {
                 if (x > 160)
                     e->active = 3;
                 else
                     e->active = 2;
-                if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 6) {
+                if ((G_h01_34E2 - grid_player_map_row < 0 ? -(G_h01_34E2 - grid_player_map_row) : G_h01_34E2 - grid_player_map_row) < 6) {
                     play_sound(28);
                 }
                 if (G_h01_34E2 - P == 0) {
@@ -603,19 +603,19 @@ int Q;
             e->active = 0;
             e->t = 5;
         }
-        if (G_h01_6EB0[(long)G_h01_34E2 * 21 + (x >> 4)] == 0x46) {
+        if (grid_collision_map[(long)G_h01_34E2 * 21 + (x >> 4)] == 0x46) {
             G_h01_34E2--;
             G_h01_34E4 = 40;
             e->active = 1;
-            if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 4) {
+            if ((G_h01_34E2 - grid_player_map_row < 0 ? -(G_h01_34E2 - grid_player_map_row) : G_h01_34E2 - grid_player_map_row) < 4) {
                 play_sound(11);
             }
-        } else if (G_h01_6F2A == G_h01_34E2) {
-            if (((G_h01_6F2C << 4) - x < 0 ? -((G_h01_6F2C << 4) - x) : (G_h01_6F2C << 4) - x) < 8 && G_h01_6F2E != 2 && G_h01_6F2E != 3) {
+        } else if (grid_player_map_row == G_h01_34E2) {
+            if (((grid_player_map_column << 4) - x < 0 ? -((grid_player_map_column << 4) - x) : (grid_player_map_column << 4) - x) < 8 && grid_player_action_state != 2 && grid_player_action_state != 3) {
                 G_h01_6EB4 = G_h01_6EEE;
-                G_h01_6F28 = G_h01_6F30 == 0 ? 5 : 11;
-                G_h01_6F2E = 8;
-                G_h01_6F32 = 2;
+                G_h01_6F28 = grid_player_facing_direction == 0 ? 5 : 11;
+                grid_player_action_state = 8;
+                grid_full_screen_restore_countdown = 2;
                 play_sound(56);
                 play_sound(15);
             }
@@ -640,19 +640,19 @@ int Q;
             e->active = 0;
             e->t = 5;
         }
-        if (G_h01_6EB0[(long)G_h01_34E2 * 21 + (x >> 4)] == 0x46) {
+        if (grid_collision_map[(long)G_h01_34E2 * 21 + (x >> 4)] == 0x46) {
             G_h01_34E2--;
             G_h01_34E4 = 40;
             e->active = 1;
-            if ((G_h01_34E2 - G_h01_6F2A < 0 ? -(G_h01_34E2 - G_h01_6F2A) : G_h01_34E2 - G_h01_6F2A) < 4) {
+            if ((G_h01_34E2 - grid_player_map_row < 0 ? -(G_h01_34E2 - grid_player_map_row) : G_h01_34E2 - grid_player_map_row) < 4) {
                 play_sound(11);
             }
-        } else if (G_h01_6F2A == G_h01_34E2) {
-            if (((G_h01_6F2C << 4) - x < 0 ? -((G_h01_6F2C << 4) - x) : (G_h01_6F2C << 4) - x) < 8 && G_h01_6F2E != 2 && G_h01_6F2E != 3) {
+        } else if (grid_player_map_row == G_h01_34E2) {
+            if (((grid_player_map_column << 4) - x < 0 ? -((grid_player_map_column << 4) - x) : (grid_player_map_column << 4) - x) < 8 && grid_player_action_state != 2 && grid_player_action_state != 3) {
                 G_h01_6EB4 = G_h01_6EEE;
-                G_h01_6F28 = G_h01_6F30 == 0 ? 5 : 11;
-                G_h01_6F2E = 8;
-                G_h01_6F32 = 2;
+                G_h01_6F28 = grid_player_facing_direction == 0 ? 5 : 11;
+                grid_player_action_state = 8;
+                grid_full_screen_restore_countdown = 2;
                 play_sound(56);
                 play_sound(15);
             }
@@ -665,7 +665,7 @@ int Q;
             sl->x = e->pos;
             sl->y = 160 - (G_h01_34E2 - P) * 40 + Q - G_h01_34E4 - 14;
             if (sl->x >= 0 && sl->x < 304) {
-                F_h00_34E0(sl);
+                draw_masked_sprite(sl);
             }
         }
     }

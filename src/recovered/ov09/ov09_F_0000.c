@@ -6,38 +6,38 @@ extern int SetRast();
 extern int request_disk();
 extern int F_h00_4D04();
 extern int arc_read_index();
-extern int F_h00_330E();
-extern int F_h00_307C();
+extern int fade_palette_to_black();
+extern int switch_display_buffer();
 extern int clear_input_direction_and_fire_state();
 extern int poll_controller_and_keyboard_input();
 extern int BltBitMap();
-extern int F_h00_34E0();
-extern int F_h00_3AE4();
-extern int F_h00_291E();
+extern int draw_masked_sprite();
+extern int free_bitmap_planes();
+extern int load_arc_record();
 extern int play_sound();
-extern int F_h00_31AA();
-extern int F_h00_3178();
-extern int F_h00_30F0();
-extern int F_h00_35DC();
-extern int F_h00_09C0();
+extern int fade_palette_to_target();
+extern int copy_palette_to_color_map();
+extern int copy_palette_to_copper_lists();
+extern int draw_text();
+extern int draw_decimal_value();
 extern int wait_for_fire_input();
 extern int Close();
-extern int F_h09_18D0();
-extern int F_h09_19D4();
-extern int F_h09_1B1C();
-extern unsigned char F_h09_1924();
-extern int F_h09_1956();
+extern int load_timed_scene_route_indices();
+extern int draw_timed_scene_status_panel();
+extern int update_timed_scene_event_slots();
+extern unsigned char get_timed_event_frame_limit();
+extern int configure_timed_item_animation();
 struct FlagEntry { char value; char pad[11]; };
 struct Table { int first; int second; char pad[2]; };
 struct State { unsigned char kind; char pad1; unsigned int type; unsigned char mode; unsigned char step; char ticks; char pad7; int first; int second; };
-extern struct Table G_h01_4274[64];
-extern struct State G_h01_4332[3];
+extern struct Table timed_scene_event_position_offsets[64];
+extern struct State timed_scene_active_events[3];
 extern struct FlagEntry player_treasure_collected[35];
-extern unsigned char G_h01_4272[96];
-extern unsigned int G_h01_4264[6];
-extern char *G_h01_46D6;
-extern unsigned char G_h01_41F4;
-extern unsigned char G_h01_4336[12];
+extern unsigned char timed_scene_event_spawn_masks[96];
+extern unsigned int timed_scene_route_point_indices[6];
+extern char *palette_fade_target;
+extern unsigned char timed_scene_elapsed_round_count;
+extern unsigned char timed_scene_event_capture_thresholds[12];
 extern char G_h01_4334[12];
 extern int G_h01_1626;
 extern int G_h01_1666;
@@ -221,7 +221,7 @@ extern int G_h01_4156;
 extern int G_h01_415C;
 extern int G_h01_415E;
 extern int G_h01_4164;
-extern unsigned char G_h01_4188;
+extern unsigned char timed_scene_selected_option_index;
 extern int G_h01_418A;
 extern int G_h01_418C;
 extern int G_h01_4192;
@@ -243,8 +243,8 @@ extern int G_h01_422E;
 extern int G_h01_4234;
 extern int G_h01_4236;
 extern int G_h01_423C;
-extern unsigned int G_h01_4262;
-extern char G_h01_4270;
+extern unsigned int timed_scene_bonus_event_type;
+extern char timed_scene_actions_remaining;
 extern int G_h01_4276;
 extern int G_h01_427A;
 extern int G_h01_427C;
@@ -277,14 +277,14 @@ extern int G_h01_42CA;
 extern int G_h01_42CE;
 extern int G_h01_42D0;
 extern long screen_rast_port;
-extern long G_h01_46CE;
-extern long G_h01_46D2;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
 extern long arc_file;
 extern char difficulty_level;
 extern char game_day;
 extern char current_location;
 extern long total_money;
-extern long G_h01_4706;
+extern long minigame_cash_winnings;
 extern char G_h01_5E5E;
 
 struct Pt { int x; int y; };
@@ -319,7 +319,7 @@ int arg;
     idx = 0;
     sel = 0;
 
-    G_h01_4706 = 0;
+    minigame_cash_winnings = 0;
     F_h00_4EC6();
     SetRast(screen_rast_port, 0L);
     request_disk(2);
@@ -332,46 +332,46 @@ int arg;
 
     switch (arg) {
     case 1:
-        if (c < 5) G_h01_4262 = 0x1f;
-        else if (c < 10) G_h01_4262 = 0x2c;
-        else G_h01_4262 = 0x25;
+        if (c < 5) timed_scene_bonus_event_type = 0x1f;
+        else if (c < 10) timed_scene_bonus_event_type = 0x2c;
+        else timed_scene_bonus_event_type = 0x25;
         break;
     case 2:
-        if (c < 2) G_h01_4262 = 0x1e;
-        else if (c < 4) G_h01_4262 = 0x1f;
-        else if (c < 6) G_h01_4262 = 0x25;
-        else if (c < 8) G_h01_4262 = 0x23;
-        else if (c < 10) G_h01_4262 = 0x28;
-        else if (c < 12) G_h01_4262 = 0x2b;
-        else G_h01_4262 = 0x22;
+        if (c < 2) timed_scene_bonus_event_type = 0x1e;
+        else if (c < 4) timed_scene_bonus_event_type = 0x1f;
+        else if (c < 6) timed_scene_bonus_event_type = 0x25;
+        else if (c < 8) timed_scene_bonus_event_type = 0x23;
+        else if (c < 10) timed_scene_bonus_event_type = 0x28;
+        else if (c < 12) timed_scene_bonus_event_type = 0x2b;
+        else timed_scene_bonus_event_type = 0x22;
         break;
     case 3:
-        if (c & 1) G_h01_4262 = 0x23;
-        else G_h01_4262 = 0x20;
+        if (c & 1) timed_scene_bonus_event_type = 0x23;
+        else timed_scene_bonus_event_type = 0x20;
         break;
     case 4:
-        if (c < 3) G_h01_4262 = 0x26;
-        else if (c < 6) G_h01_4262 = 0x27;
-        else if (c < 9) G_h01_4262 = 0x21;
-        else if (c < 12) G_h01_4262 = 0x22;
-        else if (c < 15) G_h01_4262 = 0x2a;
-        else G_h01_4262 = 0x2b;
+        if (c < 3) timed_scene_bonus_event_type = 0x26;
+        else if (c < 6) timed_scene_bonus_event_type = 0x27;
+        else if (c < 9) timed_scene_bonus_event_type = 0x21;
+        else if (c < 12) timed_scene_bonus_event_type = 0x22;
+        else if (c < 15) timed_scene_bonus_event_type = 0x2a;
+        else timed_scene_bonus_event_type = 0x2b;
         break;
     case 5:
-        if (c < 3) G_h01_4262 = 0x26;
-        else if (c < 6) G_h01_4262 = 0x27;
-        else if (c < 9) G_h01_4262 = 0x21;
-        else if (c < 12) G_h01_4262 = 0x22;
-        else if (c < 15) G_h01_4262 = 0x28;
-        else G_h01_4262 = 0x29;
+        if (c < 3) timed_scene_bonus_event_type = 0x26;
+        else if (c < 6) timed_scene_bonus_event_type = 0x27;
+        else if (c < 9) timed_scene_bonus_event_type = 0x21;
+        else if (c < 12) timed_scene_bonus_event_type = 0x22;
+        else if (c < 15) timed_scene_bonus_event_type = 0x28;
+        else timed_scene_bonus_event_type = 0x29;
         break;
     case 0:
     case 6:
     default:
-        if (c < 5) G_h01_4262 = 0x1e;
-        else if (c < 10) G_h01_4262 = 0x20;
-        else if (c < 13) G_h01_4262 = 0x28;
-        else G_h01_4262 = 0x29;
+        if (c < 5) timed_scene_bonus_event_type = 0x1e;
+        else if (c < 10) timed_scene_bonus_event_type = 0x20;
+        else if (c < 13) timed_scene_bonus_event_type = 0x28;
+        else timed_scene_bonus_event_type = 0x29;
         break;
     }
 
@@ -396,104 +396,104 @@ int arg;
     for (c = 0; c < 12; c++)
         flags[c] = 0;
     for (c = 0; c < 6; c++)
-        G_h01_4264[c] = 0;
+        timed_scene_route_point_indices[c] = 0;
 
     request_disk(2);
-    F_h00_291E(0, G_h01_46CE);
-    F_h00_291E(1, &G_h01_3ACA);
+    load_arc_record(0, archive_image_bitmap);
+    load_arc_record(1, &G_h01_3ACA);
     G_h01_3ACA = 3;
     G_h01_3ACC = 0x3f;
-    F_h00_291E(2, &G_h01_3B00);
+    load_arc_record(2, &G_h01_3B00);
     G_h01_3B00 = 1;
     G_h01_3B02 = 0x5a;
-    F_h00_291E(3, &G_h01_3B36);
+    load_arc_record(3, &G_h01_3B36);
     G_h01_3B36 = 0x29;
     G_h01_3B38 = 0x78;
-    F_h00_291E(4, &G_h01_3B6C);
+    load_arc_record(4, &G_h01_3B6C);
     G_h01_3B6C = 0x46;
     G_h01_3B6E = 0x2f;
-    F_h00_291E(5, &G_h01_3BA2);
+    load_arc_record(5, &G_h01_3BA2);
     G_h01_3BA2 = 0x8c;
     G_h01_3BA4 = 0x2f;
-    F_h00_291E(6, &G_h01_3BD8);
+    load_arc_record(6, &G_h01_3BD8);
     G_h01_3BD8 = 0x8d;
     G_h01_3BDA = 0x35;
-    F_h00_291E(7, &G_h01_3C0E);
+    load_arc_record(7, &G_h01_3C0E);
     G_h01_3C0E = 0x8d;
     G_h01_3C10 = 0x63;
-    F_h00_291E(8, &G_h01_3C44);
+    load_arc_record(8, &G_h01_3C44);
     G_h01_3C44 = 0xb6;
     G_h01_3C46 = 0x3e;
-    F_h00_291E(9, &G_h01_3C7A);
+    load_arc_record(9, &G_h01_3C7A);
     G_h01_3C7A = 0xf9;
     G_h01_3C7C = 0x47;
-    F_h00_291E(10, &G_h01_3CB0);
+    load_arc_record(10, &G_h01_3CB0);
     G_h01_3CB0 = 0x112;
     G_h01_3CB2 = 0x43;
-    F_h00_291E(11, &G_h01_3CE6);
+    load_arc_record(11, &G_h01_3CE6);
     G_h01_3CE6 = 0xe8;
     G_h01_3CE8 = 0x71;
-    F_h00_291E(12, &G_h01_3D1C);
+    load_arc_record(12, &G_h01_3D1C);
     G_h01_3D1C = 0xd9;
     G_h01_3D1E = 0x8a;
-    F_h00_291E(13, &G_h01_3D52);
+    load_arc_record(13, &G_h01_3D52);
     G_h01_3D52 = 0xee;
     G_h01_3D54 = 0x1c;
 
-    F_h09_18D0(arg);
+    load_timed_scene_route_indices(arg);
     request_disk(2);
 
     for (c = 0; c < 6; c++) {
-        if (c > 0 && G_h01_4264[c] == G_h01_4264[0])
+        if (c > 0 && timed_scene_route_point_indices[c] == timed_scene_route_point_indices[0])
             continue;
-        switch (G_h01_4264[c]) {
-        case 14: F_h00_291E(14, &G_h01_3D88); break;
-        case 15: F_h00_291E(15, &G_h01_3DBE); break;
-        case 16: F_h00_291E(16, &G_h01_3DF4); break;
-        case 17: F_h00_291E(17, &G_h01_3E2A); break;
-        case 18: F_h00_291E(18, &G_h01_3E60); break;
-        case 19: F_h00_291E(19, &G_h01_3E96); break;
-        case 20: F_h00_291E(20, &G_h01_3ECC); break;
-        case 21: F_h00_291E(21, &G_h01_3F02); break;
-        case 22: F_h00_291E(22, &G_h01_3F38); break;
-        case 23: F_h00_291E(23, &G_h01_3F6E); break;
-        case 24: F_h00_291E(24, &G_h01_3FA4); break;
-        case 25: F_h00_291E(25, &G_h01_3FDA); break;
-        case 26: F_h00_291E(26, &G_h01_4010); break;
-        case 27: F_h00_291E(27, &G_h01_4046); break;
-        case 28: F_h00_291E(28, &G_h01_407C); break;
-        case 29: F_h00_291E(29, &G_h01_40B2); break;
+        switch (timed_scene_route_point_indices[c]) {
+        case 14: load_arc_record(14, &G_h01_3D88); break;
+        case 15: load_arc_record(15, &G_h01_3DBE); break;
+        case 16: load_arc_record(16, &G_h01_3DF4); break;
+        case 17: load_arc_record(17, &G_h01_3E2A); break;
+        case 18: load_arc_record(18, &G_h01_3E60); break;
+        case 19: load_arc_record(19, &G_h01_3E96); break;
+        case 20: load_arc_record(20, &G_h01_3ECC); break;
+        case 21: load_arc_record(21, &G_h01_3F02); break;
+        case 22: load_arc_record(22, &G_h01_3F38); break;
+        case 23: load_arc_record(23, &G_h01_3F6E); break;
+        case 24: load_arc_record(24, &G_h01_3FA4); break;
+        case 25: load_arc_record(25, &G_h01_3FDA); break;
+        case 26: load_arc_record(26, &G_h01_4010); break;
+        case 27: load_arc_record(27, &G_h01_4046); break;
+        case 28: load_arc_record(28, &G_h01_407C); break;
+        case 29: load_arc_record(29, &G_h01_40B2); break;
         }
     }
 
-    F_h00_291E(G_h01_4262, &G_h01_40E8);
-    F_h00_291E(0x2e, &G_h01_4154);
+    load_arc_record(timed_scene_bonus_event_type, &G_h01_40E8);
+    load_arc_record(0x2e, &G_h01_4154);
     G_h01_4154 = 0x75;
     G_h01_4156 = 0x70;
-    G_h01_4188 = 1;
-    F_h00_291E(0x2f, &G_h01_418A);
+    timed_scene_selected_option_index = 1;
+    load_arc_record(0x2f, &G_h01_418A);
     G_h01_418A = 8;
     G_h01_418C = 0xb0;
-    F_h00_291E(0x30, &G_h01_41C0);
+    load_arc_record(0x30, &G_h01_41C0);
     G_h01_41C0 = 8;
     G_h01_41C2 = 0xb0;
-    G_h01_41F4 = 0;
-    F_h00_291E(0x31, &G_h01_41F6);
+    timed_scene_elapsed_round_count = 0;
+    load_arc_record(0x31, &G_h01_41F6);
     G_h01_422A = 1;
-    G_h01_41F6 = small[G_h01_4188 * 2];
-    G_h01_41F8 = small[G_h01_4188 * 2 + 1];
-    F_h00_291E(0x32, &G_h01_422C);
+    G_h01_41F6 = small[timed_scene_selected_option_index * 2];
+    G_h01_41F8 = small[timed_scene_selected_option_index * 2 + 1];
+    load_arc_record(0x32, &G_h01_422C);
     G_h01_422C = 0x110;
     G_h01_422E = 0xb2;
     play_sound(0);
-    G_h01_4270 = 0xc;
+    timed_scene_actions_remaining = 0xc;
 
     for (c = 0; c < 3; c++) {
-        G_h01_4332[c].kind = 0;
-        G_h01_4332[c].type = 0;
+        timed_scene_active_events[c].kind = 0;
+        timed_scene_active_events[c].type = 0;
     }
 
-    rp = (struct Rec *)G_h01_4272;
+    rp = (struct Rec *)timed_scene_event_spawn_masks;
     for (c = 0; c <= 31; c++, rp++) {
         switch (c + 14) {
         case 14:
@@ -555,20 +555,20 @@ int arg;
 
     palette_cycle_callback_index = 0;
     palette_cycle_countdown_step = 0;
-    F_h00_330E();
+    fade_palette_to_black();
     SetRast(screen_rast_port, 0L);
-    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
+    BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 0x140L, 0xb0L,
                0xc0L, 0xffL, 0L);
-    F_h09_19D4((int)first);
-    F_h09_1B1C();
-    F_h00_34E0(&G_h01_4154);
-    G_h01_422A = G_h01_4188;
-    G_h01_41F6 = small[G_h01_4188 * 2];
-    G_h01_41F8 = small[G_h01_4188 * 2 + 1];
-    F_h00_34E0(&G_h01_41F6);
-    F_h00_307C();
-    G_h01_46D6 = (char *)&G_h01_1626;
-    F_h00_31AA(&G_h01_1626);
+    draw_timed_scene_status_panel((int)first);
+    update_timed_scene_event_slots();
+    draw_masked_sprite(&G_h01_4154);
+    G_h01_422A = timed_scene_selected_option_index;
+    G_h01_41F6 = small[timed_scene_selected_option_index * 2];
+    G_h01_41F8 = small[timed_scene_selected_option_index * 2 + 1];
+    draw_masked_sprite(&G_h01_41F6);
+    switch_display_buffer();
+    palette_fade_target = (char *)&G_h01_1626;
+    fade_palette_to_target(&G_h01_1626);
     SetRast(screen_rast_port, 0L);
     clear_input_direction_and_fire_state();
 
@@ -576,22 +576,22 @@ int arg;
         w2 = 0;
         w2 = poll_controller_and_keyboard_input();
         clear_input_direction_and_fire_state();
-        BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
+        BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 0x140L, 0xb0L,
                    0xc0L, 0xffL, 0L);
-        F_h09_19D4((int)first);
-        if (G_h01_4332[G_h01_4188].kind == 0)
+        draw_timed_scene_status_panel((int)first);
+        if (timed_scene_active_events[timed_scene_selected_option_index].kind == 0)
             newflag = 0;
         if (!newflag && (w2 & 0x80)) {
             w2 = 0;
             play_sound(0x6a);
-            G_h01_4270--;
-            if (G_h01_4270 < 0)
+            timed_scene_actions_remaining--;
+            if (timed_scene_actions_remaining < 0)
                 break;
             if (!newflag) {
-                if (!(G_h01_4336[(long)G_h01_4188 * 12] >= F_h09_1924(&G_h01_4332[G_h01_4188]))) {
-                    F_h09_1956(&G_h01_4332[G_h01_4188]);
-                    flags[idx] = (char)G_h01_4332[G_h01_4188].type;
-                    if (flags[idx] == G_h01_4262)
+                if (!(timed_scene_event_capture_thresholds[(long)timed_scene_selected_option_index * 12] >= get_timed_event_frame_limit(&timed_scene_active_events[timed_scene_selected_option_index]))) {
+                    configure_timed_item_animation(&timed_scene_active_events[timed_scene_selected_option_index]);
+                    flags[idx] = (char)timed_scene_active_events[timed_scene_selected_option_index].type;
+                    if (flags[idx] == timed_scene_bonus_event_type)
                         play_sound(0x6c);
                     else if (flags[c] != 0)
                         play_sound(0x6b);
@@ -599,23 +599,23 @@ int arg;
                 }
             }
             idx++;
-            t5a = G_h01_4332[G_h01_4188].kind;
+            t5a = timed_scene_active_events[timed_scene_selected_option_index].kind;
             for (c = 0; c < 4; c++) {
                 SetRast(screen_rast_port, 0L);
-                BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xb0L,
+                BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 0x140L, 0xb0L,
                            0xc0L, 0xffL, 0L);
-                F_h09_19D4((int)first);
-                F_h09_1B1C();
-                F_h00_34E0(&G_h01_4154);
+                draw_timed_scene_status_panel((int)first);
+                update_timed_scene_event_slots();
+                draw_masked_sprite(&G_h01_4154);
                 if (t5a) ;
                 if (c == 0) {
-                    F_h00_3178(&G_h01_1666);
-                    F_h00_30F0();
-                    F_h00_307C();
-                    G_h01_46D6 = (char *)&G_h01_1626;
-                    F_h00_31AA(&G_h01_1626);
+                    copy_palette_to_color_map(&G_h01_1666);
+                    copy_palette_to_copper_lists();
+                    switch_display_buffer();
+                    palette_fade_target = (char *)&G_h01_1626;
+                    fade_palette_to_target(&G_h01_1626);
                 } else {
-                    F_h00_307C();
+                    switch_display_buffer();
                 }
             }
             continue;
@@ -624,54 +624,54 @@ int arg;
         {
             if ((w2 & 0x3f) == 8 || (w2 & 0x3f) == 7) {
                 w2 = 0;
-                if (G_h01_4188 != 0)
+                if (timed_scene_selected_option_index != 0)
                     play_sound(0x6d);
-                G_h01_4188 = 0;
+                timed_scene_selected_option_index = 0;
             } else if ((w2 & 0x3f) == 2 || (w2 & 0x3f) == 3) {
                 w2 = 0;
-                if (G_h01_4188 != 2)
+                if (timed_scene_selected_option_index != 2)
                     play_sound(0x6d);
-                G_h01_4188 = 2;
+                timed_scene_selected_option_index = 2;
             } else if ((w2 & 0x3f) == 1) {
                 w2 = 0;
-                if (G_h01_4188 != 1)
+                if (timed_scene_selected_option_index != 1)
                     play_sound(0x6d);
-                G_h01_4188 = 1;
+                timed_scene_selected_option_index = 1;
             }
         }
-        F_h09_1B1C();
-        F_h00_34E0(&G_h01_4154);
-        G_h01_422A = G_h01_4188;
-        G_h01_41F6 = small[G_h01_4188 * 2];
-        G_h01_41F8 = small[G_h01_4188 * 2 + 1];
-        F_h00_34E0(&G_h01_41F6);
-        F_h00_307C();
+        update_timed_scene_event_slots();
+        draw_masked_sprite(&G_h01_4154);
+        G_h01_422A = timed_scene_selected_option_index;
+        G_h01_41F6 = small[timed_scene_selected_option_index * 2];
+        G_h01_41F8 = small[timed_scene_selected_option_index * 2 + 1];
+        draw_masked_sprite(&G_h01_41F6);
+        switch_display_buffer();
         {
             if (cnt++ > lim) {
                 cnt = 0;
                 if (first)
-                    G_h01_41F4++;
+                    timed_scene_elapsed_round_count++;
                 else
                     first = 1;
             }
         }
-        if (G_h01_4270 <= 0 || G_h01_41F4 > 10)
+        if (timed_scene_actions_remaining <= 0 || timed_scene_elapsed_round_count > 10)
             changed = 1;
     }
 
-    F_h00_3AE4(&G_h01_3ADA, G_h01_3AD2, G_h01_3AD4);
-    F_h00_3AE4(&G_h01_3B10, G_h01_3B08, G_h01_3B0A);
-    F_h00_3AE4(&G_h01_3B46, G_h01_3B3E, G_h01_3B40);
-    F_h00_3AE4(&G_h01_3B7C, G_h01_3B74, G_h01_3B76);
-    F_h00_3AE4(&G_h01_3BB2, G_h01_3BAA, G_h01_3BAC);
-    F_h00_3AE4(&G_h01_3BE8, G_h01_3BE0, G_h01_3BE2);
-    F_h00_3AE4(&G_h01_3C1E, G_h01_3C16, G_h01_3C18);
-    F_h00_3AE4(&G_h01_3C54, G_h01_3C4C, G_h01_3C4E);
-    F_h00_3AE4(&G_h01_3C8A, G_h01_3C82, G_h01_3C84);
-    F_h00_3AE4(&G_h01_3CC0, G_h01_3CB8, G_h01_3CBA);
-    F_h00_3AE4(&G_h01_3CF6, G_h01_3CEE, G_h01_3CF0);
-    F_h00_3AE4(&G_h01_3D2C, G_h01_3D24, G_h01_3D26);
-    F_h00_3AE4(&G_h01_3D62, G_h01_3D5A, G_h01_3D5C);
+    free_bitmap_planes(&G_h01_3ADA, G_h01_3AD2, G_h01_3AD4);
+    free_bitmap_planes(&G_h01_3B10, G_h01_3B08, G_h01_3B0A);
+    free_bitmap_planes(&G_h01_3B46, G_h01_3B3E, G_h01_3B40);
+    free_bitmap_planes(&G_h01_3B7C, G_h01_3B74, G_h01_3B76);
+    free_bitmap_planes(&G_h01_3BB2, G_h01_3BAA, G_h01_3BAC);
+    free_bitmap_planes(&G_h01_3BE8, G_h01_3BE0, G_h01_3BE2);
+    free_bitmap_planes(&G_h01_3C1E, G_h01_3C16, G_h01_3C18);
+    free_bitmap_planes(&G_h01_3C54, G_h01_3C4C, G_h01_3C4E);
+    free_bitmap_planes(&G_h01_3C8A, G_h01_3C82, G_h01_3C84);
+    free_bitmap_planes(&G_h01_3CC0, G_h01_3CB8, G_h01_3CBA);
+    free_bitmap_planes(&G_h01_3CF6, G_h01_3CEE, G_h01_3CF0);
+    free_bitmap_planes(&G_h01_3D2C, G_h01_3D24, G_h01_3D26);
+    free_bitmap_planes(&G_h01_3D62, G_h01_3D5A, G_h01_3D5C);
     F_h00_4EC6();
     SetRast(screen_rast_port, 0L);
 
@@ -681,189 +681,189 @@ int arg;
         case 32: case 33: case 34: case 35:
             break;
         default:
-            G_h01_4274[c].first = 0x2c;
-            G_h01_4274[c].second = 0x2c;
+            timed_scene_event_position_offsets[c].first = 0x2c;
+            timed_scene_event_position_offsets[c].second = 0x2c;
             break;
         }
     }
 
     for (c = 0; c < 12; c++) {
-        if (flags[c] == G_h01_4262)
-            sel = G_h01_4262 - 16;
+        if (flags[c] == timed_scene_bonus_event_type)
+            sel = timed_scene_bonus_event_type - 16;
         else
             sel = flags[c];
         switch ((int)sel) {
         case 14:
-            G_h01_3D88 = pts[c].x - G_h01_4274[0].first;
-            G_h01_3D8A = pts[c].y - G_h01_4274[0].second;
+            G_h01_3D88 = pts[c].x - timed_scene_event_position_offsets[0].first;
+            G_h01_3D8A = pts[c].y - timed_scene_event_position_offsets[0].second;
             G_h01_3DBC = 0;
-            F_h00_34E0(&G_h01_3D88);
+            draw_masked_sprite(&G_h01_3D88);
             break;
         case 15:
-            G_h01_3DBE = pts[c].x - G_h01_4274[1].first;
-            G_h01_3DC0 = pts[c].y - G_h01_4274[1].second;
+            G_h01_3DBE = pts[c].x - timed_scene_event_position_offsets[1].first;
+            G_h01_3DC0 = pts[c].y - timed_scene_event_position_offsets[1].second;
             G_h01_3DF2 = 0;
-            F_h00_34E0(&G_h01_3DBE);
+            draw_masked_sprite(&G_h01_3DBE);
             break;
         case 16:
-            G_h01_3DF4 = pts[c].x - G_h01_4274[2].first;
-            G_h01_3DF6 = pts[c].y - G_h01_4274[2].second;
+            G_h01_3DF4 = pts[c].x - timed_scene_event_position_offsets[2].first;
+            G_h01_3DF6 = pts[c].y - timed_scene_event_position_offsets[2].second;
             G_h01_3E28 = 0;
-            F_h00_34E0(&G_h01_3DF4);
+            draw_masked_sprite(&G_h01_3DF4);
             break;
         case 17:
-            G_h01_3E2A = pts[c].x - G_h01_4274[3].first + 8;
-            G_h01_3E2C = pts[c].y - G_h01_4274[3].second + 8;
+            G_h01_3E2A = pts[c].x - timed_scene_event_position_offsets[3].first + 8;
+            G_h01_3E2C = pts[c].y - timed_scene_event_position_offsets[3].second + 8;
             G_h01_3E5E = 0;
-            F_h00_34E0(&G_h01_3E2A);
+            draw_masked_sprite(&G_h01_3E2A);
             break;
         case 18:
-            G_h01_3E60 = pts[c].x - G_h01_4274[4].first + 8;
-            G_h01_3E62 = pts[c].y - G_h01_4274[4].second + 8;
+            G_h01_3E60 = pts[c].x - timed_scene_event_position_offsets[4].first + 8;
+            G_h01_3E62 = pts[c].y - timed_scene_event_position_offsets[4].second + 8;
             G_h01_3E94 = 0;
-            F_h00_34E0(&G_h01_3E60);
+            draw_masked_sprite(&G_h01_3E60);
             break;
         case 19:
-            G_h01_3E96 = pts[c].x - G_h01_4274[5].first;
-            G_h01_3E98 = pts[c].y - G_h01_4274[5].second;
+            G_h01_3E96 = pts[c].x - timed_scene_event_position_offsets[5].first;
+            G_h01_3E98 = pts[c].y - timed_scene_event_position_offsets[5].second;
             G_h01_3ECA = 0;
-            F_h00_34E0(&G_h01_3E96);
+            draw_masked_sprite(&G_h01_3E96);
             break;
         case 20:
-            G_h01_3ECC = pts[c].x - G_h01_4274[6].first;
-            G_h01_3ECE = pts[c].y - G_h01_4274[6].second;
+            G_h01_3ECC = pts[c].x - timed_scene_event_position_offsets[6].first;
+            G_h01_3ECE = pts[c].y - timed_scene_event_position_offsets[6].second;
             G_h01_3F00 = 0;
-            F_h00_34E0(&G_h01_3ECC);
+            draw_masked_sprite(&G_h01_3ECC);
             break;
         case 21:
-            G_h01_3F02 = pts[c].x - G_h01_4274[7].first;
-            G_h01_3F04 = pts[c].y - G_h01_4274[7].second;
+            G_h01_3F02 = pts[c].x - timed_scene_event_position_offsets[7].first;
+            G_h01_3F04 = pts[c].y - timed_scene_event_position_offsets[7].second;
             G_h01_3F36 = 0;
-            F_h00_34E0(&G_h01_3F02);
+            draw_masked_sprite(&G_h01_3F02);
             break;
         case 22:
-            G_h01_3F38 = pts[c].x - G_h01_4274[8].first;
-            G_h01_3F3A = pts[c].y - G_h01_4274[8].second;
+            G_h01_3F38 = pts[c].x - timed_scene_event_position_offsets[8].first;
+            G_h01_3F3A = pts[c].y - timed_scene_event_position_offsets[8].second;
             G_h01_3F6C = 0;
-            F_h00_34E0(&G_h01_3F38);
+            draw_masked_sprite(&G_h01_3F38);
             break;
         case 23:
-            G_h01_3F6E = pts[c].x - G_h01_4274[9].first;
-            G_h01_3F70 = pts[c].y - G_h01_4274[9].second;
+            G_h01_3F6E = pts[c].x - timed_scene_event_position_offsets[9].first;
+            G_h01_3F70 = pts[c].y - timed_scene_event_position_offsets[9].second;
             G_h01_3FA2 = 0;
-            F_h00_34E0(&G_h01_3F6E);
+            draw_masked_sprite(&G_h01_3F6E);
             break;
         case 24:
-            G_h01_3FA4 = pts[c].x - G_h01_4274[10].first;
-            G_h01_3FA6 = pts[c].y - G_h01_4274[10].second;
+            G_h01_3FA4 = pts[c].x - timed_scene_event_position_offsets[10].first;
+            G_h01_3FA6 = pts[c].y - timed_scene_event_position_offsets[10].second;
             G_h01_3FD8 = 0;
-            F_h00_34E0(&G_h01_3FA4);
+            draw_masked_sprite(&G_h01_3FA4);
             break;
         case 25:
-            G_h01_3FDA = pts[c].x - G_h01_4274[11].first;
-            G_h01_3FDC = pts[c].y - G_h01_4274[11].second;
+            G_h01_3FDA = pts[c].x - timed_scene_event_position_offsets[11].first;
+            G_h01_3FDC = pts[c].y - timed_scene_event_position_offsets[11].second;
             G_h01_400E = 0;
-            F_h00_34E0(&G_h01_3FDA);
+            draw_masked_sprite(&G_h01_3FDA);
             break;
         case 26:
-            G_h01_4010 = pts[c].x - G_h01_4274[12].first;
-            G_h01_4012 = pts[c].y - G_h01_4274[12].second;
+            G_h01_4010 = pts[c].x - timed_scene_event_position_offsets[12].first;
+            G_h01_4012 = pts[c].y - timed_scene_event_position_offsets[12].second;
             G_h01_4044 = 0;
-            F_h00_34E0(&G_h01_4010);
+            draw_masked_sprite(&G_h01_4010);
             break;
         case 27:
-            G_h01_4046 = pts[c].x - G_h01_4274[13].first;
-            G_h01_4048 = pts[c].y - G_h01_4274[13].second;
+            G_h01_4046 = pts[c].x - timed_scene_event_position_offsets[13].first;
+            G_h01_4048 = pts[c].y - timed_scene_event_position_offsets[13].second;
             G_h01_407A = 0;
-            F_h00_34E0(&G_h01_4046);
+            draw_masked_sprite(&G_h01_4046);
             break;
         case 28:
-            G_h01_407C = pts[c].x - G_h01_4274[14].first;
-            G_h01_407E = pts[c].y - G_h01_4274[14].second;
+            G_h01_407C = pts[c].x - timed_scene_event_position_offsets[14].first;
+            G_h01_407E = pts[c].y - timed_scene_event_position_offsets[14].second;
             G_h01_40B0 = 0;
-            F_h00_34E0(&G_h01_407C);
+            draw_masked_sprite(&G_h01_407C);
             break;
         case 29:
-            G_h01_40B2 = pts[c].x - G_h01_4274[15].first;
-            G_h01_40B4 = pts[c].y - G_h01_4274[15].second;
+            G_h01_40B2 = pts[c].x - timed_scene_event_position_offsets[15].first;
+            G_h01_40B4 = pts[c].y - timed_scene_event_position_offsets[15].second;
             G_h01_40E6 = 0;
-            F_h00_34E0(&G_h01_40B2);
+            draw_masked_sprite(&G_h01_40B2);
             break;
         default:
             break;
         }
 
-        if (flags[c] == G_h01_4262) {
-            G_h01_40E8 = pts[c].x - G_h01_4274[G_h01_4262 - 14].first;
-            G_h01_40EA = pts[c].y - G_h01_4274[G_h01_4262 - 14].second;
-            if (G_h01_4262 == 0x21 || G_h01_4262 == 0x22) {
+        if (flags[c] == timed_scene_bonus_event_type) {
+            G_h01_40E8 = pts[c].x - timed_scene_event_position_offsets[timed_scene_bonus_event_type - 14].first;
+            G_h01_40EA = pts[c].y - timed_scene_event_position_offsets[timed_scene_bonus_event_type - 14].second;
+            if (timed_scene_bonus_event_type == 0x21 || timed_scene_bonus_event_type == 0x22) {
                 G_h01_40E8 += 8;
                 G_h01_40EA += 8;
             }
             G_h01_411C = 0;
-            if (G_h01_4262 == 0x1e)
+            if (timed_scene_bonus_event_type == 0x1e)
                 G_h01_411C = 1;
-            F_h00_34E0(&G_h01_40E8);
+            draw_masked_sprite(&G_h01_40E8);
         }
     }
 
     for (c = 0; c < 6; c++) {
-        if (c > 0 && G_h01_4264[c] == G_h01_4264[0])
+        if (c > 0 && timed_scene_route_point_indices[c] == timed_scene_route_point_indices[0])
             continue;
-        switch (G_h01_4264[c]) {
-        case 14: F_h00_3AE4(&G_h01_3D98, G_h01_3D90, G_h01_3D92); break;
-        case 15: F_h00_3AE4(&G_h01_3DCE, G_h01_3DC6, G_h01_3DC8); break;
-        case 16: F_h00_3AE4(&G_h01_3E04, G_h01_3DFC, G_h01_3DFE); break;
-        case 17: F_h00_3AE4(&G_h01_3E3A, G_h01_3E32, G_h01_3E34); break;
-        case 18: F_h00_3AE4(&G_h01_3E70, G_h01_3E68, G_h01_3E6A); break;
-        case 19: F_h00_3AE4(&G_h01_3EA6, G_h01_3E9E, G_h01_3EA0); break;
-        case 20: F_h00_3AE4(&G_h01_3EDC, G_h01_3ED4, G_h01_3ED6); break;
-        case 21: F_h00_3AE4(&G_h01_3F12, G_h01_3F0A, G_h01_3F0C); break;
-        case 22: F_h00_3AE4(&G_h01_3F48, G_h01_3F40, G_h01_3F42); break;
-        case 23: F_h00_3AE4(&G_h01_3F7E, G_h01_3F76, G_h01_3F78); break;
-        case 24: F_h00_3AE4(&G_h01_3FB4, G_h01_3FAC, G_h01_3FAE); break;
-        case 25: F_h00_3AE4(&G_h01_3FEA, G_h01_3FE2, G_h01_3FE4); break;
-        case 26: F_h00_3AE4(&G_h01_4020, G_h01_4018, G_h01_401A); break;
-        case 27: F_h00_3AE4(&G_h01_4056, G_h01_404E, G_h01_4050); break;
-        case 28: F_h00_3AE4(&G_h01_408C, G_h01_4084, G_h01_4086); break;
-        case 29: F_h00_3AE4(&G_h01_40C2, G_h01_40BA, G_h01_40BC); break;
+        switch (timed_scene_route_point_indices[c]) {
+        case 14: free_bitmap_planes(&G_h01_3D98, G_h01_3D90, G_h01_3D92); break;
+        case 15: free_bitmap_planes(&G_h01_3DCE, G_h01_3DC6, G_h01_3DC8); break;
+        case 16: free_bitmap_planes(&G_h01_3E04, G_h01_3DFC, G_h01_3DFE); break;
+        case 17: free_bitmap_planes(&G_h01_3E3A, G_h01_3E32, G_h01_3E34); break;
+        case 18: free_bitmap_planes(&G_h01_3E70, G_h01_3E68, G_h01_3E6A); break;
+        case 19: free_bitmap_planes(&G_h01_3EA6, G_h01_3E9E, G_h01_3EA0); break;
+        case 20: free_bitmap_planes(&G_h01_3EDC, G_h01_3ED4, G_h01_3ED6); break;
+        case 21: free_bitmap_planes(&G_h01_3F12, G_h01_3F0A, G_h01_3F0C); break;
+        case 22: free_bitmap_planes(&G_h01_3F48, G_h01_3F40, G_h01_3F42); break;
+        case 23: free_bitmap_planes(&G_h01_3F7E, G_h01_3F76, G_h01_3F78); break;
+        case 24: free_bitmap_planes(&G_h01_3FB4, G_h01_3FAC, G_h01_3FAE); break;
+        case 25: free_bitmap_planes(&G_h01_3FEA, G_h01_3FE2, G_h01_3FE4); break;
+        case 26: free_bitmap_planes(&G_h01_4020, G_h01_4018, G_h01_401A); break;
+        case 27: free_bitmap_planes(&G_h01_4056, G_h01_404E, G_h01_4050); break;
+        case 28: free_bitmap_planes(&G_h01_408C, G_h01_4084, G_h01_4086); break;
+        case 29: free_bitmap_planes(&G_h01_40C2, G_h01_40BA, G_h01_40BC); break;
         }
     }
 
-    F_h00_3AE4(&G_h01_40F8, G_h01_40F0, G_h01_40F2);
-    F_h00_3AE4(&G_h01_4164, G_h01_415C, G_h01_415E);
-    F_h00_3AE4(&G_h01_419A, G_h01_4192, G_h01_4194);
-    F_h00_3AE4(&G_h01_41D0, G_h01_41C8, G_h01_41CA);
-    F_h00_3AE4(&G_h01_4206, G_h01_41FE, G_h01_4200);
-    F_h00_3AE4(&G_h01_423C, G_h01_4234, G_h01_4236);
-    F_h00_330E();
+    free_bitmap_planes(&G_h01_40F8, G_h01_40F0, G_h01_40F2);
+    free_bitmap_planes(&G_h01_4164, G_h01_415C, G_h01_415E);
+    free_bitmap_planes(&G_h01_419A, G_h01_4192, G_h01_4194);
+    free_bitmap_planes(&G_h01_41D0, G_h01_41C8, G_h01_41CA);
+    free_bitmap_planes(&G_h01_4206, G_h01_41FE, G_h01_4200);
+    free_bitmap_planes(&G_h01_423C, G_h01_4234, G_h01_4236);
+    fade_palette_to_black();
     request_disk(2);
-    F_h00_291E(0x33, &G_h01_411E);
+    load_arc_record(0x33, &G_h01_411E);
     G_h01_411E = 0;
     G_h01_4120 = 0;
     G_h01_4152 = 0;
-    F_h00_34E0(&G_h01_411E);
-    F_h00_3AE4(&G_h01_412E, G_h01_4126, G_h01_4128);
+    draw_masked_sprite(&G_h01_411E);
+    free_bitmap_planes(&G_h01_412E, G_h01_4126, G_h01_4128);
 
     for (c = 0; c < 12; c++) {
-        if (flags[c] == G_h01_4262) {
-            F_h00_35DC(pts[c].x - 38, pts[c].y + 3, "$", 0, 0);
-            F_h00_09C0(pts[c].x - 30, pts[c].y + 3, 0x1f4L, 0, 0, 0);
-            G_h01_4706 += 0x1f4;
+        if (flags[c] == timed_scene_bonus_event_type) {
+            draw_text(pts[c].x - 38, pts[c].y + 3, "$", 0, 0);
+            draw_decimal_value(pts[c].x - 30, pts[c].y + 3, 0x1f4L, 0, 0, 0);
+            minigame_cash_winnings += 0x1f4;
             result = 1;
         } else if (flags[c] != 0) {
-            F_h00_35DC(pts[c].x - 38, pts[c].y + 3, "$", 0, 0);
-            F_h00_09C0(pts[c].x - 30, pts[c].y + 3, 0x32L, 0, 0, 0);
-            G_h01_4706 += 0x32;
+            draw_text(pts[c].x - 38, pts[c].y + 3, "$", 0, 0);
+            draw_decimal_value(pts[c].x - 30, pts[c].y + 3, 0x32L, 0, 0, 0);
+            minigame_cash_winnings += 0x32;
         }
     }
 
-    F_h00_35DC(0x90, 0xb8, "$", 0, 0);
-    F_h00_09C0(0x98, 0xb8, G_h01_4706, 0, 0, 0);
-    total_money += G_h01_4706;
-    F_h00_307C();
-    G_h01_46D6 = (char *)&G_h01_1626;
-    F_h00_31AA(&G_h01_1626);
+    draw_text(0x90, 0xb8, "$", 0, 0);
+    draw_decimal_value(0x98, 0xb8, minigame_cash_winnings, 0, 0, 0);
+    total_money += minigame_cash_winnings;
+    switch_display_buffer();
+    palette_fade_target = (char *)&G_h01_1626;
+    fade_palette_to_target(&G_h01_1626);
     clear_input_direction_and_fire_state();
     wait_for_fire_input(0x28);
     Close(arc_file);

@@ -5,17 +5,17 @@ extern int G_h01_12FE;
 extern long palette_cycle_callback_index;
 extern char palette_cycle_countdown_step;
 extern long screen_rast_port;
-extern long G_h01_46CE;
-extern long G_h01_46D2;
-extern char *G_h01_46D6;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
+extern char *palette_fade_target;
 extern long arc_file;
 extern int G_h01_7A94;
 extern int G_h01_8A3C;
 extern int G_h01_8A3E;
 extern int G_h01_8A42;
-extern struct Record G_h01_8A66[1];
-extern int G_h01_8B1C[41][4];
-extern short G_h01_940C[1];
+extern struct Record jg_entity_row_dispatch_records[1];
+extern int jg_grid_tile_indices[41][4];
+extern short jg_tile_reward_available_flags[1];
 extern int G_h01_94AC;
 extern int G_h01_94AE;
 extern int G_h01_94B8;
@@ -27,9 +27,9 @@ extern char G_h01_16E6[1];
 
 extern int request_disk();
 extern int arc_read_index();
-extern int F_h00_307C();
-extern int F_h00_31AA();
-extern int F_h00_330E();
+extern int switch_display_buffer();
+extern int fade_palette_to_target();
+extern int fade_palette_to_black();
 extern int clear_input_direction_and_fire_state();
 extern int F_h00_4D04();
 extern int F_h00_4EC6();
@@ -53,51 +53,51 @@ int arg;
     flag = 1;
     G_h01_7A94 = arg;
     SetRast(screen_rast_port, 0L);
-    F_h11_15C8(1);
-    F_h11_2A3A();
-    F_h11_4EC6();
-    F_h11_69A4();
-    F_h11_3A24();
+    jg_load_level_resources(1);
+    jg_initialize_actor_states();
+    jg_initialize_p_section_objects();
+    jg_initialize_moving_objects();
+    jg_initialize_events();
     F_h11_21F8();
-    F_h11_68B0();
-    F_h11_6FFE();
-    F_h11_14BA(1);
+    jg_initialize_hazards();
+    jg_initialize_end_triggers();
+    jg_begin_attempt(1);
     palette_cycle_callback_index = 0;
     palette_cycle_countdown_step = 0;
-    F_h00_330E();
+    fade_palette_to_black();
     G_h01_12FE = 0;
     SetRast(screen_rast_port, 0L);
-    BltBitMap(G_h01_46CE, 0L, 0L, G_h01_46D2, 0L, 0L, 0x140L, 0xC8L, 0xC0L, 0xFFL, 0L);
-    F_h11_62B4(1);
+    BltBitMap(archive_image_bitmap, 0L, 0L, active_screen_bitmap, 0L, 0L, 0x140L, 0xC8L, 0xC0L, 0xFFL, 0L);
+    jg_initialize_platform_map(1);
     F_h00_4EC6();
     request_disk(2);
     F_h00_4D04(8);
     play_sound(0x5C);
-    G_h01_940C[G_h01_8B1C[G_h01_94BA][G_h01_94BC]] = 0;
+    jg_tile_reward_available_flags[jg_grid_tile_indices[G_h01_94BA][G_h01_94BC]] = 0;
     G_h01_94B8 = 0;
     clear_input_direction_and_fire_state();
 
     while (G_h01_12FE == 0) {
         if (G_h01_8A3C == 0) {
-            F_h11_13DC();
+            jg_prepare_player_redraw();
         }
         G_h01_94E6 = 0;
-        F_h11_063A();
-        F_h11_0BB6();
+        jg_handle_player_input();
+        jg_collect_tile_reward_and_check_fall();
         if (G_h01_12FE != 0) continue;
         if (G_h01_94AE == 7) {
             play_sound(0);
             Delay(0x32L);
-            F_h00_330E();
+            fade_palette_to_black();
             if (G_h01_94AC < 3) {
                 G_h01_8A3C = 3;
                 flag = 1;
-                F_h11_49CE();
-                F_h11_15C8(0);
-                F_h11_14BA(0);
-                F_h11_2A3A();
-                F_h11_62B4(0);
-                F_h11_3A24();
+                jg_reset_camera_scroll();
+                jg_load_level_resources(0);
+                jg_begin_attempt(0);
+                jg_initialize_actor_states();
+                jg_initialize_platform_map(0);
+                jg_initialize_events();
                 F_h11_21F8();
                 Delay(0x64L);
                 G_h01_94B8 = 0;
@@ -106,7 +106,7 @@ int arg;
                 break;
             }
         }
-        F_h11_0558();
+        jg_update_camera_scroll();
         if (G_h01_8A42) {
             G_h01_8A3C = 3;
         }
@@ -114,101 +114,101 @@ int arg;
         lim = (G_h01_8A42 ? 4 : 3) + j;
 
         for (i = j; i < lim; i++) {
-            p = &G_h01_8A66[i];
+            p = &jg_entity_row_dispatch_records[i];
             if (p->ignored) {
-                F_h11_5D14(p->ignored);
+                jg_update_player_platform_attachment(p->ignored);
             }
             if (p->value1) {
-                F_h11_51C0(p->value1);
+                jg_update_p_section_object(p->value1);
             }
             if (p->value2) {
-                F_h11_6CFE(p->value2);
+                jg_update_moving_object(p->value2);
                 if (p->value3) {
-                    F_h11_6CFE(p->value3);
+                    jg_update_moving_object(p->value3);
                 }
             }
             if (p->value5) {
-                F_h11_2EEA(p->value5);
+                jg_update_actor_behavior(p->value5);
             }
             if (p->value5) {
-                F_h11_3532(p->value5);
+                jg_update_actor_position_and_animation(p->value5);
             }
             if (p->value4) {
-                F_h11_6486(p->value4);
-                F_h11_6582(p->value4);
+                jg_update_hazard_state(p->value4);
+                jg_check_player_hazard_collision(p->value4);
             }
             if (p->value6) {
-                F_h11_70DC(p->value6);
+                jg_check_end_trigger_collision(p->value6);
             }
         }
 
-        F_h11_3D9A();
-        F_h11_2272();
-        F_h11_0B4C();
-        F_h11_0D8E();
+        jg_advance_event_records();
+        jg_update_timed_approaching_object();
+        jg_update_player_attachment();
+        jg_update_player_state();
         if (G_h01_8A3C > 1) {
-            F_h11_4848();
+            jg_clear_background_restore_queue();
         }
         if (G_h01_8A3C > 0) {
-            F_h11_487E(G_h01_8A3E, 0, 0x140, G_h01_8A3C == 1);
+            jg_redraw_scrolled_scene_region(G_h01_8A3E, 0, 0x140, G_h01_8A3C == 1);
             G_h01_8A3C--;
         } else {
-            F_h11_4790();
+            jg_restore_background_rectangles();
         }
 
         for (i = j; i < lim; i++) {
-            p = &G_h01_8A66[i];
+            p = &jg_entity_row_dispatch_records[i];
             if (p->ignored) {
-                F_h11_5C1A(p->ignored);
+                jg_update_platform_motion(p->ignored);
             }
             if (p->value5) {
-                F_h11_2DBA(p->value5);
+                jg_update_actor_motion_history(p->value5);
             }
         }
 
-        F_h11_3B92();
+        jg_update_visible_events();
 
         for (i = j; i < lim; i++) {
-            p = &G_h01_8A66[i];
+            p = &jg_entity_row_dispatch_records[i];
             if (p->value1) {
-                F_h11_519C(p->value1);
+                jg_advance_p_section_motion(p->value1);
             }
             if (p->value5) {
-                F_h11_36F8(p->value5);
-                F_h11_37E4(p->value5);
+                jg_draw_actor_sprite(p->value5);
+                jg_check_actor_collision(p->value5);
             }
             if (p->value2) {
-                F_h11_6C3A(p->value2);
+                jg_draw_moving_object_segment(p->value2);
                 if (p->value3) {
-                    F_h11_6C3A(p->value3);
+                    jg_draw_moving_object_segment(p->value3);
                 }
             }
             if (p->value4 && G_h01_94AE == 45) {
-                F_h11_645E(p->value4);
+                jg_advance_hazard_motion(p->value4);
             }
             if (p->value6) {
-                F_h11_706C(p->value6);
+                jg_draw_end_trigger(p->value6);
             }
         }
 
-        F_h11_1372();
-        F_h11_23F4();
-        F_h11_27CC();
+        jg_update_player_world_position();
+        jg_update_approaching_object_history();
+        jg_draw_status_bar();
         if (flag) {
-            F_h00_330E();
-            F_h00_307C();
-            G_h01_46D6 = G_h01_16E6;
-            F_h00_31AA(G_h01_16E6);
+            fade_palette_to_black();
+            switch_display_buffer();
+            palette_fade_target = G_h01_16E6;
+            fade_palette_to_target(G_h01_16E6);
             flag = 0;
             clear_input_direction_and_fire_state();
         } else {
-            F_h00_307C();
+            switch_display_buffer();
         }
     }
 
-    F_h11_049C();
+    jg_release_loaded_resources();
     F_h11_4A92();
-    F_h00_330E();
+    fade_palette_to_black();
     Close(arc_file);
     arc_file = G_h01_9FA6;
     arc_read_index(arc_file);

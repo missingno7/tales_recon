@@ -6,8 +6,8 @@ extern struct Lookup G_h01_5E66[16];
 extern struct Record G_h01_606C[16];
 extern int G_h01_5500;
 extern char G_h01_54FE;
-extern int F_h00_34E0();
-extern int F_h00_307C();
+extern int draw_masked_sprite();
+extern int switch_display_buffer();
 
 recovered()
 {
@@ -19,11 +19,11 @@ recovered()
     value = record->value;
     for (i = 0; i < 26; i++) {
         G_h01_5500 = value - 2;
-        F_h00_34E0(&G_h01_54FE);
-        F_h00_307C();
+        draw_masked_sprite(&G_h01_54FE);
+        switch_display_buffer();
         G_h01_5500 = value + 2;
-        F_h00_34E0(&G_h01_54FE);
-        F_h00_307C();
+        draw_masked_sprite(&G_h01_54FE);
+        switch_display_buffer();
     }
     G_h01_5500 = value;
 }

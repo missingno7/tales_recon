@@ -5,7 +5,7 @@ struct Input {
 
 extern struct Input *G_h01_6EA8;
 extern long F_h00_0976();
-extern int F_h00_35DC();
+extern int draw_text();
 
 recovered(unused, mode, x, y)
 int unused;
@@ -37,7 +37,7 @@ int y;
     }
     for (i = 0; i < limit; i++) {
         text = F_h00_0976(text, data);
-        F_h00_35DC(x, y, data, 1, 0);
+        draw_text(x, y, data, 1, 0);
         y += 10;
     }
 }

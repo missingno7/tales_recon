@@ -45,14 +45,16 @@ are now recovered.
 - Resident DATA has 1,044 typed bytes, 588 runtime bytes and 10,324 raw
   bytes. BSS (34,092 bytes) has no typed layout. `recovery/data_model.json`
   gives evidence-backed types and extents for 1,037 of 1,652 globals.
-- Names (2026-10-18): `recovery/names.json` names 66 game functions, 88
-  OS/runtime entries and 84 globals (audio, input, palette cycling, loaders,
-  economy); `tools/rename.py` has applied them to src/ (240 files; the Amiga
-  executable rebuilt byte-identical) and `port_gen.py` spells the port with them.
-  Next: each per-function file still defines its function as `recovered()`, so a
-  function's own name appears only at call sites - fixed when files are
-  consolidated per original object. Field names (46 proposed for audio/input in
-  build/workers/names-audio-input/) wait for the struct-header step.
+- Names (2026-10-18): `recovery/names.json` names 264 game functions, 85
+  OS/runtime entries and 216 globals, proposed per subsystem by Codex workers and
+  reviewed; `tools/rename.py` has applied them to src/ (two batches, the Amiga
+  executable rebuilt byte-identical each time) and `port_gen.py` spells the port
+  with them. docs/game/ is the game book that grew out of the review. Next: each
+  per-function file still defines its function as `recovered()`, so a function's
+  own name appears only at call sites - fixed when files are consolidated per
+  original object; field names (proposed in build/workers/names-*/) wait for the
+  struct-header step; 40 of 288 C function files and most BSS globals stay mechanical
+  until the code shows what they are.
 - Assets: `formats/decode.py` decodes all 17 containers (LZW, RLE bitplanes,
   ADPCM) and 11 recovered palettes. The title screen renders correctly.
 - Behavior: `tools/difftest.py --all` runs 144 functions both as original

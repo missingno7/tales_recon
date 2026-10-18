@@ -1,6 +1,6 @@
 /* Provisional source for normal ov11 layout evidence; never canonical by itself. */
-extern int G_h01_8B1C[41][4];
-extern void F_h11_5962();
+extern int jg_grid_tile_indices[41][4];
+extern void jg_set_platform_record_state();
 
 recovered(x,y,width,height,mode)
 int x,y,width,height,mode;
@@ -25,7 +25,7 @@ int x,y,width,height,mode;
     if (y<0) y=0;
     for (i=x;i<=x_end;i++)
         for (j=y;j<=y_end;j++) {
-            tile=G_h01_8B1C[i][j];
-            if (tile) F_h11_5962(tile,mode);
+            tile=jg_grid_tile_indices[i][j];
+            if (tile) jg_set_platform_record_state(tile,mode);
         }
 }

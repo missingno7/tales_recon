@@ -1,12 +1,12 @@
 /* ov09_F_1B1C v1: plain structured C, canonical declaration views where they exist. */
 extern long F_h00_463E();
-extern int F_h09_298E();
-extern int F_h09_26C6();
-extern int F_h09_28A0();
-extern char G_h01_4332;
-extern char G_h01_7192;
+extern int spawn_timed_scene_event();
+extern int place_timed_scene_event_sprite();
+extern int draw_timed_scene_event_art();
+extern char timed_scene_active_events;
+extern char timed_scene_event_spawn_chance_percent;
 extern char difficulty_level;
-extern unsigned char G_h01_41F4;
+extern unsigned char timed_scene_elapsed_round_count;
 extern char G_h01_3D88;
 extern char G_h01_3DBE;
 extern char G_h01_3DF4;
@@ -50,7 +50,7 @@ recovered()
     f1 = 0;
     f2 = 0;
     for (i = 0; i < 3; i++) {
-        if (((struct State *)&G_h01_4332)[i].kind) {
+        if (((struct State *)&timed_scene_active_events)[i].kind) {
             if (i == 0)
                 f0 = 1;
             else if (i == 1)
@@ -60,40 +60,40 @@ recovered()
         }
     }
 
-    if (G_h01_41F4 > 8) {
+    if (timed_scene_elapsed_round_count > 8) {
         if (difficulty_level < 2) {
-            G_h01_7192 = 25;
+            timed_scene_event_spawn_chance_percent = 25;
             thr = 90;
         } else {
-            G_h01_7192 = 15;
+            timed_scene_event_spawn_chance_percent = 15;
             thr = 80;
         }
-    } else if (G_h01_41F4 > 2) {
+    } else if (timed_scene_elapsed_round_count > 2) {
         if (difficulty_level < 2) {
-            G_h01_7192 = 40;
+            timed_scene_event_spawn_chance_percent = 40;
             thr = 35;
         } else {
-            G_h01_7192 = 20;
+            timed_scene_event_spawn_chance_percent = 20;
             thr = 20;
         }
     } else {
         if (difficulty_level < 2) {
-            G_h01_7192 = 50;
+            timed_scene_event_spawn_chance_percent = 50;
             thr = 15;
         } else {
-            G_h01_7192 = 25;
+            timed_scene_event_spawn_chance_percent = 25;
             thr = 8;
         }
     }
 
     if (!f0 && (unsigned)F_h00_463E() % 100 < thr)
-        F_h09_298E(0);
+        spawn_timed_scene_event(0);
     if (!f2 && (unsigned)F_h00_463E() % 100 < thr)
-        F_h09_298E(2);
+        spawn_timed_scene_event(2);
     if (!f1 && (unsigned)F_h00_463E() % 100 < thr)
-        F_h09_298E(1);
+        spawn_timed_scene_event(1);
 
-    p = (struct State *)&G_h01_4332;
+    p = (struct State *)&timed_scene_active_events;
     for (i = 0; i < 3; i++, p++) {
         if (!p->kind)
             continue;
@@ -101,10 +101,10 @@ recovered()
         case 14:
         case 30:
             if (p->type == 14)
-                F_h09_26C6(p, &G_h01_3D88);
+                place_timed_scene_event_sprite(p, &G_h01_3D88);
             else
-                F_h09_26C6(p, &G_h01_40E8);
-            F_h09_28A0(p->kind);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -118,7 +118,7 @@ recovered()
             case 1:
                 if (--p->ticks == 0) {
                     p->ticks = 1;
-                    if (p->step == 2 && G_h01_41F4 > 5)
+                    if (p->step == 2 && timed_scene_elapsed_round_count > 5)
                         p->kind = 0;
                     else if (p->step == 2) {
                         p->step = 0;
@@ -146,10 +146,10 @@ recovered()
             break;
         case 15:
         case 31:
-            F_h09_26C6(p, &G_h01_3DBE);
+            place_timed_scene_event_sprite(p, &G_h01_3DBE);
             if (p->type == 31)
-                F_h09_26C6(p, &G_h01_40E8);
-            F_h09_28A0(p->kind);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -180,10 +180,10 @@ recovered()
             break;
         case 16:
         case 32:
-            F_h09_26C6(p, &G_h01_3DF4);
+            place_timed_scene_event_sprite(p, &G_h01_3DF4);
             if (p->type == 32)
-                F_h09_26C6(p, &G_h01_40E8);
-            F_h09_28A0(p->kind);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -194,7 +194,7 @@ recovered()
             case 1:
                 if (--p->ticks < 0) {
                     p->ticks = 1;
-                    if (p->step == 2 && G_h01_41F4 > 5)
+                    if (p->step == 2 && timed_scene_elapsed_round_count > 5)
                         p->kind = 0;
                     else if (p->step == 2)
                         p->mode = 3;
@@ -241,14 +241,14 @@ recovered()
         case 33:
         case 34:
             if (p->type == 18)
-                F_h09_26C6(p, &G_h01_3E60);
+                place_timed_scene_event_sprite(p, &G_h01_3E60);
             else if (p->type == 34)
-                F_h09_26C6(p, &G_h01_40E8);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
             else if (p->type == 17)
-                F_h09_26C6(p, &G_h01_3E2A);
+                place_timed_scene_event_sprite(p, &G_h01_3E2A);
             else
-                F_h09_26C6(p, &G_h01_40E8);
-            F_h09_28A0(p->kind);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -268,7 +268,7 @@ recovered()
                     if (p->step == 1) {
                         p->mode = 1;
                         p->step = 2;
-                        if (G_h01_41F4 > 5)
+                        if (timed_scene_elapsed_round_count > 5)
                             p->kind = 0;
                     } else
                         p->kind = 0;
@@ -287,10 +287,10 @@ recovered()
         case 19:
         case 35:
             if (p->type == 19)
-                F_h09_26C6(p, &G_h01_3E96);
+                place_timed_scene_event_sprite(p, &G_h01_3E96);
             else
-                F_h09_26C6(p, &G_h01_40E8);
-            F_h09_28A0(p->kind);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -333,15 +333,15 @@ recovered()
         case 36:
         case 37:
             if (p->type == 20 || p->type == 36) {
-                F_h09_26C6(p, &G_h01_3ECC);
+                place_timed_scene_event_sprite(p, &G_h01_3ECC);
                 if (p->type == 36)
-                    F_h09_26C6(p, &G_h01_40E8);
+                    place_timed_scene_event_sprite(p, &G_h01_40E8);
             } else {
-                F_h09_26C6(p, &G_h01_3F02);
+                place_timed_scene_event_sprite(p, &G_h01_3F02);
                 if (p->type == 37)
-                    F_h09_26C6(p, &G_h01_40E8);
+                    place_timed_scene_event_sprite(p, &G_h01_40E8);
             }
-            F_h09_28A0(p->kind);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -354,7 +354,7 @@ recovered()
             case 1:
                 if (--p->ticks < 0) {
                     p->ticks = 1;
-                    if (p->step > 1 && G_h01_41F4 > 5)
+                    if (p->step > 1 && timed_scene_elapsed_round_count > 5)
                         p->kind = 0;
                     else if (p->step == 3) {
                         p->mode = 0;
@@ -387,15 +387,15 @@ recovered()
         case 38:
         case 39:
             if (p->type == 22 || p->type == 38) {
-                F_h09_26C6(p, &G_h01_3F38);
+                place_timed_scene_event_sprite(p, &G_h01_3F38);
                 if (p->type == 38)
-                    F_h09_26C6(p, &G_h01_40E8);
+                    place_timed_scene_event_sprite(p, &G_h01_40E8);
             } else {
-                F_h09_26C6(p, &G_h01_3F6E);
+                place_timed_scene_event_sprite(p, &G_h01_3F6E);
                 if (p->type == 39)
-                    F_h09_26C6(p, &G_h01_40E8);
+                    place_timed_scene_event_sprite(p, &G_h01_40E8);
             }
-            F_h09_28A0(p->kind);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -409,7 +409,7 @@ recovered()
             case 1:
                 if (--p->ticks == 0) {
                     p->ticks = 1;
-                    if (p->step > 1 && G_h01_41F4 > 5)
+                    if (p->step > 1 && timed_scene_elapsed_round_count > 5)
                         p->kind = 0;
                     else if (p->step == 2) {
                         p->step = 0;
@@ -444,22 +444,22 @@ recovered()
         case 44:
         case 45:
             if (p->type == 25)
-                F_h09_26C6(p, &G_h01_3FDA);
+                place_timed_scene_event_sprite(p, &G_h01_3FDA);
             else if (p->type == 41)
-                F_h09_26C6(p, &G_h01_40E8);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
             else if (p->type == 24)
-                F_h09_26C6(p, &G_h01_3FA4);
+                place_timed_scene_event_sprite(p, &G_h01_3FA4);
             else if (p->type == 40)
-                F_h09_26C6(p, &G_h01_40E8);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
             else if (p->type == 28)
-                F_h09_26C6(p, &G_h01_407C);
+                place_timed_scene_event_sprite(p, &G_h01_407C);
             else if (p->type == 44)
-                F_h09_26C6(p, &G_h01_40E8);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
             else if (p->type == 29)
-                F_h09_26C6(p, &G_h01_40B2);
+                place_timed_scene_event_sprite(p, &G_h01_40B2);
             else
-                F_h09_26C6(p, &G_h01_40E8);
-            F_h09_28A0(p->kind);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -473,7 +473,7 @@ recovered()
             case 1:
                 if (--p->ticks == 0) {
                     p->ticks = 1;
-                    if (p->step > 1 && G_h01_41F4 > 5)
+                    if (p->step > 1 && timed_scene_elapsed_round_count > 5)
                         p->kind = 0;
                     else if (p->step == 2)
                         p->mode = 0;
@@ -503,14 +503,14 @@ recovered()
         case 42:
         case 43:
             if (p->type == 27)
-                F_h09_26C6(p, &G_h01_4046);
+                place_timed_scene_event_sprite(p, &G_h01_4046);
             else if (p->type == 43)
-                F_h09_26C6(p, &G_h01_40E8);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
             else if (p->type == 26)
-                F_h09_26C6(p, &G_h01_4010);
+                place_timed_scene_event_sprite(p, &G_h01_4010);
             else
-                F_h09_26C6(p, &G_h01_40E8);
-            F_h09_28A0(p->kind);
+                place_timed_scene_event_sprite(p, &G_h01_40E8);
+            draw_timed_scene_event_art(p->kind);
             switch (p->mode) {
             case 0:
                 if (--p->ticks < 0) {
@@ -520,7 +520,7 @@ recovered()
                 break;
             case 1:
                 if (--p->ticks == 0) {
-                    if (p->step == 2 && G_h01_41F4 > 5)
+                    if (p->step == 2 && timed_scene_elapsed_round_count > 5)
                         p->kind = 0;
                     p->ticks = 1;
                     p->mode = 2;

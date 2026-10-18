@@ -1,12 +1,12 @@
 extern char *G_h01_5370;
 extern long screen_rast_port;
-extern long G_h01_46CE;
-extern long G_h01_46D2;
+extern long archive_image_bitmap;
+extern long active_screen_bitmap;
 extern int BltBitMap();
 extern int SetAPen();
 extern int Move();
 extern int Draw();
-extern int F_h00_307C();
+extern int switch_display_buffer();
 
 recovered(a)
 int a;
@@ -25,7 +25,7 @@ int a;
         y=112;
     else
         y=120;
-    BltBitMap(G_h01_46CE,0L,0L,G_h01_46D2,
+    BltBitMap(archive_image_bitmap,0L,0L,active_screen_bitmap,
         0L,0L,320L,200L,192L,255L,0L);
     *G_h01_5370=12;
     SetAPen(screen_rast_port,(long)*G_h01_5370);
@@ -40,5 +40,5 @@ int a;
     SetAPen(screen_rast_port,(long)*G_h01_5370);
     Move(screen_rast_port,(long)(x-1),(long)(y+7));
     Draw(screen_rast_port,(long)(x+32),(long)(y+7));
-    F_h00_307C();
+    switch_display_buffer();
 }

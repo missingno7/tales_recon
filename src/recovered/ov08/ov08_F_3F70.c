@@ -6,7 +6,7 @@ struct Record {
 extern struct Record G_h01_6F48[11];
 extern struct Record G_h01_6F4A[11];
 extern struct Record G_h01_6F50[11];
-extern int F_h00_3AE4();
+extern int free_bitmap_planes();
 
 recovered()
 {
@@ -14,7 +14,7 @@ recovered()
 
     i = 1;
     do {
-        F_h00_3AE4(&G_h01_6F50[i],
+        free_bitmap_planes(&G_h01_6F50[i],
                     G_h01_6F48[i].value,
                     G_h01_6F4A[i].value);
         ++i;
