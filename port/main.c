@@ -2,8 +2,9 @@
    tick per PAL frame), record/replay, the game thread and the OS state the emulation keeps
    (interrupt servers, Forbid).
 
-   ducktales [--data DIR] [--log] [--wav FILE] [--headless] [--ticks N]
+   ducktales [--data DIR] [--log] [--wav FILE] [--headless] [--strict] [--ticks N]
              [--record FILE] [--replay FILE] [--dump DIR:FROM:EVERY] [--shot FILE.bmp:TICK ...]
+   Exit status 3: a verification fault (platform_fault) happened; --strict stops at the first.
    DIR holds the two original disk images (any *.adf; mounted under their volume names,
    DT1 and DT2). docs/sdl3-port.md describes the design. */
 #include <SDL3/SDL.h>
@@ -33,9 +34,18 @@ static uint16_t joy1dat;                            /* what the game reads, per 
 static int fire_down;
 static jmp_buf game_exit;
 static struct { char path[512]; uint32_t tick; } shots[32];
-static int shot_count, headless;
+static int shot_count, headless, strict, failed;
 static uint32_t tick, end_tick;                     /* frames since start; 0: no end */
-static uint32_t replay_end;                         /* game clock at which a replay ends */
+/* Poll frames: the steps of the game's input reading. A poll starts a new one when the game
+   has waited for time (Delay, WaitBOVP) since the current one began, or when it polled in the
+   frame just before (a loop polling every frame while it waits for a sound). Work that spans
+   frames on the 68000 - drawing, decompressing, loading - takes the port no frames, and on
+   neither machine does it start a poll frame, so inputs, dumps and the end of a replay timed
+   in poll frames mean the same game step on the original and on the port (docs/sdl3-port.md;
+   tools/game_boot.py counts them the same way). */
+static uint32_t poll_frames, polled_tick = UINT32_MAX;
+static int waited;                                  /* a Delay or WaitBOVP since the last poll frame */
+static uint32_t replay_end;                         /* poll frame at which a replay ends */
 static Uint64 start_ns;
 
 /* Live input, written by the main thread and taken by the game thread once per tick. */
@@ -53,15 +63,12 @@ static uint16_t *seeds;
 static size_t seed_count, seed_next;
 static int replaying;
 
-/* State dumps: the DATA/BSS hunk (host order, original offsets) every EVERY ticks from FROM. */
+/* State dumps: the DATA/BSS hunk (host order, original offsets) at the first poll of every
+   EVERY-th poll frame from FROM. */
 static char dump_dir[512];
 static uint32_t dump_from, dump_every;
 extern char amiga_data_hunk[];
 extern const uint32_t amiga_data_hunk_size;
-/* The game's own clock, game_frame_tick (G_h01_B1EC): the VBlank count since the game
-   installed its server. Replay logs are timed in it, so the same log drives the port and
-   the original, whose disk loads take frames the port does not spend (docs/sdl3-port.md). */
-#define GAME_CLOCK ((uint32_t)*(int32_t *)(amiga_data_hunk + 0xB1EC))
 
 uint8_t platform_font8x8[256][8];
 
@@ -162,28 +169,40 @@ static void deliver_key(uint8_t code)
 uint16_t platform_joystick(void) { return joy1dat; }
 int platform_fire(void) { return fire_down; }
 
-/* VPOSR as the game reads it for its RNG seed (resident_F_4676): bit 15 LOF (set: PAL
-   non-interlaced frames are long frames), bit 0 V8 (the beam is on line 256-312), the OCS
-   Agnus ID bits 0. The seed is therefore 0x8000 + game_frame_tick, plus one bit of beam
-   position; the original's recorded seeds fit this (0x8000 at tick 0, 0x8AA6 at tick
-   2726, docs/sdl3-port.md). Live: V8 from where a PAL frame would be on the host clock.
-   Replay: the seed itself is replayed (platform_seed). */
-uint16_t platform_beam(void)
+/* VPOSR, read only by seed_random (resident_F_4676), which stores VPOSR + game_frame_tick as
+   the RNG state: bit 15 LOF (set: PAL non-interlaced frames are long frames), bit 0 V8 (the
+   beam is on line 256-312), the OCS Agnus ID bits 0. The seed is therefore 0x8000 +
+   game_frame_tick, plus one bit of beam position; the original's recorded seeds fit this
+   (docs/sdl3-port.md). It is the one input that depends on the machine's timing, so the log
+   holds the seed itself: replay returns the seed minus the game clock, record writes the sum.
+   Live: V8 from where a PAL frame would be on the host clock. */
+#define GAME_FRAME_TICK (*(uint32_t *)(amiga_data_hunk + 0xB1EC))   /* G_h01_B1EC */
+
+uint16_t platform_vposr(void)
 {
-    if (replaying) return 0x8000;
-    return (uint16_t)(0x8000 | (SDL_GetTicksNS() % FRAME_NS * 313u / FRAME_NS >= 256));
+    uint16_t vposr = (uint16_t)(0x8000 | (SDL_GetTicksNS() % FRAME_NS * 313u / FRAME_NS >= 256));
+    if (replaying) {
+        if (seed_next < seed_count) vposr = (uint16_t)(seeds[seed_next++] - GAME_FRAME_TICK);
+        else platform_log("replay: no seed left at poll frame %u", poll_frames);
+    }
+    if (record_file) fprintf(record_file, "%u seed %04x\n", poll_frames, (uint16_t)(vposr + GAME_FRAME_TICK));
+    return vposr;
 }
 
-/* The RNG seed the game derives from the beam position and its tick (resident_F_4676):
-   the one input that depends on the machine's timing. Recorded; replayed in order. */
-uint16_t platform_seed(uint16_t value)
+/* A verification failure (an access outside guest memory ...): logged always; with --strict
+   the run ends and the program exits with status 3, so a replay test cannot pass over it. */
+void platform_fault(const char *what)
 {
-    if (replaying) {
-        if (seed_next < seed_count) value = seeds[seed_next++];
-        else platform_log("replay: no seed left at game tick %u", GAME_CLOCK);
-    }
-    if (record_file) fprintf(record_file, "%u seed %04x\n", GAME_CLOCK, value);
-    return value;
+    platform_log("FAULT at tick %u, poll frame %u: %s", tick, poll_frames, what);
+    failed = 1;
+    if (strict) longjmp(game_exit, 1);
+}
+
+/* Game events worth comparing with the original - the sound commands the game issues - go
+   into the record log as "POLL sound HEX" lines; replay ignores them. */
+void platform_event(const char *what, uint32_t value)
+{
+    if (record_file) fprintf(record_file, "%u %s %04x\n", poll_frames, what, value);
 }
 
 void platform_exit(int code)
@@ -197,13 +216,13 @@ static void apply_input(char kind, uint16_t value)
     if (kind == 'j' && value == joy1dat) return;
     if (kind == 'f' && (int)value == fire_down) return;
     if (record_file)
-        fprintf(record_file, "%u %s %04x\n", GAME_CLOCK, kind == 'j' ? "joy" : kind == 'f' ? "fire" : "key", value);
+        fprintf(record_file, "%u %s %04x\n", poll_frames, kind == 'j' ? "joy" : kind == 'f' ? "fire" : "key", value);
     if (kind == 'j') joy1dat = value;
     else if (kind == 'f') fire_down = value;
     else deliver_key((uint8_t)value);
 }
 
-/* The inputs of this tick: the replay log, or what the main thread collected. */
+/* The inputs of this poll frame: the replay log, or what the main thread collected. */
 static void sample_inputs(void)
 {
     uint8_t keys[64];
@@ -211,7 +230,7 @@ static void sample_inputs(void)
     uint16_t joy;
     int fire;
     if (replaying) {
-        while (replay_next < replay_count && replay[replay_next].tick <= GAME_CLOCK) {
+        while (replay_next < replay_count && replay[replay_next].tick <= poll_frames) {
             apply_input(replay[replay_next].kind, replay[replay_next].value);
             replay_next++;
         }
@@ -238,10 +257,30 @@ static void save_shot(const char *path)
     SDL_DestroySurface(picture);
 }
 
-/* Dumps, screenshots and the end of the run, at tick boundaries. */
-static void checkpoint(void)
+static void dump_state(void)
 {
-    if (dump_every && tick >= dump_from && (tick - dump_from) % dump_every == 0) {
+    static int layout_written;
+    if (!layout_written) {
+        /* Where the guest memory lies, so pointers in the dumps can be compared through what
+           they point at (an offset in the DATA hunk) instead of their host addresses. */
+        char path[600];
+        uint32_t arena_size;
+        const void *arena = amiga_arena(&arena_size);
+        FILE *layout;
+        snprintf(path, sizeof path, "%s/state-layout.json", dump_dir);
+        if ((layout = fopen(path, "w"))) {
+            uint32_t start, size;
+            fprintf(layout, "{\"data_base\": %u, \"data_size\": %u, \"arena_base\": %u, \"arena_size\": %u, \"regions\": [",
+                    (uint32_t)(uintptr_t)amiga_data_hunk, amiga_data_hunk_size,
+                    (uint32_t)(uintptr_t)arena, arena_size);
+            for (int i = 0; m68k_region_info(i, &start, &size); i++)
+                fprintf(layout, "%s[%u, %u]", i ? ", " : "", start, size);
+            fputs("]}\n", layout);
+            fclose(layout);
+        }
+        layout_written = 1;
+    }
+    {
         char path[600];
         FILE *data, *index;
         snprintf(path, sizeof path, "%s/state.bin", dump_dir);
@@ -253,15 +292,37 @@ static void checkpoint(void)
             fseek(data, 0, SEEK_END);
             offset = ftell(data);
             fwrite(amiga_data_hunk, 1, amiga_data_hunk_size, data);
-            fprintf(index, "{\"frame\": %u, \"offset\": %ld, \"size\": %u}\n", tick, offset, amiga_data_hunk_size);
+            fprintf(index, "{\"poll\": %u, \"frame\": %u, \"offset\": %ld, \"size\": %u}\n",
+                    poll_frames, tick, offset, amiga_data_hunk_size);
         }
         if (data) fclose(data);
         if (index) fclose(index);
     }
+}
+
+/* Called by the game's input poll (port/override/resident_F_4376.c) before it reads the
+   joystick: the first poll of a frame starts a poll frame, which takes that frame's inputs and
+   is a checkpoint - the state as the game is about to read its input. */
+void platform_poll(void)
+{
+    int fresh;
+    if (polled_tick == tick) return;
+    fresh = waited || polled_tick + 1 == tick || poll_frames == 0;
+    polled_tick = tick;
+    if (!fresh) return;                             /* the same poll frame continues */
+    waited = 0;
+    poll_frames++;
+    if (replay_end && poll_frames > replay_end) longjmp(game_exit, 1);
+    sample_inputs();
+    if (dump_every && poll_frames >= dump_from && (poll_frames - dump_from) % dump_every == 0) dump_state();
+}
+
+/* Screenshots and the end of the run, at tick boundaries. */
+static void checkpoint(void)
+{
     for (int i = 0; i < shot_count; i++)
         if (shots[i].tick == tick) save_shot(shots[i].path);
     if (end_tick && tick >= end_tick) quitting = 1;
-    if (replay_end && GAME_CLOCK >= replay_end) quitting = 1;
 }
 
 /* ---- the game's clock: one tick per PAL frame (313 lines of 227 colour clocks), run on
@@ -280,7 +341,6 @@ static void frame(void)
             if (server && server->is_Code) call_interrupt(server, 0);
         }
     tick++;
-    sample_inputs();
     checkpoint();
     if (!headless) {
         Uint64 due = start_ns + (Uint64)tick * FRAME_NS, now = SDL_GetTicksNS();
@@ -292,7 +352,12 @@ static void frame(void)
 void platform_wait_ticks(int ticks)
 {
     for (int n = ticks > 0 ? ticks : 1; n > 0; n--) frame();
+    waited = 1;
 }
+
+/* One pass of a busy-wait on interrupt state (port_gen spin_waits): a frame passes, but the
+   game did not wait for time itself. */
+void platform_spin_frame(void) { frame(); }
 
 /* ---- the game thread ---- */
 extern int16_t _main(int32_t alen, char *aptr);
@@ -301,17 +366,15 @@ static int SDLCALL game_thread(void *user)
 {
     (void)user;
     start_ns = SDL_GetTicksNS();
-    sample_inputs();
-    checkpoint();
     if (!setjmp(game_exit))
         _main(0, "");
     game_done = 1;
     return 0;
 }
 
-/* A replay log, timed in the game clock: "CLOCK joy|fire|key HEX" (JOY1DAT, fire 0/1, raw
-   key with bit 7 on release), "CLOCK seed HEX" (RNG seeds, taken in order), "CLOCK end";
-   '#' starts a comment line. --record writes the same format. */
+/* A replay log, timed in poll frames: "POLL joy|fire|key HEX" (JOY1DAT, fire 0/1, raw key
+   with bit 7 on release; taken at the first poll of that poll frame), "POLL seed HEX" (RNG
+   seeds, taken in order), "POLL end"; '#' starts a comment line. --record writes the same. */
 static int load_replay(const char *path)
 {
     FILE *f = fopen(path, "r");
@@ -328,6 +391,7 @@ static int load_replay(const char *path)
                 continue;
             }
             if (replay_count == capacity) replay = realloc(replay, (capacity = capacity * 2 + 64) * sizeof *replay);
+            if (strcmp(word, "joy") && strcmp(word, "fire") && strcmp(word, "key")) continue;   /* events */
             replay[replay_count++] = (struct input){ at, word[0] == 'j' ? 'j' : word[0] == 'f' ? 'f' : 'k', (uint16_t)value };
         } else if (sscanf(line, "%u %15s", &at, word) == 2 && !strcmp(word, "end"))
             replay_end = at;
@@ -459,14 +523,15 @@ int main(int argc, char **argv)
         else if (!strcmp(argv[i], "--log")) log_file = stderr;
         else if (!strcmp(argv[i], "--wav") && i + 1 < argc) wav_path = argv[++i];
         else if (!strcmp(argv[i], "--headless")) headless = 1;
+        else if (!strcmp(argv[i], "--strict")) strict = 1;
         else if (!strcmp(argv[i], "--ticks") && i + 1 < argc) end_tick = (uint32_t)strtoul(argv[++i], NULL, 10);
         else if (!strcmp(argv[i], "--record") && i + 1 < argc) {
             record_file = fopen(argv[++i], "w");
-            if (record_file) fputs("# ducktales replay log (game clock): CLOCK joy|fire|key|seed HEX, CLOCK end\n", record_file);
+            if (record_file) fputs("# ducktales replay log (poll frames): POLL joy|fire|key|seed HEX, POLL end\n", record_file);
         } else if (!strcmp(argv[i], "--replay") && i + 1 < argc) {
             if (load_replay(argv[++i])) { fprintf(stderr, "cannot read %s\n", argv[i]); return 1; }
         } else if (!strcmp(argv[i], "--dump") && i + 1 < argc) {
-            /* --dump DIR:FROM:EVERY appends state.bin and state-index.jsonl in DIR */
+            /* --dump DIR:FROM:EVERY appends state.bin and state-index.jsonl in DIR (poll frames) */
             char *spec = argv[++i], *every = strrchr(spec, ':'), *from;
             if (every) { *every++ = 0; from = strrchr(spec, ':'); }
             if (!every || !from) { fprintf(stderr, "--dump DIR:FROM:EVERY\n"); return 1; }
@@ -532,8 +597,8 @@ int main(int argc, char **argv)
         SDL_Delay(16);
     }
     SDL_WaitThread(game, NULL);
-    if (record_file) { fprintf(record_file, "%u end\n", GAME_CLOCK); fclose(record_file); }
+    if (record_file) { fprintf(record_file, "%u end\n", poll_frames); fclose(record_file); }
     paula_stop();
     SDL_Quit();
-    return 0;
+    return failed ? 3 : 0;
 }

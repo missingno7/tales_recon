@@ -144,6 +144,11 @@ def provider_unit(text, suffix):
     tags = (set(re.findall(r'\b(?:struct|union)\s+(\w+)\s*\{', text))
             | set(re.findall(r'\btypedef\b[^;]*?\(\s*\*\s*(\w+)\s*\)', text))          # typedef T (*Name)(...);
             | set(re.findall(r'\btypedef\b[^;(]*?\b(\w+)\s*(?:\[[^\]]*\]\s*)*;', text)))   # typedef T Name;
+    # A cell the runtime knows by name (G_h01_2EB0 is c.lib's _numdev) is still a DATA cell:
+    # its definition keeps the G_h01_XXXX name (a hunk member) and the runtime name becomes an
+    # alias of it.
+    defined = set(re.findall(r'\b(G_h01_[0-9A-F]{4})\s*(?:\[[^\]]*\]\s*)*=', text))
+    runtime_names = {k: macros.pop(k) for k in list(macros) if k in defined}
     out = []
     for kind, value in tokens(text):
         if kind == 'word':
@@ -155,8 +160,10 @@ def provider_unit(text, suffix):
     for m in DEFINITION.finditer(text):
         end = initializer_end(text, m.end())
         spans.append((m.start(), end + 1))
-        if m.group('name').startswith('G_h01_'):
-            definitions.append(dict(name=m.group('name'), type=m.group('type').strip(), dims=m.group('dims').strip(),
+        name = m.group('name')
+        if name.startswith('G_h01_'):
+            definitions.append(dict(name=name, runtime_name=runtime_names.get(name),
+                                    type=m.group('type').strip(), dims=m.group('dims').strip(),
                                     init=text[m.end():end].strip()))
     rest = text
     for start, end in reversed(spans):
@@ -216,6 +223,8 @@ def generate_data_hunk(plan, guest, root=ROOT, moved=None):
     members, initializers, aliases, cursor = [], [], [], 0
     for d in items:
         aliases.append((d['name'], d['offset']))
+        if d.get('runtime_name'):
+            aliases.append((d['runtime_name'], d['offset']))
         if d['offset'] < cursor:
             continue                               # inside an earlier member: an alias only
         if d['offset'] > cursor:
@@ -406,9 +415,29 @@ def needs_override(text):
     reasons = []
     if re.search(r'^\s*#asm\b', text, re.M):
         reasons.append('inline #asm')
-    if HARDWARE.search(''.join(v for k, v in tokens(text) if k != 'comment')):
+    # A hardware address the read rule did not turn into amiga_read16 (a write, a byte or long
+    # access); a plain assignment to a local that is never dereferenced is harmless.
+    code = ''.join(v for k, v in tokens(text) if k != 'comment')
+    code = re.sub(r'\bamiga_read16\([^)]*\)', '', code)
+    code = re.sub(r'\b[A-Za-z_]\w*\s*=\s*%s\s*;' % HARDWARE_ADDRESS, '', code, flags=re.I)
+    if HARDWARE.search(code):
         reasons.append('custom chip / CIA address')
     return reasons
+
+
+# Hardware registers the game's C code reads (the input poll's JOY1DAT and CIA-A fire bit,
+# seed_random's VPOSR): a 16-bit dereference of a custom chip or CIA address - a constant, or a
+# local the function assigns one - becomes amiga_read16 (port/m68k.c), so the recovered
+# function runs unchanged instead of a hand-written port version of it.
+HARDWARE_ADDRESS = r'0x(?:dff|bfe|bfd)[0-9a-f]{3}\b'
+
+
+def hardware_reads(text):
+    """Returns (text, count)."""
+    names = set(re.findall(r'\b([A-Za-z_]\w*)\s*=\s*%s\s*;' % HARDWARE_ADDRESS, text, re.I))
+    target = '|'.join([HARDWARE_ADDRESS] + [r'\b%s\b' % re.escape(n) for n in sorted(names)])
+    read = re.compile(r'\*\s*\(\s*(?:uint16_t|int16_t|unsigned short|short)\s*\*\s*\)\s*(%s)' % target, re.I)
+    return read.subn(lambda m: 'amiga_read16(%s)' % m[1], text)
 
 
 # Busy-waits on state only interrupts change (reviewed list): the audio driver's channel-0
@@ -423,10 +452,27 @@ SPIN = re.compile(r'(?m)^([ \t]*)while\s*\((%s\b(?:%s)\b%s)\)\s*(;|\{)'
                   % (_SPIN_ATOM, '|'.join(INTERRUPT_STATE), _SPIN_ATOM))
 
 
+WAITS = re.compile(r'\b(?:Delay|WaitBOVP|F_h00_86A8|F_h00_8C04)\s*\(')   # also their staged names
+
+
 def spin_waits(text):
-    """Make each busy-wait on INTERRUPT_STATE wait one frame per pass; returns (text, count)."""
-    return SPIN.subn(lambda m: '%swhile (%s) %s' % (
-        m[1], m[2], 'platform_wait_ticks(1);' if m[3] == ';' else '{ platform_wait_ticks(1);'), text)
+    """Make each busy-wait on INTERRUPT_STATE wait one frame per pass; returns (text, count).
+    A loop whose body already waits for time (Delay, WaitBOVP) is left alone: an extra frame
+    per pass would stretch it (while a sound plays, `poll; Delay(5)` must poll every 5 frames)."""
+    out, count, at = [], 0, 0
+    for m in SPIN.finditer(text):
+        if m[3] == '{':
+            depth, end = 1, m.end()
+            while depth and end < len(text):
+                depth += {'{': 1, '}': -1}.get(text[end], 0)
+                end += 1
+            if WAITS.search(text, m.end(), end):
+                continue
+        out.append(text[at:m.start()])
+        out.append('%swhile (%s) %s' % (m[1], m[2], 'platform_spin_frame();' if m[3] == ';' else '{ platform_spin_frame();'))
+        at = m.end(); count += 1
+    out.append(text[at:])
+    return ''.join(out), count
 
 
 # A link-only stub cell of the Amiga build (a DATA or BSS name no typed provider covers yet)
@@ -436,10 +482,25 @@ STUB_CELL = re.compile(r'^[ \t]*(?:[A-Za-z_]\w*[ \t*]+)+(G_h01_([0-9A-F]{4}))[ \
                        r'[ \t]*(?:=[ \t]*\{[^;]*\})?[ \t]*;[ \t]*\n', re.M)
 
 
-def hunk_cells(text):
-    """Remove the stub definitions of G_h01_XXXX cells; returns (text, [(name, offset)])."""
+def hunk_cells(text, runtime=None):
+    """Remove the stub definitions of G_h01_XXXX cells and of the RUNTIME_CELLS names in
+    `runtime` ({name: offset}); returns (text, [(name, offset)])."""
     cells = [(m[1], int(m[2], 16)) for m in STUB_CELL.finditer(text)]
-    return STUB_CELL.sub('', text), cells
+    text = STUB_CELL.sub('', text)
+    for name, offset in (runtime or {}).items():
+        stub = re.compile(r'^[ \t]*(?:[A-Za-z_]\w*[ \t*]+)+%s[ \t]*(?:\[[^\]]*\])*[ \t]*;[ \t]*\n' % re.escape(name), re.M)
+        if stub.search(text):
+            text = stub.sub('', text)
+    return text, cells
+
+
+# DATA cells the Aztec runtime and the OS glue know by name (the staged units bind
+# G_h01_5374 to GfxBase, G_h01_B3B8 to _argc ...): the DATA hunk owns them, each name an alias
+# at its original offset, so the game, the port's OS layer (port/*.c declares them extern) and
+# state dumps see one cell. errno stays the host C library's.
+RUNTIME_CELLS = ('GfxBase', 'IntuitionBase', 'LayersBase', 'DOSBase', 'IconBase', 'MathBase',
+                 '_argc', '_argv', '_arg_len', '_arg_lin', '_devtab', '_savsp', '_stkbase',
+                 'Enable_Abort', 'WBenchMsg')
 
 
 STAGED_SOURCE = re.compile(r'staged from accepted source: (\S+?);')
@@ -494,7 +555,7 @@ def generate(source, output, override_dir=None):
                                                 if len(w) > 1 and 0 not in w},
                                   views={}),
                   asm=asm_report)
-    stub_cells = []
+    stub_cells, runtime = [], {}
     for entry in plan:
         name = Path(entry['object']).stem + '.c'
         if entry['kind'] != 'c':
@@ -502,25 +563,33 @@ def generate(source, output, override_dir=None):
         if name.startswith('obj_data_'):
             report['data_providers'] = report.get('data_providers', 0) + 1; continue   # in data_hunk.c
         text = (guest / entry['source']).read_text(encoding='latin-1')
+        for cell, bound in re.findall(r'^#define (G_h01_[0-9A-F]{4}) (\w+)$', text, re.M):
+            if bound in RUNTIME_CELLS:
+                runtime.setdefault(bound, int(cell[6:], 16))
         override = unit_override(text, override_dir)
         if override:
             target_text = override.read_text(encoding='utf-8'); report['overridden'].append(override.name)
         else:
-            reasons = needs_override(text)
-            if reasons:
-                report['needs_override'][name] = reasons
             notes = []
             target_text = translate(text, notes)
             if notes:
                 report['byte_order']['views'][name] = notes
         if name.startswith(('link_stub_data_', 'link_stub_bss_')):
-            target_text, cells = hunk_cells(target_text)
+            target_text, cells = hunk_cells(target_text, runtime)
             stub_cells += cells
+        target_text, reads = hardware_reads(target_text)
+        if reads:
+            report.setdefault('hardware_reads', {})[name] = reads
+        if not override:
+            reasons = needs_override(target_text)
+            if reasons:
+                report['needs_override'][name] = reasons
         target_text, spins = spin_waits(target_text)
         if spins:
             report.setdefault('spin_waits', {})[name] = spins
         (output / name).write_text(target_text, encoding='latin-1', newline='\n')
         report['units'] += 1
+    stub_cells += sorted(runtime.items(), key=lambda kv: kv[1])
     if stub_cells:
         with open(output / 'data_hunk.c', 'a', encoding='latin-1', newline='\n') as hunk:
             hunk.write('__asm__(\n%s);\n' % ''.join('    ".globl _%s\\n.set _%s, _amiga_data_hunk+0x%X\\n"\n' % (n, n, o)

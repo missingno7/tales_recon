@@ -33,6 +33,7 @@ void m68k_wr16(uint32_t address, uint32_t value);
 void m68k_wr32(uint32_t address, uint32_t value);
 void m68k_memory(void *start, uint32_t size, int big_endian);   /* register guest memory */
 void m68k_big_endian(void *start, uint32_t size);   /* register a big-endian region */
+int m68k_region_info(int i, uint32_t *start, uint32_t *size);   /* region i, for dump layouts */
 static inline void m68k_put_be32(void *at, uint32_t value)
 {
     uint8_t *p = (uint8_t *)at;

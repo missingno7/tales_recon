@@ -3,6 +3,7 @@
    it back). Seek returns the previous position, as AmigaDOS does. */
 #include "amiga.h"
 #include "os.h"
+#include "m68k.h"
 
 #include <string.h>
 
@@ -17,7 +18,7 @@ static struct dos_file files[32];
    DOSBase->dl_Root->rn_Info->di_DevInfo (BPTRs) to find the inserted volumes, which is how
    request_disk sees whether DT1:/DT2: are present. The port builds that tree with one
    DLT_VOLUME node per mounted disk image (dl_Task set: the volume is in a drive). */
-struct Library *DOSBase;
+extern struct Library *DOSBase;   /* a DATA cell (port_gen RUNTIME_CELLS) */
 
 #define BPTR(p) ((uint32_t)(uintptr_t)(p) >> 2)
 #pragma pack(push, 2)
@@ -56,6 +57,10 @@ void dos_init(void)
         nodes[i].dl_Name = BPTR(names[i]);
     }
     DOSBase = &library.dl_lib;
+    /* guest memory: the game walks these through DOSBase and BPTRs */
+    m68k_memory(&library, sizeof library, 0); m68k_memory(&root, sizeof root, 0);
+    m68k_memory(&info, sizeof info, 0); m68k_memory(nodes, sizeof nodes, 0);
+    m68k_memory(names, sizeof names, 0); m68k_memory(drive_task, sizeof drive_task, 0);
 }
 
 int32_t Open(int32_t name, int32_t mode)

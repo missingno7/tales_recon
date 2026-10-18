@@ -124,8 +124,18 @@ def test_port_output_spells_readable_names_in_code_and_asm_strings(tmp_path, mon
 
 def test_le_readers_and_hardware_units_have_port_versions():
     overrides = Path(__file__).resolve().parents[1] / 'port' / 'override'
-    for name in ('resident_F_2D66', 'resident_F_2DBA', 'resident_F_4376', 'resident_F_4676', 'resident_F_33E6'):
+    for name in ('resident_F_2D66', 'resident_F_2DBA', 'resident_F_33E6'):
         assert (overrides / (name + '.c')).is_file(), name
+    # the input poll and seed_random run as recovered: their hardware reads are translated
+    poll = ('    p0 = 0xdff00c;\n    p1 = 0xbfe0fe;\n'
+            '    s = ((*(uint16_t *)p1 & 0x80) ^ 0x80) >> 3;\n    s |= (*(uint16_t *)p0 & 0x2) << 2;\n')
+    out, count = port_gen.hardware_reads(poll)
+    assert count == 2 and 'amiga_read16(p1)' in out and 'amiga_read16(p0)' in out
+    assert port_gen.needs_override(out) == []
+    seed = 'G_h01_3AB8 = *(uint16_t *)0xdff004 + G_h01_B1EC;'
+    assert port_gen.hardware_reads(seed) == ('G_h01_3AB8 = amiga_read16(0xdff004) + G_h01_B1EC;', 1)
+    # a write to a hardware address is not translated: it still needs a port version
+    assert port_gen.needs_override('*(uint16_t *)0xdff096 = 0x8200;') == ['custom chip / CIA address']
     one = '/* staged from accepted source: src/recovered/resident/resident_F_2D66.c; x */'
     two = '/* staged from accepted source: a/x.c; */ /* staged from accepted source: a/y.c; */'
     assert port_gen.unit_override(one, overrides)

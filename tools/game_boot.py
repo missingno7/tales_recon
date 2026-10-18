@@ -235,9 +235,8 @@ def exception_report(emu, state, model):
 _DUMP = {}
 
 
-def state_dump(emu, executable, model, frame_number):
-    """Append the program's DATA hunk (initialized data and its BSS tail) to
-    state.bin and index it; the hunk base is located once in memory."""
+def locate_program(emu, executable, model):
+    """The program's DATA and CODE bases, found once in memory; False until loaded."""
     if not _DUMP.get('base'):
         # Retried until the program is loaded: before that no hunk is found, and while
         # it loads a DOS buffer can hold a second copy (ambiguous or partial match).
@@ -247,16 +246,26 @@ def state_dump(emu, executable, model, frame_number):
             return
         resident = mapping.get('resident') or {}
         _DUMP['base'] = resident.get(1, resident.get('1'))
+        _DUMP['code'] = resident.get(0, resident.get('0'))
         _DUMP['size'] = model['hunks'][1]['allocated_size']
         (RUN / 'state-layout.json').write_text(json.dumps(dict(data_base=_DUMP['base'], data_size=_DUMP['size'],
             resident=resident), indent=2) + '\n', encoding='utf-8')
-    if not _DUMP['base']:
+    return bool(_DUMP.get('base'))
+
+
+def state_dump(emu, executable, model, frame_number, poll=None):
+    """Append the program's DATA hunk (initialized data and its BSS tail) to
+    state.bin and index it; the hunk base is located once in memory."""
+    if not locate_program(emu, executable, model):
         return
     raw = emu.dump('state-frame.bin', _DUMP['base'], _DUMP['size'])
     with open(RUN / 'state.bin', 'ab') as out:
         offset = out.tell(); out.write(raw)
     with open(RUN / 'state-index.jsonl', 'a', encoding='utf-8') as index:
-        index.write(json.dumps(dict(frame=frame_number, offset=offset, size=len(raw))) + '\n')
+        row = dict(frame=frame_number, offset=offset, size=len(raw))
+        if poll is not None:
+            row['poll'] = poll
+        index.write(json.dumps(row) + '\n')
 
 
 RNG_STATE_OFFSET = 0x3AB8  # G_h01_3AB8: the game's 16-bit LFSR state (resident_F_463E)
@@ -310,14 +319,42 @@ class RngPin:
                 event['pinned'] = value = pinned
             self.events.append(event)
         if self.previous is None or is_reseed(self.previous, value):
-            (RUN / 'rng-reseeds.json').write_text(json.dumps(dict(first_observed=self.first_observed, events=self.events),
-                                                             indent=1) + '\n', encoding='utf-8')
+            self.save()
         self.previous = value
+
+    def seeded(self, emu, frame_number):
+        """At seed_random's entry (poll-driven runs): run it to its rts and take the seed it
+        stored - exact, where the per-frame check above infers reseeds from LFSR reachability."""
+        emu.cmd('fi')                                        # seed_random calls nothing: its rts
+        base = _DUMP['base']
+        lines = [l for l in emu.cmd('m %X 1' % (base + self.offset)).splitlines()
+                 if re.match(r'\s*[0-9A-Fa-f]{8} [0-9A-Fa-f]{4}', l)]
+        value = int(lines[-1].split()[1], 16)
+        event = dict(index=len(self.events), frame=frame_number, value=value, exact=True)
+        if self.pinned is not None and event['index'] < len(self.pinned):
+            pinned = self.pinned[event['index']]['value']
+            emu.cmd('W %X %02X %02X' % (base + self.offset, pinned >> 8, pinned & 0xFF))
+            event['pinned'] = pinned
+        self.events.append(event)
+        self.previous = event.get('pinned', value)
+        self.save()
+
+    def save(self):
+        (RUN / 'rng-reseeds.json').write_text(json.dumps(dict(first_observed=self.first_observed, events=self.events),
+                                                         indent=1) + '\n', encoding='utf-8')
 
 
 RNG = None
+POLLS = None
+REPLAY = None   # --replay LOG: inputs at poll frames instead of the frame-stamped --input script
 
-GAME_CLOCK_OFFSET = 0xB1EC  # G_h01_B1EC game_frame_tick: the VBlank count since the game started it
+POLL_OFFSET = 0x4376  # poll_controller_and_keyboard_input, the game's one input read (root hunk)
+SEED_OFFSET = 0x4676  # seed_random: the RNG state from VPOSR + game_frame_tick
+VBLANK_OFFSET = 0x615E  # vblank_server: runs at the start of every frame
+SOUND_OFFSET = 0x57D2   # play_sound: the game's sound commands (compared as events)
+WAIT_OFFSETS = (0x86A8, 0x8C04)   # the Delay and WaitBOVP glue: the game waits for time
+FRAME_CCK = 227 * 313  # colour clocks in a PAL frame
+POLL_TIMEOUT = 120     # seconds of emulation without any input poll before the run counts as stuck
 JOYSTICK_EVENTS = {'JOY2_RIGHT': 'right', 'JOY2_LEFT': 'left', 'JOY2_UP': 'up', 'JOY2_DOWN': 'down'}
 
 
@@ -330,64 +367,152 @@ def joy1dat(held):
     return value
 
 
-def port_replay_log(events, clock_at, seeds):
-    """The run's inputs as a port replay log (port/main.c), timed in the game clock:
-    an input injected before emulated frame F is seen from the clock the game had at the
-    start of F (clock_at(F - 1)); seeds are the run's recorded RNG reseeds, in order."""
-    lines, held, fire = ['# from tools/game_boot.py: frame-stamped WinUAE inputs in the game clock'], set(), 0
-    for event in sorted(events, key=lambda e: e['frame']):
-        clock = clock_at(event['frame'] - 1)
+def replay_events(log):
+    """A replay log (port/main.c format, poll frames) as WinUAE input events: (poll frame, events)
+    with each JOY1DAT change split into direction presses and releases; and its seeds."""
+    rows, seeds, held = [], [], set()
+    directions = (('right', 0x2), ('left', 0x200))
+    for line in Path(log).read_text(encoding='utf-8').splitlines():
+        parts = line.split()
+        if len(parts) != 3 or line.startswith('#'):
+            continue
+        at, kind, value = int(parts[0]), parts[1], int(parts[2], 16)
+        if kind == 'seed':
+            seeds.append(value)
+        elif kind == 'fire':
+            rows.append(dict(poll=at, event='JOY2_FIRE_BUTTON', value=value))
+        elif kind == 'joy':
+            now = {d for d, bit in directions if value & bit}
+            if bool(value & 1) != ('right' in now):
+                now.add('down')
+            if bool(value & 0x100) != ('left' in now):
+                now.add('up')
+            for d in sorted(held - now):
+                rows.append(dict(poll=at, event='JOY2_' + d.upper(), value=0))
+            for d in sorted(now - held):
+                rows.append(dict(poll=at, event='JOY2_' + d.upper(), value=1))
+            held = now
+    return rows, seeds
+
+
+def port_replay_log(injected, seeds):
+    """The run's inputs as a port replay log (port/main.c): each event at the poll frame that
+    read it (`injected`: [(poll frame, WinUAE event)]); seeds are the recorded RNG reseeds."""
+    lines, held = ['# from tools/game_boot.py: WinUAE inputs at the poll frame that read them'], set()
+    for at, event in injected:
         if event['event'] == 'JOY2_FIRE_BUTTON':
-            fire = 1 if event['value'] else 0
-            lines.append('%d fire %04x' % (clock, fire))
+            lines.append('%d fire %04x' % (at, 1 if event['value'] else 0))
         elif event['event'] in JOYSTICK_EVENTS:
             (held.add if event['value'] else held.discard)(JOYSTICK_EVENTS[event['event']])
-            lines.append('%d joy %04x' % (clock, joy1dat(held)))
+            lines.append('%d joy %04x' % (at, joy1dat(held)))
         else:
             raise ValueError('no port input for WinUAE event ' + event['event'])
     lines += ['0 seed %04x' % value for value in seeds]
     return '\n'.join(lines) + '\n'
 
 
-def clock_from_dumps(run, clock_offset):
-    """clock_at(frame) from the run's state dumps: the game clock advances one per
-    emulated frame once started, so between dumps it is interpolated; a dump interval
-    whose clock does not advance by its frame count is reported."""
-    index = [json.loads(l) for l in (run / 'state-index.jsonl').read_text().splitlines() if l.strip()]
-    data = (run / 'state.bin').read_bytes()
-    points = [(row['frame'], int.from_bytes(data[row['offset'] + clock_offset:row['offset'] + clock_offset + 4], 'big'))
-              for row in index]
-    irregular = [(a, b) for a, b in zip(points, points[1:]) if a[1] and b[1] - a[1] != b[0] - a[0]]
+class PollFrames:
+    """--poll-dumps: the run is driven by the game's input polls (poll_driven). A poll starts a
+    new poll frame when the game has waited for time (Delay, WaitBOVP) since the current one
+    began, or when it also polled in the frame just before (a loop polling every frame while a
+    sound plays). Work that spans frames - drawing, decompressing, loading - does not, so the
+    port, which spends no frames on it, counts the same steps (port/main.c platform_poll):
+    inputs and checkpoints timed in poll frames mean the same game step on both machines."""
 
-    def clock_at(frame):
-        before = [p for p in points if p[0] <= frame]
-        if not before:
-            return 0
-        at, clock = before[-1]
-        return clock + (frame - at) if clock else 0
-    return clock_at, irregular
+    def __init__(self, every):
+        self.every, self.address, self.count, self.injected = every, None, 0, []
+        self.seed = self.vblank = self.sound = None
+        self.waits, self.waited, self.last_frame = (), False, None
+        self.sounds = []                                   # (poll frame, sound command)
 
 
-def write_port_replay(executable_is_original):
-    """port-replay.log for a run with state dumps (docs/sdl3-port.md). The seed set before
-    RNG tracking began (the hunk is found only once the program has loaded) is the first
-    observed state when it has VPOSR's form: LOF set, 0x8000 + the game clock (+1 for V8)."""
-    if not (RUN / 'state-index.jsonl').exists():
+def run_to(emu, *addresses, timeout=POLL_TIMEOUT):
+    """Run until the CPU enters one of `addresses`; the breakpoints are removed again."""
+    for address in addresses:
+        emu.cmd('f %X' % address)
+    before = emu.snap(); emu.cmd('g', wait=False); emu.reconnect_console()
+    text = emu.wait_prompt(before=before, timeout=timeout)
+    emu.cmd('fd')
+    return text
+
+
+def poll_driven(emu, polls, start_cck, frames, pending, rng, dump, records):
+    """The run from here on, stopping only at events: the game's input poll, seed_random and
+    the start of a frame (its VBlank server). At the first poll of a frame: inject the
+    script's events due by that frame (the poll reads them at once, as it would have read
+    them at the frame's start - measured: fire injected at the entry is in the poll's
+    result), count the poll frame, dump every N-th one; then wait for the next frame's
+    VBlank before watching for polls again, so a busy loop's hundreds of polls per frame cost
+    one stop. At seed_random: take the seed exactly (RngPin.seeded). Frames without a poll -
+    loading, drawing - run at emulation speed. Frame steps are not used: with a breakpoint
+    armed, WinUAE's frame steps run past their target line, and its memory watches do not
+    fire during frame steps (measured 2026-10-18); debugger stops do not change the
+    emulation (the same frames stepped two ways give identical memory)."""
+    after_poll = False
+    while True:
+        watched = [polls.vblank if after_poll else polls.address] + ([polls.seed] if rng is not None else []) + \
+            ([polls.sound] if polls.sound else []) + list(polls.waits)
+        state = trace.cpu(run_to(emu, *watched))
+        frame = (emulated_cck(emu) - start_cck) // FRAME_CCK
+        if frame >= frames:
+            return frame
+        if rng is not None and state['pc'] == polls.seed:
+            rng.seeded(emu, frame)
+            continue
+        if state['pc'] == polls.vblank:
+            after_poll = False
+            continue
+        if state['pc'] in polls.waits:
+            polls.waited = True
+            continue
+        if state['pc'] == polls.sound:                   # play_sound(n): n is the word above the return address
+            line = [l for l in emu.cmd('m %X 1' % (state['regs']['A7'] + 4)).splitlines()
+                    if re.match(r'\s*[0-9A-Fa-f]{8} [0-9A-Fa-f]{4}', l)][-1]
+            polls.sounds.append((polls.count, int(line.split()[1], 16)))
+            continue
+        if state['pc'] != polls.address:
+            raise RuntimeError('stopped outside the watched entries at %X' % state['pc'])
+        fresh = polls.count == 0 or polls.waited or polls.last_frame == frame - 1
+        polls.last_frame = frame
+        after_poll = True
+        if not fresh:
+            continue                                     # the same poll frame continues
+        polls.waited = False
+        while pending and (pending[0]['poll'] <= polls.count + 1 if 'poll' in pending[0] else
+                           pending[0]['frame'] <= frame):
+            event = pending.pop(0)
+            emu.cmd('I evt ' + event['event'] + ' ' + str(event['value']))
+            polls.injected.append((polls.count + 1, event))
+        polls.count += 1
+        if polls.every and polls.count % polls.every == 0:
+            dump(frame, polls.count)
+        records.append(dict(frame=frame, poll=polls.count, pc=state['pc'], pc_hex=hex(state['pc']),
+                            beam=[state['vpos'], state['hpos']]))
+
+
+def symbol_offset(sym_path, hunk_number, name):
+    current = None
+    for line in sym_path.read_text(encoding='utf-8', errors='replace').splitlines():
+        heading = re.match(r'Segment\s+\d+:\s+Hunk\s+(\d+)', line)
+        if heading:
+            current = int(heading.group(1)); continue
+        match = re.match(r'\s*([0-9a-fA-F]{8})\s+(\S+)', line)
+        if current == hunk_number and match and match.group(2) == name:
+            return int(match.group(1), 16)
+    raise KeyError(name)
+
+
+def write_port_replay(polls):
+    """port-replay.log for a poll-driven run (docs/sdl3-port.md): its inputs at the poll
+    frames that read them, and the seeds seed_random stored (taken exactly)."""
+    if polls is None:
         return None
-    offset = GAME_CLOCK_OFFSET
-    if not executable_is_original:
-        from game_compare import map_offsets
-        offset = map_offsets(GAME_DIR / 'DuckTales.sym', 0)['_G_h01_%04X' % GAME_CLOCK_OFFSET]
-    clock_at, irregular = clock_from_dumps(RUN, offset)
-    events = json.loads((RUN / 'title-input.json').read_text(encoding='utf-8'))
     record = json.loads((RUN / 'rng-reseeds.json').read_text()) if (RUN / 'rng-reseeds.json').exists() else {}
-    seeds, first = [], record.get('first_observed')
-    if first and 0x8000 <= first['value'] <= 0x8001 + clock_at(first['frame']):
-        seeds.append(first['value'])
-    seeds += [e.get('pinned', e['value']) for e in record.get('events', [])]
-    text = port_replay_log(events, clock_at, seeds) + '%d end\n' % clock_at(FRAMES - 1)
+    seeds = [e.get('pinned', e['value']) for e in record.get('events', []) if e.get('exact')]
+    text = port_replay_log(polls.injected, seeds) + ''.join('%d sound %04x\n' % s for s in polls.sounds) + \
+        '%d end\n' % polls.count
     (RUN / 'port-replay.log').write_text(text, encoding='utf-8', newline='\n')
-    return dict(path='port-replay.log', seeds=len(seeds), irregular_clock_intervals=irregular[:5])
+    return dict(path='port-replay.log', seeds=len(seeds), poll_frames=polls.count)
 
 
 def boot_frame(emu):
@@ -492,11 +617,23 @@ def boot():
         for frame_number in range(FRAMES):
             for event in by_frame.get(frame_number, []):
                 emu.cmd('I evt ' + event['event'] + ' ' + str(event['value']))
+                if POLLS is not None:
+                    POLLS.injected.append((1, event))           # before the game's first poll
             before = {p for p in RUN.rglob('*.png')}
             if frame_number in screenshot_frames:
                 emu.cmd('I evt SPC_SCREENSHOT 1')
                 emu.cmd('I evt SPC_SCREENSHOT 0')
             try:
+                if POLLS is not None and POLLS.address is None and DUMP_FROM is not None and \
+                        frame_number >= DUMP_FROM and (frame_number - DUMP_FROM) % 25 == 0 and \
+                        locate_program(emu, executable, model):
+                    entry = lambda offset, name: _DUMP['code'] + (offset if ORIGINAL else
+                                    symbol_offset(GAME_DIR / 'DuckTales.sym', 0, name))
+                    POLLS.address = entry(POLL_OFFSET, '_F_h00_4376')
+                    POLLS.seed = entry(SEED_OFFSET, '_F_h00_4676')
+                    POLLS.vblank = entry(VBLANK_OFFSET, '_recon_h00_615E')
+                    POLLS.sound = entry(SOUND_OFFSET, '_recon_h00_57D2')
+                    POLLS.waits = (entry(WAIT_OFFSETS[0], '_Delay'), entry(WAIT_OFFSETS[1], '_WaitBOVP'))
                 state = boot_frame(emu)
                 if RNG is not None:
                     RNG.after_frame(emu, frame_number)
@@ -522,9 +659,21 @@ def boot():
             if root_base and root_base <= state['pc'] < root_base+root_size:
                 record['pc_symbol'] = symbol_at(GAME_DIR/'DuckTales.sym', 0, state['pc']-root_base)
             records.append(record)
-            if DUMP_EVERY and DUMP_FROM is not None and frame_number >= DUMP_FROM and (frame_number - DUMP_FROM) % DUMP_EVERY == 0:
+            if POLLS is None and DUMP_EVERY and DUMP_FROM is not None and frame_number >= DUMP_FROM and (frame_number - DUMP_FROM) % DUMP_EVERY == 0:
                 state_dump(emu, executable, model, frame_number)
             outcome['frames_completed'] = frame_number+1
+            if POLLS is not None and POLLS.address is not None:
+                # The program is loaded: from here on the run is driven by the game's polls.
+                pending = REPLAY or [event for f in sorted(by_frame) if f > frame_number for event in by_frame[f]]
+                try:
+                    poll_driven(emu, POLLS, outcome['start_cck'], FRAMES, pending, RNG if RNG else None,
+                                lambda f, n: state_dump(emu, executable, model, f, poll=n), records)
+                except Exception as exc:
+                    snapshot = emu.snap(2000)[1]
+                    outcome['crash'] = dict(poll_frame=POLLS.count, error=repr(exc), console_tail=snapshot[-5000:])
+                    break
+                outcome['frames_completed'] = FRAMES
+                break
             after = sorted(set(RUN.rglob('*.png')) - before)
             if frame_number in screenshot_frames:
                 if after:
@@ -559,8 +708,10 @@ def boot():
         emu.close()
         outcome['process_cleanup'] = json.loads((RUN/'cleanup.json').read_text(encoding='utf-8')) if (RUN/'cleanup.json').exists() else None
         (RUN/'frame-log.jsonl').write_text(''.join(json.dumps(x,separators=(',',':'))+'\n' for x in records), encoding='utf-8', newline='\n')
+        if POLLS is not None:
+            outcome['poll_frames'] = dict(count=POLLS.count, address=POLLS.address)
         try:
-            outcome['port_replay'] = write_port_replay(ORIGINAL)
+            outcome['port_replay'] = write_port_replay(POLLS)
         except (OSError, KeyError, ValueError) as exc:
             outcome['port_replay'] = dict(error=repr(exc))
         (RUN/'boot-report.json').write_text(json.dumps(outcome, indent=2) + '\n', encoding='utf-8', newline='\n')
@@ -582,6 +733,12 @@ if __name__ == '__main__':
                         help='WinUAE turbo floppy: load times stop depending on where files sit on disk')
     parser.add_argument('--screenshot-from', type=int, help='dense screenshots from this frame (with --screenshot-every)')
     parser.add_argument('--screenshot-every', type=int, default=0, help='dense screenshot interval in frames')
+    parser.add_argument('--poll-dumps', type=int, metavar='N',
+                        help='count poll frames (frames in which the game reads its input) and dump the DATA hunk '
+                             'at the first poll of every N-th one - the port\'s --dump checkpoints; needs --dump-from')
+    parser.add_argument('--replay', metavar='LOG',
+                        help='drive the run by a replay log (port/main.c format): inputs at their poll frames, '
+                             'its seeds pinned at seed_random - one log for the original, a build and the port')
     parser.add_argument('--rng-record', action='store_true',
                         help='log every reseed of the game RNG (rng-reseeds.json); needs state dumps')
     parser.add_argument('--rng-pin', metavar='RUN',
@@ -591,13 +748,23 @@ if __name__ == '__main__':
     GAME_DIR = args.game_dir.resolve(); RUN = ROOT / 'build' / 'trace' / args.run_name; FRAMES = args.frames
     ORIGINAL = args.original; FLOPPY_SPEED = 0 if args.turbo_floppy else 100
     SHOT_FROM = args.screenshot_from; SHOT_EVERY = args.screenshot_every
-    if args.rng_record or args.rng_pin:
-        if not DUMP_EVERY or DUMP_FROM is None:
-            parser.error('--rng-record/--rng-pin need --dump-from and --dump-every (the DATA hunk is located there)')
+    if args.poll_dumps:
+        if DUMP_FROM is None:
+            parser.error('--poll-dumps needs --dump-from (the frame from which the program is looked for)')
+        POLLS = PollFrames(args.poll_dumps)
+    if args.replay:
+        if not args.poll_dumps:
+            parser.error('--replay needs --poll-dumps: its inputs are timed in poll frames')
+        REPLAY, replay_seeds = replay_events(args.replay)
+        INPUT = str(ROOT / 'build' / 'trace' / 'empty-input.json')
+        Path(INPUT).write_text('[]\n', encoding='utf-8')
+    if args.rng_record or args.rng_pin or args.replay:
+        if not (DUMP_EVERY or args.poll_dumps) or DUMP_FROM is None:
+            parser.error('--rng-record/--rng-pin need --dump-from and --dump-every or --poll-dumps (the DATA hunk is located there)')
         from game_compare import map_offsets
         offset = RNG_STATE_OFFSET if ORIGINAL else map_offsets(GAME_DIR / 'DuckTales.sym', 0)['_G_h01_%04X' % RNG_STATE_OFFSET]
         pinned = (json.loads((ROOT / 'build' / 'trace' / args.rng_pin / 'rng-reseeds.json').read_text())['events']
-                  if args.rng_pin else None)
+                  if args.rng_pin else [dict(value=v) for v in replay_seeds] if args.replay else None)
         RNG = RngPin(offset, pinned)
     if args.action in ('prepare','run'): prepare()
     if args.action in ('boot','run'): boot()

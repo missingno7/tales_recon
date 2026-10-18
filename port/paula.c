@@ -62,7 +62,12 @@ static void update_dma(void)
     for (int n = 0; n < 4; n++) {
         struct channel *c = &channels[n];
         int on = (dmacon & 0x200) && (dmacon & (1 << n));
-        if (on && !c->playing) { c->playing = 1; c->phase = 0; start_block(c, n); }
+        /* DMA on: the channel latches LC/LEN and raises its start interrupt when it fetches
+           the first word, a little later - the mixer's first step (remaining 0). Raising it here,
+           inside the DMACON write, lost it: the driver clears INTREQ before it enables the
+           interrupt (resident_frameless_5868), so the countdown missed one block
+           (build/workers/audio-countdown/report.md, Hardware Reference Manual ch. 5). */
+        if (on && !c->playing) { c->playing = 1; c->phase = 0; c->remaining = 0; }
         else if (!on && c->playing) { c->playing = 0; c->sample = 0; }
     }
 }
@@ -76,6 +81,8 @@ uint32_t custom_read16(uint32_t offset)
 {
     switch (offset) {
     case 0x002: return dmacon;
+    case 0x004: return platform_vposr();                    /* VPOSR: seed_random only */
+    case 0x00C: platform_poll(); return platform_joystick(); /* JOY1DAT: the input poll */
     case 0x010: return adkcon;
     case 0x01C: return intena;
     case 0x01E: return intreq;

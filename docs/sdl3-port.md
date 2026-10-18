@@ -81,106 +81,129 @@ byte order. `tools/game_compare.py --port` reads each typed global of
 `recovery/data_model.json` through its type (numbers by value, pointers never), so it
 compares directly with WinUAE state dumps.
 
-## Determinism: one clock, record and replay
+## Determinism: one clock, inputs at the game's input reads
 
-The port runs everything on the game thread: there is no timer thread, no audio callback
-into the driver and no lock. The game's clock is one tick per PAL frame (71051 colour
-clocks, 20.0318 ms) and advances only when the game waits for time (`Delay`, `WaitBOVP`,
-and busy-waits on interrupt state, below). Each tick runs, in order, what the Amiga did
-around a frame: Paula plays one frame of sound (its block interrupts run the driver), the
-VBlank servers run (`game_frame_tick`, colour cycling, the driver's channel update), the
-inputs of the new frame are taken. Live play paces the ticks to real time; `--headless`
-runs them as fast as the host allows. A run is therefore a function of its inputs.
+The port runs everything on the game thread: no timer thread, no audio callback into the
+driver, no lock. The game's clock is one tick per PAL frame (71051 colour clocks, 20.0318 ms)
+and advances only when the game waits for time (`Delay`, `WaitBOVP`, and busy-waits on
+interrupt state). A tick runs, in order, Paula for one frame (its block interrupts run the
+driver) and the VBlank servers. Live play paces ticks to real time; `--headless` does not.
 
-What reaches the game from outside, measured from the code (2026-10-18):
+What reaches the game from outside (measured from the code, 2026-10-18):
 
-| Input | Where | Recorded as |
+| Input | Where | In the replay log |
 |---|---|---|
-| joystick and fire | `poll_controller_and_keyboard_input` (JOY1DAT, CIA-A PRA) | `joy`, `fire` |
-| keys | the input handler (`input.device`) | `key` (raw code, bit 7 = release) |
-| RNG seed | `seed_random` reads VPOSR + `game_frame_tick` | `seed` (the resulting state) |
-| time | `Delay`, `WaitBOVP`, busy-waits on the audio driver's channel-0 state `G_h01_2A16` (title, map, travel: "wait until the sound ends") and on `game_frame_tick` | the clock itself |
-| audio driver progress | the driver's state words, read by those busy-waits | follows from the clock |
+| joystick and fire | `poll_controller_and_keyboard_input` reads JOY1DAT and CIA-A PRA | `joy`, `fire` |
+| keys | the input handler (`input.device`), drained by the same poll | `key` (raw code, bit 7 = release) |
+| RNG seed | `seed_random` stores VPOSR + `game_frame_tick` | `seed` (the stored value) |
+| time | `Delay`, `WaitBOVP`; busy-waits on the audio driver's channel-0 state `G_h01_2A16` ("until the sound ends") and on `game_frame_tick` | the clock itself |
 
-Nothing else in the game reads interrupt-driven state (cross-reference of every global the
-reconstructed assembly writes against the C sources). VPOSR holds LOF (bit 15, set for PAL
-non-interlaced frames) and V8 (bit 0, beam on line 256-312), not the line number, so the
-seed is 0x8000 + `game_frame_tick` (+1): the RNG is seeded from how many frames the player
-spent before the difficulty choice, plus one bit of beam position. The original's recorded
-seeds fit this (0x8000 at tick 0, 0x8AA6 at tick 2726).
+Nothing else in the game reads interrupt-driven state. VPOSR holds LOF (bit 15) and V8 (bit
+0), not the line number, so the seed is 0x8000 + `game_frame_tick` (+1): the frames spent
+before the difficulty choice.
 
-Busy-waits: `port_gen.py` gives each `while` loop whose condition reads `G_h01_2A16` or
-`game_frame_tick` a one-frame wait per pass (`spin_waits`, 19 loops). On the Amiga such a
-loop spins while interrupts move the state; here every external change lands on a frame
-boundary, so the loop leaves at the same boundary a finer spin would.
+**The time base: poll frames.** The 68000 spends frames drawing, decompressing and loading;
+the port spends none. Inputs timed in frames therefore reach the two machines in different
+states. Inputs, checkpoints and the end of a replay are instead timed in *poll frames*, the
+steps of the game's own input reading: a poll starts a new poll frame when the game has waited
+for time (`Delay`, `WaitBOVP`) since the current one began, or when it also polled in the frame
+just before (a loop polling every frame while a sound plays). Work that spans frames does not,
+on either machine. The port counts them in `platform_poll` (called by the first input register
+the poll reads - it reads the fire bit before JOY1DAT); `tools/game_boot.py` counts them on
+the original with breakpoints at the poll, `Delay`/`WaitBOVP` glue and the VBlank server (below).
+Busy-waits get one frame per pass from `port_gen.py` (`spin_waits`; a loop whose body already
+waits keeps its own pace) through `platform_spin_frame`, which is not a game wait.
 
-Addresses are run-independent too: exec's `AllocMem` and the OS structures the game sees
-(RastPort, Layer, ColorMap, copper list, ports) are carved from one fixed arena with exec's
-own algorithm, and the executable is linked without address randomization. Guest memory is
-registered (`m68k_memory`); a translated-assembly access outside it reads 0 and is logged,
-as the Amiga reads bus noise there instead of faulting.
+The port runs the recovered input poll and `seed_random` unchanged: `port_gen.py` turns their
+16-bit dereferences of custom chip and CIA addresses into `amiga_read16`, so JOY1DAT, CIA-A PRA
+and VPOSR are register reads of the emulated chips (`hardware_reads`). Replay hands VPOSR the
+recorded seed minus the game clock, so `seed_random` computes the recorded seed itself.
 
-`ducktales --record FILE` writes the log, `--replay FILE` plays it, `--dump DIR:FROM:EVERY`
-appends the DATA/BSS hunk (host order, original offsets) to `DIR/state.bin` with
-`state-index.jsonl`, `--shot FILE.bmp:TICK` saves the picture at a tick, `--ticks N` ends the
-run. The log is text, timed in the game's own clock (`game_frame_tick`), so the same log
-drives the port and the original:
+Addresses are run-independent: AllocMem and the OS structures the game sees come from one
+fixed arena with exec's algorithm, the executable has a fixed base, and the DATA hunk owns every
+cell the runtime knows by name (`_numdev`, `GfxBase`, `DOSBase`, `_argc` ...: `RUNTIME_CELLS`)
+and every link-only stub cell. Guest memory is registered (`m68k_memory`); an access outside it
+is a verification fault (`platform_fault`): logged, exit status 3, and `--strict` stops the run.
+
+`ducktales --record FILE` / `--replay FILE` (text, poll frames):
 
 ```
-# ducktales replay log (game clock): CLOCK joy|fire|key|seed HEX, CLOCK end
+# from tools/game_boot.py: WinUAE inputs at the poll frame that read them
+1015 fire 0001
+1016 fire 0000
 0 seed 8000
-1652 fire 0001
-2172 joy 0003
-2725 seed 8aa6
-5522 end
+0 seed 8aa6
+1 sound 0001
+1015 sound 0000
+1082 end
 ```
 
-`tools/game_boot.py run ... --dump-every N` writes `port-replay.log` next to every WinUAE run:
-its frame-stamped inputs at the game clock they reached the game, and its recorded seeds.
+`sound` lines (the sound commands the game issued) are events for comparison; replay ignores
+them. `--dump DIR:FROM:EVERY` dumps the DATA/BSS hunk at the first poll of every EVERY-th poll
+frame, with the guest regions in `state-layout.json`; `--shot FILE.bmp:TICK`; `--ticks N`.
+
+**The original and the build, driven the same way.** `tools/game_boot.py run --poll-dumps N`
+drives WinUAE by events instead of frame steps: it runs to the next watched entry - the input
+poll, `seed_random`, `play_sound`, the `Delay`/`WaitBOVP` glue, the VBlank server - and acts
+there: at a poll that starts a poll frame it injects the inputs due (the poll reads them at
+once - measured: fire injected at the entry is in the poll's result), counts it and dumps every
+N-th; at `seed_random` it takes (or pins) the seed exactly; at `play_sound` it records the
+command. Frames without polls run at emulation speed. (A frame step cannot do this: with a
+breakpoint armed, WinUAE's frame steps run past their target line, and its memory watches do
+not fire during frame steps; debugger stops do not change the emulation.) With `--input` (a
+frame-stamped script) a run writes `port-replay.log`; with `--replay LOG` it is driven by a log,
+so one log drives the original, a build and the port.
 
 ## Verification: what is proven, and how to find the first divergence
 
 Measured 2026-10-18 with `evidence/trace/title-to-money-bin.json` (title, office, Money Bin,
-difficulty choice, company/location setup, contest screen; 6,000 frames, turbo floppy):
+difficulty choice, company/location setup, contest screen; 6,000 emulated frames = 1,082 poll
+frames, turbo floppy). One log, `title-to-money-bin.poll.log`, recorded from the original,
+drives all three machines.
 
 | Claim | Evidence | Result |
 |---|---|---|
-| 1-2. The original replays identically, also after restarting WinUAE | fresh sessions, `game_boot.py` starting at a fixed emulated cycle (`START_CCK`) | identical: PC and beam on 6,000/6,000 frames, 220/220 DATA/BSS dumps, the same RNG reseed (three fresh sessions, the third after the tool changes). Before the fix one of three fresh sessions started 47,000 colour clocks earlier |
-| 3. Original vs reconstructed Amiga build | same script, the original's seeds pinned (`--rng-pin`), compared per emulated frame | of 940 typed globals: 871 equal at all 220 checkpoints, 50 the same values shifted, 3 never (two pointers typed as numbers, the `GameGraphic` at `G_h01_50E6`). The build is not cycle-identical: it reaches the reseed 13 frames earlier, and from frame ~4550 it catches a fire press the original misses while busy, then runs ~300 frames ahead |
-| 4a. The port replays identically | a recorded run replayed twice | byte-identical: 241/241 dumps, screenshot |
-| 4b. Original vs SDL3 port | the original's inputs and seeds in the game clock (`port-replay.log`), compared at equal game clock (`game_compare.py --port`) | of 978 typed globals: 863 equal at all 220 checkpoints, 88 take the same values in the same order but later in the original (lag growing from ~150 to ~950 frames: companies, locations, treasures, money, market, sprites), 12 partly (decoder scratch, animation), 15 never: Aztec startup values the port's `_main` does not set (argc, command-line length, `_numdev` bound outside the hunk), pointers and file handles typed as numbers, decoder scratch, and the four audio block countdowns (0 in the original, 1 in the port: a lead into the port's Paula timing) |
-| Detection | mutation `% 37` to `% 36` in the treasure assignment (port only) | port vs port: first divergence at tick 2806 in exactly `location_records` and `location_treasure_slots`; original vs port: their agreement falls from 94-98% to 52-54% |
-| Detection is not coverage | mutation `>= 35` to `> 35` in `wrap_location_index` | not exercised by the script: identical dumps. A replay proves only what it runs |
+| The original replays identically across fresh WinUAE sessions | fixed emulated start (`START_CCK`), frame-stepped and poll-driven runs | identical: CPU and beam on every frame, every dump, the same seeds; three poll-driven sessions wrote the same log |
+| The log replays the original exactly | the original driven by its own poll-keyed log (`--replay`) | the round trip reproduces the log: same inputs, poll frames, seeds, sound commands |
+| The port replays exactly | the log replayed twice; a live run recorded and replayed | byte-identical: 1,082 dumps (one per poll frame) and screenshots |
+| Original vs SDL3 port | the log, a dump at every poll frame (`game_compare.py --port --events`) | **sound commands 23/23 identical (same commands, same poll frames); 1,009 of 1,018 typed globals identical at all 1,082 checkpoints.** The other nine are the audio driver's state (below) |
+| Original vs reconstructed Amiga build | the log (`--replay`), every 25th poll frame | sound commands 23/23 identical; 964 of 978 globals identical at all 42 checkpoints; the rest are pointers (compared by value - the build's link layout differs) and the same audio-driver state |
+| A wrong rule is caught and located | mutation `% 37` to `% 36` in the treasure assignment (port) | against the original: exactly `location_records` and `location_treasure_slots` differ, from poll frame 1,054 (the first poll after the reseed that shuffles them) to the end; everything else as before |
+| A replay proves only what it runs | mutation `>= 35` to `> 35` in `wrap_location_index` | not exercised by this script: no difference |
 
-What remains nondeterministic or unequal, and why:
+How the comparison reads state (`tools/game_compare.py`): every typed global of
+`recovery/data_model.json` through its type - numbers by value (the port's in host order),
+pointers by what they point at (an offset in the DATA hunk, the one region both machines lay
+out alike), two addresses elsewhere as *incomparable* (listed, never counted as a match),
+a number never as an address; the three dos.library file handles as open/closed; the Aztec CLI
+startup's argument cells and device table (`_argc`, `_argv` ...) listed as launch environment,
+since the port starts without a CLI. Every category is printed in the report.
 
-* **Time spent working.** The 68000 needs frames to decompress (LZW), draw and read the
-  disk; the port needs none. Inputs timed in frames (or in the game clock) therefore reach
-  the original later in its state, and a press can land while one machine is busy and the
-  other is waiting. Equal-clock comparison then shows the same values shifted ("lag"), and
-  a press caught by one and missed by the other changes the path. Exact cross-machine
-  replay needs inputs tied to what the game consumes, not to frames (next step below).
-* **Interrupt-side state** (audio countdowns, the channel stream pointer `G_h01_2A16`) is
-  sampled at different phases relative to the frame; compared, but judged by lag.
-* **Typed as numbers but not numbers:** `active_screen_bitmap`, file handles (`arc_file`,
-  `G_h01_A7CE`) and `G_h01_2A16` are pointers/handles typed `long` in
-  `recovery/data_model.json`; they differ by design between machines.
-* **Load-time scratch** (`arc_*` decoder state) differs while one machine is mid-load.
+What still differs, and why:
 
-First divergence, in practice: replay the same log in both, compare at equal game clock
-(`game_compare.py ORIG PORT --port`), take the earliest global that disagrees at every lag,
-then check the function that writes it against the original 68000 code (`tools/difftest.py`).
-The first real divergence found this way: sound 6 (played at the difficulty choice) made the
-translated driver read through `08 FF 80 00`. Cause: `game_build.py` bound the envelope
-pointer table `_G_h00_5E6C` to an older 58-entry compact table instead of the accepted
-80-entry table in `r600.asm`; the Amiga build had the same defect (reading garbage), the port
-faulted. Fixed in the build materialization; both now play the accepted table.
+* **The audio driver's own state** (block countdowns, sample cursors, the channel-0 stream
+  pointer): audio advances with real frames, and at the same poll frame the original has spent
+  more frames (its work between polls), so its sounds are further along. The sound commands the
+  game issues are identical; what the game reads back - "has the sound ended", in busy-waits - did
+  not change any game state in this script. A test that waits on a sound with work in the loop
+  body would show it.
+* **Load-time and work-time are not modelled**, by design: the port does instantly what takes
+  the 68000 frames. Gameplay that counts loop passes *until a sound ends* (an animation that
+  runs while a tune plays) can make more passes in the port; this script has none that change
+  state.
 
-Recording a human playthrough later: play the original in WinUAE with
-`game_boot.py` (frame-stamped events; claim 2 makes it exact on the original) or play the port
-with `--record`. Either log replays exactly on the machine it was recorded on. Across machines
-it currently holds where inputs arrive while both wait (menus, as in this canary); the planned
-input-consumption timing (inputs keyed to the game's input polls) removes the remaining gap.
+Finding the first divergence: replay the log on both, `game_compare.py ORIG PORT --port` with a
+dump at every poll frame (`--poll-dumps 1`, `--dump .:1:1`), take the earliest global that
+differs at every lag, then the function that writes it - against the original 68000 code with
+`tools/difftest.py` where it is a single function. Found this way so far: the envelope table
+bound to an older compact copy in the build (sound 6 read data as a pointer), Paula raising its
+start interrupt too early (the driver lost one block count), the fire bit read before the poll
+frame started (a press seen one poll late), a busy-wait rule stretching loops that already
+wait, and runtime cells (`_numdev`, the library bases) living outside the DATA hunk.
+
+Recording a human playthrough: play the original in WinUAE with `game_boot.py` or the port
+with `--record`; the poll-keyed log replays on the original, the build and the port. Recording
+in the original is the reference: its log is the input the other two must reproduce.
 
 ## From compatibility port to native game
 
@@ -197,12 +220,14 @@ verification only), and how it leaves:
 | `paula.c`, translated driver (`asm_port.py`, `m68k.*`) | B + C | music and effects through a 68000 driver on emulated Paula | a native C driver once its behaviour is pinned by WAV equality per replay; the driver's state feeds back into the game only through the "sound finished" busy-waits |
 | `os_exec.c` (arena, lists, ports, interrupts) | C | exec semantics the game relies on (its own MemHeader pool, interrupt servers) | goes with the code that calls it |
 | `os_dos.c`, `adf.c` | B | files from the two disks | host files (the extracted assets) |
-| `runtime.c` (`segload` no-op), overrides | C | overlays and Aztec startup/exit | already reduced to stubs; the overrides go when their callers are rewritten |
+| `runtime.c` (`segload` no-op), overrides | C | overlays, Aztec startup/exit, the blitter plane union, little-endian file fields | the input poll and `seed_random` overrides are gone (2026-10-18: the recovered functions run unchanged, their hardware reads go to the emulated chips); the rest go when their callers are rewritten |
 | record/replay, dumps, guest-memory checks | D | nothing | stays as the verification harness, outside the game proper |
 
-This change removed one layer: the timer thread, the audio-callback interrupts and the
-driver lock are gone; the game, its interrupts and its inputs run on one thread in a fixed
-order, which is what made the port reproducible.
+Removed so far: the timer thread, the audio-callback interrupts and the driver lock (one
+thread, a fixed order: the port became reproducible); the hand-written copies of the input poll
+and `seed_random` (91 + 15 lines: the recovered functions run unchanged, with hardware reads
+translated by `port_gen.py`); the port's separate definitions of runtime cells (the DATA hunk
+owns them).
 
 ## Build
 

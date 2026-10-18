@@ -29,7 +29,7 @@ int16_t AutoRequest(int32_t window, struct IntuiText *body, struct IntuiText *po
 }
 
 /* icon.library: the game is started from the CLI here, so there is no icon. */
-struct Library *IconBase;
+extern struct Library *IconBase;   /* a DATA cell (port_gen RUNTIME_CELLS) */
 int32_t GetDiskObject(const char *name) { (void)name; return 0; }
 int16_t FreeDiskObject(int32_t object) { (void)object; return 0; }
 int32_t FindToolType(int32_t types, const char *name) { (void)types; (void)name; return 0; }

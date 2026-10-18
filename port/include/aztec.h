@@ -11,6 +11,9 @@
    port_gen.py rewrites every `((T *)&x)[k]` of the game code to BE_VIEW(T, x, k). */
 /* the platform clock (port/main.c): busy-waits on interrupt state wait one frame per pass */
 void platform_wait_ticks(int ticks);
+void platform_spin_frame(void);
+/* custom chip and CIA registers the game reads (port/m68k.c) */
+uint16_t amiga_read16(uint32_t address);
 
 #define BE_SCALAR(x) _Generic((x), int16_t: 1, uint16_t: 1, int32_t: 1, uint32_t: 1, default: 0)
 #define BE_VIEW(T, x, k) (((T *)&(x))[BE_SCALAR(x) && sizeof(T) < sizeof(x) \

@@ -131,15 +131,19 @@ void platform_unimplemented(const char *name);   /* logs once per name */
 const struct View *platform_view(void);          /* the View the game loaded (LoadView) */
 void platform_set_view(const struct View *view);
 void platform_wait_ticks(int ticks);             /* DOS Delay: 50 Hz ticks */
+void platform_poll(void);                        /* the game reads its input: a poll frame */
+void platform_spin_frame(void);                   /* one pass of a busy-wait (port_gen) */
+void platform_fault(const char *what);           /* a verification failure; ends a --strict run */
+void platform_event(const char *what, uint32_t value);   /* a game event, recorded (not replayed) */
 uint16_t platform_joystick(void);                /* JOY1DAT for port 2 */
 int platform_fire(void);                         /* port 2 fire button, 1 = pressed */
-uint16_t platform_beam(void);                    /* VPOSR/VHPOSR sample for the game */
-uint16_t platform_seed(uint16_t value);          /* the RNG seed (recorded, replayed) */
+uint16_t platform_vposr(void);                   /* VPOSR as seed_random reads it (recorded, replayed) */
 
 /* ---- exec memory (port/os_exec.c): OS structures the game sees come from the same
    fixed arena as AllocMem, so their addresses are the same in every run ---- */
 void *amiga_alloc(uint32_t size);                /* cleared */
 void amiga_free(void *block, uint32_t size);
+const void *amiga_arena(uint32_t *size);         /* the arena, for state-dump layouts */
 
 /* ---- disk images (port/adf.c) ---- */
 int adf_mount(const char *volume, const char *image_path);   /* 0 on success */

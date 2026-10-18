@@ -92,22 +92,92 @@ def layout(kind, structs, at=0):
     return sorted(rows)
 
 
-def comparable(dump, at, parts, host_order, unknown):
-    """The comparable bytes of one global: numbers big-endian, pointers left out, UNKNOWN
-    bytes kept only when `unknown`."""
-    out = bytearray()
+AMIGA_MEMORY = ((0x400, 0x80000), (0xC00000, 0xC80000))   # the trace profile: 512K chip, 512K slow
+# Reviewed cells whose values are the operating system's, not the game's (reported, never silent):
+# dos.library file handles - compared as open or closed; and the Aztec CLI startup's argument
+# state and device table (_devtab, _argv, _argc, _arg_len, _arg_lin) - the port starts without
+# a CLI (port/override/resident_F_766C.c), so they are listed as not compared.
+OS_HANDLES = {'G_h01_46DA': 'arc_file', 'G_h01_4700': 'main_arc_file_handle', 'G_h01_A7CE': 'startup file handle'}
+LAUNCH_ENVIRONMENT = ('G_h01_B3A6', 'G_h01_B3B4', 'G_h01_B3B8', 'G_h01_B3BA', 'G_h01_B3BC')
+
+
+def layout_of(run, port):
+    """Where a run's DATA hunk lies and which values are addresses of its machine."""
+    layout = json.loads((TRACE / run / 'state-layout.json').read_text())
+    regions = [tuple(r) for r in layout.get('regions', [])] if port else \
+        [(lo, hi - lo) for lo, hi in AMIGA_MEMORY]
+    return dict(data_base=layout['data_base'], data_size=layout['data_size'],
+                regions=[(lo, lo + size) for lo, size in regions])
+
+
+class Word:
+    """A 4-byte cell that may hold an address (a typed pointer, or a long the code uses as one).
+    Two are equal when their values are equal, or when both point at the same offset of the
+    DATA hunk - the one region whose layout both machines share. Two addresses elsewhere (heap,
+    tables, OS structures) have no proven common identity: they compare equal but are counted
+    as incomparable (main reports them); a number never matches an address."""
+    __slots__ = ('raw', 'offset', 'address')
+
+    def __init__(self, raw, layout):
+        self.raw, self.offset, self.address = raw, None, False
+        if layout and layout['data_base'] <= raw < layout['data_base'] + layout['data_size']:
+            self.offset = raw - layout['data_base']
+        elif layout and raw and any(lo <= raw < hi for lo, hi in layout['regions']):
+            self.address = True
+
+    def __eq__(self, other):
+        if not isinstance(other, Word):
+            return NotImplemented
+        if self.raw == other.raw:
+            return True
+        if self.offset is not None or other.offset is not None:
+            return self.offset == other.offset
+        return self.address and other.address
+
+    def opaque(self, other):
+        return self.raw != other.raw and self.address and other.address
+
+    def hex(self):
+        return ('@%04x' % self.offset) if self.offset is not None else '%08x' % self.raw
+
+
+def comparable(dump, at, parts, host_order, unknown, layout=None):
+    """The comparable cells of one global: numbers by value (big-endian bytes), 4-byte values
+    and pointers as Word, UNKNOWN bytes only when `unknown`."""
+    out = []
     for offset, size, part in parts:
-        if part == 'pointer' or (part == 'unknown' and not unknown):
+        if part == 'unknown' and not unknown:
             continue
         raw = dump[at + offset:at + offset + size]
-        out += raw[::-1] if host_order and part == 'value' else raw
-    return bytes(out)
+        if host_order and part != 'unknown':
+            raw = raw[::-1]
+        if size == 4 and part in ('value', 'pointer'):
+            out.append(Word(int.from_bytes(raw, 'big'), layout))
+        else:
+            out.append(bytes(raw))
+    return tuple(out)
 
 
-def frames(run):
+def show(cells):
+    return cells.hex() if isinstance(cells, bytes) else ''.join(c.hex() for c in cells)
+
+
+def opaque(a, b):
+    """Whether two comparable tuples differ only in addresses with no common identity."""
+    return a != () and any(isinstance(x, Word) and isinstance(y, Word) and x.opaque(y) for x, y in zip(a, b))
+
+
+def frames(run, key='frame'):
+    """Checkpoints of a run keyed by emulated frame, or by poll frame ('poll': the game's
+    input reads, game_boot.py --poll-dumps and the port's --dump)."""
     index = [json.loads(l) for l in (TRACE / run / 'state-index.jsonl').read_text().splitlines() if l.strip()]
     data = (TRACE / run / 'state.bin').read_bytes()
-    return {row['frame']: data[row['offset']:row['offset'] + row['size']] for row in index}
+    return {row[key]: data[row['offset']:row['offset'] + row['size']] for row in index}
+
+
+def has_polls(run):
+    first = (TRACE / run / 'state-index.jsonl').read_text().splitlines()[:1]
+    return bool(first) and '"poll"' in first[0]
 
 
 def value_sequence(frames_by_number, read):
@@ -139,7 +209,7 @@ def sequence_differences(original, other, globals_at):
         k = next((i for i, (x, y) in enumerate(zip(av, bv)) if x != y), min(len(av), len(bv)))
         rows.append(dict(name=name, type=kind, step=k, original_steps=len(av), build_steps=len(bv),
                          frame=a[k][0] if k < len(a) else None, other_frame=b[k][0] if k < len(b) else None,
-                         original=av[k].hex() if k < len(av) else None, build=bv[k].hex() if k < len(bv) else None))
+                         original=show(av[k]) if k < len(av) else None, build=show(bv[k]) if k < len(bv) else None))
     return sorted(rows, key=lambda r: (r['frame'] is None, r['frame'] or 0, r['name']))
 
 
@@ -190,13 +260,34 @@ def best_lag(original, other, read_a, read_b, lags):
     return best
 
 
+def events(log, kind):
+    """[(poll frame, value)] of one event kind in a replay log (game_boot.py port-replay.log, or
+    the port's --record log)."""
+    rows = []
+    for line in Path(log).read_text(encoding='utf-8').splitlines():
+        parts = line.split()
+        if len(parts) == 3 and parts[1] == kind:
+            rows.append((int(parts[0]), int(parts[2], 16)))
+    return rows
+
+
+def compare_events(a, b):
+    """The first difference between two event sequences: (index, a's event, b's event), or None.
+    Equal means the same events in the same order at the same poll frames."""
+    for i, (x, y) in enumerate(zip(a, b)):
+        if x != y:
+            return i, x, y
+    return None if len(a) == len(b) else (min(len(a), len(b)), a[len(b):len(b) + 1] or None, b[len(a):len(a) + 1] or None)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     ap.add_argument('original_run'); ap.add_argument('build_run')
     ap.add_argument('--port', action='store_true',
                     help='the second run is the SDL3 port (port/main.c --dump): original layout, host '
-                         'byte order; checkpoints are matched by the game clock (the port spends no '
-                         'frames on disk loads)')
+                         'byte order. Runs that both have poll-frame checkpoints are matched by poll '
+                         'frame (the same input read on both machines); otherwise a port run is matched '
+                         'by the game clock')
     ap.add_argument('--map', default=str(ROOT / 'build' / 'game' / 'DuckTales.sym'))
     ap.add_argument('--top', type=int, default=25)
     ap.add_argument('--shift', type=int, default=0,
@@ -205,7 +296,17 @@ def main(argv=None):
                     help='largest shift tried when explaining a difference as the same values earlier or later')
     ap.add_argument('--sequences', action='store_true',
                     help='timing-free: compare the order of distinct values instead of aligned checkpoints')
+    ap.add_argument('--events', nargs=2, metavar=('ORIGINAL_LOG', 'OTHER_LOG'),
+                    help='also compare the sound commands the game issued (replay logs, in poll frames)')
     args = ap.parse_args(argv)
+    if args.events:
+        a, b = events(args.events[0], 'sound'), events(args.events[1], 'sound')
+        first = compare_events(a, b)
+        same_order = [v for _, v in a] == [v for _, v in b]
+        offset = max((abs(x[0] - y[0]) for x, y in zip(a, b)), default=0)
+        print('sound commands: %d / %d; %s' % (len(a), len(b), 'identical (same commands, same poll frames)'
+              if first is None else 'same commands in the same order, poll frames differ by up to %d (first at #%d)'
+              % (offset, first[0]) if same_order else 'first difference at #%d: original %s, other %s' % first))
     import sys
     sys.path.insert(0, str(ROOT / 'tools'))
     ours_at = {}
@@ -216,16 +317,31 @@ def main(argv=None):
     data_model = json.loads((ROOT / 'recovery' / 'data_model.json').read_text())
     located, counts = located_globals(data_model['globals'], data_model['structs'], ours_at, args.port)
     unknown = not args.port
+    # The first run may be a port run too (port vs port: a mutation check): its layout records
+    # the port's arena, and its dump is in host order.
+    first_port = 'arena_base' in json.loads((TRACE / args.original_run / 'state-layout.json').read_text())
+    layout_a = layout_of(args.original_run, first_port)
+    layout_b = layout_of(args.build_run, args.port)
+    if not args.port:
+        layout_b = None                   # a build's DATA layout differs (link map): numbers only
+        layout_a = None
+    handle = lambda d, o, host: (int.from_bytes(d[o:o + 4], 'little' if host else 'big') != 0,)
     reads = [(name, orig, ours, size, kind,
-              lambda d, o=orig, p=parts: comparable(d, o, p, False, unknown),
-              lambda d, o=ours, p=parts: comparable(d, o, p, args.port, unknown))
+              (lambda d, o=orig: handle(d, o, first_port)) if name in OS_HANDLES else
+              (lambda d, o=orig, p=parts: comparable(d, o, p, first_port, unknown, layout_a)),
+              (lambda d, o=ours: handle(d, o, args.port)) if name in OS_HANDLES else
+              (lambda d, o=ours, p=parts: comparable(d, o, p, args.port, unknown, layout_b)))
              for name, orig, ours, size, kind, parts in located
-             if any(part == 'value' or (unknown and part == 'unknown') for _, _, part in parts)]
-    original, built = frames(args.original_run), frames(args.build_run)
-    print('globals located: %d (%d not located); bytes compared: %d values%s; not compared: %d pointer%s'
+             if name not in LAUNCH_ENVIRONMENT and
+             any(part in ('value', 'pointer') or (unknown and part == 'unknown') for _, _, part in parts)]
+    by_poll = has_polls(args.original_run) and has_polls(args.build_run)
+    original = frames(args.original_run, 'poll' if by_poll else 'frame')
+    built = frames(args.build_run, 'poll' if by_poll else 'frame')
+    print('globals located: %d (%d not located); bytes compared: %d values%s, %d pointer%s'
           % (counts['globals'], len(counts['unlocated']), counts['value_bytes'],
              '' if args.port else ' + %d UNKNOWN' % counts['unknown_bytes'], counts['pointer_bytes'],
-             ', %d UNKNOWN/padding' % counts['unknown_bytes'] if args.port else ''))
+             ' (by DATA-hunk target); not compared: %d UNKNOWN/padding' % counts['unknown_bytes'] if args.port
+             else ' (by value: the build\'s layout differs)'))
     if args.sequences:
         rows = sequence_differences(original, built, reads)
         print('globals compared: %d; value sequences differing: %d' % (len(reads), len(rows)))
@@ -238,7 +354,9 @@ def main(argv=None):
                        encoding='utf-8')
         print('report:', out)
         return rows
-    if args.port:
+    if by_poll:
+        unit = 'poll'                                        # the same input read on both machines
+    elif args.port:
         original, built, unit = by_clock(original, False), by_clock(built, True), 'clock'
         original.pop(0, None); built.pop(0, None)            # before the game started its clock
     else:
@@ -254,17 +372,26 @@ def main(argv=None):
         k = differing[0]
         lag, share = best_lag(original, built, read_a, read_b, lags)
         rows.append(dict(name=name, type=kind, first=k, differing=len(differing), lag=lag, agree_at_lag=round(share, 3),
-                         original=read_a(original[k]).hex(), other=read_b(built[k]).hex()))
+                         original=show(read_a(original[k])), other=show(read_b(built[k]))))
     rows.sort(key=lambda r: (r['first'], r['name']))
+    incomparable = sorted(name for name, orig, ours, size, kind, read_a, read_b in reads
+                          if any(opaque(read_a(original[k]), read_b(built[k])) for k in common))
     print('checkpoints compared: %d (%s %s..%s); globals compared: %d; equal at every checkpoint: %d; differing: %d'
           % (len(common), unit, common[0] if common else None, common[-1] if common else None,
              len(reads), len(reads) - len(rows), len(rows)))
     print('  (lag: the same values later in the original (+) or earlier (-); agree: share of checkpoints at that lag)')
+    if incomparable:
+        print('  addresses outside the DATA hunk, no common identity (incomparable, not counted as equal values): %s'
+              % ', '.join(incomparable))
+    print('  OS file handles compared as open/closed: %s; launch environment not compared: %s'
+          % (', '.join(sorted(OS_HANDLES)), ', '.join(LAUNCH_ENVIRONMENT)))
     for r in rows[:args.top]:
         print('  %s %5d  %3d/%d differ  lag %+5d agree %5.1f%%  %-12s %-26s original %s  other %s' % (
             unit, r['first'], r['differing'], len(common), r['lag'], 100 * r['agree_at_lag'], r['name'],
             str(r['type'])[:26], r['original'][:16], r['other'][:16]))
-    report = dict(unit=unit, checkpoints=common, counts=counts, compared=len(reads), differences=rows)
+    report = dict(unit=unit, checkpoints=common, counts=counts, compared=len(reads), differences=rows,
+                  incomparable_addresses=incomparable, os_handles=sorted(OS_HANDLES),
+                  launch_environment=list(LAUNCH_ENVIRONMENT))
     out = TRACE / ('compare-%s-%s.json' % (args.original_run, args.build_run))
     out.write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
     print('report:', out)

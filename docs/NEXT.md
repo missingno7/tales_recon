@@ -29,46 +29,39 @@ layout, 68000 code) removed step by step. `src/` stays the matched reference; na
 rewrites happen in the port, one bounded subsystem at a time, each proven against the
 original by replay before the compatibility code it replaces is deleted.
 
-Verification canary (2026-10-18, details and numbers in docs/sdl3-port.md,
-"Verification"):
-
-- The original replays exactly in WinUAE across fresh sessions (fixed emulated start;
-  the wall-clock debugger entry was the source of the earlier session-to-session
-  differences). Emulator survey: BizHawk's UAE core is deterministic by construction
-  (sandboxed clock) but has no register access and needs a window; vAmiga has a headless
-  scripted build (VAHeadless) but no prebuilt Windows binary; FS-UAE's scripting is
-  unreleased. WinUAE with the fixed start is sufficient, so no emulator change.
-- The port is deterministic: one game-thread clock, record/replay of the four external
-  inputs (joystick, fire, keys, RNG seed), fixed addresses.
-- Original vs build and original vs port agree on the gameplay records of the
-  title-to-money-bin script; a deliberate mutation is located to the exact globals.
-- What prevents exact cross-machine replay: the original spends frames on work the port
-  does instantly (decompression, drawing, disk), so frame- or clock-timed inputs reach the
-  machines in different states, and a press caught by one can be missed by the other.
+Verification (2026-10-18, numbers in docs/sdl3-port.md, "Verification"): one replay log,
+timed in **poll frames** (the steps of the game's input reading), drives the original in
+WinUAE, the reconstructed Amiga build and the SDL3 port. The original replays its own log
+exactly across fresh sessions; the port replays byte-identically. Original vs port: the same
+23 sound commands at the same poll frames, and 1,009 of 1,018 typed globals identical at every
+one of 1,082 logical checkpoints - the rest is the audio driver's frame-timed progress. A
+deliberate rule mutation is located to the two tables it writes, at the poll frame it acts.
+Emulator survey: WinUAE with a fixed emulated start is sufficient (BizHawk's UAE core lacks
+register access and needs a window; vAmiga has no prebuilt Windows headless build; FS-UAE's
+scripting is unreleased).
 
 Next, in order:
 
-1. **Input timed by consumption.** Key each scripted input to the game's input polls (the
-   port counts calls of `poll_controller_and_keyboard_input`; the WinUAE harness needs the
-   same count - a memory watch or the poll's own state writes), so one log replays exactly
-   on the original, the build and the port. Then widen the scripts (locations, the four
-   minigames) and record the user's playthrough with the same tools.
-2. **Fix what the replays expose, at the lowest layer:** data-model types that are really
-   pointers or handles (`G_h01_2A16`, `active_screen_bitmap`, file handles), the remaining
-   audio-driver state differences (block countdowns 0 vs 0xFFFF in the port: Paula's
-   interrupt timing), the build materialization's remaining stale table bindings.
-3. **First native replacements** (docs/sdl3-port.md, "From compatibility port to native
+1. **Widen the scenarios** with the same tools: locations, travel, the four minigames; then
+   the user's own playthrough, recorded in the original (`game_boot.py`) and replayed on the
+   build and the port. Keep a dump at every poll frame for the first divergence.
+2. **Audio as events**: the sound commands match; compare what the driver plays (Paula
+   register writes or the mixed output per sound command) to retire the frame-timed driver
+   state from the comparison, and look for loops that animate while a sound plays.
+3. **The build's pointers by identity** (`game_compare.py`: map a build DATA address to the
+   original offset through the link map), so build-vs-original compares pointers too.
+4. **First native replacements** (docs/sdl3-port.md, "From compatibility port to native
    game"), each proven by replay before the old code goes.
 
-Readable modules (pilot, 2026-10-18, not committed): the five map functions published EQUAL
-from `src/map/map.c#name`, and the executable rebuilt from the module is byte-identical. The
-publication leaves derived evidence stale: the mechanical entries of
-`recovery/data_model.json` embed declaration counts that change when sources are regrouped
-(29 entries, types and extents unchanged), 156 DATA proofs pin that file's hash, and the
-hybrid specimens (`evidence/contributions/compiled.json`) need `hybrid_image.py --refresh`.
-Decide how mechanical evidence should be keyed (not by file layout) before scaling modules.
-The pilot state is saved in `build/workers/modules-pilot/pilot-state/` (a patch and the new
-files).
+Readable modules (2026-10-18): the map overlay is one module, `src/map/map.c` (five functions,
+each proven EQUAL from `src/map/map.c#name`; the executable rebuilt from it is byte-identical).
+Evidence no longer pins source layout: the DATA audio-field validator re-checks the data-model
+facts it uses instead of the file's hash, mechanical data-model evidence is refreshed with
+`tools/data_model.py --refresh-scalar-evidence` (refuses any type or extent change), and
+`tools/hybrid_image.py --refresh` re-captures only the specimens whose proof changed. Next
+module candidate: ov12 (one function, measured EQUAL from a module reference in 200 s).
+`hybrid_image.py --refresh-all` is blocked by a pre-existing recipe drift in
+`resident_F_291E` (its retained unit predates today's ASM-dependency closure).
 
 ## Where we are
 

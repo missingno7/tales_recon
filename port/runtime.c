@@ -21,14 +21,17 @@ int16_t movmem(const void *source, void *destination, uint32_t length)
 int32_t index(const char *string, int32_t c) { return (int32_t)(intptr_t)strchr(string, (char)c); }
 
 /* Runtime globals: arguments as the startup stored them, the device table, errno. The
-   game refers to some under the runtime's internal names (_argc, _devtab ...). */
-int16_t argc, _argc;
-char **argv, **_argv;
-int16_t arg_len, _arg_len;
-char *arg_lin, *_arg_lin;
-uint8_t devtab[16 * 6], _devtab[16 * 6];
+   game refers to some under the runtime's internal names (_argc, _devtab ...); those are
+   DATA cells, which the DATA hunk owns (port_gen RUNTIME_CELLS). */
+int16_t argc;
+char **argv;
+int16_t arg_len;
+char *arg_lin;
+uint8_t devtab[16 * 6];
 int16_t aztec_errno;
-int32_t MathBase;          /* mathffp.library: host floating point needs no library */
+extern int16_t _argc, _arg_len;
+extern char **_argv, *_arg_lin;
+extern int32_t MathBase;   /* mathffp.library: host floating point needs no library */
 
 /* The runtime's internal DOS and exec glue (_Open, _AllocMem ...): the same calls. */
 int32_t Open(int32_t name, int32_t mode);

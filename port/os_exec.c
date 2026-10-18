@@ -97,6 +97,9 @@ int32_t AllocMem(int32_t size, int32_t flags)
     return block;
 }
 
+/* Where the arena lies (state dumps record it to resolve heap pointers). */
+const void *amiga_arena(uint32_t *size) { *size = sizeof arena; return arena; }
+
 int16_t FreeMem(int32_t block, int32_t size) { return Deallocate(&arena_header, block, size > 0 ? size : 1); }
 
 void *amiga_alloc(uint32_t size) { return (void *)(intptr_t)AllocMem((int32_t)size, MEMF_CLEAR); }
@@ -181,7 +184,9 @@ static const char *library_names[8];
 int32_t OpenLibrary(int32_t name, int32_t version)
 {
     const char *n = (const char *)(intptr_t)name;
+    static int registered;
     (void)version;
+    if (!registered) { registered = 1; m68k_memory(library_bases, sizeof library_bases, 0); }   /* guest memory */
     for (int i = 0; i < 8; i++) {
         if (!library_names[i]) { library_names[i] = n; library_bases[i].lib_Version = 34; }
         if (!strcmp(library_names[i], n)) { platform_log("OpenLibrary %s", n); return (int32_t)(intptr_t)&library_bases[i]; }

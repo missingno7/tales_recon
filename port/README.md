@@ -30,10 +30,10 @@ ducktales.exe = game + emulated Amiga (port/*.c) + SDL3
 | `os_graphics.c` | graphics and layers on planar bitmaps: blits (minterms, masks), lines, fills, text, View/copper |
 | `os_misc.c` | intuition and icon as far as the game uses them |
 | `runtime.c` | Aztec runtime pieces bound by name (segload/freeseg: everything is linked in) |
-| `m68k.h`, `m68k.c` | what the translated 68000 assembly (`tools/asm_port.py`: audio driver, Paula interrupt handlers, VBlank server, colour cycling) runs on: registers, condition codes, the registered guest memory (big-endian tables, an access outside it reads 0 and is logged), entries from C and from interrupts |
+| `m68k.h`, `m68k.c` | what the translated 68000 assembly (`tools/asm_port.py`: audio driver, Paula interrupt handlers, VBlank server, colour cycling) runs on: registers, condition codes, the registered guest memory (big-endian tables; an access outside it is a verification fault), entries from C and from interrupts |
 | `paula.c` | the custom chip registers and Paula's four DMA sound channels, one frame at a time on the game's clock, pushed to an SDL3 audio stream |
 | `asm_ports.c` | kprintf (the one assembly routine with a hand-written port version) |
-| `override/*.c` | port versions of game functions that touch hardware registers or swap bytes for the 68000 |
+| `override/*.c` | port versions of the few game functions the port cannot run as recovered: the Aztec startup and exit (inline assembly), the blitter plane union, two little-endian file-field readers. Hardware register reads are translated (`port_gen.py hardware_reads`), not overridden |
 | `include/aztec.h` | the Aztec C data model for the generated game code |
 
 ## Build
@@ -52,7 +52,7 @@ cmake --build build/port
 Put `ducktales.exe` and `SDL3.dll` next to the two original disk images (`*.adf`), or:
 
 ```
-ducktales.exe [--data DIR] [--log] [--wav FILE] [--headless] [--ticks N]
+ducktales.exe [--data DIR] [--log] [--wav FILE] [--headless] [--strict] [--ticks N]
               [--record FILE] [--replay FILE] [--dump DIR:FROM:EVERY] [--shot FILE.bmp:TICK ...]
 ```
 
@@ -61,11 +61,13 @@ game's own input handler as an Amiga raw key. `--wav` records the sound output. 
 OS calls and the game's own kprintf messages to stderr (otherwise to `ducktales.log`).
 
 A run is a function of its inputs (docs/sdl3-port.md, "Determinism"): `--record FILE` writes
-every external input (joystick, fire, keys, RNG seeds) timed in the game's clock, `--replay
-FILE` plays such a log (also one written by `tools/game_boot.py` from a WinUAE run of the
-original), `--headless` runs without window, sound device or real-time pacing, `--ticks N`
-ends after N frames, `--dump DIR:FROM:EVERY` appends the DATA/BSS hunk to `DIR/state.bin`
-for `tools/game_compare.py --port`, and `--shot FILE.bmp:TICK` saves the picture at a tick.
+every external input (joystick, fire, keys, RNG seeds) and the sound commands, timed in poll
+frames (the steps of the game's input reading); `--replay FILE` plays such a log - also one
+`tools/game_boot.py` recorded from the original in WinUAE. `--headless` runs without window,
+sound device or real-time pacing, `--ticks N` ends after N frames, `--dump DIR:FROM:EVERY`
+dumps the DATA/BSS hunk at poll frames for `tools/game_compare.py --port`, `--shot
+FILE.bmp:TICK` saves the picture at a tick. A guest memory access outside the game's memory
+is a fault: logged, exit status 3, and `--strict` stops the run at the first.
 
 ## Status
 
