@@ -112,5 +112,7 @@ office scene with the original graphics, copper palette and text. Found the hard
 | `request_disk` walks DOSBase->dl_Root->rn_Info->di_DevInfo | NULL DOSBase: crash | `dos_init`: DosLibrary, RootNode, DosInfo, volume nodes |
 | little-endian file fields are swapped in memory for the 68000 | `LoadIT() - Unknown block type` | `override/resident_F_2D66.c`, `2DBA.c`: assemble the value from bytes |
 | VBlank colour cycling writes into the copper list | (would freeze the palette) | `MrgCop` builds the colour MOVEs at the layout it expects |
+| a byte alias names the low byte of a big-endian `int` (`G_h01_0971` = low byte of `G_h01_0970`, the bitplane depth) | every sprite BitMap got Depth 0: no sprites, no speech bubbles | `port_gen.byte_order_aliases`: narrower views inside scalars move to the host byte |
+| BltMaskBitMapRastPort indexes its minterm as source, mask, destination (0xE2 = cookie-cut) | (sprites would have been OR'd onto the background) | `F_h00_4692` in `os_graphics.c` |
 
 Next: the audio driver, keyboard through the input handler, record/replay, then play.

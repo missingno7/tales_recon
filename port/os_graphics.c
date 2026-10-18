@@ -201,8 +201,9 @@ int16_t BltClear(int32_t memory, int32_t count, int32_t flags)
 }
 
 /* BltMaskBitMapRastPort (graphics LVO -636), reached through the game's own glue
-   resident_glue_4692 = F_h00_4692: where the one-plane mask has a 1 the minterm combines
-   source and destination; elsewhere the destination stays. */
+   resident_glue_4692 = F_h00_4692. Each destination bit is minterm bit
+   (source << 2 | mask << 1 | destination): the game's 0xE2 is then exactly "source where
+   the mask is set, destination elsewhere" - a cookie-cut through the one-plane mask. */
 int16_t F_h00_4692(struct BitMap *src, int32_t sx, int32_t sy, struct RastPort *rp, int32_t dx, int32_t dy,
                    int32_t w, int32_t h, int32_t minterm, const uint8_t *mask)
 {
@@ -212,14 +213,14 @@ int16_t F_h00_4692(struct BitMap *src, int32_t sx, int32_t sy, struct RastPort *
     for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++) {
             int X = (int)sx + x, Y = (int)sy + y, DX = (int)dx + x, DY = (int)dy + y;
-            if (!(mask[Y * mod + (X >> 3)] & (0x80 >> (X & 7)))) continue;
+            int m = (mask[Y * mod + (X >> 3)] & (0x80 >> (X & 7))) != 0;
             if (DX < 0 || DY < 0 || DX >= dst->BytesPerRow * 8 || DY >= dst->Rows) continue;
             for (int p = 0; p < dst->Depth; p++) {
                 uint8_t *b = dst->Planes[p] ? &dst->Planes[p][DY * dst->BytesPerRow + (DX >> 3)] : NULL;
                 uint8_t bit = (uint8_t)(0x80 >> (DX & 7));
                 int s = p < src->Depth && src->Planes[p] && (src->Planes[p][Y * src->BytesPerRow + (X >> 3)] & (0x80 >> (X & 7)));
                 if (!b) continue;
-                if (minterm_bit((int)minterm, s, (*b & bit) != 0)) *b |= bit; else *b &= (uint8_t)~bit;
+                if ((minterm >> (s << 2 | m << 1 | ((*b & bit) != 0))) & 1) *b |= bit; else *b &= (uint8_t)~bit;
             }
         }
     return 0;

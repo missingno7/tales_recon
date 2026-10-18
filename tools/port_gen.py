@@ -205,6 +205,7 @@ def generate_data_hunk(plan, guest, root=ROOT):
             if offset != int(d['name'][6:], 16):
                 raise ValueError('provider offset differs from its name: ' + d['name'])
             items.append(dict(d, offset=offset, size=size))
+            PROVIDER_TYPES[d['name']] = d['type'].strip()
     for line in (guest / 'LINK_ONLY_STUBS/measured_reservations.asm').read_text(encoding='latin-1').splitlines():
         m = re.match(r'\s+bss\s+_(G_h01_([0-9A-F]{4}))\s*,\s*(\d+)', line)
         if m:
@@ -253,8 +254,42 @@ def rename_runtime(text):
     return ''.join(out)
 
 
+ALIAS = re.compile(r'^(#define (G_h01_[0-9A-F]{4}) \(?\*?\((?P<type>[\w\s]+?)\s*\*\)\(\(char \*\)&(?P<base>G_h01_[0-9A-F]{4}) \+ )(?P<offset>\d+)(\)\)\)?)$', re.M)
+SCALAR_WIDTH = {'char': 1, 'signed char': 1, 'unsigned char': 1, 'int16_t': 2, 'uint16_t': 2, 'int32_t': 4, 'uint32_t': 4}
+_MODEL = {}
+
+
+PROVIDER_TYPES = {}                               # filled by generate_data_hunk: name -> element type
+
+
+def base_element_width(base, root=ROOT):
+    """Element width of a scalar (or scalar-array) DATA global: from its provider
+    definition, else from the data model."""
+    if base in PROVIDER_TYPES:
+        return SCALAR_WIDTH.get(PROVIDER_TYPES[base])
+    if not _MODEL:
+        _MODEL.update(json.loads((root / 'recovery/data_model.json').read_text())['globals'])
+    kind = translate_types(re.sub(r'\[.*$', '', str(_MODEL.get(base, {}).get('type', '')))).strip()
+    return SCALAR_WIDTH.get(kind)
+
+
+def byte_order_aliases(text):
+    """A narrower view inside a big-endian scalar names different bytes on a
+    little-endian host: the low byte of the 16-bit G_h01_0970 is at +1 on the 68000 and at
+    +0 here. Such interior aliases are moved to the host position of the same value bits."""
+    def fix(m):
+        width = SCALAR_WIDTH.get(m.group('type').strip())
+        element = base_element_width(m.group('base'))
+        offset = int(m.group('offset'))
+        if not width or not element or width >= element:
+            return m.group(0)
+        inside = offset % element
+        return '%s%d%s /* big-endian +%d */' % (m.group(1), offset - inside + element - inside - width, m.group(6), offset)
+    return ALIAS.sub(fix, text)
+
+
 def translate(text):
-    body, names = explicit_returns(translate_types(rename_runtime(text)))
+    body, names = explicit_returns(byte_order_aliases(translate_types(rename_runtime(text))))
     forward = ''.join('int16_t %s();\n' % name for name in dict.fromkeys(names))
     return HEADER + forward + body + FOOTER
 
@@ -290,6 +325,8 @@ def generate(source, output, override_dir=None):
         stale.unlink()
     plan = json.loads((source / 'compile-plan.json').read_text())
     guest = source / 'guest_source'
+    # The data hunk first: its provider types drive the byte-order alias rewrite.
+    (output / 'data_hunk.c').write_text(generate_data_hunk(plan, guest), encoding='latin-1', newline='\n')
     report = dict(units=0, overridden=[], needs_override={}, assembly=[])
     for entry in plan:
         name = Path(entry['object']).stem + '.c'
@@ -309,7 +346,6 @@ def generate(source, output, override_dir=None):
         (output / name).write_text(target_text, encoding='latin-1', newline='\n')
         report['units'] += 1
     (output / 'materialization.s').write_text(translate_materialization(guest), encoding='latin-1', newline='\n')
-    (output / 'data_hunk.c').write_text(generate_data_hunk(plan, guest), encoding='latin-1', newline='\n')
     (output / 'port-gen-report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
     return report
 

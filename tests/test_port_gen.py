@@ -70,6 +70,18 @@ def test_data_hunk_places_providers_and_reservations_at_their_offsets(tmp_path):
     assert '_Static_assert(offsetof(struct amiga_data_hunk, m_0012) == 0x12' in out
 
 
+def test_narrow_views_inside_big_endian_scalars_move_to_the_host_byte(monkeypatch):
+    monkeypatch.setitem(port_gen.PROVIDER_TYPES, 'G_h01_0970', 'int16_t')
+    monkeypatch.setitem(port_gen.PROVIDER_TYPES, 'G_h01_0A00', 'int32_t')
+    monkeypatch.setitem(port_gen.PROVIDER_TYPES, 'G_h01_12B4', 'struct Entry')
+    low_byte = '#define G_h01_0971 (*(char *)((char *)&G_h01_0970 + 1))'
+    assert port_gen.byte_order_aliases(low_byte).startswith('#define G_h01_0971 (*(char *)((char *)&G_h01_0970 + 0))')
+    low_word = '#define G_h01_0A02 (*(int16_t *)((char *)&G_h01_0A00 + 2))'
+    assert '&G_h01_0A00 + 0))' in port_gen.byte_order_aliases(low_word)
+    field = '#define G_h01_12B5 (*(char *)((char *)&G_h01_12B4 + 1))'
+    assert port_gen.byte_order_aliases(field) == field              # a struct field: same bytes on any host
+
+
 def test_le_readers_and_hardware_units_have_port_versions():
     overrides = Path(__file__).resolve().parents[1] / 'port' / 'override'
     for name in ('resident_F_2D66', 'resident_F_2DBA', 'resident_F_4376', 'resident_F_4676', 'resident_F_33E6'):
