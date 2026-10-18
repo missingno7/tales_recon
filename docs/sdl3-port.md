@@ -24,7 +24,8 @@ ducktales.exe = game (generated) + port/override/ + emulated Amiga (port/*.c) + 
 |---|---|
 | `port/platform.h` | the contract: every OS call, custom-chip/CIA access, interrupt and file the game reaches (from `docs/platform.md`, `recovery/platform.json`) |
 | `port/amiga_*.c` | the emulated Amiga: graphics/layers/intuition library calls on a planar bitmap model, Exec memory and interrupts, DOS files on `DT1:`/`DT2:`, Paula audio, joystick/CIA, beam position |
-| `port/override/*.c` | C for the RECONSTRUCTED_ASM modules (audio driver, Paula IRQ handlers, VBlank server, frameless helpers) and for any function that reaches hardware through raw pointers |
+| `port/override/*.c` | port versions of game functions that reach hardware through raw pointers or swap bytes for the 68000 |
+| `tools/asm_port.py`, `port/m68k.*`, `port/paula.c` | the RECONSTRUCTED_ASM modules (audio driver, Paula IRQ handlers, VBlank server) translated instruction by instruction, and the Paula they drive (below) |
 | `port/replay.c` | record/replay of every nondeterministic platform read (below) |
 | `tools/port_gen.py` | mechanical translation of the staged translation units (below) |
 
@@ -132,4 +133,39 @@ office scene with the original graphics, copper palette and text. Found the hard
 | BltMaskBitMapRastPort indexes its minterm as source, mask, destination (0xE2 = cookie-cut) | (sprites would have been OR'd onto the background) | `F_h00_4692` in `os_graphics.c` |
 | byte views of words elsewhere: 7 interior names, 4 address casts, cave cells, animation descriptors (byte-order audit above) | (would have broken the LZW decoder, the ov10 cave and the ov11 animations) | `port_gen` byte-order rules |
 
-Next: the audio driver, keyboard through the input handler, record/replay, then play.
+## The reconstructed assembly, translated
+
+`tools/asm_port.py` (run by `port_gen.py`) translates the RECONSTRUCTED_ASM modules - the
+audio driver, the four Paula interrupt handlers, the VBlank server and its colour
+callbacks - and the TYPED_CODE_DATA tables (scores, envelopes, selectors) mechanically, so
+the port plays the reconstructed driver itself rather than a rewrite of it:
+
+* every instruction becomes one labelled C statement on the register file of
+  `port/m68k.h`, with the condition codes the following branch reads;
+* original addresses come from instruction sizes and the assembler's span-dependent
+  branch sizes, plus two Manx rules found in the build's bytes: a `public` declared
+  outside `dseg` is addressed `d16(a4)`, and `jsr label` assembles PC-relative. Every
+  address-named label and every label in `build/game/DuckTales.sym` (700) is checked
+  against the computed layout;
+* a code address is `M68K_CODE_BASE` + its original offset. The DATA hunk's jump tables
+  (`recon_h00_544C + 200`) and the Interrupt structures hold these keys and
+  `m68k_run()` dispatches them; the five entries the C code calls get C wrappers that
+  push their arguments as Aztec C does;
+* memory is host-order (the DATA hunk and heap hold what the C code wrote), except the
+  tables, which keep their big-endian bytes (32-bit references patched in at start), and
+  0xDFF000-0xDFF1FF, the custom chips (`port/paula.c`);
+* one lock serializes the driver's entries from the game thread, the VBlank timer, the
+  audio callback (Paula's block interrupts) and the input handler, as one CPU did.
+
+Paula starts with DMA and interrupts master-enabled, as the OS leaves them; the driver
+never sets those bits itself. With the driver running, the title screen stays until its
+tune ends (about 66 seconds) before the office scene, as on the Amiga; the silent stub
+had skipped that wait.
+
+Known difference: the build's audio tables still miss about 200 bytes of RAW_ORACLE_DEBT
+inside typed scores and envelopes (for example 26 bytes in `score_1836` at original
+0x19F8, which the build leaves out, shifting what follows) and about 420 typed-table bytes
+differ from the original (`build/game/diff.json`). Some tunes or effects can play
+differently from the original until those spans are recovered as typed data.
+
+Next: record/replay, then play through the levels.

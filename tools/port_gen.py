@@ -437,12 +437,22 @@ def generate(source, output, override_dir=None):
     widths = access_widths(p.read_text(encoding='latin-1') for p in game_units)
     moved = interior_aliases(widths)
     # The data hunk first: its provider types drive the byte-order alias rewrite.
-    (output / 'data_hunk.c').write_text(generate_data_hunk(plan, guest, moved=moved), encoding='latin-1', newline='\n')
+    data_hunk = generate_data_hunk(plan, guest, moved=moved)
+    # The reconstructed assembly and its tables (tools/asm_port.py): asm_code.c, asm_tables.c,
+    # asm_symbols.s; the labels of table parts that live in the DATA hunk alias into it here.
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import asm_port
+    asm_report = asm_port.generate(source, output, data_hunk)
+    data_hunk += '__asm__(\n%s);\n' % ''.join('    ".globl %s\\n.set %s, _amiga_data_hunk+0x%X\\n"\n' % (l, l, at)
+                                              for l, at in asm_report.pop('data_aliases'))
+    (output / 'data_hunk.c').write_text(data_hunk, encoding='latin-1', newline='\n')
     report = dict(units=0, overridden=[], needs_override={}, assembly=[],
                   byte_order=dict(interior_names={n: '0x%X' % o for n, o in sorted(moved.items())},
                                   mixed_widths={n: sorted(w) for n, w in sorted(widths.items())
                                                 if len(w) > 1 and 0 not in w},
-                                  views={}))
+                                  views={}),
+                  asm=asm_report)
     for entry in plan:
         name = Path(entry['object']).stem + '.c'
         if entry['kind'] != 'c':

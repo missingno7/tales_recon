@@ -54,6 +54,7 @@ are now recovered.
 | --- | ---: | --- | --- |
 | Raw resident DATA: palettes 1422..1EA4, audio periods and pointers 29DE..2C64, coordinates 0468..0A3A, map/tile rows 0AC2..12B4, index tables 1F34..292E | about 9,500 | A | typed providers in review (53 exact candidates) |
 | Audio envelope/bytecode candidates 5FC8, 6000, 60BC, 6A8E | 14 | A, DATA_OWNERSHIP | unrooted records; need a general audio-data provider (evidence/blockers/resident_audio_residues.json) |
+| Audio score/envelope tables in CODE: RAW_ORACLE_DEBT spans the build leaves out (largest: 26 bytes in `score_1836` at 0x19F8, also `r400`, `audio3_e_6028`, `audio4_c_6579`, `audio3_08`) and differing typed bytes (`build/game/diff.json`) | about 200 raw, 420 differing | A | the SDL3 port plays these tables (`tools/asm_port.py`); until recovered, some tunes can differ from the original |
 | 463E (one `eor` operand-order residual) | 56 | A | kept unresolved by decision, agrees on 4,000 executed inputs |
 | Startup header, FFP gateway stubs, stdio (`putc` differs in 4 bytes) | about 1,470 | C | identify roles and names only; no exact campaign |
 | Root JMP-slot table 0000..0320 in DATA | 800 | C | linker-generated; stays raw |

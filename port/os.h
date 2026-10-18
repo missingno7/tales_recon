@@ -10,6 +10,10 @@ void platform_add_server(int number, void *interrupt);      /* struct Interrupt 
 void platform_remove_server(int number, void *interrupt);
 void *platform_set_vector(int number, void *interrupt);     /* returns the previous one */
 void platform_input_handler(void *interrupt);               /* input.device handler, NULL = none */
+void *platform_vector(int number);                          /* SetIntVector's Interrupt, or NULL */
+void paula_start(void);                                     /* paula.c: audio output */
+void paula_record(const char *path);                        /* also write it to a WAV file */
+void paula_stop(void);
 
 /* An exec struct Interrupt: is_Data and is_Code are what a server is called with. */
 #pragma pack(push, 2)

@@ -1,7 +1,7 @@
 /* main.c - the SDL3 side of the port: window, presentation, input, the 50 Hz VBlank,
    the game thread and the OS state the emulation keeps (interrupt servers, Forbid).
 
-   ducktales [--data DIR] [--log]
+   ducktales [--data DIR] [--log] [--wav FILE] [--shot FILE.bmp:MS ...]
    DIR holds the two original disk images (any *.adf; mounted under their volume names,
    DT1 and DT2). docs/sdl3-port.md describes the design. */
 #include <SDL3/SDL.h>
@@ -9,6 +9,7 @@
 
 #include "amiga.h"
 #include "os.h"
+#include "m68k.h"
 
 #include <setjmp.h>
 #include <stdarg.h>
@@ -71,7 +72,60 @@ void *platform_set_vector(int number, void *interrupt)
     vectors[number & 15] = interrupt;
     return previous;
 }
+void *platform_vector(int number) { return vectors[number & 15]; }
 void platform_input_handler(void *interrupt) { input_handler = interrupt; }
+
+/* Call an interrupt's code: translated 68000 code (a code key, m68k.h) with a1 = is_Data,
+   or a C function of the port. Returns d0. */
+static uint32_t call_interrupt(const struct Interrupt *is, uint32_t a0)
+{
+    uint32_t code = (uint32_t)(uintptr_t)is->is_Code;
+    if (m68k_is_code(code)) return m68k_interrupt(code, (uint32_t)(uintptr_t)is->is_Data, a0);
+    return (uint32_t)((int32_t (*)(void))is->is_Code)();
+}
+
+/* Keys to the game's input handler (input.device, IND_ADDHANDLER): one InputEvent per key,
+   class IECLASS_RAWKEY, the Amiga raw key code (bit 7 set on release) in ie_Code. The game
+   reads ie_Code's low byte at offset 7 - the 68000's byte order - so the event is laid out
+   in that view: next pointer, class, subclass, then the code's high and low byte. */
+static uint8_t amiga_key(SDL_Scancode s)
+{
+    static const struct { SDL_Scancode s; uint8_t code; } map[] = {
+        { SDL_SCANCODE_GRAVE, 0x00 }, { SDL_SCANCODE_MINUS, 0x0B }, { SDL_SCANCODE_EQUALS, 0x0C },
+        { SDL_SCANCODE_BACKSLASH, 0x0D }, { SDL_SCANCODE_LEFTBRACKET, 0x1A }, { SDL_SCANCODE_RIGHTBRACKET, 0x1B },
+        { SDL_SCANCODE_SEMICOLON, 0x29 }, { SDL_SCANCODE_APOSTROPHE, 0x2A }, { SDL_SCANCODE_COMMA, 0x38 },
+        { SDL_SCANCODE_PERIOD, 0x39 }, { SDL_SCANCODE_SLASH, 0x3A }, { SDL_SCANCODE_SPACE, 0x40 },
+        { SDL_SCANCODE_BACKSPACE, 0x41 }, { SDL_SCANCODE_TAB, 0x42 }, { SDL_SCANCODE_KP_ENTER, 0x43 },
+        { SDL_SCANCODE_RETURN, 0x44 }, { SDL_SCANCODE_ESCAPE, 0x45 }, { SDL_SCANCODE_DELETE, 0x46 },
+        { SDL_SCANCODE_UP, 0x4C }, { SDL_SCANCODE_DOWN, 0x4D }, { SDL_SCANCODE_RIGHT, 0x4E }, { SDL_SCANCODE_LEFT, 0x4F },
+        { SDL_SCANCODE_LSHIFT, 0x60 }, { SDL_SCANCODE_RSHIFT, 0x61 }, { SDL_SCANCODE_CAPSLOCK, 0x62 },
+        { SDL_SCANCODE_LCTRL, 0x63 }, { SDL_SCANCODE_LALT, 0x64 }, { SDL_SCANCODE_RALT, 0x65 },
+        { SDL_SCANCODE_KP_0, 0x0F }, { SDL_SCANCODE_KP_1, 0x1D }, { SDL_SCANCODE_KP_2, 0x1E }, { SDL_SCANCODE_KP_3, 0x1F },
+        { SDL_SCANCODE_KP_4, 0x2D }, { SDL_SCANCODE_KP_5, 0x2E }, { SDL_SCANCODE_KP_6, 0x2F },
+        { SDL_SCANCODE_KP_7, 0x3D }, { SDL_SCANCODE_KP_8, 0x3E }, { SDL_SCANCODE_KP_9, 0x3F },
+        { SDL_SCANCODE_KP_PERIOD, 0x3C }, { SDL_SCANCODE_KP_MINUS, 0x4A },
+    };
+    static const char rows[4][13] = { "1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm" };
+    static const uint8_t row_start[4] = { 0x01, 0x10, 0x20, 0x31 };
+    SDL_Keycode key = SDL_GetKeyFromScancode(s, SDL_KMOD_NONE, false);
+    for (size_t i = 0; i < sizeof map / sizeof map[0]; i++) if (map[i].s == s) return map[i].code;
+    if (s >= SDL_SCANCODE_F1 && s <= SDL_SCANCODE_F10) return (uint8_t)(0x50 + (s - SDL_SCANCODE_F1));
+    for (int r = 0; r < 4; r++) {
+        const char *at = strchr(rows[r], (int)key);
+        if (key && key < 128 && at) return (uint8_t)(row_start[r] + (at - rows[r]));
+    }
+    return 0xFF;
+}
+
+static void deliver_key(SDL_Scancode s, int down)
+{
+    uint8_t code = amiga_key(s);
+    uint8_t event[22] = { 0 };                         /* struct InputEvent */
+    if (!input_handler || code == 0xFF) return;
+    event[4] = 1;                                      /* ie_Class = IECLASS_RAWKEY */
+    event[7] = (uint8_t)(code | (down ? 0 : 0x80));   /* ie_Code, low byte */
+    call_interrupt((const struct Interrupt *)input_handler, (uint32_t)(uintptr_t)event);
+}
 
 /* Delay(ticks) and WaitBOVP: wait for ticks (at least one) VBlanks. */
 void platform_wait_ticks(int ticks)
@@ -109,7 +163,7 @@ static Uint64 SDLCALL vblank(void *user, SDL_TimerID id, Uint64 interval)
     if (!forbidden)
         for (int i = 0; i < 4; i++) {
             struct Interrupt *server = servers[5][i];
-            if (server && server->is_Code) ((int32_t (*)(void))server->is_Code)();
+            if (server && server->is_Code) call_interrupt(server, 0);
         }
     SDL_LockMutex(state_lock);
     vblank_count++;
@@ -219,7 +273,7 @@ static int mount_disks(const char *dir)
 
 int main(int argc, char **argv)
 {
-    const char *data = ".";
+    const char *data = ".", *wav_path = NULL;
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *screen;
@@ -227,6 +281,7 @@ int main(int argc, char **argv)
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--data") && i + 1 < argc) data = argv[++i];
         else if (!strcmp(argv[i], "--log")) log_file = stderr;
+        else if (!strcmp(argv[i], "--wav") && i + 1 < argc) wav_path = argv[++i];
         else if (!strcmp(argv[i], "--shot") && i + 1 < argc && shot_count < 32) {
             /* --shot FILE.bmp:MS saves the exact 320x200 picture MS milliseconds after start */
             const char *colon = strrchr(argv[++i], ':');
@@ -237,7 +292,10 @@ int main(int argc, char **argv)
         }
     }
     if (!log_file) log_file = fopen("ducktales.log", "w");
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) { platform_log("SDL_Init: %s", SDL_GetError()); return 1; }
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO)) { platform_log("SDL_Init: %s", SDL_GetError()); return 1; }
+    asm_tables_init();
+    if (wav_path) paula_record(wav_path);
+    paula_start();
     if (mount_disks(data) < 2) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "DuckTales",
             "Put the two DuckTales disk images (*.adf) next to the program, or use --data DIR.", NULL);
@@ -270,6 +328,7 @@ int main(int argc, char **argv)
                 default: break;
                 }
                 update_joystick();
+                if (!event.key.repeat) deliver_key(event.key.scancode, down);
             }
         }
         render(pixels);
@@ -292,6 +351,7 @@ int main(int argc, char **argv)
     }
     quitting = 1;
     SDL_BroadcastCondition(tick_signal);
+    paula_stop();
     SDL_Quit();
     return 0;
 }

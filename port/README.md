@@ -12,7 +12,8 @@ files. Design: [../docs/sdl3-port.md](../docs/sdl3-port.md).
 ```
 src/ (recovered sources)
    |  tools/game_build.py stages the Amiga build's translation units (build/game/)
-   |  tools/port_gen.py translates them -> build/port-gen/ (never committed):
+   |  tools/port_gen.py translates them -> build/port-gen/ (never committed),
+   |  tools/asm_port.py the reconstructed 68000 assembly and its tables:
    |    16-bit types kept (int -> int16_t ...), the DATA hunk at its original layout
    |    (data_hunk.c), port/override/ units swapped in
    v
@@ -29,7 +30,9 @@ ducktales.exe = game + emulated Amiga (port/*.c) + SDL3
 | `os_graphics.c` | graphics and layers on planar bitmaps: blits (minterms, masks), lines, fills, text, View/copper |
 | `os_misc.c` | intuition and icon as far as the game uses them |
 | `runtime.c` | Aztec runtime pieces bound by name (segload/freeseg: everything is linked in) |
-| `asm_ports.c` | C for the reconstructed assembly: VBlank server, palette cycling, kprintf; the audio driver is pending |
+| `m68k.h`, `m68k.c` | what the translated 68000 assembly (`tools/asm_port.py`: audio driver, Paula interrupt handlers, VBlank server, colour cycling) runs on: registers, condition codes, memory with big-endian tables, entries from C and from interrupts |
+| `paula.c` | the custom chip registers and Paula's four DMA sound channels, mixed into an SDL3 audio stream |
+| `asm_ports.c` | kprintf (the one assembly routine with a hand-written port version) |
 | `override/*.c` | port versions of game functions that touch hardware registers or swap bytes for the 68000 |
 | `include/aztec.h` | the Aztec C data model for the generated game code |
 
@@ -49,15 +52,16 @@ cmake --build build/port
 Put `ducktales.exe` and `SDL3.dll` next to the two original disk images (`*.adf`), or:
 
 ```
-ducktales.exe [--data DIR] [--log] [--shot FILE.bmp:MS ...]
+ducktales.exe [--data DIR] [--log] [--wav FILE] [--shot FILE.bmp:MS ...]
 ```
 
-Arrow keys move the joystick; Space, Ctrl or Enter is fire. `--log` writes OS calls and
+Arrow keys move the joystick; Space, Ctrl or Enter is fire; every key also reaches the
+game's own input handler as an Amiga raw key. `--wav` records the sound output. `--log` writes OS calls and
 the game's own kprintf messages to stderr (otherwise to `ducktales.log`); `--shot` saves
 the exact 320x200 picture at MS milliseconds (the last shot ends the run).
 
 ## Status
 
-Boots through the office scene with the original graphics, palette and text. Pending:
-the audio driver (silent), keyboard events through the game's input handler, record and
-replay, sprites and other details found in play.
+Plays the title (with its music) and the office scenes with the original graphics,
+sprites, palette, text and sound. Pending: record and replay, the levels and minigames in
+play.

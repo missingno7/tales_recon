@@ -31,7 +31,7 @@ if(NOT PORT_GEN_RESULT EQUAL 0)
   message(FATAL_ERROR "tools/port_gen.py failed (run tools/game_build.py --build first)")
 endif()
 file(GLOB GAME_SOURCES "${PORT_GEN_DIR}/*.c")
-set(GAME_ASM "${PORT_GEN_DIR}/materialization.s")
+set(GAME_ASM "${PORT_GEN_DIR}/materialization.s" "${PORT_GEN_DIR}/asm_symbols.s")
 # Aztec C semantics: 16-bit int made explicit by the generator, wrapping arithmetic;
 # -O0 because the game busy-waits on globals its interrupt servers change.
 set_source_files_properties(${GAME_SOURCES} PROPERTIES
@@ -47,7 +47,9 @@ set(PLATFORM_SOURCES
   "${CMAKE_CURRENT_SOURCE_DIR}/os_graphics.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/os_misc.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/runtime.c"
-  "${CMAKE_CURRENT_SOURCE_DIR}/asm_ports.c")
+  "${CMAKE_CURRENT_SOURCE_DIR}/asm_ports.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/m68k.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/paula.c")
 set_source_files_properties(${PLATFORM_SOURCES} PROPERTIES
   COMPILE_OPTIONS "-O2;-Wall;-fwrapv;-fno-strict-aliasing")
 
