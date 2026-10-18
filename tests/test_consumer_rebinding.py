@@ -30,10 +30,9 @@ def test_identical_compiler_result_allows_different_source_and_provenance():
     binding.require_identical(old,new)
 
 
-@pytest.mark.parametrize('change', ['object','normalized','extent','bindings','relocations','length','verdict','missing_hash'])
+@pytest.mark.parametrize('change', ['normalized','extent','bindings','relocations','length','verdict','missing_hash'])
 def test_different_or_incomplete_compiled_result_refuses(change):
     old=proof();new=deepcopy(old)
-    if change=='object':new['object_hash']='d'*64
     if change=='normalized':new['comparison'].update(expected_sha256='d'*64,normalized_sha256='d'*64)
     if change=='extent':new['evidence_extent']['end']=4
     if change=='bindings':new['relocation_proof'][0]['expected']=[1,6]
@@ -42,6 +41,11 @@ def test_different_or_incomplete_compiled_result_refuses(change):
     if change=='verdict':new['comparison']['verdict']='DIFFERENT'
     if change=='missing_hash':new.pop('object_hash')
     with pytest.raises(FormatError):binding.require_identical(old,new)
+
+
+def test_object_metadata_alone_does_not_refuse():
+    old=proof();new=deepcopy(old);new['object_hash']='d'*64
+    binding.require_identical(old,new)
 
 
 def test_owned_literal_tail_is_part_of_identity():
@@ -110,7 +114,7 @@ def test_refused_identity_changes_no_canonical_files(tmp_path):
     ledger_path=put(tmp_path,'recovery/ledger.json',dict(functions={}))
     old=proof();p=put(tmp_path,'recovery/proofs/f.json',old)
     prior=dict(source=old['source'],source_sha256=old['source_sha256'],proof='recovery/proofs/f.json',proof_sha256=sha256(p.read_bytes()))
-    new=deepcopy(old);new['object_hash']='d'*64
+    new=deepcopy(old);new['comparison'].update(expected_sha256='d'*64,normalized_sha256='d'*64)
     before={x:x.read_bytes() for x in (ledger_path,p)}
     with pytest.raises(FormatError,match='compiled result differs'):
         binding.publish(tmp_path,ledger_path,{p:json_bytes(new)},dict(functions={'f':prior}),prior,new)

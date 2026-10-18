@@ -37,13 +37,17 @@ def result_identity(proof):
     else:
         require(proof.get('state') == 'FUNCTION_CODE_MATCH' and not owned,
                 'unsupported consumer replacement proof class')
-    return (object_hash, normalized, proof.get('state'), proof.get('evidence_extent'),
+    # The object hash must exist but is not compared: a module compile unit declares a
+    # different set of externs, which changes the Aztec object's symbol metadata while the
+    # CODE bytes, relocation targets, extent and owned tail - what a pin's evidence rests
+    # on - stay identical.
+    return (normalized, proof.get('state'), proof.get('evidence_extent'),
             code['actual_length'], comparison.get('actual_length'), owned, proof.get('relocation_proof'))
 
 
 def require_identical(old, new):
     require(result_identity(old) == result_identity(new),
-            'consumer rebinding refused: compiled result differs (object, normalized CODE, extent, tail or bindings)')
+            'consumer rebinding refused: compiled result differs (normalized CODE, extent, tail or bindings)')
 
 
 def nodes(value):
