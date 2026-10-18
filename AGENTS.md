@@ -3,8 +3,17 @@
 Goal (user decision 2026-10-15): complete, readable source of the game whose
 behavior we can trust, as the base for a later native SDL3 port. Exact matching
 decompilation is the preferred recovery and verification technique, not the
-deliverable. We are in the recovery stages: do not modernize matched source and
-do not add SDL3 code or dependencies here.
+deliverable. Do not modernize matched source.
+
+SDL3 port (user decision 2026-10-18): the port lives in `port/`, as in the
+user's other recon projects (duke1_recon): a thin layer that runs the
+reconstructed game unchanged on an emulated Amiga over SDL3. `src/` stays the
+recovered program; port behaviour goes into `port/` (platform code,
+`port/override/` for the RECONSTRUCTED_ASM modules and anything that touches
+hardware through raw pointers) and `tools/port_gen.py`, never into `src/`. A
+port bug is traced from the lowest layer: replay the recorded platform inputs,
+find the first wrong global, then check that one function against the original
+68000 code (`tools/difftest.py`). Design: `docs/sdl3-port.md`.
 
 Read `docs/NEXT.md`, `docs/VISION.md`, `docs/blockers.json` and
 `docs/proof-levels.md` before extending the reconstruction. `assets/` is

@@ -22,6 +22,8 @@ INPUT = None
 INPUT_OFFSET = 0
 DUMP_FROM = None
 DUMP_EVERY = 0
+SHOT_FROM = None  # optional dense screenshots: from this frame ...
+SHOT_EVERY = 0    # ... every SHOT_EVERY frames
 sys.path.insert(0, str(ROOT / 'tools'))
 import game_trace as trace
 import trace_harness as harness
@@ -362,6 +364,8 @@ def boot():
     screenshots_dir = RUN / 'screenshots'
     screenshots_dir.mkdir(exist_ok=True)
     screenshot_frames = set(range(0, FRAMES, 250)) | {FRAMES-1}
+    if SHOT_EVERY and SHOT_FROM is not None:
+        screenshot_frames |= set(range(SHOT_FROM, FRAMES, SHOT_EVERY))
     screenshot_paths = {}
     executable = original_executable((RUN/'disk1.adf').read_bytes()) if ORIGINAL else (GAME_DIR/'DuckTales').read_bytes()
     model = hunk.parse(executable)
@@ -469,6 +473,8 @@ if __name__ == '__main__':
     parser.add_argument('--dump-every', type=int, default=0, help='dump interval in frames (0: no dumps)')
     parser.add_argument('--turbo-floppy', action='store_true',
                         help='WinUAE turbo floppy: load times stop depending on where files sit on disk')
+    parser.add_argument('--screenshot-from', type=int, help='dense screenshots from this frame (with --screenshot-every)')
+    parser.add_argument('--screenshot-every', type=int, default=0, help='dense screenshot interval in frames')
     parser.add_argument('--rng-record', action='store_true',
                         help='log every reseed of the game RNG (rng-reseeds.json); needs state dumps')
     parser.add_argument('--rng-pin', metavar='RUN',
@@ -477,6 +483,7 @@ if __name__ == '__main__':
     INPUT = args.input; INPUT_OFFSET = args.input_offset; DUMP_FROM = args.dump_from; DUMP_EVERY = args.dump_every
     GAME_DIR = args.game_dir.resolve(); RUN = ROOT / 'build' / 'trace' / args.run_name; FRAMES = args.frames
     ORIGINAL = args.original; FLOPPY_SPEED = 0 if args.turbo_floppy else 100
+    SHOT_FROM = args.screenshot_from; SHOT_EVERY = args.screenshot_every
     if args.rng_record or args.rng_pin:
         if not DUMP_EVERY or DUMP_FROM is None:
             parser.error('--rng-record/--rng-pin need --dump-from and --dump-every (the DATA hunk is located there)')

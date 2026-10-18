@@ -78,11 +78,17 @@ and the sample-pointer array split around raw cells (a write into audio code).
 Next: play-through traces (input scripts past the title) against the original,
 then replace the remaining stand-ins.
 
-**Plan (user decision 2026-10-17):** (1) close the oracle: the from-source
-build matches the original's per-frame game state in play-through traces and is
-free of LINK_ONLY stand-ins; (2) the readability pass (names, struct fields,
-the platform-layer contract); (3) the portable SDL3 port, accepted against the
-same traces.
+**Plan (user decision 2026-10-18, replaces 2026-10-17):** start the SDL3 port
+now, in `port/`, as a thin layer that runs the reconstructed game unchanged on an
+emulated Amiga (`docs/sdl3-port.md`). Exhaustive play-testing of every game state
+does not gate it: the port records and replays every nondeterministic platform
+read, and a port bug is traced from the lowest layer (replay, first wrong global,
+then `tools/difftest.py` on the one function against the original 68000 code).
+The readability pass and the remaining raw bytes continue alongside, driven by
+what the port and its replays expose. Background: frame-stamped WinUAE scripts
+are not reproducible across emulator sessions (the CPU starts at a different beam
+phase each session), so emulator play-throughs serve as diagnostics, not as the
+acceptance suite.
 
 **Completeness rule (user decision 2026-10-17):** play-through traces define
 done. Everything the trace scripts exercise must be recovered and match the
