@@ -4,7 +4,7 @@ No on-disk cache or fixture relocking. Strict and advisory images have separate
 entries. Exact replay may opt into bounded process reuse with a complete,
 freshly content-hashed identity; ordinary reads need an explicit snapshot scope.
 """
-from names import to_mechanical
+from names import read_source
 from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import wraps
@@ -54,7 +54,7 @@ class Snapshot:
             path = target(path)
             require(path.is_relative_to(root), 'snapshot input escapes workspace: ' + str(path))
             if str(path) in contents:return contents[str(path)]
-            try:raw = (to_mechanical(path.read_bytes()) if path.is_relative_to(root / 'src') else path.read_bytes())
+            try:raw = (read_source(root, path) if path.is_relative_to(root / 'src') else path.read_bytes())
             except FileNotFoundError:raw = None
             contents[str(path)] = raw
             values[str(path)] = sha256(raw) if raw is not None else None

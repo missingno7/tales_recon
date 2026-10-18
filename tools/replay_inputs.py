@@ -4,7 +4,7 @@ No stat-based content cache: every listed file is read and hashed on each scan.
 Directory targets are resolved once per scan; leaf reparse points are resolved
 individually. A later scan rechecks every directory and leaf target.
 """
-from names import to_mechanical
+from names import read_source
 from pathlib import Path
 import os,stat
 from common import require,sha256
@@ -44,7 +44,7 @@ class ContentScan:
  def read(self,path,*,scratch=False):
   target=self.canonical(path,scratch=scratch);name=str(target)
   if name not in self.values:
-   try:raw=(to_mechanical(target.read_bytes()) if target.is_relative_to(self.root / 'src') else target.read_bytes())
+   try:raw=(read_source(self.root, target) if target.is_relative_to(self.root / 'src') else target.read_bytes())
    except FileNotFoundError:raw=None
    self.raw[name]=raw;self.values[name]=sha256(raw) if raw is not None else None
   return self.raw[name]

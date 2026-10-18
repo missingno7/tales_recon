@@ -1,5 +1,5 @@
 from __future__ import annotations
-from names import to_mechanical
+from names import read_source_text, read_source, split_source_ref
 import argparse, collections, hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
@@ -13,7 +13,7 @@ STAGE = ROOT / 'build' / 'game'
 GUEST = STAGE / 'guest_source'
 
 def sha(data): return hashlib.sha256(data).hexdigest()
-def digest(path): return sha((to_mechanical(path.read_bytes()) if path.is_relative_to(ROOT / 'src') else path.read_bytes()))
+def digest(path): return sha((read_source(ROOT, path) if path.is_relative_to(ROOT / 'src') else path.read_bytes()))
 def read_json(path): return json.loads(path.read_text(encoding='utf-8'))
 def write_json(path, obj):
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -51,6 +51,43 @@ def assert_unique_entry_names(names):
     duplicates=sorted(name for name,count in collections.Counter(normalized).items() if count>1)
     if duplicates: raise ValueError('duplicate staged entry names: '+', '.join(duplicates))
     return True
+
+def module_inventory(inv, ledger, root):
+    """Follow published module refs without inventing historical object groups.
+
+    The inventory remains an input, not another copy of canonical sources.
+    Only path/hash/proof bindings change; extent, compiler and object recipes
+    must still agree with the current exact proof.
+    """
+    import copy
+    from acceptance import exact_comparison
+    inv = copy.deepcopy(inv)
+    moved = {}
+    for row in inv['sources']:
+        accepted = ledger.get(row.get('ledger_map', ''), {}).get(row.get('id'))
+        if not accepted or accepted['source'] == row['source']:
+            continue
+        if split_source_ref(accepted['source'])[1] is None:
+            continue  # Plain stale inventory still fails ordinary selection.
+        proof_path = root / accepted['proof']
+        if sha(proof_path.read_bytes()) != accepted['proof_sha256']:
+            raise ValueError('module inventory proof hash differs: ' + row['source'])
+        proof = read_json(proof_path)
+        extent = accepted['evidence_extent']
+        if (proof['id'] != row['id'] or proof['source'] != accepted['source'] or
+            proof['source_sha256'] != accepted['source_sha256'] or
+            proof['state'] != accepted['state'] or proof['evidence_extent'] != extent or
+            (extent['hunk'], extent['start'], extent['end']) !=
+                (row['hunk'], row['original_start'], row['original_end']) or
+            proof['compiler']['profile'] != row['profile'] or
+            not exact_comparison(proof['comparison']) or not proof['regression']['passed']):
+            raise ValueError('module inventory identity/extent/profile/proof differs: ' + row['source'])
+        moved[row['source']] = accepted['source']
+        row.update({k: accepted[k] for k in ('source','source_sha256','proof','proof_sha256')})
+    for obj in inv['objects']:
+        obj['sources'] = [moved.get(source, source) for source in obj['sources']]
+    return inv
+
 
 def select_accepted_sources(inv, ledger, root, active_path, digest_file):
     """Select accepted production sources against the live ledger and inventory."""
@@ -340,9 +377,9 @@ def join_same_object_rows(rows, facts, same_object_call):
     for row in rows:
         if out:
             prev = out[-1]
-            a = facts.get(Path(prev['sources'][-1]).stem); b = facts.get(Path(row['sources'][0]).stem)
+            a = facts.get((prev.get('members') or [Path(prev['sources'][-1]).stem])[-1]); b = facts.get((row.get('members') or [Path(row['sources'][0]).stem])[0])
             if (a and b and a['hunk'] == b['hunk'] and a['end'] == b['start']
-                    and all(s.endswith('.c') for s in prev['sources'] + row['sources'])
+                    and all(split_source_ref(s)[0].endswith('.c') for s in prev['sources'] + row['sources'])
                     and set(prev.get('profiles') or []) == set(row.get('profiles') or [])
                     and prev.get('node') == row.get('node')
                     and (same_object_call(a, b) or same_object_call(b, a))):
@@ -594,6 +631,7 @@ def main():
         existing = list(GUEST.iterdir())
         if existing and not (args.build or args.report):
             raise SystemExit('guest_source is already populated; use --report or --build')
+    inv = module_inventory(inv, ledger, ROOT)
     src_rows, overlap_provider_paths, provider_source_paths = select_accepted_sources(
         inv, ledger, ROOT, is_active_repo_path, digest)
     # The accepted mixed exit objects collide with c.lib's canonical exit names.
@@ -655,7 +693,7 @@ def main():
                     continue
                 if not source.endswith('.asm') or digest(ROOT / source) != source_sha:
                     raise SystemExit('accepted source is not a hash-matching assembly file: ' + source)
-                text = to_mechanical((ROOT / source).read_text(encoding='utf-8'))
+                text = read_source_text(ROOT, ROOT / source, encoding='utf-8')
                 exported = set(re.findall(r'(?m)^\s*public\s+(\S+)', text)) & set(re.findall(r'(?m)^(_\w+):', text))
                 row = dict(source=source, source_sha256=source_sha, proof=rec['proof'], proof_category=category,
                            definitions=sorted(exported), materialize_entry=None,
@@ -683,9 +721,9 @@ def main():
     # as the proofs join them (recovery_evidence.proven_object_source).
     for inventory_obj in inventory_obj_rows:
         source_count = len(inventory_obj['sources'])
-        if source_count > 1 and all(source.endswith('.c') for source in inventory_obj['sources']):
+        if source_count > 1 and all(split_source_ref(source)[0].endswith('.c') for source in inventory_obj['sources']):
             staged_obj = dict(inventory_obj, _inventory_object=inventory_obj['object'], _source_index=0,
-                              members=[Path(source).stem for source in inventory_obj['sources']],
+                              members=[selected_by_path[source].get('id') or Path(source).stem for source in inventory_obj['sources']],
                               definitions=[d for source in inventory_obj['sources']
                                            for d in selected_by_path[source].get('definitions', [])],
                               natural_object=True)
@@ -701,7 +739,7 @@ def main():
             staged_obj['_inventory_object'] = inventory_obj['object']
             staged_obj['_source_index'] = source_index
             staged_obj['sources'] = [source_path]
-            staged_obj['members'] = [Path(source_path).stem]
+            staged_obj['members'] = [row.get('id') or Path(source_path).stem]
             staged_obj['definitions'] = row.get('definitions', [])
             contract = row.get('materialize_entry') or {}
             if contract.get('emit_symbol'):
@@ -908,7 +946,7 @@ def main():
     asm_block_re = re.compile(r'#asm\b[\s\S]*?#endasm\b', re.IGNORECASE)
     for obj in obj_rows:
         for source_path in obj.get('sources', []):
-            source_text = to_mechanical((ROOT / source_path).read_text(encoding='utf-8'))
+            source_text = read_source_text(ROOT, ROOT / source_path, encoding='utf-8')
             if source_path.endswith('.asm'):
                 asm_text = source_text
             else:
@@ -955,7 +993,7 @@ def main():
         if not rows: raise SystemExit('empty selected object ' + obj['object'])
         contents = []
         for row in rows:
-            original = to_mechanical((ROOT/row['source']).read_text(encoding='utf-8'))
+            original = read_source_text(ROOT, ROOT / row['source'], encoding='utf-8')
             if row['source'] in {
                 'src/recovered/ov11/ov11_F_2C96.c',
                 'src/recovered/ov11/ov11_F_3926.c',
@@ -969,7 +1007,7 @@ def main():
                 # in this generated staging copy to keep the direct `_index` call.
                 original = token_replace(original, 'index', 'link_local_index')
                 staging_identifier_renames.append(dict(source=row['source'],from_identifier='index',to_identifier='link_local_index',reason='avoid shadowing pinned `_index` C identifier'))
-            if sha(to_mechanical((ROOT/row['source']).read_bytes())) != row['source_sha256']:
+            if sha(read_source(ROOT, ROOT / row['source'])) != row['source_sha256']:
                 raise SystemExit('accepted source hash differs from inventory: ' + row['source'])
             contract = row.get('materialize_entry')
             if contract:
@@ -1022,7 +1060,7 @@ def main():
             # accepted source files remain untouched. This fixes omitted unit headers.
             type_declarations = []
             for source_row in rows:
-                original_source = to_mechanical((ROOT/source_row['source']).read_text(encoding='utf-8'))
+                original_source = read_source_text(ROOT, ROOT / source_row['source'], encoding='utf-8')
                 names = sorted(set(re.findall(r'\bG_h01_[0-9A-Fa-f]{4}\b', original_source)))
                 for name in names:
                     if re.search(r'\b(?:extern|static)\b[^;]*\b'+re.escape(name)+r'\b', original_source): continue
@@ -1041,7 +1079,7 @@ def main():
             # UiState's complete tag is independently declared in an accepted source.
             if 'struct UiState' in text and 'struct UiState {' not in text:
                 ui_source = ROOT/'src/recovered/ov13/ov13_F_0000.c'
-                ui_body = extract_struct_bodies(to_mechanical(ui_source.read_text(encoding='utf-8'))).get('UiState') if ui_source.is_file() else None
+                ui_body = extract_struct_bodies(read_source_text(ROOT, ui_source, encoding='utf-8')).get('UiState') if ui_source.is_file() else None
                 if ui_body:
                     preamble += 'struct UiState { %s };\n' % ui_body.strip().strip('{}').strip()
             preamble += ''.join(sorted(set(type_declarations)))
@@ -1147,7 +1185,7 @@ def main():
                 src += ('/* LINK_ONLY_STUBS: zero placeholder for %d raw DATA byte(s) before %s; NOT recovered data */\n'
                         'char LINK_ONLY_GAP_%04X[%d] = {0};\n' % (e['gap_before'], e['id'],
                                                                   e['original']['start'] - e['gap_before'], e['gap_before']))
-            src += to_mechanical((ROOT/e['rec']['source']).read_text(encoding='utf-8'))
+            src += read_source_text(ROOT, ROOT / e['rec']['source'], encoding='utf-8')
         relsrc = Path('tu')/('data_' + first + '.c'); (GUEST/relsrc).write_text(src,encoding='ascii',newline='\n')
         compile_entries.append(dict(source=relsrc.as_posix(),object=objname,kind='c',profile=profile,flags=flags,
                                     log=objname[:-2]+'-cc.log',as_log=objname[:-2]+'-as.log'))
@@ -1223,11 +1261,11 @@ def main():
             if raw and raw not in all_structs[tag]: all_structs[tag].append(raw)
     # Also read simple struct definitions directly from the accepted C inputs; inventory variants are advisory views, not an ownership claim.
     for source_row in src_rows:
-        if not source_row['source'].endswith('.c'): continue
-        for tag,body in extract_struct_bodies(to_mechanical((ROOT/source_row['source']).read_text(encoding='utf-8'))).items():
+        if not split_source_ref(source_row['source'])[0].endswith('.c'): continue
+        for tag,body in extract_struct_bodies(read_source_text(ROOT, ROOT / source_row['source'], encoding='utf-8')).items():
             if body not in all_structs[tag]: all_structs[tag].append(body)
     for provider_id,rec in data_provider_rows:
-        for tag,body in extract_struct_bodies(to_mechanical((ROOT/rec['source']).read_text(encoding='utf-8'))).items():
+        for tag,body in extract_struct_bodies(read_source_text(ROOT, ROOT / rec['source'], encoding='utf-8')).items():
             if body not in all_structs[tag]: all_structs[tag].append(body)
     undef = inv['undefined_symbols']; stub_items=[]; deferred=[]; runtime_stubs=[]
     manual_link_views={

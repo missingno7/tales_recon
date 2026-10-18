@@ -16,7 +16,7 @@ Inputs: evidence/hybrid/accounting.json, evidence/functions/ledger.json,
 recovery/ledger.json, docs/blockers.json and src/. The heuristics (absolute
 hardware operands, mechanical names) are lower bounds, not proofs.
 """
-from names import to_mechanical
+from names import read_source_text, read_source
 import argparse
 from collections import Counter, defaultdict
 import json
@@ -108,8 +108,9 @@ def report(root=ROOT):
             if member:
                 services[member].add(f['id'])
 
-    sources = sorted((root / 'src/recovered').rglob('*.c'))
-    texts = [to_mechanical(p.read_text(encoding='ascii', errors='replace')) for p in sources]
+    from repo_paths import active_files
+    sources = sorted(active_files(root / 'src', '.c'))
+    texts = [read_source_text(root, p, encoding='ascii', errors='replace') for p in sources]
     views = defaultdict(set)
     for text in texts:
         for decl in EXTERN.findall(text):

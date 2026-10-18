@@ -3,7 +3,7 @@
 This is a measured compiler property, not a general statement about C or 68000.
 New accepted 3.6a options require a new compiled control before admission.
 """
-from names import to_mechanical
+from names import read_source
 import json,re
 from common import require,sha256,json_bytes
 from repo_paths import canonical_path
@@ -45,7 +45,7 @@ def corpus(root,blob,model):
  for section in ['functions','dead_code_functions','behavioral_functions']:
   for ident,item in sorted(ledger.get(section,{}).items()):
    raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
-   require(sha256(raw)==item['proof_sha256'] and sha256(to_mechanical(canonical_path(root,item['source']).read_bytes()))==item['source_sha256'],'frame corpus source/proof pins')
+   require(sha256(raw)==item['proof_sha256'] and sha256(read_source(root, item['source']))==item['source_sha256'],'frame corpus source/proof pins')
    if section=='functions':
     o=item['evidence_extent'];cmp=proof['comparison'].get('code_comparison',proof['comparison'])
     require(proof['id']==ident and cmp['verdict']=='EQUAL' and cmp['relocation_equal'] and cmp['normalized_sha256']==o['sha256'],'frame corpus exact C proof')

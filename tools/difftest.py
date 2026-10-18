@@ -6,7 +6,7 @@ are stubbed on both sides as zero-return, no-side-effect functions; the result
 records that modeling limit.
 """
 from __future__ import annotations
-from names import to_mechanical
+from names import read_source, source_path
 import argparse, ctypes, hashlib, json, os, random, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 
@@ -40,10 +40,10 @@ def catalog():
     return entries,{f["id"]:f for f in evidence.get("functions",[])}
 
 def canonical_source(entry):
-    path=(ROOT/entry.get("source","")).resolve()
-    if not path.is_relative_to((ROOT/"src"/"recovered").resolve()): raise Unsupported("source is outside src/recovered")
+    path=source_path(ROOT,entry.get("source",""))
+    if not path.is_relative_to((ROOT/"src").resolve()): raise Unsupported("source is outside src")
     if not path.is_file(): raise Unsupported("canonical source is missing")
-    raw=to_mechanical(path.read_bytes())
+    raw=read_source(ROOT, entry["source"])
     if entry.get("source_sha256") and digest(raw)!=entry["source_sha256"]: raise Unsupported("canonical source hash is stale")
     return path,raw.decode("latin-1")
 
@@ -263,7 +263,7 @@ def prepare(fid,candidate=None):
     if ex and (ex.get("hunk"),ex.get("start"),ex.get("end"))!=(ev.get("hunk"),ev.get("start"),ev.get("end")):
         raise Unsupported("canonical extent differs from execution fixture")
     if candidate is not None:
-        path=Path(candidate).resolve();src=to_mechanical(path.read_bytes()).decode("latin-1")
+        path=Path(candidate).resolve();src=read_source(ROOT, path, scratch=True).decode("latin-1")
     else:path,src=canonical_source(entry)
     sig=signature(src); calls,stubs=calls_of(ev)
     struct_layouts=data_model().get("structs",{})

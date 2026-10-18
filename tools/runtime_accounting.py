@@ -1,5 +1,5 @@
 """Replayed complete runtime specimens; validation accounting, never a build."""
-from names import to_mechanical
+from names import read_source
 import json
 from pathlib import Path
 from common import require, sha256
@@ -235,7 +235,7 @@ def input_identity(root):
         paths.update(member[k]['path'] for k in ('object','executable','symbols'))
     leaf_job=Path(leaf['job']['request']['path']).parent.as_posix()
     paths.update(leaf_job+'/'+name for name in ('sys/s/startup-sequence','worker.uae','kick.rom'))
-    values={str(candidate_path(root,root/p)):sha256((to_mechanical(candidate_path(root,root/p).read_bytes()) if str(p).startswith('src/') else candidate_path(root,root/p).read_bytes())) for p in paths}
+    values={str(candidate_path(root,root/p)):sha256((read_source(root, root / p, scratch=True) if str(p).startswith('src/') else candidate_path(root,root/p).read_bytes())) for p in paths}
     request=json.loads(candidate_path(root,root/recipe['request']['path']).read_text())
     emulator=Path(request['emulator']).resolve()
     values[str(emulator)]=sha256(emulator.read_bytes())

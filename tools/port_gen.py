@@ -413,13 +413,22 @@ def needs_override(text):
 STAGED_SOURCE = re.compile(r'staged from accepted source: (\S+?);')
 
 
-def unit_override(text, override_dir):
-    """port/override/<source stem>.c replaces a unit built from that one accepted source
-    (keyed by source, not by the Amiga build's object number, which moves)."""
+def unit_override(text, override_dir, root=None):
+    """Keep overrides keyed by function identity when its source becomes a module.
+
+    Plain sources retain their source stem; object numbers are not stable.
+    """
     sources = STAGED_SOURCE.findall(text)
     if not override_dir or len(sources) != 1:
         return None
-    candidate = override_dir / (Path(sources[0]).stem + '.c')
+    import names
+    path, selector = names.split_source_ref(sources[0])
+    key = Path(path).stem
+    if selector is not None:
+        match = re.fullmatch(r'F_h([0-9]{2})_([0-9A-F]{4})', names.identity(selector, root or ROOT))
+        if not match:return None
+        key = ('resident' if match[1] == '00' else 'ov' + match[1]) + '_F_' + match[2]
+    candidate = override_dir / (key + '.c')
     return candidate if candidate.is_file() else None
 
 

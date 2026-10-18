@@ -4,7 +4,7 @@ Re-derive sources with the reviewed recipes, require a complete pinned input
 inventory, and check both the ordinary and label-only +X3 object boundaries.
 No original executable bytes are inputs to this audit.
 """
-from names import to_mechanical
+from names import read_source
 import json
 from pathlib import Path
 import runpy
@@ -23,7 +23,7 @@ PARTS = [['C_COMPILER', 0, 48], ['ASM', 48, 54],
 
 
 def read(root, path):
-    return (to_mechanical(canonical_path(root, path).read_bytes()) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
+    return (read_source(root, path) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def index(rows, label):

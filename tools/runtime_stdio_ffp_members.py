@@ -3,7 +3,7 @@
 Private allocator/stdio storage has no independent ownership map here and is
 never inferred from role, spacing, repeated accesses, or original bytes.
 """
-from names import to_mechanical
+from names import read_source
 import json,re
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -26,7 +26,7 @@ CONTRACTS={
  'write':{14:dict(kind='PC',symbol='_Chk_Abort'),26:dict(kind='A4',symbol='__devtab'),34:dict(kind='A4',symbol='__numdev'),46:dict(kind='A4',symbol='_errno'),72:dict(kind='A4',symbol='_errno'),94:dict(kind='PC',symbol='__Write'),112:dict(kind='PC',symbol='__IoErr'),116:dict(kind='A4',symbol='_errno')},
  'ffp':{2:dict(kind='A4',symbol='_MathBase'),18:dict(kind='PC',symbol='__OpenLibrary'),24:dict(kind='A4',symbol='_MathBase'),40:dict(kind='PC',symbol='__Output'),46:dict(kind='PC',symbol='__Write'),50:dict(kind='PC',symbol='__abort'),68:dict(kind='A4',symbol='_MathBase')}}
 
-def read(root,path):return (to_mechanical(candidate_path(root,Path(root)/path).read_bytes()) if str(path).startswith('src/') else candidate_path(root,Path(root)/path).read_bytes())
+def read(root,path):return (read_source(root, Path(root) / path, scratch=True) if str(path).startswith('src/') else candidate_path(root,Path(root)/path).read_bytes())
 def checked(root,r):
  raw=read(root,r['path']);require(sha256(raw)==r['sha256'],'stdio/FFP retained input changed: '+r['path']);return raw
 

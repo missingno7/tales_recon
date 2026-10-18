@@ -1,5 +1,5 @@
 """Rank and package bounded work; no reconstructed-source claims from discovery."""
-from names import to_mechanical
+from names import read_source_text, read_source, source_path as physical_source_path
 import json
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -322,8 +322,8 @@ def canonical_call_examples(calls,ledger,limit=4):
             if not path:continue
             if not is_active_repo_path(ROOT/path,ROOT):continue
             source_path=canonical_path(ROOT,path)
-            if not source_path.is_file():continue
-            excerpt=call_excerpt(to_mechanical(source_path.read_text()),name)
+            if not physical_source_path(ROOT,path).is_file():continue
+            excerpt=call_excerpt(read_source_text(ROOT, source_path, encoding='utf-8'),name)
             if excerpt:
                 examples.append(dict(callee=name,caller=caller_id,call=excerpt))
                 break
@@ -347,11 +347,11 @@ def facts(fid,max_instructions=160,max_bytes=65536):
         entries=json.loads(index.read_text())['entries']
         for profile in ('aztec36','aztec50-short'):
             closest=sorted((e for e in entries if e['profile']==profile and e['status']=='COMPILED'),key=lambda e:SequenceMatcher(None,m,e['mnemonics']).ratio(),reverse=True)[:2]
-            fingerprints.extend(dict(name=e['name'],profile=profile,source=to_mechanical(canonical_path(ROOT,e['source']).read_text()),assembly=e['assembly'][:2400],flags=e['compiler']['flags']) for e in closest if is_active_repo_path(ROOT/e['source'],ROOT))
+            fingerprints.extend(dict(name=e['name'],profile=profile,source=read_source_text(ROOT, e['source'], encoding='utf-8'),assembly=e['assembly'][:2400],flags=e['compiler']['flags']) for e in closest if is_active_repo_path(ROOT/e['source'],ROOT))
     dependencies=[]
     for call in f['direct_callees'][:12]:
         dep=r['functions'].get(call['id'])
-        if dep and is_active_repo_path(ROOT/dep['source'],ROOT):dependencies.append(dict(id=call['id'],name='F_h%02d_%04X'%(call['hunk'],call['offset']),state=dep['state'],source=to_mechanical(canonical_path(ROOT,dep['source']).read_text())[:3000]))
+        if dep and is_active_repo_path(ROOT/dep['source'],ROOT):dependencies.append(dict(id=call['id'],name='F_h%02d_%04X'%(call['hunk'],call['offset']),state=dep['state'],source=read_source_text(ROOT, dep['source'], encoding='utf-8')[:3000]))
     call_examples=canonical_call_examples(f['direct_callees'],r)
     packages=dict(schema_version=1,id=fid,extent={k:f[k] for k in ('node','hunk','start','end','size','sha256','extent_status','confidence')},
         entry_evidence=f['entry_evidence'],instructions=f['instructions'],cfg=f['cfg'],

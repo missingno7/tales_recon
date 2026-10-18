@@ -1,5 +1,5 @@
 """Measured pinned-C register preservation, rederived from proofs and controls."""
-from names import to_mechanical
+from names import read_source
 import re
 from common import require,sha256,json_bytes
 from repo_paths import canonical_path
@@ -139,7 +139,7 @@ def derive(root,blob,model,batch):
  records=[];anchors={}
  for ident,item in sorted(ledger['functions'].items()):
   raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
-  require(sha256(raw)==item['proof_sha256'] and sha256(to_mechanical(canonical_path(root,item['source']).read_bytes()))==item['source_sha256'],'calibration canonical C source/proof binding')
+  require(sha256(raw)==item['proof_sha256'] and sha256(read_source(root, item['source']))==item['source_sha256'],'calibration canonical C source/proof binding')
   if proof['compiler'].get('compiler_version')!='3.6a':continue
   f=by[ident];extent=item['evidence_extent'];body=payload(blob,model,f['hunk'])[f['start']:f['end']]
   comparison=proof['comparison'].get('code_comparison',proof['comparison'])
@@ -172,7 +172,7 @@ def derive(root,blob,model,batch):
  import dead_code_extents as dead
  for ident,item in sorted(ledger.get('dead_code_functions',{}).items()):
   raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
-  require(sha256(raw)==item['proof_sha256'] and sha256(to_mechanical(canonical_path(root,item['source']).read_bytes()))==item['source_sha256'],'complete C calibration source/proof')
+  require(sha256(raw)==item['proof_sha256'] and sha256(read_source(root, item['source']))==item['source_sha256'],'complete C calibration source/proof')
   producer_raw=canonical_path(root,proof['compiler']['path']).read_bytes();receipt_raw=canonical_path(root,proof['exact_receipt']['path']).read_bytes()
   require(sha256(producer_raw)==proof['compiler']['sha256'] and sha256(receipt_raw)==proof['exact_receipt']['sha256'],'complete C calibration retained pins')
   producer=json.loads(producer_raw);receipt=json.loads(receipt_raw)

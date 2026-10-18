@@ -5,7 +5,7 @@ produces a validation comparison buffer, never patched executable output.
 Library membership is checked against complete objects in the pinned archive;
 SDK source, ordinary link recipes and actual symbol maps remain independent.
 """
-from names import to_mechanical
+from names import read_source
 import json
 import re
 from pathlib import Path
@@ -17,7 +17,7 @@ from overlay_experiment import symbols
 INPUT='evidence/contributions/library-a4.json'
 
 def checked(root,item):
-    raw=(to_mechanical(canonical_path(root,item['path']).read_bytes()) if item['path'].startswith('src/') else canonical_path(root,item['path']).read_bytes())
+    raw=(read_source(root, item['path']) if item['path'].startswith('src/') else canonical_path(root,item['path']).read_bytes())
     require(sha256(raw)==item['sha256'],'library A4 retained input changed: '+item['path'])
     return raw
 

@@ -3,7 +3,7 @@
 This rule proves the behavior of pinned candidate tools, not original game
 ownership, release, source filename, or natural resident layout. No acceptance.
 """
-from names import to_mechanical
+from names import read_source
 import json
 from pathlib import Path
 
@@ -22,7 +22,7 @@ FIELDS = (4, 8, 16, 30, 38, 78, 96)
 
 
 def read(root, path):
-    return (to_mechanical(canonical_path(root, path).read_bytes()) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
+    return (read_source(root, path) if str(path).startswith('src/') else canonical_path(root, path).read_bytes())
 
 
 def commands(scope):

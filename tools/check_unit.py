@@ -4,7 +4,7 @@ No code fragment is accepted alone: every byte in the full compiled unit must
 belong to a closed function extent. Exact members must pass exact comparison;
 canonical behavioral members must re-prove their separately recorded claim.
 """
-from names import to_mechanical
+from names import read_source_text, read_source
 import argparse
 import copy
 import json
@@ -309,7 +309,7 @@ def prepare_unit(fid,source,with_parts=False,allow_gaps=False,remove_stale_exter
             import behavioral
             require(dep_id not in r['functions'],'behavioral entry is also exact C')
             behavioral.validate(verification_root(),df,dep,l)
-        text=to_mechanical(canonical_path(verification_root(),dep['source']).read_text())
+        text=read_source_text(verification_root(), dep['source'], encoding='utf-8')
         require(sha256(text.encode())==dep['source_sha256'],'recovered dependency source changed')
         name=mechanical_name(df);names[dep_id]=name;members[dep_id]=df
         parts[dep_id]=re.sub(r'\brecovered\b',name,text)
@@ -1268,9 +1268,9 @@ def check(fid,path,profiles,promote_equal=True,owned_code_data=False,separate_ob
     if isolated and output_dir is not None:
         from check_function import isolated_output_root
         output_root=isolated_output_root(output_dir)
-    member_sources={k:to_mechanical(candidate_path(verification_root(),v).read_text()) for k,v in (member_sources or {}).items()}
+    member_sources={k:read_source_text(verification_root(), v, scratch=True, encoding='utf-8') for k,v in (member_sources or {}).items()}
     resident_groups=bool(object_groups) and validated_function(fid)[0]['node']=='resident'
-    source=to_mechanical(candidate_path(verification_root(),path).read_text());members,names,parts,combined,ledger=prepare_unit(
+    source=read_source_text(verification_root(), path, scratch=True, encoding='utf-8');members,names,parts,combined,ledger=prepare_unit(
         fid,source,True,allow_gaps,remove_stale_externs=not separate_objects,member_sources=member_sources,
         natural_interval=natural_interval,local_calls_only=resident_groups)
     natural=None

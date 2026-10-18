@@ -1,5 +1,5 @@
 """Versioned independent entries under calibrated FRAMELESS_ENTRY."""
-from names import to_mechanical
+from names import read_source, source_path as source_file
 from validation_memo import shared
 import json,re
 from pathlib import Path
@@ -77,7 +77,7 @@ def derive_tail(blob,model,measured,root):
  # A proved ordinary C caller binds this A4 jump slot to the exact code entry.
  ident='resident_F_4376';item=ledger['functions'][ident];o=item['evidence_extent']
  raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
- src=to_mechanical(canonical_path(root,item['source']).read_bytes())
+ src=read_source(root, item['source'])
  require(sha256(raw)==item['proof_sha256'] and sha256(src)==item['source_sha256']==proof['source_sha256'] and proof['id']==ident,'tail caller source/proof pins')
  cmp=proof['comparison'].get('code_comparison',proof['comparison'])
  require(o['hunk']==0 and o['start']<=0x4538<o['end'] and sha256(c[o['start']:o['end']])==o['sha256']==cmp['normalized_sha256'] and cmp['verdict']=='EQUAL' and cmp['relocation_equal'],'tail caller exact oracle extent')
@@ -120,7 +120,7 @@ def derive_debug(blob,model,root):
  c=payload(blob,model,0);ledger=document(root,'recovery/ledger.json')
  caller=ledger['functions']['resident_F_3674'];o=caller['evidence_extent']
  raw=canonical_path(root,caller['proof']).read_bytes();p=json.loads(raw)
- require(sha256(raw)==caller['proof_sha256'] and sha256(c[o['start']:o['end']])==o['sha256'] and sha256(to_mechanical(canonical_path(root,caller['source']).read_bytes()))==caller['source_sha256']==p['source_sha256'] and p['id']=='resident_F_3674','debug caller source/proof/oracle pins')
+ require(sha256(raw)==caller['proof_sha256'] and sha256(c[o['start']:o['end']])==o['sha256'] and sha256(read_source(root, caller['source']))==caller['source_sha256']==p['source_sha256'] and p['id']=='resident_F_3674','debug caller source/proof/oracle pins')
  cmp=p['comparison'].get('code_comparison',p['comparison'])
  require(cmp['verdict']=='EQUAL' and cmp['relocation_equal'] and cmp['normalized_sha256']==o['sha256'] and o['hunk']==0 and o['start']<=0x3680<o['end'],'debug exact C caller')
  contracts.at({i['offset']:i for i in contracts.decode(c[0x3680:0x3684],0x3680)},0x3680,'jsr','$701a(pc)')
@@ -298,7 +298,7 @@ def rows_for(root,blob,model,analysis,ledger,manifest,facts):
   if ident not in entries:continue
   report=verify(root,blob,model,fact,batch,contract,audit,cctrl);item=entries[ident];dest='recovery/proofs/asm-reconstructed/'+ident+'.json'
   require(set(item)=={'state','fact','source','source_sha256','proof','proof_sha256'} and item['state']=='FUNCTION_CODE_MATCH' and item['fact']==name and item['source']==fact['source'] and item['proof']==dest,'driver ownership identity')
-  src=to_mechanical(canonical_path(root,item['source']).read_bytes());raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
+  src=read_source(root, item['source']);raw=canonical_path(root,item['proof']).read_bytes();proof=json.loads(raw)
   require(src==canonical_path(root,fact['candidate']).read_bytes() and sha256(src)==item['source_sha256']==fact['source_sha256'] and sha256(raw)==item['proof_sha256'],'canonical driver source/proof')
   require(set(proof)=={'fact','comparison','regression'} and proof['regression'].get('passed') is True,'driver shared regression receipt')
   comparable=lambda r:{k:v for k,v in r.items() if k not in ['verifier_identity','register_calibration','frame_calibration']}
@@ -369,7 +369,7 @@ def input_identity(root):
  for k,item in ledger.get(MAP,{}).items():
   if k in SPECS:names.update([item['source'],item['proof'],item['fact']])
  def path(n):return candidate_path(root,root/n) if n.startswith('build/worker-jobs/') else canonical_path(root,n)
- return {**{str(path(n)):sha256((to_mechanical(path(n).read_bytes()) if n.startswith('src/') else path(n).read_bytes())) if path(n).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes()),**tail_inputs(root),**({rom_request['runner']:sha256(Path(rom_request['runner']).read_bytes()) if Path(rom_request['runner']).is_file() else None} if rom_request else {})}
+ return {**{str(path(n)):sha256((read_source(root, path(n)) if n.startswith('src/') else path(n).read_bytes())) if (source_file(root, path(n)) if n.startswith('src/') else path(n)).exists() else None for n in sorted(names)},request['emulator']:sha256(Path(request['emulator']).read_bytes()),**tail_inputs(root),**({rom_request['runner']:sha256(Path(rom_request['runner']).read_bytes()) if Path(rom_request['runner']).is_file() else None} if rom_request else {})}
 
 def tail_inputs(root):
  names={TAIL_MANIFEST,*TAIL_FACTS,*SDK_PINS};external={}
@@ -384,4 +384,4 @@ def tail_inputs(root):
   for folder in ['c','l','libs','devs']:names.update(p.relative_to(root).as_posix() for p in active_files(root/job/'sys'/folder))
   external[req['emulator']]=sha256(Path(req['emulator']).read_bytes())
  def path(n):return candidate_path(root,root/n) if n.startswith('build/') else canonical_path(root,n)
- return {**{str(path(n)):sha256((to_mechanical(path(n).read_bytes()) if n.startswith('src/') else path(n).read_bytes())) if path(n).exists() else None for n in names},**external}
+ return {**{str(path(n)):sha256((read_source(root, path(n)) if n.startswith('src/') else path(n).read_bytes())) if (source_file(root, path(n)) if n.startswith('src/') else path(n)).exists() else None for n in names},**external}

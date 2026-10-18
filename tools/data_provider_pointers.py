@@ -3,7 +3,7 @@
 Address-only function designators model register-ABI code addresses. They grant
 no ordinary C calling convention, CODE credit, owner or original TU identity.
 """
-from names import to_mechanical
+from names import read_source
 import re,json
 from pathlib import Path
 from common import require,sha256,json_bytes
@@ -107,7 +107,7 @@ def typed_evidence(root,fact,blob,model,analysis,ledger):
  for p,m,o in expected:require((by[p]['mnemonic'],by[p]['operands'])==(m,o),'decoded pointer dispatch/stride changed')
  # The inclusive44 comparison does not make45 pointers. The next field is
  # independently accessed as WORD period data by the accepted note member.
- note=ledger['reconstructed_asm']['resident_asm_59A4'];src=to_mechanical(canonical_path(root,note['source']).read_bytes());pr=canonical_path(root,note['proof']).read_bytes()
+ note=ledger['reconstructed_asm']['resident_asm_59A4'];src=read_source(root, note['source']);pr=canonical_path(root,note['proof']).read_bytes()
  require(sha256(src)==note['source_sha256'] and sha256(pr)==note['proof_sha256'] and b'lea _G_h01_29DE,a2\n\tmove.w 0(a2,d1.w),d1' in src,'independent period WORD fence missing')
  require(any(r['source_hunk']==0 and r['source_offset']==0x5a1e and r['target_hunk']==1 and r['addend_raw']==0x29de for r in model['relocations']),'period-data base relocation missing')
  rs=relocation_profile(model,1,0x292e,176)

@@ -1,5 +1,5 @@
 """Validate curated source-proof inputs independently of generated topology metrics."""
-from names import to_mechanical
+from names import read_source
 import json,re
 from acceptance import accepted_unit,exact_comparison
 from common import require,sha256,json_bytes
@@ -32,7 +32,7 @@ def terminal_padding_recipe(root,blob,model,analysis,promotions,ledger,entry):
         fid=f['id'];item=ledger['functions'][fid]
         require(f['extent_status']=='CLOSED_CFG' and accepted[fid]['hunk']==4 and
                 all(accepted[fid][k]==f[k] for k in ('start','end','size','sha256')),'padding member extent differs')
-        source=to_mechanical(canonical_path(root,item['source']).read_bytes());rawproof=canonical_path(root,item['proof']).read_bytes()
+        source=read_source(root, item['source']);rawproof=canonical_path(root,item['proof']).read_bytes()
         require(sha256(source)==item['source_sha256'] and sha256(rawproof)==item['proof_sha256'],
                 'padding canonical source/proof changed: '+fid)
         proof=json.loads(rawproof);proofs[fid]=proof
@@ -632,7 +632,7 @@ def _load_promotions(root,blob,model,analysis):
             if not unit_name and proof.get('compiler',{}).get('candidate_overlay_node')==0:
                 import helper_exports
                 f=next(f for f in analysis['functions'] if f['id']==fid)
-                helper_exports.register(to_mechanical(canonical_path(root,item['source']).read_bytes()).decode('ascii'),helper_exports.original_helpers([f]))
+                helper_exports.register(read_source(root, item['source']).decode('ascii'),helper_exports.original_helpers([f]))
             row,owned_end=validated(root,'functions',fid,key,'recovery_evidence',
                           lambda:_validate_promotion(root,blob,model,analysis,ledger,fid,item))
             locations={(row['hunk'],offset) for offset in range(row['start'],owned_end)}
@@ -648,7 +648,7 @@ def _validate_promotion(root,blob,model,analysis,ledger,fid,item):
     proof=json.loads(proof_path.read_text());extent=proof['evidence_extent'];comparison=proof['comparison']
     require(sha256(proof_path.read_bytes())==item['proof_sha256'],'promotion receipt changed: '+fid)
     require(proof['id']==fid and proof['state']==item['state'] and extent==item['evidence_extent'],'promotion identity differs')
-    require(sha256(to_mechanical(source.read_bytes()))==item['source_sha256']==proof['source_sha256'],'promoted source changed: '+fid)
+    require(sha256(read_source(root, source))==item['source_sha256']==proof['source_sha256'],'promoted source changed: '+fid)
     h=next(h for h in model['hunks'] if h['number']==extent['hunk'])
     start,end=extent['start'],extent['end'];size=end-start
     require(h['type']=='CODE' and 0<=start<end<=h['initialized_size'] and size==extent['size'],'invalid promotion extent')
@@ -828,8 +828,8 @@ def _validate_promotion(root,blob,model,analysis,ledger,fid,item):
         from resident_interfaces import evidence as resident_interface_evidence
         if proof['compiler'].get('candidate_overlay_node')==0:
             import helper_exports
-            helper_exports.register(to_mechanical(source.read_bytes()).decode('ascii'),helper_exports.original_helpers([f]))
-        resident_interface_evidence([f],to_mechanical(source.read_bytes()).decode('ascii'),proof['compiler'],blob,model,analysis['a4']['bias'])
+            helper_exports.register(read_source(root, source).decode('ascii'),helper_exports.original_helpers([f]))
+        resident_interface_evidence([f],read_source(root, source).decode('ascii'),proof['compiler'],blob,model,analysis['a4']['bias'])
     if 'resident_data_interfaces' in proof['compiler']:
         from compiler_oracle import cached
         artifact=cached(proof['cache_key'])

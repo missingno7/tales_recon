@@ -4,7 +4,7 @@ The complete selector-writer proof bounds a record prefix, not historical
 capacity. The callback's cursor and DBRA access bound the cursor domain plus n+1 source WORDs;
 repeated words beyond that bound remain raw. No CODE is produced or credited.
 """
-from names import to_mechanical
+from names import read_source
 import re,json
 from common import require,sha256,json_bytes
 from repo_paths import canonical_path
@@ -103,7 +103,7 @@ def plan(root,blob,model,analysis,ledger,promotions):
  # evidence is checked independently as well, rather than ignored.
  sites=[r['source_offset'] for r in model['relocations'] if r['target_hunk']==1 and r['addend_raw']==0x2c2b]
  require(sites==[0x542e,0x61cc,0x61da],'unmodelled absolute cursor reference')
- setter=ledger['functions']['resident_F_5428'];src=to_mechanical(canonical_path(root,setter['source']).read_bytes());proof=canonical_path(root,setter['proof']).read_bytes()
+ setter=ledger['functions']['resident_F_5428'];src=read_source(root, setter['source']);proof=canonical_path(root,setter['proof']).read_bytes()
  require(sha256(src)==setter['source_sha256'] and sha256(proof)==setter['proof_sha256'],'changed canonical cursor reset')
  fragments(src.decode('ascii'),'G_h01_2C2B=0;')
  at({i['offset']:i for i in decode(code[0x5428:0x544c],0x5428)},0x542c,'clr.b','$2c2b.l')

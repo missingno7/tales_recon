@@ -120,6 +120,7 @@ class CanonicalReplacementTests(unittest.TestCase):
                 patch.object(check_function, "recovery", side_effect=lambda: json.loads(json.dumps(self.ledger))),
                 patch.object(check_function, "regression_receipt", return_value=dict(passed=True)),
                 patch.object(check_function, "check_many", side_effect=check_many),
+                patch("census.derive", return_value=None),
                 patch("canonical_replacement.canonical_path", side_effect=lambda root, rel: self.tmp / rel))
 
     def run_replace(self, check_many):
@@ -130,8 +131,9 @@ class CanonicalReplacementTests(unittest.TestCase):
 
         def write(gate):
             self.assertEqual(gate, dict(passed=True))
-            (self.tmp / "src/a.c").write_text("new a")
-            (self.tmp / "ledger.json").write_text("replaced")
+            from recovery_transaction import publish, digest
+            publish(self.tmp,self.tmp/"ledger.json",{self.tmp/"src/a.c":b"new a"},
+                    self.ledger,digest(self.tmp/"ledger.json"))
         return self.cr.replace("A", write)
 
     def test_dependent_is_reproved_from_its_own_canonical_source(self):
@@ -141,8 +143,9 @@ class CanonicalReplacementTests(unittest.TestCase):
         self.assertEqual(seen, [dict(id="B", source="src/b.c", profiles=["aztec36"], owned_code_data=True)])
         self.assertEqual([r["id"] for r in reports], ["B"])
         self.assertEqual((self.tmp / "src/a.c").read_text(), "new a")
-        # B is withdrawn while it is re-proved against the replacement.
-        self.assertNotIn("B", json.loads((self.tmp / "ledger.json").read_text())["functions"])
+        # DATA facts may need B as an accepted consumer during re-proof.
+        # Its stale unit pin is confined to the uncommitted replacement scope.
+        self.assertIn("B", json.loads((self.tmp / "ledger.json").read_text())["functions"])
 
     def test_failed_dependent_restores_prior_canonical_state(self):
         with self.assertRaisesRegex(FormatError, "dependent re-proof failed"):

@@ -1,5 +1,5 @@
 """Canonical startup admission after unchanged full regression and fresh controls."""
-from names import to_mechanical
+from names import read_source
 import argparse
 import json
 import re
@@ -21,7 +21,7 @@ def validation_inputs(root):
         paths.update(item[k] for k in ('source', 'proof'))
     paths.update(p.relative_to(root).as_posix() for p in (root / 'tools').glob('*.py'))
     paths.update(p.relative_to(root).as_posix() for p in (root / 'tests').glob('*.py'))
-    return [dict(path=p, sha256=sha256((to_mechanical(canonical_path(root, p).read_bytes()) if p.startswith('src/') else canonical_path(root, p).read_bytes()))) for p in sorted(paths)]
+    return [dict(path=p, sha256=sha256((read_source(root, p) if p.startswith('src/') else canonical_path(root, p).read_bytes()))) for p in sorted(paths)]
 
 
 def main():
@@ -51,7 +51,7 @@ def main():
             re.search(r'^OK(?: \(skipped=\d+\))?\s*$', log, re.M), 'startup regression incomplete or failed')
     source = source_views(ROOT)['candidate'].encode('ascii')
     path = canonical_path(ROOT, SOURCE)
-    require(not path.exists() or to_mechanical(path.read_bytes()) == source, 'startup existing canonical source differs')
+    require(not path.exists() or read_source(ROOT, path) == source, 'startup existing canonical source differs')
     path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(source)
     write_json(ROOT / PROOF, result)
     ledger.setdefault('mixed_source_objects', {})[ID] = dict(state='FUNCTION_WITH_DATA_MATCH',

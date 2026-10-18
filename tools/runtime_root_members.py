@@ -3,7 +3,7 @@
 Resolved bytes exist only in validation comparisons. No storage ownership,
 original object order, source language for freeseg, or root layout is inferred.
 """
-from names import to_mechanical
+from names import read_source
 import json
 from pathlib import Path
 from common import require, sha256, json_bytes
@@ -22,7 +22,7 @@ FREERELOCS=[dict(offset=o,type='HUNK_RELOC32',width=4,target=dict(kind='ROOT_HUN
 CRTREL=[dict(offset=116,type='HUNK_RELOC32',width=4,target=dict(kind='ROOT_HUNK_ORIGIN',hunk=1,type='DATA',addend=32766))]
 COMMANDS=['Old2:bin/lb >extract.log Old1:lib/c.lib -x freeseg','Old1:bin/ln -m -t -o freeseg.exe freeseg.o >freeseg-ln.log']
 
-def read(root,path):return (to_mechanical(candidate_path(root,Path(root)/path).read_bytes()) if str(path).startswith('src/') else candidate_path(root,Path(root)/path).read_bytes())
+def read(root,path):return (read_source(root, Path(root) / path, scratch=True) if str(path).startswith('src/') else candidate_path(root,Path(root)/path).read_bytes())
 
 def checked(root,row):
     raw=read(root,row['path']);require(sha256(raw)==row['sha256'],'root runtime retained input changed: '+row['path']);return raw

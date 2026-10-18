@@ -1,5 +1,5 @@
 """One-command exact candidate check. Compiler and emulator details stay behind this API."""
-from names import to_mechanical
+from names import read_source_text, read_source, source_path, split_source_ref, identity as source_identity, mechanical
 import argparse
 import importlib.util
 import json
@@ -167,11 +167,11 @@ def regression_receipt(full=None):
     return receipt
 
 
-def promotion_proof(fid,source,report,compiled,f,state,regression):
+def promotion_proof(fid,source,report,compiled,f,state,regression,canonical_ref=None):
     """Construct the existing individual proof without canonical writes."""
     source_hash=sha256(source.encode('ascii'))
     path=ROOT/'src/recovered'/f['node']/(fid+'.c')
-    proof=dict(schema_version=1,id=fid,state=state,source=str(path.relative_to(ROOT)).replace('\\','/'),source_sha256=source_hash,
+    proof=dict(schema_version=1,id=fid,state=state,source=canonical_ref or str(path.relative_to(ROOT)).replace('\\','/'),source_sha256=source_hash,
         evidence_extent={k:f[k] for k in ('hunk','start','end','size','sha256','extent_status')},
         compiler=compiled['identity'],object_hash=compiled['contribution']['object_sha256'],
         artifacts=compiled['artifacts'],cache_key=compiled['cache_key'],
@@ -220,13 +220,20 @@ def durable_unit(report):
     return dict(report,complete_unit_receipt=(destination/'receipt.json').relative_to(ROOT).as_posix())
 
 
-def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_canonical=False,regression=None):
+def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_canonical=False,regression=None,canonical_ref=None):
     """Write canonical source and proof.  ``regression`` lets a complete
     multi-member unit share one suite run taken before its first write."""
     for other,item in recovery()['functions'].items():
         e=item['evidence_extent']
         require(other==fid or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
                 'promotion would overlap canonical source ownership: '+other)
+    if canonical_ref is not None:
+        physical=source_path(ROOT,canonical_ref)
+        require(physical.is_relative_to(ROOT/'src'),'canonical source must be under src/')
+        own_name=split_source_ref(canonical_ref)[1]
+        require(own_name is not None,'explicit canonical reference requires path#name')
+        require(source_identity(own_name,ROOT)==mechanical(fid),'canonical module name does not identify the verified function')
+        require(read_source_text(ROOT, canonical_ref, encoding='ascii')==source,'canonical module unit differs from verified candidate')
     if regression is None:regression=regression_receipt()
     require(regression.get('passed') is True,'promotion requires a passing regression receipt')
     r=recovery();prior=r['functions'].get(fid)
@@ -236,8 +243,8 @@ def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_can
     require(not prior or prior['state']!='FUNCTION_WITH_DATA_MATCH' or state=='FUNCTION_WITH_DATA_MATCH',
             'replacement may not discard an existing owned CODE-data proof')
     report=durable_unit(report)
-    proof=promotion_proof(fid,source,report,compiled,f,state,regression)
-    path=ROOT/proof['source']
+    proof=promotion_proof(fid,source,report,compiled,f,state,regression,canonical_ref)
+    path=source_path(ROOT,proof['source'])
     receipt_path=ROOT/'recovery/proofs'/(fid+'.json')
     with ledger_lock(LEDGER):
         r=recovery()
@@ -250,12 +257,26 @@ def promote(fid,source,report,compiled,f,state='FUNCTION_CODE_MATCH',replace_can
             e=item['evidence_extent']
             require(other==fid or e['hunk']!=f['hunk'] or e['end']<=f['start'] or e['start']>=f['end'],
                     'promotion would overlap canonical source ownership: '+other)
-        path.parent.mkdir(parents=True,exist_ok=True)
-        path.write_text(source,encoding='ascii',newline='\n')
-        write_json(receipt_path,proof)
+        if canonical_ref is not None:
+            require(read_source_text(ROOT, canonical_ref, encoding='ascii')==source,
+                    'canonical module unit changed during publication')
+        raw_proof=json_bytes(proof)
         r['functions'][fid]={k:proof[k] for k in ('state','source','source_sha256','evidence_extent','compiler_selection')}
         r['functions'][fid]['proof']=receipt_path.relative_to(ROOT).as_posix()
-        r['functions'][fid]['proof_sha256']=sha256(receipt_path.read_bytes())
+        r['functions'][fid]['proof_sha256']=sha256(raw_proof)
+        if prior:
+            import consumer_rebinding
+            from recovery_state import canonical_state
+            # Include the physical module in the rollback graph without writing
+            # an extracted or parallel source. Its bytes were checked above.
+            artifacts={receipt_path:raw_proof}
+            if canonical_ref is None:artifacts[path]=source.encode('ascii')
+            consumer_rebinding.publish(ROOT,LEDGER,artifacts,canonical_state(r),prior,proof)
+            return r['functions'][fid]
+        if canonical_ref is None:
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_text(source,encoding='ascii',newline='\n')
+        write_json(receipt_path,proof)
         # The immutable blocker package remains historical evidence; it must no
         # longer appear as an active queue blocker once a verified source owns it.
         r['blockers'].pop(fid,None)
@@ -311,7 +332,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
     output_root=isolated_output_root(output_dir) if isolated else None
     prepared=[];trials=[]
     for req in requests:
-        f,l=validated_function(req['id']);source=to_mechanical(candidate_path(ROOT,req['source']).read_text())
+        f,l=validated_function(req['id']);source=read_source_text(ROOT, req['source'], scratch=True, encoding='utf-8')
         # Opt-in: canonical unit members compile with their own proof's
         # profile (separate objects only; see check_unit.member_profile_plan).
         per_member=bool(req.get('per_member_profiles'))
@@ -468,12 +489,17 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
             if proof_level=='FUNCTION_WITH_DATA_MATCH':
                 owned_code_data_boundary(f,l,report)
             canonical=recovery()['functions'].get(f['id'])
+            canonical_ref=req.get('canonical_ref')
+            if canonical_ref is not None:
+                require(read_source_text(ROOT, canonical_ref, encoding='ascii')==source,'canonical module unit differs from verified candidate')
             if not canonical or canonical['source_sha256']==report['source_sha256']:
-                report['promotion']=promote(f['id'],source,report,compiled,f,proof_level,regression=regression)
+                if regression is None:regression=regression_receipt()
+                report['promotion']=promote(f['id'],source,report,compiled,f,proof_level,regression=regression,canonical_ref=canonical_ref)
             elif req.get('replace_canonical'):
+                if regression is None:regression=regression_receipt()
                 import canonical_replacement
                 report['dependent_reproofs']=[dict(id=r['id'],verdict=r['verdict']) for r in canonical_replacement.replace(
-                    f['id'],lambda gate:report.__setitem__('promotion',promote(f['id'],source,report,compiled,f,proof_level,True,regression=gate)))]
+                    f['id'],lambda gate:report.__setitem__('promotion',promote(f['id'],source,report,compiled,f,proof_level,True,regression=gate,canonical_ref=canonical_ref)),regression=regression)]
         reports.append(report)
     if not isolated:save_rank()
     return reports
@@ -482,6 +508,7 @@ def check_many(requests,promote_equal=True,isolated=False,output_dir=None,regres
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('id',nargs='?');ap.add_argument('source',type=Path,nargs='?')
+    ap.add_argument('--canonical-ref',help='publish a prewritten module unit as path#name; extracted text must equal the verified candidate')
     ap.add_argument('--profile',action='append',choices=sorted(PROFILES))
     ap.add_argument('--batch',type=Path,help='JSON array of {id,source,profiles}; one boot for all cache misses')
     ap.add_argument('--owned-code-data',action='store_true',help='strictly verify an adjacent compiler-owned PC-relative string tail; promotes only at a proved next-entry boundary')
@@ -496,7 +523,7 @@ def main():
              '(only link-compatible profiles mix)')
     ap.add_argument('--json',action='store_true');args=ap.parse_args()
     require(args.output_dir is None or args.isolated,'--output-dir requires --isolated')
-    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or (['aztec36'] if args.with_m_lib else ['aztec36','aztec50-short']),owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical,**({'per_member_profiles':True} if args.per_member_profiles else {}))]
+    req=json.loads(args.batch.read_text()) if args.batch else [dict(id=args.id,source=str(args.source),profiles=args.profile or (['aztec36'] if args.with_m_lib else ['aztec36','aztec50-short']),owned_code_data=args.owned_code_data,owned_static_data=args.owned_static_data,replace_canonical=args.replace_canonical,canonical_ref=args.canonical_ref,**({'per_member_profiles':True} if args.per_member_profiles else {}))]
     if args.with_m_lib:
         for item in req:
             profiles=item.setdefault('profiles',['aztec36'])
@@ -506,7 +533,22 @@ def main():
             item['extra_libraries']=extras
     from evidence_snapshot import isolated_verification
     with isolated_verification(ROOT,args.isolated):
-        reports=check_many(req,not args.no_promote,args.isolated,args.output_dir)
+        if len(req)>1 and not args.isolated and not args.no_promote and any(r.get('canonical_ref') for r in req):
+            # Replacement can change canonical dependency source hashes. Prepare
+            # each target against the current inputs, sharing only the gate.
+            gate=regression_receipt()
+            reports=[]
+            from recovery_transaction import replacement_scope
+            from consumer_rebinding import pin_scope
+            import census
+            with replacement_scope(ROOT,LEDGER,lambda:census.derive(ROOT,promotion_evidence=True)), pin_scope(ROOT):
+                for request in req:
+                    result=check_many([request],regression=gate)
+                    reports.extend(result)
+                    require(all(r['verdict']=='EQUAL' and r.get('promotion') for r in result),
+                            'module batch stopped at a failed exact publication')
+        else:
+            reports=check_many(req,not args.no_promote,args.isolated,args.output_dir)
     for r in reports:
         if args.json:print(json.dumps(r))
         else:
